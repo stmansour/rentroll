@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log"
-	"runtime/debug"
+	"os"
 	"time"
 )
 import _ "github.com/go-sql-driver/mysql"
@@ -69,19 +68,16 @@ var App struct {
 	prepstmt prepSQL
 }
 
-func errcheck(err error) {
-	if err != nil {
-		fmt.Printf("error = %v\n", err)
-		debug.PrintStack()
-		log.Fatal(err)
-	}
-}
-
 func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
+	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	flag.Parse()
+	if *verPtr {
+		fmt.Printf("Version: %s\nBuilt:   %s\n", getVersionNo(), getBuildTime())
+		os.Exit(0)
+	}
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr

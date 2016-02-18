@@ -1,9 +1,21 @@
-rentroll:
-	cd lib; make
+DIRS = db rlib test
+.PHONY:  test
+
+rentroll: *.go
+	for dir in $(DIRS); do make -C $$dir;done
 	go vet
 	golint
 	./mkver.sh
-	go compile
+	go build
+
+clean:
+	for dir in $(DIRS); do make -C $$dir clean;done
+	rm -f rentroll ver.go
+
+test:
+	for dir in $(DIRS); do make -C $$dir test;done
+	go test
+	@echo "*** TESTING COMPLETE -- ALL TESTS PASSED ***"
 
 
 man: rentroll.1
