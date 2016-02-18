@@ -10,7 +10,7 @@
 --    UTID = unit type id
 --   USPID = unit specialty id
 --   OFSID = offset id
---   ASMID = assessment id
+--  ASMTID = assessment type id
 --   PMTID = payment type id
 -- AVAILID = availability id
 --  BLDGID = building id
@@ -30,6 +30,49 @@ USE rentroll;
 GRANT ALL PRIVILEGES ON rentroll TO 'ec2-user'@'localhost';
 GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 
+
+-- **************************************
+-- ****                              ****
+-- ****      OCCUPANCY AGREEMENT     ****
+-- ****                              ****
+-- **************************************
+
+CREATE TABLE occupancyagreementtemplate (
+    OATID INT NOT NULL AUTO_INCREMENT,                        -- internal unique id
+    ReferenceNumber VARCHAR(35) DEFAULT '',                   -- Occupancy Agreement Reference Number
+    RentalAgreementType SMALLINT NOT NULL DEFAULT 0,          -- 1=leasehold, 2=month-to-month, 3=hotel
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (OATID)     
+);      
+        
+CREATE TABLE occupancyagreement (        
+    OAID INT NOT NULL AUTO_INCREMENT,                         -- internal unique id
+    OATID INT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
+    PRID INT NOT NULL DEFAULT 0,                              -- property (so that we can process by property)
+    UNITID INT NOT NULL DEFAULT 0,                            -- associated unit
+    PID INT NOT NULL DEFAULT 0,                               -- who is the payor for this agreement
+    PrimaryTenant INT NOT NULL DEFAULT 0,                     -- TID of primary tenant.  
+    OccupancyStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    OccupancyStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    Renewal SMALLINT NOT NULL DEFAULT 0,                      -- month to month automatic renewal, lease extension options, none.
+    ProrationMethod SMALLINT NOT NULL DEFAULT 0,              -- daily, monthly based on actual, monthly based on 30 days
+    SecurityDepositAmount DECIMAL(19,4),
+    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',  
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (OAID)
+);
+
+-- query this table for rows where OAID=(the occupancy agreement for the unit)
+-- the return list will be the TIDs of all tenants in that unit
+CREATE TABLE unittenants (
+    OAID INT NOT NULL DEFAULT 0,                              -- the unit's occupancy agreement
+    TID INT NOT NULL DEFAULT 0                                -- the tenant
+);
+
+
+
 -- **************************************
 -- ****                              ****
 -- ****          PROPERTY            ****
@@ -40,7 +83,7 @@ GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 -- Occupancy Type List - hardcoded
 
 CREATE TABLE property (
-    PRID MEDIUMINT NOT NULL AUTO_INCREMENT,
+    PRID INT NOT NULL AUTO_INCREMENT,
     Address VARCHAR(35) NOT NULL DEFAULT '',
     Address2 VARCHAR(35) NOT NULL DEFAULT '',
     City VARCHAR(25) NOT NULL DEFAULT '',
@@ -56,11 +99,16 @@ CREATE TABLE property (
     PRIMARY KEY (PRID)
 );
 
+-- unit types are associated with a particular property
+-- There is no "global" unit type since they are all different enough where
+-- it does not make sense to try to share them across properties
 CREATE TABLE unittypes (
-    UTID MEDIUMINT NOT NULL AUTO_INCREMENT,
-    PRID MEDIUMINT NOT NULL,                                -- associated property id
-    Designation CHAR(15) NOT NULL DEFAULT '',
-    Description VARCHAR(256) NOT NULL DEFAULT '',
+    UTID INT NOT NULL AUTO_INCREMENT,
+    PRID INT NOT NULL,                                      -- associated property id
+    Style CHAR(15) NOT NULL DEFAULT '',
+    Name VARCHAR(256) NOT NULL DEFAULT '',
+    SqFt MEDIUMINT NOT NULL DEFAULT 0,
+    MarketRate Decimal(19,4) NOT NULL DEFAULT 0.0,          -- market rate for this unit
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UTID)
@@ -72,8 +120,8 @@ CREATE TABLE unittypes (
 -- Washer Dryer provided, close to parking, better views, fireplaces, special 
 -- remodeling or finishes, etc.  This is where those special characteristics are defined
 CREATE TABLE unitspecialtytypes (
-    USPID MEDIUMINT NOT NULL AUTO_INCREMENT,
-    PRID MEDIUMINT NOT NULL,
+    USPID INT NOT NULL AUTO_INCREMENT,
+    PRID INT NOT NULL,
     Name VARCHAR(25) NOT NULL DEFAULT '',
     Fee DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Description VARCHAR(256) NOT NULL DEFAULT '',
@@ -87,12 +135,13 @@ CREATE TABLE unitspecialtytypes (
 -- ****                              ****
 -- **************************************
 -- this table list all the pre-defined assessments
+-- this will include offsets and disbursements
 CREATE TABLE assessmenttypes (
-    ASMID MEDIUMINT NOT NULL AUTO_INCREMENT,                        -- what type of assessment
-    Name VARCHAR(25) NOT NULL DEFAULT '',                           -- name for the assessment
-    LastModTime TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (ASMID)
+    ASMTID INT NOT NULL AUTO_INCREMENT,                        -- what type of assessment
+    Name VARCHAR(35) NOT NULL DEFAULT '',                      -- name for the assessment
+    LastModTime TIMESTAMP,                                     -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (ASMTID)
 );
 
 CREATE TABLE paymenttypes (
@@ -104,12 +153,11 @@ CREATE TABLE paymenttypes (
     PRIMARY KEY (PMTID)
 );
 
--- examples: Occupied, Offline, Administrative, Vacant - Not Ready, 
+-- Examples: Occupied, Offline, Administrative, Vacant - Not Ready, 
 --           Vacant - Made Ready, Vacant - Inspected, plus custom values
--- custom values will be added with their own uniq AVAILID
---
+-- Custom values will be added with their own uniq AVAILID
 CREATE TABLE availabilitytypes (
-    AVAILID MEDIUMINT NOT NULL AUTO_INCREMENT,
+    AVAILID INT NOT NULL AUTO_INCREMENT,
     Name VARCHAR(35) NOT NULL DEFAULT '',
     PRIMARY KEY (AVAILID)
 );
@@ -124,29 +172,34 @@ CREATE TABLE availabilitytypes (
 -- Query this table for a particular PRID, the solution set is the list
 -- of assessments for that particular property.
 
--- for a specific property
+-- applicable assessments for a specific property
 CREATE TABLE propertyassessments (
-    PRID MEDIUMINT NOT NULL DEFAULT 0,
-    ASMID MEDIUMINT NOT NULL DEFAULT 0
+    PRID INT NOT NULL DEFAULT 0,
+    ASMTID INT NOT NULL DEFAULT 0
 );
 
+-- applicable assessments for a specific property
+CREATE TABLE propertypaymenttypes (
+    PRID INT NOT NULL DEFAULT 0,
+    PMTID MEDIUMINT NOT NULL DEFAULT 0
+);
 
 -- **************************************
 -- ****                              ****
 -- ****          BUILDING            ****
 -- ****                              ****
 -- **************************************
-CREATE TABLE buildings (
-    BLDGID MEDIUMINT NOT NULL AUTO_INCREMENT,           -- unique id for this building
-    PRID MEDIUMINT NOT NULL DEFAULT 0,                  -- which property it belongs to
-    Address VARCHAR(35) NOT NULL DEFAULT '',            -- building address
+CREATE TABLE building (
+    BLDGID INT NOT NULL AUTO_INCREMENT,           -- unique id for this building
+    PRID INT NOT NULL DEFAULT 0,                  -- which property it belongs to
+    Address VARCHAR(35) NOT NULL DEFAULT '',      -- building address
     Address2 VARCHAR(35) NOT NULL DEFAULT '',       
     City VARCHAR(25) NOT NULL DEFAULT '',
     State CHAR(25) NOT NULL DEFAULT '',
     PostalCode VARCHAR(10) NOT NULL DEFAULT '',
     Country VARCHAR(25) NOT NULL DEFAULT '',
-    LastModTime TIMESTAMP,                                  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    LastModTime TIMESTAMP,                        -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,       -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (BLDGID)
 );
 
@@ -155,30 +208,51 @@ CREATE TABLE buildings (
 -- ****           UNITS              ****
 -- ****                              ****
 -- **************************************
-CREATE TABLE units (
-    UNITID MEDIUMINT NOT NULL AUTO_INCREMENT,           -- unique id for this unit
-    PRID MEDIUMINT NOT NULL DEFAULT 0,                  -- which property it belongs to
-    BLDGID MEDIUMINT NOT NULL DEFAULT 0,                -- which building
-    UTID MEDIUMINT NOT NULL DEFAULT 0,                  -- which unit type
-    Name VARCHAR(10) NOT NULL DEFAULT '',               -- ex: 1023B, 107A          
-    -- Abbreviation VARCHAR(20),                           -- unit abbreviation  -- REMOVED - it's part of unittype
+CREATE TABLE unit (
+    UNITID INT NOT NULL AUTO_INCREMENT,                 -- unique id for this unit -- it is unique across all properties and buildings
+    PRID INT NOT NULL DEFAULT 0,                        -- which property it belongs to
+    BLDGID INT NOT NULL DEFAULT 0,                      -- which building
+    UTID INT NOT NULL DEFAULT 0,                        -- which unit type
+    LID INT NOT NULL DEFAULT 0,                         -- which ledger keeps track of what's owed on this unit
+    AVAILID INT NOT NULL DEFAULT 0,                     -- how is the unit made available
+    Payor VARCHAR(35) NOT NULL DEFAULT '',              -- who is responsible for paying
+    Name VARCHAR(10) NOT NULL DEFAULT '',               -- ex: 101, 1023B, 107A          
+    -- Abbreviation VARCHAR(20),                        -- unit abbreviation  -- REMOVED - it's part of unittype
     DefaultOccType SMALLINT NOT NULL DEFAULT 0,         -- unset, short term, longterm
     OccType SMALLINT NOT NULL DEFAULT 0,                -- unset, short term, longterm
-    ScheduledRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,   -- budgeted rent for this unit
+    ScheduledRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,   -- budgeted rent for this unit -  The MARKET RATE
     Assignment SMALLINT NOT NULL DEFAULT 0,             -- Pre-assign or assign at occupy commencement
     Report SMALLINT NOT NULL DEFAULT 1,                 -- 1 = apply to rentroll, 0 = skip on rentroll
-    LastModTime TIMESTAMP,                                  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    LastModTime TIMESTAMP,                              -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UNITID)
 );
+
+-- charges associated with a unit
+-- offsets are entered here as negative values
+-- disbursements go here too
+-- Query by UNITID where RunStart < Stop 
+CREATE TABLE assessments (
+    ASMID INT NOT NULL AUTO_INCREMENT,
+    UNITID INT NOT NULL DEFAULT 0,                          -- unit associated with this assessment
+    ASMTID INT NOT NULL DEFAULT 0,                          -- what type of assessment (ex: Rent, SecurityDeposit, ...)
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- assessment amount
+    Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
+    Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the tenant moves out or when the charge is no longer applicable
+    Frequency SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (ASMID)
+);
+
 
 -- For each unit, what specialties does it have...
 -- this is simply a list of USPIDs.
 -- Selecting all entries where the unit == UNITID
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE unitspecialties (
-    UNITID MEDIUMINT NOT NULL DEFAULT 0,                    -- unique id of unit
-    USPID MEDIUMINT NOT NULL DEFAULT 0                      -- unique id of specialty (see Table unitspecialties)
+    UNITID INT NOT NULL DEFAULT 0,                    -- unique id of unit
+    USPID INT NOT NULL DEFAULT 0                      -- unique id of specialty (see Table unitspecialties)
 );
 
 -- **************************************
@@ -190,10 +264,10 @@ CREATE TABLE unitspecialties (
 -- transactant - fields common to all people and
 -- ids of prospect/tenant/payor as appropriate
 CREATE TABLE transactant (
-    TCID MEDIUMINT NOT NULL AUTO_INCREMENT,             -- unique id of unit
-    TID MEDIUMINT NOT NULL DEFAULT 0,                   -- associated tenant id
-    PID MEDIUMINT NOT NULL DEFAULT 0,                   -- associated payor id
-    PRSPID MEDIUMINT NOT NULL DEFAULT 0,                -- associated prospect id
+    TCID INT NOT NULL AUTO_INCREMENT,                   -- unique id of unit
+    TID INT NOT NULL DEFAULT 0,                         -- associated tenant id
+    PID INT NOT NULL DEFAULT 0,                         -- associated payor id
+    PRSPID INT NOT NULL DEFAULT 0,                      -- associated prospect id
     FirstName VARCHAR(35) NOT NULL DEFAULT '',
     MiddleName VARCHAR(35) NOT NULL DEFAULT '',
     LastName VARCHAR(35) NOT NULL DEFAULT '', 
@@ -207,31 +281,33 @@ CREATE TABLE transactant (
     State CHAR(25) NOT NULL DEFAULT '',
     PostalCode VARCHAR(10) NOT NULL DEFAULT '',
     Country VARCHAR(25) NOT NULL DEFAULT '',
-    LastModTime TIMESTAMP,                                  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    LastModTime TIMESTAMP,                              -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (TCID)
 );
 
-CREATE TABLE prospects (
-    PRSPID MEDIUMINT NOT NULL AUTO_INCREMENT,               -- unique id of this tenant
-    TCID MEDIUMINT NOT NULL DEFAULT 0,                      -- associated transactant (has Name and all contact info)
-    LastModTime TIMESTAMP,                                  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                  -- employee UID (from phonebook) that modified it 
+CREATE TABLE prospect (
+    PRSPID INT NOT NULL AUTO_INCREMENT,                 -- unique id of this prospect
+    TCID INT NOT NULL DEFAULT 0,                        -- associated transactant (has Name and all contact info)
+    ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,  -- if non-zero this prospect is an applicant
+    LastModTime TIMESTAMP,                              -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (PRSPID)
 );
 
 CREATE TABLE tenant (
-    TID MEDIUMINT NOT NULL AUTO_INCREMENT,                      -- unique id of this tenant
-    TCID MEDIUMINT NOT NULL,                                    -- associated transactant
+    TID INT NOT NULL AUTO_INCREMENT,                    -- unique id of this tenant
+    TCID INT NOT NULL,                                  -- associated transactant
+    Points INT NOT NULL DEFAULT 0,                      -- bonus points for this tenant
     CarMake VARCHAR(25) NOT NULL DEFAULT '',
     CarModel VARCHAR(25) NOT NULL DEFAULT '',
     CarColor VARCHAR(25) NOT NULL DEFAULT '',
-    CarYear MEDIUMINT NOT NULL DEFAULT 0,
+    CarYear INT NOT NULL DEFAULT 0,
     LicensePlateState VARCHAR(35) NOT NULL DEFAULT '',
     LicensePlateNumber VARCHAR(35) NOT NULL DEFAULT '',
     ParkingPermitNumber VARCHAR(35) NOT NULL DEFAULT '',
-    AccountRep MEDIUMINT NOT NULL DEFAULT 0,                    -- Phonebook UID of account rep
-    DateofBirth DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    AccountRep INT NOT NULL DEFAULT 0,                              -- Phonebook UID of account rep
+    DateofBirth DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     EmergencyContactName VARCHAR(35) NOT NULL DEFAULT '',
     EmergencyContactAddress VARCHAR(35) NOT NULL DEFAULT '',
     EmergencyContactTelephone VARCHAR(25) NOT NULL DEFAULT '',
@@ -247,8 +323,8 @@ CREATE TABLE tenant (
 );
 
 CREATE TABLE payor  (
-    PID MEDIUMINT NOT NULL AUTO_INCREMENT,                          -- unique id of this payor
-    TCID MEDIUMINT NOT NULL,                                        -- associated transactant
+    PID INT NOT NULL AUTO_INCREMENT,                          -- unique id of this payor
+    TCID INT NOT NULL,                                        -- associated transactant
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     --
     --  JOE: there must be more credit information???
@@ -259,64 +335,9 @@ CREATE TABLE payor  (
     EmployerState VARCHAR(35) NOT NULL DEFAULT '',
     EmployerZipcode VARCHAR(35) NOT NULL DEFAULT '',
     Occupation VARCHAR(35) NOT NULL DEFAULT '',
-    LastModTime TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (PID)
-);
-
--- **************************************
--- ****                              ****
--- ****      OCCUPANCY AGREEMENT     ****
--- ****                              ****
--- **************************************
-
-CREATE TABLE occupancyagreementtemplate (
-    OATID MEDIUMINT NOT NULL AUTO_INCREMENT,                        -- internal unique id
-    ReferenceNumber VARCHAR(35) DEFAULT '',                         -- Occupancy Agreement Reference Number
-    RentalAgreementType SMALLINT NOT NULL DEFAULT 0,                -- leasehold, month-to-month, hotel
-    PID MEDIUMINT NOT NULL DEFAULT 0,                               -- who is the payor for this agreement
-    LastModTime TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (OATID)     
-);      
-        
-CREATE TABLE occupancyagreement (        
-    OAID MEDIUMINT NOT NULL AUTO_INCREMENT,                        -- internal unique id
-    OATID MEDIUMINT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
-    UNITID MEDIUMINT NOT NULL DEFAULT 0,                            -- associated unit
-    PrimaryTenant MEDIUMINT NOT NULL DEFAULT 0,                     -- TID of primary tenant.  
-    OccupancyStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
-    OccupancyEnd DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
-    Renewal SMALLINT NOT NULL DEFAULT 0,                            -- month to month automatic renewal, lease extension options, none.
-    ProrationMethod SMALLINT NOT NULL DEFAULT 0,                    -- daily, monthly based on actual, monthly based on 30 days
-    SecurityDepositAmount DECIMAL(19,4),
-    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',  
-    LastModTime TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (OAID)
-);
-
--- query this table for rows where OAID=(the occupancy agreement for the unit)
--- the return list will be the TIDs of all tenants in that unit
-CREATE TABLE unittenants (
-    OAID MEDIUMINT NOT NULL DEFAULT 0,                              -- the unit's occupancy agreement
-    TID MEDIUMINT NOT NULL DEFAULT 0                                -- the tenant
-);
-
-
--- charges associated with a unit
--- offsets are entered here as negative values
--- disbursements go here too
-CREATE TABLE assessments (
-    ASMID MEDIUMINT NOT NULL DEFAULT 0,                             -- what type of assessment
-    UNITID MEDIUMINT NOT NULL DEFAULT 0,                            -- unit associated with this assessment
-    Payor VARCHAR(35) NOT NULL DEFAULT '',
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                      -- assessment amount
-    Dt DATE NOT NULL DEFAULT '1970-01-01 00:00:00',                 -- epoch date for the assessment - recurrences are based on this date
-    Frequency SMALLINT NOT NULL DEFAULT 0,                          -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly, 4 = yearly
-    LastModTime TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (ASMID)
 );
 
 -- **************************************
@@ -324,17 +345,22 @@ CREATE TABLE assessments (
 -- ****           RECEIPTS           ****
 -- ****                              ****
 -- **************************************
-CREATE TABLE receipts (
-    RCPTID MEDIUMINT NOT NULL AUTO_INCREMENT,                       -- unique id for this receipt
-    PID MEDIUMINT NOT NULL DEFAULT 0,
-    OATID MEDIUMINT NOT NULL DEFAULT 0,
-    OAID MEDIUMINT NOT NULL DEFAULT 0,
+CREATE TABLE receipt (
+    RCPTID INT NOT NULL AUTO_INCREMENT,                       -- unique id for this receipt
+    PID INT NOT NULL DEFAULT 0,
+    OAID INT NOT NULL DEFAULT 0,
     -- SecurityDepositReceivable also a calculated value
-    Dt DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ApplyToGeneralReceivable DECIMAL(19,4),
-    ApplyToSecurityDeposit DECIMAL(19,4),
+    ApplyToGeneralReceivable DECIMAL(19,4),                   -- Breakdown is in receiptallocation table
+    ApplyToSecurityDeposit DECIMAL(19,4),                     -- Can we just handle this as part of receipt allocation
     PRIMARY KEY (RCPTID)
+);
+
+CREATE TABLE receiptallocation (
+    RCTPID INT NOT NULL DEFAULT 0,
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
+    AccountNo VARCHAR(10) 
 );
 
 -- **************************************
@@ -342,15 +368,13 @@ CREATE TABLE receipts (
 -- ****           LEDGERS            ****
 -- ****                              ****
 -- **************************************
-CREATE TABLE ledgers (
-    LID MEDIUMINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
-    AccountNo VARCHAR(10),
-    Dt DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    Description VARCHAR(128),
+CREATE TABLE ledger (
+    LID INT NOT NULL AUTO_INCREMENT,                          -- unique id for this Ledger
+    AccountNo VARCHAR(10) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB account
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
+    Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,               -- balance amount
+    Deposit DECIMAL(14,4) NOT NULL DEFAULT 0.0,               -- deposit balance
     PRIMARY KEY (LID)        
 );
 
 
--- Add the Administrator as the first and only user
--- INSERT INTO people (UserName,FirstName,LastName) VALUES("administrator","Administrator","Administrator");
