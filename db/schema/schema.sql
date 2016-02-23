@@ -6,6 +6,8 @@
 -- ********************************
 -- *********  UNIQUE IDS  *********
 -- ********************************
+--     RID = rentable id
+--    RTID = rentable type id
 --    PRID = property id
 --    UTID = unit type id
 --   USPID = unit specialty id
@@ -19,7 +21,7 @@
 --     TID = tenant id
 --     PID = payor id
 --   OATID = occupancy agreement template id
---    OAID = occupancy agreement
+--    RAID = rental agreement / occupancy agreement
 --  RCPTID = receipt id
 --  DISBID = disbursement id
 --     LID = ledger id
@@ -37,7 +39,7 @@ GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 -- ****                              ****
 -- **************************************
 
-CREATE TABLE occupancyagreementtemplate (
+CREATE TABLE rentalagreementtemplate (
     OATID INT NOT NULL AUTO_INCREMENT,                        -- internal unique id
     ReferenceNumber VARCHAR(35) DEFAULT '',                   -- Occupancy Agreement Reference Number
     RentalAgreementType SMALLINT NOT NULL DEFAULT 0,          -- 1=leasehold, 2=month-to-month, 3=hotel
@@ -46,31 +48,32 @@ CREATE TABLE occupancyagreementtemplate (
     PRIMARY KEY (OATID)     
 );      
         
-CREATE TABLE occupancyagreement (        
-    OAID INT NOT NULL AUTO_INCREMENT,                         -- internal unique id
+CREATE TABLE rentalagreement (        
+    RAID INT NOT NULL AUTO_INCREMENT,                         -- internal unique id
     OATID INT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
     PRID INT NOT NULL DEFAULT 0,                              -- property (so that we can process by property)
     UNITID INT NOT NULL DEFAULT 0,                            -- associated unit
     PID INT NOT NULL DEFAULT 0,                               -- who is the payor for this agreement
     PrimaryTenant INT NOT NULL DEFAULT 0,                     -- TID of primary tenant.  
-    OccupancyStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
-    OccupancyStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    ScheduledRent DECIMAL (19,4) NOT NULL DEFAULT 0,          -- what was the actual rental amount
+    Frequency MEDIUMINT NOT NULL DEFAULT 0,
+    SecurityDepositAmount DECIMAL(19,4) NOT NULL DEFAULT 0,
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- month to month automatic renewal, lease extension options, none.
     ProrationMethod SMALLINT NOT NULL DEFAULT 0,              -- daily, monthly based on actual, monthly based on 30 days
-    SecurityDepositAmount DECIMAL(19,4),
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',  
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (OAID)
+    PRIMARY KEY (RAID)
 );
 
--- query this table for rows where OAID=(the occupancy agreement for the unit)
+-- query this table for rows where RAID=(the occupancy agreement for the unit)
 -- the return list will be the TIDs of all tenants in that unit
 CREATE TABLE unittenants (
-    OAID INT NOT NULL DEFAULT 0,                              -- the unit's occupancy agreement
+    RAID INT NOT NULL DEFAULT 0,                              -- the unit's occupancy agreement
     TID INT NOT NULL DEFAULT 0                                -- the tenant
 );
-
 
 
 -- **************************************
@@ -205,27 +208,54 @@ CREATE TABLE building (
 
 -- **************************************
 -- ****                              ****
+-- ****          RENTABLE            ****
+-- ****                              ****
+-- **************************************
+-- Any item that can be rented to a Payor
+-- It will be tracked, it will have a Ledger
+-- It will be included in the rentroll processing
+CREATE TABLE rentable (
+    RID INT NOT NULL AUTO_INCREMENT,
+    LID INT NOT NULL DEFAULT 0,                             -- which ledger keeps track of what's owed on this rentable
+    RTID INT NOT NULL DEFAULT 0,                            -- what sort of a rentable is this?
+    PRID INT NOT NULL DEFAULT 0,                            -- Property associated with this rentable
+    PID INT NOT NULL DEFAULT 0,                             -- who is responsible for paying
+    RAID INT NOT NULL DEFAULT 0,                            -- rental agreement
+    UNITID INT NOT NULL DEFAULT 0,                          -- unit (if applicable)
+    Name VARCHAR(10) NOT NULL DEFAULT '',                   -- name unique to the instance "101" for a room number 744 carport number, etc 
+    ScheduledRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- budgeted rent for this unit -  The MARKET RATE
+    Frequency SMALLINT NOT NULL DEFAULT 0,                  -- period
+    Assignment SMALLINT NOT NULL DEFAULT 0,                 -- Pre-assign or assign at occupy commencement
+    Report SMALLINT NOT NULL DEFAULT 1,                     -- 1 = apply to rentroll, 0 = skip on rentroll
+    LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (RID)
+);
+
+CREATE TABLE rentabletypes (
+    RTID INT NOT NULL AUTO_INCREMENT,
+    Name VARCHAR(35) NOT NULL DEFAULT '',               -- 1 = UNIT, 2=Car Port, 3=Car, ...
+    PRIMARY KEY (RTID)
+);
+
+-- **************************************
+-- ****                              ****
 -- ****           UNITS              ****
 -- ****                              ****
 -- **************************************
+-- Fields unique to an apartment or hotel room 
 CREATE TABLE unit (
     UNITID INT NOT NULL AUTO_INCREMENT,                 -- unique id for this unit -- it is unique across all properties and buildings
-    PRID INT NOT NULL DEFAULT 0,                        -- which property it belongs to
     BLDGID INT NOT NULL DEFAULT 0,                      -- which building
     UTID INT NOT NULL DEFAULT 0,                        -- which unit type
-    LID INT NOT NULL DEFAULT 0,                         -- which ledger keeps track of what's owed on this unit
+    RID INT NOT NULL DEFAULT 0,                         -- associated rentable
     AVAILID INT NOT NULL DEFAULT 0,                     -- how is the unit made available
-    Payor VARCHAR(35) NOT NULL DEFAULT '',              -- who is responsible for paying
-    Name VARCHAR(10) NOT NULL DEFAULT '',               -- ex: 101, 1023B, 107A          
-    -- Abbreviation VARCHAR(20),                        -- unit abbreviation  -- REMOVED - it's part of unittype
     DefaultOccType SMALLINT NOT NULL DEFAULT 0,         -- unset, short term, longterm
     OccType SMALLINT NOT NULL DEFAULT 0,                -- unset, short term, longterm
-    ScheduledRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,   -- budgeted rent for this unit -  The MARKET RATE
-    Assignment SMALLINT NOT NULL DEFAULT 0,             -- Pre-assign or assign at occupy commencement
-    Report SMALLINT NOT NULL DEFAULT 1,                 -- 1 = apply to rentroll, 0 = skip on rentroll
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UNITID)
+    -- Abbreviation VARCHAR(20),                        -- unit abbreviation  -- REMOVED - it's part of unittype
 );
 
 -- charges associated with a unit
@@ -251,8 +281,8 @@ CREATE TABLE assessments (
 -- Selecting all entries where the unit == UNITID
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE unitspecialties (
-    UNITID INT NOT NULL DEFAULT 0,                    -- unique id of unit
-    USPID INT NOT NULL DEFAULT 0                      -- unique id of specialty (see Table unitspecialties)
+    UNITID INT NOT NULL DEFAULT 0,                      -- unique id of unit
+    USPID INT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table unitspecialties)
 );
 
 -- **************************************
@@ -348,7 +378,7 @@ CREATE TABLE payor  (
 CREATE TABLE receipt (
     RCPTID INT NOT NULL AUTO_INCREMENT,                       -- unique id for this receipt
     PID INT NOT NULL DEFAULT 0,
-    OAID INT NOT NULL DEFAULT 0,
+    RAID INT NOT NULL DEFAULT 0,
     -- SecurityDepositReceivable also a calculated value
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
@@ -370,7 +400,7 @@ CREATE TABLE receiptallocation (
 -- **************************************
 CREATE TABLE ledger (
     LID INT NOT NULL AUTO_INCREMENT,                          -- unique id for this Ledger
-    AccountNo VARCHAR(10) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB account
+    AccountNo VARCHAR(10) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,               -- balance amount
     Deposit DECIMAL(14,4) NOT NULL DEFAULT 0.0,               -- deposit balance
