@@ -49,7 +49,7 @@ func GetXPerson(tcid int, x *XPerson) {
 
 // GetRentable reads a Rentable structure based on the supplied rentable id
 func GetRentable(rid int, r *Rentable) {
-	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.PRID, &r.PID, &r.RAID, &r.UNITID, &r.Name, &r.ScheduledRent, &r.Frequency, &r.Assignment, &r.Report, &r.LastModTime, &r.LastModBy))
+	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.PRID, &r.PID, &r.RAID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.LastModTime, &r.LastModBy))
 }
 
 // GetUnit reads a Unit structure based on the supplied unit id
@@ -87,7 +87,6 @@ func GetUnitSpecialties(unitid int) []int {
 
 // GetUnitSpecialtyType returns a list of specialties associated with the supplied unit
 func GetUnitSpecialtyType(uspid int, ust *UnitSpecialtyType) {
-	// first, get the specialties for this unit
 	rlib.Errcheck(App.prepstmt.getUnitSpecialtyType.QueryRow(uspid).Scan(&ust.USPID, &ust.PRID, &ust.Name, &ust.Fee, &ust.Description))
 }
 
@@ -105,4 +104,9 @@ func GetUnitSpecialtyTypes(m *[]int) map[int]UnitSpecialtyType {
 		}
 	}
 	return t
+}
+
+// GetUnitType returns characteristics of the unit
+func GetUnitType(utid int, ut *UnitType) {
+	rlib.Errcheck(App.prepstmt.getUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.PRID, &ut.Style, &ut.Name, &ut.SqFt, &ut.MarketRate, &ut.LastModTime, &ut.LastModBy))
 }

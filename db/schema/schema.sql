@@ -57,6 +57,8 @@ CREATE TABLE rentalagreement (
     PrimaryTenant INT NOT NULL DEFAULT 0,                     -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+
+-- this should be ContractRent
     ScheduledRent DECIMAL (19,4) NOT NULL DEFAULT 0,          -- what was the actual rental amount
     Frequency MEDIUMINT NOT NULL DEFAULT 0,
     SecurityDepositAmount DECIMAL(19,4) NOT NULL DEFAULT 0,
@@ -223,8 +225,11 @@ CREATE TABLE rentable (
     RAID INT NOT NULL DEFAULT 0,                            -- rental agreement
     UNITID INT NOT NULL DEFAULT 0,                          -- unit (if applicable)
     Name VARCHAR(10) NOT NULL DEFAULT '',                   -- name unique to the instance "101" for a room number 744 carport number, etc 
-    ScheduledRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- budgeted rent for this unit -  The MARKET RATE
-    Frequency SMALLINT NOT NULL DEFAULT 0,                  -- period
+
+-- should remove Scheduled rent & Frequency
+--  ScheduledRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- budgeted rent for this unit -  The MARKET RATE
+--  Frequency SMALLINT NOT NULL DEFAULT 0,                  -- period
+    
     Assignment SMALLINT NOT NULL DEFAULT 0,                 -- Pre-assign or assign at occupy commencement
     Report SMALLINT NOT NULL DEFAULT 1,                     -- 1 = apply to rentroll, 0 = skip on rentroll
     LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written

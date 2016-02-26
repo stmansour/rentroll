@@ -170,20 +170,18 @@ type Receipt struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID           int     // unique id for this rentable
-	LID           int     // the ledger
-	RTID          int     // rentable type id
-	PRID          int     // property
-	PID           int     // payor
-	RAID          int     // occupancy agreement
-	UNITID        int     // associated unit (if applicable, 0 otherwise)
-	Name          string  // name for this rental
-	ScheduledRent float32 // budgeted rent
-	Frequency     int     // period for budgeted rent
-	Assignment    int     // can we pre-assign or assign only at commencement
-	Report        int     // 1 = apply to rentroll, 0 = skip
-	LastModTime   time.Time
-	LastModBy     int
+	RID         int    // unique id for this rentable
+	LID         int    // the ledger
+	RTID        int    // rentable type id
+	PRID        int    // property
+	PID         int    // payor
+	RAID        int    // occupancy agreement
+	UNITID      int    // associated unit (if applicable, 0 otherwise)
+	Name        string // name for this rental
+	Assignment  int    // can we pre-assign or assign only at commencement
+	Report      int    // 1 = apply to rentroll, 0 = skip
+	LastModTime time.Time
+	LastModBy   int
 }
 
 // Unit is the structure for unit attributes
@@ -206,6 +204,18 @@ type UnitSpecialtyType struct {
 	Name        string
 	Fee         float32
 	Description string
+}
+
+// UnitType is the structure for attributes of a unit type
+type UnitType struct {
+	UTID        int
+	PRID        int
+	Style       string
+	Name        string
+	SqFt        int
+	MarketRate  float32
+	LastModTime time.Time
+	LastModBy   int
 }
 
 // XUnit is the structure that includes both the Rentable and Unit attributes
@@ -236,6 +246,9 @@ type prepSQL struct {
 	getRentalAgreement   *sql.Stmt
 	getUnitSpecialties   *sql.Stmt
 	getUnitSpecialtyType *sql.Stmt
+	getUnitType          *sql.Stmt
+	getUnitReceipts      *sql.Stmt
+	getUnitAssessments   *sql.Stmt
 }
 
 // App is the global data structure for this app
