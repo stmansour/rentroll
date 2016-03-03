@@ -29,24 +29,20 @@ import _ "github.com/go-sql-driver/mysql"
 //     LID = ledger id
 //==========================================
 
-// RentalAgreement binds a tenant to a unit
+// RentalAgreement binds a teRAID INT NOT NULL
 type RentalAgreement struct {
-	RAID                  int
-	OATID                 int
-	PRID                  int
-	UNITID                int
-	PID                   int
-	PrimaryTenant         int
-	RentalStart           time.Time
-	RentalStop            time.Time
-	Renewal               int
-	ProrationMethod       int
-	ScheduledRent         float32
-	Frequency             int
-	SecurityDepositAmount float32
-	SpecialProvisions     string
-	LastModTime           time.Time
-	LastModBy             int
+	RAID              int
+	OATID             int
+	PRID              int
+	UNITID            int
+	PID               int
+	PrimaryTenant     int
+	RentalStart       time.Time
+	RentalStop        time.Time
+	Renewal           int
+	SpecialProvisions string
+	LastModTime       time.Time
+	LastModBy         int
 }
 
 // Transactant is the basic structure of information
@@ -129,15 +125,38 @@ type XPerson struct {
 	pay Payor
 }
 
-// Assessment is a charge associated with a unit
+// assessment types
+const (
+	RENT                      = 1
+	SECURITYDEPOSIT           = 2
+	SECURITYDEPOSITASSESSMENT = 58
+
+	CREDIT = 0
+	DEBIT  = 1
+)
+
+// AssessmentType describes the different types of assessments
+type AssessmentType struct {
+	ASMTID      int
+	Name        string
+	Type        int // 0 = credit, 1 = debit
+	LastModTime time.Time
+	LastModBy   int
+}
+
+// Assessment is a charge associated with a rentable
 type Assessment struct {
-	ASMID     int
-	UNITID    int
-	ASMTID    int
-	Amount    float32
-	Start     time.Time
-	Stop      time.Time
-	Frequency int
+	ASMID           int
+	UNITID          int
+	ASMTID          int
+	RAID            int
+	Amount          float32
+	Start           time.Time
+	Stop            time.Time
+	Frequency       int
+	ProrationMethod int
+	LastModTime     time.Time
+	LastModBy       int
 }
 
 // Property is the set of attributes describing a rental or hotel property
@@ -157,11 +176,21 @@ type Property struct {
 	LastModBy            int       // employee UID (from phonebook) that modified it
 }
 
+// PaymentType describes how a payment was made
+type PaymentType struct {
+	PMTID       int
+	Name        string
+	Description string
+	LastModTime time.Time
+	LastModBy   int
+}
+
 // Receipt saves the information associated with a payment made by a tenant to cover one or more assessments
 type Receipt struct {
 	RCPTID                   int
 	PID                      int
 	RAID                     int
+	PMTID                    int
 	Dt                       time.Time
 	Amount                   float32
 	ApplyToGeneralReceivable float32
@@ -206,61 +235,78 @@ type UnitSpecialtyType struct {
 	Description string
 }
 
-// UnitType is the structure for attributes of a unit type
-type UnitType struct {
+// RentableType is the set of attributes describing the different types of units within a property
+type RentableType struct {
 	UTID        int
 	PRID        int
 	Style       string
 	Name        string
 	SqFt        int
 	MarketRate  float32
+	Frequency   int
+	Proration   int
 	LastModTime time.Time
 	LastModBy   int
+}
+
+// XProperty combines the Property struct and a map of the property's unit types
+type XProperty struct {
+	P  Property
+	UT map[int]RentableType
+	US map[int]UnitSpecialtyType // index = USPID, val = UnitSpecialtyType
 }
 
 // XUnit is the structure that includes both the Rentable and Unit attributes
 type XUnit struct {
 	R Rentable
 	U Unit
+	S []int
 }
 
 // Ledger is the structure for Ledger attributes
 type Ledger struct {
-	LID       int       // unique id for this Ledger
-	AccountNo string    // if not '' then it's a link a QB account
-	Dt        time.Time // balance date and time
-	Balance   float32   // balance amount
-	Deposit   float32   // deposit balance
+	LID      int       // unique id for this Ledger
+	GLNumber string    // if not '' then it's a link a QB account
+	Dt       time.Time // balance date and time
+	Balance  float32   // balance amount
+	// Deposit   float32   // deposit balance
 }
 
 // collection of prepared sql statements
 type prepSQL struct {
-	occAgrByProperty     *sql.Stmt
-	getUnit              *sql.Stmt
-	getLedger            *sql.Stmt
-	getTransactant       *sql.Stmt
-	getTenant            *sql.Stmt
-	getRentable          *sql.Stmt
-	getProspect          *sql.Stmt
-	getPayor             *sql.Stmt
-	getRentalAgreement   *sql.Stmt
-	getUnitSpecialties   *sql.Stmt
-	getUnitSpecialtyType *sql.Stmt
-	getUnitType          *sql.Stmt
-	getUnitReceipts      *sql.Stmt
-	getUnitAssessments   *sql.Stmt
+	occAgrByProperty             *sql.Stmt
+	getUnit                      *sql.Stmt
+	getLedger                    *sql.Stmt
+	getTransactant               *sql.Stmt
+	getTenant                    *sql.Stmt
+	getRentable                  *sql.Stmt
+	getProspect                  *sql.Stmt
+	getPayor                     *sql.Stmt
+	getRentalAgreement           *sql.Stmt
+	getUnitSpecialties           *sql.Stmt
+	getUnitSpecialtyType         *sql.Stmt
+	getRentableType              *sql.Stmt
+	getUnitReceipts              *sql.Stmt
+	getUnitAssessments           *sql.Stmt
+	getAssessmentType            *sql.Stmt
+	getSecurityDepositAssessment *sql.Stmt
+	getUnitRentalAgreements      *sql.Stmt
+	getAllRentablesByProperty    *sql.Stmt
+	getAllPropertyRentableTypes  *sql.Stmt
+	getProperty                  *sql.Stmt
+	getAllPropertySpecialtyTypes *sql.Stmt
 }
 
 // App is the global data structure for this app
 var App struct {
-	dbdir    *sql.DB
-	dbrr     *sql.DB
-	DBDir    string
-	DBRR     string
-	DBUser   string
-	prepstmt prepSQL
-	asmt2int map[string]int
-	asmt2str map[int]string
+	dbdir     *sql.DB
+	dbrr      *sql.DB
+	DBDir     string
+	DBRR      string
+	DBUser    string
+	prepstmt  prepSQL
+	AsmtTypes map[int]AssessmentType
+	PmtTypes  map[int]PaymentType
 }
 
 func readCommandLineArgs() {
@@ -307,7 +353,7 @@ func main() {
 	initLists()
 
 	//  func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
-	start := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
-	stop := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
+	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
+	stop := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
 	RentRollAll(start, stop)
 }

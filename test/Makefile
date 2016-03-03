@@ -1,4 +1,4 @@
-DIRS = tuc
+DIRS = ledger1
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done

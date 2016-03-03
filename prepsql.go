@@ -1,6 +1,9 @@
 package main
 
-import "rentroll/rlib"
+import (
+	"fmt"
+	"rentroll/rlib"
+)
 
 func buildPreparedStatements() {
 	var err error
@@ -11,11 +14,11 @@ func buildPreparedStatements() {
 	// Prepare("update classes set Name=?,Designation=?,Description=?,lastmodby=? where ClassCode=?")
 	// rlib.Errcheck(err)
 
-	App.prepstmt.occAgrByProperty, err = App.dbrr.Prepare("SELECT RAID,OATID,PRID,UNITID,PID,PrimaryTenant,RentalStart,RentalStop,Renewal,ProrationMethod,ScheduledRent,Frequency,SecurityDepositAmount,SpecialProvisions,LastModTime,LastModBy from rentalagreement where PRID=?")
+	App.prepstmt.occAgrByProperty, err = App.dbrr.Prepare("SELECT RAID,OATID,PRID,UNITID,PID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where PRID=?")
 	rlib.Errcheck(err)
 	App.prepstmt.getUnit, err = App.dbrr.Prepare("SELECT UNITID,BLDGID,UTID,RID,AVAILID,DefaultOccType,OccType,LastModTime,LastModBy FROM unit where UNITID=?")
 	rlib.Errcheck(err)
-	App.prepstmt.getLedger, err = App.dbrr.Prepare("SELECT LID,AccountNo,Dt,Balance,Deposit FROM ledger where LID=?")
+	App.prepstmt.getLedger, err = App.dbrr.Prepare("SELECT LID,GLNumber,Dt,Balance FROM ledger where LID=?")
 	rlib.Errcheck(err)
 	App.prepstmt.getTransactant, err = App.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant WHERE TCID=?")
 	rlib.Errcheck(err)
@@ -27,14 +30,29 @@ func buildPreparedStatements() {
 	rlib.Errcheck(err)
 	App.prepstmt.getPayor, err = App.dbrr.Prepare("SELECT PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerZipcode,Occupation,LastModTime,LastModBy FROM payor where PID=?")
 	rlib.Errcheck(err)
-	App.prepstmt.getUnitSpecialties, err = App.dbrr.Prepare("SELECT USPID FROM unitspecialties where UNITID=?")
+	App.prepstmt.getUnitSpecialties, err = App.dbrr.Prepare("SELECT USPID FROM unitspecialties where PRID=? and UNITID=?")
 	rlib.Errcheck(err)
 	App.prepstmt.getUnitSpecialtyType, err = App.dbrr.Prepare("SELECT USPID,PRID,Name,Fee,Description FROM unitspecialtytypes where USPID=?")
 	rlib.Errcheck(err)
-	App.prepstmt.getUnitType, err = App.dbrr.Prepare("SELECT UTID,PRID,Style,Name,SqFt,MarketRate,LastModTime,LastModBy FROM unittypes where UTID=?")
+	App.prepstmt.getRentableType, err = App.dbrr.Prepare("SELECT UTID,PRID,Style,Name,SqFt,MarketRate,Frequency,Proration,LastModTime,LastModBy FROM rentabletypes where UTID=?")
 	rlib.Errcheck(err)
-	App.prepstmt.getUnitReceipts, err = App.dbrr.Prepare("SELECT RCPTID,PID,Amount,Dt,ApplyToGeneralReceivable,ApplyToSecurityDeposit FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
+	App.prepstmt.getUnitReceipts, err = App.dbrr.Prepare("SELECT RCPTID,PID,PMTID,Amount,Dt,ApplyToGeneralReceivable,ApplyToSecurityDeposit FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
 	rlib.Errcheck(err)
-	App.prepstmt.getUnitAssessments, err = App.dbrr.Prepare("SELECT ASMID,UNITID,ASMTID,Amount,Start,Stop,Frequency FROM assessments WHERE UNITID=? and Stop >= ? and Start < ?")
+	App.prepstmt.getUnitAssessments, err = App.dbrr.Prepare("SELECT ASMID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,LastModTime,LastModBy FROM assessments WHERE UNITID=? and Stop >= ? and Start < ?")
+	rlib.Errcheck(err)
+	App.prepstmt.getAssessmentType, err = App.dbrr.Prepare("SELECT ASMTID,Name,Type,LastModTime,LastModBy FROM assessmenttypes WHERE ASMTID=?")
+	rlib.Errcheck(err)
+	s := fmt.Sprintf("SELECT ASMID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,LastModTime,LastModBy FROM assessments WHERE (ASMTID=%d or ASMTID=%d) and UNITID=?", SECURITYDEPOSIT, SECURITYDEPOSITASSESSMENT)
+	App.prepstmt.getSecurityDepositAssessment, err = App.dbrr.Prepare(s)
+	rlib.Errcheck(err)
+	App.prepstmt.getUnitRentalAgreements, err = App.dbrr.Prepare("SELECT RAID,OATID,PRID,UNITID,PID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where unitid=? and RentalStop > ? and RentalStart < ?")
+	rlib.Errcheck(err)
+	App.prepstmt.getAllRentablesByProperty, err = App.dbrr.Prepare("SELECT RID,LID,RTID,PRID,PID,RAID,UNITID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE PRID=?")
+	rlib.Errcheck(err)
+	App.prepstmt.getAllPropertyRentableTypes, err = App.dbrr.Prepare("SELECT UTID,PRID,Style,Name,SqFt,MarketRate,Frequency,Proration,LastModTime,LastModBy FROM rentabletypes WHERE PRID=?")
+	rlib.Errcheck(err)
+	App.prepstmt.getProperty, err = App.dbrr.Prepare("SELECT PRID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from property where prid=?")
+	rlib.Errcheck(err)
+	App.prepstmt.getAllPropertySpecialtyTypes, err = App.dbrr.Prepare("SELECT USPID,PRID,Name,Fee,Description FROM unitspecialtytypes WHERE PRID=?")
 	rlib.Errcheck(err)
 }

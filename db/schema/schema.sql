@@ -53,17 +53,12 @@ CREATE TABLE rentalagreement (
     OATID INT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
     PRID INT NOT NULL DEFAULT 0,                              -- property (so that we can process by property)
     UNITID INT NOT NULL DEFAULT 0,                            -- associated unit
+    RID INT NOT NULL DEFAULT 0,                               -- rentable id
     PID INT NOT NULL DEFAULT 0,                               -- who is the payor for this agreement
     PrimaryTenant INT NOT NULL DEFAULT 0,                     -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
-
--- this should be ContractRent
-    ScheduledRent DECIMAL (19,4) NOT NULL DEFAULT 0,          -- what was the actual rental amount
-    Frequency MEDIUMINT NOT NULL DEFAULT 0,
-    SecurityDepositAmount DECIMAL(19,4) NOT NULL DEFAULT 0,
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- month to month automatic renewal, lease extension options, none.
-    ProrationMethod SMALLINT NOT NULL DEFAULT 0,              -- daily, monthly based on actual, monthly based on 30 days
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',  
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
@@ -84,7 +79,7 @@ CREATE TABLE unittenants (
 -- ****                              ****
 -- **************************************
 -- Unit Types - associated with a property are stored
--- in the unittypes table and have the property PID
+-- in the rentabletypes table and have the property PID
 -- Occupancy Type List - hardcoded
 
 CREATE TABLE property (
@@ -106,14 +101,18 @@ CREATE TABLE property (
 
 -- unit types are associated with a particular property
 -- There is no "global" unit type since they are all different enough where
--- it does not make sense to try to share them across properties
-CREATE TABLE unittypes (
+-- it does not make sense to try to share them across properties.
+-- Offset=Debit=positive
+-- Assessment=Credit=negative
+CREATE TABLE rentabletypes (
     UTID INT NOT NULL AUTO_INCREMENT,
-    PRID INT NOT NULL,                                      -- associated property id
+    PRID INT NOT NULL DEFAULT 0,                            -- associated property id
     Style CHAR(15) NOT NULL DEFAULT '',
     Name VARCHAR(256) NOT NULL DEFAULT '',
     SqFt MEDIUMINT NOT NULL DEFAULT 0,
     MarketRate Decimal(19,4) NOT NULL DEFAULT 0.0,          -- market rate for this unit
+    Frequency INT NOT NULL DEFAULT 0,                       -- MarketRate accrual frequency
+    Proration INT NOT NULL DEFAULT 0,                       --  prorate frequency
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UTID)
@@ -133,7 +132,6 @@ CREATE TABLE unitspecialtytypes (
     PRIMARY KEY (USPID)
 );
 
-
 -- **************************************
 -- ****                              ****
 -- ****       COMMON TYPES           ****
@@ -142,16 +140,17 @@ CREATE TABLE unitspecialtytypes (
 -- this table list all the pre-defined assessments
 -- this will include offsets and disbursements
 CREATE TABLE assessmenttypes (
-    ASMTID INT NOT NULL AUTO_INCREMENT,                        -- what type of assessment
-    Name VARCHAR(35) NOT NULL DEFAULT '',                      -- name for the assessment
-    LastModTime TIMESTAMP,                                     -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it 
+    ASMTID INT NOT NULL AUTO_INCREMENT,             -- what type of assessment
+    Name VARCHAR(35) NOT NULL DEFAULT '',           -- name for the assessment
+    Type SMALLINT NOT NULL DEFAULT 0,               -- normal case, positive number is: 0 = DEBIT, 1 = CREDIT
+    LastModTime TIMESTAMP,                          -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,         -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (ASMTID)
 );
 
 CREATE TABLE paymenttypes (
     PMTID MEDIUMINT NOT NULL AUTO_INCREMENT,
-    Name VARCHAR(25),
+    Name VARCHAR(25) NOT NULL DEFAULT '',
     Description VARCHAR(256) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
@@ -225,11 +224,6 @@ CREATE TABLE rentable (
     RAID INT NOT NULL DEFAULT 0,                            -- rental agreement
     UNITID INT NOT NULL DEFAULT 0,                          -- unit (if applicable)
     Name VARCHAR(10) NOT NULL DEFAULT '',                   -- name unique to the instance "101" for a room number 744 carport number, etc 
-
--- should remove Scheduled rent & Frequency
---  ScheduledRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- budgeted rent for this unit -  The MARKET RATE
---  Frequency SMALLINT NOT NULL DEFAULT 0,                  -- period
-    
     Assignment SMALLINT NOT NULL DEFAULT 0,                 -- Pre-assign or assign at occupy commencement
     Report SMALLINT NOT NULL DEFAULT 1,                     -- 1 = apply to rentroll, 0 = skip on rentroll
     LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
@@ -237,11 +231,6 @@ CREATE TABLE rentable (
     PRIMARY KEY (RID)
 );
 
-CREATE TABLE rentabletypes (
-    RTID INT NOT NULL AUTO_INCREMENT,
-    Name VARCHAR(35) NOT NULL DEFAULT '',               -- 1 = UNIT, 2=Car Port, 3=Car, ...
-    PRIMARY KEY (RTID)
-);
 
 -- **************************************
 -- ****                              ****
@@ -271,10 +260,12 @@ CREATE TABLE assessments (
     ASMID INT NOT NULL AUTO_INCREMENT,
     UNITID INT NOT NULL DEFAULT 0,                          -- unit associated with this assessment
     ASMTID INT NOT NULL DEFAULT 0,                          -- what type of assessment (ex: Rent, SecurityDeposit, ...)
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- assessment amount
+    RAID INT NOT NULL DEFAULT 0,                            -- Associated Rental Agreement ID
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the tenant moves out or when the charge is no longer applicable
     Frequency SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
+    ProrationMethod SMALLINT NOT NULL DEFAULT 0,            -- 
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (ASMID)
@@ -286,6 +277,7 @@ CREATE TABLE assessments (
 -- Selecting all entries where the unit == UNITID
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE unitspecialties (
+    PRID INT NOT NULL DEFAULT 0,                        -- the property
     UNITID INT NOT NULL DEFAULT 0,                      -- unique id of unit
     USPID INT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table unitspecialties)
 );
@@ -361,9 +353,6 @@ CREATE TABLE payor  (
     PID INT NOT NULL AUTO_INCREMENT,                          -- unique id of this payor
     TCID INT NOT NULL,                                        -- associated transactant
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    --
-    --  JOE: there must be more credit information???
-    --
     EmployerName  VARCHAR(35) NOT NULL DEFAULT '',
     EmployerStreetAddress VARCHAR(35) NOT NULL DEFAULT '',
     EmployerCity VARCHAR(35) NOT NULL DEFAULT '',
@@ -384,7 +373,7 @@ CREATE TABLE receipt (
     RCPTID INT NOT NULL AUTO_INCREMENT,                       -- unique id for this receipt
     PID INT NOT NULL DEFAULT 0,
     RAID INT NOT NULL DEFAULT 0,
-    -- SecurityDepositReceivable also a calculated value
+    PMTID INT NOT NULL DEFAULT 0,
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ApplyToGeneralReceivable DECIMAL(19,4),                   -- Breakdown is in receiptallocation table
@@ -405,10 +394,10 @@ CREATE TABLE receiptallocation (
 -- **************************************
 CREATE TABLE ledger (
     LID INT NOT NULL AUTO_INCREMENT,                          -- unique id for this Ledger
-    AccountNo VARCHAR(10) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    GLNumber VARCHAR(10) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,               -- balance amount
-    Deposit DECIMAL(14,4) NOT NULL DEFAULT 0.0,               -- deposit balance
+    Name VARCHAR(50) NOT NULL DEFAULT '',                     -- 
     PRIMARY KEY (LID)        
 );
 
