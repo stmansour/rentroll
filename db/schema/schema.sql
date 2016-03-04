@@ -248,6 +248,8 @@ CREATE TABLE rentable (
     Name VARCHAR(10) NOT NULL DEFAULT '',                   -- name unique to the instance "101" for a room number 744 carport number, etc 
     Assignment SMALLINT NOT NULL DEFAULT 0,                 -- Pre-assign or assign at occupy commencement
     Report SMALLINT NOT NULL DEFAULT 1,                     -- 1 = apply to rentroll, 0 = skip on rentroll
+    DefaultOccType SMALLINT NOT NULL DEFAULT 0,         -- unset, short term, longterm
+    OccType SMALLINT NOT NULL DEFAULT 0,                -- unset, short term, longterm
     LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RID)
@@ -266,8 +268,6 @@ CREATE TABLE unit (
     BLDGID INT NOT NULL DEFAULT 0,                      -- which building
     UTID INT NOT NULL DEFAULT 0,                        -- which unit type
     AVAILID INT NOT NULL DEFAULT 0,                     -- how is the unit made available
-    DefaultOccType SMALLINT NOT NULL DEFAULT 0,         -- unset, short term, longterm
-    OccType SMALLINT NOT NULL DEFAULT 0,                -- unset, short term, longterm
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UNITID)

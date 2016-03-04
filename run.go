@@ -63,13 +63,13 @@ func printLedgerHeader(xprop *XProperty, d1, d2 *time.Time, ra *RentalAgreement,
 	fmt.Printf("   %-8s %-46s %12s\n", "Date", "Description", "Balance")
 	fmt.Printf("   --------------------------------------------------------------------\n")
 }
-func printLedgerDoubleLine() {
+func printReportDoubleLine() {
 	fmt.Printf("=======================================================================\n")
 }
-func printLedgerLine() {
+func printReportLine() {
 	fmt.Printf("-----------------------------------------------------------------------\n")
 }
-func printLedgerThinLine() {
+func printReportThinLine() {
 	fmt.Printf("    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 }
 func printDatedLedgerEntryRJ(d time.Time, s string, a float32) {
@@ -78,13 +78,13 @@ func printDatedLedgerEntryRJ(d time.Time, s string, a float32) {
 func printDatedLedgerEntryLJ(d time.Time, s string, a float32) {
 	fmt.Printf("   %8s %-46s %12.2f\n", d.Format(RRDATEFMT), s, a)
 }
-func printLedgerEntryRJ(s string, a float32) {
+func printReportEntryRJ(s string, a float32) {
 	fmt.Printf("%11s %46s %12.2f\n", " ", s, a)
 }
-func printLedgerEntryLJ(s string, a float32) {
+func printReportEntryLJ(s string, a float32) {
 	fmt.Printf("%11s %-46s %12.2f\n", " ", s, a)
 }
-func printLedgerStringLJ(s string) {
+func printReportStringLJ(s string) {
 	fmt.Printf("%11s %-46s\n", " ", s)
 }
 
@@ -187,14 +187,14 @@ func getProrationFactor(xprop *XProperty, xu *XUnit, ra *RentalAgreement, d1, d2
 func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
 	printLedgerHeader(xprop, d1, d2, (*b)[0].ra, (*b)[0].xp, xu)
 	budgetedRent := xprop.UT[xu.U.UTID].MarketRate
-	printLedgerEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
+	printReportEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
 	for i := 0; i < len(xu.S); i++ {
 		s := fmt.Sprintf("Specialty: %s", xprop.US[xu.S[i]].Name)
-		printLedgerEntryRJ(s, -xprop.US[xu.S[i]].Fee)
+		printReportEntryRJ(s, -xprop.US[xu.S[i]].Fee)
 		budgetedRent += xprop.US[xu.S[i]].Fee
 	}
-	printLedgerThinLine()
-	printLedgerEntryRJ("Total Budgeted Rent", -budgetedRent)
+	printReportThinLine()
+	printReportEntryRJ("Total Budgeted Rent", -budgetedRent)
 
 	totDays := 0
 	totPF := float32(0.0)
@@ -202,7 +202,7 @@ func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 	for i := 0; i < len(*b); i++ {
 		(*b)[i].pf, (*b)[i].din, (*b)[i].period = getProrationFactor(xprop, xu, (*b)[i].ra, d1, d2)
 		s := fmt.Sprintf("%d of %d days -> %s %s:  pf = %6.4f", (*b)[i].din, (*b)[i].period, (*b)[i].xp.trn.FirstName, (*b)[i].xp.trn.LastName, (*b)[i].pf)
-		printLedgerStringLJ(s)
+		printReportStringLJ(s)
 		totDays += (*b)[i].din
 		totPF += (*b)[i].pf
 	}
@@ -214,13 +214,13 @@ func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 		a.pf = 1 - totPF
 		(*b) = append(*b, &a) // does caller see this newly added value - my assumption is: no
 		s := fmt.Sprintf("%2d of %2d days -> vacant:  pf = %6.4f", a.din, a.period, a.pf)
-		printLedgerStringLJ(s)
+		printReportStringLJ(s)
 	}
 
 	// unitSecurityDeposit(ra*RentalAgreement, d1, d2*time.Time)
 
-	printLedgerEntryLJ("NOTE: Amount to collect from receipts", budgetedRent*totPF)
-	printLedgerEntryLJ("NOTE: loss to vacancy", budgetedRent*(1-totPF))
+	printReportEntryLJ("NOTE: Amount to collect from receipts", budgetedRent*totPF)
+	printReportEntryLJ("NOTE: loss to vacancy", budgetedRent*(1-totPF))
 
 	// (*b) now holds the list of
 
@@ -235,8 +235,8 @@ func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 	// //===================================================================
 	// // BUDGETED RECEIPTS...
 	// //===================================================================
-	// // printLedgerStringLJ(" ")
-	// // printLedgerStringLJ("Budgeted Receipts")
+	// // printReportStringLJ(" ")
+	// // printReportStringLJ("Budgeted Receipts")
 	// var rcptTot = float32(0.0) // receipts
 	// var asmtTot = float32(0.0) // assessments
 
@@ -259,26 +259,26 @@ func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 	// //===================================================================
 	// // INCOME OFFSETS...
 	// //===================================================================
-	// // printLedgerStringLJ("Income Offsets")
+	// // printReportStringLJ("Income Offsets")
 	// // process the active agreements
 	// // we can reject if RentalStart is > d2 or RentalStop <= d1.  Otherwise, process it
 	// if !(ra.RentalStart.After(*d2) || (ra.RentalStop.Before(*d1) || ra.RentalStop.Equal(*d1))) {
 	// 	// What was budgeted for this unit:
 	// 	asmtTot += unitAssessments(ra, d1, d2)
-	// 	printLedgerEntryRJ("Total Assessments", -asmtTot)
-	// 	// printLedgerStringLJ(" ")
-	// 	// printLedgerStringLJ("Payments Received")
+	// 	printReportEntryRJ("Total Assessments", -asmtTot)
+	// 	// printReportStringLJ(" ")
+	// 	// printReportStringLJ("Payments Received")
 	// 	rcptTot += unitReceipts(ra, d1, d2)
-	// 	printLedgerEntryRJ("Receipts subtotal", rcptTot)
+	// 	printReportEntryRJ("Receipts subtotal", rcptTot)
 	// }
-	printLedgerDoubleLine()
+	printReportDoubleLine()
 }
 
 // RentableReport shows the transactions for the supplied rentable over the time period d1-d2
 func RentableReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
 	printLedgerHeader(xprop, d1, d2, (*b)[0].ra, (*b)[0].xp, xu)
 	budgetedRent := xprop.RT[xu.R.RTID].MarketRate
-	printLedgerEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
+	printReportEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
 
 	// Get the assessments for this rentable
 	m := GetAllRentableAssessments(xu.R.RID, d1, d2)

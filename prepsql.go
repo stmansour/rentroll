@@ -16,7 +16,7 @@ func buildPreparedStatements() {
 
 	App.prepstmt.occAgrByProperty, err = App.dbrr.Prepare("SELECT RAID,RATID,PRID,RID,UNITID,PID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where PRID=?")
 	rlib.Errcheck(err)
-	App.prepstmt.getUnit, err = App.dbrr.Prepare("SELECT UNITID,BLDGID,UTID,RID,AVAILID,DefaultOccType,OccType,LastModTime,LastModBy FROM unit where UNITID=?")
+	App.prepstmt.getUnit, err = App.dbrr.Prepare("SELECT UNITID,BLDGID,UTID,RID,AVAILID,LastModTime,LastModBy FROM unit where UNITID=?")
 	rlib.Errcheck(err)
 	App.prepstmt.getLedger, err = App.dbrr.Prepare("SELECT LID,GLNumber,Dt,Balance FROM ledger where LID=?")
 	rlib.Errcheck(err)
@@ -24,7 +24,7 @@ func buildPreparedStatements() {
 	rlib.Errcheck(err)
 	App.prepstmt.getTenant, err = App.dbrr.Prepare("SELECT TID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyAddressEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber FROM tenant where TID=?")
 	rlib.Errcheck(err)
-	App.prepstmt.getRentable, err = App.dbrr.Prepare("SELECT RID,LID,RTID,PRID,PID,RAID,UNITID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable where RID=?")
+	App.prepstmt.getRentable, err = App.dbrr.Prepare("SELECT RID,LID,RTID,PRID,PID,RAID,UNITID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable where RID=?")
 	rlib.Errcheck(err)
 	App.prepstmt.getProspect, err = App.dbrr.Prepare("SELECT PRSPID,TCID,ApplicationFee FROM prospect where PRSPID=?")
 	rlib.Errcheck(err)

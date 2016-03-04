@@ -179,7 +179,7 @@ type Property struct {
 	Country              string
 	Phone                string
 	Name                 string
-	DefaultOccupancyType int       // default for every unit in the building: 0=unset, 1=daily, 2=weekly, 3=monthly, 4=quarterly, 5=yearly
+	DefaultOccupancyType int       // may not be default for every unit in the building: 0=unset, 1=short term, 2=longterm
 	ParkingPermitInUse   int       // yes/no  0 = no, 1 = yes
 	LastModTime          time.Time // when was this record last written
 	LastModBy            int       // employee UID (from phonebook) that modified it
@@ -208,31 +208,31 @@ type Receipt struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID         int    // unique id for this rentable
-	LID         int    // the ledger
-	RTID        int    // rentable type id
-	PRID        int    // property
-	PID         int    // payor
-	RAID        int    // occupancy agreement
-	UNITID      int    // associated unit (if applicable, 0 otherwise)
-	Name        string // name for this rental
-	Assignment  int    // can we pre-assign or assign only at commencement
-	Report      int    // 1 = apply to rentroll, 0 = skip
-	LastModTime time.Time
-	LastModBy   int
+	RID            int    // unique id for this rentable
+	LID            int    // the ledger
+	RTID           int    // rentable type id
+	PRID           int    // property
+	PID            int    // payor
+	RAID           int    // occupancy agreement
+	UNITID         int    // associated unit (if applicable, 0 otherwise)
+	Name           string // name for this rental
+	Assignment     int    // can we pre-assign or assign only at commencement
+	Report         int    // 1 = apply to rentroll, 0 = skip
+	DefaultOccType int    // unset, short term, longterm
+	OccType        int    // unset, short term, longterm
+	LastModTime    time.Time
+	LastModBy      int
 }
 
 // Unit is the structure for unit attributes
 type Unit struct {
-	UNITID         int       // unique id for this unit -- it is unique across all properties and buildings
-	BLDGID         int       // which building
-	UTID           int       // which unit type
-	RID            int       // which ledger keeps track of what's owed on this unit
-	AVAILID        int       // how is the unit made available
-	DefaultOccType int       // unset, short term, longterm
-	OccType        int       // unset, short term, longterm
-	LastModTime    time.Time //	-- when was this record last written
-	LastModBy      int       // employee UID (from phonebook) that modified it
+	UNITID      int       // unique id for this unit -- it is unique across all properties and buildings
+	BLDGID      int       // which building
+	UTID        int       // which unit type
+	RID         int       // which ledger keeps track of what's owed on this unit
+	AVAILID     int       // how is the unit made available
+	LastModTime time.Time //	-- when was this record last written
+	LastModBy   int       // employee UID (from phonebook) that modified it
 }
 
 // UnitSpecialtyType is the structure for attributes of a unit specialty
@@ -332,6 +332,7 @@ var App struct {
 	prepstmt  prepSQL
 	AsmtTypes map[int]AssessmentType
 	PmtTypes  map[int]PaymentType
+	Report    int
 }
 
 func readCommandLineArgs() {
@@ -339,6 +340,7 @@ func readCommandLineArgs() {
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
+	rptPtr := flag.Int("r", 1, "report: 1 = journal, 2 = rentable")
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version: %s\nBuilt:   %s\n", getVersionNo(), getBuildTime())
@@ -347,6 +349,7 @@ func readCommandLineArgs() {
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
+	App.Report = *rptPtr
 }
 
 func main() {
@@ -380,5 +383,12 @@ func main() {
 	//  func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
 	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
 	stop := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
-	RentRollAll(start, stop)
+	switch App.Report {
+	case 1:
+		JournalReport(start, stop)
+	case 2:
+		RentRollAll(start, stop)
+	default:
+		fmt.Printf("Unknown report type: %d\n", App.Report)
+	}
 }

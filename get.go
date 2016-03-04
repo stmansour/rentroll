@@ -52,14 +52,14 @@ func GetXPerson(tcid int, x *XPerson) {
 
 // GetRentable reads a Rentable structure based on the supplied rentable id
 func GetRentable(rid int, r *Rentable) {
-	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.PRID, &r.PID, &r.RAID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.LastModTime, &r.LastModBy))
+	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.PRID, &r.PID, &r.RAID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 }
 
 // GetUnit reads a Unit structure based on the supplied unit id
 func GetUnit(uid int, u *Unit) {
 	rlib.Errcheck(App.prepstmt.getUnit.QueryRow(uid).Scan(
 		&u.UNITID, &u.BLDGID, &u.UTID, &u.RID, &u.AVAILID,
-		&u.DefaultOccType, &u.OccType, &u.LastModTime, &u.LastModBy))
+		&u.LastModTime, &u.LastModBy))
 }
 
 // GetXUnit reads an XUnit structure based on the RID.
