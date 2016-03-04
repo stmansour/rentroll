@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"rentroll/rlib"
+	"time"
 )
 
 // GetTransactant reads a Transactant structure based on the supplied transactant id
@@ -65,12 +65,12 @@ func GetUnit(uid int, u *Unit) {
 // GetXUnit reads an XUnit structure based on the RID.
 func GetXUnit(rid int, x *XUnit) {
 	if x.R.RID == 0 && rid > 0 {
-		GetRentable(x.U.RID, &x.R)
+		GetRentable(rid, &x.R)
 	}
 	if x.U.UNITID == 0 && x.R.UNITID > 0 {
 		GetUnit(x.R.UNITID, &x.U)
 	}
-	fmt.Printf("GetXUnit:  prid = %d,  unitid = %d\n", x.R.PRID, x.U.UNITID)
+	// fmt.Printf("GetXUnit:  prid = %d,  unitid = %d\n", x.R.PRID, x.U.UNITID)
 	x.S = GetUnitSpecialties(x.R.PRID, x.U.UNITID)
 }
 
@@ -113,7 +113,12 @@ func getUnitSpecialtiesTypes(m *[]int) map[int]UnitSpecialtyType {
 
 // GetRentableType returns characteristics of the unit
 func GetRentableType(utid int, ut *RentableType) {
-	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(utid).Scan(&ut.UTID, &ut.PRID, &ut.Style, &ut.Name, &ut.SqFt, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
+	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(utid).Scan(&ut.RTID, &ut.PRID, &ut.Name, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
+}
+
+// GetUnitType returns characteristics of the unit
+func GetUnitType(utid int, ut *UnitType) {
+	rlib.Errcheck(App.prepstmt.getUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.PRID, &ut.Style, &ut.Name, &ut.SqFt, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
 }
 
 // GetAssessmentTypes returns a slice of assessment types indexed by the ASMTID
@@ -175,6 +180,22 @@ func GetPropertyRentableTypes(prid int) map[int]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
+		rlib.Errcheck(rows.Scan(&a.RTID, &a.PRID, &a.Name, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		t[a.RTID] = a
+	}
+	rlib.Errcheck(rows.Err())
+	return t
+}
+
+// GetPropertyUnitTypes returns a slice of payment types indexed by the PMTID
+func GetPropertyUnitTypes(prid int) map[int]UnitType {
+	var t map[int]UnitType
+	t = make(map[int]UnitType, 0)
+	rows, err := App.prepstmt.getAllPropertyUnitTypes.Query(prid)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a UnitType
 		rlib.Errcheck(rows.Scan(&a.UTID, &a.PRID, &a.Style, &a.Name, &a.SqFt, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
 		t[a.UTID] = a
 	}
@@ -193,7 +214,8 @@ func GetXProperty(prid int, xprop *XProperty) {
 	if xprop.P.PRID == 0 && prid > 0 {
 		GetProperty(prid, &xprop.P)
 	}
-	xprop.UT = GetPropertyRentableTypes(prid)
+	xprop.RT = GetPropertyRentableTypes(prid)
+	xprop.UT = GetPropertyUnitTypes(prid)
 	xprop.US = make(map[int]UnitSpecialtyType, 0)
 	rows, err := App.prepstmt.getAllPropertySpecialtyTypes.Query(prid)
 	rlib.Errcheck(err)
@@ -204,4 +226,19 @@ func GetXProperty(prid int, xprop *XProperty) {
 		xprop.US[a.USPID] = a
 	}
 	rlib.Errcheck(rows.Err())
+}
+
+// GetAllRentableAssessments for the supplied RID and date range
+func GetAllRentableAssessments(RID int, d1, d2 *time.Time) []Assessment {
+	rows, err := App.prepstmt.getAllRentableAssessments.Query(RID, d1, d2)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t []Assessment
+	t = make([]Assessment, 0)
+	for i := 0; rows.Next(); i++ {
+		var a Assessment
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.LastModTime, &a.LastModBy))
+		t = append(t, a)
+	}
+	return t
 }

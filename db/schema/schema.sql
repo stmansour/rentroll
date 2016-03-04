@@ -12,6 +12,8 @@
 --    UTID = unit type id
 --   USPID = unit specialty id
 --   OFSID = offset id
+--  PRSPID = Prospect id
+--   ASMID = Assessment id
 --  ASMTID = assessment type id
 --   PMTID = payment type id
 -- AVAILID = availability id
@@ -20,7 +22,7 @@
 --    TCID = transactant id
 --     TID = tenant id
 --     PID = payor id
---   OATID = occupancy agreement template id
+--   RATID = occupancy agreement template id
 --    RAID = rental agreement / occupancy agreement
 --  RCPTID = receipt id
 --  DISBID = disbursement id
@@ -40,20 +42,20 @@ GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 -- **************************************
 
 CREATE TABLE rentalagreementtemplate (
-    OATID INT NOT NULL AUTO_INCREMENT,                        -- internal unique id
+    RATID INT NOT NULL AUTO_INCREMENT,                        -- internal unique id
     ReferenceNumber VARCHAR(35) DEFAULT '',                   -- Occupancy Agreement Reference Number
     RentalAgreementType SMALLINT NOT NULL DEFAULT 0,          -- 1=leasehold, 2=month-to-month, 3=hotel
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (OATID)     
+    PRIMARY KEY (RATID)     
 );      
         
 CREATE TABLE rentalagreement (        
     RAID INT NOT NULL AUTO_INCREMENT,                         -- internal unique id
-    OATID INT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
+    RATID INT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
     PRID INT NOT NULL DEFAULT 0,                              -- property (so that we can process by property)
-    UNITID INT NOT NULL DEFAULT 0,                            -- associated unit
     RID INT NOT NULL DEFAULT 0,                               -- rentable id
+    UNITID INT NOT NULL DEFAULT 0,                            -- associated unit
     PID INT NOT NULL DEFAULT 0,                               -- who is the payor for this agreement
     PrimaryTenant INT NOT NULL DEFAULT 0,                     -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -99,12 +101,30 @@ CREATE TABLE property (
     PRIMARY KEY (PRID)
 );
 
--- unit types are associated with a particular property
--- There is no "global" unit type since they are all different enough where
--- it does not make sense to try to share them across properties.
--- Offset=Debit=positive
--- Assessment=Credit=negative
+-- ===========================================
+--   RENTABLE TYPES 
+-- ===========================================
 CREATE TABLE rentabletypes (
+    RTID INT NOT NULL AUTO_INCREMENT,
+    PRID INT NOT NULL DEFAULT 0,                            -- associated property id
+    Name VARCHAR(256) NOT NULL DEFAULT '',
+    Amount Decimal(19,4) NOT NULL DEFAULT 0.0,              -- rental price
+    Frequency INT NOT NULL DEFAULT 0,                       -- price accrual frequency
+    Proration INT NOT NULL DEFAULT 0,                       --  prorate frequency
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (RTID)
+);
+
+-- ===========================================
+--   UNIT TYPES 
+-- ===========================================
+--  unit types are associated with a particular property
+--  There is no "global" unit type since they are all different enough where
+--  it does not make sense to try to share them across properties.
+--  Offset=Debit=positive
+--  Assessment=Credit=negative
+CREATE TABLE unittypes (
     UTID INT NOT NULL AUTO_INCREMENT,
     PRID INT NOT NULL DEFAULT 0,                            -- associated property id
     Style CHAR(15) NOT NULL DEFAULT '',
@@ -117,6 +137,7 @@ CREATE TABLE rentabletypes (
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UTID)
 );
+
 
 -- a collection of unit specialties that are available.
 -- different units may be more or less desirable based upon special characteristics
@@ -172,6 +193,7 @@ CREATE TABLE availabilitytypes (
 -- **** SCOPED TO A SPECIFIC PROPERTY ****
 -- ****                               ****
 -- ***************************************
+
 -- This describes the world of assessments for a particular property
 -- Query this table for a particular PRID, the solution set is the list
 -- of assessments for that particular property.
@@ -240,9 +262,9 @@ CREATE TABLE rentable (
 -- Fields unique to an apartment or hotel room 
 CREATE TABLE unit (
     UNITID INT NOT NULL AUTO_INCREMENT,                 -- unique id for this unit -- it is unique across all properties and buildings
+    RID INT NOT NULL DEFAULT 0,                         -- associated rentable
     BLDGID INT NOT NULL DEFAULT 0,                      -- which building
     UTID INT NOT NULL DEFAULT 0,                        -- which unit type
-    RID INT NOT NULL DEFAULT 0,                         -- associated rentable
     AVAILID INT NOT NULL DEFAULT 0,                     -- how is the unit made available
     DefaultOccType SMALLINT NOT NULL DEFAULT 0,         -- unset, short term, longterm
     OccType SMALLINT NOT NULL DEFAULT 0,                -- unset, short term, longterm
@@ -258,7 +280,8 @@ CREATE TABLE unit (
 -- Query by UNITID where RunStart < Stop 
 CREATE TABLE assessments (
     ASMID INT NOT NULL AUTO_INCREMENT,
-    UNITID INT NOT NULL DEFAULT 0,                          -- unit associated with this assessment
+    RID INT NOT NULL DEFAULT 0,                             -- rental id
+    UNITID INT NOT NULL DEFAULT 0,                          -- unit associated with this assessment (could be "subid")
     ASMTID INT NOT NULL DEFAULT 0,                          -- what type of assessment (ex: Rent, SecurityDeposit, ...)
     RAID INT NOT NULL DEFAULT 0,                            -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount

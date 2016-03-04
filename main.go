@@ -22,7 +22,7 @@ import _ "github.com/go-sql-driver/mysql"
 //    TCID = transactant id
 //     TID = tenant id
 //     PID = payor id
-//   OATID = occupancy agreement template id
+//   RATID = rental agreement template id
 //    RAID = occupancy agreement
 //  RCPTID = receipt id
 //  DISBID = disbursement id
@@ -32,8 +32,9 @@ import _ "github.com/go-sql-driver/mysql"
 // RentalAgreement binds a teRAID INT NOT NULL
 type RentalAgreement struct {
 	RAID              int
-	OATID             int
+	RATID             int
 	PRID              int
+	RID               int
 	UNITID            int
 	PID               int
 	PrimaryTenant     int
@@ -133,6 +134,13 @@ const (
 
 	CREDIT = 0
 	DEBIT  = 1
+
+	RTHOUSING = 1
+	RTCARPORT = 2
+	RTCAR     = 3
+
+	REPORTJUSTIFYLEFT  = 0
+	REPORTJUSTIFYRIGHT = 1
 )
 
 // AssessmentType describes the different types of assessments
@@ -147,6 +155,7 @@ type AssessmentType struct {
 // Assessment is a charge associated with a rentable
 type Assessment struct {
 	ASMID           int
+	RID             int
 	UNITID          int
 	ASMTID          int
 	RAID            int
@@ -235,8 +244,20 @@ type UnitSpecialtyType struct {
 	Description string
 }
 
-// RentableType is the set of attributes describing the different types of units within a property
+// RentableType is the set of attributes describing the different types of rentable items
 type RentableType struct {
+	RTID        int
+	PRID        int
+	Name        string
+	MarketRate  float32
+	Frequency   int
+	Proration   int
+	LastModTime time.Time
+	LastModBy   int
+}
+
+// UnitType is the set of attributes describing the different types of housing within a property
+type UnitType struct {
 	UTID        int
 	PRID        int
 	Style       string
@@ -252,7 +273,8 @@ type RentableType struct {
 // XProperty combines the Property struct and a map of the property's unit types
 type XProperty struct {
 	P  Property
-	UT map[int]RentableType
+	RT map[int]RentableType      // what types of things are rented here
+	UT map[int]UnitType          // info about the units
 	US map[int]UnitSpecialtyType // index = USPID, val = UnitSpecialtyType
 }
 
@@ -286,13 +308,16 @@ type prepSQL struct {
 	getUnitSpecialties           *sql.Stmt
 	getUnitSpecialtyType         *sql.Stmt
 	getRentableType              *sql.Stmt
+	getUnitType                  *sql.Stmt
 	getUnitReceipts              *sql.Stmt
 	getUnitAssessments           *sql.Stmt
+	getAllRentableAssessments    *sql.Stmt
 	getAssessmentType            *sql.Stmt
 	getSecurityDepositAssessment *sql.Stmt
 	getUnitRentalAgreements      *sql.Stmt
 	getAllRentablesByProperty    *sql.Stmt
 	getAllPropertyRentableTypes  *sql.Stmt
+	getAllPropertyUnitTypes      *sql.Stmt
 	getProperty                  *sql.Stmt
 	getAllPropertySpecialtyTypes *sql.Stmt
 }

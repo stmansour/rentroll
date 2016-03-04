@@ -52,12 +52,12 @@ func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
 // 2 1   8    1     46                                       1    12.2
 func printLedgerHeader(xprop *XProperty, d1, d2 *time.Time, ra *RentalAgreement, x *XPerson, xu *XUnit) {
 	fmt.Printf("=======================================================================\n")
-	fmt.Printf("   Unit Report:    unit %-13s\n", xu.R.Name)
+	fmt.Printf("   Rentable:  %-13s\tType: %s\n", xu.R.Name, xprop.RT[xu.R.RTID].Name)
 	fmt.Printf("   %s - %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
 
-	// var ut RentableType
-	// GetRentableType(xu.U.UTID, &ut)
-	fmt.Printf("   Unit Type: %s - %s %4d sqft\n", xprop.UT[xu.U.UTID].Name, xprop.UT[xu.U.UTID].Style, xprop.UT[xu.U.UTID].SqFt)
+	if xu.R.RTID == RTHOUSING {
+		fmt.Printf("   Unit Type: %s - %s %4d sqft\n", xprop.UT[xu.U.UTID].Name, xprop.UT[xu.U.UTID].Style, xprop.UT[xu.U.UTID].SqFt)
+	}
 
 	fmt.Printf("   --------------------------------------------------------------------\n")
 	fmt.Printf("   %-8s %-46s %12s\n", "Date", "Description", "Balance")
@@ -145,14 +145,14 @@ func unitAssessments(ra *RentalAgreement, d1, d2 *time.Time) float32 {
 	var a Assessment
 	ap := &a
 	for rows.Next() {
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.LastModTime, &a.LastModBy))
 		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY && a.ASMTID != SECURITYDEPOSIT {
 			// TBD
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)
 		} else {
 			dl := ap.GetRecurrences(d1, d2)
 			for i := 0; i < len(dl); i++ {
-				printAssessment(dl[i], ap, 1)
+				printAssessment(dl[i], ap, REPORTJUSTIFYRIGHT)
 				tot += ap.Amount
 			}
 		}
@@ -216,6 +216,7 @@ func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 		s := fmt.Sprintf("%2d of %2d days -> vacant:  pf = %6.4f", a.din, a.period, a.pf)
 		printLedgerStringLJ(s)
 	}
+
 	// unitSecurityDeposit(ra*RentalAgreement, d1, d2*time.Time)
 
 	printLedgerEntryLJ("NOTE: Amount to collect from receipts", budgetedRent*totPF)
@@ -271,7 +272,28 @@ func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 	// 	printLedgerEntryRJ("Receipts subtotal", rcptTot)
 	// }
 	printLedgerDoubleLine()
+}
 
+// RentableReport shows the transactions for the supplied rentable over the time period d1-d2
+func RentableReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
+	printLedgerHeader(xprop, d1, d2, (*b)[0].ra, (*b)[0].xp, xu)
+	budgetedRent := xprop.RT[xu.R.RTID].MarketRate
+	printLedgerEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
+
+	// Get the assessments for this rentable
+	m := GetAllRentableAssessments(xu.R.RID, d1, d2)
+	for i := 0; i < len(m); i++ {
+		a := &m[i]
+		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY && a.ASMTID != SECURITYDEPOSIT {
+			// TBD
+			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)
+		} else {
+			dl := a.GetRecurrences(d1, d2)
+			for j := 0; j < len(dl); j++ {
+				printAssessment(dl[j], a, REPORTJUSTIFYRIGHT)
+			}
+		}
+	}
 }
 
 // RentRollProcessUnit looks for every rental agreement that overlaps [d1,d2) for the supplied unit.
@@ -284,7 +306,7 @@ func RentRollProcessUnit(xprop *XProperty, xu *XUnit, d1, d2 *time.Time) {
 	var billing []*RentalList
 	for rows.Next() {
 		var ra RentalAgreement
-		rlib.Errcheck(rows.Scan(&ra.RAID, &ra.OATID, &ra.PRID, &ra.UNITID, &ra.PID, &ra.PrimaryTenant, &ra.RentalStart, &ra.RentalStop, &ra.Renewal, &ra.SpecialProvisions, &ra.LastModTime, &ra.LastModBy))
+		rlib.Errcheck(rows.Scan(&ra.RAID, &ra.RATID, &ra.PRID, &ra.RID, &ra.UNITID, &ra.PID, &ra.PrimaryTenant, &ra.RentalStart, &ra.RentalStop, &ra.Renewal, &ra.SpecialProvisions, &ra.LastModTime, &ra.LastModBy))
 		var xp XPerson
 		GetPayor(ra.PID, &xp.pay)
 		xp.psp.PRSPID = 0 // force load
@@ -296,7 +318,12 @@ func RentRollProcessUnit(xprop *XProperty, xu *XUnit, d1, d2 *time.Time) {
 		b.xp = &xp
 		billing = append(billing, &b)
 	}
-	UnitReport(xprop, xu, &billing, d1, d2)
+	switch xu.R.RTID {
+	case RTHOUSING:
+		UnitReport(xprop, xu, &billing, d1, d2)
+	default:
+		RentableReport(xprop, xu, &billing, d1, d2)
+	}
 	rlib.Errcheck(rows.Err())
 }
 
