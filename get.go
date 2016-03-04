@@ -52,7 +52,7 @@ func GetXPerson(tcid int, x *XPerson) {
 
 // GetRentable reads a Rentable structure based on the supplied rentable id
 func GetRentable(rid int, r *Rentable) {
-	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.PRID, &r.PID, &r.RAID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.PID, &r.RAID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 }
 
 // GetUnit reads a Unit structure based on the supplied unit id
@@ -70,15 +70,15 @@ func GetXUnit(rid int, x *XUnit) {
 	if x.U.UNITID == 0 && x.R.UNITID > 0 {
 		GetUnit(x.R.UNITID, &x.U)
 	}
-	// fmt.Printf("GetXUnit:  prid = %d,  unitid = %d\n", x.R.PRID, x.U.UNITID)
-	x.S = GetUnitSpecialties(x.R.PRID, x.U.UNITID)
+	// fmt.Printf("GetXUnit:  bid = %d,  unitid = %d\n", x.R.BID, x.U.UNITID)
+	x.S = GetUnitSpecialties(x.R.BID, x.U.UNITID)
 }
 
 // GetUnitSpecialties returns a list of specialties associated with the supplied unit
-func GetUnitSpecialties(prid, unitid int) []int {
+func GetUnitSpecialties(bid, unitid int) []int {
 	// first, get the specialties for this unit
 	var m []int
-	rows, err := App.prepstmt.getUnitSpecialties.Query(prid, unitid)
+	rows, err := App.prepstmt.getUnitSpecialties.Query(bid, unitid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -92,10 +92,10 @@ func GetUnitSpecialties(prid, unitid int) []int {
 
 // GetUnitSpecialtyType returns a list of specialties associated with the supplied unit
 func GetUnitSpecialtyType(uspid int, ust *UnitSpecialtyType) {
-	rlib.Errcheck(App.prepstmt.getUnitSpecialtyType.QueryRow(uspid).Scan(&ust.USPID, &ust.PRID, &ust.Name, &ust.Fee, &ust.Description))
+	rlib.Errcheck(App.prepstmt.getUnitSpecialtyType.QueryRow(uspid).Scan(&ust.USPID, &ust.BID, &ust.Name, &ust.Fee, &ust.Description))
 }
 
-// getUnitSpecialtiesTypes returns a list of UnitSpecialtyType structs associated with the supplied property
+// getUnitSpecialtiesTypes returns a list of UnitSpecialtyType structs associated with the supplied business
 func getUnitSpecialtiesTypes(m *[]int) map[int]UnitSpecialtyType {
 	// first, get the specialties for this unit
 	var t map[int]UnitSpecialtyType
@@ -113,12 +113,12 @@ func getUnitSpecialtiesTypes(m *[]int) map[int]UnitSpecialtyType {
 
 // GetRentableType returns characteristics of the unit
 func GetRentableType(utid int, ut *RentableType) {
-	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(utid).Scan(&ut.RTID, &ut.PRID, &ut.Name, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
+	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(utid).Scan(&ut.RTID, &ut.BID, &ut.Name, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
 }
 
 // GetUnitType returns characteristics of the unit
 func GetUnitType(utid int, ut *UnitType) {
-	rlib.Errcheck(App.prepstmt.getUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.PRID, &ut.Style, &ut.Name, &ut.SqFt, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
+	rlib.Errcheck(App.prepstmt.getUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
 }
 
 // GetAssessmentTypes returns a slice of assessment types indexed by the ASMTID
@@ -171,58 +171,58 @@ func GetPaymentTypes() map[int]PaymentType {
 	return t
 }
 
-// GetPropertyRentableTypes returns a slice of payment types indexed by the PMTID
-func GetPropertyRentableTypes(prid int) map[int]RentableType {
+// GetBusinessRentableTypes returns a slice of payment types indexed by the PMTID
+func GetBusinessRentableTypes(bid int) map[int]RentableType {
 	var t map[int]RentableType
 	t = make(map[int]RentableType, 0)
-	rows, err := App.prepstmt.getAllPropertyRentableTypes.Query(prid)
+	rows, err := App.prepstmt.getAllBusinessRentableTypes.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		rlib.Errcheck(rows.Scan(&a.RTID, &a.PRID, &a.Name, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Name, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
 		t[a.RTID] = a
 	}
 	rlib.Errcheck(rows.Err())
 	return t
 }
 
-// GetPropertyUnitTypes returns a slice of payment types indexed by the PMTID
-func GetPropertyUnitTypes(prid int) map[int]UnitType {
+// GetBusinessUnitTypes returns a slice of payment types indexed by the PMTID
+func GetBusinessUnitTypes(bid int) map[int]UnitType {
 	var t map[int]UnitType
 	t = make(map[int]UnitType, 0)
-	rows, err := App.prepstmt.getAllPropertyUnitTypes.Query(prid)
+	rows, err := App.prepstmt.getAllBusinessUnitTypes.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a UnitType
-		rlib.Errcheck(rows.Scan(&a.UTID, &a.PRID, &a.Style, &a.Name, &a.SqFt, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.SqFt, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
 		t[a.UTID] = a
 	}
 	rlib.Errcheck(rows.Err())
 	return t
 }
 
-// GetProperty loads the Property struct for the supplied property id
-func GetProperty(prid int, p *Property) {
-	rlib.Errcheck(App.prepstmt.getPayor.QueryRow(prid).Scan(&p.PRID, &p.Address, &p.Address2, &p.City,
+// GetBusiness loads the Business struct for the supplied business id
+func GetBusiness(bid int, p *Business) {
+	rlib.Errcheck(App.prepstmt.getPayor.QueryRow(bid).Scan(&p.BID, &p.Address, &p.Address2, &p.City,
 		&p.State, &p.PostalCode, &p.Country, &p.Phone, &p.Name, &p.DefaultOccupancyType, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
 }
 
-// GetXProperty loads the XProperty struct for the supplied property id.
-func GetXProperty(prid int, xprop *XProperty) {
-	if xprop.P.PRID == 0 && prid > 0 {
-		GetProperty(prid, &xprop.P)
+// GetXBusiness loads the XBusiness struct for the supplied business id.
+func GetXBusiness(bid int, xprop *XBusiness) {
+	if xprop.P.BID == 0 && bid > 0 {
+		GetBusiness(bid, &xprop.P)
 	}
-	xprop.RT = GetPropertyRentableTypes(prid)
-	xprop.UT = GetPropertyUnitTypes(prid)
+	xprop.RT = GetBusinessRentableTypes(bid)
+	xprop.UT = GetBusinessUnitTypes(bid)
 	xprop.US = make(map[int]UnitSpecialtyType, 0)
-	rows, err := App.prepstmt.getAllPropertySpecialtyTypes.Query(prid)
+	rows, err := App.prepstmt.getAllBusinessSpecialtyTypes.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a UnitSpecialtyType
-		rlib.Errcheck(rows.Scan(&a.USPID, &a.PRID, &a.Name, &a.Fee, &a.Description))
+		rlib.Errcheck(rows.Scan(&a.USPID, &a.BID, &a.Name, &a.Fee, &a.Description))
 		xprop.US[a.USPID] = a
 	}
 	rlib.Errcheck(rows.Err())

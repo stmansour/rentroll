@@ -8,7 +8,7 @@
 -- ********************************
 --     RID = rentable id
 --    RTID = rentable type id
---    PRID = property id
+--    BID = business id
 --    UTID = unit type id
 --   USPID = unit specialty id
 --   OFSID = offset id
@@ -53,7 +53,7 @@ CREATE TABLE rentalagreementtemplate (
 CREATE TABLE rentalagreement (        
     RAID INT NOT NULL AUTO_INCREMENT,                         -- internal unique id
     RATID INT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
-    PRID INT NOT NULL DEFAULT 0,                              -- property (so that we can process by property)
+    BID INT NOT NULL DEFAULT 0,                              -- business (so that we can process by business)
     RID INT NOT NULL DEFAULT 0,                               -- rentable id
     UNITID INT NOT NULL DEFAULT 0,                            -- associated unit
     PID INT NOT NULL DEFAULT 0,                               -- who is the payor for this agreement
@@ -80,12 +80,12 @@ CREATE TABLE unittenants (
 -- ****          PROPERTY            ****
 -- ****                              ****
 -- **************************************
--- Unit Types - associated with a property are stored
--- in the rentabletypes table and have the property PID
+-- Unit Types - associated with a business are stored
+-- in the rentabletypes table and have the business PID
 -- Occupancy Type List - hardcoded
 
-CREATE TABLE property (
-    PRID INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE business (
+    BID INT NOT NULL AUTO_INCREMENT,
     Address VARCHAR(35) NOT NULL DEFAULT '',
     Address2 VARCHAR(35) NOT NULL DEFAULT '',
     City VARCHAR(25) NOT NULL DEFAULT '',
@@ -98,7 +98,7 @@ CREATE TABLE property (
     ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,         -- yes/no  0 = no, 1 = yes
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (PRID)
+    PRIMARY KEY (BID)
 );
 
 -- ===========================================
@@ -106,7 +106,7 @@ CREATE TABLE property (
 -- ===========================================
 CREATE TABLE rentabletypes (
     RTID INT NOT NULL AUTO_INCREMENT,
-    PRID INT NOT NULL DEFAULT 0,                            -- associated property id
+    BID INT NOT NULL DEFAULT 0,                            -- associated business id
     Name VARCHAR(256) NOT NULL DEFAULT '',
     Amount Decimal(19,4) NOT NULL DEFAULT 0.0,              -- rental price
     Frequency INT NOT NULL DEFAULT 0,                       -- price accrual frequency
@@ -119,14 +119,14 @@ CREATE TABLE rentabletypes (
 -- ===========================================
 --   UNIT TYPES 
 -- ===========================================
---  unit types are associated with a particular property
+--  unit types are associated with a particular business
 --  There is no "global" unit type since they are all different enough where
 --  it does not make sense to try to share them across properties.
 --  Offset=Debit=positive
 --  Assessment=Credit=negative
 CREATE TABLE unittypes (
     UTID INT NOT NULL AUTO_INCREMENT,
-    PRID INT NOT NULL DEFAULT 0,                            -- associated property id
+    BID INT NOT NULL DEFAULT 0,                            -- associated business id
     Style CHAR(15) NOT NULL DEFAULT '',
     Name VARCHAR(256) NOT NULL DEFAULT '',
     SqFt MEDIUMINT NOT NULL DEFAULT 0,
@@ -146,7 +146,7 @@ CREATE TABLE unittypes (
 -- remodeling or finishes, etc.  This is where those special characteristics are defined
 CREATE TABLE unitspecialtytypes (
     USPID INT NOT NULL AUTO_INCREMENT,
-    PRID INT NOT NULL,
+    BID INT NOT NULL,
     Name VARCHAR(25) NOT NULL DEFAULT '',
     Fee DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Description VARCHAR(256) NOT NULL DEFAULT '',
@@ -194,19 +194,19 @@ CREATE TABLE availabilitytypes (
 -- ****                               ****
 -- ***************************************
 
--- This describes the world of assessments for a particular property
--- Query this table for a particular PRID, the solution set is the list
--- of assessments for that particular property.
+-- This describes the world of assessments for a particular business
+-- Query this table for a particular BID, the solution set is the list
+-- of assessments for that particular business.
 
--- applicable assessments for a specific property
-CREATE TABLE propertyassessments (
-    PRID INT NOT NULL DEFAULT 0,
+-- applicable assessments for a specific business
+CREATE TABLE businessassessments (
+    BID INT NOT NULL DEFAULT 0,
     ASMTID INT NOT NULL DEFAULT 0
 );
 
--- applicable assessments for a specific property
-CREATE TABLE propertypaymenttypes (
-    PRID INT NOT NULL DEFAULT 0,
+-- applicable assessments for a specific business
+CREATE TABLE businesspaymenttypes (
+    BID INT NOT NULL DEFAULT 0,
     PMTID MEDIUMINT NOT NULL DEFAULT 0
 );
 
@@ -217,7 +217,7 @@ CREATE TABLE propertypaymenttypes (
 -- **************************************
 CREATE TABLE building (
     BLDGID INT NOT NULL AUTO_INCREMENT,           -- unique id for this building
-    PRID INT NOT NULL DEFAULT 0,                  -- which property it belongs to
+    BID INT NOT NULL DEFAULT 0,                  -- which business it belongs to
     Address VARCHAR(35) NOT NULL DEFAULT '',      -- building address
     Address2 VARCHAR(35) NOT NULL DEFAULT '',       
     City VARCHAR(25) NOT NULL DEFAULT '',
@@ -241,7 +241,7 @@ CREATE TABLE rentable (
     RID INT NOT NULL AUTO_INCREMENT,
     LID INT NOT NULL DEFAULT 0,                             -- which ledger keeps track of what's owed on this rentable
     RTID INT NOT NULL DEFAULT 0,                            -- what sort of a rentable is this?
-    PRID INT NOT NULL DEFAULT 0,                            -- Property associated with this rentable
+    BID INT NOT NULL DEFAULT 0,                            -- Property associated with this rentable
     PID INT NOT NULL DEFAULT 0,                             -- who is responsible for paying
     RAID INT NOT NULL DEFAULT 0,                            -- rental agreement
     UNITID INT NOT NULL DEFAULT 0,                          -- unit (if applicable)
@@ -300,7 +300,7 @@ CREATE TABLE assessments (
 -- Selecting all entries where the unit == UNITID
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE unitspecialties (
-    PRID INT NOT NULL DEFAULT 0,                        -- the property
+    BID INT NOT NULL DEFAULT 0,                        -- the business
     UNITID INT NOT NULL DEFAULT 0,                      -- unique id of unit
     USPID INT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table unitspecialties)
 );

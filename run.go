@@ -50,7 +50,7 @@ func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
 //   |........|..............................................|............|
 //      Date        Description                                 Balance
 // 2 1   8    1     46                                       1    12.2
-func printLedgerHeader(xprop *XProperty, d1, d2 *time.Time, ra *RentalAgreement, x *XPerson, xu *XUnit) {
+func printLedgerHeader(xprop *XBusiness, d1, d2 *time.Time, ra *RentalAgreement, x *XPerson, xu *XUnit) {
 	fmt.Printf("=======================================================================\n")
 	fmt.Printf("   Rentable:  %-13s\tType: %s\n", xu.R.Name, xprop.RT[xu.R.RTID].Name)
 	fmt.Printf("   %s - %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
@@ -160,7 +160,7 @@ func unitAssessments(ra *RentalAgreement, d1, d2 *time.Time) float32 {
 	return tot
 }
 
-func getProrationFactor(xprop *XProperty, xu *XUnit, ra *RentalAgreement, d1, d2 *time.Time) (float32, int, int) {
+func getProrationFactor(xprop *XBusiness, xu *XUnit, ra *RentalAgreement, d1, d2 *time.Time) (float32, int, int) {
 	// The beginning is the greater of ra.Start... and d1
 	t1 := *d1
 	if ra.RentalStart.After(t1) {
@@ -184,7 +184,7 @@ func getProrationFactor(xprop *XProperty, xu *XUnit, ra *RentalAgreement, d1, d2
 
 // UnitReport generates a report for the supplied unit and rental agreement.
 // There will always be at least one entry in b, that is: b[0]
-func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
+func UnitReport(xprop *XBusiness, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
 	printLedgerHeader(xprop, d1, d2, (*b)[0].ra, (*b)[0].xp, xu)
 	budgetedRent := xprop.UT[xu.U.UTID].MarketRate
 	printReportEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
@@ -275,7 +275,7 @@ func UnitReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 }
 
 // RentableReport shows the transactions for the supplied rentable over the time period d1-d2
-func RentableReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
+func RentableReport(xprop *XBusiness, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
 	printLedgerHeader(xprop, d1, d2, (*b)[0].ra, (*b)[0].xp, xu)
 	budgetedRent := xprop.RT[xu.R.RTID].MarketRate
 	printReportEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
@@ -296,9 +296,9 @@ func RentableReport(xprop *XProperty, xu *XUnit, b *[]*RentalList, d1, d2 *time.
 	}
 }
 
-// RentRollProcessUnit looks for every rental agreement that overlaps [d1,d2) for the supplied unit.
+// LedgerReportsByRentable looks for every rental agreement that overlaps [d1,d2) for the supplied unit.
 // It then processes each rental agreement over the specified time range.
-func RentRollProcessUnit(xprop *XProperty, xu *XUnit, d1, d2 *time.Time) {
+func LedgerReportsByRentable(xprop *XBusiness, xu *XUnit, d1, d2 *time.Time) {
 	rows, err := App.prepstmt.getUnitRentalAgreements.Query(xu.R.UNITID, d1, d2)
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -306,7 +306,7 @@ func RentRollProcessUnit(xprop *XProperty, xu *XUnit, d1, d2 *time.Time) {
 	var billing []*RentalList
 	for rows.Next() {
 		var ra RentalAgreement
-		rlib.Errcheck(rows.Scan(&ra.RAID, &ra.RATID, &ra.PRID, &ra.RID, &ra.UNITID, &ra.PID, &ra.PrimaryTenant, &ra.RentalStart, &ra.RentalStop, &ra.Renewal, &ra.SpecialProvisions, &ra.LastModTime, &ra.LastModBy))
+		rlib.Errcheck(rows.Scan(&ra.RAID, &ra.RATID, &ra.BID, &ra.RID, &ra.UNITID, &ra.PID, &ra.PrimaryTenant, &ra.RentalStart, &ra.RentalStop, &ra.Renewal, &ra.SpecialProvisions, &ra.LastModTime, &ra.LastModBy))
 		var xp XPerson
 		GetPayor(ra.PID, &xp.pay)
 		xp.psp.PRSPID = 0 // force load
@@ -327,18 +327,18 @@ func RentRollProcessUnit(xprop *XProperty, xu *XUnit, d1, d2 *time.Time) {
 	rlib.Errcheck(rows.Err())
 }
 
-// RentRollByProperty calculates all charges for the specified property that occur in
+// LedgerReportsByBusiness calculates all charges for the specified business that occur in
 // the supplied start / stop time range.
-func RentRollByProperty(xprop *XProperty, d1, d2 *time.Time) {
-	rows, err := App.prepstmt.getAllRentablesByProperty.Query(xprop.P.PRID)
+func LedgerReportsByBusiness(xprop *XBusiness, d1, d2 *time.Time) {
+	rows, err := App.prepstmt.getAllRentablesByBusiness.Query(xprop.P.BID)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var xu XUnit
-		rlib.Errcheck(rows.Scan(&xu.R.RID, &xu.R.LID, &xu.R.RTID, &xu.R.PRID, &xu.R.PID, &xu.R.RAID, &xu.R.UNITID, &xu.R.Name, &xu.R.Assignment, &xu.R.Report, &xu.R.LastModTime, &xu.R.LastModBy))
+		rlib.Errcheck(rows.Scan(&xu.R.RID, &xu.R.LID, &xu.R.RTID, &xu.R.BID, &xu.R.PID, &xu.R.RAID, &xu.R.UNITID, &xu.R.Name, &xu.R.Assignment, &xu.R.Report, &xu.R.LastModTime, &xu.R.LastModBy))
 		if xu.R.UNITID > 0 {
 			GetXUnit(xu.R.RID, &xu)
-			RentRollProcessUnit(xprop, &xu, d1, d2)
+			LedgerReportsByRentable(xprop, &xu, d1, d2)
 		} else {
 			fmt.Printf("Rentable ID %d: name = %s, not a unit\n", xu.R.RID, xu.R.Name)
 		}
@@ -346,19 +346,27 @@ func RentRollByProperty(xprop *XProperty, d1, d2 *time.Time) {
 	rlib.Errcheck(rows.Err())
 }
 
-// RentRollAll do a rentroll for all properties
-func RentRollAll(d1, d2 time.Time) {
-	s := "SELECT PRID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from property"
+// ReportAll generates the supplied report for all properties
+func ReportAll(d1, d2 time.Time, report int) {
+	s := "SELECT BID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
 	rows, err := App.dbrr.Query(s)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var xprop XProperty
-		rlib.Errcheck(rows.Scan(&xprop.P.PRID, &xprop.P.Address, &xprop.P.Address2, &xprop.P.City, &xprop.P.State,
+		var xprop XBusiness
+		rlib.Errcheck(rows.Scan(&xprop.P.BID, &xprop.P.Address, &xprop.P.Address2, &xprop.P.City, &xprop.P.State,
 			&xprop.P.PostalCode, &xprop.P.Country, &xprop.P.Phone, &xprop.P.Name, &xprop.P.DefaultOccupancyType,
 			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))
-		GetXProperty(xprop.P.PRID, &xprop)
-		// fmt.Printf("Property: %s  (%d)\n", xprop.P.Name, xprop.P.PRID)
-		RentRollByProperty(&xprop, &d1, &d2)
+		GetXBusiness(xprop.P.BID, &xprop)
+		// fmt.Printf("Business: %s  (%d)\n", xprop.P.Name, xprop.P.BID)
+
+		switch report {
+		case 1:
+			JournalReport(&xprop, &d1, &d2)
+		case 2:
+			LedgerReportsByBusiness(&xprop, &d1, &d2)
+		default:
+			fmt.Printf("Unknown report type: %d\n", App.Report)
+		}
 	}
 }

@@ -10,7 +10,7 @@ import (
 import _ "github.com/go-sql-driver/mysql"
 
 //==========================================
-//    PRID = property id
+//    BID = business id
 //    UTID = unit type id
 //   USPID = unit specialty id
 //   OFSID = offset id
@@ -33,7 +33,7 @@ import _ "github.com/go-sql-driver/mysql"
 type RentalAgreement struct {
 	RAID              int
 	RATID             int
-	PRID              int
+	BID               int
 	RID               int
 	UNITID            int
 	PID               int
@@ -168,9 +168,9 @@ type Assessment struct {
 	LastModBy       int
 }
 
-// Property is the set of attributes describing a rental or hotel property
-type Property struct {
-	PRID                 int
+// Business is the set of attributes describing a rental or hotel business
+type Business struct {
+	BID                  int
 	Address              string
 	Address2             string
 	City                 string
@@ -211,7 +211,7 @@ type Rentable struct {
 	RID            int    // unique id for this rentable
 	LID            int    // the ledger
 	RTID           int    // rentable type id
-	PRID           int    // property
+	BID            int    // business
 	PID            int    // payor
 	RAID           int    // occupancy agreement
 	UNITID         int    // associated unit (if applicable, 0 otherwise)
@@ -238,7 +238,7 @@ type Unit struct {
 // UnitSpecialtyType is the structure for attributes of a unit specialty
 type UnitSpecialtyType struct {
 	USPID       int
-	PRID        int
+	BID         int
 	Name        string
 	Fee         float32
 	Description string
@@ -247,7 +247,7 @@ type UnitSpecialtyType struct {
 // RentableType is the set of attributes describing the different types of rentable items
 type RentableType struct {
 	RTID        int
-	PRID        int
+	BID         int
 	Name        string
 	MarketRate  float32
 	Frequency   int
@@ -256,10 +256,10 @@ type RentableType struct {
 	LastModBy   int
 }
 
-// UnitType is the set of attributes describing the different types of housing within a property
+// UnitType is the set of attributes describing the different types of housing within a business
 type UnitType struct {
 	UTID        int
-	PRID        int
+	BID         int
 	Style       string
 	Name        string
 	SqFt        int
@@ -270,9 +270,9 @@ type UnitType struct {
 	LastModBy   int
 }
 
-// XProperty combines the Property struct and a map of the property's unit types
-type XProperty struct {
-	P  Property
+// XBusiness combines the Business struct and a map of the business's unit types
+type XBusiness struct {
+	P  Business
 	RT map[int]RentableType      // what types of things are rented here
 	UT map[int]UnitType          // info about the units
 	US map[int]UnitSpecialtyType // index = USPID, val = UnitSpecialtyType
@@ -296,7 +296,7 @@ type Ledger struct {
 
 // collection of prepared sql statements
 type prepSQL struct {
-	occAgrByProperty             *sql.Stmt
+	occAgrByBusiness             *sql.Stmt
 	getUnit                      *sql.Stmt
 	getLedger                    *sql.Stmt
 	getTransactant               *sql.Stmt
@@ -315,11 +315,11 @@ type prepSQL struct {
 	getAssessmentType            *sql.Stmt
 	getSecurityDepositAssessment *sql.Stmt
 	getUnitRentalAgreements      *sql.Stmt
-	getAllRentablesByProperty    *sql.Stmt
-	getAllPropertyRentableTypes  *sql.Stmt
-	getAllPropertyUnitTypes      *sql.Stmt
-	getProperty                  *sql.Stmt
-	getAllPropertySpecialtyTypes *sql.Stmt
+	getAllRentablesByBusiness    *sql.Stmt
+	getAllBusinessRentableTypes  *sql.Stmt
+	getAllBusinessUnitTypes      *sql.Stmt
+	getBusiness                  *sql.Stmt
+	getAllBusinessSpecialtyTypes *sql.Stmt
 }
 
 // App is the global data structure for this app
@@ -383,12 +383,5 @@ func main() {
 	//  func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
 	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
 	stop := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
-	switch App.Report {
-	case 1:
-		JournalReport(start, stop)
-	case 2:
-		RentRollAll(start, stop)
-	default:
-		fmt.Printf("Unknown report type: %d\n", App.Report)
-	}
+	ReportAll(start, stop, App.Report)
 }

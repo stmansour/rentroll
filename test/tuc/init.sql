@@ -2,16 +2,16 @@
 
 USE rentroll
 
--- define the property
-INSERT INTO property (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultOccupancyType,ParkingPermitInUse) VALUES
+-- define the business
+INSERT INTO business (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultOccupancyType,ParkingPermitInUse) VALUES
 	("Tucasa Townhomes","1635 Tucasa Drive","","Irving","TX","75061-3179","USA","469-284-9506",3,0);
 
--- Tucasa Townhomes is now PRID 1
+-- Tucasa Townhomes is now BID 1
 
 -- define unit types for Tucasa
 
 -- unittype -> rentabletype
-INSERT INTO rentabletypes (PRID,Style,Name,SqFt,MarketRate) VALUES
+INSERT INTO rentabletypes (BID,Style,Name,SqFt,MarketRate) VALUES
 	(1,"E","Efficient",385,650.0),
 	(1,"1S","1/1 Sudio",726,745.0),
 	(1,"2F","2/2 Flat",770,845.0),
@@ -20,7 +20,7 @@ INSERT INTO rentabletypes (PRID,Style,Name,SqFt,MarketRate) VALUES
 -- define unit specialties for Tucasa
 
 -- unitspecialtytype -> rentalspecialtytype
-INSERT INTO unitspecialtytypes (PRID,Name,Fee,Description) VALUES
+INSERT INTO unitspecialtytypes (BID,Name,Fee,Description) VALUES
 	(1,"Lake View",30.0,"Overlooks the lake"),
 	(1,"Courtyard View",20.0,"Rear windows view the courtyard"),
 	(1,"Washer Dryer",20.0,"Maytag washer/dryer provided"),
@@ -29,21 +29,21 @@ INSERT INTO unitspecialtytypes (PRID,Name,Fee,Description) VALUES
 -- ----------------------------------------------------------------------------------------
 --     RENTABLE TYPES
 -- ----------------------------------------------------------------------------------------
-INSERT INTO rentabletypes (PRID,Name) VALUES
+INSERT INTO rentabletypes (BID,Name) VALUES
 	(1,"Unit"),			-- 1
 	(1,"Carport"),		-- 2
 	(1,"Washer/Dryer"),	-- 3
 	(1,"Car");			-- 4
 
 -- define the assessments for Tucasa
-INSERT INTO propertyassessments (PRID,ASMTID) VALUES
+INSERT INTO businessassessments (BID,ASMTID) VALUES
 	(1, 1),		-- Rent
 	(1, 2),		-- Security Deposit
 	(1, 3),		-- Security Deposit Forfeiture
 	(1, 4);		-- Application Fees
 
 -- define the building for Tucasa
-INSERT INTO building (PRID,Address,Address2,City,State,PostalCode,Country) VALUES
+INSERT INTO building (BID,Address,Address2,City,State,PostalCode,Country) VALUES
 	(1,"1635 Tucasa Drive","","Irving","TX","75061-3179","USA");
 
 
@@ -58,7 +58,7 @@ INSERT INTO rentalagreementtemplate (ReferenceNumber, RentalAgreementType) VALUE
 -- ----------------------------------------------------------------------------------------
 --     THE APARTMENT UNITS
 -- ----------------------------------------------------------------------------------------
-INSERT INTO rentable (LID,RTID,PRID,PID,RAID,UNITID,Name,Assignment) VALUES
+INSERT INTO rentable (LID,RTID,BID,PID,RAID,UNITID,Name,Assignment) VALUES
 	(  1,1,1,  1,  1,  1,"101",1),		-- monthly rent for unit 1, recurs on the first of the month
   	(  2,1,1,  2,  2,  2,"102",1),
   	(  3,1,1,  3,  3,  3,"103",1),
@@ -511,7 +511,7 @@ INSERT INTO payor (TCID) VALUES
 -- equal the unit number.
 
 -- change ScheduledRent -> ContractRent
-INSERT INTO rentalagreement (OATID,PRID, UNITID,PID,PrimaryTenant,RentalStart,RentalStop,Renewal) VALUES
+INSERT INTO rentalagreement (OATID,BID, UNITID,PID,PrimaryTenant,RentalStart,RentalStop,Renewal) VALUES
 	(3,1,  1,  1,  1,"2004-01-01","2017-07-04",1),	--  Macias
 	(3,1,  2,  2,  2,"2004-01-01","2017-07-04",1),	--  Morua
 	(3,1,  3,  3,  3,"2004-01-01","2017-07-04",1),	--  Garcia
