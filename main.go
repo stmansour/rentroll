@@ -135,9 +135,9 @@ const (
 	CREDIT = 0
 	DEBIT  = 1
 
-	RTHOUSING = 1
-	RTCARPORT = 2
-	RTCAR     = 3
+	RTRESIDENCE = 1
+	RTCARPORT   = 2
+	RTCAR       = 3
 
 	REPORTJUSTIFYLEFT  = 0
 	REPORTJUSTIFYRIGHT = 1
@@ -155,6 +155,7 @@ type AssessmentType struct {
 // Assessment is a charge associated with a rentable
 type Assessment struct {
 	ASMID           int
+	BID             int
 	RID             int
 	UNITID          int
 	ASMTID          int
@@ -164,6 +165,7 @@ type Assessment struct {
 	Stop            time.Time
 	Frequency       int
 	ProrationMethod int
+	AcctRule        string
 	LastModTime     time.Time
 	LastModBy       int
 }
@@ -196,24 +198,31 @@ type PaymentType struct {
 
 // Receipt saves the information associated with a payment made by a tenant to cover one or more assessments
 type Receipt struct {
-	RCPTID                   int
-	PID                      int
-	RAID                     int
-	PMTID                    int
-	Dt                       time.Time
-	Amount                   float32
-	ApplyToGeneralReceivable float32
-	ApplyToSecurityDeposit   float32
+	RCPTID int
+	BID    int
+	PID    int
+	RAID   int
+	PMTID  int
+	Dt     time.Time
+	Amount float32
+	RA     []ReceiptAllocation
+}
+
+// ReceiptAllocation defines an allocation of a receipt amount.
+type ReceiptAllocation struct {
+	RCPTID int
+	Amount float32
+	ASMID  int
 }
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID            int    // unique id for this rentable
-	LID            int    // the ledger
-	RTID           int    // rentable type id
-	BID            int    // business
-	PID            int    // payor
-	RAID           int    // occupancy agreement
+	RID  int // unique id for this rentable
+	LID  int // the ledger
+	RTID int // rentable type id
+	BID  int // business
+	// PID            int    // payor
+	// RAID           int    // occupancy agreement
 	UNITID         int    // associated unit (if applicable, 0 otherwise)
 	Name           string // name for this rental
 	Assignment     int    // can we pre-assign or assign only at commencement
@@ -291,12 +300,13 @@ type Ledger struct {
 	GLNumber string    // if not '' then it's a link a QB account
 	Dt       time.Time // balance date and time
 	Balance  float32   // balance amount
-	// Deposit   float32   // deposit balance
+	Name     string    // name of ledger
 }
 
 // collection of prepared sql statements
 type prepSQL struct {
-	occAgrByBusiness             *sql.Stmt
+	rentalAgreementByBusiness    *sql.Stmt
+	getRentalAgreement           *sql.Stmt
 	getUnit                      *sql.Stmt
 	getLedger                    *sql.Stmt
 	getTransactant               *sql.Stmt
@@ -304,7 +314,6 @@ type prepSQL struct {
 	getRentable                  *sql.Stmt
 	getProspect                  *sql.Stmt
 	getPayor                     *sql.Stmt
-	getRentalAgreement           *sql.Stmt
 	getUnitSpecialties           *sql.Stmt
 	getUnitSpecialtyType         *sql.Stmt
 	getRentableType              *sql.Stmt
@@ -312,6 +321,7 @@ type prepSQL struct {
 	getUnitReceipts              *sql.Stmt
 	getUnitAssessments           *sql.Stmt
 	getAllRentableAssessments    *sql.Stmt
+	getAssessment                *sql.Stmt
 	getAssessmentType            *sql.Stmt
 	getSecurityDepositAssessment *sql.Stmt
 	getUnitRentalAgreements      *sql.Stmt
@@ -320,6 +330,10 @@ type prepSQL struct {
 	getAllBusinessUnitTypes      *sql.Stmt
 	getBusiness                  *sql.Stmt
 	getAllBusinessSpecialtyTypes *sql.Stmt
+	getAllAssessmentsByBusiness  *sql.Stmt
+	getLedgerByGLNo              *sql.Stmt
+	getReceiptsInDateRange       *sql.Stmt
+	getReceiptAllocations        *sql.Stmt
 }
 
 // App is the global data structure for this app
@@ -379,6 +393,7 @@ func main() {
 	}
 	buildPreparedStatements()
 	initLists()
+	initJFmt()
 
 	//  func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
 	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)

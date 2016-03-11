@@ -35,8 +35,8 @@ func runRecurTest(t *testing.T, name string, rrcase []rrtest, dt1, dt2 string) {
 		t2, err := time.Parse(longForm, rrcase[i].stop)
 		Errcheck(err)
 		m := GetRecurrences(&dtstart, &dtstop, &t1, &t2, rrcase[i].freq)
-		for j := 0; j < len(m); j++ {
-			t.Logf("%s[%d]:  %2d. %s\n", name, i, j, m[j].Format(longForm))
+		for a := 0; a < len(m); a++ {
+			t.Logf("%s[%d]:  %2d. %s\n", name, i, a, m[a].Format(longForm))
 		}
 		if len(m) != rrcase[i].expect {
 			t.Errorf("%s[%d]:  len(m)=%d,  Expected: %d", name, i, len(m), rrcase[i].expect)

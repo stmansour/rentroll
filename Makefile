@@ -1,7 +1,7 @@
 DIRS = db rlib test
 .PHONY:  test
 
-rentroll: *.go
+rentroll: *.go mkver.sh
 	for dir in $(DIRS); do make -C $$dir;done
 	go vet
 	golint

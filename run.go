@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"rentroll/rlib"
+	"strings"
 	"time"
 )
 
@@ -47,45 +48,79 @@ func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
 
 //          1         2         3         4         5         6         7         8
 // 12345678901234567890123456789012345678901234567890123456789012345678901234567890
-//   |........|..............................................|............|
+//    ........|..............................................|............|
 //      Date        Description                                 Balance
-// 2 1   8    1     46                                       1    12.2
+// 3     8    1     46                                       1    12.2
+
+// FMTSPACE and the rest are formatting constants
+const (
+	FMTSPACE   = 1  // space between cols
+	FMTINDENT  = 3  // left indent
+	FMTDATE    = 8  // date width
+	FMTDESCR   = 60 // description width
+	FMTBALANCE = 12 // balance width
+	FMTDECIMAL = 2  // number of decimal places
+	LINELEN    = 2*FMTSPACE + FMTDATE + FMTDESCR + FMTBALANCE
+)
+
+func printLineOf(s string) {
+	fmt.Println(strings.Repeat(" ", FMTINDENT) + strings.Repeat(s, LINELEN/len(s)))
+}
+func printReportDoubleLine() {
+	printLineOf("=")
+}
+func printReportLine() {
+	printLineOf("-")
+}
+func printReportThinLine() {
+	printLineOf(" -")
+}
 func printLedgerHeader(xprop *XBusiness, d1, d2 *time.Time, ra *RentalAgreement, x *XPerson, xu *XUnit) {
-	fmt.Printf("=======================================================================\n")
+	printReportDoubleLine()
 	fmt.Printf("   Rentable:  %-13s\tType: %s\n", xu.R.Name, xprop.RT[xu.R.RTID].Name)
 	fmt.Printf("   %s - %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
 
-	if xu.R.RTID == RTHOUSING {
+	if xu.R.RTID == RTRESIDENCE {
 		fmt.Printf("   Unit Type: %s - %s %4d sqft\n", xprop.UT[xu.U.UTID].Name, xprop.UT[xu.U.UTID].Style, xprop.UT[xu.U.UTID].SqFt)
 	}
 
-	fmt.Printf("   --------------------------------------------------------------------\n")
-	fmt.Printf("   %-8s %-46s %12s\n", "Date", "Description", "Balance")
-	fmt.Printf("   --------------------------------------------------------------------\n")
+	printReportLine()
+	//                Indt  Date  spc descr  spc bal
+	s := fmt.Sprintf("%%%ds%%-%ds%%%ds%%-%ds%%%ds%%%ds\n", FMTINDENT, FMTDATE, FMTSPACE, FMTDESCR, FMTSPACE, FMTBALANCE)
+	// fmt.Print(s)
+	fmt.Printf(s, "", "Date", "", "Description", "", "Balance")
+	printReportLine()
 }
-func printReportDoubleLine() {
-	fmt.Printf("=======================================================================\n")
+func printDatedLedgerEntryRJ(d time.Time, st string, a float32) {
+	// fmt.Printf("   %8s %46s %12.2f\n", d.Format(RRDATEFMT), s, a)
+	//                Indt  Date  spc descr spc bal  dec
+	s := fmt.Sprintf("%%%ds%%-%ds%%%ds%%%ds%%%ds%%%d.%df\n", FMTINDENT, FMTDATE, FMTSPACE, FMTDESCR, FMTSPACE, FMTBALANCE, FMTDECIMAL)
+	// fmt.Print(s)
+	fmt.Printf(s, "", d.Format(RRDATEFMT), "", st, "", a)
 }
-func printReportLine() {
-	fmt.Printf("-----------------------------------------------------------------------\n")
+func printDatedLedgerEntryLJ(d time.Time, st string, a float32) {
+	// fmt.Printf("   %8s %-46s %12.2f\n", d.Format(RRDATEFMT), st, a)
+	//                Indt  Date  spc descr  spc bal  dec
+	s := fmt.Sprintf("%%%ds%%-%ds%%%ds%%-%ds%%%ds%%%d.%df\n", FMTINDENT, FMTDATE, FMTSPACE, FMTDESCR, FMTSPACE, FMTBALANCE, FMTDECIMAL)
+	fmt.Printf(s, "", d.Format(RRDATEFMT), "", st, "", a)
 }
-func printReportThinLine() {
-	fmt.Printf("    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
+func printReportEntryRJ(st string, a float32) {
+	// fmt.Printf("%11s %46s %12.2f\n", " ", st, a)
+	//                Indt  Date  spc descr  spc bal  dec
+	s := fmt.Sprintf("%%%ds%%%ds%%%ds%%%ds%%%ds%%%d.%df\n", FMTINDENT, FMTDATE, FMTSPACE, FMTDESCR, FMTSPACE, FMTBALANCE, FMTDECIMAL)
+	fmt.Printf(s, "", " ", "", st, "", a)
 }
-func printDatedLedgerEntryRJ(d time.Time, s string, a float32) {
-	fmt.Printf("   %8s %46s %12.2f\n", d.Format(RRDATEFMT), s, a)
+func printReportEntryLJ(st string, a float32) {
+	// fmt.Printf("%11s %-46s %12.2f\n", " ", s, a)
+	//                Indt  Date  spc descr  spc bal  dec
+	s := fmt.Sprintf("%%%ds%%-%ds%%%ds%%-%ds%%%ds%%%d.%df\n", FMTINDENT, FMTDATE, FMTSPACE, FMTDESCR, FMTSPACE, FMTBALANCE, FMTDECIMAL)
+	fmt.Printf(s, "", " ", "", st, "", a)
 }
-func printDatedLedgerEntryLJ(d time.Time, s string, a float32) {
-	fmt.Printf("   %8s %-46s %12.2f\n", d.Format(RRDATEFMT), s, a)
-}
-func printReportEntryRJ(s string, a float32) {
-	fmt.Printf("%11s %46s %12.2f\n", " ", s, a)
-}
-func printReportEntryLJ(s string, a float32) {
-	fmt.Printf("%11s %-46s %12.2f\n", " ", s, a)
-}
-func printReportStringLJ(s string) {
-	fmt.Printf("%11s %-46s\n", " ", s)
+func printReportStringLJ(st string) {
+	// fmt.Printf("%11s %-46s\n", " ", s)
+	//                Indt  Date  spc descr  spc bal  dec
+	s := fmt.Sprintf("%%%ds%%-%ds%%%ds%%-%ds\n", FMTINDENT, FMTDATE, FMTSPACE, FMTDESCR)
+	fmt.Printf(s, "", " ", "", st)
 }
 
 // j = justification attribute:  0 = left justify, 1 = right justify
@@ -105,20 +140,20 @@ func printAssessment(d time.Time, a *Assessment, j int) {
 
 // return a slice of assessments for the unit associated with this
 // occupancy agreement.
-func unitReceipts(ra *RentalAgreement, d1, d2 *time.Time) float32 {
-	rows, err := App.prepstmt.getUnitReceipts.Query(ra.RAID, d1, d2)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	var tot = float32(0.0)
-	var r Receipt
-	for rows.Next() {
-		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.PID, &r.PMTID, &r.Amount, &r.Dt, &r.ApplyToGeneralReceivable, &r.ApplyToSecurityDeposit))
-		tot += r.Amount
-		s := fmt.Sprintf("Receipt %d  (%s)", r.RCPTID, App.PmtTypes[r.PMTID].Name)
-		printDatedLedgerEntryRJ(r.Dt, s, r.Amount)
-	}
-	return tot
-}
+// func unitReceipts(ra *RentalAgreement, d1, d2 *time.Time) float32 {
+// 	rows, err := App.prepstmt.getUnitReceipts.Query(ra.RAID, d1, d2)
+// 	rlib.Errcheck(err)
+// 	defer rows.Close()
+// 	var tot = float32(0.0)
+// 	var r Receipt
+// 	for rows.Next() {
+// 		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.PID, &r.PMTID, &r.Amount, &r.Dt, &r.ApplyToGeneralReceivable, &r.ApplyToSecurityDeposit))
+// 		tot += r.Amount
+// 		s := fmt.Sprintf("Receipt %d  (%s)", r.RCPTID, App.PmtTypes[r.PMTID].Name)
+// 		printDatedLedgerEntryRJ(r.Dt, s, r.Amount)
+// 	}
+// 	return tot
+// }
 
 func unitSecurityDeposit(ra *RentalAgreement, d1, d2 *time.Time) float32 {
 	var t = float32(0.0)
@@ -145,7 +180,7 @@ func unitAssessments(ra *RentalAgreement, d1, d2 *time.Time) float32 {
 	var a Assessment
 	ap := &a
 	for rows.Next() {
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.LastModTime, &a.LastModBy))
 		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY && a.ASMTID != SECURITYDEPOSIT {
 			// TBD
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)
@@ -247,9 +282,9 @@ func UnitReport(xprop *XBusiness, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 
 	// // for i := 0; i < len(m); i++ {
 	// // 	// printDatedLedgerEntryRJ(m[i], "Unit Type Scheduled Rent", ra.ScheduledRent)
-	// // 	for j := 0; j < len(n); j++ {
-	// // 		s := fmt.Sprintf("Specialty: %s", t[n[j]].Name)
-	// // 		printDatedLedgerEntryRJ(m[i], s, t[n[j]].Fee)
+	// // 	for a := 0; a < len(n); a++ {
+	// // 		s := fmt.Sprintf("Specialty: %s", t[n[a]].Name)
+	// // 		printDatedLedgerEntryRJ(m[i], s, t[n[a]].Fee)
 	// // 	}
 	// // }
 	// // unitSecurityDeposit(ra, d1, d2)
@@ -319,7 +354,7 @@ func LedgerReportsByRentable(xprop *XBusiness, xu *XUnit, d1, d2 *time.Time) {
 		billing = append(billing, &b)
 	}
 	switch xu.R.RTID {
-	case RTHOUSING:
+	case RTRESIDENCE:
 		UnitReport(xprop, xu, &billing, d1, d2)
 	default:
 		RentableReport(xprop, xu, &billing, d1, d2)
@@ -335,7 +370,7 @@ func LedgerReportsByBusiness(xprop *XBusiness, d1, d2 *time.Time) {
 	defer rows.Close()
 	for rows.Next() {
 		var xu XUnit
-		rlib.Errcheck(rows.Scan(&xu.R.RID, &xu.R.LID, &xu.R.RTID, &xu.R.BID, &xu.R.PID, &xu.R.RAID, &xu.R.UNITID, &xu.R.Name, &xu.R.Assignment, &xu.R.Report, &xu.R.LastModTime, &xu.R.LastModBy))
+		rlib.Errcheck(rows.Scan(&xu.R.RID, &xu.R.LID, &xu.R.RTID, &xu.R.BID, &xu.R.UNITID, &xu.R.Name, &xu.R.Assignment, &xu.R.Report, &xu.R.LastModTime, &xu.R.LastModBy))
 		if xu.R.UNITID > 0 {
 			GetXUnit(xu.R.RID, &xu)
 			LedgerReportsByRentable(xprop, &xu, d1, d2)

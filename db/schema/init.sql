@@ -72,7 +72,13 @@ INSERT INTO assessmenttypes (Name,Type) VALUES
 	("Security Deposit Return", 0),				--  55
 	("Transfer to Alternate Receivable", 0),	--  56
 	("Returned Payments", 1),					--  57
-	("Security Deposit Assessment", 0);			--  58
+	("Security Deposit Assessment", 0),			--  58
+
+-- unit specialties
+	("Lake View",0),							--  59
+	("Courtyard View",0),						--  60
+	("Top Floor",0),							--  61
+	("Fireplace",0);							--  62
 
 
 -- ----------------------------------------------------------------------------------------

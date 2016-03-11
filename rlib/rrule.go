@@ -8,6 +8,10 @@ func dateInRange(dt, start, stop *time.Time) bool {
 	return (dt.Equal(*start) || dt.After(*start)) && dt.Before(*stop)
 }
 
+func dateRangeOverlap(a1, a2, s1, s2 *time.Time) bool {
+	return a1.Before(*s2) && a2.After(*s1)
+}
+
 // a1 - a2 = time range of the assessment
 // R1 - R2 = time range for the run calculation
 // freq = chunk of time over which to quantize the assessment
@@ -139,6 +143,7 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, aFrequency int) []tim
 
 	switch aFrequency {
 	case RECURNONE: // no recurrence
+		// if dateRangeOverlap(aStart, aStop, start, stop) {
 		if dateInRange(aStart, start, stop) {
 			m = append(m, *aStart)
 			return m

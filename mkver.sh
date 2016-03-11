@@ -5,7 +5,7 @@ BLDNOFILE="./buildno"
 BUILDNO=$(cat ${BLDNOFILE})
 BUILDNO=$((BUILDNO + 1))
 FNAME="ver.go"
-VER=$(printf "%d.%d.%06d" ${MAJVER} ${MINVER} ${BUILDNO})
+VER=$(printf "%d.%d.%s%06d" ${MAJVER} ${MINVER} ${USER} ${BUILDNO})
 DAT=$(date)
 cat >${FNAME} <<ZZ1EOF
 package main

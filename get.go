@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"rentroll/rlib"
 	"time"
 )
@@ -50,9 +51,24 @@ func GetXPerson(tcid int, x *XPerson) {
 	}
 }
 
-// GetRentable reads a Rentable structure based on the supplied rentable id
-func GetRentable(rid int, r *Rentable) {
-	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.PID, &r.RAID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+// GetXPersonByPID will load a full XPerson given the PID
+func GetXPersonByPID(pid int) XPerson {
+	var xp XPerson
+	GetPayor(pid, &xp.pay)
+	GetXPerson(xp.pay.TCID, &xp)
+	return xp
+}
+
+// GetRentableByID reads a Rentable structure based on the supplied rentable id
+func GetRentableByID(rid int, r *Rentable) {
+	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+}
+
+// GetRentable reads and returns a Rentable structure based on the supplied rentable id
+func GetRentable(rid int) Rentable {
+	var r Rentable
+	rlib.Errcheck(App.prepstmt.getRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	return r
 }
 
 // GetUnit reads a Unit structure based on the supplied unit id
@@ -65,7 +81,7 @@ func GetUnit(uid int, u *Unit) {
 // GetXUnit reads an XUnit structure based on the RID.
 func GetXUnit(rid int, x *XUnit) {
 	if x.R.RID == 0 && rid > 0 {
-		GetRentable(rid, &x.R)
+		GetRentableByID(rid, &x.R)
 	}
 	if x.U.UNITID == 0 && x.R.UNITID > 0 {
 		GetUnit(x.R.UNITID, &x.U)
@@ -147,7 +163,7 @@ func GetSecurityDepositAssessments(unitid int) []Assessment {
 
 	for rows.Next() {
 		var a Assessment
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod))
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule))
 		m = append(m, a)
 	}
 	rlib.Errcheck(rows.Err())
@@ -237,8 +253,76 @@ func GetAllRentableAssessments(RID int, d1, d2 *time.Time) []Assessment {
 	t = make([]Assessment, 0)
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.LastModTime, &a.LastModBy))
 		t = append(t, a)
 	}
 	return t
+}
+
+// GetLedgerByGLNo returns the Ledger struct for the account with the supplied name
+func GetLedgerByGLNo(s string) Ledger {
+	var r Ledger
+	// fmt.Printf("Ledger = %s\n", s)
+	err := App.prepstmt.getLedgerByGLNo.QueryRow(s).Scan(&r.LID, &r.GLNumber, &r.Dt, &r.Balance, &r.Name)
+	if nil != err {
+		fmt.Printf("GetLedgerByGLNo: Could not find ledger for account %s\n", s)
+	}
+
+	return r
+}
+
+// GetRentalAgreement returns the Ledger struct for the account with the supplied name
+func GetRentalAgreement(raid int) (RentalAgreement, error) {
+	var r RentalAgreement
+	// fmt.Printf("Ledger = %s\n", s)
+	err := App.prepstmt.getRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID,
+		&r.BID, &r.RID, &r.UNITID, &r.PID, &r.PrimaryTenant, &r.RentalStart,
+		&r.RentalStop, &r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
+	if nil != err {
+		fmt.Printf("GetRentalAgreement: could not get rental agreement with raid = %d,  err = %v\n", raid, err)
+	}
+	return r, err
+}
+
+// GetReceiptAllocations loads all receipt allocations associated with the supplied receipt id into
+// the RA array within a Receipt structure
+func GetReceiptAllocations(rcptid int, r *Receipt) {
+	rows, err := App.prepstmt.getReceiptAllocations.Query(rcptid)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	r.RA = make([]ReceiptAllocation, 0)
+	for rows.Next() {
+		var a ReceiptAllocation
+		rlib.Errcheck(rows.Scan(&a.RCPTID, &a.Amount, &a.ASMID))
+		r.RA = append(r.RA, a)
+	}
+}
+
+// GetReceipts for the supplied business (bid) in date range [d1 - d2)
+func GetReceipts(bid int, d1, d2 *time.Time) []Receipt {
+	rows, err := App.prepstmt.getReceiptsInDateRange.Query(bid, d1, d2)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t []Receipt
+	t = make([]Receipt, 0)
+	for rows.Next() {
+		var r Receipt
+		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.BID, &r.PID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount))
+		r.RA = make([]ReceiptAllocation, 0)
+		GetReceiptAllocations(r.RCPTID, &r)
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetAssessment returns the Assessment struct for the account with the supplied asmid
+func GetAssessment(asmid int) (Assessment, error) {
+	var a Assessment
+	err := App.prepstmt.getAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
+		&a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
+		&a.ProrationMethod, &a.AcctRule, &a.LastModTime, &a.LastModBy)
+	if nil != err {
+		fmt.Printf("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
+	}
+	return a, err
 }
