@@ -17,6 +17,5 @@ test:
 	go test
 	@echo "*** TESTING COMPLETE -- ALL TESTS PASSED ***"
 
-
 man: rentroll.1
 	cp rentroll.1 /usr/local/share/man/man1

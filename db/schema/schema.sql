@@ -218,11 +218,9 @@ CREATE TABLE availabilitytypes (
 -- **** SCOPED TO A SPECIFIC PROPERTY ****
 -- ****                               ****
 -- ***************************************
-
 -- This describes the world of assessments for a particular business
 -- Query this table for a particular BID, the solution set is the list
 -- of assessments for that particular business.
-
 -- applicable assessments for a specific business
 CREATE TABLE businessassessments (
     BID INT NOT NULL DEFAULT 0,
@@ -439,7 +437,6 @@ CREATE TABLE payor  (
 CREATE TABLE receipt (
     RCPTID INT NOT NULL AUTO_INCREMENT,                       -- unique id for this receipt
     BID INT NOT NULL DEFAULT 0,
-    PID INT NOT NULL DEFAULT 0,
     RAID INT NOT NULL DEFAULT 0,
     PMTID INT NOT NULL DEFAULT 0,
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -469,8 +466,7 @@ CREATE TABLE journal (
     Amount DECIMAL(19.4) NOT NULL DEFAULT 0.0,                  -- how much
     Type SMALLINT NOT NULL DEFAULT 0,                           -- 0 = unknown, 1 = assessment, 2 = payment/receipt
     ID INT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
-    LastModTime TIMESTAMP,                                      -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
+    AcctRule VARCHAR(200),    
     PRIMARY KEY (JID)
 );
 
@@ -482,10 +478,22 @@ CREATE TABLE journalallocation (
 
 CREATE TABLE journalmarker (
     JMID INT NOT NULL AUTO_INCREMENT,
-     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Available, 2 = closed
-   LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    State SMALLINT NOT NULL DEFAULT 0,                         -- 0 = unknown, 1 = Closed, 2 = Locked
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     PRIMARY KEY (JMID)
+);
+
+CREATE TABLE journalaudit (
+    JID INT NOT NULL DEFAULT 0,             -- what JID was affected
+    UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
+    ModTime TIMESTAMP                       -- timestamp of change    
+);
+
+CREATE TABLE journalmarkeraudit (
+    JMID INT NOT NULL DEFAULT 0,            -- what JMID was affected
+    UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
+    ModTime TIMESTAMP                       -- timestamp of change
 );
 
 -- **************************************
@@ -495,20 +503,32 @@ CREATE TABLE journalmarker (
 -- **************************************
 CREATE TABLE ledger (
     LID INT NOT NULL AUTO_INCREMENT,                          -- unique id for this Ledger
-    GLNumber VARCHAR(10) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    GLNumber VARCHAR(15) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently active or inactive
     Type SMALLINT NOT NULL DEFAULT 0,                         -- Classification of a GL Account as one of the following:  bank, accounts receivable, liability, 
-    Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,               -- balance amount
-    Name VARCHAR(50) NOT NULL DEFAULT '',                     -- 
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount
     PRIMARY KEY (LID)        
 );
 
 CREATE TABLE ledgermarker (
-    JMID INT NOT NULL AUTO_INCREMENT,
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    LMID INT NOT NULL AUTO_INCREMENT,
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Available, 2 = closed
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     PRIMARY KEY (JMID)
+);
+
+CREATE TABLE ledgeraudit (
+    LID INT NOT NULL DEFAULT 0,             -- what LID was affected
+    UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
+    ModTime TIMESTAMP                       -- timestamp of change    
+);
+
+CREATE TABLE ledgermarkeraudit (
+    LMID INT NOT NULL DEFAULT 0,            -- what LMID was affected
+    UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
+    ModTime TIMESTAMP                       -- timestamp of change    
 );
 

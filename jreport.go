@@ -179,8 +179,9 @@ func JournalReport(xprop *XBusiness, d1, d2 *time.Time) {
 	//===========================================================
 	r := GetReceipts(xprop.P.BID, d1, d2)
 	for i := 0; i < len(r); i++ {
-		rnt := GetRentable(r[i].RAID)
-		s := fmt.Sprintf("P%08d  Payment", r[i].RCPTID)
+		rntagr, _ := GetRentalAgreement(r[i].RAID)
+		xp := GetXPersonByPID(rntagr.PID)
+		s := fmt.Sprintf("P%08d  Payment - %s  %.2f", r[i].RCPTID, xp.trn.LastName, r[i].Amount)
 		printJournalSubtitle(s)
 		for j := 0; j < len(r[i].RA); j++ {
 			// pull the assessment that gave rise to this portion...
@@ -199,6 +200,7 @@ func JournalReport(xprop *XBusiness, d1, d2 *time.Time) {
 						acct := strings.TrimSpace(ta[1])
 						if action == "d" {
 							rule := fmt.Sprintf("c %s, d 10001", acct)
+							rnt := GetRentable(a.RID)
 							processAcctRuleAmount(r[i].Dt, rule, r[i].RAID, r[i].RA[j].Amount, &rnt)
 						}
 					}

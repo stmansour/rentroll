@@ -200,7 +200,6 @@ type PaymentType struct {
 type Receipt struct {
 	RCPTID int
 	BID    int
-	PID    int
 	RAID   int
 	PMTID  int
 	Dt     time.Time
@@ -294,13 +293,50 @@ type XUnit struct {
 	S []int
 }
 
+// Journal is the set of attributes describing a journal entry
+type Journal struct {
+	JID    int
+	BID    int
+	RAID   int
+	Dt     time.Time
+	Amount float32
+	Type   int
+	ID     int
+}
+
+// JournalAllocation describes how the associated journal amount is allocated
+type JournalAllocation struct {
+	JID    int
+	Amount float32
+	ASMID  int
+}
+
+// JournalMarker describes a period of time where the journal entries have been locked down
+type JournalMarker struct {
+	JMID    int
+	State   int
+	DtStart time.Time
+	DtStop  time.Time
+}
+
 // Ledger is the structure for Ledger attributes
 type Ledger struct {
-	LID      int       // unique id for this Ledger
-	GLNumber string    // if not '' then it's a link a QB account
-	Dt       time.Time // balance date and time
-	Balance  float32   // balance amount
-	Name     string    // name of ledger
+	LID      int
+	GLNumber string
+	Dt       time.Time
+	Status   int
+	Type     int
+	Amount   float32
+}
+
+// LedgerMarker describes a period of time period described. The Balance can be
+// used going forward from DtStop
+type LedgerMarker struct {
+	LMID    int
+	State   int
+	DtStart time.Time
+	DtStop  time.Time
+	Balance float32
 }
 
 // collection of prepared sql statements

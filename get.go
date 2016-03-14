@@ -307,7 +307,7 @@ func GetReceipts(bid int, d1, d2 *time.Time) []Receipt {
 	t = make([]Receipt, 0)
 	for rows.Next() {
 		var r Receipt
-		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.BID, &r.PID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount))
+		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount))
 		r.RA = make([]ReceiptAllocation, 0)
 		GetReceiptAllocations(r.RCPTID, &r)
 		t = append(t, r)
