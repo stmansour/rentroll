@@ -107,7 +107,7 @@ func processAcctRuleAmount(d time.Time, rule string, raid int, x float32, r *Ren
 			if action == "c" {
 				amt = -amt
 			}
-			l := GetLedgerByGLNo(acct)
+			l := GetLedgerMarkerByGLNo(acct)
 			printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.Name, acct, amt)
 		}
 	}
@@ -123,6 +123,50 @@ func printJournalAssessment(d time.Time, a *Assessment, pf float32, rentDuration
 	printJournalSubtitle(s)
 	processAcctRuleAmount(d, a.AcctRule, a.RAID, a.Amount*pf, &r)
 	printJournalSubtitle("")
+}
+
+func processAssessment(a *Assessment, dt, d1, d2 *time.Time) {
+	//-------------------------------------------------------------------
+	// over what range of time does this rental apply between d1 & d2
+	//-------------------------------------------------------------------
+	ra, _ := GetRentalAgreement(a.RAID)
+	start := *d1
+	if ra.RentalStart.After(start) {
+		start = ra.RentalStart
+	}
+	stop := ra.RentalStop.Add(24 * 60 * time.Minute)
+	if stop.After(*d2) {
+		stop = *d2
+	}
+	//-------------------------------------------------------------------------------------------
+	// this code needs to be generalized based on the recurrence period and the proration period
+	//-------------------------------------------------------------------------------------------
+	assessmentDuration := int(d2.Sub(*d1).Hours() / 24)
+	rentDuration := int(stop.Sub(start).Hours() / 24)
+	pf := float32(1.0)
+	if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
+		pf = float32(rentDuration) / float32(assessmentDuration)
+	} else {
+		rentDuration = assessmentDuration
+	}
+
+	printJournalAssessment(*dt, a, pf, rentDuration, assessmentDuration)
+
+	//-------------------------------------------------------------------------------------------
+	// if the assessment is of type == RENT then we may need to look for loss to lease.
+	// Check for a non-zero Amount in the rentable type or if it is a Unit, check the unittype
+	// for a MarketType value.  If either are non-zero, then we should handle the possibility
+	// of loss to lease.
+	//-------------------------------------------------------------------------------------------
+	if a.ASMTID == RENT {
+		xt := GetXType(a.RID, a.UNITID)
+		amt := xt.RT.MarketRate
+		if a.UNITID > 0 {
+			amt = xt.UT.MarketRate
+		}
+		fmt.Printf("   Budgeted: %6.2f   Collected: %6.2f   Loss to lease: %6.2f\n", amt*pf, a.Amount*pf, (a.Amount-amt)*pf)
+	}
+
 }
 
 // JournalReport do a journal for the supplied dates
@@ -145,30 +189,7 @@ func JournalReport(xprop *XBusiness, d1, d2 *time.Time) {
 			dl := ap.GetRecurrences(d1, d2)
 			// fmt.Printf("type = %d,  len(dl) = %d\n", a.ASMTID, len(dl))
 			for i := 0; i < len(dl); i++ {
-				//-------------------------------------------------------------------
-				// over what range of time does this rental apply between d1 & d2
-				//-------------------------------------------------------------------
-				ra, _ := GetRentalAgreement(a.RAID)
-				start := *d1
-				if ra.RentalStart.After(start) {
-					start = ra.RentalStart
-				}
-				stop := ra.RentalStop.Add(24 * 60 * time.Minute)
-				if stop.After(*d2) {
-					stop = *d2
-				}
-				//-------------------------------------------------------------------------------------------
-				// this code needs to be generalized based on the recurrence period and the proration period
-				//-------------------------------------------------------------------------------------------
-				assessmentDuration := int(d2.Sub(*d1).Hours() / 24)
-				rentDuration := int(stop.Sub(start).Hours() / 24)
-				pf := float32(1.0)
-				if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
-					pf = float32(rentDuration) / float32(assessmentDuration)
-				} else {
-					rentDuration = assessmentDuration
-				}
-				printJournalAssessment(dl[i], ap, pf, rentDuration, assessmentDuration)
+				processAssessment(&a, &dl[i], d1, d2)
 			}
 		}
 	}

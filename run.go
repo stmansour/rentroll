@@ -401,7 +401,8 @@ func ReportAll(d1, d2 time.Time, report int) {
 		case 2:
 			LedgerReportsByBusiness(&xprop, &d1, &d2)
 		default:
-			fmt.Printf("Unknown report type: %d\n", App.Report)
+			fmt.Printf("Generating Journal Records for %s to %s\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT))
+			GenerateJournalRecords(&xprop, &d1, &d2)
 		}
 	}
 }

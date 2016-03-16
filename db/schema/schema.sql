@@ -117,7 +117,7 @@ CREATE TABLE rentabletypes (
     RTID INT NOT NULL AUTO_INCREMENT,
     BID INT NOT NULL DEFAULT 0,                            -- associated business id
     Name VARCHAR(256) NOT NULL DEFAULT '',
-    Amount Decimal(19,4) NOT NULL DEFAULT 0.0,              -- rental price
+    Amount Decimal(19,4) NOT NULL DEFAULT 0.0,              -- rental price, reflects market value
     Frequency INT NOT NULL DEFAULT 0,                       -- price accrual frequency
     Proration INT NOT NULL DEFAULT 0,                       --  prorate frequency
     LastModTime TIMESTAMP,                                  -- when was this record last written
@@ -466,18 +466,19 @@ CREATE TABLE journal (
     Amount DECIMAL(19.4) NOT NULL DEFAULT 0.0,                  -- how much
     Type SMALLINT NOT NULL DEFAULT 0,                           -- 0 = unknown, 1 = assessment, 2 = payment/receipt
     ID INT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
-    AcctRule VARCHAR(200),    
     PRIMARY KEY (JID)
 );
 
 CREATE TABLE journalallocation (
     JID INT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ASMID INT NOT NULL DEFAULT 0 
+    ASMID INT NOT NULL DEFAULT 0,
+    AcctRule VARCHAR(200) NOT NULL DEFAULT ''
 );  
 
 CREATE TABLE journalmarker (
     JMID INT NOT NULL AUTO_INCREMENT,
+    BID INT NOT NULL DEFAULT 0,                                 -- Business id
     State SMALLINT NOT NULL DEFAULT 0,                         -- 0 = unknown, 1 = Closed, 2 = Locked
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -503,6 +504,7 @@ CREATE TABLE journalmarkeraudit (
 -- **************************************
 CREATE TABLE ledger (
     LID INT NOT NULL AUTO_INCREMENT,                          -- unique id for this Ledger
+    BID INT NOT NULL DEFAULT 0,                               -- Business id
     GLNumber VARCHAR(15) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently active or inactive
@@ -513,11 +515,14 @@ CREATE TABLE ledger (
 
 CREATE TABLE ledgermarker (
     LMID INT NOT NULL AUTO_INCREMENT,
-    State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Available, 2 = closed
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
-    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    BID INT NOT NULL DEFAULT 0,                                 -- Business id
+    GLNumber VARCHAR(15) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- ledger holds records and a balance up to this date
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    PRIMARY KEY (JMID)
+    DefaultAcct SMALLINT NOT NULL DEFAULT 0,                  -- flag: 0 = not the default cash account, 1 = default cash account to 
+    Name VARCHAR(50) NOT NULL DEFAULT '',
+    PRIMARY KEY (LMID)
 );
 
 CREATE TABLE ledgeraudit (

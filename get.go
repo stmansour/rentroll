@@ -128,8 +128,8 @@ func getUnitSpecialtiesTypes(m *[]int) map[int]UnitSpecialtyType {
 }
 
 // GetRentableType returns characteristics of the unit
-func GetRentableType(utid int, ut *RentableType) {
-	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(utid).Scan(&ut.RTID, &ut.BID, &ut.Name, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
+func GetRentableType(rtid int, rt *RentableType) {
+	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.MarketRate, &rt.Frequency, &rt.Proration, &rt.LastModTime, &rt.LastModBy))
 }
 
 // GetUnitType returns characteristics of the unit
@@ -259,15 +259,26 @@ func GetAllRentableAssessments(RID int, d1, d2 *time.Time) []Assessment {
 	return t
 }
 
-// GetLedgerByGLNo returns the Ledger struct for the account with the supplied name
-func GetLedgerByGLNo(s string) Ledger {
-	var r Ledger
+// GetLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
+func GetLedgerMarkerByGLNo(s string) LedgerMarker {
+	var r LedgerMarker
 	// fmt.Printf("Ledger = %s\n", s)
-	err := App.prepstmt.getLedgerByGLNo.QueryRow(s).Scan(&r.LID, &r.GLNumber, &r.Dt, &r.Balance, &r.Name)
+	err := App.prepstmt.getLedgerMarkerByGLNo.QueryRow(s).Scan(&r.LMID, &r.BID, &r.GLNumber, &r.State, &r.Dt, &r.Balance, &r.DefaultAcct, &r.Name)
 	if nil != err {
-		fmt.Printf("GetLedgerByGLNo: Could not find ledger for account %s\n", s)
+		fmt.Printf("GetLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber %s.\n", s)
+		fmt.Printf("err = %v\n", err)
 	}
+	return r
+}
 
+// GetDefaultCashLedgerMarker returns the LedgerMarker the default cash account associated with Business bid
+func GetDefaultCashLedgerMarker(bid int) LedgerMarker {
+	var r LedgerMarker
+	err := App.prepstmt.getDefaultCashLedgerMarker.QueryRow(bid).Scan(&r.LMID, &r.BID, &r.GLNumber, &r.State, &r.Dt, &r.Balance, &r.DefaultAcct, &r.Name)
+	if nil != err {
+		fmt.Printf("GetDefaultCashLedgerMarker: Could not find default cash acount for Business %d.\n", bid)
+		fmt.Printf("err = %v\n", err)
+	}
 	return r
 }
 
@@ -325,4 +336,33 @@ func GetAssessment(asmid int) (Assessment, error) {
 		fmt.Printf("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
 	}
 	return a, err
+}
+
+// GetXType returns the RentalType structure and if it exists the UnitType structure is also returned
+func GetXType(rtid, utid int) XType {
+	var xt XType
+	GetRentableType(rtid, &xt.RT)
+	GetUnitType(utid, &xt.UT)
+	return xt
+}
+
+// GetJournalMarkers loads the last n journal markers
+func GetJournalMarkers(n int) []JournalMarker {
+	rows, err := App.prepstmt.getJournalMarkers.Query(n)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t []JournalMarker
+	t = make([]JournalMarker, 0)
+	for rows.Next() {
+		var r JournalMarker
+		rlib.Errcheck(rows.Scan(&r.JMID, &r.BID, &r.State, &r.DtStart, &r.DtStop))
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetLastJournalMarker returns the last journal marker or nil if no journal markers exist
+func GetLastJournalMarker() JournalMarker {
+	t := GetJournalMarkers(1)
+	return t[0]
 }

@@ -4,10 +4,36 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"time"
 )
 import _ "github.com/go-sql-driver/mysql"
+
+// assessment types
+const (
+	RENT                      = 1
+	SECURITYDEPOSIT           = 2
+	SECURITYDEPOSITASSESSMENT = 58
+
+	CREDIT = 0
+	DEBIT  = 1
+
+	RTRESIDENCE = 1
+	RTCARPORT   = 2
+	RTCAR       = 3
+
+	REPORTJUSTIFYLEFT  = 0
+	REPORTJUSTIFYRIGHT = 1
+
+	JNLTYPEASMT = 1 // record is the result of an assessment
+	JNLTYPERCPT = 2 // record is the result of a receipt
+
+	MARKERSTATEOPEN   = 0
+	MARKERSTATECLOSED = 1
+	MARKERSTATELOCKED = 2
+	MARKERSTATEORIGIN = 3
+)
 
 //==========================================
 //    BID = business id
@@ -125,23 +151,6 @@ type XPerson struct {
 	psp Prospect
 	pay Payor
 }
-
-// assessment types
-const (
-	RENT                      = 1
-	SECURITYDEPOSIT           = 2
-	SECURITYDEPOSITASSESSMENT = 58
-
-	CREDIT = 0
-	DEBIT  = 1
-
-	RTRESIDENCE = 1
-	RTCARPORT   = 2
-	RTCAR       = 3
-
-	REPORTJUSTIFYLEFT  = 0
-	REPORTJUSTIFYRIGHT = 1
-)
 
 // AssessmentType describes the different types of assessments
 type AssessmentType struct {
@@ -278,6 +287,12 @@ type UnitType struct {
 	LastModBy   int
 }
 
+// XType combines RentableType and UnitType
+type XType struct {
+	RT RentableType
+	UT UnitType
+}
+
 // XBusiness combines the Business struct and a map of the business's unit types
 type XBusiness struct {
 	P  Business
@@ -306,14 +321,16 @@ type Journal struct {
 
 // JournalAllocation describes how the associated journal amount is allocated
 type JournalAllocation struct {
-	JID    int
-	Amount float32
-	ASMID  int
+	JID      int
+	Amount   float32
+	ASMID    int
+	AcctRule string
 }
 
 // JournalMarker describes a period of time where the journal entries have been locked down
 type JournalMarker struct {
 	JMID    int
+	BID     int
 	State   int
 	DtStart time.Time
 	DtStop  time.Time
@@ -322,6 +339,7 @@ type JournalMarker struct {
 // Ledger is the structure for Ledger attributes
 type Ledger struct {
 	LID      int
+	BID      int
 	GLNumber string
 	Dt       time.Time
 	Status   int
@@ -332,11 +350,14 @@ type Ledger struct {
 // LedgerMarker describes a period of time period described. The Balance can be
 // used going forward from DtStop
 type LedgerMarker struct {
-	LMID    int
-	State   int
-	DtStart time.Time
-	DtStop  time.Time
-	Balance float32
+	LMID        int
+	BID         int
+	GLNumber    string
+	State       int
+	Dt          time.Time
+	Balance     float32
+	DefaultAcct int
+	Name        string
 }
 
 // collection of prepared sql statements
@@ -354,6 +375,7 @@ type prepSQL struct {
 	getUnitSpecialtyType         *sql.Stmt
 	getRentableType              *sql.Stmt
 	getUnitType                  *sql.Stmt
+	getXType                     *sql.Stmt
 	getUnitReceipts              *sql.Stmt
 	getUnitAssessments           *sql.Stmt
 	getAllRentableAssessments    *sql.Stmt
@@ -367,22 +389,40 @@ type prepSQL struct {
 	getBusiness                  *sql.Stmt
 	getAllBusinessSpecialtyTypes *sql.Stmt
 	getAllAssessmentsByBusiness  *sql.Stmt
-	getLedgerByGLNo              *sql.Stmt
+	getLedgerMarkerByGLNo        *sql.Stmt
 	getReceiptsInDateRange       *sql.Stmt
 	getReceiptAllocations        *sql.Stmt
+	getDefaultCashLedgerMarker   *sql.Stmt
+	getAllJournalsInRange        *sql.Stmt
+	getJournalAllocations        *sql.Stmt
+	getJournalMarker             *sql.Stmt
+	getJournalMarkers            *sql.Stmt
+	insertJournalMarker          *sql.Stmt
+	insertJournal                *sql.Stmt
+	insertJournalAllocation      *sql.Stmt
+	deleteJournalAllocations     *sql.Stmt
+	deleteJournalEntry           *sql.Stmt
+	deleteJournalMarker          *sql.Stmt
 }
 
 // App is the global data structure for this app
 var App struct {
-	dbdir     *sql.DB
-	dbrr      *sql.DB
-	DBDir     string
-	DBRR      string
-	DBUser    string
-	prepstmt  prepSQL
-	AsmtTypes map[int]AssessmentType
-	PmtTypes  map[int]PaymentType
-	Report    int
+	dbdir       *sql.DB
+	dbrr        *sql.DB
+	DBDir       string
+	DBRR        string
+	DBUser      string
+	prepstmt    prepSQL
+	AsmtTypes   map[int]AssessmentType
+	PmtTypes    map[int]PaymentType
+	Report      int
+	DefaultCash map[int]LedgerMarker // The default cash account for each business
+}
+
+// This is Phonebooks's standard logger
+func ulog(format string, a ...interface{}) {
+	p := fmt.Sprintf(format, a...)
+	log.Print(p)
 }
 
 func readCommandLineArgs() {
@@ -390,7 +430,7 @@ func readCommandLineArgs() {
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	rptPtr := flag.Int("r", 1, "report: 1 = journal, 2 = rentable")
+	rptPtr := flag.Int("r", 0, "report: 0 = generate journal records, 1 = journal, 2 = rentable")
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version: %s\nBuilt:   %s\n", getVersionNo(), getBuildTime())
@@ -430,6 +470,7 @@ func main() {
 	buildPreparedStatements()
 	initLists()
 	initJFmt()
+	loadDefaultCashAccts()
 
 	//  func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
 	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
