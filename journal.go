@@ -8,7 +8,7 @@ import (
 )
 
 // journalAssessment processes the assessment, creates a journal entry, and returns its id
-func journalAssessment(d time.Time, a *Assessment, d1, d2 *time.Time) int {
+func journalAssessment(d time.Time, a *Assessment, d1, d2 *time.Time) (int, float32) {
 	// r := GetRentable(a.RID)
 	// xp := GetXPersonByPID(r.PID)
 	// s := fmt.Sprintf("A%08d  %s", a.ASMID, App.AsmtTypes[a.ASMTID].Name)
@@ -50,12 +50,14 @@ func journalAssessment(d time.Time, a *Assessment, d1, d2 *time.Time) int {
 	j.ID = a.ASMID
 	j.RAID = a.RAID
 
+	// fmt.Printf("Amount = %6.2f\n", j.Amount)
+
 	jid, err := InsertJournalEntry(&j)
 	if err != nil {
 		ulog("error inserting journal entry: %v\n", err)
 	}
 
-	return jid
+	return jid, pf
 }
 
 // journalAllocation assumes that all fields except AcctRule are filled in
@@ -122,14 +124,14 @@ func GenerateJournalRecords(xprop *XBusiness, d1, d2 *time.Time) {
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)
 		} else {
 			dl := ap.GetRecurrences(d1, d2)
-			fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(RRDATEFMT), a.Stop.Format(RRDATEFMT), len(dl))
+			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(RRDATEFMT), a.Stop.Format(RRDATEFMT), len(dl))
 			for i := 0; i < len(dl); i++ {
 				var ja JournalAllocation
-				jid := journalAssessment(dl[i], &a, d1, d2)
+				jid, pf := journalAssessment(dl[i], &a, d1, d2)
 				if jid > 0 {
 					ja.JID = jid
 					ja.ASMID = a.ASMID
-					ja.Amount = a.Amount
+					ja.Amount = a.Amount * pf
 					ja.AcctRule = a.AcctRule
 					InsertJournalAllocationEntry(&ja)
 				}

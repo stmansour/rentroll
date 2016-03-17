@@ -317,6 +317,7 @@ type Journal struct {
 	Amount float32
 	Type   int
 	ID     int
+	JA     []JournalAllocation
 }
 
 // JournalAllocation describes how the associated journal amount is allocated
@@ -390,11 +391,13 @@ type prepSQL struct {
 	getAllBusinessSpecialtyTypes *sql.Stmt
 	getAllAssessmentsByBusiness  *sql.Stmt
 	getLedgerMarkerByGLNo        *sql.Stmt
+	getReceipt                   *sql.Stmt
 	getReceiptsInDateRange       *sql.Stmt
 	getReceiptAllocations        *sql.Stmt
 	getDefaultCashLedgerMarker   *sql.Stmt
 	getAllJournalsInRange        *sql.Stmt
 	getJournalAllocations        *sql.Stmt
+	getJournalByRange            *sql.Stmt
 	getJournalMarker             *sql.Stmt
 	getJournalMarkers            *sql.Stmt
 	insertJournalMarker          *sql.Stmt

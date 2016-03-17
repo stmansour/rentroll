@@ -23,7 +23,6 @@ func loadDefaultCashAccts() {
 			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))
 
 		// All we really needed was the BID...
-		fmt.Printf("xprop.P.BID = %d\n", xprop.P.BID)
 		App.DefaultCash[xprop.P.BID] = GetDefaultCashLedgerMarker(xprop.P.BID)
 		if App.DefaultCash[xprop.P.BID].LMID == 0 {
 			fmt.Printf("No default cash account was found for business %d, %s\n", xprop.P.BID, xprop.P.Name)

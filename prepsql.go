@@ -40,6 +40,8 @@ func buildPreparedStatements() {
 	rlib.Errcheck(err)
 	App.prepstmt.getUnitReceipts, err = App.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
 	rlib.Errcheck(err)
+	App.prepstmt.getReceipt, err = App.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount FROM receipt WHERE RCPTID=?")
+	rlib.Errcheck(err)
 	App.prepstmt.getUnitAssessments, err = App.dbrr.Prepare("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,LastModTime,LastModBy FROM assessments WHERE UNITID=? and Stop >= ? and Start < ?")
 	rlib.Errcheck(err)
 	App.prepstmt.getAllRentableAssessments, err = App.dbrr.Prepare("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")

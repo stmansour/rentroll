@@ -326,6 +326,14 @@ func GetReceipts(bid int, d1, d2 *time.Time) []Receipt {
 	return t
 }
 
+// GetReceipt returns a receipt structure for the supplied RCPTID
+func GetReceipt(rcptid int) Receipt {
+	var r Receipt
+	rlib.Errcheck(App.prepstmt.getReceipt.QueryRow(rcptid).Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount))
+	GetReceiptAllocations(rcptid, &r)
+	return r
+}
+
 // GetAssessment returns the Assessment struct for the account with the supplied asmid
 func GetAssessment(asmid int) (Assessment, error) {
 	var a Assessment
@@ -365,4 +373,18 @@ func GetJournalMarkers(n int) []JournalMarker {
 func GetLastJournalMarker() JournalMarker {
 	t := GetJournalMarkers(1)
 	return t[0]
+}
+
+// GetJournalAllocations loads all Journal allocations associated with the supplied Journal id into
+// the RA array within a Journal structure
+func GetJournalAllocations(jid int, j *Journal) {
+	rows, err := App.prepstmt.getJournalAllocations.Query(jid)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	j.JA = make([]JournalAllocation, 0)
+	for rows.Next() {
+		var a JournalAllocation
+		rlib.Errcheck(rows.Scan(&a.JID, &a.Amount, &a.ASMID, &a.AcctRule))
+		j.JA = append(j.JA, a)
+	}
 }

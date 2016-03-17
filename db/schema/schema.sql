@@ -463,9 +463,10 @@ CREATE TABLE journal (
     BID INT NOT NULL DEFAULT 0,                                 -- Business id
     RAID INT NOT NULL DEFAULT 0,                                -- associated rental agreement
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- date when it occurred
-    Amount DECIMAL(19.4) NOT NULL DEFAULT 0.0,                  -- how much
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- how much
     Type SMALLINT NOT NULL DEFAULT 0,                           -- 0 = unknown, 1 = assessment, 2 = payment/receipt
     ID INT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
+    -- no last mod by, etc., this is all handled in the journalaudit table
     PRIMARY KEY (JID)
 );
 

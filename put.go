@@ -3,7 +3,7 @@ package main
 // InsertJournalEntry writes a new journal entry to the database
 func InsertJournalEntry(j *Journal) (int, error) {
 	var rid = int(0)
-	res, err := App.prepstmt.insertJournal.Exec(j.BID, j.Amount, j.Dt, j.Type, j.ID, j.RAID)
+	res, err := App.prepstmt.insertJournal.Exec(j.BID, j.RAID, j.Dt, j.Amount, j.Type, j.ID)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

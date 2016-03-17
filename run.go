@@ -397,9 +397,11 @@ func ReportAll(d1, d2 time.Time, report int) {
 
 		switch report {
 		case 1:
-			JournalReport(&xprop, &d1, &d2)
+			JournalReportText(&xprop, &d1, &d2)
 		case 2:
 			LedgerReportsByBusiness(&xprop, &d1, &d2)
+		case 3:
+			JournalReport1(&xprop, &d1, &d2)
 		default:
 			fmt.Printf("Generating Journal Records for %s to %s\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT))
 			GenerateJournalRecords(&xprop, &d1, &d2)
