@@ -117,12 +117,18 @@ CREATE TABLE rentabletypes (
     RTID INT NOT NULL AUTO_INCREMENT,
     BID INT NOT NULL DEFAULT 0,                            -- associated business id
     Name VARCHAR(256) NOT NULL DEFAULT '',
-    Amount Decimal(19,4) NOT NULL DEFAULT 0.0,              -- rental price, reflects market value
     Frequency INT NOT NULL DEFAULT 0,                       -- price accrual frequency
     Proration INT NOT NULL DEFAULT 0,                       --  prorate frequency
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RTID)
+);
+
+CREATE TABLE rentablemarketrate (
+    RTID INT NOT NULL DEFAULT 0,                                -- associated rentable type
+    MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'    -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
 );
 
 -- ===========================================
@@ -147,6 +153,12 @@ CREATE TABLE unittypes (
     PRIMARY KEY (UTID)
 );
 
+CREATE TABLE unitmarketrate (
+    UTID INT NOT NULL DEFAULT 0,                                -- associated rentable type
+    MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00'    -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
+);
 
 -- ===========================================
 --   UNIT SPECIALTY TYPES
@@ -257,24 +269,20 @@ CREATE TABLE building (
 -- ****          RENTABLE            ****
 -- ****                              ****
 -- **************************************
--- Any item that can be rented to a Payor
--- It will be tracked, it will have a Ledger
--- It will be included in the rentroll processing
 CREATE TABLE rentable (
     RID INT NOT NULL AUTO_INCREMENT,
-    LID INT NOT NULL DEFAULT 0,                             -- which ledger keeps track of what's owed on this rentable
-    RTID INT NOT NULL DEFAULT 0,                            -- what sort of a rentable is this?
-    BID INT NOT NULL DEFAULT 0,                            -- Property associated with this rentable
-    -- PID INT NOT NULL DEFAULT 0,                             -- who is responsible for paying
-    -- RAID INT NOT NULL DEFAULT 0,                            -- rental agreement
-    UNITID INT NOT NULL DEFAULT 0,                          -- unit (if applicable)
-    Name VARCHAR(10) NOT NULL DEFAULT '',                   -- name unique to the instance "101" for a room number 744 carport number, etc 
-    Assignment SMALLINT NOT NULL DEFAULT 0,                 -- Pre-assign or assign at occupy commencement
-    Report SMALLINT NOT NULL DEFAULT 1,                     -- 1 = apply to rentroll, 0 = skip on rentroll
-    DefaultOccType SMALLINT NOT NULL DEFAULT 0,         -- unset, short term, longterm
-    OccType SMALLINT NOT NULL DEFAULT 0,                -- unset, short term, longterm
-    LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    LID INT NOT NULL DEFAULT 0,                                     -- which ledger keeps track of what's owed on this rentable
+    RTID INT NOT NULL DEFAULT 0,                                    -- what sort of a rentable is this?
+    BID INT NOT NULL DEFAULT 0,                                     -- Property associated with this rentable
+    UNITID INT NOT NULL DEFAULT 0,                                  -- unit (if applicable)
+    Name VARCHAR(10) NOT NULL DEFAULT '',                           -- name unique to the instance "101" for a room number 744 carport number, etc 
+    Assignment SMALLINT NOT NULL DEFAULT 0,                         -- Pre-assign or assign at occupy commencement
+    Report SMALLINT NOT NULL DEFAULT 1,                             -- 1 = apply to rentroll, 0 = skip on rentroll
+    DefaultOccType SMALLINT NOT NULL DEFAULT 0,                     -- unset, short term, longterm
+    OccType SMALLINT NOT NULL DEFAULT 0,                            -- unset, short term, longterm
+    ManageToBudget SMALLINT NOT NULL DEFAULT 0,                     -- 0 = do not manage to budget, 1 = manage to MarketRate set in RentableType
+    LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',   -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RID)
 );
 
@@ -441,6 +449,7 @@ CREATE TABLE receipt (
     PMTID INT NOT NULL DEFAULT 0,
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
+    AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
     -- ApplyToGeneralReceivable DECIMAL(19,4),                   -- Breakdown is in receiptallocation table
     -- ApplyToSecurityDeposit DECIMAL(19,4),                     -- Can we just handle this as part of receipt allocation
     PRIMARY KEY (RCPTID)
@@ -449,8 +458,8 @@ CREATE TABLE receipt (
 CREATE TABLE receiptallocation (
     RCPTID INT NOT NULL DEFAULT 0,                              -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ASMID INT NOT NULL DEFAULT 0                                -- the id of the assessment that caused this payment, if null then credit payors acct this amount,
-                                                                -- if > than owed, then credit the overage into the payor's account
+    ASMID INT NOT NULL DEFAULT 0,                               -- the id of the assessment that caused this payment
+    AcctRule VARCHAR(150)
 );  
 
 -- **************************************
@@ -473,7 +482,7 @@ CREATE TABLE journal (
 CREATE TABLE journalallocation (
     JID INT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ASMID INT NOT NULL DEFAULT 0,
+    ASMID INT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
     AcctRule VARCHAR(200) NOT NULL DEFAULT ''
 );  
 

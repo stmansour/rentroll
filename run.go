@@ -221,7 +221,8 @@ func getProrationFactor(xprop *XBusiness, xu *XUnit, ra *RentalAgreement, d1, d2
 // There will always be at least one entry in b, that is: b[0]
 func UnitReport(xprop *XBusiness, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
 	printLedgerHeader(xprop, d1, d2, (*b)[0].ra, (*b)[0].xp, xu)
-	budgetedRent := xprop.UT[xu.U.UTID].MarketRate
+	// budgetedRent := xprop.UT[xu.U.UTID].MarketRate
+	budgetedRent := xprop.UT[xu.U.UTID].MRCurrent
 	printReportEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
 	for i := 0; i < len(xu.S); i++ {
 		s := fmt.Sprintf("Specialty: %s", xprop.US[xu.S[i]].Name)
@@ -256,63 +257,14 @@ func UnitReport(xprop *XBusiness, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time
 
 	printReportEntryLJ("NOTE: Amount to collect from receipts", budgetedRent*totPF)
 	printReportEntryLJ("NOTE: loss to vacancy", budgetedRent*(1-totPF))
-
-	// (*b) now holds the list of
-
-	// //===================================================================
-	// // OPENING BALANCES...
-	// //===================================================================
-	// var L Ledger
-	// rlib.Errcheck(App.prepstmt.getLedger.QueryRow(xu.R.LID).Scan(&L.LID, &L.AccountNo, &L.Dt, &L.Balance))
-	// printDatedLedgerEntryRJ(L.Dt, "Opening General Receivables", L.Balance)
-	// printDatedLedgerEntryRJ(L.Dt, "Opening Security Deposit Collected", L.Deposit)
-
-	// //===================================================================
-	// // BUDGETED RECEIPTS...
-	// //===================================================================
-	// // printReportStringLJ(" ")
-	// // printReportStringLJ("Budgeted Receipts")
-	// var rcptTot = float32(0.0) // receipts
-	// var asmtTot = float32(0.0) // assessments
-
-	// // Rent associated with this rentable...  For each recurrence we charge for the rent AND specialties
-	// // n := GetUnitSpecialties(xu.U.UNITID)
-	// // t := GetUnitSpecialtyTypes(&n)
-	// // m := rlib.GetRecurrences(d1, d2, &ra.RentalStart, &ra.RentalStop, ra.Frequency)
-
-	// // for i := 0; i < len(m); i++ {
-	// // 	// printDatedLedgerEntryRJ(m[i], "Unit Type Scheduled Rent", ra.ScheduledRent)
-	// // 	for a := 0; a < len(n); a++ {
-	// // 		s := fmt.Sprintf("Specialty: %s", t[n[a]].Name)
-	// // 		printDatedLedgerEntryRJ(m[i], s, t[n[a]].Fee)
-	// // 	}
-	// // }
-	// // unitSecurityDeposit(ra, d1, d2)
-
-	// // totalBudgetedReceipts = br + sdTot
-
-	// //===================================================================
-	// // INCOME OFFSETS...
-	// //===================================================================
-	// // printReportStringLJ("Income Offsets")
-	// // process the active agreements
-	// // we can reject if RentalStart is > d2 or RentalStop <= d1.  Otherwise, process it
-	// if !(ra.RentalStart.After(*d2) || (ra.RentalStop.Before(*d1) || ra.RentalStop.Equal(*d1))) {
-	// 	// What was budgeted for this unit:
-	// 	asmtTot += unitAssessments(ra, d1, d2)
-	// 	printReportEntryRJ("Total Assessments", -asmtTot)
-	// 	// printReportStringLJ(" ")
-	// 	// printReportStringLJ("Payments Received")
-	// 	rcptTot += unitReceipts(ra, d1, d2)
-	// 	printReportEntryRJ("Receipts subtotal", rcptTot)
-	// }
 	printReportDoubleLine()
 }
 
 // RentableReport shows the transactions for the supplied rentable over the time period d1-d2
 func RentableReport(xprop *XBusiness, xu *XUnit, b *[]*RentalList, d1, d2 *time.Time) {
 	printLedgerHeader(xprop, d1, d2, (*b)[0].ra, (*b)[0].xp, xu)
-	budgetedRent := xprop.RT[xu.R.RTID].MarketRate
+	// budgetedRent := xprop.RT[xu.R.RTID].MarketRate
+	budgetedRent := xprop.RT[xu.R.RTID].MRCurrent
 	printReportEntryRJ("Budgeted Rent", -budgetedRent) // here's what is budgeted
 
 	// Get the assessments for this rentable
@@ -400,10 +352,8 @@ func ReportAll(d1, d2 time.Time, report int) {
 			JournalReportText(&xprop, &d1, &d2)
 		case 2:
 			LedgerReportsByBusiness(&xprop, &d1, &d2)
-		case 3:
-			JournalReport1(&xprop, &d1, &d2)
 		default:
-			fmt.Printf("Generating Journal Records for %s to %s\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT))
+			fmt.Printf("Generating Journal Records for %s through %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
 			GenerateJournalRecords(&xprop, &d1, &d2)
 		}
 	}

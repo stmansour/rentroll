@@ -11,7 +11,7 @@ import (
 const (
 	JFMTSPACE   = 1  // space between cols
 	JFMTINDENT  = 3  // left indent
-	JFMTDESCR   = 40 // description width
+	JFMTDESCR   = 50 // description width
 	JFMTDATE    = 8  // date width
 	JFMTRA      = 8  // rental agreement
 	JFMTRN      = 15 // rentable name
@@ -95,153 +95,27 @@ func printJournalHeader(xprop *XBusiness, d1, d2 *time.Time /*, ra *RentalAgreem
 	printJReportLine()
 }
 
-func processAcctRuleAmount(d time.Time, rule string, raid int, x float32, r *Rentable) {
-	if len(rule) > 0 {
-		sa := strings.Split(rule, ",")
-		for i := 0; i < len(sa); i++ {
-			t := strings.TrimSpace(sa[i])
-			ta := strings.Split(t, " ")
-			action := strings.ToLower(strings.TrimSpace(ta[0]))
-			acct := strings.TrimSpace(ta[1])
-			amt := x
-			if action == "c" {
-				amt = -amt
-			}
-			l := GetLedgerMarkerByGLNo(acct)
-			printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.Name, acct, amt)
+func processAcctRuleAmount(d time.Time, rule string, raid int, r *Rentable) {
+	m := parseAcctRule(rule, float32(1))
+	for i := 0; i < len(m); i++ {
+		amt := m[i].Amount
+		if m[i].Action == "c" {
+			amt = -amt
 		}
+		l := GetLedgerMarkerByGLNo(m[i].Account)
+		printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.Name, m[i].Account, amt)
 	}
 }
 
-func printJournalAssessment(d time.Time, a *Assessment, pf float32, rentDuration, assessmentDuration int) {
-	r := GetRentable(a.RID)
-	// xp := GetXPersonByPID(r.PID)
-	s := fmt.Sprintf("A%08d  %s", a.ASMID, App.AsmtTypes[a.ASMTID].Name)
-	if rentDuration != assessmentDuration {
-		s = fmt.Sprintf("%s (%d/%d days)", s, rentDuration, assessmentDuration)
-	}
-	printJournalSubtitle(s)
-	processAcctRuleAmount(d, a.AcctRule, a.RAID, a.Amount*pf, &r)
-	printJournalSubtitle("")
-}
-
-func processAssessment(a *Assessment, dt, d1, d2 *time.Time) {
-	//-------------------------------------------------------------------
-	// over what range of time does this rental apply between d1 & d2
-	//-------------------------------------------------------------------
-	ra, _ := GetRentalAgreement(a.RAID)
-	start := *d1
-	if ra.RentalStart.After(start) {
-		start = ra.RentalStart
-	}
-	stop := ra.RentalStop.Add(24 * 60 * time.Minute)
-	if stop.After(*d2) {
-		stop = *d2
-	}
-	//-------------------------------------------------------------------------------------------
-	// this code needs to be generalized based on the recurrence period and the proration period
-	//-------------------------------------------------------------------------------------------
-	assessmentDuration := int(d2.Sub(*d1).Hours() / 24)
-	rentDuration := int(stop.Sub(start).Hours() / 24)
-	pf := float32(1.0)
-	if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
-		pf = float32(rentDuration) / float32(assessmentDuration)
-	} else {
-		rentDuration = assessmentDuration
-	}
-
-	printJournalAssessment(*dt, a, pf, rentDuration, assessmentDuration)
-
-	//-------------------------------------------------------------------------------------------
-	// if the assessment is of type == RENT then we may need to look for loss to lease.
-	// Check for a non-zero Amount in the rentable type or if it is a Unit, check the unittype
-	// for a MarketType value.  If either are non-zero, then we should handle the possibility
-	// of loss to lease.
-	//-------------------------------------------------------------------------------------------
-	if a.ASMTID == RENT {
-		xt := GetXType(a.RID, a.UNITID)
-		amt := xt.RT.MarketRate
-		if a.UNITID > 0 {
-			amt = xt.UT.MarketRate
-		}
-		fmt.Printf("   Budgeted: %6.2f   Collected: %6.2f   Loss to lease: %6.2f\n", amt*pf, a.Amount*pf, (a.Amount-amt)*pf)
-	}
-
-}
-
-// JournalReport1 do a journal for the supplied dates
-func JournalReport1(xprop *XBusiness, d1, d2 *time.Time) {
-	//===========================================================
-	//  PROCESS ASSESSMSENTS
-	//===========================================================
-	printJournalHeader(xprop, d1, d2)
-	rows, err := App.prepstmt.getAllAssessmentsByBusiness.Query(xprop.P.BID, d2, d1)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var a Assessment
-		ap := &a
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.LastModTime, &a.LastModBy))
-		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY {
-			// TBD
-			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)
-		} else {
-			dl := ap.GetRecurrences(d1, d2)
-			// fmt.Printf("type = %d,  len(dl) = %d\n", a.ASMTID, len(dl))
-			for i := 0; i < len(dl); i++ {
-				processAssessment(&a, &dl[i], d1, d2)
-			}
-		}
-	}
-	rlib.Errcheck(rows.Err())
-
-	//===========================================================
-	//  PROCESS RECEIPTS
-	//===========================================================
-	r := GetReceipts(xprop.P.BID, d1, d2)
-	for i := 0; i < len(r); i++ {
-		rntagr, _ := GetRentalAgreement(r[i].RAID)
-		xp := GetXPersonByPID(rntagr.PID)
-		s := fmt.Sprintf("P%08d  Payment - %s  %.2f", r[i].RCPTID, xp.trn.LastName, r[i].Amount)
-		printJournalSubtitle(s)
-		for j := 0; j < len(r[i].RA); j++ {
-			// pull the assessment that gave rise to this portion...
-			a, err := GetAssessment(r[i].RA[j].ASMID)
-			if nil == err {
-				//-------------------------------------------------------------------------------------
-				// look at the rule for this assessment. Whatever account was debited needs to be
-				// credited for this amount and cash should be debited this amount
-				//-------------------------------------------------------------------------------------
-				if len(a.AcctRule) > 0 {
-					sa := strings.Split(a.AcctRule, ",")
-					for k := 0; k < len(sa); k++ {
-						t := strings.TrimSpace(sa[k])
-						ta := strings.Split(t, " ")
-						action := strings.ToLower(strings.TrimSpace(ta[0]))
-						acct := strings.TrimSpace(ta[1])
-						if action == "d" {
-							rule := fmt.Sprintf("c %s, d 10001", acct)
-							rnt := GetRentable(a.RID)
-							processAcctRuleAmount(r[i].Dt, rule, r[i].RAID, r[i].RA[j].Amount, &rnt)
-						}
-					}
-				}
-			} else {
-				fmt.Printf("err = %v loading assessment %d\n", err, r[i].RA[j].ASMID)
-			}
-		}
-		printJournalSubtitle("")
-	}
-}
-
-func textPrintJournalAssessment(j *Journal, a *Assessment, r *Rentable, pf float32, rentDuration, assessmentDuration int) {
+func textPrintJournalAssessment(j *Journal, a *Assessment, r *Rentable, rentDuration, assessmentDuration int) {
 	s := fmt.Sprintf("J%08d  %s", j.JID, App.AsmtTypes[a.ASMTID].Name)
-	if rentDuration != assessmentDuration {
+	if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
 		s = fmt.Sprintf("%s (%d/%d days)", s, rentDuration, assessmentDuration)
 	}
 	printJournalSubtitle(s)
+
 	for i := 0; i < len(j.JA); i++ {
-		processAcctRuleAmount(j.Dt, j.JA[i].AcctRule, j.RAID, j.Amount, r)
+		processAcctRuleAmount(j.Dt, j.JA[i].AcctRule, j.RAID, r)
 	}
 	printJournalSubtitle("")
 }
@@ -249,38 +123,28 @@ func textPrintJournalAssessment(j *Journal, a *Assessment, r *Rentable, pf float
 func textPrintJournalReceipt(j *Journal, rcpt *Receipt, cashAcctNo string) {
 	rntagr, _ := GetRentalAgreement(rcpt.RAID)
 	xp := GetXPersonByPID(rntagr.PID)
-	s := fmt.Sprintf("P%08d  Payment - %s  %.2f", rcpt.RCPTID, xp.trn.LastName, rcpt.Amount)
+	s := fmt.Sprintf("J%08d  Payment - %s  %.2f", j.JID, xp.trn.LastName, rcpt.Amount)
 	printJournalSubtitle(s)
+
 	for i := 0; i < len(rcpt.RA); i++ {
-		a, err := GetAssessment(rcpt.RA[i].ASMID)
-		if nil == err {
-			//-------------------------------------------------------------------------------------
-			// look at the rule for this assessment. Whatever account was debited needs to be
-			// credited for this amount and cash should be debited this amount
-			//-------------------------------------------------------------------------------------
-			if len(a.AcctRule) > 0 {
-				sa := strings.Split(a.AcctRule, ",")
-				for k := 0; k < len(sa); k++ {
-					t := strings.TrimSpace(sa[k])
-					ta := strings.Split(t, " ")
-					action := strings.ToLower(strings.TrimSpace(ta[0]))
-					acct := strings.TrimSpace(ta[1])
-					if action == "d" {
-						rule := fmt.Sprintf("c %s, d %s", acct, cashAcctNo)
-						rnt := GetRentable(a.RID)
-						processAcctRuleAmount(rcpt.Dt, rule, rcpt.RAID, rcpt.RA[i].Amount, &rnt)
-					}
-				}
+		a, _ := GetAssessment(rcpt.RA[i].ASMID)
+		r := GetRentable(a.RID)
+		m := parseAcctRule(rcpt.RA[i].AcctRule, 1.0)
+		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
+		for k := 0; k < len(m); k++ {
+			l := GetLedgerMarkerByGLNo(m[k].Account)
+			amt := m[k].Amount
+			if m[k].Action == "c" {
+				amt = -amt
 			}
-		} else {
-			fmt.Printf("err = %v loading assessment %d\n", err, rcpt.RA[i].ASMID)
+			s := fmt.Sprintf("%d", a.RAID)
+			printDatedJournalEntryRJ(l.Name, rcpt.Dt, s, r.Name, m[k].Account, amt)
 		}
 	}
 	printJournalSubtitle("")
-
 }
 
-func textPrintJournalEntry(j *Journal, pf float32, rentDuration, assessmentDuration int) {
+func textPrintJournalEntry(j *Journal, rentDuration, assessmentDuration int) {
 	switch j.Type {
 	case JNLTYPERCPT:
 		rcpt := GetReceipt(j.ID)
@@ -288,7 +152,7 @@ func textPrintJournalEntry(j *Journal, pf float32, rentDuration, assessmentDurat
 	case JNLTYPEASMT:
 		a, _ := GetAssessment(j.ID)
 		r := GetRentable(a.RID)
-		textPrintJournalAssessment(j, &a, &r, pf, rentDuration, assessmentDuration)
+		textPrintJournalAssessment(j, &a, &r, rentDuration, assessmentDuration)
 	default:
 		fmt.Printf("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}
@@ -312,29 +176,8 @@ func textReportJournalEntry(j *Journal, d1, d2 *time.Time) {
 	//-------------------------------------------------------------------------------------------
 	assessmentDuration := int(d2.Sub(*d1).Hours() / 24)
 	rentDuration := int(stop.Sub(start).Hours() / 24)
-	pf := float32(1.0)
-	if rentDuration != assessmentDuration {
-		pf = float32(rentDuration) / float32(assessmentDuration)
-	} else {
-		rentDuration = assessmentDuration
-	}
 
-	textPrintJournalEntry(j, pf, rentDuration, assessmentDuration)
-
-	//-------------------------------------------------------------------------------------------
-	// if the assessment is of type == RENT then we may need to look for loss to lease.
-	// Check for a non-zero Amount in the rentable type or if it is a Unit, check the unittype
-	// for a MarketType value.  If either are non-zero, then we should handle the possibility
-	// of loss to lease.
-	//-------------------------------------------------------------------------------------------
-	// if a.ASMTID == RENT {
-	// 	xt := GetXType(a.RID, a.UNITID)
-	// 	amt := xt.RT.MarketRate
-	// 	if a.UNITID > 0 {
-	// 		amt = xt.UT.MarketRate
-	// 	}
-	// 	fmt.Printf("   Budgeted: %6.2f   Collected: %6.2f   Loss to lease: %6.2f\n", amt*pf, a.Amount*pf, (a.Amount-amt)*pf)
-	// }
+	textPrintJournalEntry(j, rentDuration, assessmentDuration)
 
 }
 

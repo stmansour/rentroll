@@ -129,12 +129,12 @@ func getUnitSpecialtiesTypes(m *[]int) map[int]UnitSpecialtyType {
 
 // GetRentableType returns characteristics of the unit
 func GetRentableType(rtid int, rt *RentableType) {
-	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.MarketRate, &rt.Frequency, &rt.Proration, &rt.LastModTime, &rt.LastModBy))
+	rlib.Errcheck(App.prepstmt.getRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.Frequency, &rt.Proration, &rt.LastModTime, &rt.LastModBy))
 }
 
 // GetUnitType returns characteristics of the unit
 func GetUnitType(utid int, ut *UnitType) {
-	rlib.Errcheck(App.prepstmt.getUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.MarketRate, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
+	rlib.Errcheck(App.prepstmt.getUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
 }
 
 // GetAssessmentTypes returns a slice of assessment types indexed by the ASMTID
@@ -187,6 +187,25 @@ func GetPaymentTypes() map[int]PaymentType {
 	return t
 }
 
+// GetRentableMarketRates loads all the MarketRate rent information for this rentable into an array
+func GetRentableMarketRates(rt *RentableType) {
+	// now get all the MarketRate rent info...
+	rows, err := App.prepstmt.getRentableMarketRates.Query(rt.RTID)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
+	for rows.Next() {
+		var a RentableMarketRate
+		rlib.Errcheck(rows.Scan(&a.RTID, &a.MarketRate, &a.DtStart, &a.DtStop))
+		if a.DtStart.After(LatestMRDTStart) {
+			LatestMRDTStart = a.DtStart
+			rt.MRCurrent = a.MarketRate
+		}
+		rt.MR = append(rt.MR, a)
+	}
+	rlib.Errcheck(rows.Err())
+}
+
 // GetBusinessRentableTypes returns a slice of payment types indexed by the PMTID
 func GetBusinessRentableTypes(bid int) map[int]RentableType {
 	var t map[int]RentableType
@@ -196,11 +215,33 @@ func GetBusinessRentableTypes(bid int) map[int]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		rlib.Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Name, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Name, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		a.MR = make([]RentableMarketRate, 0)
+		GetRentableMarketRates(&a)
 		t[a.RTID] = a
 	}
 	rlib.Errcheck(rows.Err())
+
 	return t
+}
+
+// GetUnitMarketRates loads all the MarketRate rent information for this unit into an array
+func GetUnitMarketRates(rt *UnitType) {
+	// now get all the MarketRate rent info...
+	rows, err := App.prepstmt.getUnitMarketRates.Query(rt.UTID)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
+	for rows.Next() {
+		var a UnitMarketRate
+		rlib.Errcheck(rows.Scan(&a.UTID, &a.MarketRate, &a.DtStart, &a.DtStop))
+		if a.DtStart.After(LatestMRDTStart) {
+			LatestMRDTStart = a.DtStart
+			rt.MRCurrent = a.MarketRate
+		}
+		rt.MR = append(rt.MR, a)
+	}
+	rlib.Errcheck(rows.Err())
 }
 
 // GetBusinessUnitTypes returns a slice of payment types indexed by the PMTID
@@ -212,7 +253,7 @@ func GetBusinessUnitTypes(bid int) map[int]UnitType {
 	defer rows.Close()
 	for rows.Next() {
 		var a UnitType
-		rlib.Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.SqFt, &a.MarketRate, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.SqFt, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
 		t[a.UTID] = a
 	}
 	rlib.Errcheck(rows.Err())
@@ -265,7 +306,7 @@ func GetLedgerMarkerByGLNo(s string) LedgerMarker {
 	// fmt.Printf("Ledger = %s\n", s)
 	err := App.prepstmt.getLedgerMarkerByGLNo.QueryRow(s).Scan(&r.LMID, &r.BID, &r.GLNumber, &r.State, &r.Dt, &r.Balance, &r.DefaultAcct, &r.Name)
 	if nil != err {
-		fmt.Printf("GetLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber %s.\n", s)
+		fmt.Printf("GetLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber \"%s\".\n", s)
 		fmt.Printf("err = %v\n", err)
 	}
 	return r
@@ -304,7 +345,7 @@ func GetReceiptAllocations(rcptid int, r *Receipt) {
 	r.RA = make([]ReceiptAllocation, 0)
 	for rows.Next() {
 		var a ReceiptAllocation
-		rlib.Errcheck(rows.Scan(&a.RCPTID, &a.Amount, &a.ASMID))
+		rlib.Errcheck(rows.Scan(&a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule))
 		r.RA = append(r.RA, a)
 	}
 }
@@ -318,7 +359,7 @@ func GetReceipts(bid int, d1, d2 *time.Time) []Receipt {
 	t = make([]Receipt, 0)
 	for rows.Next() {
 		var r Receipt
-		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount))
+		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule))
 		r.RA = make([]ReceiptAllocation, 0)
 		GetReceiptAllocations(r.RCPTID, &r)
 		t = append(t, r)
@@ -329,7 +370,7 @@ func GetReceipts(bid int, d1, d2 *time.Time) []Receipt {
 // GetReceipt returns a receipt structure for the supplied RCPTID
 func GetReceipt(rcptid int) Receipt {
 	var r Receipt
-	rlib.Errcheck(App.prepstmt.getReceipt.QueryRow(rcptid).Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount))
+	rlib.Errcheck(App.prepstmt.getReceipt.QueryRow(rcptid).Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule))
 	GetReceiptAllocations(rcptid, &r)
 	return r
 }

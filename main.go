@@ -207,30 +207,30 @@ type PaymentType struct {
 
 // Receipt saves the information associated with a payment made by a tenant to cover one or more assessments
 type Receipt struct {
-	RCPTID int
-	BID    int
-	RAID   int
-	PMTID  int
-	Dt     time.Time
-	Amount float32
-	RA     []ReceiptAllocation
+	RCPTID   int
+	BID      int
+	RAID     int
+	PMTID    int
+	Dt       time.Time
+	Amount   float32
+	AcctRule string
+	RA       []ReceiptAllocation
 }
 
 // ReceiptAllocation defines an allocation of a receipt amount.
 type ReceiptAllocation struct {
-	RCPTID int
-	Amount float32
-	ASMID  int
+	RCPTID   int
+	Amount   float32
+	ASMID    int
+	AcctRule string
 }
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID  int // unique id for this rentable
-	LID  int // the ledger
-	RTID int // rentable type id
-	BID  int // business
-	// PID            int    // payor
-	// RAID           int    // occupancy agreement
+	RID            int    // unique id for this rentable
+	LID            int    // the ledger
+	RTID           int    // rentable type id
+	BID            int    // business
 	UNITID         int    // associated unit (if applicable, 0 otherwise)
 	Name           string // name for this rental
 	Assignment     int    // can we pre-assign or assign only at commencement
@@ -266,11 +266,20 @@ type RentableType struct {
 	RTID        int
 	BID         int
 	Name        string
-	MarketRate  float32
 	Frequency   int
 	Proration   int
+	MR          []RentableMarketRate
+	MRCurrent   float32 // the current market rate (historical values are in MR)
 	LastModTime time.Time
 	LastModBy   int
+}
+
+// RentableMarketRate describes the market rate rent for a rentable type over a time period
+type RentableMarketRate struct {
+	RTID       int
+	MarketRate float32
+	DtStart    time.Time
+	DtStop     time.Time
 }
 
 // UnitType is the set of attributes describing the different types of housing within a business
@@ -280,11 +289,20 @@ type UnitType struct {
 	Style       string
 	Name        string
 	SqFt        int
-	MarketRate  float32
 	Frequency   int
 	Proration   int
+	MR          []UnitMarketRate
+	MRCurrent   float32 // the current market rate (historical values are in MR)
 	LastModTime time.Time
 	LastModBy   int
+}
+
+// UnitMarketRate describes the market rate rent for a unit type over a time period
+type UnitMarketRate struct {
+	UTID       int
+	MarketRate float32
+	DtStart    time.Time
+	DtStop     time.Time
 }
 
 // XType combines RentableType and UnitType
@@ -386,7 +404,9 @@ type prepSQL struct {
 	getUnitRentalAgreements      *sql.Stmt
 	getAllRentablesByBusiness    *sql.Stmt
 	getAllBusinessRentableTypes  *sql.Stmt
+	getRentableMarketRates       *sql.Stmt
 	getAllBusinessUnitTypes      *sql.Stmt
+	getUnitMarketRates           *sql.Stmt
 	getBusiness                  *sql.Stmt
 	getAllBusinessSpecialtyTypes *sql.Stmt
 	getAllAssessmentsByBusiness  *sql.Stmt
@@ -406,6 +426,12 @@ type prepSQL struct {
 	deleteJournalAllocations     *sql.Stmt
 	deleteJournalEntry           *sql.Stmt
 	deleteJournalMarker          *sql.Stmt
+}
+
+type acctRule struct {
+	Action  string  // "d" = debit, "c" = credit
+	Account string  // GL No for the account
+	Amount  float32 // use the entire amount of the assessment or deposit, otherwise the amount to use
 }
 
 // App is the global data structure for this app
