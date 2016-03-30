@@ -9,7 +9,7 @@ import (
 
 // JFMTSPACE et al control the formatting of the journal report
 const (
-	JFMTSPACE   = 1  // space between cols
+	JFMTSPACE   = 2  // space between cols
 	JFMTINDENT  = 3  // left indent
 	JFMTDESCR   = 50 // description width
 	JFMTDATE    = 8  // date width
@@ -76,10 +76,10 @@ func printJReportThinLine() {
 func printJournalSubtitle(label string) {
 	fmt.Printf(jfmt.JournalHeading, label)
 }
-func printDatedJournalEntryRJ(label string, d time.Time, ra string, rn string, glno string, a float32) {
+func printDatedJournalEntryRJ(label string, d time.Time, ra string, rn string, glno string, a float64) {
 	fmt.Printf(jfmt.DatedJournalEntryRJ, label, d.Format(RRDATEFMT), ra, rn, glno, a)
 }
-func printDatedJournalEntryLJ(label string, d time.Time, ra string, rn string, glno string, a float32) {
+func printDatedJournalEntryLJ(label string, d time.Time, ra string, rn string, glno string, a float64) {
 	fmt.Printf(jfmt.DatedJournalEntryLJ, label, d.Format(RRDATEFMT), ra, rn, glno, a)
 }
 
@@ -95,8 +95,8 @@ func printJournalHeader(xprop *XBusiness, d1, d2 *time.Time /*, ra *RentalAgreem
 	printJReportLine()
 }
 
-func processAcctRuleAmount(d time.Time, rule string, raid int, r *Rentable) {
-	m := parseAcctRule(rule, float32(1))
+func processAcctRuleAmount(d time.Time, rule string, raid int64, r *Rentable) {
+	m := parseAcctRule(rule, float64(1))
 	for i := 0; i < len(m); i++ {
 		amt := m[i].Amount
 		if m[i].Action == "c" {
@@ -107,7 +107,7 @@ func processAcctRuleAmount(d time.Time, rule string, raid int, r *Rentable) {
 	}
 }
 
-func textPrintJournalAssessment(j *Journal, a *Assessment, r *Rentable, rentDuration, assessmentDuration int) {
+func textPrintJournalAssessment(j *Journal, a *Assessment, r *Rentable, rentDuration, assessmentDuration int64) {
 	s := fmt.Sprintf("J%08d  %s", j.JID, App.AsmtTypes[a.ASMTID].Name)
 	if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
 		s = fmt.Sprintf("%s (%d/%d days)", s, rentDuration, assessmentDuration)
@@ -144,7 +144,7 @@ func textPrintJournalReceipt(j *Journal, rcpt *Receipt, cashAcctNo string) {
 	printJournalSubtitle("")
 }
 
-func textPrintJournalEntry(j *Journal, rentDuration, assessmentDuration int) {
+func textPrintJournalEntry(j *Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
 	case JNLTYPERCPT:
 		rcpt := GetReceipt(j.ID)
@@ -174,8 +174,8 @@ func textReportJournalEntry(j *Journal, d1, d2 *time.Time) {
 	//-------------------------------------------------------------------------------------------
 	// this code needs to be generalized based on the recurrence period and the proration period
 	//-------------------------------------------------------------------------------------------
-	assessmentDuration := int(d2.Sub(*d1).Hours() / 24)
-	rentDuration := int(stop.Sub(start).Hours() / 24)
+	assessmentDuration := int64(d2.Sub(*d1).Hours() / 24)
+	rentDuration := int64(stop.Sub(start).Hours() / 24)
 
 	textPrintJournalEntry(j, rentDuration, assessmentDuration)
 

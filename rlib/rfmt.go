@@ -32,9 +32,14 @@ func Errcheck(err error) {
 	}
 }
 
-// RecurStringToInt supply a recurrence string and the int representation is returned
-func RecurStringToInt(s string) int {
-	var i int
+// RoundToCent rounds the supplied amount to the nearest cent.
+func RoundToCent(x float64) float64 {
+	return float64(int64(x*float64(100)+float64(0.5))) / float64(100)
+}
+
+// RecurStringToInt supply a recurrence string and the int64  representation is returned
+func RecurStringToInt(s string) int64 {
+	var i int64
 	s = strings.ToUpper(s)
 	s = strings.Replace(s, " ", "", -1)
 	switch {
@@ -59,8 +64,8 @@ func RecurStringToInt(s string) int {
 	return i
 }
 
-// RecurIntToString - supply a recurrence int and the string representation is returned
-func RecurIntToString(i int) string {
+// RecurIntToString - supply a recurrence int64  and the string representation is returned
+func RecurIntToString(i int64) string {
 	var s string
 	switch {
 	case i == RECURNONE:
@@ -85,7 +90,7 @@ func RecurIntToString(i int) string {
 }
 
 // MonthToInt enables arithmetic operation on months
-func MonthToInt(m time.Month) int {
+func MonthToInt(m time.Month) int64 {
 	switch m {
 	case time.January:
 		return 1
@@ -117,11 +122,11 @@ func MonthToInt(m time.Month) int {
 
 // IncMonths enables arithmetic operations on months. Returns
 // two values =  years & months.
-func IncMonths(m time.Month, n int) (time.Month, int) {
-	y := 0
-	mo := MonthToInt(m) + n - 1
-	y += mo / 12
-	mo = mo % 12
+func IncMonths(m time.Month, n int64) (time.Month, int64) {
+	y := int64(0)
+	mo := MonthToInt(m) + n - int64(1)
+	y += mo / int64(12)
+	mo = mo % int64(12)
 	switch mo {
 	case 0:
 		m = time.January

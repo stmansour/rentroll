@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"rentroll/rlib"
 	"time"
 )
 import _ "github.com/go-sql-driver/mysql"
@@ -35,6 +36,12 @@ const (
 	MARKERSTATEORIGIN = 3
 )
 
+// RRDATEFMT is a shorthand date format used for text output
+// Use these values:	Mon Jan 2 15:04:05 MST 2006
+// const RRDATEFMT = "02-Jan-2006 3:04PM MST"
+// const RRDATEFMT = "01/02/06 3:04PM MST"
+const RRDATEFMT = "01/02/06"
+
 //==========================================
 //    BID = business id
 //    UTID = unit type id
@@ -57,28 +64,29 @@ const (
 
 // RentalAgreement binds a teRAID INT NOT NULL
 type RentalAgreement struct {
-	RAID              int
-	RATID             int
-	BID               int
-	RID               int
-	UNITID            int
-	PID               int
-	PrimaryTenant     int
+	RAID              int64
+	RATID             int64
+	BID               int64
+	RID               int64
+	UNITID            int64
+	PID               int64
+	LID               int64
+	PrimaryTenant     int64
 	RentalStart       time.Time
 	RentalStop        time.Time
-	Renewal           int
+	Renewal           int64
 	SpecialProvisions string
 	LastModTime       time.Time
-	LastModBy         int
+	LastModBy         int64
 }
 
 // Transactant is the basic structure of information
 // about a person who is a prospect, applicant, tenant, or payor
 type Transactant struct {
-	TCID           int
-	TID            int
-	PID            int
-	PRSPID         int
+	TCID           int64
+	TID            int64
+	PID            int64
+	PRSPID         int64
 	FirstName      string
 	MiddleName     string
 	LastName       string
@@ -93,36 +101,36 @@ type Transactant struct {
 	PostalCode     string
 	Country        string
 	LastModTime    time.Time
-	LastModBy      int
+	LastModBy      int64
 }
 
 // Prospect contains info over and above
 type Prospect struct {
-	PRSPID         int
-	TCID           int
-	ApplicationFee float32 // if non-zero this prospect is an applicant
+	PRSPID         int64
+	TCID           int64
+	ApplicationFee float64 // if non-zero this prospect is an applicant
 }
 
 // Tenant contains all info common to a person
 type Tenant struct {
-	TID                        int
-	TCID                       int
-	Points                     int
+	TID                        int64
+	TCID                       int64
+	Points                     int64
 	CarMake                    string
 	CarModel                   string
 	CarColor                   string
-	CarYear                    int
+	CarYear                    int64
 	LicensePlateState          string
 	LicensePlateNumber         string
 	ParkingPermitNumber        string
-	AccountRep                 int
+	AccountRep                 int64
 	DateofBirth                string
 	EmergencyContactName       string
 	EmergencyContactAddress    string
 	EmergencyContactTelephone  string
 	EmergencyAddressEmail      string
 	AlternateAddress           string
-	ElibigleForFutureOccupancy int
+	ElibigleForFutureOccupancy int64
 	Industry                   string
 	Source                     string
 	InvoicingCustomerNumber    string
@@ -131,9 +139,9 @@ type Tenant struct {
 // Payor is attributes of the person financially responsible
 // for the rent.
 type Payor struct {
-	PID                   int
-	TCID                  int
-	CreditLimit           float32
+	PID                   int64
+	TCID                  int64
+	CreditLimit           float64
 	EmployerName          string
 	EmployerStreetAddress string
 	EmployerCity          string
@@ -141,7 +149,7 @@ type Payor struct {
 	EmployerZipcode       string
 	Occupation            string
 	LastModTime           time.Time
-	LastModBy             int
+	LastModBy             int64
 }
 
 // XPerson of all person related attributes
@@ -154,34 +162,34 @@ type XPerson struct {
 
 // AssessmentType describes the different types of assessments
 type AssessmentType struct {
-	ASMTID      int
+	ASMTID      int64
 	Name        string
-	Type        int // 0 = credit, 1 = debit
+	Type        int64 // 0 = credit, 1 = debit
 	LastModTime time.Time
-	LastModBy   int
+	LastModBy   int64
 }
 
 // Assessment is a charge associated with a rentable
 type Assessment struct {
-	ASMID           int
-	BID             int
-	RID             int
-	UNITID          int
-	ASMTID          int
-	RAID            int
-	Amount          float32
+	ASMID           int64
+	BID             int64
+	RID             int64
+	UNITID          int64
+	ASMTID          int64
+	RAID            int64
+	Amount          float64
 	Start           time.Time
 	Stop            time.Time
-	Frequency       int
-	ProrationMethod int
+	Frequency       int64
+	ProrationMethod int64
 	AcctRule        string
 	LastModTime     time.Time
-	LastModBy       int
+	LastModBy       int64
 }
 
 // Business is the set of attributes describing a rental or hotel business
 type Business struct {
-	BID                  int
+	BID                  int64
 	Address              string
 	Address2             string
 	City                 string
@@ -190,117 +198,119 @@ type Business struct {
 	Country              string
 	Phone                string
 	Name                 string
-	DefaultOccupancyType int       // may not be default for every unit in the building: 0=unset, 1=short term, 2=longterm
-	ParkingPermitInUse   int       // yes/no  0 = no, 1 = yes
+	DefaultOccupancyType int64     // may not be default for every unit in the building: 0=unset, 1=short term, 2=longterm
+	ParkingPermitInUse   int64     // yes/no  0 = no, 1 = yes
 	LastModTime          time.Time // when was this record last written
-	LastModBy            int       // employee UID (from phonebook) that modified it
+	LastModBy            int64     // employee UID (from phonebook) that modified it
 }
 
 // PaymentType describes how a payment was made
 type PaymentType struct {
-	PMTID       int
+	PMTID       int64
 	Name        string
 	Description string
 	LastModTime time.Time
-	LastModBy   int
+	LastModBy   int64
 }
 
 // Receipt saves the information associated with a payment made by a tenant to cover one or more assessments
 type Receipt struct {
-	RCPTID   int
-	BID      int
-	RAID     int
-	PMTID    int
+	RCPTID   int64
+	BID      int64
+	RAID     int64
+	PMTID    int64
 	Dt       time.Time
-	Amount   float32
+	Amount   float64
 	AcctRule string
 	RA       []ReceiptAllocation
 }
 
 // ReceiptAllocation defines an allocation of a receipt amount.
 type ReceiptAllocation struct {
-	RCPTID   int
-	Amount   float32
-	ASMID    int
+	RCPTID   int64
+	Amount   float64
+	ASMID    int64
 	AcctRule string
 }
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID            int    // unique id for this rentable
-	LID            int    // the ledger
-	RTID           int    // rentable type id
-	BID            int    // business
-	UNITID         int    // associated unit (if applicable, 0 otherwise)
+	RID            int64  // unique id for this rentable
+	LID            int64  // the ledger
+	RTID           int64  // rentable type id
+	BID            int64  // business
+	UNITID         int64  // associated unit (if applicable, 0 otherwise)
 	Name           string // name for this rental
-	Assignment     int    // can we pre-assign or assign only at commencement
-	Report         int    // 1 = apply to rentroll, 0 = skip
-	DefaultOccType int    // unset, short term, longterm
-	OccType        int    // unset, short term, longterm
+	Assignment     int64  // can we pre-assign or assign only at commencement
+	Report         int64  // 1 = apply to rentroll, 0 = skip
+	DefaultOccType int64  // unset, short term, longterm
+	OccType        int64  // unset, short term, longterm
 	LastModTime    time.Time
-	LastModBy      int
+	LastModBy      int64
 }
 
 // Unit is the structure for unit attributes
 type Unit struct {
-	UNITID      int       // unique id for this unit -- it is unique across all properties and buildings
-	BLDGID      int       // which building
-	UTID        int       // which unit type
-	RID         int       // which ledger keeps track of what's owed on this unit
-	AVAILID     int       // how is the unit made available
+	UNITID      int64     // unique id for this unit -- it is unique across all properties and buildings
+	BLDGID      int64     // which building
+	UTID        int64     // which unit type
+	RID         int64     // which ledger keeps track of what's owed on this unit
+	AVAILID     int64     // how is the unit made available
 	LastModTime time.Time //	-- when was this record last written
-	LastModBy   int       // employee UID (from phonebook) that modified it
+	LastModBy   int64     // employee UID (from phonebook) that modified it
 }
 
 // UnitSpecialtyType is the structure for attributes of a unit specialty
 type UnitSpecialtyType struct {
-	USPID       int
-	BID         int
+	USPID       int64
+	BID         int64
 	Name        string
-	Fee         float32
+	Fee         float64
 	Description string
 }
 
 // RentableType is the set of attributes describing the different types of rentable items
 type RentableType struct {
-	RTID        int
-	BID         int
-	Name        string
-	Frequency   int
-	Proration   int
-	MR          []RentableMarketRate
-	MRCurrent   float32 // the current market rate (historical values are in MR)
-	LastModTime time.Time
-	LastModBy   int
+	RTID           int64
+	BID            int64
+	Name           string
+	Frequency      int64
+	Proration      int64
+	Report         int64
+	ManageToBudget int64
+	MR             []RentableMarketRate
+	MRCurrent      float64 // the current market rate (historical values are in MR)
+	LastModTime    time.Time
+	LastModBy      int64
 }
 
 // RentableMarketRate describes the market rate rent for a rentable type over a time period
 type RentableMarketRate struct {
-	RTID       int
-	MarketRate float32
+	RTID       int64
+	MarketRate float64
 	DtStart    time.Time
 	DtStop     time.Time
 }
 
 // UnitType is the set of attributes describing the different types of housing within a business
 type UnitType struct {
-	UTID        int
-	BID         int
+	UTID        int64
+	BID         int64
 	Style       string
 	Name        string
-	SqFt        int
-	Frequency   int
-	Proration   int
+	SqFt        int64
+	Frequency   int64
+	Proration   int64
 	MR          []UnitMarketRate
-	MRCurrent   float32 // the current market rate (historical values are in MR)
+	MRCurrent   float64 // the current market rate (historical values are in MR)
 	LastModTime time.Time
-	LastModBy   int
+	LastModBy   int64
 }
 
 // UnitMarketRate describes the market rate rent for a unit type over a time period
 type UnitMarketRate struct {
-	UTID       int
-	MarketRate float32
+	UTID       int64
+	MarketRate float64
 	DtStart    time.Time
 	DtStop     time.Time
 }
@@ -314,69 +324,72 @@ type XType struct {
 // XBusiness combines the Business struct and a map of the business's unit types
 type XBusiness struct {
 	P  Business
-	RT map[int]RentableType      // what types of things are rented here
-	UT map[int]UnitType          // info about the units
-	US map[int]UnitSpecialtyType // index = USPID, val = UnitSpecialtyType
+	RT map[int64]RentableType      // what types of things are rented here
+	UT map[int64]UnitType          // info about the units
+	US map[int64]UnitSpecialtyType // index = USPID, val = UnitSpecialtyType
 }
 
 // XUnit is the structure that includes both the Rentable and Unit attributes
 type XUnit struct {
 	R Rentable
 	U Unit
-	S []int
+	S []int64
 }
 
 // Journal is the set of attributes describing a journal entry
 type Journal struct {
-	JID    int
-	BID    int
-	RAID   int
+	JID    int64
+	BID    int64
+	RAID   int64
 	Dt     time.Time
-	Amount float32
-	Type   int
-	ID     int
+	Amount float64
+	Type   int64
+	ID     int64
 	JA     []JournalAllocation
 }
 
 // JournalAllocation describes how the associated journal amount is allocated
 type JournalAllocation struct {
-	JID      int
-	Amount   float32
-	ASMID    int
+	JAID     int64 // unique id for this allocation
+	JID      int64
+	Amount   float64
+	ASMID    int64
 	AcctRule string
 }
 
 // JournalMarker describes a period of time where the journal entries have been locked down
 type JournalMarker struct {
-	JMID    int
-	BID     int
-	State   int
+	JMID    int64
+	BID     int64
+	State   int64
 	DtStart time.Time
 	DtStop  time.Time
 }
 
 // Ledger is the structure for Ledger attributes
 type Ledger struct {
-	LID      int
-	BID      int
+	LID      int64
+	BID      int64
+	JID      int64
+	JAID     int64
 	GLNumber string
 	Dt       time.Time
-	Status   int
-	Type     int
-	Amount   float32
+	Amount   float64
 }
 
 // LedgerMarker describes a period of time period described. The Balance can be
 // used going forward from DtStop
 type LedgerMarker struct {
-	LMID        int
-	BID         int
-	GLNumber    string
-	State       int
-	Dt          time.Time
-	Balance     float32
-	DefaultAcct int
-	Name        string
+	LMID     int64
+	BID      int64
+	GLNumber string
+	Status   int64
+	State    int64
+	DtStart  time.Time
+	DtStop   time.Time
+	Balance  float64
+	Type     int64
+	Name     string
 }
 
 // collection of prepared sql statements
@@ -410,7 +423,6 @@ type prepSQL struct {
 	getBusiness                  *sql.Stmt
 	getAllBusinessSpecialtyTypes *sql.Stmt
 	getAllAssessmentsByBusiness  *sql.Stmt
-	getLedgerMarkerByGLNo        *sql.Stmt
 	getReceipt                   *sql.Stmt
 	getReceiptsInDateRange       *sql.Stmt
 	getReceiptAllocations        *sql.Stmt
@@ -420,18 +432,30 @@ type prepSQL struct {
 	getJournalByRange            *sql.Stmt
 	getJournalMarker             *sql.Stmt
 	getJournalMarkers            *sql.Stmt
+	getJournal                   *sql.Stmt
+	getJournalAllocation         *sql.Stmt
 	insertJournalMarker          *sql.Stmt
 	insertJournal                *sql.Stmt
 	insertJournalAllocation      *sql.Stmt
 	deleteJournalAllocations     *sql.Stmt
 	deleteJournalEntry           *sql.Stmt
 	deleteJournalMarker          *sql.Stmt
+	getAllLedgersInRange         *sql.Stmt
+	getLedgerMarkers             *sql.Stmt
+	getLedgerMarkerByGLNo        *sql.Stmt
+	getLedgerInRangeByGLNo       *sql.Stmt
+	insertLedgerMarker           *sql.Stmt
+	insertLedger                 *sql.Stmt
+	insertLedgerAllocation       *sql.Stmt
+	deleteLedgerEntry            *sql.Stmt
+	deleteLedgerMarker           *sql.Stmt
+	getAllLedgerMarkersInRange   *sql.Stmt
 }
 
 type acctRule struct {
 	Action  string  // "d" = debit, "c" = credit
 	Account string  // GL No for the account
-	Amount  float32 // use the entire amount of the assessment or deposit, otherwise the amount to use
+	Amount  float64 // use the entire amount of the assessment or deposit, otherwise the amount to use
 }
 
 // App is the global data structure for this app
@@ -442,10 +466,10 @@ var App struct {
 	DBRR        string
 	DBUser      string
 	prepstmt    prepSQL
-	AsmtTypes   map[int]AssessmentType
-	PmtTypes    map[int]PaymentType
-	Report      int
-	DefaultCash map[int]LedgerMarker // The default cash account for each business
+	AsmtTypes   map[int64]AssessmentType
+	PmtTypes    map[int64]PaymentType
+	Report      int64
+	DefaultCash map[int64]LedgerMarker // The default cash account for each business
 }
 
 // This is Phonebooks's standard logger
@@ -454,12 +478,18 @@ func ulog(format string, a ...interface{}) {
 	log.Print(p)
 }
 
+// GetRecurrences is a shorthand for assessment variables to get a list
+// of dates on which charges must be assessed for a particular interval of time (d1 - d2)
+func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
+	return rlib.GetRecurrences(d1, d2, &a.Start, &a.Stop, a.Frequency)
+}
+
 func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	rptPtr := flag.Int("r", 0, "report: 0 = generate journal records, 1 = journal, 2 = rentable")
+	rptPtr := flag.Int64("r", 0, "report: 0 = generate journal records, 1 = journal, 2 = rentable")
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version: %s\nBuilt:   %s\n", getVersionNo(), getBuildTime())
@@ -469,6 +499,32 @@ func readCommandLineArgs() {
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.Report = *rptPtr
+}
+
+// Dispatch generates the supplied report for all properties
+func Dispatch(d1, d2 time.Time, report int64) {
+	s := "SELECT BID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
+	rows, err := App.dbrr.Query(s)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var xprop XBusiness
+		rlib.Errcheck(rows.Scan(&xprop.P.BID, &xprop.P.Address, &xprop.P.Address2, &xprop.P.City, &xprop.P.State,
+			&xprop.P.PostalCode, &xprop.P.Country, &xprop.P.Phone, &xprop.P.Name, &xprop.P.DefaultOccupancyType,
+			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))
+		GetXBusiness(xprop.P.BID, &xprop)
+		// fmt.Printf("Business: %s  (%d)\n", xprop.P.Name, xprop.P.BID)
+
+		switch report {
+		case 1:
+			JournalReportText(&xprop, &d1, &d2)
+			LedgerReportText(&xprop, &d1, &d2)
+		default:
+			// fmt.Printf("Generating Journal Records for %s through %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
+			GenerateJournalRecords(&xprop, &d1, &d2)
+			GenerateLedgerRecords(&xprop, &d1, &d2)
+		}
+	}
 }
 
 func main() {
@@ -499,10 +555,11 @@ func main() {
 	buildPreparedStatements()
 	initLists()
 	initJFmt()
+	initTFmt()
 	loadDefaultCashAccts()
 
-	//  func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
+	//  func Date(year int64 , month Month, day, hour, min, sec, nsec int64 , loc *Location) Time
 	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
 	stop := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
-	ReportAll(start, stop, App.Report)
+	Dispatch(start, stop, App.Report)
 }

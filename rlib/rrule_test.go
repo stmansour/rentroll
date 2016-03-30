@@ -13,7 +13,7 @@ const longForm = "Jan 2, 2006 3:04pm (MST)"
 
 //  struct with initializers for dummy assessments
 type rrtest struct {
-	amt    float32
+	amt    float64
 	start  string
 	stop   string
 	freq   int
@@ -34,11 +34,11 @@ func runRecurTest(t *testing.T, name string, rrcase []rrtest, dt1, dt2 string) {
 		Errcheck(err)
 		t2, err := time.Parse(longForm, rrcase[i].stop)
 		Errcheck(err)
-		m := GetRecurrences(&dtstart, &dtstop, &t1, &t2, rrcase[i].freq)
+		m := GetRecurrences(&dtstart, &dtstop, &t1, &t2, int64(rrcase[i].freq))
 		for a := 0; a < len(m); a++ {
 			t.Logf("%s[%d]:  %2d. %s\n", name, i, a, m[a].Format(longForm))
 		}
-		if len(m) != rrcase[i].expect {
+		if len(m) != int(rrcase[i].expect) {
 			t.Errorf("%s[%d]:  len(m)=%d,  Expected: %d", name, i, len(m), rrcase[i].expect)
 		}
 	}

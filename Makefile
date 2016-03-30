@@ -10,6 +10,7 @@ rentroll: *.go mkver.sh
 
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
+	go clean
 	rm -f rentroll ver.go
 
 test:

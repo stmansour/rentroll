@@ -60,7 +60,7 @@ func genRegularRecurSeq(a1, a2, R1, R2 *time.Time, freq time.Duration) []time.Ti
 	return m
 }
 
-func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int) []time.Time {
+func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int64) []time.Time {
 
 	//============================================
 	// Set up first time range for first run...
@@ -75,7 +75,7 @@ func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int) []time.Time {
 	var m []time.Time
 	for i := 0; i < 10000; i++ {
 		mo, y := IncMonths(d1.Month(), nMonths)
-		d2 = time.Date(d1.Year()+y, mo, d1.Day(), d1.Hour(), d1.Minute(), d1.Second(), 0, time.UTC)
+		d2 = time.Date(d1.Year()+int(y), mo, d1.Day(), d1.Hour(), d1.Minute(), d1.Second(), 0, time.UTC)
 
 		//----------------------------------------
 		// don't go outside the requested range
@@ -105,12 +105,12 @@ func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int) []time.Time {
 	return m
 }
 
-func genYearlyRecurSeq(d, start, stop *time.Time, n int) []time.Time {
+func genYearlyRecurSeq(d, start, stop *time.Time, n int64) []time.Time {
 	var m []time.Time
 	dt := *d
 	for dateInRange(&dt, start, stop) {
 		m = append(m, dt)
-		dt = time.Date(dt.Year()+n, dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
+		dt = time.Date(dt.Year()+int(n), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
 	}
 	return m
 }
@@ -118,7 +118,7 @@ func genYearlyRecurSeq(d, start, stop *time.Time, n int) []time.Time {
 // GetRecurrences returns a list of instance dates where an event time (aStart - aStop)
 // overlaps with an interval time (start - stop).  The recurrence frequency
 // maps to those that can happen for an assessment.
-func GetRecurrences(start, stop, aStart, aStop *time.Time, aFrequency int) []time.Time {
+func GetRecurrences(start, stop, aStart, aStop *time.Time, aFrequency int64) []time.Time {
 	var m []time.Time
 
 	//-------------------------------------------

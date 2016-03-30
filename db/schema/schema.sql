@@ -12,7 +12,11 @@
 --  BLDGID = building id
 --     BID = business id
 --  DISBID = disbursement id
+--    JAID = journal allocation id
+--     JID = journal id
+--    JMID = journal marker id
 --     LID = ledger id
+--    LMID = ledger marker id
 --   OFSID = offset id
 --     PID = payor id
 --     RID = rentable id
@@ -45,7 +49,7 @@ GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 --   RENTAL AGREEMENT TEMPLATE
 -- ===========================================
 CREATE TABLE rentalagreementtemplate (
-    RATID INT NOT NULL AUTO_INCREMENT,                        -- internal unique id
+    RATID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
     ReferenceNumber VARCHAR(35) DEFAULT '',                   -- Occupancy Agreement Reference Number
     RentalAgreementType SMALLINT NOT NULL DEFAULT 0,          -- 1=leasehold, 2=month-to-month, 3=hotel
     LastModTime TIMESTAMP,                                    -- when was this record last written
@@ -57,13 +61,14 @@ CREATE TABLE rentalagreementtemplate (
 --   RENTAL AGREEMENT
 -- ===========================================
 CREATE TABLE rentalagreement (        
-    RAID INT NOT NULL AUTO_INCREMENT,                         -- internal unique id
-    RATID INT NOT NULL DEFAULT 0,                             -- reference to Occupancy Master Agreement
-    BID INT NOT NULL DEFAULT 0,                               -- business (so that we can process by business)
-    RID INT NOT NULL DEFAULT 0,                               -- rentable id
-    UNITID INT NOT NULL DEFAULT 0,                            -- associated unit
-    PID INT NOT NULL DEFAULT 0,                               -- who is the payor for this agreement
-    PrimaryTenant INT NOT NULL DEFAULT 0,                     -- TID of primary tenant.  
+    RAID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
+    RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Occupancy Master Agreement
+    BID BIGINT NOT NULL DEFAULT 0,                            -- business (so that we can process by business)
+    RID BIGINT NOT NULL DEFAULT 0,                            -- rentable id
+    UNITID BIGINT NOT NULL DEFAULT 0,                         -- associated unit
+    PID BIGINT NOT NULL DEFAULT 0,                            -- who is the payor for this agreement
+    LID BIGINT NOT NULL DEFAULT 0,                            -- Ledger for this rental agreement
+    PrimaryTenant BIGINT NOT NULL DEFAULT 0,                  -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- month to month automatic renewal, lease extension options, none.
@@ -79,8 +84,8 @@ CREATE TABLE rentalagreement (
 -- query this table for rows where RAID=(the rental agreement for the unit)
 -- the return list will be the TIDs of all tenants in that unit
 CREATE TABLE unittenants (
-    RAID INT NOT NULL DEFAULT 0,                              -- the unit's occupancy agreement
-    TID INT NOT NULL DEFAULT 0                                -- the tenant
+    RAID BIGINT NOT NULL DEFAULT 0,                              -- the unit's occupancy agreement
+    TID BIGINT NOT NULL DEFAULT 0                                -- the tenant
 );
 
 
@@ -94,7 +99,7 @@ CREATE TABLE unittenants (
 -- Occupancy Type List - hardcoded
 
 CREATE TABLE business (
-    BID INT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL AUTO_INCREMENT,
     Address VARCHAR(35) NOT NULL DEFAULT '',
     Address2 VARCHAR(35) NOT NULL DEFAULT '',
     City VARCHAR(25) NOT NULL DEFAULT '',
@@ -114,18 +119,20 @@ CREATE TABLE business (
 --   RENTABLE TYPES 
 -- ===========================================
 CREATE TABLE rentabletypes (
-    RTID INT NOT NULL AUTO_INCREMENT,
-    BID INT NOT NULL DEFAULT 0,                            -- associated business id
+    RTID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
     Name VARCHAR(256) NOT NULL DEFAULT '',
-    Frequency INT NOT NULL DEFAULT 0,                       -- price accrual frequency
-    Proration INT NOT NULL DEFAULT 0,                       --  prorate frequency
+    Frequency BIGINT NOT NULL DEFAULT 0,                    -- price accrual frequency
+    Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
+    Report SMALLINT NOT NULL DEFAULT 0,
+    ManageToBudget SMALLINT NOT NULL DEFAULT 0,
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RTID)
 );
 
 CREATE TABLE rentablemarketrate (
-    RTID INT NOT NULL DEFAULT 0,                                -- associated rentable type
+    RTID BIGINT NOT NULL DEFAULT 0,                             -- associated rentable type
     MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'    -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
@@ -140,24 +147,24 @@ CREATE TABLE rentablemarketrate (
 --  Offset=Debit=positive
 --  Assessment=Credit=negative
 CREATE TABLE unittypes (
-    UTID INT NOT NULL AUTO_INCREMENT,
-    BID INT NOT NULL DEFAULT 0,                            -- associated business id
+    UTID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                            -- associated business id
     Style CHAR(15) NOT NULL DEFAULT '',
     Name VARCHAR(256) NOT NULL DEFAULT '',
     SqFt MEDIUMINT NOT NULL DEFAULT 0,
     MarketRate Decimal(19,4) NOT NULL DEFAULT 0.0,          -- market rate for this unit
-    Frequency INT NOT NULL DEFAULT 0,                       -- MarketRate accrual frequency
-    Proration INT NOT NULL DEFAULT 0,                       --  prorate frequency
+    Frequency BIGINT NOT NULL DEFAULT 0,                       -- MarketRate accrual frequency
+    Proration BIGINT NOT NULL DEFAULT 0,                       --  prorate frequency
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UTID)
 );
 
 CREATE TABLE unitmarketrate (
-    UTID INT NOT NULL DEFAULT 0,                                -- associated rentable type
+    UTID BIGINT NOT NULL DEFAULT 0,                                -- associated rentable type
     MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
-    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00'    -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
+    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
 );
 
 -- ===========================================
@@ -169,8 +176,8 @@ CREATE TABLE unitmarketrate (
 -- Washer Dryer provided, close to parking, better views, fireplaces, special 
 -- remodeling or finishes, etc.  This is where those special characteristics are defined
 CREATE TABLE unitspecialtytypes (
-    USPID INT NOT NULL AUTO_INCREMENT,
-    BID INT NOT NULL,
+    USPID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL,
     Name VARCHAR(25) NOT NULL DEFAULT '',
     Fee DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Description VARCHAR(256) NOT NULL DEFAULT '',
@@ -190,7 +197,7 @@ CREATE TABLE unitspecialtytypes (
 -- this table list all the pre-defined assessments
 -- this will include offsets and disbursements
 CREATE TABLE assessmenttypes (
-    ASMTID INT NOT NULL AUTO_INCREMENT,             -- what type of assessment
+    ASMTID BIGINT NOT NULL AUTO_INCREMENT,             -- what type of assessment
     Name VARCHAR(35) NOT NULL DEFAULT '',           -- name for the assessment
 
     -- TODO: Type needs to be removed
@@ -219,7 +226,7 @@ CREATE TABLE paymenttypes (
 --           Vacant - Made Ready, Vacant - Inspected, plus custom values
 -- Custom values will be added with their own uniq AVAILID
 CREATE TABLE availabilitytypes (
-    AVAILID INT NOT NULL AUTO_INCREMENT,
+    AVAILID BIGINT NOT NULL AUTO_INCREMENT,
     Name VARCHAR(35) NOT NULL DEFAULT '',
     PRIMARY KEY (AVAILID)
 );
@@ -235,13 +242,13 @@ CREATE TABLE availabilitytypes (
 -- of assessments for that particular business.
 -- applicable assessments for a specific business
 CREATE TABLE businessassessments (
-    BID INT NOT NULL DEFAULT 0,
-    ASMTID INT NOT NULL DEFAULT 0
+    BID BIGINT NOT NULL DEFAULT 0,
+    ASMTID BIGINT NOT NULL DEFAULT 0
 );
 
 -- applicable assessments for a specific business
 CREATE TABLE businesspaymenttypes (
-    BID INT NOT NULL DEFAULT 0,
+    BID BIGINT NOT NULL DEFAULT 0,
     PMTID MEDIUMINT NOT NULL DEFAULT 0
 );
 
@@ -251,8 +258,8 @@ CREATE TABLE businesspaymenttypes (
 -- ****                              ****
 -- **************************************
 CREATE TABLE building (
-    BLDGID INT NOT NULL AUTO_INCREMENT,           -- unique id for this building
-    BID INT NOT NULL DEFAULT 0,                  -- which business it belongs to
+    BLDGID BIGINT NOT NULL AUTO_INCREMENT,           -- unique id for this building
+    BID BIGINT NOT NULL DEFAULT 0,                  -- which business it belongs to
     Address VARCHAR(35) NOT NULL DEFAULT '',      -- building address
     Address2 VARCHAR(35) NOT NULL DEFAULT '',       
     City VARCHAR(25) NOT NULL DEFAULT '',
@@ -270,11 +277,11 @@ CREATE TABLE building (
 -- ****                              ****
 -- **************************************
 CREATE TABLE rentable (
-    RID INT NOT NULL AUTO_INCREMENT,
-    LID INT NOT NULL DEFAULT 0,                                     -- which ledger keeps track of what's owed on this rentable
-    RTID INT NOT NULL DEFAULT 0,                                    -- what sort of a rentable is this?
-    BID INT NOT NULL DEFAULT 0,                                     -- Property associated with this rentable
-    UNITID INT NOT NULL DEFAULT 0,                                  -- unit (if applicable)
+    RID BIGINT NOT NULL AUTO_INCREMENT,
+    LID BIGINT NOT NULL DEFAULT 0,                                     -- which ledger keeps track of what's owed on this rentable
+    RTID BIGINT NOT NULL DEFAULT 0,                                    -- what sort of a rentable is this?
+    BID BIGINT NOT NULL DEFAULT 0,                                     -- Property associated with this rentable
+    UNITID BIGINT NOT NULL DEFAULT 0,                                  -- unit (if applicable)
     Name VARCHAR(10) NOT NULL DEFAULT '',                           -- name unique to the instance "101" for a room number 744 carport number, etc 
     Assignment SMALLINT NOT NULL DEFAULT 0,                         -- Pre-assign or assign at occupy commencement
     Report SMALLINT NOT NULL DEFAULT 1,                             -- 1 = apply to rentroll, 0 = skip on rentroll
@@ -294,11 +301,11 @@ CREATE TABLE rentable (
 -- **************************************
 -- Fields unique to an apartment or hotel room 
 CREATE TABLE unit (
-    UNITID INT NOT NULL AUTO_INCREMENT,                 -- unique id for this unit -- it is unique across all properties and buildings
-    RID INT NOT NULL DEFAULT 0,                         -- associated rentable
-    BLDGID INT NOT NULL DEFAULT 0,                      -- which building
-    UTID INT NOT NULL DEFAULT 0,                        -- which unit type
-    AVAILID INT NOT NULL DEFAULT 0,                     -- how is the unit made available
+    UNITID BIGINT NOT NULL AUTO_INCREMENT,                 -- unique id for this unit -- it is unique across all properties and buildings
+    RID BIGINT NOT NULL DEFAULT 0,                         -- associated rentable
+    BLDGID BIGINT NOT NULL DEFAULT 0,                      -- which building
+    UTID BIGINT NOT NULL DEFAULT 0,                        -- which unit type
+    AVAILID BIGINT NOT NULL DEFAULT 0,                     -- how is the unit made available
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UNITID)
@@ -313,9 +320,9 @@ CREATE TABLE unit (
 -- Selecting all entries where the unit == UNITID
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE unitspecialties (
-    BID INT NOT NULL DEFAULT 0,                         -- the business
-    UNITID INT NOT NULL DEFAULT 0,                      -- unique id of unit
-    USPID INT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table unitspecialties)
+    BID BIGINT NOT NULL DEFAULT 0,                         -- the business
+    UNITID BIGINT NOT NULL DEFAULT 0,                      -- unique id of unit
+    USPID BIGINT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table unitspecialties)
 );
 
 
@@ -326,12 +333,12 @@ CREATE TABLE unitspecialties (
 -- **************************************
 -- charges associated with a rentable
 CREATE TABLE assessments (
-    ASMID INT NOT NULL AUTO_INCREMENT,
-    BID INT NOT NULL DEFAULT 0,                             -- Business id
-    RID INT NOT NULL DEFAULT 0,                             -- rental id
-    UNITID INT NOT NULL DEFAULT 0,                          -- unit associated with this assessment (could be "subid")
-    ASMTID INT NOT NULL DEFAULT 0,                          -- what type of assessment (ex: Rent, SecurityDeposit, ...)
-    RAID INT NOT NULL DEFAULT 0,                            -- Associated Rental Agreement ID
+    ASMID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                             -- Business id
+    RID BIGINT NOT NULL DEFAULT 0,                             -- rental id
+    UNITID BIGINT NOT NULL DEFAULT 0,                          -- unit associated with this assessment (could be "subid")
+    ASMTID BIGINT NOT NULL DEFAULT 0,                          -- what type of assessment (ex: Rent, SecurityDeposit, ...)
+    RAID BIGINT NOT NULL DEFAULT 0,                            -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the tenant moves out or when the charge is no longer applicable
@@ -355,10 +362,10 @@ CREATE TABLE assessments (
 -- ===========================================
 -- transactant - fields common to all people and
 CREATE TABLE transactant (
-    TCID INT NOT NULL AUTO_INCREMENT,                   -- unique id of unit
-    TID INT NOT NULL DEFAULT 0,                         -- associated tenant id
-    PID INT NOT NULL DEFAULT 0,                         -- associated payor id
-    PRSPID INT NOT NULL DEFAULT 0,                      -- associated prospect id
+    TCID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id of unit
+    TID BIGINT NOT NULL DEFAULT 0,                         -- associated tenant id
+    PID BIGINT NOT NULL DEFAULT 0,                         -- associated payor id
+    PRSPID BIGINT NOT NULL DEFAULT 0,                      -- associated prospect id
     FirstName VARCHAR(35) NOT NULL DEFAULT '',
     MiddleName VARCHAR(35) NOT NULL DEFAULT '',
     LastName VARCHAR(35) NOT NULL DEFAULT '', 
@@ -381,8 +388,8 @@ CREATE TABLE transactant (
 --   PROSPECT
 -- ===========================================
 CREATE TABLE prospect (
-    PRSPID INT NOT NULL AUTO_INCREMENT,                 -- unique id of this prospect
-    TCID INT NOT NULL DEFAULT 0,                        -- associated transactant (has Name and all contact info)
+    PRSPID BIGINT NOT NULL AUTO_INCREMENT,                 -- unique id of this prospect
+    TCID BIGINT NOT NULL DEFAULT 0,                        -- associated transactant (has Name and all contact info)
     ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,  -- if non-zero this prospect is an applicant
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
@@ -393,17 +400,17 @@ CREATE TABLE prospect (
 --   TENANT
 -- ===========================================
 CREATE TABLE tenant (
-    TID INT NOT NULL AUTO_INCREMENT,                    -- unique id of this tenant
-    TCID INT NOT NULL,                                  -- associated transactant
-    Points INT NOT NULL DEFAULT 0,                      -- bonus points for this tenant
+    TID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this tenant
+    TCID BIGINT NOT NULL,                                  -- associated transactant
+    Points BIGINT NOT NULL DEFAULT 0,                      -- bonus points for this tenant
     CarMake VARCHAR(25) NOT NULL DEFAULT '',
     CarModel VARCHAR(25) NOT NULL DEFAULT '',
     CarColor VARCHAR(25) NOT NULL DEFAULT '',
-    CarYear INT NOT NULL DEFAULT 0,
+    CarYear BIGINT NOT NULL DEFAULT 0,
     LicensePlateState VARCHAR(35) NOT NULL DEFAULT '',
     LicensePlateNumber VARCHAR(35) NOT NULL DEFAULT '',
     ParkingPermitNumber VARCHAR(35) NOT NULL DEFAULT '',
-    AccountRep INT NOT NULL DEFAULT 0,                              -- Phonebook UID of account rep
+    AccountRep BIGINT NOT NULL DEFAULT 0,                              -- Phonebook UID of account rep
     DateofBirth DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     EmergencyContactName VARCHAR(35) NOT NULL DEFAULT '',
     EmergencyContactAddress VARCHAR(35) NOT NULL DEFAULT '',
@@ -423,8 +430,8 @@ CREATE TABLE tenant (
 --   PAYOR
 -- ===========================================
 CREATE TABLE payor  (
-    PID INT NOT NULL AUTO_INCREMENT,                          -- unique id of this payor
-    TCID INT NOT NULL,                                        -- associated transactant
+    PID BIGINT NOT NULL AUTO_INCREMENT,                          -- unique id of this payor
+    TCID BIGINT NOT NULL,                                        -- associated transactant
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     EmployerName  VARCHAR(35) NOT NULL DEFAULT '',
     EmployerStreetAddress VARCHAR(35) NOT NULL DEFAULT '',
@@ -443,10 +450,10 @@ CREATE TABLE payor  (
 -- ****                              ****
 -- **************************************
 CREATE TABLE receipt (
-    RCPTID INT NOT NULL AUTO_INCREMENT,                       -- unique id for this receipt
-    BID INT NOT NULL DEFAULT 0,
-    RAID INT NOT NULL DEFAULT 0,
-    PMTID INT NOT NULL DEFAULT 0,
+    RCPTID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this receipt
+    BID BIGINT NOT NULL DEFAULT 0,
+    RAID BIGINT NOT NULL DEFAULT 0,
+    PMTID BIGINT NOT NULL DEFAULT 0,
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
@@ -456,9 +463,9 @@ CREATE TABLE receipt (
 );
 
 CREATE TABLE receiptallocation (
-    RCPTID INT NOT NULL DEFAULT 0,                              -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
+    RCPTID BIGINT NOT NULL DEFAULT 0,                              -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ASMID INT NOT NULL DEFAULT 0,                               -- the id of the assessment that caused this payment
+    ASMID BIGINT NOT NULL DEFAULT 0,                               -- the id of the assessment that caused this payment
     AcctRule VARCHAR(150)
 );  
 
@@ -468,41 +475,47 @@ CREATE TABLE receiptallocation (
 -- ****                              ****
 -- **************************************
 CREATE TABLE journal (
-    JID INT NOT NULL AUTO_INCREMENT,                            -- a journal entry
-    BID INT NOT NULL DEFAULT 0,                                 -- Business id
-    RAID INT NOT NULL DEFAULT 0,                                -- associated rental agreement
-    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- date when it occurred
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- how much
-    Type SMALLINT NOT NULL DEFAULT 0,                           -- 0 = unknown, 1 = assessment, 2 = payment/receipt
-    ID INT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
+    JID BIGINT NOT NULL AUTO_INCREMENT,                            -- a journal entry
+    BID BIGINT NOT NULL DEFAULT 0,                                 -- Business id
+    RAID BIGINT NOT NULL DEFAULT 0,                                -- associated rental agreement
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- date when it occurred
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- how much
+    Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unknown, 1 = assessment, 2 = payment/receipt
+    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
     -- no last mod by, etc., this is all handled in the journalaudit table
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (JID)
 );
 
 CREATE TABLE journalallocation (
-    JID INT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
+    JAID BIGINT NOT NULL AUTO_INCREMENT,
+    JID BIGINT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ASMID INT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
-    AcctRule VARCHAR(200) NOT NULL DEFAULT ''
+    ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
+    AcctRule VARCHAR(200) NOT NULL DEFAULT '',
+    PRIMARY KEY (JAID)
 );  
 
 CREATE TABLE journalmarker (
-    JMID INT NOT NULL AUTO_INCREMENT,
-    BID INT NOT NULL DEFAULT 0,                                 -- Business id
-    State SMALLINT NOT NULL DEFAULT 0,                         -- 0 = unknown, 1 = Closed, 2 = Locked
+    JMID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                                 -- Business id
+    State SMALLINT NOT NULL DEFAULT 0,                             -- 0 = unknown, 1 = Closed, 2 = Locked
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (JMID)
 );
 
 CREATE TABLE journalaudit (
-    JID INT NOT NULL DEFAULT 0,             -- what JID was affected
+    JID BIGINT NOT NULL DEFAULT 0,          -- what JID was affected
     UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
     ModTime TIMESTAMP                       -- timestamp of change    
 );
 
 CREATE TABLE journalmarkeraudit (
-    JMID INT NOT NULL DEFAULT 0,            -- what JMID was affected
+    JMID BIGINT NOT NULL DEFAULT 0,         -- what JMID was affected
     UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
     ModTime TIMESTAMP                       -- timestamp of change
 );
@@ -513,37 +526,45 @@ CREATE TABLE journalmarkeraudit (
 -- ****                              ****
 -- **************************************
 CREATE TABLE ledger (
-    LID INT NOT NULL AUTO_INCREMENT,                          -- unique id for this Ledger
-    BID INT NOT NULL DEFAULT 0,                               -- Business id
+    LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
+    JID BIGINT NOT NULL DEFAULT 0,                            -- journal entry giving rise to this
+    JAID BIGINT NOT NULL DEFAULT 0,                           -- the allocation giving rise to this ledger entry
     GLNumber VARCHAR(15) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
-    Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently active or inactive
-    Type SMALLINT NOT NULL DEFAULT 0,                         -- Classification of a GL Account as one of the following:  bank, accounts receivable, liability, 
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount since last close
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LID)        
 );
 
 CREATE TABLE ledgermarker (
-    LMID INT NOT NULL AUTO_INCREMENT,
-    BID INT NOT NULL DEFAULT 0,                                 -- Business id
+    LMID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     GLNumber VARCHAR(15) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
-    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- ledger holds records and a balance up to this date
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    DefaultAcct SMALLINT NOT NULL DEFAULT 0,                  -- flag: 0 = not the default cash account, 1 = default cash account to 
+    Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not the default cash account, 
+                                                              -- 1 = required account, system-created account, do not delete 
+                                                              -- 2 = account associated with rental agreement 
     Name VARCHAR(50) NOT NULL DEFAULT '',
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LMID)
 );
 
 CREATE TABLE ledgeraudit (
-    LID INT NOT NULL DEFAULT 0,             -- what LID was affected
-    UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
-    ModTime TIMESTAMP                       -- timestamp of change    
+    LID BIGINT NOT NULL DEFAULT 0,              -- what LID was affected
+    UID MEDIUMINT NOT NULL DEFAULT 0,           -- UID of person making the change
+    ModTime TIMESTAMP                           -- timestamp of change    
 );
 
 CREATE TABLE ledgermarkeraudit (
-    LMID INT NOT NULL DEFAULT 0,            -- what LMID was affected
-    UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
-    ModTime TIMESTAMP                       -- timestamp of change    
+    LMID BIGINT NOT NULL DEFAULT 0,             -- what LMID was affected
+    UID MEDIUMINT NOT NULL DEFAULT 0,           -- UID of person making the change
+    ModTime TIMESTAMP                           -- timestamp of change    
 );
 
