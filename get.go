@@ -226,6 +226,19 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	return t
 }
 
+// GetRentableMarketRate returns the market-rate rent amount for r during the given time range. If the time range
+// is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
+// returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
+func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) float64 {
+	mr := xbiz.RT[r.RTID].MR
+	for i := 0; i < len(mr); i++ {
+		if rlib.DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
+			return mr[i].MarketRate
+		}
+	}
+	return float64(0)
+}
+
 // GetUnitMarketRates loads all the MarketRate rent information for this unit into an array
 func GetUnitMarketRates(rt *UnitType) {
 	// now get all the MarketRate rent info...
@@ -255,10 +268,25 @@ func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
 	for rows.Next() {
 		var a UnitType
 		rlib.Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.SqFt, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		GetUnitMarketRates(&a)
 		t[a.UTID] = a
 	}
 	rlib.Errcheck(rows.Err())
 	return t
+}
+
+// GetUnitMarketRate returns the market-rate rent amount for u during the given time range. If the time range
+// is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
+// returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
+func GetUnitMarketRate(xbiz *XBusiness, u *Unit, d1, d2 *time.Time) float64 {
+	mr := xbiz.UT[u.UTID].MR
+	for i := 0; i < len(mr); i++ {
+		if rlib.DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
+			// fmt.Printf("GetUnitMarketRate: returnning %f\n", mr[i].MarketRate)
+			return mr[i].MarketRate
+		}
+	}
+	return float64(0)
 }
 
 // GetBusiness loads the Business struct for the supplied business id
@@ -268,20 +296,20 @@ func GetBusiness(bid int64, p *Business) {
 }
 
 // GetXBusiness loads the XBusiness struct for the supplied business id.
-func GetXBusiness(bid int64, xprop *XBusiness) {
-	if xprop.P.BID == 0 && bid > 0 {
-		GetBusiness(bid, &xprop.P)
+func GetXBusiness(bid int64, xbiz *XBusiness) {
+	if xbiz.P.BID == 0 && bid > 0 {
+		GetBusiness(bid, &xbiz.P)
 	}
-	xprop.RT = GetBusinessRentableTypes(bid)
-	xprop.UT = GetBusinessUnitTypes(bid)
-	xprop.US = make(map[int64]UnitSpecialtyType, 0)
+	xbiz.RT = GetBusinessRentableTypes(bid)
+	xbiz.UT = GetBusinessUnitTypes(bid)
+	xbiz.US = make(map[int64]UnitSpecialtyType, 0)
 	rows, err := App.prepstmt.getAllBusinessSpecialtyTypes.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a UnitSpecialtyType
 		rlib.Errcheck(rows.Scan(&a.USPID, &a.BID, &a.Name, &a.Fee, &a.Description))
-		xprop.US[a.USPID] = a
+		xbiz.US[a.USPID] = a
 	}
 	rlib.Errcheck(rows.Err())
 }
@@ -301,16 +329,30 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	return t
 }
 
-// GetDefaultCashLedgerMarker returns the LedgerMarker the default cash account associated with Business bid
-// func GetDefaultCashLedgerMarker(bid int64) LedgerMarker {
-// 	var r LedgerMarker
-// 	err := App.prepstmt.getDefaultCashLedgerMarker.QueryRow(bid).Scan(&r.LMID, &r.BID, &r.GLNumber, &r.State, &r.Dt, &r.Balance, &r.Type, &r.Name)
-// 	if nil != err {
-// 		fmt.Printf("GetDefaultCashLedgerMarker: Could not find default cash acount for Business %d.\n", bid)
-// 		fmt.Printf("err = %v\n", err)
-// 	}
-// 	return r
-// }
+// GetDefaultLedgerMarkers loads the default LedgerMarkers for the supplied Business bid
+func GetDefaultLedgerMarkers(bid int64) LedgerMarker {
+	var r LedgerMarker
+	rows, err := App.prepstmt.getDefaultLedgerMarkers.Query(bid)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	// fmt.Printf("GetDefaultLedgerMarkers: App.BizTypes[%d].DefaultAccts = %#v\n", bid, App.BizTypes[bid].DefaultAccts)
+	// if nil == App.BizTypes[bid].DefaultAccts {
+	// 	App.BizTypes[bid].DefaultAccts = make(map[int64]*LedgerMarker)
+	// 	// fmt.Printf("GetDefaultLedgerMarkers: Setting App.BizTypes[%d].DefaultAccts, val = %#v\n", bid, App.BizTypes[bid].DefaultAccts)
+	// }
+
+	for rows.Next() {
+		var r LedgerMarker
+		rlib.Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
+		App.BizTypes[bid].DefaultAccts[r.Type] = &r
+
+		// fmt.Printf("GetDefaultLedgerMarkers just added: App.BizTypes[%d].DefaultAccts[%d]\n", bid, r.Type)
+		// pr := App.BizTypes[bid].DefaultAccts[r.Type]
+		// fmt.Printf("value = %#v\n", *pr)
+	}
+	return r
+}
 
 // GetRentalAgreement returns the Ledger struct for the account with the supplied name
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
@@ -408,7 +450,7 @@ func GetLastJournalMarker() JournalMarker {
 // GetJournalAllocation returns the Journal allocation for the supplied JAID
 func GetJournalAllocation(jaid int64) (JournalAllocation, error) {
 	var a JournalAllocation
-	err := App.prepstmt.getJournalAllocation.QueryRow(jaid).Scan(&a.JAID, &a.JID, &a.Amount, &a.ASMID, &a.AcctRule)
+	err := App.prepstmt.getJournalAllocation.QueryRow(jaid).Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule)
 	if err != nil {
 		ulog("Error getting JournalAllocation jaid = %d:  error = %v\n", jaid, err)
 	}
@@ -424,7 +466,7 @@ func GetJournalAllocations(jid int64, j *Journal) {
 	j.JA = make([]JournalAllocation, 0)
 	for rows.Next() {
 		var a JournalAllocation
-		rlib.Errcheck(rows.Scan(&a.JAID, &a.JID, &a.Amount, &a.ASMID, &a.AcctRule))
+		rlib.Errcheck(rows.Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
 		j.JA = append(j.JA, a)
 	}
 }
@@ -448,7 +490,7 @@ func GetLedgerMarkers(bid, n int64) []LedgerMarker {
 	t = make([]LedgerMarker, 0)
 	for rows.Next() {
 		var r LedgerMarker
-		rlib.Errcheck(rows.Scan(&r.LMID, &r.BID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
+		rlib.Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
 		t = append(t, r)
 	}
 	return t
@@ -461,10 +503,10 @@ func GetLastLedgerMarker(bid int64) LedgerMarker {
 }
 
 // GetLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
-func GetLedgerMarkerByGLNo(s string) LedgerMarker {
+func GetLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
 	var r LedgerMarker
 	// fmt.Printf("Ledger = %s\n", s)
-	err := App.prepstmt.getLedgerMarkerByGLNo.QueryRow(s).Scan(&r.LMID, &r.BID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
+	err := App.prepstmt.getLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
 	if nil != err {
 		fmt.Printf("GetLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber \"%s\".\n", s)
 		fmt.Printf("err = %v\n", err)

@@ -2,14 +2,25 @@ package main
 
 import "rentroll/rlib"
 
+func initRentRoll() {
+	// App.BizTypes = make(map[int64]LedgerMarker, 0)
+	buildPreparedStatements()
+	initLists()
+	initJFmt()
+	initTFmt()
+	rpnInit()
+	loadDefaultCashAccts()
+}
+
 func initLists() {
 	App.AsmtTypes = GetAssessmentTypes()
 	App.PmtTypes = GetPaymentTypes()
+	App.BizTypes = make(map[int64]*BusinessTypes, 0)
 }
 
 // Basically this is turned off for now. We'll get to default cash accounts at some point.
 func loadDefaultCashAccts() {
-	App.DefaultCash = make(map[int64]LedgerMarker, 0)
+	// App.DefaultCash = make(map[int64]LedgerMarker, 0)
 	s := "SELECT BID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
 	rows, err := App.dbrr.Query(s)
 	rlib.Errcheck(err)

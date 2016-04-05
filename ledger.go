@@ -16,7 +16,7 @@ func RemoveLedgerEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 	defer rows.Close()
 	for rows.Next() {
 		var l Ledger
-		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.GLNumber, &l.Dt, &l.Amount))
+		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount))
 		deleteLedgerEntry(l.LID)
 
 		// only delete the marker if it is in this time range and if it is not the origin marker
@@ -58,14 +58,14 @@ func GenerateLedgerMarker(xbiz *XBusiness, d1, d2 *time.Time, bal float64) {
 func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
 	lm := GetLastLedgerMarker(xbiz.P.BID)
 	if lm.DtStop.Equal(d1.AddDate(0, 0, -1)) {
-		fmt.Printf("Generating next month's ledgers\n")
+		// pfmt.Printf("Generating next month's ledgers\n")
 	} else {
 		fmt.Printf("Generating these ledgers will destroy other periods of ledger records\n")
 	}
 	bal := lm.Balance
 
 	for i := 0; i < len(j.JA); i++ {
-		m := parseAcctRule(j.JA[i].AcctRule, 1.0)
+		m := parseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, 1.0)
 		for k := 0; k < len(m); k++ {
 			var l Ledger
 			l.BID = xbiz.P.BID

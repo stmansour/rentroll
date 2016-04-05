@@ -15,7 +15,7 @@ func InsertJournalEntry(j *Journal) (int64, error) {
 
 // InsertJournalAllocationEntry writes a new journalallocation record to the database
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
-	_, err := App.prepstmt.insertJournalAllocation.Exec(ja.JID, ja.Amount, ja.ASMID, ja.AcctRule)
+	_, err := App.prepstmt.insertJournalAllocation.Exec(ja.JID, ja.RID, ja.Amount, ja.ASMID, ja.AcctRule)
 	return err
 }
 

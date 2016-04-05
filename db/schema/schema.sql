@@ -72,7 +72,7 @@ CREATE TABLE rentalagreement (
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- month to month automatic renewal, lease extension options, none.
-    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',  
+    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',      -- free-form text
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RAID)
@@ -491,6 +491,7 @@ CREATE TABLE journal (
 CREATE TABLE journalallocation (
     JAID BIGINT NOT NULL AUTO_INCREMENT,
     JID BIGINT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the receipt with RCPTID in receipt table
+    RID BIGINT NOT NULL DEFAULT 0,                                 -- associated rentable
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
@@ -541,15 +542,15 @@ CREATE TABLE ledger (
 CREATE TABLE ledgermarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
+    PID BIGINT NOT NULL DEFAULT 0,                            -- payor id, only valid if TYPE is
     GLNumber VARCHAR(15) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not the default cash account, 
-                                                              -- 1 = required account, system-created account, do not delete 
-                                                              -- 2 = account associated with rental agreement 
+    Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a default account, 1 = Payor Account , 
+    --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC
     Name VARCHAR(50) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 

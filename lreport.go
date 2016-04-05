@@ -160,7 +160,7 @@ func LedgerReportText(xbiz *XBusiness, d1, d2 *time.Time) {
 	defer rows.Close()
 	for rows.Next() {
 		var lm LedgerMarker
-		rlib.Errcheck(rows.Scan(&lm.LMID, &lm.BID, &lm.GLNumber, &lm.Status, &lm.State, &lm.DtStart, &lm.DtStop, &lm.Balance, &lm.Type, &lm.Name))
+		rlib.Errcheck(rows.Scan(&lm.LMID, &lm.BID, &lm.PID, &lm.GLNumber, &lm.Status, &lm.State, &lm.DtStart, &lm.DtStop, &lm.Balance, &lm.Type, &lm.Name))
 		reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
 	}
 	rlib.Errcheck(rows.Err())

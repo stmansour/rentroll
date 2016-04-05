@@ -84,30 +84,30 @@ func printDatedJournalEntryLJ(label string, d time.Time, ra string, rn string, g
 }
 
 //
-func printJournalHeader(xprop *XBusiness, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
+func printJournalHeader(xbiz *XBusiness, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
 	// fmt.Printf("         1         2         3         4         5         6         7         8\n")
 	// fmt.Printf("12345678901234567890123456789012345678901234567890123456789012345678901234567890\n")
 	printJReportDoubleLine()
-	fmt.Printf("   Business:  %-13s\n", xprop.P.Name)
+	fmt.Printf("   Business:  %-13s\n", xbiz.P.Name)
 	fmt.Printf("   %s - %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
 	printJReportLine()
 	fmt.Printf(jfmt.Hdr, "Description", "Date", "RntAgr", "Rentable", "GL No", "Amount")
 	printJReportLine()
 }
 
-func processAcctRuleAmount(d time.Time, rule string, raid int64, r *Rentable) {
-	m := parseAcctRule(rule, float64(1))
+func processAcctRuleAmount(xbiz *XBusiness, rid int64, d time.Time, rule string, raid int64, r *Rentable) {
+	m := parseAcctRule(xbiz, rid, &d, &d, rule, float64(1))
 	for i := 0; i < len(m); i++ {
 		amt := m[i].Amount
 		if m[i].Action == "c" {
 			amt = -amt
 		}
-		l := GetLedgerMarkerByGLNo(m[i].Account)
+		l := GetLedgerMarkerByGLNo(r.BID, m[i].Account)
 		printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.Name, m[i].Account, amt)
 	}
 }
 
-func textPrintJournalAssessment(j *Journal, a *Assessment, r *Rentable, rentDuration, assessmentDuration int64) {
+func textPrintJournalAssessment(xbiz *XBusiness, j *Journal, a *Assessment, r *Rentable, rentDuration, assessmentDuration int64) {
 	s := fmt.Sprintf("J%08d  %s", j.JID, App.AsmtTypes[a.ASMTID].Name)
 	if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
 		s = fmt.Sprintf("%s (%d/%d days)", s, rentDuration, assessmentDuration)
@@ -115,24 +115,25 @@ func textPrintJournalAssessment(j *Journal, a *Assessment, r *Rentable, rentDura
 	printJournalSubtitle(s)
 
 	for i := 0; i < len(j.JA); i++ {
-		processAcctRuleAmount(j.Dt, j.JA[i].AcctRule, j.RAID, r)
+		processAcctRuleAmount(xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.RAID, r)
 	}
 	printJournalSubtitle("")
 }
 
-func textPrintJournalReceipt(j *Journal, rcpt *Receipt, cashAcctNo string) {
+func textPrintJournalReceipt(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rcpt *Receipt, cashAcctNo string) {
 	rntagr, _ := GetRentalAgreement(rcpt.RAID)
 	xp := GetXPersonByPID(rntagr.PID)
 	s := fmt.Sprintf("J%08d  Payment - %s  %.2f", j.JID, xp.trn.LastName, rcpt.Amount)
 	printJournalSubtitle(s)
 
+	// PROCESS EVERY RECEIPT ALLOCATION
 	for i := 0; i < len(rcpt.RA); i++ {
 		a, _ := GetAssessment(rcpt.RA[i].ASMID)
 		r := GetRentable(a.RID)
-		m := parseAcctRule(rcpt.RA[i].AcctRule, 1.0)
+		m := parseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, 1.0)
 		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
 		for k := 0; k < len(m); k++ {
-			l := GetLedgerMarkerByGLNo(m[k].Account)
+			l := GetLedgerMarkerByGLNo(j.BID, m[k].Account)
 			amt := m[k].Amount
 			if m[k].Action == "c" {
 				amt = -amt
@@ -144,21 +145,21 @@ func textPrintJournalReceipt(j *Journal, rcpt *Receipt, cashAcctNo string) {
 	printJournalSubtitle("")
 }
 
-func textPrintJournalEntry(j *Journal, rentDuration, assessmentDuration int64) {
+func textPrintJournalEntry(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
 	case JNLTYPERCPT:
 		rcpt := GetReceipt(j.ID)
-		textPrintJournalReceipt(j, &rcpt, App.DefaultCash[rcpt.BID].GLNumber)
+		textPrintJournalReceipt(xbiz, d1, d2, j, &rcpt, App.BizTypes[xbiz.P.BID].DefaultAccts[DFACCASH].GLNumber /*"10001"*/)
 	case JNLTYPEASMT:
 		a, _ := GetAssessment(j.ID)
 		r := GetRentable(a.RID)
-		textPrintJournalAssessment(j, &a, &r, rentDuration, assessmentDuration)
+		textPrintJournalAssessment(xbiz, j, &a, &r, rentDuration, assessmentDuration)
 	default:
 		fmt.Printf("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}
 }
 
-func textReportJournalEntry(j *Journal, d1, d2 *time.Time) {
+func textReportJournalEntry(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------
@@ -177,21 +178,21 @@ func textReportJournalEntry(j *Journal, d1, d2 *time.Time) {
 	assessmentDuration := int64(d2.Sub(*d1).Hours() / 24)
 	rentDuration := int64(stop.Sub(start).Hours() / 24)
 
-	textPrintJournalEntry(j, rentDuration, assessmentDuration)
+	textPrintJournalEntry(xbiz, d1, d2, j, rentDuration, assessmentDuration)
 
 }
 
 // JournalReportText generates a textual journal report for the supplied business and time range
-func JournalReportText(xprop *XBusiness, d1, d2 *time.Time) {
-	printJournalHeader(xprop, d1, d2)
-	rows, err := App.prepstmt.getAllJournalsInRange.Query(xprop.P.BID, d1, d2)
+func JournalReportText(xbiz *XBusiness, d1, d2 *time.Time) {
+	printJournalHeader(xbiz, d1, d2)
+	rows, err := App.prepstmt.getAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var j Journal
 		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID))
 		GetJournalAllocations(j.JID, &j)
-		textReportJournalEntry(&j, d1, d2)
+		textReportJournalEntry(xbiz, &j, d1, d2)
 	}
 	rlib.Errcheck(rows.Err())
 }

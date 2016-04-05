@@ -17,6 +17,13 @@ const (
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
 
+	LMPAYORACCT = 1
+	DFACCASH    = 10
+	DFACGENRCV  = 11
+	DFACGSRENT  = 12
+	DFACLTL     = 13
+	DFACVAC     = 14
+
 	CREDIT = 0
 	DEBIT  = 1
 
@@ -30,10 +37,13 @@ const (
 	JNLTYPEASMT = 1 // record is the result of an assessment
 	JNLTYPERCPT = 2 // record is the result of a receipt
 
-	MARKERSTATEOPEN   = 0
+	MARKERSTATEOPEN   = 0 // Journal Marker state
 	MARKERSTATECLOSED = 1
 	MARKERSTATELOCKED = 2
 	MARKERSTATEORIGIN = 3
+
+	JOURNALTYPEASMID  = 1
+	JOURNALTYPERCPTID = 2
 )
 
 // RRDATEFMT is a shorthand date format used for text output
@@ -344,7 +354,7 @@ type Journal struct {
 	Dt     time.Time
 	Amount float64
 	Type   int64
-	ID     int64
+	ID     int64 // if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
 	JA     []JournalAllocation
 }
 
@@ -352,6 +362,7 @@ type Journal struct {
 type JournalAllocation struct {
 	JAID     int64 // unique id for this allocation
 	JID      int64
+	RID      int64
 	Amount   float64
 	ASMID    int64
 	AcctRule string
@@ -382,6 +393,7 @@ type Ledger struct {
 type LedgerMarker struct {
 	LMID     int64
 	BID      int64
+	PID      int64 // only valid if Type == 1
 	GLNumber string
 	Status   int64
 	State    int64
@@ -426,7 +438,7 @@ type prepSQL struct {
 	getReceipt                   *sql.Stmt
 	getReceiptsInDateRange       *sql.Stmt
 	getReceiptAllocations        *sql.Stmt
-	getDefaultCashLedgerMarker   *sql.Stmt
+	getDefaultLedgerMarkers      *sql.Stmt
 	getAllJournalsInRange        *sql.Stmt
 	getJournalAllocations        *sql.Stmt
 	getJournalByRange            *sql.Stmt
@@ -452,24 +464,28 @@ type prepSQL struct {
 	getAllLedgerMarkersInRange   *sql.Stmt
 }
 
-type acctRule struct {
-	Action  string  // "d" = debit, "c" = credit
-	Account string  // GL No for the account
-	Amount  float64 // use the entire amount of the assessment or deposit, otherwise the amount to use
+// BusinessTypes is a struct holding a collection of Types associated
+type BusinessTypes struct {
+	BID           int64
+	AsmtTypes     map[int64]*AssessmentType
+	PmtTypes      map[int64]*PaymentType
+	UnitTypes     map[int64]*UnitType
+	RentableTypes map[int64]*RentableType
+	DefaultAccts  map[int64]*LedgerMarker // index by DFAC..., value = GL No of that account
 }
 
 // App is the global data structure for this app
 var App struct {
-	dbdir       *sql.DB
-	dbrr        *sql.DB
-	DBDir       string
-	DBRR        string
-	DBUser      string
-	prepstmt    prepSQL
-	AsmtTypes   map[int64]AssessmentType
-	PmtTypes    map[int64]PaymentType
-	Report      int64
-	DefaultCash map[int64]LedgerMarker // The default cash account for each business
+	dbdir     *sql.DB
+	dbrr      *sql.DB
+	DBDir     string
+	DBRR      string
+	DBUser    string
+	prepstmt  prepSQL
+	Report    int64
+	AsmtTypes map[int64]AssessmentType
+	PmtTypes  map[int64]PaymentType
+	BizTypes  map[int64]*BusinessTypes
 }
 
 // This is Phonebooks's standard logger
@@ -508,21 +524,34 @@ func Dispatch(d1, d2 time.Time, report int64) {
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var xprop XBusiness
-		rlib.Errcheck(rows.Scan(&xprop.P.BID, &xprop.P.Address, &xprop.P.Address2, &xprop.P.City, &xprop.P.State,
-			&xprop.P.PostalCode, &xprop.P.Country, &xprop.P.Phone, &xprop.P.Name, &xprop.P.DefaultOccupancyType,
-			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))
-		GetXBusiness(xprop.P.BID, &xprop)
-		// fmt.Printf("Business: %s  (%d)\n", xprop.P.Name, xprop.P.BID)
+		var xbiz XBusiness
+		rlib.Errcheck(rows.Scan(&xbiz.P.BID, &xbiz.P.Address, &xbiz.P.Address2, &xbiz.P.City, &xbiz.P.State,
+			&xbiz.P.PostalCode, &xbiz.P.Country, &xbiz.P.Phone, &xbiz.P.Name, &xbiz.P.DefaultOccupancyType,
+			&xbiz.P.ParkingPermitInUse, &xbiz.P.LastModTime, &xbiz.P.LastModBy))
+		GetXBusiness(xbiz.P.BID, &xbiz)
+		if nil == App.BizTypes[xbiz.P.BID] {
+			bt := BusinessTypes{
+				BID:           xbiz.P.BID,
+				AsmtTypes:     make(map[int64]*AssessmentType),
+				PmtTypes:      make(map[int64]*PaymentType),
+				UnitTypes:     make(map[int64]*UnitType),
+				RentableTypes: make(map[int64]*RentableType),
+				DefaultAccts:  make(map[int64]*LedgerMarker),
+			}
+			App.BizTypes[xbiz.P.BID] = &bt
+		}
+		GetDefaultLedgerMarkers(xbiz.P.BID)
+		// fmt.Printf("Dispatch: After call to GetDefaultLedgerMarkers: App.BizTypes[%d].DefaultAccts = %#v\n", xbiz.P.BID, App.BizTypes[xbiz.P.BID].DefaultAccts)
 
 		switch report {
 		case 1:
-			JournalReportText(&xprop, &d1, &d2)
-			LedgerReportText(&xprop, &d1, &d2)
+			JournalReportText(&xbiz, &d1, &d2)
+		case 2:
+			LedgerReportText(&xbiz, &d1, &d2)
 		default:
 			// fmt.Printf("Generating Journal Records for %s through %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
-			GenerateJournalRecords(&xprop, &d1, &d2)
-			GenerateLedgerRecords(&xprop, &d1, &d2)
+			GenerateJournalRecords(&xbiz, &d1, &d2)
+			GenerateLedgerRecords(&xbiz, &d1, &d2)
 		}
 	}
 }
@@ -552,11 +581,7 @@ func main() {
 	if nil != err {
 		fmt.Printf("App.DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, App.DBUser, err)
 	}
-	buildPreparedStatements()
-	initLists()
-	initJFmt()
-	initTFmt()
-	loadDefaultCashAccts()
+	initRentRoll()
 
 	//  func Date(year int64 , month Month, day, hour, min, sec, nsec int64 , loc *Location) Time
 	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)

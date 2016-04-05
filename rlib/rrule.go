@@ -2,13 +2,15 @@ package rlib
 
 import "time"
 
-func dateInRange(dt, start, stop *time.Time) bool {
+// DateInRange returns true if dt is >= start AND db < stop, otherwise it returns false
+func DateInRange(dt, start, stop *time.Time) bool {
 	// fmt.Printf("dt: %s\n", dt.Format(time.RFC3339))
 	// fmt.Printf("start: %s   stop: %s\n", start.Format(time.RFC3339), stop.Format(time.RFC3339))
 	return (dt.Equal(*start) || dt.After(*start)) && dt.Before(*stop)
 }
 
-func dateRangeOverlap(a1, a2, s1, s2 *time.Time) bool {
+// DateRangeOverlap returns true if time ranges a1-a2 overlaps timerange s1-s2, otherwise it returns false
+func DateRangeOverlap(a1, a2, s1, s2 *time.Time) bool {
 	return a1.Before(*s2) && a2.After(*s1)
 }
 
@@ -96,7 +98,7 @@ func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int64) []time.Time {
 		// make sure it's in the interval range AND in its active timeframe, and if it is
 		// then add it to the list
 		//-------------------------------------------------------------------------------------
-		if dateInRange(&d, &d1, &d2) && dateInRange(&d, a1, a2) {
+		if DateInRange(&d, &d1, &d2) && DateInRange(&d, a1, a2) {
 			m = append(m, d)
 		}
 		d1 = d2 // on to the next interval
@@ -108,7 +110,7 @@ func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int64) []time.Time {
 func genYearlyRecurSeq(d, start, stop *time.Time, n int64) []time.Time {
 	var m []time.Time
 	dt := *d
-	for dateInRange(&dt, start, stop) {
+	for DateInRange(&dt, start, stop) {
 		m = append(m, dt)
 		dt = time.Date(dt.Year()+int(n), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
 	}
@@ -144,7 +146,7 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, aFrequency int64) []t
 	switch aFrequency {
 	case RECURNONE: // no recurrence
 		// if dateRangeOverlap(aStart, aStop, start, stop) {
-		if dateInRange(aStart, start, stop) {
+		if DateInRange(aStart, start, stop) {
 			m = append(m, *aStart)
 			return m
 		}

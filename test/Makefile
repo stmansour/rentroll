@@ -1,7 +1,8 @@
-DIRS = ledger1
+DIRS = engine
 
 db:
-	for dir in $(DIRS); do make -C $$dir;done
+	#for dir in $(DIRS); do make -C $$dir;done
+	@echo "*** MAKE completed in test ***"
 
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
