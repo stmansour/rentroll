@@ -17,12 +17,14 @@ const (
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
 
-	LMPAYORACCT = 1
-	DFACCASH    = 10
-	DFACGENRCV  = 11
-	DFACGSRENT  = 12
-	DFACLTL     = 13
-	DFACVAC     = 14
+	LMPAYORACCT    = 1 // ledger set up for a payor
+	DFLTCASH       = 10
+	DFLTGENRCV     = 11
+	DFLTGSRENT     = 12
+	DFLTLTL        = 13
+	DFLTVAC        = 14
+	DFLTSECDEPRCV  = 15
+	DFLTSECDEPASMT = 16
 
 	CREDIT = 0
 	DEBIT  = 1
@@ -517,6 +519,16 @@ func readCommandLineArgs() {
 	App.Report = *rptPtr
 }
 
+func intTest(xbiz *XBusiness, d1, d2 *time.Time) {
+	fmt.Printf("INTERNAL TEST\n")
+	m := parseAcctRule(xbiz, 1, d1, d2, "d ${DFLTGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${DFLTGENRCV})} -", float64(8)/float64(30))
+
+	for i := 0; i < len(m); i++ {
+		fmt.Printf("m[%d] = %#v\n", i, m[i])
+	}
+	fmt.Printf("DONE\n")
+}
+
 // Dispatch generates the supplied report for all properties
 func Dispatch(d1, d2 time.Time, report int64) {
 	s := "SELECT BID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
@@ -548,6 +560,8 @@ func Dispatch(d1, d2 time.Time, report int64) {
 			JournalReportText(&xbiz, &d1, &d2)
 		case 2:
 			LedgerReportText(&xbiz, &d1, &d2)
+		case 3:
+			intTest(&xbiz, &d1, &d2)
 		default:
 			// fmt.Printf("Generating Journal Records for %s through %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
 			GenerateJournalRecords(&xbiz, &d1, &d2)

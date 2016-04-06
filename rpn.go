@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,8 +24,15 @@ var rpnOperator *regexp.Regexp
 var rpnNumber *regexp.Regexp
 var rpnFunction *regexp.Regexp
 
+func rpnPrintStack(ctx *rpnCtx) {
+	fmt.Printf("Stack --- size: %d\n", len(ctx.stack))
+	for i := 0; i < len(ctx.stack); i++ {
+		fmt.Printf("%2d: %f\n", i, ctx.stack[i])
+	}
+}
+
 func rpnInit() {
-	rpnVariable = regexp.MustCompile("{([^}]+)}")
+	rpnVariable = regexp.MustCompile("{(.*)}")
 	rpnOperator = regexp.MustCompile("[\\-+*/%]")
 	rpnNumber = regexp.MustCompile("^\\d+\\.?[0-9]+")
 	rpnFunction = regexp.MustCompile("([a-zA-Z]+)\\(([^\\)]+)\\)")
@@ -62,9 +70,12 @@ func rpnCreateCtx(xbiz *XBusiness, rid int64, d1, d2 *time.Time, m *[]acctRule, 
 func rpnFunctionResolve(ctx *rpnCtx, cmd, val string) float64 {
 	switch {
 	case cmd == "aval":
+		if val[0] == '$' {
+			val = doAcctSubstitution(ctx.xbiz.P.BID, val) // could be a substitution
+		}
 		for i := 0; i < len(*ctx.m); i++ {
 			if (*ctx.m)[i].Account == val {
-				// fmt.Printf("rpnFunctionResolve: returnning %f\n", (*ctx.m)[i].Amount)
+				// fmt.Printf("rpnFunctionResolve: returning %f\n", (*ctx.m)[i].Amount)
 				return (*ctx.m)[i].Amount
 			}
 		}
@@ -78,7 +89,9 @@ func varResolve(ctx *rpnCtx, s string) float64 {
 	if s == "UMR" {
 		rpnLoadRentable(ctx) // make sure it's loaded
 		if ctx.xu.U.UNITID > 0 {
-			return ctx.pf * GetUnitMarketRate(ctx.xbiz, &ctx.xu.U, ctx.d1, ctx.d2)
+			umr := GetUnitMarketRate(ctx.xbiz, &ctx.xu.U, ctx.d1, ctx.d2)
+			// fmt.Printf("umr = %f,  prorated = %f\n", umr, umr*ctx.pf)
+			return ctx.pf * umr
 		}
 		return ctx.pf * GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
 	}
@@ -95,22 +108,22 @@ func varResolve(ctx *rpnCtx, s string) float64 {
 }
 
 func varParseAmount(ctx *rpnCtx, s string) float64 {
-	for len(s) > 0 {
-		s = strings.TrimSpace(s)
+	t := strings.Split(s, " ")
+	for i := 0; i < len(t); i++ {
+		s = t[i]
+		// fmt.Printf("\nfor loop parsing: %s\n", s)
 		if s[0] == '$' { // is it a variable?
 			m := rpnVariable.FindStringSubmatchIndex(s)
 			if m != nil {
 				match := s[m[2]:m[3]]
 				n := varResolve(ctx, match)
 				ctx.stack = append(ctx.stack, n)
-				s = s[m[1]:]
 			}
 		} else if ('0' <= s[0] && s[0] <= '9') || '.' == s[0] { // is it a number?
 			m := rpnNumber.FindStringSubmatchIndex(s)
 			match := s[m[0]:m[1]]
 			n, _ := strconv.ParseFloat(match, 64)
 			ctx.stack = append(ctx.stack, n*ctx.pf)
-			s = s[m[1]:]
 		} else if s[0] == '-' || s[0] == '+' || s[0] == '*' || s[0] == '/' { // is it an operator?
 			op := s[0:1]
 			var x, y float64
@@ -126,11 +139,8 @@ func varParseAmount(ctx *rpnCtx, s string) float64 {
 			case "/":
 				ctx.stack = append(ctx.stack, x/y)
 			}
-			s = s[1:]
-		} else {
-			s = s[1:]
 		}
+		// rpnPrintStack(ctx)
 	}
-	z := rpnPop(ctx)
-	return z
+	return rpnPop(ctx)
 }

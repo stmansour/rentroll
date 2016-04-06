@@ -149,7 +149,7 @@ func textPrintJournalEntry(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rentD
 	switch j.Type {
 	case JNLTYPERCPT:
 		rcpt := GetReceipt(j.ID)
-		textPrintJournalReceipt(xbiz, d1, d2, j, &rcpt, App.BizTypes[xbiz.P.BID].DefaultAccts[DFACCASH].GLNumber /*"10001"*/)
+		textPrintJournalReceipt(xbiz, d1, d2, j, &rcpt, App.BizTypes[xbiz.P.BID].DefaultAccts[DFLTCASH].GLNumber /*"10001"*/)
 	case JNLTYPEASMT:
 		a, _ := GetAssessment(j.ID)
 		r := GetRentable(a.RID)

@@ -14,6 +14,41 @@ type acctRule struct {
 	Amount  float64 // use the entire amount of the assessment or deposit, otherwise the amount to use
 }
 
+func varAcctResolve(bid int64, s string) string {
+	i := int64(0)
+	switch {
+	case s == "DFLTCASH":
+		i = DFLTCASH
+	case s == "DFLTGENRCV":
+		i = DFLTGENRCV
+	case s == "DFLTGSRENT":
+		i = DFLTGSRENT
+	case s == "DFLTLTL":
+		i = DFLTLTL
+	case s == "DFLTVAC":
+		i = DFLTVAC
+	case s == "DFLTSECDEPRCV":
+		i = DFLTSECDEPRCV
+	case s == "DFLTSECDEPASMT":
+		i = DFLTSECDEPASMT
+	}
+	if i > 0 {
+		return App.BizTypes[bid].DefaultAccts[i].GLNumber
+	}
+	return s
+}
+
+func doAcctSubstitution(bid int64, s string) string {
+	if s[0] == '$' {
+		m := rpnVariable.FindStringSubmatchIndex(s)
+		if m != nil {
+			match := s[m[2]:m[3]]
+			return varAcctResolve(bid, match)
+		}
+	}
+	return s
+}
+
 func parseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, pf float64) []acctRule {
 	var m []acctRule
 	ctx := rpnCreateCtx(xbiz, rid, d1, d2, &m, pf)
@@ -24,7 +59,7 @@ func parseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, p
 			t := strings.Join(strings.Fields(sa[k]), " ")
 			ta := strings.Split(t, " ")
 			r.Action = strings.ToLower(strings.TrimSpace(ta[0]))
-			r.Account = strings.TrimSpace(ta[1])
+			r.Account = doAcctSubstitution(xbiz.P.BID, strings.TrimSpace(ta[1]))
 			ar := strings.Join(ta[2:], " ")
 			sr := strings.TrimSpace(ar)
 			x := varParseAmount(&ctx, sr)
