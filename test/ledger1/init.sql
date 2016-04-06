@@ -225,8 +225,8 @@ INSERT INTO rentalagreement (RATID,BID,RID,UNITID,PID,LID,PrimaryTenant,RentalSt
 --    an applicant to a tenant (or payor as the case may be)
 -- =======================================================================
 INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod, AcctRule) VALUES
-	(1, 1, 1, 1, 1,1000.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 1000.0, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"),		-- #1  Krabappel - Rent
-	(1, 1, 1, 1, 8,1200.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} 1200.0, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -");		-- #2  Simpson rent
+	(1, 1, 1, 1, 1,1000.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"),		-- #1  Krabappel - Rent
+	(1, 1, 1, 1, 8,1200.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -");		-- #2  Simpson rent
 	-- (1, 1, 1, 1, 1,1000.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 1000.0, c ${DFLTGSRENT} 1000.0"),		-- #1  Krabappel - Rent
 	-- (1, 1, 1, 1, 8,1000.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} 1000.0, c ${DFLTGSRENT} 1000.0");		-- #2  Simpson rent
 	-- (2, 1, 2, 1, 2,1050.00,"2011-04-01","2016-04-30", 6, 4, "d ${DFLTGENRCV} 1050.00, c ${DFLTGSRENT} 1050.00"),		
@@ -240,10 +240,10 @@ INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,
 --  UNIT SPECIALTY ASSESSMENTS
 -- =======================================================================
 INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod, AcctRule) VALUES
-	(1, 1, 1, 59, 1,50.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 50.00, c ${DFLTGSRENT} ${aval(${DFLTGENRCV})}"),		-- #3 Lake view  Krabappel
-	(1, 1, 1, 62, 1,20.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 20.00, c ${DFLTGSRENT} ${aval(${DFLTGENRCV})}"),		-- #4 Fireplace  Krabappel
-	(1, 1, 1, 59, 8,50.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} 50.00, c ${DFLTGSRENT} ${aval(${DFLTGENRCV})}"),		-- #5 Lake view  Simpson
-	(1, 1, 1, 62, 8,20.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} 20.00, c ${DFLTGSRENT} ${aval(${DFLTGENRCV})}");		-- #6 Fireplace  Simpson
+	(1, 1, 1, 59, 1,50.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #3 Lake view  Krabappel
+	(1, 1, 1, 62, 1,20.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #4 Fireplace  Krabappel
+	(1, 1, 1, 59, 8,50.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #5 Lake view  Simpson
+	(1, 1, 1, 62, 8,20.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _");		-- #6 Fireplace  Simpson
 
 -- =======================================================================
 --  CONTRACT SECURITY DEPOSIT
@@ -251,8 +251,8 @@ INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,
 --    an applicant to a tenant (or payor as the case may be)
 -- =======================================================================
 INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod, AcctRule) VALUES
-	(  1, 1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${DFLTSECDEPRCV} 1000.00, c ${DFLTSECDEPASMT} ${aval(${DFLTSECDEPRCV})}"),		-- #7 Krabappel deposit
-	(  1, 1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${DFLTSECDEPRCV} 1500.00, c ${DFLTSECDEPASMT} ${aval(${DFLTSECDEPRCV})}");		-- #8 Simpson deposit
+	(  1, 1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _"),		-- #7 Krabappel deposit
+	(  1, 1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _");		-- #8 Simpson deposit
 
 -- =======================================================================
 --  CARPORT ASSESSMENTS
@@ -260,16 +260,16 @@ INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,
 --    created along with the rental agreement
 -- =======================================================================
 INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod, AcctRule) VALUES
-	(1, 1, 8, 28, 1,35.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 35.00, c 42007 35.00"),		-- #9  Krabappel, ends Nov 10
-	(1, 1, 8, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} 35.00, c 42007 35.00"),		-- #10 Simpson, starts Nov 21
-	(1, 1, 9, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} 35.00, c 42007 35.00");		-- #11 Simpson, starts Nov 21
+	(1, 1, 8, 28, 1,35.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #9  Krabappel, ends Nov 10
+	(1, 1, 8, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #10 Simpson, starts Nov 21
+	(1, 1, 9, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _");		-- #11 Simpson, starts Nov 21
 
 -- =======================================================================
 --  DAMAGE ASSESSMENTS
 -- =======================================================================
 INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod, AcctRule) VALUES
-	(1, 1, 1, 53, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} 250.00, c 42006 250.00"),	-- #12  Krabappel, $250 damages
-	(1, 1, 1, 55, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} 750.00, c 10001 750.00");
+	(1, 1, 1, 53, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 42006 _"),	-- #12  Krabappel, $250 damages
+	(1, 1, 1, 55, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 10001 _");
 
 -- =======================================================================
 --  OTHER ASSESSMENTS
@@ -296,27 +296,27 @@ INSERT INTO assessments (UNITID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,
 -- TODO:  ADD ACCTRULE TO RECEIPTS...
 
 INSERT INTO receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
-	(1,1,2,"2004-01-01", 1000.00, "d ${DFLTCASH} 1000.00, c 11002 1000.00");			-- 1  Krabappel's initial security deposit
+	(1,1,2,"2004-01-01", 1000.00, "d ${DFLTCASH} _, c 11002 _");			-- 1  Krabappel's initial security deposit
 INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(1,1000.00,7, "d ${DFLTCASH} 1000.00, c 11002 1000.00");		
 
 INSERT INTO receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
 	(1,1,1,"2015-11-21",  294.66, "c ${DFLTGENRCV} 266.67, d ${DFLTCASH} 266.67, c ${DFLTGENRCV} 13.33, d ${DFLTCASH} 13.33, c ${DFLTGENRCV} 5.33, d ${DFLTCASH} 5.33, c ${DFLTGENRCV} 9.33,d ${DFLTCASH} 9.33"); 			-- 2   Krabappel pays her fees in full
 INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
-	(2,266.67,1,"c ${DFLTGENRCV} 266.67, d ${DFLTCASH} ${aval(${DFLTGENRCV})}"),	-- rent
-	(2, 13.33,3,"c ${DFLTGENRCV} 13.33, d ${DFLTCASH} ${aval(${DFLTGENRCV})}"),		-- Lake View
-	(2,  5.33,4,"c ${DFLTGENRCV} 5.33, d ${DFLTCASH} ${aval(${DFLTGENRCV})}"),		-- Fireplace
-	(2,  9.33,9,"c ${DFLTGENRCV} 9.33, d ${DFLTCASH} ${aval(${DFLTGENRCV})}");			-- CP001
+	(2,266.67,1,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- rent
+	(2, 13.33,3,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- Lake View
+	(2,  5.33,4,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- Fireplace
+	(2,  9.33,9,"c ${DFLTGENRCV} _, d ${DFLTCASH} _");	-- CP001
 
 INSERT INTO receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
 	(1,8,1,"2015-11-15",1946.68, "d ${DFLTCASH} 1500.00, c 11002 1500.00, c ${DFLTGENRCV} 400.00, d ${DFLTCASH} 400.00, c ${DFLTGENRCV} 16.67, d ${DFLTCASH} 16.67, c ${DFLTGENRCV} 6.67, d ${DFLTCASH} 6.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67");  			-- 3   Simpson pays his fees in full
 INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
-	(3,1500.00, 8,"d ${DFLTCASH} 1500.00,c ${DFLTSECDEPRCV} ${aval(${DFLTCASH})}"),	--  security deposit
-	(3, 400.00, 2,"c ${DFLTGENRCV}  400.00,d ${DFLTCASH} ${aval(${DFLTGENRCV})}"),		--  rent
-	(3,  16.67, 5,"c ${DFLTGENRCV} 16.67,d ${DFLTCASH} ${aval(${DFLTGENRCV})}"),	--  Lake View
-	(3,   6.67, 6,"c ${DFLTGENRCV}  6.67,d ${DFLTCASH} ${aval(${DFLTGENRCV})}"),		--  Fireplace
-	(3,  11.67,10,"c ${DFLTGENRCV} 11.67,d ${DFLTCASH} ${aval(${DFLTGENRCV})}"),		--  CP001
-	(3,  11.67,11,"c ${DFLTGENRCV} 11.67,d ${DFLTCASH} ${aval(${DFLTGENRCV})}");		--  CP002
+	(3,1500.00, 8,"d ${DFLTCASH}   _,c ${DFLTSECDEPRCV} _"),	--  security deposit
+	(3, 400.00, 2,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  rent
+	(3,  16.67, 5,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  Lake View
+	(3,   6.67, 6,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  Fireplace
+	(3,  11.67,10,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  CP001
+	(3,  11.67,11,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _");	--  CP002
 
 -- INSERT INTO receipt (BID,PID,RAID,PMTID,Dt,Amount) VALUES
 -- 	(1,1,1,55,"2015-11-11", 750.00);  			-- 4   Security Deposit refuncd to Krabappel
@@ -377,4 +377,3 @@ INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,T
 	(1,0,"42008",2,3,"2015-10-01","2015-10-31",0.0,0,"Utility overage"),
 	(1,0,"42999",2,3,"2015-10-01","2015-10-31",0.0,0,"Other Income");
          
-

@@ -350,24 +350,24 @@ type XUnit struct {
 
 // Journal is the set of attributes describing a journal entry
 type Journal struct {
-	JID    int64
-	BID    int64
-	RAID   int64
-	Dt     time.Time
-	Amount float64
-	Type   int64
-	ID     int64 // if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
-	JA     []JournalAllocation
+	JID    int64               // unique id for this journal entry
+	BID    int64               // unique id of business
+	RAID   int64               // unique id of Rental Agreement
+	Dt     time.Time           // when this entry was made
+	Amount float64             // the amount
+	Type   int64               // 1 means this is an assessment, 2 means it is a payment
+	ID     int64               // if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
+	JA     []JournalAllocation // an array of journal allocations, breaks the payment or assessment down, total of all the allocations equals the "Amount" above
 }
 
 // JournalAllocation describes how the associated journal amount is allocated
 type JournalAllocation struct {
-	JAID     int64 // unique id for this allocation
-	JID      int64
-	RID      int64
-	Amount   float64
-	ASMID    int64
-	AcctRule string
+	JAID     int64   // unique id for this allocation
+	JID      int64   // associated journal entry
+	RID      int64   // associated rentable
+	Amount   float64 // amount of this allocation
+	ASMID    int64   // associated AssessmentID -- source of the charge/payment
+	AcctRule string  // describes how this amount distributed across the accounts
 }
 
 // JournalMarker describes a period of time where the journal entries have been locked down
@@ -521,7 +521,7 @@ func readCommandLineArgs() {
 
 func intTest(xbiz *XBusiness, d1, d2 *time.Time) {
 	fmt.Printf("INTERNAL TEST\n")
-	m := parseAcctRule(xbiz, 1, d1, d2, "d ${DFLTGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${DFLTGENRCV})} -", float64(8)/float64(30))
+	m := parseAcctRule(xbiz, 1, d1, d2, "d ${DFLTGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${DFLTGENRCV})} -", float64(1000), float64(8)/float64(30))
 
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("m[%d] = %#v\n", i, m[i])

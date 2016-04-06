@@ -9,14 +9,15 @@ import (
 )
 
 type rpnCtx struct {
-	xbiz  *XBusiness  // the biz associated with this assessment/payment
-	m     *[]acctRule // READ-ONLY access to the rule array being created
-	xu    XUnit       // the rentable associated with this rule, loaded only if needed
-	rid   int64       // rentable id
-	d1    *time.Time  // start of time range
-	d2    *time.Time  // end of time range
-	pf    float64     // proration factor
-	stack []float64   // the stack used by the rpn calculator
+	xbiz   *XBusiness  // the biz associated with this assessment/payment
+	m      *[]acctRule // READ-ONLY access to the rule array being created
+	xu     XUnit       // the rentable associated with this rule, loaded only if needed
+	rid    int64       // rentable id
+	d1     *time.Time  // start of time range
+	d2     *time.Time  // end of time range
+	pf     float64     // proration factor
+	amount float64     // the full amount of the assessment or payment
+	stack  []float64   // the stack used by the rpn calculator
 }
 
 var rpnVariable *regexp.Regexp
@@ -48,6 +49,10 @@ func rpnPop(ctx *rpnCtx) float64 {
 	return 0
 }
 
+func rpnPush(ctx *rpnCtx, x float64) {
+	ctx.stack = append(ctx.stack, x*ctx.pf)
+}
+
 func rpnLoadRentable(ctx *rpnCtx) {
 	// only load it if necessary
 	if 0 == ctx.xu.U.UNITID {
@@ -55,7 +60,7 @@ func rpnLoadRentable(ctx *rpnCtx) {
 	}
 }
 
-func rpnCreateCtx(xbiz *XBusiness, rid int64, d1, d2 *time.Time, m *[]acctRule, pf float64) rpnCtx {
+func rpnCreateCtx(xbiz *XBusiness, rid int64, d1, d2 *time.Time, m *[]acctRule, amount, pf float64) rpnCtx {
 	var ctx rpnCtx
 	ctx.xbiz = xbiz
 	ctx.m = m
@@ -64,6 +69,7 @@ func rpnCreateCtx(xbiz *XBusiness, rid int64, d1, d2 *time.Time, m *[]acctRule, 
 	ctx.rid = rid
 	ctx.stack = make([]float64, 0)
 	ctx.pf = pf
+	ctx.amount = amount
 	return ctx
 }
 
@@ -119,6 +125,8 @@ func varParseAmount(ctx *rpnCtx, s string) float64 {
 				n := varResolve(ctx, match)
 				ctx.stack = append(ctx.stack, n)
 			}
+		} else if s[0] == '_' {
+			rpnPush(ctx, ctx.amount)
 		} else if ('0' <= s[0] && s[0] <= '9') || '.' == s[0] { // is it a number?
 			m := rpnNumber.FindStringSubmatchIndex(s)
 			match := s[m[0]:m[1]]

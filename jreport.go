@@ -95,8 +95,8 @@ func printJournalHeader(xbiz *XBusiness, d1, d2 *time.Time /*, ra *RentalAgreeme
 	printJReportLine()
 }
 
-func processAcctRuleAmount(xbiz *XBusiness, rid int64, d time.Time, rule string, raid int64, r *Rentable) {
-	m := parseAcctRule(xbiz, rid, &d, &d, rule, float64(1))
+func processAcctRuleAmount(xbiz *XBusiness, rid int64, d time.Time, rule string, raid int64, r *Rentable, amt float64) {
+	m := parseAcctRule(xbiz, rid, &d, &d, rule, amt, float64(1))
 	for i := 0; i < len(m); i++ {
 		amt := m[i].Amount
 		if m[i].Action == "c" {
@@ -115,7 +115,7 @@ func textPrintJournalAssessment(xbiz *XBusiness, j *Journal, a *Assessment, r *R
 	printJournalSubtitle(s)
 
 	for i := 0; i < len(j.JA); i++ {
-		processAcctRuleAmount(xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.RAID, r)
+		processAcctRuleAmount(xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.RAID, r, j.JA[i].Amount)
 	}
 	printJournalSubtitle("")
 }
@@ -130,7 +130,7 @@ func textPrintJournalReceipt(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rcp
 	for i := 0; i < len(rcpt.RA); i++ {
 		a, _ := GetAssessment(rcpt.RA[i].ASMID)
 		r := GetRentable(a.RID)
-		m := parseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, 1.0)
+		m := parseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
 		for k := 0; k < len(m); k++ {
 			l := GetLedgerMarkerByGLNo(j.BID, m[k].Account)

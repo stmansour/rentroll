@@ -49,9 +49,9 @@ func doAcctSubstitution(bid int64, s string) string {
 	return s
 }
 
-func parseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, pf float64) []acctRule {
+func parseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []acctRule {
 	var m []acctRule
-	ctx := rpnCreateCtx(xbiz, rid, d1, d2, &m, pf)
+	ctx := rpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
 	if len(rule) > 0 {
 		sa := strings.Split(rule, ",")
 		for k := 0; k < len(sa); k++ {
@@ -117,7 +117,7 @@ func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d
 	j.ID = a.ASMID
 	j.RAID = a.RAID
 
-	m := parseAcctRule(xbiz, rid, d1, d2, a.AcctRule, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	m := parseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
 
