@@ -116,6 +116,9 @@ func getLedgerEntryDescription(l *Ledger) (string, string, string) {
 	j, _ := GetJournal(l.JID)
 	sra := fmt.Sprintf("%9d", j.RAID)
 	switch j.Type {
+	case JNLTYPEUNAS:
+		r := GetRentable(j.ID) // j.ID is set to RID when the type is unassociated
+		return "Unassociated", r.Name, sra
 	case JNLTYPERCPT:
 		ja, _ := GetJournalAllocation(l.JAID)
 		a, _ := GetAssessment(ja.ASMID)
@@ -127,7 +130,7 @@ func getLedgerEntryDescription(l *Ledger) (string, string, string) {
 		return "Assessment - " + App.AsmtTypes[a.ASMTID].Name, r.Name, sra
 
 	default:
-		fmt.Printf("printJournalEntry: unrecognized type: %d\n", j.Type)
+		fmt.Printf("getLedgerEntryDescription: unrecognized type: %d\n", j.Type)
 	}
 	return "x", "x", "x"
 }

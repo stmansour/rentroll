@@ -84,12 +84,14 @@ func sumAllocations(m *[]acctRule) (float64, float64) {
 	return sum, debits
 }
 
-// journalAssessment processes the assessment, creates a journal entry, and returns its id
-func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d1, d2 *time.Time) error {
+// calcProrationInfo returns:
+//			asmtDur:  pf denominator, total number of days in period
+//         	rentDur:  pf numerator, total number of days applicable to this rental agreement
+//         	pf:       prorate factor = rentDur/asmtDur
+func calcProrationInfo(ra *RentalAgreement, d1, d2 *time.Time, prorateMethod int64) (int64, int64, float64) {
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------
-	ra, _ := GetRentalAgreement(a.RAID)
 	start := *d1
 	if ra.RentalStart.After(start) {
 		start = ra.RentalStart
@@ -101,21 +103,22 @@ func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d
 	//-------------------------------------------------------------------------------------------
 	// this code needs to be generalized based on the recurrence period and the proration period
 	//-------------------------------------------------------------------------------------------
-	assessmentDuration := int64(d2.Sub(*d1).Hours() / 24)
-	rentDuration := int64(stop.Sub(start).Hours() / 24)
+	asmtDur := int64(d2.Sub(*d1).Hours() / 24)
+	rentDur := int64(stop.Sub(start).Hours() / 24)
 	pf := float64(1.0)
-	if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
-		pf = float64(rentDuration) / float64(assessmentDuration)
+	if rentDur != asmtDur && prorateMethod > 0 {
+		pf = float64(rentDur) / float64(asmtDur)
 	} else {
-		rentDuration = assessmentDuration
+		rentDur = asmtDur
 	}
+	return asmtDur, rentDur, pf
+}
 
-	var j Journal
-	j.BID = a.BID
-	j.Dt = d
-	j.Type = JNLTYPEASMT
-	j.ID = a.ASMID
-	j.RAID = a.RAID
+// journalAssessment processes the assessment, creates a journal entry, and returns its id
+func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d1, d2 *time.Time) error {
+	ra, _ := GetRentalAgreement(a.RAID)
+	_, _, pf := calcProrationInfo(&ra, d1, d2, a.ProrationMethod)
+	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
 	m := parseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
@@ -241,6 +244,11 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 		}
 	}
 	rlib.Errcheck(rows.Err())
+
+	//===========================================================
+	//  COMPUTE VACANCY
+	//===========================================================
+	GenVacancyJournals(xbiz, d1, d2)
 
 	//===========================================================
 	//  PROCESS RECEIPTS

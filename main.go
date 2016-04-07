@@ -36,6 +36,7 @@ const (
 	REPORTJUSTIFYLEFT  = 0
 	REPORTJUSTIFYRIGHT = 1
 
+	JNLTYPEUNAS = 0 // record is unassociated with any assessment or receipt
 	JNLTYPEASMT = 1 // record is the result of an assessment
 	JNLTYPERCPT = 2 // record is the result of a receipt
 
@@ -74,22 +75,41 @@ const RRDATEFMT = "01/02/06"
 //     LID = ledger id
 //==========================================
 
-// RentalAgreement binds a teRAID INT NOT NULL
+// RentalAgreement binds one or more payors to one or more rentables
 type RentalAgreement struct {
-	RAID              int64
-	RATID             int64
-	BID               int64
-	RID               int64
-	UNITID            int64
-	PID               int64
-	LID               int64
-	PrimaryTenant     int64
-	RentalStart       time.Time
-	RentalStop        time.Time
-	Renewal           int64
-	SpecialProvisions string
-	LastModTime       time.Time
-	LastModBy         int64
+	RAID              int64     // internal unique id
+	RATID             int64     // reference to Occupancy Master Agreement
+	BID               int64     // business (so that we can process by business)
+	PrimaryTenant     int64     // Tenant ID of primary tenant
+	RentalStart       time.Time // start date for rental
+	RentalStop        time.Time // stop date for rental
+	Renewal           int64     // month to month automatic renewal, lease extension options, none.
+	SpecialProvisions string    // free-form text
+	LastModTime       time.Time //	-- when was this record last written
+	LastModBy         int64     // employee UID (from phonebook) that modified it
+	R                 []XUnit   // everything about the rentable
+	P                 []XPerson // everything about the payor
+	// RID               int64
+	// UNITID            int64
+	// PID               int64
+	// LID               int64
+}
+
+// AgreementRentable describes a rentable associated with a rental agreement
+type AgreementRentable struct {
+	RAID    int64     // associated rental agreement
+	RID     int64     // the rentable
+	UNITID  int64     // unit (if applicable, 0 otherwise)
+	DtStart time.Time // start date/time for this rentable
+	DtStop  time.Time // stop date/time
+}
+
+// AgreementPayor describes a payor associated with a rental agreement
+type AgreementPayor struct {
+	RAID    int64
+	PID     int64
+	DtStart time.Time // start date/time for this payor
+	DtStop  time.Time // stop date/time
 }
 
 // Transactant is the basic structure of information
@@ -247,18 +267,18 @@ type ReceiptAllocation struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID            int64  // unique id for this rentable
-	LID            int64  // the ledger
-	RTID           int64  // rentable type id
-	BID            int64  // business
-	UNITID         int64  // associated unit (if applicable, 0 otherwise)
-	Name           string // name for this rental
-	Assignment     int64  // can we pre-assign or assign only at commencement
-	Report         int64  // 1 = apply to rentroll, 0 = skip
-	DefaultOccType int64  // unset, short term, longterm
-	OccType        int64  // unset, short term, longterm
-	LastModTime    time.Time
-	LastModBy      int64
+	RID            int64     // unique id for this rentable
+	LID            int64     // the ledger
+	RTID           int64     // rentable type id
+	BID            int64     // business
+	UNITID         int64     // associated unit (if applicable, 0 otherwise)
+	Name           string    // name for this rental
+	Assignment     int64     // can we pre-assign or assign only at commencement
+	Report         int64     // 1 = apply to rentroll, 0 = skip
+	DefaultOccType int64     // 0 =unset, 1 = short term, 2=longterm
+	OccType        int64     // 0 =unset, 1 = short term, 2=longterm
+	LastModTime    time.Time // time of last update to the db record
+	LastModBy      int64     // who made the update (Phonebook UID)
 }
 
 // Unit is the structure for unit attributes
@@ -343,9 +363,11 @@ type XBusiness struct {
 
 // XUnit is the structure that includes both the Rentable and Unit attributes
 type XUnit struct {
-	R Rentable
-	U Unit
-	S []int64
+	R       Rentable  // the rentable
+	U       Unit      // unit (if applicable)
+	S       []int64   // list of specialties associated with the rentable
+	DtStart time.Time // Start date/time for this rentable (associated with the Rental Agreement, but may have different dates)
+	DtStop  time.Time // Stop time for this rentable
 }
 
 // Journal is the set of attributes describing a journal entry
@@ -428,7 +450,6 @@ type prepSQL struct {
 	getAssessment                *sql.Stmt
 	getAssessmentType            *sql.Stmt
 	getSecurityDepositAssessment *sql.Stmt
-	getUnitRentalAgreements      *sql.Stmt
 	getAllRentablesByBusiness    *sql.Stmt
 	getAllBusinessRentableTypes  *sql.Stmt
 	getRentableMarketRates       *sql.Stmt
@@ -464,16 +485,18 @@ type prepSQL struct {
 	deleteLedgerEntry            *sql.Stmt
 	deleteLedgerMarker           *sql.Stmt
 	getAllLedgerMarkersInRange   *sql.Stmt
+	getAgreementRentables        *sql.Stmt
+	getAgreementPayors           *sql.Stmt
+	getAgreementsForRentable     *sql.Stmt
+	// getUnitRentalAgreements      *sql.Stmt
 }
 
 // BusinessTypes is a struct holding a collection of Types associated
 type BusinessTypes struct {
-	BID           int64
-	AsmtTypes     map[int64]*AssessmentType
-	PmtTypes      map[int64]*PaymentType
-	UnitTypes     map[int64]*UnitType
-	RentableTypes map[int64]*RentableType
-	DefaultAccts  map[int64]*LedgerMarker // index by DFAC..., value = GL No of that account
+	BID          int64
+	AsmtTypes    map[int64]*AssessmentType
+	PmtTypes     map[int64]*PaymentType
+	DefaultAccts map[int64]*LedgerMarker // index by DFAC..., value = GL No of that account
 }
 
 // App is the global data structure for this app
@@ -543,12 +566,10 @@ func Dispatch(d1, d2 time.Time, report int64) {
 		GetXBusiness(xbiz.P.BID, &xbiz)
 		if nil == App.BizTypes[xbiz.P.BID] {
 			bt := BusinessTypes{
-				BID:           xbiz.P.BID,
-				AsmtTypes:     make(map[int64]*AssessmentType),
-				PmtTypes:      make(map[int64]*PaymentType),
-				UnitTypes:     make(map[int64]*UnitType),
-				RentableTypes: make(map[int64]*RentableType),
-				DefaultAccts:  make(map[int64]*LedgerMarker),
+				BID:          xbiz.P.BID,
+				AsmtTypes:    make(map[int64]*AssessmentType),
+				PmtTypes:     make(map[int64]*PaymentType),
+				DefaultAccts: make(map[int64]*LedgerMarker),
 			}
 			App.BizTypes[xbiz.P.BID] = &bt
 		}

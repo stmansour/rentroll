@@ -27,6 +27,7 @@
 --    TCID = transactant id
 --  RCPTID = receipt id
 --    RTID = rentable type id
+--    TCID = transactant id
 --     TID = tenant id
 --  UNITID = unit id
 --    UTID = unit type id
@@ -62,20 +63,35 @@ CREATE TABLE rentalagreementtemplate (
 -- ===========================================
 CREATE TABLE rentalagreement (        
     RAID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
-    RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Occupancy Master Agreement
+    RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                            -- business (so that we can process by business)
-    RID BIGINT NOT NULL DEFAULT 0,                            -- rentable id
-    UNITID BIGINT NOT NULL DEFAULT 0,                         -- associated unit
-    PID BIGINT NOT NULL DEFAULT 0,                            -- who is the payor for this agreement
-    LID BIGINT NOT NULL DEFAULT 0,                            -- Ledger for this rental agreement
+    -- RID BIGINT NOT NULL DEFAULT 0,                            -- rentable id
+    -- UNITID BIGINT NOT NULL DEFAULT 0,                         -- associated unit
+    -- PID BIGINT NOT NULL DEFAULT 0,                            -- who is the payor for this agreement
+    -- LID BIGINT NOT NULL DEFAULT 0,                         -- Ledger for this rental agreement
     PrimaryTenant BIGINT NOT NULL DEFAULT 0,                  -- TID of primary tenant.  
-    RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
-    RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',
+    RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
+    RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- month to month automatic renewal, lease extension options, none.
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',      -- free-form text
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RAID)
+);
+
+CREATE TABLE agreementrentables (
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
+    RID BIGINT NOT NULL DEFAULT 0,                            -- rentable id
+    UNITID BIGINT NOT NULL DEFAULT 0,                         -- associated unit (0 if not applicable)
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this rentable was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this rentable was no longer being billed to this agreement
+);
+
+CREATE TABLE agreementpayors (
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
+    PID BIGINT NOT NULL DEFAULT 0,                            -- who is the payor for this agreement
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this payor was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this payor was no longer being billed to this agreement
 );
 
 -- ===========================================
@@ -84,8 +100,8 @@ CREATE TABLE rentalagreement (
 -- query this table for rows where RAID=(the rental agreement for the unit)
 -- the return list will be the TIDs of all tenants in that unit
 CREATE TABLE unittenants (
-    RAID BIGINT NOT NULL DEFAULT 0,                              -- the unit's occupancy agreement
-    TID BIGINT NOT NULL DEFAULT 0                                -- the tenant
+    RAID BIGINT NOT NULL DEFAULT 0,                            -- the unit's occupancy agreement
+    TID BIGINT NOT NULL DEFAULT 0                              -- the tenant
 );
 
 
@@ -125,15 +141,15 @@ CREATE TABLE rentabletypes (
     Frequency BIGINT NOT NULL DEFAULT 0,                    -- price accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
     Report SMALLINT NOT NULL DEFAULT 0,
-    ManageToBudget SMALLINT NOT NULL DEFAULT 0,
+    ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of rentable to budget, 1 = manage to budget defined by MarketRate
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RTID)
 );
 
 CREATE TABLE rentablemarketrate (
-    RTID BIGINT NOT NULL DEFAULT 0,                             -- associated rentable type
-    MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
+    RTID BIGINT NOT NULL DEFAULT 0,                           -- associated rentable type
+    MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,            -- market rate for the time range
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'    -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
 );
@@ -148,20 +164,20 @@ CREATE TABLE rentablemarketrate (
 --  Assessment=Credit=negative
 CREATE TABLE unittypes (
     UTID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                            -- associated business id
+    BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
     Style CHAR(15) NOT NULL DEFAULT '',
     Name VARCHAR(256) NOT NULL DEFAULT '',
     SqFt MEDIUMINT NOT NULL DEFAULT 0,
     MarketRate Decimal(19,4) NOT NULL DEFAULT 0.0,          -- market rate for this unit
-    Frequency BIGINT NOT NULL DEFAULT 0,                       -- MarketRate accrual frequency
-    Proration BIGINT NOT NULL DEFAULT 0,                       --  prorate frequency
+    Frequency BIGINT NOT NULL DEFAULT 0,                    -- MarketRate accrual frequency
+    Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UTID)
 );
 
 CREATE TABLE unitmarketrate (
-    UTID BIGINT NOT NULL DEFAULT 0,                                -- associated rentable type
+    UTID BIGINT NOT NULL DEFAULT 0,                             -- associated rentable type
     MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
@@ -197,7 +213,7 @@ CREATE TABLE unitspecialtytypes (
 -- this table list all the pre-defined assessments
 -- this will include offsets and disbursements
 CREATE TABLE assessmenttypes (
-    ASMTID BIGINT NOT NULL AUTO_INCREMENT,             -- what type of assessment
+    ASMTID BIGINT NOT NULL AUTO_INCREMENT,          -- what type of assessment
     Name VARCHAR(35) NOT NULL DEFAULT '',           -- name for the assessment
 
     -- TODO: Type needs to be removed
@@ -278,18 +294,18 @@ CREATE TABLE building (
 -- **************************************
 CREATE TABLE rentable (
     RID BIGINT NOT NULL AUTO_INCREMENT,
-    LID BIGINT NOT NULL DEFAULT 0,                                     -- which ledger keeps track of what's owed on this rentable
-    RTID BIGINT NOT NULL DEFAULT 0,                                    -- what sort of a rentable is this?
-    BID BIGINT NOT NULL DEFAULT 0,                                     -- Property associated with this rentable
-    UNITID BIGINT NOT NULL DEFAULT 0,                                  -- unit (if applicable)
-    Name VARCHAR(10) NOT NULL DEFAULT '',                           -- name unique to the instance "101" for a room number 744 carport number, etc 
-    Assignment SMALLINT NOT NULL DEFAULT 0,                         -- Pre-assign or assign at occupy commencement
-    Report SMALLINT NOT NULL DEFAULT 1,                             -- 1 = apply to rentroll, 0 = skip on rentroll
-    DefaultOccType SMALLINT NOT NULL DEFAULT 0,                     -- unset, short term, longterm
-    OccType SMALLINT NOT NULL DEFAULT 0,                            -- unset, short term, longterm
-    ManageToBudget SMALLINT NOT NULL DEFAULT 0,                     -- 0 = do not manage to budget, 1 = manage to MarketRate set in RentableType
-    LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',   -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
+    LID BIGINT NOT NULL DEFAULT 0,                                 -- which ledger keeps track of what's owed on this rentable
+    RTID BIGINT NOT NULL DEFAULT 0,                                -- what sort of a rentable is this?
+    BID BIGINT NOT NULL DEFAULT 0,                                 -- Property associated with this rentable
+    UNITID BIGINT NOT NULL DEFAULT 0,                              -- unit (if applicable)
+    Name VARCHAR(10) NOT NULL DEFAULT '',                          -- name unique to the instance "101" for a room number 744 carport number, etc 
+    Assignment SMALLINT NOT NULL DEFAULT 0,                        -- Pre-assign or assign at occupy commencement
+    Report SMALLINT NOT NULL DEFAULT 1,                            -- 1 = apply to rentroll, 0 = skip on rentroll
+    DefaultOccType SMALLINT NOT NULL DEFAULT 0,                    -- 0 =unset, 1 = short term, 2=longterm
+    OccType SMALLINT NOT NULL DEFAULT 0,                           -- 0 =unset, 1 = short term, 2=longterm
+    -- ManageToBudget SMALLINT NOT NULL DEFAULT 0,                    -- 0 = do not manage to budget, 1 = manage to MarketRate set in RentableType
+    LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RID)
 );
 
@@ -301,11 +317,11 @@ CREATE TABLE rentable (
 -- **************************************
 -- Fields unique to an apartment or hotel room 
 CREATE TABLE unit (
-    UNITID BIGINT NOT NULL AUTO_INCREMENT,                 -- unique id for this unit -- it is unique across all properties and buildings
-    RID BIGINT NOT NULL DEFAULT 0,                         -- associated rentable
-    BLDGID BIGINT NOT NULL DEFAULT 0,                      -- which building
-    UTID BIGINT NOT NULL DEFAULT 0,                        -- which unit type
-    AVAILID BIGINT NOT NULL DEFAULT 0,                     -- how is the unit made available
+    UNITID BIGINT NOT NULL AUTO_INCREMENT,              -- unique id for this unit -- it is unique across all properties and buildings
+    RID BIGINT NOT NULL DEFAULT 0,                      -- associated rentable
+    BLDGID BIGINT NOT NULL DEFAULT 0,                   -- which building
+    UTID BIGINT NOT NULL DEFAULT 0,                     -- which unit type
+    AVAILID BIGINT NOT NULL DEFAULT 0,                  -- how is the unit made available
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UNITID)

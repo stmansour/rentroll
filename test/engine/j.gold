@@ -54,7 +54,34 @@
                           Security Deposit Assessment  11/08/15         1              101     23000        750.00
                              Bank Account FRB 2332352  11/08/15         1              101     10001       -750.00
                                                      
-   J00000013  Payment - Krabappel  294.66            
+   J00000013  Unassociated: 101                      
+                                  Gross Schedule Rent  11/30/15         0              101     40001       -480.00
+                                             Vancancy  11/30/15         0              101     41001        480.00
+   J00000014  Unassociated: 102                      
+                                  Gross Schedule Rent  11/30/15         0              102     40001      -1500.00
+                                             Vancancy  11/30/15         0              102     41001       1500.00
+   J00000015  Unassociated: 103                      
+                                  Gross Schedule Rent  11/30/15         0              103     40001      -1750.00
+                                             Vancancy  11/30/15         0              103     41001       1750.00
+   J00000016  Unassociated: 104                      
+                                  Gross Schedule Rent  11/30/15         0              104     40001      -2000.00
+                                             Vancancy  11/30/15         0              104     41001       2000.00
+   J00000017  Unassociated: 105                      
+                                  Gross Schedule Rent  11/30/15         0              105     40001      -1200.00
+                                             Vancancy  11/30/15         0              105     41001       1200.00
+   J00000018  Unassociated: 106                      
+                                  Gross Schedule Rent  11/30/15         0              106     40001      -1500.00
+                                             Vancancy  11/30/15         0              106     41001       1500.00
+   J00000019  Unassociated: 107                      
+                                  Gross Schedule Rent  11/30/15         0              107     40001      -1750.00
+                                             Vancancy  11/30/15         0              107     41001       1750.00
+   J00000020  Unassociated: CP001                    
+                                  Gross Schedule Rent  11/30/15         0            CP001     40001        -14.00
+                                             Vancancy  11/30/15         0            CP001     41001         14.00
+   J00000021  Unassociated: CP002                    
+                                  Gross Schedule Rent  11/30/15         0            CP002     40001        -23.33
+                                             Vancancy  11/30/15         0            CP002     41001         23.33
+   J00000022  Payment - Krabappel  294.66            
    	Rent                                             
                           General Accounts Receivable  11/21/15         1              101     11001       -266.67
                              Bank Account FRB 2332352  11/21/15         1              101     10001        266.67
@@ -68,7 +95,7 @@
                           General Accounts Receivable  11/21/15         1            CP001     11001         -9.33
                              Bank Account FRB 2332352  11/21/15         1            CP001     10001          9.33
                                                      
-   J00000014  Payment - Simpson  1946.68             
+   J00000023  Payment - Simpson  1946.68             
    	Security Deposit                                 
                              Bank Account FRB 2332352  11/15/15         8              101     10001       1500.00
                           Security Deposit Receivable  11/15/15         8              101     11002      -1500.00

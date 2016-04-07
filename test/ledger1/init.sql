@@ -75,7 +75,7 @@ INSERT INTO rentabletypes (BID,Name,Frequency,Proration,Report,ManageToBudget) V
 	(1,"Industrial",  6,4,1,1),				-- 3  
 	(1,"Unimproved",  6,4,1,1),				-- 4  
 	(1,"Vehicle",     3,0,1,1), 			-- 5  Car
-	(1,"Carport",     6,4,1,0);		 		-- 6  Carport
+	(1,"Carport",     6,4,1,1);		 		-- 6  Carport
 
 INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 	(1,   0.0, "1970-01-01 00:00:00", "1970-01-01 00:00:00"),   -- 1 ignore
@@ -130,7 +130,7 @@ INSERT INTO rentalagreementtemplate (ReferenceNumber, RentalAgreementType) VALUE
 	("RAT004", 2);
 
 -- =======================================================================
---  RENTAL UNITS
+--  RENTABLE UNITS
 -- =======================================================================
 INSERT INTO rentable (LID,RTID,BID,UNITID,Name,Assignment) VALUES
 	(1,1,1,  1,"101",1),  -- monthly rent for unit 1, recurs on the first of the month
@@ -145,20 +145,22 @@ INSERT INTO rentable (LID,RTID,BID,UNITID,Name,Assignment) VALUES
 --  carports
 -- =======================================================================
 INSERT INTO rentable (LID,RTID,BID,UNITID,Name,Assignment,DefaultOccType,OccType) VALUES
-	( 8,2,1,  1,"CP001",1,2,2),		-- carport  Krabappel, then Simpson
-	( 9,2,1,  1,"CP002",1,2,2),		-- carport  Simpson
-	(10,2,1,  1,"CP003",1,2,2),		-- carport
-	(11,2,1,  1,"CP004",1,2,2),		-- carport
-	(12,2,1,  1,"CP005",1,2,2),		-- carport
-	(13,2,1,  1,"CP006",1,2,2),		-- carport
-	(14,2,1,  1,"CP007",1,2,2),		-- carport
-	(15,2,1,  1,"CP008",1,2,2),		-- carport
-	(16,2,1,  1,"CP009",1,2,2),		-- carport
-	(17,2,1,  1,"CP010",1,2,2),		-- carport
-	(18,2,1,  1,"CP011",1,2,2);		-- carport
+	( 8,6,1,  0,"CP001",1,2,2),		-- carport  Krabappel, then Simpson
+	( 9,6,1,  0,"CP002",1,2,2);		-- carport  Simpson
+	-- (10,2,1,  1,"CP003",1,2,2),		-- carport
+	-- (11,2,1,  1,"CP004",1,2,2),		-- carport
+	-- (12,2,1,  1,"CP005",1,2,2),		-- carport
+	-- (13,2,1,  1,"CP006",1,2,2),		-- carport
+	-- (14,2,1,  1,"CP007",1,2,2),		-- carport
+	-- (15,2,1,  1,"CP008",1,2,2),		-- carport
+	-- (16,2,1,  1,"CP009",1,2,2),		-- carport
+	-- (17,2,1,  1,"CP010",1,2,2),		-- carport
+	-- (18,2,1,  1,"CP011",1,2,2);		-- carport
 
 
--- define the units
+-- =======================================================================
+--  UNITS
+-- =======================================================================
 --     OccType == occupancy type -- 0 = unset, 1 = leasehold, 2 = month-to-month, 3 = hotel, 4 = hourly rental
 INSERT INTO unit (RID,BLDGID,UTID) VALUES
 	 (1,1,1),
@@ -169,7 +171,9 @@ INSERT INTO unit (RID,BLDGID,UTID) VALUES
 	 (6,1,2),
 	 (7,1,3);
 
--- Define unit specialties...
+-- =======================================================================
+--  UNIT SPECIALTIES
+-- =======================================================================
 INSERT INTO unitspecialties (BID,UNITID,USPID) VALUES
 	(1,1,1),
 	(1,1,4),
@@ -184,6 +188,9 @@ INSERT INTO unitspecialties (BID,UNITID,USPID) VALUES
 	(1,7,4),
 	(1,7,3);
 
+-- =======================================================================
+--  TRANSACTANTS
+-- =======================================================================
 -- define the tenants.  First as transactants, second as tenants, 3rd as payors
 INSERT INTO transactant (FirstName,LastName) VALUES
 	("Edna", "Krabappel"),			-- 1
@@ -209,15 +216,26 @@ INSERT INTO payor (TCID) VALUES
 --    an applicant to a tenant (or payor as the case may be)
 --    RATID - rental agreement template
 -- =======================================================================
-INSERT INTO rentalagreement (RATID,BID,RID,UNITID,PID,LID,PrimaryTenant,RentalStart,RentalStop,Renewal) VALUES
-	(6,1, 1, 1, 1, 1, 1,"2004-01-01","2015-11-08",1),	--  1 Krabappel
-	(6,1, 2, 2, 2, 2, 2,"2004-01-01","2017-07-04",1),	--  2 Flanders
-	(6,1, 3, 3, 3, 3, 3,"2004-01-01","2017-07-04",1),	--  3 Szyslak
-	(6,1, 4, 4, 4, 4, 4,"2004-01-01","2017-07-04",1),	--  4 Burns
-	(6,1, 5, 5, 5, 5, 5,"2004-01-01","2017-07-04",1),	--  5 Muntz
-	(6,1, 6, 6, 6, 6, 6,"2004-01-01","2017-07-04",1),	--  6 Van Houten
-	(6,1, 7, 7, 7, 7, 7,"2004-01-01","2017-07-04",1),	--  7 Wiggum
-	(6,1, 1, 1, 8, 8, 8,"2015-11-21","2016-11-21",1);	--  8 Simpson
+INSERT INTO rentalagreement (RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal) VALUES
+	(6,1, 1,"2004-01-01","2015-11-08",1),	--  1 Krabappel
+	(6,1, 2,"2004-01-01","2017-07-04",1),	--  2 Flanders
+	(6,1, 3,"2004-01-01","2017-07-04",1),	--  3 Szyslak
+	(6,1, 4,"2004-01-01","2017-07-04",1),	--  4 Burns
+	(6,1, 5,"2004-01-01","2017-07-04",1),	--  5 Muntz
+	(6,1, 6,"2004-01-01","2017-07-04",1),	--  6 Van Houten
+	(6,1, 7,"2004-01-01","2017-07-04",1),	--  7 Wiggum
+	(6,1, 8,"2015-11-21","2016-11-21",1);	--  8 Simpson
+
+INSERT INTO agreementrentables (RAID,RID,UNITID,DtStart,DtStop) VALUES
+	(1,1,1,"2004-01-01","2015-11-08"),		-- Krabappel - apartment
+	(1,8,0,"2004-01-01","2015-11-08"),		-- Krabappel - carport
+	(8,1,1,"2015-11-21","2016-11-21"),		-- Simpson - apartment
+	(8,8,0,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
+	(8,9,0,"2015-11-21","2016-11-21");		-- Simpson - carport 2
+
+INSERT INTO agreementpayors (RAID,PID,DtStart,DtStop) VALUES
+	(1,1,"2004-01-01","2015-11-08"),		-- Krabappel is payor for rental agreement 1
+	(8,8,"2015-11-21","2016-11-21");		-- Simpson is payor for rental agreements 8
 
 -- =======================================================================
 --  CONTRACT RENT ASSESSMENTS

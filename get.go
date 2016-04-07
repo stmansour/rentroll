@@ -230,6 +230,12 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
 // returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
 func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) float64 {
+	if r.UNITID > 0 {
+		var u Unit
+		GetUnit(r.UNITID, &u)
+		return GetUnitMarketRate(xbiz, &u, d1, d2)
+	}
+	// fmt.Printf("Get Market Rate for RTID = %d\n", r.RTID)
 	mr := xbiz.RT[r.RTID].MR
 	for i := 0; i < len(mr); i++ {
 		if rlib.DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
@@ -354,15 +360,83 @@ func GetDefaultLedgerMarkers(bid int64) LedgerMarker {
 	return r
 }
 
+// GetAgreementsForRentable returns an array of AgreementRentables associated with the supplied RentableID
+// during the time range d1-d2
+func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []AgreementRentable {
+	rows, err := App.prepstmt.getAgreementRentables.Query(rid, d1, d2)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t []AgreementRentable
+	for rows.Next() {
+		var r AgreementRentable
+		rlib.Errcheck(rows.Scan(&r.RAID, &r.RID, &r.UNITID, &r.DtStart, &r.DtStop))
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetAgreementRentables returns an array of AgreementRentables associated with the supplied RentalAgreement ID
+// during the time range d1-d2
+func GetAgreementRentables(rid int64, d1, d2 *time.Time) []AgreementRentable {
+	rows, err := App.prepstmt.getAgreementRentables.Query(rid, d1, d2)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t []AgreementRentable
+	for rows.Next() {
+		var r AgreementRentable
+		rlib.Errcheck(rows.Scan(&r.RAID, &r.RID, &r.UNITID, &r.DtStart, &r.DtStop))
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetAgreementPayors returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
+// during the time range d1-d2
+func GetAgreementPayors(raid int64, d1, d2 *time.Time) []AgreementPayor {
+	rows, err := App.prepstmt.getAgreementPayors.Query(raid, d1, d2)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t []AgreementPayor
+	t = make([]AgreementPayor, 0)
+	for rows.Next() {
+		var r AgreementPayor
+		rlib.Errcheck(rows.Scan(&r.RAID, &r.PID, &r.DtStart, &r.DtStop))
+		t = append(t, r)
+	}
+	return t
+}
+
 // GetRentalAgreement returns the Ledger struct for the account with the supplied name
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
 	// fmt.Printf("Ledger = %s\n", s)
-	err := App.prepstmt.getRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID,
-		&r.BID, &r.RID, &r.UNITID, &r.PID, &r.LID, &r.PrimaryTenant, &r.RentalStart,
+	err := App.prepstmt.getRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID,
+		/*&r.RID, &r.UNITID, &r.PID, &r.LID, */
+		&r.PrimaryTenant, &r.RentalStart,
 		&r.RentalStop, &r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
 	if nil != err {
 		fmt.Printf("GetRentalAgreement: could not get rental agreement with raid = %d,  err = %v\n", raid, err)
+	}
+	return r, err
+}
+
+// GetXRentalAgreement gets the RentalAgreement plus the associated rentables and payors for the
+// time period specified
+func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
+	r, err := GetRentalAgreement(raid)
+	t := GetAgreementRentables(raid, d1, d2)
+	r.R = make([]XUnit, 0)
+	for i := 0; i < len(t); i++ {
+		var xu XUnit
+		GetXUnit(t[i].RID, &xu)
+		r.R = append(r.R, xu)
+	}
+
+	m := GetAgreementPayors(raid, d1, d2)
+	r.P = make([]XPerson, 0)
+	for i := 0; i < len(m); i++ {
+		xp := GetXPersonByPID(m[i].PID)
+		r.P = append(r.P, xp)
 	}
 	return r, err
 }

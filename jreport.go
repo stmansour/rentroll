@@ -120,10 +120,24 @@ func textPrintJournalAssessment(xbiz *XBusiness, j *Journal, a *Assessment, r *R
 	printJournalSubtitle("")
 }
 
+// getPayorLastNames returns an array of strings that contains the last names
+// of every payor responsible for this rental agreement
+func getPayorLastNames(ra *RentalAgreement, d1, d2 *time.Time) []string {
+	var sa []string
+	for i := 0; i < len(ra.P); i++ {
+		if d1.Before(ra.RentalStop) && d2.After(ra.RentalStart) {
+			sa = append(sa, ra.P[i].trn.LastName)
+		}
+	}
+	return sa
+}
+
 func textPrintJournalReceipt(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rcpt *Receipt, cashAcctNo string) {
-	rntagr, _ := GetRentalAgreement(rcpt.RAID)
-	xp := GetXPersonByPID(rntagr.PID)
-	s := fmt.Sprintf("J%08d  Payment - %s  %.2f", j.JID, xp.trn.LastName, rcpt.Amount)
+	rntagr, _ := GetXRentalAgreement(rcpt.RAID, d1, d2)
+	sa := getPayorLastNames(&rntagr, d1, d2)
+	ps := strings.Join(sa, ",")
+
+	s := fmt.Sprintf("J%08d  Payment - %s  %.2f", j.JID, ps, rcpt.Amount)
 	printJournalSubtitle(s)
 
 	// PROCESS EVERY RECEIPT ALLOCATION
@@ -145,8 +159,20 @@ func textPrintJournalReceipt(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rcp
 	printJournalSubtitle("")
 }
 
+func textPrintJournalUnassociated(xbiz *XBusiness, d1, d2 *time.Time, j *Journal) {
+	var r Rentable
+	GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
+	printJournalSubtitle(fmt.Sprintf("J%08d  Unassociated: %s", j.JID, r.Name))
+	for i := 0; i < len(j.JA); i++ {
+		processAcctRuleAmount(xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
+
+	}
+}
+
 func textPrintJournalEntry(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
+	case JNLTYPEUNAS:
+		textPrintJournalUnassociated(xbiz, d1, d2, j)
 	case JNLTYPERCPT:
 		rcpt := GetReceipt(j.ID)
 		textPrintJournalReceipt(xbiz, d1, d2, j, &rcpt, App.BizTypes[xbiz.P.BID].DefaultAccts[DFLTCASH].GLNumber /*"10001"*/)
@@ -163,14 +189,17 @@ func textReportJournalEntry(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------
-	ra, _ := GetRentalAgreement(j.RAID)
 	start := *d1
-	if ra.RentalStart.After(start) {
-		start = ra.RentalStart
-	}
-	stop := ra.RentalStop.Add(24 * 60 * time.Minute)
-	if stop.After(*d2) {
-		stop = *d2
+	stop := *d2
+	if j.RAID > 0 {
+		ra, _ := GetRentalAgreement(j.RAID)
+		if ra.RentalStart.After(start) {
+			start = ra.RentalStart
+		}
+		stop = ra.RentalStop.Add(24 * 60 * time.Minute)
+		if stop.After(*d2) {
+			stop = *d2
+		}
 	}
 	//-------------------------------------------------------------------------------------------
 	// this code needs to be generalized based on the recurrence period and the proration period
