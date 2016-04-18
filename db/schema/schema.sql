@@ -589,3 +589,20 @@ CREATE TABLE ledgermarkeraudit (
     ModTime TIMESTAMP                           -- timestamp of change    
 );
 
+
+-- **************************************
+-- ****                              ****
+-- ****        INITIALIZATION        ****
+-- ****                              ****
+-- **************************************
+-- ----------------------------------------------------------------------------------------
+--    LEDGER MARKERS - These define the required ledgers
+-- ----------------------------------------------------------------------------------------
+INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES
+    (1,0,"10001",2,3,"2015-10-01","2015-10-31",0.0,10,"Bank Account"),
+    (1,0,"11001",2,3,"2015-10-01","2015-10-31",0.0,11,"General Accounts Receivable"),
+    (1,0,"40001",2,3,"2015-10-01","2015-10-31",0.0,12,"Gross Schedule Rent"),
+    (1,0,"41004",2,3,"2015-10-01","2015-10-31",0.0,13,"Loss to Lease"),
+    (1,0,"41001",2,3,"2015-10-01","2015-10-31",0.0,14,"Vancancy"),
+    (1,0,"11002",2,3,"2015-10-01","2015-10-31",0.0,15,"Security Deposit Receivable"),
+    (1,0,"23000",2,3,"2015-10-01","2015-10-31",0.0,16,"Security Deposit Assessment");

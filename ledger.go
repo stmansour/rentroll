@@ -28,32 +28,6 @@ func RemoveLedgerEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 	return err
 }
 
-// GenerateLedgerMarker creates all the ledger markers for the supplied time period
-// func GenerateLedgerMarker(xbiz *XBusiness, d1, d2 *time.Time, bal float64) {
-// 	lm := GetLastLedgerMarker(xbiz.P.BID)
-// 	diff := lm.DtStop.Sub(*d1)
-// 	if diff < 0 {
-// 		diff = -diff
-// 	}
-// 	if diff > 24*time.Hour {
-// 		s := fmt.Sprintf("Gap between last ledger marker (stop = %s) and next ledger marker (start = %s) is > than 1 day\n",
-// 			lm.DtStop.Format(RRDATEFMT), d1.Format(RRDATEFMT))
-// 		fmt.Println(s)
-// 		ulog(s)
-// 	}
-// 	var l LedgerMarker
-// 	l.BID = xbiz.P.BID
-// 	l.Balance = bal
-// 	l.DtStart = *d1
-// 	l.DtStop = *d2
-// 	l.GLNumber = lm.GLNumber
-// 	l.Name = lm.Name
-// 	l.State = lm.State
-// 	lm.State = lm.Status
-
-// 	InsertLedgerMarker(&l)
-// }
-
 // GenerateLedgerEntriesFromJournal creates all the ledger records necessary to describe the journal entry provided
 func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
 	// lm := GetLastLedgerMarker(xbiz.P.BID)
