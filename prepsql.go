@@ -125,7 +125,7 @@ func buildPreparedStatements() {
 
 	App.prepstmt.getAllLedgersInRange, err = App.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and ?<=Dt and Dt<?")
 	rlib.Errcheck(err)
-	App.prepstmt.getLedgerInRangeByGLNo, err = App.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY GLNumber ASC")
+	App.prepstmt.getLedgerInRangeByGLNo, err = App.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY Dt ASC")
 	rlib.Errcheck(err)
 	App.prepstmt.getLedger, err = App.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy FROM ledger where LID=?")
 	rlib.Errcheck(err)
