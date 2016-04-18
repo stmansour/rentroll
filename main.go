@@ -40,7 +40,7 @@ const (
 	JNLTYPEASMT = 1 // record is the result of an assessment
 	JNLTYPERCPT = 2 // record is the result of a receipt
 
-	MARKERSTATEOPEN   = 0 // Journal Marker state
+	MARKERSTATEOPEN   = 0 // Journal/Ledger Marker state
 	MARKERSTATECLOSED = 1
 	MARKERSTATELOCKED = 2
 	MARKERSTATEORIGIN = 3
@@ -215,6 +215,7 @@ type Assessment struct {
 	Frequency       int64
 	ProrationMethod int64
 	AcctRule        string
+	Comment         string
 	LastModTime     time.Time
 	LastModBy       int64
 }
@@ -254,6 +255,7 @@ type Receipt struct {
 	Dt       time.Time
 	Amount   float64
 	AcctRule string
+	Comment  string
 	RA       []ReceiptAllocation
 }
 
@@ -372,14 +374,17 @@ type XUnit struct {
 
 // Journal is the set of attributes describing a journal entry
 type Journal struct {
-	JID    int64               // unique id for this journal entry
-	BID    int64               // unique id of business
-	RAID   int64               // unique id of Rental Agreement
-	Dt     time.Time           // when this entry was made
-	Amount float64             // the amount
-	Type   int64               // 1 means this is an assessment, 2 means it is a payment
-	ID     int64               // if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
-	JA     []JournalAllocation // an array of journal allocations, breaks the payment or assessment down, total of all the allocations equals the "Amount" above
+	JID         int64               // unique id for this journal entry
+	BID         int64               // unique id of business
+	RAID        int64               // unique id of Rental Agreement
+	Dt          time.Time           // when this entry was made
+	Amount      float64             // the amount
+	Type        int64               // 1 means this is an assessment, 2 means it is a payment
+	ID          int64               // if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
+	Comment     string              // for notes like "prior period adjustment"
+	LastModTime time.Time           // auto updated
+	LastModBy   int64               // user making the mod
+	JA          []JournalAllocation // an array of journal allocations, breaks the payment or assessment down, total of all the allocations equals the "Amount" above
 }
 
 // JournalAllocation describes how the associated journal amount is allocated
@@ -403,13 +408,16 @@ type JournalMarker struct {
 
 // Ledger is the structure for Ledger attributes
 type Ledger struct {
-	LID      int64
-	BID      int64
-	JID      int64
-	JAID     int64
-	GLNumber string
-	Dt       time.Time
-	Amount   float64
+	LID         int64
+	BID         int64
+	JID         int64
+	JAID        int64
+	GLNumber    string
+	Dt          time.Time
+	Amount      float64
+	Comment     string    // for notes like "prior period adjustment"
+	LastModTime time.Time // auto updated
+	LastModBy   int64     // user making the mod
 }
 
 // LedgerMarker describes a period of time period described. The Balance can be
@@ -430,64 +438,67 @@ type LedgerMarker struct {
 
 // collection of prepared sql statements
 type prepSQL struct {
-	rentalAgreementByBusiness    *sql.Stmt
-	getRentalAgreement           *sql.Stmt
-	getUnit                      *sql.Stmt
-	getLedger                    *sql.Stmt
-	getTransactant               *sql.Stmt
-	getTenant                    *sql.Stmt
-	getRentable                  *sql.Stmt
-	getProspect                  *sql.Stmt
-	getPayor                     *sql.Stmt
-	getUnitSpecialties           *sql.Stmt
-	getUnitSpecialtyType         *sql.Stmt
-	getRentableType              *sql.Stmt
-	getUnitType                  *sql.Stmt
-	getXType                     *sql.Stmt
-	getUnitReceipts              *sql.Stmt
-	getUnitAssessments           *sql.Stmt
-	getAllRentableAssessments    *sql.Stmt
-	getAssessment                *sql.Stmt
-	getAssessmentType            *sql.Stmt
-	getSecurityDepositAssessment *sql.Stmt
-	getAllRentablesByBusiness    *sql.Stmt
-	getAllBusinessRentableTypes  *sql.Stmt
-	getRentableMarketRates       *sql.Stmt
-	getAllBusinessUnitTypes      *sql.Stmt
-	getUnitMarketRates           *sql.Stmt
-	getBusiness                  *sql.Stmt
-	getAllBusinessSpecialtyTypes *sql.Stmt
-	getAllAssessmentsByBusiness  *sql.Stmt
-	getReceipt                   *sql.Stmt
-	getReceiptsInDateRange       *sql.Stmt
-	getReceiptAllocations        *sql.Stmt
-	getDefaultLedgerMarkers      *sql.Stmt
-	getAllJournalsInRange        *sql.Stmt
-	getJournalAllocations        *sql.Stmt
-	getJournalByRange            *sql.Stmt
-	getJournalMarker             *sql.Stmt
-	getJournalMarkers            *sql.Stmt
-	getJournal                   *sql.Stmt
-	getJournalAllocation         *sql.Stmt
-	insertJournalMarker          *sql.Stmt
-	insertJournal                *sql.Stmt
-	insertJournalAllocation      *sql.Stmt
-	deleteJournalAllocations     *sql.Stmt
-	deleteJournalEntry           *sql.Stmt
-	deleteJournalMarker          *sql.Stmt
-	getAllLedgersInRange         *sql.Stmt
-	getLedgerMarkers             *sql.Stmt
-	getLedgerMarkerByGLNo        *sql.Stmt
-	getLedgerInRangeByGLNo       *sql.Stmt
-	insertLedgerMarker           *sql.Stmt
-	insertLedger                 *sql.Stmt
-	insertLedgerAllocation       *sql.Stmt
-	deleteLedgerEntry            *sql.Stmt
-	deleteLedgerMarker           *sql.Stmt
-	getAllLedgerMarkersInRange   *sql.Stmt
-	getAgreementRentables        *sql.Stmt
-	getAgreementPayors           *sql.Stmt
-	getAgreementsForRentable     *sql.Stmt
+	rentalAgreementByBusiness      *sql.Stmt
+	getRentalAgreement             *sql.Stmt
+	getUnit                        *sql.Stmt
+	getLedger                      *sql.Stmt
+	getTransactant                 *sql.Stmt
+	getTenant                      *sql.Stmt
+	getRentable                    *sql.Stmt
+	getProspect                    *sql.Stmt
+	getPayor                       *sql.Stmt
+	getUnitSpecialties             *sql.Stmt
+	getUnitSpecialtyType           *sql.Stmt
+	getRentableType                *sql.Stmt
+	getUnitType                    *sql.Stmt
+	getXType                       *sql.Stmt
+	getUnitReceipts                *sql.Stmt
+	getUnitAssessments             *sql.Stmt
+	getAllRentableAssessments      *sql.Stmt
+	getAssessment                  *sql.Stmt
+	getAssessmentType              *sql.Stmt
+	getSecurityDepositAssessment   *sql.Stmt
+	getAllRentablesByBusiness      *sql.Stmt
+	getAllBusinessRentableTypes    *sql.Stmt
+	getRentableMarketRates         *sql.Stmt
+	getAllBusinessUnitTypes        *sql.Stmt
+	getUnitMarketRates             *sql.Stmt
+	getBusiness                    *sql.Stmt
+	getAllBusinessSpecialtyTypes   *sql.Stmt
+	getAllAssessmentsByBusiness    *sql.Stmt
+	getReceipt                     *sql.Stmt
+	getReceiptsInDateRange         *sql.Stmt
+	getReceiptAllocations          *sql.Stmt
+	getDefaultLedgerMarkers        *sql.Stmt
+	getAllJournalsInRange          *sql.Stmt
+	getJournalAllocations          *sql.Stmt
+	getJournalByRange              *sql.Stmt
+	getJournalMarker               *sql.Stmt
+	getJournalMarkers              *sql.Stmt
+	getJournal                     *sql.Stmt
+	getJournalAllocation           *sql.Stmt
+	insertJournalMarker            *sql.Stmt
+	insertJournal                  *sql.Stmt
+	insertJournalAllocation        *sql.Stmt
+	deleteJournalAllocations       *sql.Stmt
+	deleteJournalEntry             *sql.Stmt
+	deleteJournalMarker            *sql.Stmt
+	getAllLedgersInRange           *sql.Stmt
+	getLedgerMarkers               *sql.Stmt
+	getLedgerMarkerByGLNo          *sql.Stmt
+	getLedgerInRangeByGLNo         *sql.Stmt
+	getLedgerMarkerInitList        *sql.Stmt
+	insertLedgerMarker             *sql.Stmt
+	insertLedger                   *sql.Stmt
+	insertLedgerAllocation         *sql.Stmt
+	deleteLedgerEntry              *sql.Stmt
+	deleteLedgerMarker             *sql.Stmt
+	getAllLedgerMarkersInRange     *sql.Stmt
+	getAgreementRentables          *sql.Stmt
+	getAgreementPayors             *sql.Stmt
+	getAgreementsForRentable       *sql.Stmt
+	getLatestLedgerMarkerByGLNo    *sql.Stmt
+	getLedgerMarkerByGLNoDateRange *sql.Stmt
 	// getUnitRentalAgreements      *sql.Stmt
 }
 

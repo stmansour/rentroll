@@ -164,7 +164,9 @@ func GetSecurityDepositAssessments(unitid int64) []Assessment {
 
 	for rows.Next() {
 		var a Assessment
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule))
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID,
+			&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
+			&a.ProrationMethod, &a.AcctRule, &a.Comment))
 		m = append(m, a)
 	}
 	rlib.Errcheck(rows.Err())
@@ -329,7 +331,9 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	t = make([]Assessment, 0)
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID,
+			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod,
+			&a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		t = append(t, a)
 	}
 	return t
@@ -406,7 +410,7 @@ func GetAgreementPayors(raid int64, d1, d2 *time.Time) []AgreementPayor {
 	return t
 }
 
-// GetRentalAgreement returns the Ledger struct for the account with the supplied name
+// GetRentalAgreement returns the RentalAgreement struct for the supplied rental agreement id
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
 	// fmt.Printf("Ledger = %s\n", s)
@@ -464,7 +468,8 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 	t = make([]Receipt, 0)
 	for rows.Next() {
 		var r Receipt
-		rlib.Errcheck(rows.Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule))
+		rlib.Errcheck(rows.Scan(
+			&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment))
 		r.RA = make([]ReceiptAllocation, 0)
 		GetReceiptAllocations(r.RCPTID, &r)
 		t = append(t, r)
@@ -475,7 +480,8 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 // GetReceipt returns a receipt structure for the supplied RCPTID
 func GetReceipt(rcptid int64) Receipt {
 	var r Receipt
-	rlib.Errcheck(App.prepstmt.getReceipt.QueryRow(rcptid).Scan(&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule))
+	rlib.Errcheck(App.prepstmt.getReceipt.QueryRow(rcptid).Scan(
+		&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment))
 	GetReceiptAllocations(rcptid, &r)
 	return r
 }
@@ -485,7 +491,7 @@ func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
 	err := App.prepstmt.getAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
 		&a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
-		&a.ProrationMethod, &a.AcctRule, &a.LastModTime, &a.LastModBy)
+		&a.ProrationMethod, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
 		fmt.Printf("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
 	}
@@ -548,16 +554,18 @@ func GetJournalAllocations(jid int64, j *Journal) {
 // GetJournal returns the Journal struct for the account with the supplied name
 func GetJournal(jid int64) (Journal, error) {
 	var r Journal
-	err := App.prepstmt.getJournal.QueryRow(jid).Scan(&r.JID, &r.BID, &r.RAID, &r.Dt, &r.Amount, &r.Type, &r.ID)
+	err := App.prepstmt.getJournal.QueryRow(jid).Scan(&r.JID, &r.BID, &r.RAID,
+		&r.Dt, &r.Amount, &r.Type, &r.ID, &r.Comment, &r.LastModTime, &r.LastModBy)
 	if nil != err {
 		fmt.Printf("GetJournal: could not get journal entry with jid = %d,  err = %v\n", jid, err)
 	}
 	return r, err
 }
 
-// GetLedgerMarkers loads the last n Ledger markers for business BID
-func GetLedgerMarkers(bid, n int64) []LedgerMarker {
-	rows, err := App.prepstmt.getLedgerMarkers.Query(bid, n)
+// GetLedgerMarkerInitList loads the Inititial LedgerMarker for all ledgers
+// this is essentially a way to get the exhaustive list of ledger numbers for a business
+func GetLedgerMarkerInitList(bid int64) []LedgerMarker {
+	rows, err := App.prepstmt.getLedgerMarkerInitList.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	var t []LedgerMarker
@@ -570,11 +578,26 @@ func GetLedgerMarkers(bid, n int64) []LedgerMarker {
 	return t
 }
 
-// GetLastLedgerMarker returns the last journal marker or nil if no journal markers exist
-func GetLastLedgerMarker(bid int64) LedgerMarker {
-	t := GetLedgerMarkers(bid, 1)
-	return t[0]
-}
+// GetLedgerMarkers loads the last n Ledger markers for business BID
+// func GetLedgerMarkers(bid, n int64) []LedgerMarker {
+// 	rows, err := App.prepstmt.getLedgerMarkerAcctList.Query(bid, n)
+// 	rlib.Errcheck(err)
+// 	defer rows.Close()
+// 	var t []LedgerMarker
+// 	t = make([]LedgerMarker, 0)
+// 	for rows.Next() {
+// 		var r LedgerMarker
+// 		rlib.Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
+// 		t = append(t, r)
+// 	}
+// 	return t
+// }
+
+// // GetLastLedgerMarker returns the last Ledger Marker or nil if no journal markers exist
+// func GetLastLedgerMarker(bid int64) LedgerMarker {
+// 	t := GetLedgerMarkers(bid, 1)
+// 	return t[0]
+// }
 
 // GetLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
 func GetLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
@@ -583,6 +606,30 @@ func GetLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
 	err := App.prepstmt.getLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
 	if nil != err {
 		fmt.Printf("GetLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber \"%s\".\n", s)
+		fmt.Printf("err = %v\n", err)
+	}
+	return r
+}
+
+// GetLedgerMarkerByGLNoDateRange returns the LedgerMarker struct for the supplied time range
+func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) LedgerMarker {
+	var r LedgerMarker
+	// fmt.Printf("Ledger = %s\n", s)
+	err := App.prepstmt.getLedgerMarkerByGLNoDateRange.QueryRow(bid, s, d1, d2).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
+	if nil != err {
+		fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not find ledgermarker for GLNumber \"%s\".\n", s)
+		fmt.Printf("err = %v\n", err)
+	}
+	return r
+}
+
+// GetLatestLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
+func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
+	var r LedgerMarker
+	// fmt.Printf("Ledger = %s\n", s)
+	err := App.prepstmt.getLatestLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
+	if nil != err {
+		fmt.Printf("GetLatestLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber \"%s\".\n", s)
 		fmt.Printf("err = %v\n", err)
 	}
 	return r

@@ -219,7 +219,7 @@ func JournalReportText(xbiz *XBusiness, d1, d2 *time.Time) {
 	defer rows.Close()
 	for rows.Next() {
 		var j Journal
-		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID))
+		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
 		GetJournalAllocations(j.JID, &j)
 		textReportJournalEntry(xbiz, &j, d1, d2)
 	}

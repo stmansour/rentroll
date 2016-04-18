@@ -361,6 +361,7 @@ CREATE TABLE assessments (
     Frequency SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
     ProrationMethod SMALLINT NOT NULL DEFAULT 0,            -- 
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
+    Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (ASMID)
@@ -473,8 +474,9 @@ CREATE TABLE receipt (
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
-    -- ApplyToGeneralReceivable DECIMAL(19,4),                   -- Breakdown is in receiptallocation table
-    -- ApplyToSecurityDeposit DECIMAL(19,4),                     -- Can we just handle this as part of receipt allocation
+    Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
+    -- ApplyToGeneralReceivable DECIMAL(19,4),                  -- Breakdown is in receiptallocation table
+    -- ApplyToSecurityDeposit DECIMAL(19,4),                    -- Can we just handle this as part of receipt allocation
     PRIMARY KEY (RCPTID)
 );
 
@@ -499,6 +501,7 @@ CREATE TABLE journal (
     Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unknown, 1 = assessment, 2 = payment/receipt
     ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
     -- no last mod by, etc., this is all handled in the journalaudit table
+    Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (JID)
@@ -550,6 +553,7 @@ CREATE TABLE ledger (
     GLNumber VARCHAR(15) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount since last close
+    Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LID)        

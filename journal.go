@@ -199,7 +199,7 @@ func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 	defer rows.Close()
 	for rows.Next() {
 		var j Journal
-		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID))
+		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
 		deleteJournalAllocations(j.JID)
 		deleteJournalEntry(j.JID)
 	}
@@ -231,7 +231,9 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 	for rows.Next() {
 		var a Assessment
 		ap := &a
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.LastModTime, &a.LastModBy))
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount,
+			&a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.Comment,
+			&a.LastModTime, &a.LastModBy))
 		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY {
 			// TBD
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)

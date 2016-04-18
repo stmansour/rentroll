@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"rentroll/rlib"
 	"time"
 )
@@ -16,53 +15,54 @@ func RemoveLedgerEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 	defer rows.Close()
 	for rows.Next() {
 		var l Ledger
-		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount))
+		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber,
+			&l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		deleteLedgerEntry(l.LID)
 
 		// only delete the marker if it is in this time range and if it is not the origin marker
-		lm := GetLastLedgerMarker(xbiz.P.BID)
-		if lm.State == MARKERSTATEOPEN && (lm.DtStart.After(*d1) || lm.DtStart.Equal(*d1)) && (lm.DtStop.Before(*d2) || lm.DtStop.Equal(*d2)) {
-			deleteLedgerMarker(lm.LMID)
-		}
+		// lm := GetLastLedgerMarker(xbiz.P.BID)
+		// if lm.State == MARKERSTATEOPEN && (lm.DtStart.After(*d1) || lm.DtStart.Equal(*d1)) && (lm.DtStop.Before(*d2) || lm.DtStop.Equal(*d2)) {
+		// 	deleteLedgerMarker(lm.LMID)
+		// }
 	}
 	return err
 }
 
 // GenerateLedgerMarker creates all the ledger markers for the supplied time period
-func GenerateLedgerMarker(xbiz *XBusiness, d1, d2 *time.Time, bal float64) {
-	lm := GetLastLedgerMarker(xbiz.P.BID)
-	diff := lm.DtStop.Sub(*d1)
-	if diff < 0 {
-		diff = -diff
-	}
-	if diff > 24*time.Hour {
-		s := fmt.Sprintf("Gap between last ledger marker (stop = %s) and next ledger marker (start = %s) is > than 1 day\n",
-			lm.DtStop.Format(RRDATEFMT), d1.Format(RRDATEFMT))
-		fmt.Println(s)
-		ulog(s)
-	}
-	var l LedgerMarker
-	l.BID = xbiz.P.BID
-	l.Balance = bal
-	l.DtStart = *d1
-	l.DtStop = *d2
-	l.GLNumber = lm.GLNumber
-	l.Name = lm.Name
-	l.State = lm.State
-	lm.State = lm.Status
+// func GenerateLedgerMarker(xbiz *XBusiness, d1, d2 *time.Time, bal float64) {
+// 	lm := GetLastLedgerMarker(xbiz.P.BID)
+// 	diff := lm.DtStop.Sub(*d1)
+// 	if diff < 0 {
+// 		diff = -diff
+// 	}
+// 	if diff > 24*time.Hour {
+// 		s := fmt.Sprintf("Gap between last ledger marker (stop = %s) and next ledger marker (start = %s) is > than 1 day\n",
+// 			lm.DtStop.Format(RRDATEFMT), d1.Format(RRDATEFMT))
+// 		fmt.Println(s)
+// 		ulog(s)
+// 	}
+// 	var l LedgerMarker
+// 	l.BID = xbiz.P.BID
+// 	l.Balance = bal
+// 	l.DtStart = *d1
+// 	l.DtStop = *d2
+// 	l.GLNumber = lm.GLNumber
+// 	l.Name = lm.Name
+// 	l.State = lm.State
+// 	lm.State = lm.Status
 
-	InsertLedgerMarker(&l)
-}
+// 	InsertLedgerMarker(&l)
+// }
 
 // GenerateLedgerEntriesFromJournal creates all the ledger records necessary to describe the journal entry provided
 func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
-	lm := GetLastLedgerMarker(xbiz.P.BID)
-	if lm.DtStop.Equal(d1.AddDate(0, 0, -1)) {
-		// pfmt.Printf("Generating next month's ledgers\n")
-	} else {
-		fmt.Printf("Generating these ledgers will destroy other periods of ledger records\n")
-	}
-	bal := lm.Balance
+	// lm := GetLastLedgerMarker(xbiz.P.BID)
+	// if lm.DtStop.Equal(d1.AddDate(0, 0, -1)) {
+	// 	// pfmt.Printf("Generating next month's ledgers\n")
+	// } else {
+	// 	fmt.Printf("Generating these ledgers will destroy other periods of ledger records\n")
+	// }
+	// bal := lm.Balance
 
 	for i := 0; i < len(j.JA); i++ {
 		m := parseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
@@ -79,10 +79,33 @@ func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.
 			l.GLNumber = m[k].Account
 			InsertLedgerEntry(&l)
 
-			bal += l.Amount
+			// bal += l.Amount
 		}
 	}
-	GenerateLedgerMarker(xbiz, d1, d2, bal)
+}
+
+func closeLedgerPeriod(xbiz *XBusiness, lm *LedgerMarker, d1, d2 *time.Time, state int64) {
+	rows, err := App.prepstmt.getLedgerInRangeByGLNo.Query(lm.BID, lm.GLNumber, d1, d2)
+	rlib.Errcheck(err)
+	bal := lm.Balance
+	defer rows.Close()
+	for rows.Next() {
+		var l Ledger
+		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt,
+			&l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
+		bal += l.Amount
+	}
+	rlib.Errcheck(rows.Err())
+
+	var nlm LedgerMarker
+	nlm = *lm
+	nlm.Balance = bal
+	nlm.DtStart = *d1
+	nlm.DtStop = d2.AddDate(0, 0, -1)
+	nlm.State = state
+	// fmt.Printf("nlm - %s - %s   GLNo: %s, Balance: %6.2f\n",
+	// 	nlm.DtStart.Format(RRDATEFMT), nlm.DtStop.Format(RRDATEFMT), nlm.GLNumber, nlm.Balance)
+	InsertLedgerMarker(&nlm)
 }
 
 // GenerateLedgerRecords creates ledgers records based on the journal records over the supplied time range.
@@ -101,9 +124,23 @@ func GenerateLedgerRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 	// fmt.Printf("Loading Journal Entries from %s to %s.\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT))
 	for rows.Next() {
 		var j Journal
-		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID))
+		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
 		GetJournalAllocations(j.JID, &j)
 		GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
+	}
+	rlib.Errcheck(rows.Err())
+
+	//==============================================================================
+	// Now that all the ledgers have been updated, we can close the ledgers and mark
+	// their state as MARKERSTATEOPEN
+	// Spin through all ledgers and update the ledger markers with the ending balance...
+	//==============================================================================
+	t := GetLedgerMarkerInitList(xbiz.P.BID) // this list contains the list of all ledger account numbers
+	// fmt.Printf("len(t) =  %d\n", len(t))
+	for i := 0; i < len(t); i++ {
+		lm := GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
+		// fmt.Printf("lm = %#v\n", lm)
+		closeLedgerPeriod(xbiz, &lm, d1, d2, MARKERSTATEOPEN)
 	}
 	rlib.Errcheck(rows.Err())
 }

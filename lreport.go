@@ -144,7 +144,7 @@ func reportTextProcessLedgerMarker(xbiz *XBusiness, lm *LedgerMarker, d1, d2 *ti
 	defer rows.Close()
 	for rows.Next() {
 		var l Ledger
-		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount))
+		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		bal += l.Amount
 		descr, rn, sra := getLedgerEntryDescription(&l)
 		printDatedLedgerEntryRJ(descr, l.Dt, l.JID, sra, rn, l.Amount, bal)
@@ -157,14 +157,15 @@ func reportTextProcessLedgerMarker(xbiz *XBusiness, lm *LedgerMarker, d1, d2 *ti
 
 // LedgerReportText generates a textual journal report for the supplied business and time range
 func LedgerReportText(xbiz *XBusiness, d1, d2 *time.Time) {
-	// fmt.Printf("BID=%d, d1: %s, d2: %s\n", xbiz.P.BID, d1, d2)
-	rows, err := App.prepstmt.getAllLedgerMarkersInRange.Query(xbiz.P.BID, d1, d2)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var lm LedgerMarker
-		rlib.Errcheck(rows.Scan(&lm.LMID, &lm.BID, &lm.PID, &lm.GLNumber, &lm.Status, &lm.State, &lm.DtStart, &lm.DtStop, &lm.Balance, &lm.Type, &lm.Name))
+	t := GetLedgerMarkerInitList(xbiz.P.BID) // this list contains the list of all ledger account numbers
+	for i := 0; i < len(t); i++ {
+		dd2 := d1.AddDate(0, 0, -1)
+		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
+		lm := GetLedgerMarkerByGLNoDateRange(xbiz.P.BID, t[i].GLNumber, &dd1, &dd2)
+		if lm.LMID < 1 {
+			fmt.Printf("LedgerReportText: GLNumber %s -- no Ledger Marker for: %s - %s\n",
+				t[i].GLNumber, dd1.Format(RRDATEFMT), dd2.Format(RRDATEFMT))
+		}
 		reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
 	}
-	rlib.Errcheck(rows.Err())
 }
