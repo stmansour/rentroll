@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"phonebook/lib"
 	"rentroll/rlib"
 	"time"
 )
@@ -512,13 +513,13 @@ type BusinessTypes struct {
 
 // App is the global data structure for this app
 var App struct {
-	dbdir     *sql.DB
-	dbrr      *sql.DB
-	DBDir     string
-	DBRR      string
-	DBUser    string
-	prepstmt  prepSQL
-	Report    int64
+	dbdir     *sql.DB // phonebook db
+	dbrr      *sql.DB //rentroll db
+	DBDir     string  // phonebook database
+	DBRR      string  //rentroll database
+	DBUser    string  // user for all databases
+	prepstmt  prepSQL //prepared sql for rentroll
+	Report    int64   // if testing engine, which report/action to perform
 	AsmtTypes map[int64]AssessmentType
 	PmtTypes  map[int64]PaymentType
 	BizTypes  map[int64]*BusinessTypes
@@ -606,7 +607,9 @@ func main() {
 	readCommandLineArgs()
 
 	var err error
-	s := fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", App.DBUser, App.DBDir)
+	// s := fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", App.DBUser, App.DBDir)
+	s := rlib.RRGetSQLOpenString(App.DBUser, App.DBRR)
+
 	App.dbdir, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", App.DBDir, App.DBUser, err)
@@ -627,6 +630,17 @@ func main() {
 	if nil != err {
 		fmt.Printf("App.DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, App.DBUser, err)
 	}
+	s = lib.GetSQLOpenString(App.DBUser, App.DBDir)
+	App.dbdir, err = sql.Open("mysql", s)
+	if nil != err {
+		fmt.Printf("sql.Open: Error = %v\n", err)
+	}
+	defer App.dbdir.Close()
+	err = App.dbdir.Ping()
+	if nil != err {
+		fmt.Printf("App.dbdir.Ping: Error = %v\n", err)
+	}
+
 	initRentRoll()
 
 	//  func Date(year int64 , month Month, day, hour, min, sec, nsec int64 , loc *Location) Time
