@@ -22,6 +22,12 @@ const (
 	RECURLAST      = RECURYEARLY
 )
 
+// Ulog is Phonebooks's standard logger
+func Ulog(format string, a ...interface{}) {
+	p := fmt.Sprintf(format, a...)
+	log.Print(p)
+}
+
 // Errcheck - saves a bunch of typing, prints error if it exists
 //            and provides a traceback as well
 func Errcheck(err error) {

@@ -3,8 +3,6 @@ package main
 import "rentroll/rlib"
 
 func initRentRoll() {
-	// App.BizTypes = make(map[int64]LedgerMarker, 0)
-	buildPreparedStatements()
 	initLists()
 	initJFmt()
 	initTFmt()
@@ -13,9 +11,8 @@ func initRentRoll() {
 }
 
 func initLists() {
-	App.AsmtTypes = GetAssessmentTypes()
-	App.PmtTypes = GetPaymentTypes()
-	App.BizTypes = make(map[int64]*BusinessTypes, 0)
+	App.AsmtTypes = rlib.GetAssessmentTypes()
+	App.PmtTypes = rlib.GetPaymentTypes()
 }
 
 // Basically this is turned off for now. We'll get to default cash accounts at some point.
@@ -26,7 +23,7 @@ func loadDefaultCashAccts() {
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var xprop XBusiness
+		var xprop rlib.XBusiness
 		rlib.Errcheck(rows.Scan(&xprop.P.BID, &xprop.P.Address, &xprop.P.Address2, &xprop.P.City, &xprop.P.State,
 			&xprop.P.PostalCode, &xprop.P.Country, &xprop.P.Phone, &xprop.P.Name, &xprop.P.DefaultOccupancyType,
 			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))

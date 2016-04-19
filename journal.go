@@ -18,22 +18,22 @@ func varAcctResolve(bid int64, s string) string {
 	i := int64(0)
 	switch {
 	case s == "DFLTCASH":
-		i = DFLTCASH
+		i = rlib.DFLTCASH
 	case s == "DFLTGENRCV":
-		i = DFLTGENRCV
+		i = rlib.DFLTGENRCV
 	case s == "DFLTGSRENT":
-		i = DFLTGSRENT
+		i = rlib.DFLTGSRENT
 	case s == "DFLTLTL":
-		i = DFLTLTL
+		i = rlib.DFLTLTL
 	case s == "DFLTVAC":
-		i = DFLTVAC
+		i = rlib.DFLTVAC
 	case s == "DFLTSECDEPRCV":
-		i = DFLTSECDEPRCV
+		i = rlib.DFLTSECDEPRCV
 	case s == "DFLTSECDEPASMT":
-		i = DFLTSECDEPASMT
+		i = rlib.DFLTSECDEPASMT
 	}
 	if i > 0 {
-		return App.BizTypes[bid].DefaultAccts[i].GLNumber
+		return rlib.RRdb.BizTypes[bid].DefaultAccts[i].GLNumber
 	}
 	return s
 }
@@ -49,7 +49,7 @@ func doAcctSubstitution(bid int64, s string) string {
 	return s
 }
 
-func parseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []acctRule {
+func parseAcctRule(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []acctRule {
 	var m []acctRule
 	ctx := rpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
 	if len(rule) > 0 {
@@ -88,7 +88,7 @@ func sumAllocations(m *[]acctRule) (float64, float64) {
 //			asmtDur:  pf denominator, total number of days in period
 //         	rentDur:  pf numerator, total number of days applicable to this rental agreement
 //         	pf:       prorate factor = rentDur/asmtDur
-func calcProrationInfo(ra *RentalAgreement, d1, d2 *time.Time, prorateMethod int64) (int64, int64, float64) {
+func calcProrationInfo(ra *rlib.RentalAgreement, d1, d2 *time.Time, prorateMethod int64) (int64, int64, float64) {
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------
@@ -100,6 +100,7 @@ func calcProrationInfo(ra *RentalAgreement, d1, d2 *time.Time, prorateMethod int
 	if stop.After(*d2) {
 		stop = *d2
 	}
+
 	//-------------------------------------------------------------------------------------------
 	// this code needs to be generalized based on the recurrence period and the proration period
 	//-------------------------------------------------------------------------------------------
@@ -115,10 +116,10 @@ func calcProrationInfo(ra *RentalAgreement, d1, d2 *time.Time, prorateMethod int
 }
 
 // journalAssessment processes the assessment, creates a journal entry, and returns its id
-func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d1, d2 *time.Time) error {
-	ra, _ := GetRentalAgreement(a.RAID)
+func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
+	ra, _ := rlib.GetRentalAgreement(a.RAID)
 	_, _, pf := calcProrationInfo(&ra, d1, d2, a.ProrationMethod)
-	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
+	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
 	m := parseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
@@ -163,9 +164,9 @@ func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d
 		}
 	}
 
-	jid, err := InsertJournalEntry(&j)
+	jid, err := rlib.InsertJournalEntry(&j)
 	if err != nil {
-		ulog("error inserting journal entry: %v\n", err)
+		rlib.Ulog("error inserting journal entry: %v\n", err)
 	} else {
 		//now rewrite the AcctRule...
 		s := ""
@@ -176,13 +177,13 @@ func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d
 			}
 		}
 		if jid > 0 {
-			var ja JournalAllocation
+			var ja rlib.JournalAllocation
 			ja.JID = jid
 			ja.RID = rid
 			ja.ASMID = a.ASMID
 			ja.Amount = rlib.RoundToCent(j.Amount)
 			ja.AcctRule = s
-			InsertJournalAllocationEntry(&ja)
+			rlib.InsertJournalAllocationEntry(&ja)
 		}
 	}
 
@@ -190,24 +191,24 @@ func journalAssessment(xbiz *XBusiness, rid int64, d time.Time, a *Assessment, d
 }
 
 // RemoveJournalEntries clears out the records in the supplied range provided the range is not closed by a journalmarker
-func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
+func RemoveJournalEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	// Remove the journal entries and the journalallocation entries
-	rows, err := App.prepstmt.getAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
+	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var j Journal
+		var j rlib.Journal
 		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
-		deleteJournalAllocations(j.JID)
-		deleteJournalEntry(j.JID)
+		rlib.DeleteJournalAllocations(j.JID)
+		rlib.DeleteJournalEntry(j.JID)
 	}
 
 	// only delete the marker if it is in this time range and if it is not the origin marker
-	jm := GetLastJournalMarker()
-	if jm.State == MARKERSTATEOPEN && (jm.DtStart.After(*d1) || jm.DtStart.Equal(*d1)) && (jm.DtStop.Before(*d2) || jm.DtStop.Equal(*d2)) {
-		deleteJournalMarker(jm.JMID)
+	jm := rlib.GetLastJournalMarker()
+	if jm.State == rlib.MARKERSTATEOPEN && (jm.DtStart.After(*d1) || jm.DtStart.Equal(*d1)) && (jm.DtStop.Before(*d2) || jm.DtStop.Equal(*d2)) {
+		rlib.DeleteJournalMarker(jm.JMID)
 	}
 
 	RemoveLedgerEntries(xbiz, d1, d2)
@@ -215,21 +216,21 @@ func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 }
 
 // GenerateJournalRecords creates journal records for assessments and receipts over the supplied time range.
-func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
+func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	err := RemoveJournalEntries(xbiz, d1, d2)
 	if err != nil {
-		ulog("Could not remove existing Journal entries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
+		rlib.Ulog("Could not remove existing Journal entries from %s to %s. err = %v\n", d1.Format(rlib.RRDATEFMT), d2.Format(rlib.RRDATEFMT), err)
 		return
 	}
 
 	//===========================================================
 	//  PROCESS ASSESSMSENTS
 	//===========================================================
-	rows, err := App.prepstmt.getAllAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1)
+	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var a Assessment
+		var a rlib.Assessment
 		ap := &a
 		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID, &a.RAID, &a.Amount,
 			&a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.Comment,
@@ -239,7 +240,7 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)
 		} else {
 			dl := ap.GetRecurrences(d1, d2)
-			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(RRDATEFMT), a.Stop.Format(RRDATEFMT), len(dl))
+			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
 			for i := 0; i < len(dl); i++ {
 				journalAssessment(xbiz, a.RID, dl[i], &a, d1, d2)
 			}
@@ -255,31 +256,31 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 	//===========================================================
 	//  PROCESS RECEIPTS
 	//===========================================================
-	r := GetReceipts(xbiz.P.BID, d1, d2)
+	r := rlib.GetReceipts(xbiz.P.BID, d1, d2)
 	for i := 0; i < len(r); i++ {
-		rntagr, _ := GetRentalAgreement(r[i].RAID)
-		var j Journal
+		rntagr, _ := rlib.GetRentalAgreement(r[i].RAID)
+		var j rlib.Journal
 		j.BID = rntagr.BID
 		j.Amount = rlib.RoundToCent(r[i].Amount)
 		j.Dt = r[i].Dt
-		j.Type = JNLTYPERCPT
+		j.Type = rlib.JNLTYPERCPT
 		j.ID = r[i].RCPTID
 		j.RAID = r[i].RAID
-		jid, err := InsertJournalEntry(&j)
+		jid, err := rlib.InsertJournalEntry(&j)
 		if err != nil {
-			ulog("Error inserting journal entry: %v\n", err)
+			rlib.Ulog("Error inserting journal entry: %v\n", err)
 		}
 		if jid > 0 {
 			// now add the journal allocation records...
 			for j := 0; j < len(r[i].RA); j++ {
-				var ja JournalAllocation
+				var ja rlib.JournalAllocation
 				ja.JID = jid
 				ja.Amount = rlib.RoundToCent(r[i].RA[j].Amount)
 				ja.ASMID = r[i].RA[j].ASMID
 				ja.AcctRule = r[i].RA[j].AcctRule
-				a, _ := GetAssessment(ja.ASMID)
+				a, _ := rlib.GetAssessment(ja.ASMID)
 				ja.RID = a.RID
-				InsertJournalAllocationEntry(&ja)
+				rlib.InsertJournalAllocationEntry(&ja)
 			}
 		}
 	}
@@ -287,10 +288,10 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 	//===========================================================
 	//  ADD JOURNAL MARKER
 	//===========================================================
-	var jm JournalMarker
+	var jm rlib.JournalMarker
 	jm.BID = xbiz.P.BID
-	jm.State = MARKERSTATEOPEN
+	jm.State = rlib.MARKERSTATEOPEN
 	jm.DtStart = *d1
 	jm.DtStop = (*d2).AddDate(0, 0, -1)
-	InsertJournalMarker(&jm)
+	rlib.InsertJournalMarker(&jm)
 }

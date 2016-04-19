@@ -77,37 +77,37 @@ func printJournalSubtitle(label string) {
 	fmt.Printf(jfmt.JournalHeading, label)
 }
 func printDatedJournalEntryRJ(label string, d time.Time, ra string, rn string, glno string, a float64) {
-	fmt.Printf(jfmt.DatedJournalEntryRJ, label, d.Format(RRDATEFMT), ra, rn, glno, a)
+	fmt.Printf(jfmt.DatedJournalEntryRJ, label, d.Format(rlib.RRDATEFMT), ra, rn, glno, a)
 }
 func printDatedJournalEntryLJ(label string, d time.Time, ra string, rn string, glno string, a float64) {
-	fmt.Printf(jfmt.DatedJournalEntryLJ, label, d.Format(RRDATEFMT), ra, rn, glno, a)
+	fmt.Printf(jfmt.DatedJournalEntryLJ, label, d.Format(rlib.RRDATEFMT), ra, rn, glno, a)
 }
 
 //
-func printJournalHeader(xbiz *XBusiness, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
+func printJournalHeader(xbiz *rlib.XBusiness, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
 	// fmt.Printf("         1         2         3         4         5         6         7         8\n")
 	// fmt.Printf("12345678901234567890123456789012345678901234567890123456789012345678901234567890\n")
 	printJReportDoubleLine()
 	fmt.Printf("   Business:  %-13s\n", xbiz.P.Name)
-	fmt.Printf("   %s - %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
+	fmt.Printf("   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
 	printJReportLine()
 	fmt.Printf(jfmt.Hdr, "Description", "Date", "RntAgr", "Rentable", "GL No", "Amount")
 	printJReportLine()
 }
 
-func processAcctRuleAmount(xbiz *XBusiness, rid int64, d time.Time, rule string, raid int64, r *Rentable, amt float64) {
+func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) {
 	m := parseAcctRule(xbiz, rid, &d, &d, rule, amt, float64(1))
 	for i := 0; i < len(m); i++ {
 		amt := m[i].Amount
 		if m[i].Action == "c" {
 			amt = -amt
 		}
-		l := GetLedgerMarkerByGLNo(r.BID, m[i].Account)
+		l := rlib.GetLedgerMarkerByGLNo(r.BID, m[i].Account)
 		printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.Name, m[i].Account, amt)
 	}
 }
 
-func textPrintJournalAssessment(xbiz *XBusiness, j *Journal, a *Assessment, r *Rentable, rentDuration, assessmentDuration int64) {
+func textPrintJournalAssessment(xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
 	s := fmt.Sprintf("J%08d  %s", j.JID, App.AsmtTypes[a.ASMTID].Name)
 	if rentDuration != assessmentDuration && a.ProrationMethod > 0 {
 		s = fmt.Sprintf("%s (%d/%d days)", s, rentDuration, assessmentDuration)
@@ -122,18 +122,18 @@ func textPrintJournalAssessment(xbiz *XBusiness, j *Journal, a *Assessment, r *R
 
 // getPayorLastNames returns an array of strings that contains the last names
 // of every payor responsible for this rental agreement
-func getPayorLastNames(ra *RentalAgreement, d1, d2 *time.Time) []string {
+func getPayorLastNames(ra *rlib.RentalAgreement, d1, d2 *time.Time) []string {
 	var sa []string
 	for i := 0; i < len(ra.P); i++ {
 		if d1.Before(ra.RentalStop) && d2.After(ra.RentalStart) {
-			sa = append(sa, ra.P[i].trn.LastName)
+			sa = append(sa, ra.P[i].Trn.LastName)
 		}
 	}
 	return sa
 }
 
-func textPrintJournalReceipt(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rcpt *Receipt, cashAcctNo string) {
-	rntagr, _ := GetXRentalAgreement(rcpt.RAID, d1, d2)
+func textPrintJournalReceipt(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
+	rntagr, _ := rlib.GetXRentalAgreement(rcpt.RAID, d1, d2)
 	sa := getPayorLastNames(&rntagr, d1, d2)
 	ps := strings.Join(sa, ",")
 
@@ -142,12 +142,12 @@ func textPrintJournalReceipt(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rcp
 
 	// PROCESS EVERY RECEIPT ALLOCATION
 	for i := 0; i < len(rcpt.RA); i++ {
-		a, _ := GetAssessment(rcpt.RA[i].ASMID)
-		r := GetRentable(a.RID)
+		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
+		r := rlib.GetRentable(a.RID)
 		m := parseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
 		for k := 0; k < len(m); k++ {
-			l := GetLedgerMarkerByGLNo(j.BID, m[k].Account)
+			l := rlib.GetLedgerMarkerByGLNo(j.BID, m[k].Account)
 			amt := m[k].Amount
 			if m[k].Action == "c" {
 				amt = -amt
@@ -159,9 +159,9 @@ func textPrintJournalReceipt(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rcp
 	printJournalSubtitle("")
 }
 
-func textPrintJournalUnassociated(xbiz *XBusiness, d1, d2 *time.Time, j *Journal) {
-	var r Rentable
-	GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
+func textPrintJournalUnassociated(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Journal) {
+	var r rlib.Rentable
+	rlib.GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
 	printJournalSubtitle(fmt.Sprintf("J%08d  Unassociated: %s", j.JID, r.Name))
 	for i := 0; i < len(j.JA); i++ {
 		processAcctRuleAmount(xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
@@ -169,30 +169,30 @@ func textPrintJournalUnassociated(xbiz *XBusiness, d1, d2 *time.Time, j *Journal
 	}
 }
 
-func textPrintJournalEntry(xbiz *XBusiness, d1, d2 *time.Time, j *Journal, rentDuration, assessmentDuration int64) {
+func textPrintJournalEntry(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
-	case JNLTYPEUNAS:
+	case rlib.JNLTYPEUNAS:
 		textPrintJournalUnassociated(xbiz, d1, d2, j)
-	case JNLTYPERCPT:
-		rcpt := GetReceipt(j.ID)
-		textPrintJournalReceipt(xbiz, d1, d2, j, &rcpt, App.BizTypes[xbiz.P.BID].DefaultAccts[DFLTCASH].GLNumber /*"10001"*/)
-	case JNLTYPEASMT:
-		a, _ := GetAssessment(j.ID)
-		r := GetRentable(a.RID)
+	case rlib.JNLTYPERCPT:
+		rcpt := rlib.GetReceipt(j.ID)
+		textPrintJournalReceipt(xbiz, d1, d2, j, &rcpt, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.DFLTCASH].GLNumber /*"10001"*/)
+	case rlib.JNLTYPEASMT:
+		a, _ := rlib.GetAssessment(j.ID)
+		r := rlib.GetRentable(a.RID)
 		textPrintJournalAssessment(xbiz, j, &a, &r, rentDuration, assessmentDuration)
 	default:
 		fmt.Printf("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}
 }
 
-func textReportJournalEntry(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
+func textReportJournalEntry(xbiz *rlib.XBusiness, j *rlib.Journal, d1, d2 *time.Time) {
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------
 	start := *d1
 	stop := *d2
 	if j.RAID > 0 {
-		ra, _ := GetRentalAgreement(j.RAID)
+		ra, _ := rlib.GetRentalAgreement(j.RAID)
 		if ra.RentalStart.After(start) {
 			start = ra.RentalStart
 		}
@@ -212,15 +212,15 @@ func textReportJournalEntry(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
 }
 
 // JournalReportText generates a textual journal report for the supplied business and time range
-func JournalReportText(xbiz *XBusiness, d1, d2 *time.Time) {
+func JournalReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	printJournalHeader(xbiz, d1, d2)
-	rows, err := App.prepstmt.getAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
+	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var j Journal
+		var j rlib.Journal
 		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
-		GetJournalAllocations(j.JID, &j)
+		rlib.GetJournalAllocations(j.JID, &j)
 		textReportJournalEntry(xbiz, &j, d1, d2)
 	}
 	rlib.Errcheck(rows.Err())

@@ -2,6 +2,12 @@ package rlib
 
 import "time"
 
+// GetRecurrences is a shorthand for assessment variables to get a list
+// of dates on which charges must be assessed for a particular interval of time (d1 - d2)
+func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
+	return GetRecurrences(d1, d2, &a.Start, &a.Stop, a.Frequency)
+}
+
 // DateInRange returns true if dt is >= start AND db < stop, otherwise it returns false
 func DateInRange(dt, start, stop *time.Time) bool {
 	// fmt.Printf("dt: %s\n", dt.Format(time.RFC3339))

@@ -88,45 +88,45 @@ func printTSubtitle(label string) {
 	fmt.Printf(tfmt.LedgerHeading, label)
 }
 func printDatedLedgerEntryRJ(label string, d time.Time, jid int64, ra string, rn string, a, b float64) {
-	fmt.Printf(tfmt.DatedLedgerEntryRJ, label, d.Format(RRDATEFMT), jid, ra, rn, a, b)
+	fmt.Printf(tfmt.DatedLedgerEntryRJ, label, d.Format(rlib.RRDATEFMT), jid, ra, rn, a, b)
 }
 func printDatedLedgerEntryLJ(label string, d time.Time, jid int64, ra string, rn string, a, b float64) {
-	fmt.Printf(tfmt.DatedLedgerEntryLJ, label, d.Format(RRDATEFMT), jid, ra, rn, a, b)
+	fmt.Printf(tfmt.DatedLedgerEntryLJ, label, d.Format(rlib.RRDATEFMT), jid, ra, rn, a, b)
 }
-func printLedgerHeaderText(lm *LedgerMarker) {
+func printLedgerHeaderText(lm *rlib.LedgerMarker) {
 	printTSubtitle(lm.Name)
 }
 func printLedgerDescrAndBal(s string, d time.Time, x float64) {
-	fmt.Printf(tfmt.DescrAndBal, s, d.Format(RRDATEFMT), x)
+	fmt.Printf(tfmt.DescrAndBal, s, d.Format(rlib.RRDATEFMT), x)
 }
 
 //
-func printLedgerHeader(xbiz *XBusiness, lm *LedgerMarker, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
+func printLedgerHeader(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
 	printTReportDoubleLine()
 	fmt.Printf("   Business:  %-13s\n", xbiz.P.Name)
 	printTSubtitle(lm.GLNumber + " - " + lm.Name)
-	fmt.Printf("   %s - %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
+	fmt.Printf("   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
 	printTReportLine()
 	fmt.Printf(tfmt.Hdr, "Description", "Date", "JournalID", "RntAgr", "Rentable", "Amount", "Balance")
 	printTReportLine()
 }
 
 // returns the payment/accessment reason, rentable name
-func getLedgerEntryDescription(l *Ledger) (string, string, string) {
-	j, _ := GetJournal(l.JID)
+func getLedgerEntryDescription(l *rlib.Ledger) (string, string, string) {
+	j, _ := rlib.GetJournal(l.JID)
 	sra := fmt.Sprintf("%9d", j.RAID)
 	switch j.Type {
-	case JNLTYPEUNAS:
-		r := GetRentable(j.ID) // j.ID is set to RID when the type is unassociated
+	case rlib.JNLTYPEUNAS:
+		r := rlib.GetRentable(j.ID) // j.ID is set to RID when the type is unassociated
 		return "Unassociated", r.Name, sra
-	case JNLTYPERCPT:
-		ja, _ := GetJournalAllocation(l.JAID)
-		a, _ := GetAssessment(ja.ASMID)
-		r := GetRentable(a.RID)
+	case rlib.JNLTYPERCPT:
+		ja, _ := rlib.GetJournalAllocation(l.JAID)
+		a, _ := rlib.GetAssessment(ja.ASMID)
+		r := rlib.GetRentable(a.RID)
 		return "Payment - " + App.AsmtTypes[a.ASMTID].Name, r.Name, sra
-	case JNLTYPEASMT:
-		a, _ := GetAssessment(j.ID)
-		r := GetRentable(a.RID)
+	case rlib.JNLTYPEASMT:
+		a, _ := rlib.GetAssessment(j.ID)
+		r := rlib.GetRentable(a.RID)
 		return "Assessment - " + App.AsmtTypes[a.ASMTID].Name, r.Name, sra
 
 	default:
@@ -135,15 +135,15 @@ func getLedgerEntryDescription(l *Ledger) (string, string, string) {
 	return "x", "x", "x"
 }
 
-func reportTextProcessLedgerMarker(xbiz *XBusiness, lm *LedgerMarker, d1, d2 *time.Time) {
+func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time) {
 	bal := lm.Balance
 	printLedgerHeader(xbiz, lm, d1, d2)
 	printLedgerDescrAndBal("Opening Balance", *d1, lm.Balance)
-	rows, err := App.prepstmt.getLedgerInRangeByGLNo.Query(lm.BID, lm.GLNumber, d1, d2)
+	rows, err := rlib.RRdb.Prepstmt.GetLedgerInRangeByGLNo.Query(lm.BID, lm.GLNumber, d1, d2)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var l Ledger
+		var l rlib.Ledger
 		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		bal += l.Amount
 		descr, rn, sra := getLedgerEntryDescription(&l)
@@ -156,15 +156,15 @@ func reportTextProcessLedgerMarker(xbiz *XBusiness, lm *LedgerMarker, d1, d2 *ti
 }
 
 // LedgerReportText generates a textual journal report for the supplied business and time range
-func LedgerReportText(xbiz *XBusiness, d1, d2 *time.Time) {
-	t := GetLedgerMarkerInitList(xbiz.P.BID) // this list contains the list of all ledger account numbers
+func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+	t := rlib.GetLedgerMarkerInitList(xbiz.P.BID) // this list contains the list of all ledger account numbers
 	for i := 0; i < len(t); i++ {
 		dd2 := d1.AddDate(0, 0, -1)
 		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
-		lm := GetLedgerMarkerByGLNoDateRange(xbiz.P.BID, t[i].GLNumber, &dd1, &dd2)
+		lm := rlib.GetLedgerMarkerByGLNoDateRange(xbiz.P.BID, t[i].GLNumber, &dd1, &dd2)
 		if lm.LMID < 1 {
 			fmt.Printf("LedgerReportText: GLNumber %s -- no Ledger Marker for: %s - %s\n",
-				t[i].GLNumber, dd1.Format(RRDATEFMT), dd2.Format(RRDATEFMT))
+				t[i].GLNumber, dd1.Format(rlib.RRDATEFMT), dd2.Format(rlib.RRDATEFMT))
 		}
 		reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
 	}
