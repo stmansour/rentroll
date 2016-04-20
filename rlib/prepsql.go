@@ -41,8 +41,17 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentType, err = RRdb.dbrr.Prepare("SELECT ASMTID,Name,Type,LastModTime,LastModBy FROM assessmenttypes WHERE ASMTID=?")
+
+	//===============================
+	//  AssessmentType
+	//===============================
+	RRdb.Prepstmt.GetAssessmentType, err = RRdb.dbrr.Prepare("SELECT ASMTID,Name,Description,LastModTime,LastModBy FROM assessmenttypes WHERE ASMTID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAssessmentTypeByName, err = RRdb.dbrr.Prepare("SELECT ASMTID,Name,Description,LastModTime,LastModBy FROM assessmenttypes WHERE Name=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertAssessmentType, err = RRdb.dbrr.Prepare("INSERT INTO assessmenttypes (Name,Description,LastModBy) VALUES(?,?,?)")
+	Errcheck(err)
+
 	s := fmt.Sprintf("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE (ASMTID=%d or ASMTID=%d) and UNITID=?", SECURITYDEPOSIT, SECURITYDEPOSITASSESSMENT)
 	RRdb.Prepstmt.GetSecurityDepositAssessment, err = RRdb.dbrr.Prepare(s)
 	Errcheck(err)

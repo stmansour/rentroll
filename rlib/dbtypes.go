@@ -198,7 +198,7 @@ type XPerson struct {
 type AssessmentType struct {
 	ASMTID      int64
 	Name        string
-	Type        int64 // 0 = credit, 1 = debit
+	Description string
 	LastModTime time.Time
 	LastModBy   int64
 }
@@ -496,8 +496,9 @@ type RRprepSQL struct {
 	GetAgreementsForRentable       *sql.Stmt
 	GetLatestLedgerMarkerByGLNo    *sql.Stmt
 	GetLedgerMarkerByGLNoDateRange *sql.Stmt
-	// GetUnitRentalAgreements      *sql.Stmt
-	InsertBusiness *sql.Stmt
+	InsertBusiness                 *sql.Stmt
+	InsertAssessmentType           *sql.Stmt
+	GetAssessmentTypeByName        *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

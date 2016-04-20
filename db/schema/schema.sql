@@ -216,9 +216,9 @@ CREATE TABLE unitspecialtytypes (
 CREATE TABLE assessmenttypes (
     ASMTID BIGINT NOT NULL AUTO_INCREMENT,          -- what type of assessment
     Name VARCHAR(35) NOT NULL DEFAULT '',           -- name for the assessment
-
+    Description VARCHAR(1024) NOT NULL DEFAULT '',   -- describe the assessment
     -- TODO: Type needs to be removed
-    Type SMALLINT NOT NULL DEFAULT 0,               -- normal case, positive number is: 0 = DEBIT, 1 = CREDIT
+    -- Type SMALLINT NOT NULL DEFAULT 0,            -- normal case, positive number is: 0 = DEBIT, 1 = CREDIT
     LastModTime TIMESTAMP,                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,         -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (ASMTID)

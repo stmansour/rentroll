@@ -64,3 +64,9 @@ func InsertLedgerEntry(l *Ledger) (int64, error) {
 	}
 	return rid, err
 }
+
+// InsertAssessmentType writes a new journalmarker record to the database
+func InsertAssessmentType(a *AssessmentType) error {
+	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.Name, a.Description, a.LastModBy)
+	return err
+}

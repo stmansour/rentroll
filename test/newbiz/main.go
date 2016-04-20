@@ -23,13 +23,14 @@ import _ "github.com/go-sql-driver/mysql"
 
 // App is the global application structure
 var App struct {
-	dbdir   *sql.DB // phonebook db
-	dbrr    *sql.DB //rentroll db
-	DBDir   string  // phonebook database
-	DBRR    string  //rentroll database
-	DBUser  string  // user for all databases
-	Report  int64   // if testing engine, which report/action to perform
-	BizFile string  // name of csv file with new biz info
+	dbdir    *sql.DB // phonebook db
+	dbrr     *sql.DB //rentroll db
+	DBDir    string  // phonebook database
+	DBRR     string  //rentroll database
+	DBUser   string  // user for all databases
+	Report   int64   // if testing engine, which report/action to perform
+	BizFile  string  // name of csv file with new biz info
+	AsmtFile string  // name of csv file with assessment types
 }
 
 func readCommandLineArgs() {
@@ -37,7 +38,8 @@ func readCommandLineArgs() {
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	bizPtr := flag.String("b", "nb.csv", "add business via csv file")
+	bizPtr := flag.String("b", "", "add business via csv file")
+	asmtPtr := flag.String("a", "", "add assessment types via csv file")
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
@@ -47,6 +49,7 @@ func readCommandLineArgs() {
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.BizFile = *bizPtr
+	App.AsmtFile = *asmtPtr
 }
 
 func main() {
@@ -87,6 +90,11 @@ func main() {
 
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 
-	rlib.LoadBusinessCSV(App.BizFile)
+	if len(App.BizFile) > 0 {
+		rlib.LoadBusinessCSV(App.BizFile)
+	}
+	if len(App.AsmtFile) > 0 {
+		rlib.LoadAsessmentTypesCSV(App.AsmtFile)
+	}
 
 }

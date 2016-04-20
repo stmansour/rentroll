@@ -137,17 +137,25 @@ func GetUnitType(utid int64, ut *UnitType) {
 	Errcheck(RRdb.Prepstmt.GetUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
 }
 
+// GetAssessmentTypeByName returns the record for the assessment type with the supplied name. If no such record exists or a database error occurred,
+// the return structure will be empty
+func GetAssessmentTypeByName(name string) (AssessmentType, error) {
+	var t AssessmentType
+	err := RRdb.Prepstmt.GetUnitType.QueryRow(name).Scan(&t.ASMTID, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
+	return t, err
+}
+
 // GetAssessmentTypes returns a slice of assessment types indexed by the ASMTID
 func GetAssessmentTypes() map[int64]AssessmentType {
 	var t map[int64]AssessmentType
 	t = make(map[int64]AssessmentType, 0)
-	rows, err := RRdb.dbrr.Query("SELECT ASMTID,Name,Type,LastModTime,LastModBy FROM assessmenttypes")
+	rows, err := RRdb.dbrr.Query("SELECT ASMTID,Name,Description,LastModTime,LastModBy FROM assessmenttypes")
 	Errcheck(err)
 	defer rows.Close()
 
 	for rows.Next() {
 		var a AssessmentType
-		Errcheck(rows.Scan(&a.ASMTID, &a.Name, &a.Type, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.ASMTID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.ASMTID] = a
 	}
 	Errcheck(rows.Err())
