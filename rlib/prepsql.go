@@ -54,7 +54,10 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllBusinessUnitTypes, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,LastModTime,LastModBy FROM unittypes WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business where bid=?")
+	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")
+	/* Address,Address2,City,State,PostalCode,Country,Phone, */
+	Errcheck(err)
+	RRdb.Prepstmt.GetBusinessByDesignation, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE DES=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.dbrr.Prepare("SELECT USPID,BID,Name,Fee,Description FROM unitspecialtytypes WHERE BID=?")
 	Errcheck(err)
@@ -135,5 +138,14 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertLedger, err = RRdb.dbrr.Prepare("INSERT INTO ledger (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertLedgerMarker, err = RRdb.dbrr.Prepare("INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES(?,?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+
+	RRdb.Prepstmt.InsertBusiness, err = RRdb.dbrr.Prepare("INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
+	Errcheck(err)
+
+	//==========================================
+	// PHONEBOOK
+	//==========================================
+	RRdb.PBsql.GetCompanyByDesignation, err = RRdb.dbdir.Prepare("SELECT CoCode,LegalName,CommonName,Address,Address2,City,State,PostalCode,Country,Phone,Fax,Email,Designation,Active,EmploysPersonnel,LastModTime,LastModBy FROM companies WHERE Designation=?")
 	Errcheck(err)
 }

@@ -116,15 +116,16 @@ CREATE TABLE unittenants (
 
 CREATE TABLE business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
-    Address VARCHAR(35) NOT NULL DEFAULT '',
-    Address2 VARCHAR(35) NOT NULL DEFAULT '',
-    City VARCHAR(25) NOT NULL DEFAULT '',
-    State CHAR(25) NOT NULL DEFAULT '',
-    PostalCode VARCHAR(11) NOT NULL DEFAULT '',
-    Country VARCHAR(25) NOT NULL DEFAULT '',
-    Phone VARCHAR(25) NOT NULL DEFAULT '',
+    DES VARCHAR(10) NOT NULL DEFAULT '',    
+    -- Address VARCHAR(35) NOT NULL DEFAULT '',
+    -- Address2 VARCHAR(35) NOT NULL DEFAULT '',
+    -- City VARCHAR(25) NOT NULL DEFAULT '',
+    -- State CHAR(25) NOT NULL DEFAULT '',
+    -- PostalCode VARCHAR(11) NOT NULL DEFAULT '',
+    -- Country VARCHAR(25) NOT NULL DEFAULT '',
+    -- Phone VARCHAR(25) NOT NULL DEFAULT '',
     Name VARCHAR(50) NOT NULL DEFAULT '',
-    DefaultOccupancyType SMALLINT NOT NULL DEFAULT 0,       -- default for every unit in the building: 0=unset, 1=daily, 2=weekly, 3=monthly, 4=quarterly, 5=yearly
+    DefaultOccupancyType SMALLINT NOT NULL DEFAULT 0,       -- default for every unit in the building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
     ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,         -- yes/no  0 = no, 1 = yes
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 

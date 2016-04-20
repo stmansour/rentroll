@@ -26,6 +26,7 @@ const (
 func Ulog(format string, a ...interface{}) {
 	p := fmt.Sprintf(format, a...)
 	log.Print(p)
+	// debug.PrintStack()
 }
 
 // Errcheck - saves a bunch of typing, prints error if it exists
@@ -35,6 +36,13 @@ func Errcheck(err error) {
 		fmt.Printf("error = %v\n", err)
 		debug.PrintStack()
 		log.Fatal(err)
+	}
+}
+
+// Errlog - logs the error, but does not stop or quit
+func Errlog(err error) {
+	if err != nil {
+		Ulog("error = %v\n", err)
 	}
 }
 

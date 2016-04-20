@@ -2,6 +2,20 @@ package rlib
 
 import "fmt"
 
+// InsertBusiness writes a new Business record.
+// returns the new business ID and any associated error
+func InsertBusiness(b *Business) (int64, error) {
+	var bid = int64(0)
+	res, err := RRdb.Prepstmt.InsertBusiness.Exec(b.Designation, b.Name, b.DefaultOccupancyType, b.ParkingPermitInUse, b.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			bid = int64(id)
+		}
+	}
+	return bid, err
+}
+
 // InsertJournalEntry writes a new journal entry to the database
 func InsertJournalEntry(j *Journal) (int64, error) {
 	var rid = int64(0)

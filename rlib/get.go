@@ -298,8 +298,16 @@ func GetUnitMarketRate(xbiz *XBusiness, u *Unit, d1, d2 *time.Time) float64 {
 
 // GetBusiness loads the Business struct for the supplied business id
 func GetBusiness(bid int64, p *Business) {
-	Errcheck(RRdb.Prepstmt.GetPayor.QueryRow(bid).Scan(&p.BID, &p.Address, &p.Address2, &p.City,
-		&p.State, &p.PostalCode, &p.Country, &p.Phone, &p.Name, &p.DefaultOccupancyType, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetBusiness.QueryRow(bid).Scan(&p.BID, &p.Designation,
+		&p.Name, &p.DefaultOccupancyType, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+}
+
+// GetBusinessByDesignation loads the Business struct for the supplied designation
+func GetBusinessByDesignation(des string) (Business, error) {
+	var p Business
+	err := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des).Scan(&p.BID, &p.Designation,
+		&p.Name, &p.DefaultOccupancyType, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy)
+	return p, err
 }
 
 // GetXBusiness loads the XBusiness struct for the supplied business id.

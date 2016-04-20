@@ -167,8 +167,10 @@ INSERT INTO availabilitytypes (Name) VALUES
 
 
 -- define the business
-INSERT INTO business (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultOccupancyType,ParkingPermitInUse) VALUES
-	("Springfield Retirement Castle","2001 Creaking Oak Drive","","Springfield","MO","65803","USA","939-555-1000",3,0);
+-- INSERT INTO business (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultOccupancyType,ParkingPermitInUse) VALUES
+-- 	("Springfield Retirement Castle","2001 Creaking Oak Drive","","Springfield","MO","65803","USA","939-555-1000",3,0);
+INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse) VALUES
+	("SRC", "Springfield Retirement Castle",4,0);
 
 -- =======================================================================
 --  RENTABLE TYPES

@@ -1,4 +1,4 @@
-engine: test
+engine:
 	@echo "*** COMPLETED in test/engine ***"
 
 clean:

@@ -20,6 +20,14 @@ const (
 	DFLTSECDEPRCV  = 15
 	DFLTSECDEPASMT = 16
 
+	OCCTYPEUNSET     = 0
+	OCCTYPEHOURLY    = 1
+	OCCTYPEDAILY     = 2
+	OCCTYPEWEEKLY    = 3
+	OCCTYPEMONTHLY   = 4
+	OCCTYPEQUARTERLY = 5
+	OCCTYPEYEARLY    = 6
+
 	CREDIT = 0
 	DEBIT  = 1
 
@@ -217,13 +225,7 @@ type Assessment struct {
 // Business is the set of attributes describing a rental or hotel business
 type Business struct {
 	BID                  int64
-	Address              string
-	Address2             string
-	City                 string
-	State                string
-	PostalCode           string
-	Country              string
-	Phone                string
+	Designation          string // reference to designation in Phonebook db
 	Name                 string
 	DefaultOccupancyType int64     // may not be default for every unit in the building: 0=unset, 1=short term, 2=longterm
 	ParkingPermitInUse   int64     // yes/no  0 = no, 1 = yes
@@ -458,6 +460,7 @@ type RRprepSQL struct {
 	GetAllBusinessUnitTypes        *sql.Stmt
 	GetUnitMarketRates             *sql.Stmt
 	GetBusiness                    *sql.Stmt
+	GetBusinessByDesignation       *sql.Stmt
 	GetAllBusinessSpecialtyTypes   *sql.Stmt
 	GetAllAssessmentsByBusiness    *sql.Stmt
 	GetReceipt                     *sql.Stmt
@@ -494,6 +497,12 @@ type RRprepSQL struct {
 	GetLatestLedgerMarkerByGLNo    *sql.Stmt
 	GetLedgerMarkerByGLNoDateRange *sql.Stmt
 	// GetUnitRentalAgreements      *sql.Stmt
+	InsertBusiness *sql.Stmt
+}
+
+// PBprepSQL is the structure of prepared sql statements for the Phonebook db
+type PBprepSQL struct {
+	GetCompanyByDesignation *sql.Stmt
 }
 
 // BusinessTypes is a struct holding a collection of Types associated
@@ -507,6 +516,7 @@ type BusinessTypes struct {
 // RRdb is a struct with all variables needed by the db infrastructure
 var RRdb struct {
 	Prepstmt RRprepSQL
+	PBsql    PBprepSQL
 	dbdir    *sql.DB // phonebook db
 	dbrr     *sql.DB //rentroll db
 	BizTypes map[int64]*BusinessTypes
