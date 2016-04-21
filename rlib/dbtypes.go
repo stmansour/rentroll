@@ -443,8 +443,8 @@ type RRprepSQL struct {
 	InsertRentableType           *sql.Stmt
 	GetUnitType                  *sql.Stmt
 	GetUnitTypeByStyle           *sql.Stmt
-	InsertUnitType               *sql.Stmt
-	InsertUnitMarketRate         *sql.Stmt
+	// InsertUnitType               *sql.Stmt
+	InsertUnitMarketRate *sql.Stmt
 	// GetXType                       *sql.Stmt
 	GetUnitReceipts                *sql.Stmt
 	GetUnitAssessments             *sql.Stmt

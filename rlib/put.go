@@ -92,17 +92,17 @@ func InsertRentableType(a *RentableType) (int64, error) {
 	return rid, err
 }
 
-// InsertUnitType writes a new unittype record to the database
-func InsertUnitType(a *UnitType) (int64, error) {
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertUnitType.Exec(a.UTID, a.BID, a.Name, a.Frequency, a.Proration, a.Report, a.ManageToBudget, a.LastModBy)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(id)
-		}
-	} else {
-		Ulog("Error inserting UnitType:  %v\n", err)
-	}
-	return rid, err
-}
+// // InsertUnitType writes a new unittype record to the database
+// func InsertUnitType(a *UnitType) (int64, error) {
+// 	var rid = int64(0)
+// 	res, err := RRdb.Prepstmt.InsertUnitType.Exec(a.UTID, a.BID, a.Name, a.Frequency, a.Proration, a.Report, a.ManageToBudget, a.LastModBy)
+// 	if nil == err {
+// 		id, err := res.LastInsertId()
+// 		if err == nil {
+// 			rid = int64(id)
+// 		}
+// 	} else {
+// 		Ulog("Error inserting UnitType:  %v\n", err)
+// 	}
+// 	return rid, err
+// }
