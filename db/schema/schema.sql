@@ -138,6 +138,7 @@ CREATE TABLE business (
 CREATE TABLE rentabletypes (
     RTID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
+    Style CHAR(15) NOT NULL DEFAULT '',
     Name VARCHAR(256) NOT NULL DEFAULT '',
     Frequency BIGINT NOT NULL DEFAULT 0,                    -- price accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
@@ -168,7 +169,7 @@ CREATE TABLE unittypes (
     BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
     Style CHAR(15) NOT NULL DEFAULT '',
     Name VARCHAR(256) NOT NULL DEFAULT '',
-    SqFt MEDIUMINT NOT NULL DEFAULT 0,
+    -- SqFt MEDIUMINT NOT NULL DEFAULT 0,
     Frequency BIGINT NOT NULL DEFAULT 0,                    -- MarketRate accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
     Report SMALLINT NOT NULL DEFAULT 0,
@@ -178,12 +179,6 @@ CREATE TABLE unittypes (
     PRIMARY KEY (UTID)
 );
 
-CREATE TABLE unitmarketrate (
-    UTID BIGINT NOT NULL DEFAULT 0,                             -- associated rentable type
-    MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
-    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
-);
 
 -- ===========================================
 --   UNIT SPECIALTY TYPES

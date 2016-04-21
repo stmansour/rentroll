@@ -142,13 +142,13 @@ func GetRentableTypeByName(name string, bid int64) (RentableType, error) {
 
 // GetUnitType returns characteristics of the unit
 func GetUnitType(utid int64, ut *UnitType) {
-	Errcheck(RRdb.Prepstmt.GetUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.Frequency, &ut.Proration, &ut.Report, &ut.ManageToBudget, &ut.LastModTime, &ut.LastModBy))
 }
 
 // GetUnitTypeByStyle returns the unit type record for the supplied stylename and business
 func GetUnitTypeByStyle(style string, bid int64) (UnitType, error) {
 	var ut UnitType
-	err := RRdb.Prepstmt.GetUnitTypeByStyle.QueryRow(style, bid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.Frequency, &ut.Proration, &ut.Report, &ut.LastModTime, &ut.LastModBy)
+	err := RRdb.Prepstmt.GetUnitTypeByStyle.QueryRow(style, bid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.Frequency, &ut.Proration, &ut.Report, &ut.ManageToBudget, &ut.LastModTime, &ut.LastModBy)
 	return ut, err
 }
 
@@ -231,6 +231,48 @@ func GetRentableMarketRates(rt *RentableType) {
 	Errcheck(rows.Err())
 }
 
+// GetUnitMarketRates loads all the MarketRate rent information for this unit into an array
+func GetUnitMarketRates(rt *UnitType) {
+	var r RentableType
+	r.RTID = rt.UTID
+	GetRentableMarketRates(&r)
+	rt.BID = r.BID
+	rt.Frequency = r.Frequency
+	rt.LastModBy = r.LastModBy
+	rt.LastModTime = r.LastModTime
+	rt.MRCurrent = r.MRCurrent
+	rt.ManageToBudget = r.ManageToBudget
+	rt.Name = r.Name
+	rt.Proration = r.Proration
+	rt.Report = r.Report
+	rt.MR = r.MR
+
+	// for i := 0; i < len(r.MR); i++ {
+	// 	var umr UnitMarketRate
+	// 	umr.DtStart = r.MR[i].DtStart
+	// 	umr.DtStop = r.MR[i].DtStop
+	// 	umr.MarketRate = r.MR[i].MarketRate
+	// 	umr.UTID = r.MR[i].RTID
+	// 	rt.MR = append(rt.MR, umr)
+	// }
+
+	// // now get all the MarketRate rent info...
+	// rows, err := RRdb.Prepstmt.GetUnitMarketRates.Query(rt.UTID)
+	// Errcheck(err)
+	// defer rows.Close()
+	// LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
+	// for rows.Next() {
+	// 	var a UnitMarketRate
+	// 	Errcheck(rows.Scan(&a.UTID, &a.MarketRate, &a.DtStart, &a.DtStop))
+	// 	if a.DtStart.After(LatestMRDTStart) {
+	// 		LatestMRDTStart = a.DtStart
+	// 		rt.MRCurrent = a.MarketRate
+	// 	}
+	// 	rt.MR = append(rt.MR, a)
+	// }
+	// Errcheck(rows.Err())
+}
+
 // GetBusinessRentableTypes returns a slice of payment types indexed by the PMTID
 func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	var t map[int64]RentableType
@@ -240,7 +282,7 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Name, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
 		a.MR = make([]RentableMarketRate, 0)
 		GetRentableMarketRates(&a)
 		t[a.RTID] = a
@@ -269,25 +311,6 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 	return float64(0)
 }
 
-// GetUnitMarketRates loads all the MarketRate rent information for this unit into an array
-func GetUnitMarketRates(rt *UnitType) {
-	// now get all the MarketRate rent info...
-	rows, err := RRdb.Prepstmt.GetUnitMarketRates.Query(rt.UTID)
-	Errcheck(err)
-	defer rows.Close()
-	LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
-	for rows.Next() {
-		var a UnitMarketRate
-		Errcheck(rows.Scan(&a.UTID, &a.MarketRate, &a.DtStart, &a.DtStop))
-		if a.DtStart.After(LatestMRDTStart) {
-			LatestMRDTStart = a.DtStart
-			rt.MRCurrent = a.MarketRate
-		}
-		rt.MR = append(rt.MR, a)
-	}
-	Errcheck(rows.Err())
-}
-
 // GetBusinessUnitTypes returns a slice of payment types indexed by the PMTID
 func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
 	var t map[int64]UnitType
@@ -297,7 +320,7 @@ func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
 	defer rows.Close()
 	for rows.Next() {
 		var a UnitType
-		Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.SqFt, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
 		GetUnitMarketRates(&a)
 		t[a.UTID] = a
 	}
@@ -309,7 +332,8 @@ func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
 // returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
 func GetUnitMarketRate(xbiz *XBusiness, u *Unit, d1, d2 *time.Time) float64 {
-	mr := xbiz.UT[u.UTID].MR
+	mr := xbiz.RT[u.UTID].MR
+
 	for i := 0; i < len(mr); i++ {
 		if DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
 			// fmt.Printf("GetUnitMarketRate: returnning %f\n", mr[i].MarketRate)

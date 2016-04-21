@@ -303,6 +303,7 @@ type UnitSpecialtyType struct {
 type RentableType struct {
 	RTID           int64
 	BID            int64
+	Style          string
 	Name           string
 	Frequency      int64
 	Proration      int64
@@ -328,23 +329,14 @@ type UnitType struct {
 	BID            int64
 	Style          string
 	Name           string
-	SqFt           int64
 	Frequency      int64
 	Proration      int64
 	Report         int64 // does this type of unit show up in reporting
 	ManageToBudget int64
-	MR             []UnitMarketRate
+	MR             []RentableMarketRate
 	MRCurrent      float64 // the current market rate (historical values are in MR)
 	LastModTime    time.Time
 	LastModBy      int64
-}
-
-// UnitMarketRate describes the market rate rent for a unit type over a time period
-type UnitMarketRate struct {
-	UTID       int64
-	MarketRate float64
-	DtStart    time.Time
-	DtStop     time.Time
 }
 
 // XType combines RentableType and UnitType

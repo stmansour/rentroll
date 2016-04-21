@@ -77,17 +77,10 @@ func InsertRentableMarketRates(r *RentableMarketRate) error {
 	return err
 }
 
-// InsertUnitMarketRates writes a new marketrate record to the database
-func InsertUnitMarketRates(r *UnitMarketRate) error {
-	// intentionally using the wrong prepared sql statement as we will eliminate units
-	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.UTID, r.MarketRate, r.DtStart, r.DtStop)
-	return err
-}
-
 // InsertRentableType writes a new RentableType record to the database
 func InsertRentableType(a *RentableType) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.RTID, a.BID, a.Name, a.Frequency, a.Proration, a.Report, a.ManageToBudget, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.RTID, a.BID, a.Style, a.Name, a.Frequency, a.Proration, a.Report, a.ManageToBudget, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

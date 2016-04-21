@@ -95,11 +95,6 @@ func rpnFunctionResolve(ctx *rpnCtx, cmd, val string) float64 {
 func varResolve(ctx *rpnCtx, s string) float64 {
 	if s == "UMR" {
 		rpnLoadRentable(ctx) // make sure it's loaded
-		if ctx.xu.U.UNITID > 0 {
-			umr := rlib.GetUnitMarketRate(ctx.xbiz, &ctx.xu.U, ctx.d1, ctx.d2)
-			// fmt.Printf("umr = %f,  prorated = %f\n", umr, umr*ctx.pf)
-			return ctx.pf * umr
-		}
 		return ctx.pf * rlib.GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
 	}
 

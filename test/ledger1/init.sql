@@ -164,37 +164,38 @@ INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse) VALUES
 -- =======================================================================
 --  RENTABLE TYPES
 -- =======================================================================
-INSERT INTO rentabletypes (BID,Name,Frequency,Proration,Report,ManageToBudget) VALUES
-	(1,"Residential", 6,4,1,1),				-- 1  
-	(1,"Office",      6,4,1,1),				-- 2  
-	(1,"Industrial",  6,4,1,1),				-- 3  
-	(1,"Unimproved",  6,4,1,1),				-- 4  
-	(1,"Vehicle",     3,0,1,1), 			-- 5  Car
-	(1,"Carport",     6,4,1,1);		 		-- 6  Carport
+INSERT INTO rentabletypes (BID,Style, Name,Frequency,Proration,Report,ManageToBudget) VALUES
+	(1,"GM","Geezer Miser", 6,4,1,1),				-- 1  
+	(1,"FS","Flat Studio", 6,4,1,1),				-- 2  
+	(1,"SBL","SB Loft",    6,4,1,1),				-- 3  
+	(1,"KDS","KD Suite",   6,4,1,1),				-- 4  
+	(1,"CAR","Vehicle",     3,0,1,1), 			-- 5  Car
+	(1,"CPT","Carport",     6,4,1,1);		 		-- 6  Carport
 
 INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
-	(1,   0.0, "1970-01-01 00:00:00", "1970-01-01 00:00:00"),   -- 1 ignore
-	(2,   0.0, "1970-01-01 00:00:00", "1970-01-01 00:00:00"),	-- 2  ""
-	(3,   0.0, "1970-01-01 00:00:00", "1970-01-01 00:00:00"),	-- 3  ""
-	(4,   0.0, "1970-01-01 00:00:00", "1970-01-01 00:00:00"),	-- 4  ""
-	(5,  10.0, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),	-- 5  Car
-	(6,  35.0, "1970-01-01 00:00:00", "9999-12-31 00:00:00");	-- 6  Carport
-
--- =======================================================================
---  UNIT TYPES
--- =======================================================================
-INSERT INTO unittypes (BID,Style,Name,SqFt,Frequency,Proration) VALUES
-	(1,"GM","Geezer Miser",385,6,4),				-- 1  rented monthly, prorate daily
-	(1,"FS","Flat Studio", 726,6,4),				-- 2     "
-	(1,"SBL","SB Loft",    770,6,4),				-- 3     "
-	(1,"KDS","KD Suite",  1123,6,4);				-- 4     "
-
-INSERT INTO unitmarketrate (UTID,MarketRate,DtStart,DtStop) VALUES
 	(1, 1100.00, "1970-01-01 00:00:00", "2015-10-31 00:00:00"),   	-- 1:  GM, Geezer Miser 
 	(2, 1500.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 2:  FS, Flat Studio
 	(3, 1750.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 3: SBL, SB Loft
 	(4, 2000.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 4: KDS, Krusty Deluxe Suite
+	(5,   10.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 5  Car
+	(6,   35.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 6  Carport
 	(1, 1200.00, "2015-10-01 00:00:00", "9999-12-31 00:00:00");   	-- 1:  GM, Geezer Miser  ** RAISED THE RENT **
+
+-- =======================================================================
+--  UNIT TYPES
+-- =======================================================================
+INSERT INTO unittypes (BID,Style,Name,Frequency,Proration,Report,ManageToBudget) VALUES
+	(1,"GM","Geezer Miser",6,4,1,1),				-- 1  rented monthly, prorate daily
+	(1,"FS","Flat Studio", 6,4,1,1),				-- 2     "
+	(1,"SBL","SB Loft",    6,4,1,1),				-- 3     "
+	(1,"KDS","KD Suite",   6,4,1,1);				-- 4     "
+
+-- INSERT INTO unitmarketrate (UTID,MarketRate,DtStart,DtStop) VALUES
+-- 	(1, 1100.00, "1970-01-01 00:00:00", "2015-10-31 00:00:00"),   	-- 1:  GM, Geezer Miser 
+-- 	(2, 1500.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 2:  FS, Flat Studio
+-- 	(3, 1750.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 3: SBL, SB Loft
+-- 	(4, 2000.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 4: KDS, Krusty Deluxe Suite
+-- 	(1, 1200.00, "2015-10-01 00:00:00", "9999-12-31 00:00:00");   	-- 1:  GM, Geezer Miser  ** RAISED THE RENT **
 
 -- define unit specialties
 
