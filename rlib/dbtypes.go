@@ -446,6 +446,8 @@ type RRprepSQL struct {
 	GetUnitSpecialties             *sql.Stmt
 	GetUnitSpecialtyType           *sql.Stmt
 	GetRentableType                *sql.Stmt
+	GetRentableTypeByName          *sql.Stmt
+	InsertRentableType             *sql.Stmt
 	GetUnitType                    *sql.Stmt
 	GetXType                       *sql.Stmt
 	GetUnitReceipts                *sql.Stmt
@@ -457,6 +459,7 @@ type RRprepSQL struct {
 	GetAllRentablesByBusiness      *sql.Stmt
 	GetAllBusinessRentableTypes    *sql.Stmt
 	GetRentableMarketRates         *sql.Stmt
+	InsertRentableMarketRates      *sql.Stmt
 	GetAllBusinessUnitTypes        *sql.Stmt
 	GetUnitMarketRates             *sql.Stmt
 	GetBusiness                    *sql.Stmt

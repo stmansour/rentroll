@@ -29,8 +29,19 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetUnitSpecialtyType, err = RRdb.dbrr.Prepare("SELECT USPID,BID,Name,Fee,Description FROM unitspecialtytypes where USPID=?")
 	Errcheck(err)
+
+	//===============================
+	//  Rentable Type
+	//===============================
 	RRdb.Prepstmt.GetRentableType, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes where RTID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRentableTypeByName, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes where Name=? and BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertRentableType, err = RRdb.dbrr.Prepare("INSERT INTO rentabletypes (RTID,BID,Name,Frequency,Proration,Report,ManageToBudget,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+
 	RRdb.Prepstmt.GetUnitType, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,LastModTime,LastModBy FROM unittypes where UTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetUnitReceipts, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
@@ -59,8 +70,6 @@ func buildPreparedStatements() {
 	// Errcheck(err)
 	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,LID,RTID,BID,UNITID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE BID=?")
-	Errcheck(err)
 	RRdb.Prepstmt.GetAllBusinessUnitTypes, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,LastModTime,LastModBy FROM unittypes WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")
@@ -84,8 +93,15 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.dbrr.Prepare("SELECT JAID,JID,RID,Amount,ASMID,AcctRule from journalallocation WHERE JID=?")
 	Errcheck(err)
+
+	//===============================
+	//  RentableMarketRates
+	//===============================
 	RRdb.Prepstmt.GetRentableMarketRates, err = RRdb.dbrr.Prepare("SELECT RTID,MarketRate,DtStart,DtStop from rentablemarketrate WHERE RTID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.dbrr.Prepare("INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES(?,?,?,?)")
+	Errcheck(err)
+
 	RRdb.Prepstmt.GetUnitMarketRates, err = RRdb.dbrr.Prepare("SELECT UTID,MarketRate,DtStart,DtStop from unitmarketrate WHERE UTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, UNITID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments where ASMID=?")

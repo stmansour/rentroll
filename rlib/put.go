@@ -65,8 +65,29 @@ func InsertLedgerEntry(l *Ledger) (int64, error) {
 	return rid, err
 }
 
-// InsertAssessmentType writes a new journalmarker record to the database
+// InsertAssessmentType writes a new assessmenttype record to the database
 func InsertAssessmentType(a *AssessmentType) error {
 	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.Name, a.Description, a.LastModBy)
 	return err
+}
+
+// InsertRentableMarketRates writes a new marketrate record to the database
+func InsertRentableMarketRates(r *RentableMarketRate) error {
+	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.RTID, r.MarketRate, r.DtStart, r.DtStop)
+	return err
+}
+
+// InsertRentableType writes a new journalmarker record to the database
+func InsertRentableType(a *RentableType) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.RTID, a.BID, a.Name, a.Frequency, a.Proration, a.Report, a.ManageToBudget, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting RentableType:  %v\n", err)
+	}
+	return rid, err
 }

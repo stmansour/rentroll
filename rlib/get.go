@@ -132,6 +132,14 @@ func GetRentableType(rtid int64, rt *RentableType) {
 		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy))
 }
 
+// GetRentableTypeByName returns characteristics of the unit
+func GetRentableTypeByName(name string, bid int64) (RentableType, error) {
+	var rt RentableType
+	err := RRdb.Prepstmt.GetRentableTypeByName.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.Frequency,
+		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	return rt, err
+}
+
 // GetUnitType returns characteristics of the unit
 func GetUnitType(utid int64, ut *UnitType) {
 	Errcheck(RRdb.Prepstmt.GetUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))

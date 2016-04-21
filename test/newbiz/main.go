@@ -31,6 +31,7 @@ var App struct {
 	Report   int64   // if testing engine, which report/action to perform
 	BizFile  string  // name of csv file with new biz info
 	AsmtFile string  // name of csv file with assessment types
+	RTFile   string  // rentable types csv file
 }
 
 func readCommandLineArgs() {
@@ -38,8 +39,9 @@ func readCommandLineArgs() {
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	bizPtr := flag.String("b", "", "add business via csv file")
 	asmtPtr := flag.String("a", "", "add assessment types via csv file")
+	bizPtr := flag.String("b", "", "add business via csv file")
+	rtPtr := flag.String("R", "", "add rentable types via csv file")
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
@@ -50,6 +52,7 @@ func readCommandLineArgs() {
 	App.DBUser = *dbuPtr
 	App.BizFile = *bizPtr
 	App.AsmtFile = *asmtPtr
+	App.RTFile = *rtPtr
 }
 
 func main() {
@@ -95,6 +98,9 @@ func main() {
 	}
 	if len(App.AsmtFile) > 0 {
 		rlib.LoadAsessmentTypesCSV(App.AsmtFile)
+	}
+	if len(App.RTFile) > 0 {
+		rlib.LoadRentableTypesCSV(App.RTFile)
 	}
 
 }
