@@ -427,25 +427,22 @@ type LedgerMarker struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
-	GetRentalAgreementByBusiness *sql.Stmt
-	GetRentalAgreement           *sql.Stmt
-	GetUnit                      *sql.Stmt
-	GetLedger                    *sql.Stmt
-	GetTransactant               *sql.Stmt
-	GetTenant                    *sql.Stmt
-	GetRentable                  *sql.Stmt
-	GetProspect                  *sql.Stmt
-	GetPayor                     *sql.Stmt
-	GetUnitSpecialties           *sql.Stmt
-	GetUnitSpecialtyType         *sql.Stmt
-	GetRentableType              *sql.Stmt
-	GetRentableTypeByName        *sql.Stmt
-	InsertRentableType           *sql.Stmt
-	GetUnitType                  *sql.Stmt
-	GetUnitTypeByStyle           *sql.Stmt
-	// InsertUnitType               *sql.Stmt
-	InsertUnitMarketRate *sql.Stmt
-	// GetXType                       *sql.Stmt
+	GetRentalAgreementByBusiness   *sql.Stmt
+	GetRentalAgreement             *sql.Stmt
+	GetUnit                        *sql.Stmt
+	GetLedger                      *sql.Stmt
+	GetTransactant                 *sql.Stmt
+	GetTenant                      *sql.Stmt
+	GetRentable                    *sql.Stmt
+	GetProspect                    *sql.Stmt
+	GetPayor                       *sql.Stmt
+	GetUnitSpecialties             *sql.Stmt
+	GetUnitSpecialtyType           *sql.Stmt
+	GetRentableType                *sql.Stmt
+	GetRentableTypeByName          *sql.Stmt
+	InsertRentableType             *sql.Stmt
+	GetUnitType                    *sql.Stmt
+	GetUnitTypeByStyle             *sql.Stmt
 	GetUnitReceipts                *sql.Stmt
 	GetUnitAssessments             *sql.Stmt
 	GetAllRentableAssessments      *sql.Stmt
