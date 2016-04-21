@@ -145,11 +145,18 @@ func GetUnitType(utid int64, ut *UnitType) {
 	Errcheck(RRdb.Prepstmt.GetUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.Frequency, &ut.Proration, &ut.LastModTime, &ut.LastModBy))
 }
 
+// GetUnitTypeByStyle returns the unit type record for the supplied stylename and business
+func GetUnitTypeByStyle(style string, bid int64) (UnitType, error) {
+	var ut UnitType
+	err := RRdb.Prepstmt.GetUnitTypeByStyle.QueryRow(style, bid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.SqFt, &ut.Frequency, &ut.Proration, &ut.Report, &ut.LastModTime, &ut.LastModBy)
+	return ut, err
+}
+
 // GetAssessmentTypeByName returns the record for the assessment type with the supplied name. If no such record exists or a database error occurred,
 // the return structure will be empty
 func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 	var t AssessmentType
-	err := RRdb.Prepstmt.GetUnitType.QueryRow(name).Scan(&t.ASMTID, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
+	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
 	return t, err
 }
 
@@ -290,7 +297,7 @@ func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
 	defer rows.Close()
 	for rows.Next() {
 		var a UnitType
-		Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.SqFt, &a.Frequency, &a.Proration, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.SqFt, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
 		GetUnitMarketRates(&a)
 		t[a.UTID] = a
 	}

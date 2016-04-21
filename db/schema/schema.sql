@@ -169,9 +169,10 @@ CREATE TABLE unittypes (
     Style CHAR(15) NOT NULL DEFAULT '',
     Name VARCHAR(256) NOT NULL DEFAULT '',
     SqFt MEDIUMINT NOT NULL DEFAULT 0,
-    MarketRate Decimal(19,4) NOT NULL DEFAULT 0.0,          -- market rate for this unit
     Frequency BIGINT NOT NULL DEFAULT 0,                    -- MarketRate accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
+    Report SMALLINT NOT NULL DEFAULT 0,
+    ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of rentable to budget, 1 = manage to budget defined by MarketRate
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UTID)

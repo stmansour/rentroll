@@ -77,7 +77,14 @@ func InsertRentableMarketRates(r *RentableMarketRate) error {
 	return err
 }
 
-// InsertRentableType writes a new journalmarker record to the database
+// InsertUnitMarketRates writes a new marketrate record to the database
+func InsertUnitMarketRates(r *UnitMarketRate) error {
+	// intentionally using the wrong prepared sql statement as we will eliminate units
+	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.UTID, r.MarketRate, r.DtStart, r.DtStop)
+	return err
+}
+
+// InsertRentableType writes a new RentableType record to the database
 func InsertRentableType(a *RentableType) (int64, error) {
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.RTID, a.BID, a.Name, a.Frequency, a.Proration, a.Report, a.ManageToBudget, a.LastModBy)
@@ -88,6 +95,21 @@ func InsertRentableType(a *RentableType) (int64, error) {
 		}
 	} else {
 		Ulog("Error inserting RentableType:  %v\n", err)
+	}
+	return rid, err
+}
+
+// InsertUnitType writes a new unittype record to the database
+func InsertUnitType(a *UnitType) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertUnitType.Exec(a.UTID, a.BID, a.Name, a.Frequency, a.Proration, a.Report, a.ManageToBudget, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting UnitType:  %v\n", err)
 	}
 	return rid, err
 }

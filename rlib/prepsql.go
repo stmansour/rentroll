@@ -42,8 +42,18 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertRentableType, err = RRdb.dbrr.Prepare("INSERT INTO rentabletypes (RTID,BID,Name,Frequency,Proration,Report,ManageToBudget,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetUnitType, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,LastModTime,LastModBy FROM unittypes where UTID=?")
+	//===============================
+	//  Unit Type
+	//===============================
+	RRdb.Prepstmt.GetUnitType, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM unittypes where UTID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetUnitTypeByStyle, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM unittypes where Style=? and BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllBusinessUnitTypes, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM unittypes WHERE BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertUnitType, err = RRdb.dbrr.Prepare("INSERT INTO unittypes (BID,Style,Name,SqFt,Frequency,Proration,Report,ManageToBudget,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+
 	RRdb.Prepstmt.GetUnitReceipts, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceipt, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RCPTID=?")
@@ -69,8 +79,6 @@ func buildPreparedStatements() {
 	// RRdb.Prepstmt.GetUnitRentalAgreements, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where unitid=? and RentalStop > ? and RentalStart < ?")
 	// Errcheck(err)
 	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,LID,RTID,BID,UNITID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllBusinessUnitTypes, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,SqFt,Frequency,Proration,LastModTime,LastModBy FROM unittypes WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")
 	/* Address,Address2,City,State,PostalCode,Country,Phone, */

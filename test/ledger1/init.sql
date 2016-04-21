@@ -183,11 +183,11 @@ INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 -- =======================================================================
 --  UNIT TYPES
 -- =======================================================================
-INSERT INTO unittypes (BID,Style,Name,SqFt,MarketRate,Frequency,Proration) VALUES
-	(1,"GM","Geezer Miser",385,1100.0,6,4),				-- 1  rented monthly, prorate daily
-	(1,"FS","Flat Studio",726,1500.0,6,4),				-- 2     "
-	(1,"SBL","SB Loft",770,1750.0,6,4),					-- 3     "
-	(1,"KDS","KD Suite",1123,2000.0,6,4);				-- 4     "
+INSERT INTO unittypes (BID,Style,Name,SqFt,Frequency,Proration) VALUES
+	(1,"GM","Geezer Miser",385,6,4),				-- 1  rented monthly, prorate daily
+	(1,"FS","Flat Studio", 726,6,4),				-- 2     "
+	(1,"SBL","SB Loft",    770,6,4),				-- 3     "
+	(1,"KDS","KD Suite",  1123,6,4);				-- 4     "
 
 INSERT INTO unitmarketrate (UTID,MarketRate,DtStart,DtStop) VALUES
 	(1, 1100.00, "1970-01-01 00:00:00", "2015-10-31 00:00:00"),   	-- 1:  GM, Geezer Miser 

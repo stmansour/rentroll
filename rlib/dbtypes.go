@@ -306,7 +306,7 @@ type RentableType struct {
 	Name           string
 	Frequency      int64
 	Proration      int64
-	Report         int64
+	Report         int64 // does this type of rentable show up in reporting
 	ManageToBudget int64
 	MR             []RentableMarketRate
 	MRCurrent      float64 // the current market rate (historical values are in MR)
@@ -324,17 +324,19 @@ type RentableMarketRate struct {
 
 // UnitType is the set of attributes describing the different types of housing within a business
 type UnitType struct {
-	UTID        int64
-	BID         int64
-	Style       string
-	Name        string
-	SqFt        int64
-	Frequency   int64
-	Proration   int64
-	MR          []UnitMarketRate
-	MRCurrent   float64 // the current market rate (historical values are in MR)
-	LastModTime time.Time
-	LastModBy   int64
+	UTID           int64
+	BID            int64
+	Style          string
+	Name           string
+	SqFt           int64
+	Frequency      int64
+	Proration      int64
+	Report         int64 // does this type of unit show up in reporting
+	ManageToBudget int64
+	MR             []UnitMarketRate
+	MRCurrent      float64 // the current market rate (historical values are in MR)
+	LastModTime    time.Time
+	LastModBy      int64
 }
 
 // UnitMarketRate describes the market rate rent for a unit type over a time period
@@ -449,6 +451,9 @@ type RRprepSQL struct {
 	GetRentableTypeByName          *sql.Stmt
 	InsertRentableType             *sql.Stmt
 	GetUnitType                    *sql.Stmt
+	GetUnitTypeByStyle             *sql.Stmt
+	InsertUnitType                 *sql.Stmt
+	InsertUnitMarketRate           *sql.Stmt
 	GetXType                       *sql.Stmt
 	GetUnitReceipts                *sql.Stmt
 	GetUnitAssessments             *sql.Stmt
