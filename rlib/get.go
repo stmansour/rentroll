@@ -286,22 +286,22 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 	return float64(0)
 }
 
-// GetBusinessUnitTypes returns a slice of payment types indexed by the PMTID
-func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
-	var t map[int64]UnitType
-	t = make(map[int64]UnitType, 0)
-	rows, err := RRdb.Prepstmt.GetAllBusinessUnitTypes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var a UnitType
-		Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
-		GetUnitMarketRates(&a)
-		t[a.UTID] = a
-	}
-	Errcheck(rows.Err())
-	return t
-}
+// // GetBusinessUnitTypes returns a slice of payment types indexed by the PMTID
+// func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
+// 	var t map[int64]UnitType
+// 	t = make(map[int64]UnitType, 0)
+// 	rows, err := RRdb.Prepstmt.GetAllBusinessUnitTypes.Query(bid)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	for rows.Next() {
+// 		var a UnitType
+// 		Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+// 		GetUnitMarketRates(&a)
+// 		t[a.UTID] = a
+// 	}
+// 	Errcheck(rows.Err())
+// 	return t
+// }
 
 // GetUnitMarketRate returns the market-rate rent amount for u during the given time range. If the time range
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
@@ -514,14 +514,6 @@ func GetAssessment(asmid int64) (Assessment, error) {
 	}
 	return a, err
 }
-
-// // GetXType returns the RentalType structure and if it exists the UnitType structure is also returned
-// func GetXType(rtid, utid int64) XType {
-// 	var xt XType
-// 	GetRentableType(rtid, &xt.RT)
-// 	GetUnitType(utid, &xt.UT)
-// 	return xt
-// }
 
 // GetJournalMarkers loads the last n journal markers
 func GetJournalMarkers(n int64) []JournalMarker {

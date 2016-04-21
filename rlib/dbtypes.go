@@ -339,12 +339,6 @@ type UnitType struct {
 	LastModBy      int64
 }
 
-// // XType combines RentableType and UnitType
-// type XType struct {
-// 	RT RentableType
-// 	UT UnitType
-// }
-
 // XBusiness combines the Business struct and a map of the business's unit types
 type XBusiness struct {
 	P  Business
