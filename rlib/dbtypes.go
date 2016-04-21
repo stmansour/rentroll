@@ -339,17 +339,16 @@ type UnitType struct {
 	LastModBy      int64
 }
 
-// XType combines RentableType and UnitType
-type XType struct {
-	RT RentableType
-	UT UnitType
-}
+// // XType combines RentableType and UnitType
+// type XType struct {
+// 	RT RentableType
+// 	UT UnitType
+// }
 
 // XBusiness combines the Business struct and a map of the business's unit types
 type XBusiness struct {
 	P  Business
 	RT map[int64]RentableType      // what types of things are rented here
-	UT map[int64]UnitType          // info about the units
 	US map[int64]UnitSpecialtyType // index = USPID, val = UnitSpecialtyType
 }
 
@@ -428,25 +427,25 @@ type LedgerMarker struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
-	GetRentalAgreementByBusiness   *sql.Stmt
-	GetRentalAgreement             *sql.Stmt
-	GetUnit                        *sql.Stmt
-	GetLedger                      *sql.Stmt
-	GetTransactant                 *sql.Stmt
-	GetTenant                      *sql.Stmt
-	GetRentable                    *sql.Stmt
-	GetProspect                    *sql.Stmt
-	GetPayor                       *sql.Stmt
-	GetUnitSpecialties             *sql.Stmt
-	GetUnitSpecialtyType           *sql.Stmt
-	GetRentableType                *sql.Stmt
-	GetRentableTypeByName          *sql.Stmt
-	InsertRentableType             *sql.Stmt
-	GetUnitType                    *sql.Stmt
-	GetUnitTypeByStyle             *sql.Stmt
-	InsertUnitType                 *sql.Stmt
-	InsertUnitMarketRate           *sql.Stmt
-	GetXType                       *sql.Stmt
+	GetRentalAgreementByBusiness *sql.Stmt
+	GetRentalAgreement           *sql.Stmt
+	GetUnit                      *sql.Stmt
+	GetLedger                    *sql.Stmt
+	GetTransactant               *sql.Stmt
+	GetTenant                    *sql.Stmt
+	GetRentable                  *sql.Stmt
+	GetProspect                  *sql.Stmt
+	GetPayor                     *sql.Stmt
+	GetUnitSpecialties           *sql.Stmt
+	GetUnitSpecialtyType         *sql.Stmt
+	GetRentableType              *sql.Stmt
+	GetRentableTypeByName        *sql.Stmt
+	InsertRentableType           *sql.Stmt
+	GetUnitType                  *sql.Stmt
+	GetUnitTypeByStyle           *sql.Stmt
+	InsertUnitType               *sql.Stmt
+	InsertUnitMarketRate         *sql.Stmt
+	// GetXType                       *sql.Stmt
 	GetUnitReceipts                *sql.Stmt
 	GetUnitAssessments             *sql.Stmt
 	GetAllRentableAssessments      *sql.Stmt

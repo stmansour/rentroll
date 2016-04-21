@@ -190,13 +190,6 @@ INSERT INTO unittypes (BID,Style,Name,Frequency,Proration,Report,ManageToBudget)
 	(1,"SBL","SB Loft",    6,4,1,1),				-- 3     "
 	(1,"KDS","KD Suite",   6,4,1,1);				-- 4     "
 
--- INSERT INTO unitmarketrate (UTID,MarketRate,DtStart,DtStop) VALUES
--- 	(1, 1100.00, "1970-01-01 00:00:00", "2015-10-31 00:00:00"),   	-- 1:  GM, Geezer Miser 
--- 	(2, 1500.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 2:  FS, Flat Studio
--- 	(3, 1750.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 3: SBL, SB Loft
--- 	(4, 2000.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 4: KDS, Krusty Deluxe Suite
--- 	(1, 1200.00, "2015-10-01 00:00:00", "9999-12-31 00:00:00");   	-- 1:  GM, Geezer Miser  ** RAISED THE RENT **
-
 -- define unit specialties
 
 -- unitspecialtytype -> rentalspecialtytype

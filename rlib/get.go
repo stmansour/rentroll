@@ -246,31 +246,6 @@ func GetUnitMarketRates(rt *UnitType) {
 	rt.Proration = r.Proration
 	rt.Report = r.Report
 	rt.MR = r.MR
-
-	// for i := 0; i < len(r.MR); i++ {
-	// 	var umr UnitMarketRate
-	// 	umr.DtStart = r.MR[i].DtStart
-	// 	umr.DtStop = r.MR[i].DtStop
-	// 	umr.MarketRate = r.MR[i].MarketRate
-	// 	umr.UTID = r.MR[i].RTID
-	// 	rt.MR = append(rt.MR, umr)
-	// }
-
-	// // now get all the MarketRate rent info...
-	// rows, err := RRdb.Prepstmt.GetUnitMarketRates.Query(rt.UTID)
-	// Errcheck(err)
-	// defer rows.Close()
-	// LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
-	// for rows.Next() {
-	// 	var a UnitMarketRate
-	// 	Errcheck(rows.Scan(&a.UTID, &a.MarketRate, &a.DtStart, &a.DtStop))
-	// 	if a.DtStart.After(LatestMRDTStart) {
-	// 		LatestMRDTStart = a.DtStart
-	// 		rt.MRCurrent = a.MarketRate
-	// 	}
-	// 	rt.MR = append(rt.MR, a)
-	// }
-	// Errcheck(rows.Err())
 }
 
 // GetBusinessRentableTypes returns a slice of payment types indexed by the PMTID
@@ -363,7 +338,6 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 		GetBusiness(bid, &xbiz.P)
 	}
 	xbiz.RT = GetBusinessRentableTypes(bid)
-	xbiz.UT = GetBusinessUnitTypes(bid)
 	xbiz.US = make(map[int64]UnitSpecialtyType, 0)
 	rows, err := RRdb.Prepstmt.GetAllBusinessSpecialtyTypes.Query(bid)
 	Errcheck(err)
@@ -399,21 +373,10 @@ func GetDefaultLedgerMarkers(bid int64) LedgerMarker {
 	rows, err := RRdb.Prepstmt.GetDefaultLedgerMarkers.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
-
-	// fmt.Printf("GetDefaultLedgerMarkers: RRdb.BizTypes[%d].DefaultAccts = %#v\n", bid, RRdb.BizTypes[bid].DefaultAccts)
-	// if nil == RRdb.BizTypes[bid].DefaultAccts {
-	// 	RRdb.BizTypes[bid].DefaultAccts = make(map[int64]*LedgerMarker)
-	// 	// fmt.Printf("GetDefaultLedgerMarkers: Setting RRdb.BizTypes[%d].DefaultAccts, val = %#v\n", bid, RRdb.BizTypes[bid].DefaultAccts)
-	// }
-
 	for rows.Next() {
 		var r LedgerMarker
 		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
-
-		// fmt.Printf("GetDefaultLedgerMarkers just added: RRdb.BizTypes[%d].DefaultAccts[%d]\n", bid, r.Type)
-		// pr := RRdb.BizTypes[bid].DefaultAccts[r.Type]
-		// fmt.Printf("value = %#v\n", *pr)
 	}
 	return r
 }
@@ -552,13 +515,13 @@ func GetAssessment(asmid int64) (Assessment, error) {
 	return a, err
 }
 
-// GetXType returns the RentalType structure and if it exists the UnitType structure is also returned
-func GetXType(rtid, utid int64) XType {
-	var xt XType
-	GetRentableType(rtid, &xt.RT)
-	GetUnitType(utid, &xt.UT)
-	return xt
-}
+// // GetXType returns the RentalType structure and if it exists the UnitType structure is also returned
+// func GetXType(rtid, utid int64) XType {
+// 	var xt XType
+// 	GetRentableType(rtid, &xt.RT)
+// 	GetUnitType(utid, &xt.UT)
+// 	return xt
+// }
 
 // GetJournalMarkers loads the last n journal markers
 func GetJournalMarkers(n int64) []JournalMarker {
@@ -631,27 +594,6 @@ func GetLedgerMarkerInitList(bid int64) []LedgerMarker {
 	}
 	return t
 }
-
-// GetLedgerMarkers loads the last n Ledger markers for business BID
-// func GetLedgerMarkers(bid, n int64) []LedgerMarker {
-// 	rows, err := RRdb.Prepstmt.GetLedgerMarkerAcctList.Query(bid, n)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	var t []LedgerMarker
-// 	t = make([]LedgerMarker, 0)
-// 	for rows.Next() {
-// 		var r LedgerMarker
-// 		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
-// 		t = append(t, r)
-// 	}
-// 	return t
-// }
-
-// // GetLastLedgerMarker returns the last Ledger Marker or nil if no journal markers exist
-// func GetLastLedgerMarker(bid int64) LedgerMarker {
-// 	t := GetLedgerMarkers(bid, 1)
-// 	return t[0]
-// }
 
 // GetLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
 func GetLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {

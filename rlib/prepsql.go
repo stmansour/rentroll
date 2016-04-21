@@ -110,8 +110,6 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.dbrr.Prepare("INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
 
-	// RRdb.Prepstmt.GetUnitMarketRates, err = RRdb.dbrr.Prepare("SELECT UTID,MarketRate,DtStart,DtStop from unitmarketrate WHERE UTID=?")
-	// Errcheck(err)
 	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, UNITID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments where ASMID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalMarker, err = RRdb.dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from journalmarker where JMID=?")
