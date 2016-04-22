@@ -70,13 +70,6 @@ func GetRentable(rid int64) Rentable {
 	return r
 }
 
-// GetUnit reads a Unit structure based on the supplied unit id
-func GetUnit(uid int64, u *Unit) {
-	Errcheck(RRdb.Prepstmt.GetUnit.QueryRow(uid).Scan(
-		&u.UNITID, &u.BLDGID, &u.RTID, &u.RID, &u.AVAILID,
-		&u.LastModTime, &u.LastModBy))
-}
-
 // GetXRentable reads an XUnit structure based on the RID.
 func GetXRentable(rid int64, x *XUnit) {
 	if x.R.RID == 0 && rid > 0 {
@@ -161,24 +154,6 @@ func GetAssessmentTypes() map[int64]AssessmentType {
 	return t
 }
 
-// GetSecurityDepositAssessments returns all the security deposit assessments for the supplied unit
-func GetSecurityDepositAssessments(unitid int64) []Assessment {
-	var m []Assessment
-	rows, err := RRdb.Prepstmt.GetSecurityDepositAssessment.Query(unitid)
-	Errcheck(err)
-	defer rows.Close()
-
-	for rows.Next() {
-		var a Assessment
-		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID,
-			&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
-			&a.ProrationMethod, &a.AcctRule, &a.Comment))
-		m = append(m, a)
-	}
-	Errcheck(rows.Err())
-	return m
-}
-
 // GetPaymentTypes returns a slice of payment types indexed by the PMTID
 func GetPaymentTypes() map[int64]PaymentType {
 	var t map[int64]PaymentType
@@ -242,21 +217,6 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 	mr := xbiz.RT[r.RTID].MR
 	for i := 0; i < len(mr); i++ {
 		if DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
-			return mr[i].MarketRate
-		}
-	}
-	return float64(0)
-}
-
-// GetUnitMarketRate returns the market-rate rent amount for u during the given time range. If the time range
-// is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
-// returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
-func GetUnitMarketRate(xbiz *XBusiness, u *Unit, d1, d2 *time.Time) float64 {
-	mr := xbiz.RT[u.RTID].MR
-
-	for i := 0; i < len(mr); i++ {
-		if DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
-			// fmt.Printf("GetUnitMarketRate: returnning %f\n", mr[i].MarketRate)
 			return mr[i].MarketRate
 		}
 	}
@@ -350,7 +310,7 @@ func GetAgreementRentables(rid int64, d1, d2 *time.Time) []AgreementRentable {
 	var t []AgreementRentable
 	for rows.Next() {
 		var r AgreementRentable
-		Errcheck(rows.Scan(&r.RAID, &r.RID /*&r.UNITID,*/, &r.DtStart, &r.DtStop))
+		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t
@@ -377,7 +337,6 @@ func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
 	// fmt.Printf("Ledger = %s\n", s)
 	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID,
-		/*&r.RID, &r.UNITID, &r.PID, &r.LID, */
 		&r.PrimaryTenant, &r.RentalStart,
 		&r.RentalStop, &r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
 	if nil != err {

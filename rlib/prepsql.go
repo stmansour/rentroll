@@ -1,7 +1,5 @@
 package rlib
 
-import "fmt"
-
 func buildPreparedStatements() {
 	var err error
 	// Prepare("select deduction from deductions where uid=?")
@@ -12,8 +10,6 @@ func buildPreparedStatements() {
 	// Errcheck(err)
 
 	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetUnit, err = RRdb.dbrr.Prepare("SELECT UNITID,BLDGID,RTID,RID,AVAILID,LastModTime,LastModBy FROM unit where UNITID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetTransactant, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant WHERE TCID=?")
 	Errcheck(err)
@@ -68,10 +64,6 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertAssessmentType, err = RRdb.dbrr.Prepare("INSERT INTO assessmenttypes (Name,Description,LastModBy) VALUES(?,?,?)")
 	Errcheck(err)
 
-	s := fmt.Sprintf("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE (ASMTID=%d or ASMTID=%d) and UNITID=?", SECURITYDEPOSIT, SECURITYDEPOSITASSESSMENT)
-	RRdb.Prepstmt.GetSecurityDepositAssessment, err = RRdb.dbrr.Prepare(s)
-	Errcheck(err)
-	// RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,LID,RTID,BID,UNITID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE BID=?")
 	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,LID,RTID,BID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")

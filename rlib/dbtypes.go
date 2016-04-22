@@ -65,7 +65,6 @@ const RRDATEFMT = "01/02/06"
 //   PMTID = payment type id
 // AVAILID = availability id
 //  BLDGID = building id
-//  UNITID = unit id
 //    TCID = transactant id
 //     TID = tenant id
 //     PID = payor id
@@ -90,10 +89,6 @@ type RentalAgreement struct {
 	LastModBy         int64     // employee UID (from phonebook) that modified it
 	R                 []XUnit   // everything about the rentable
 	P                 []XPerson // everything about the payor
-	// RID               int64
-	// UNITID            int64
-	// PID               int64
-	// LID               int64
 }
 
 // AgreementRentable describes a rentable associated with a rental agreement
@@ -406,7 +401,6 @@ type LedgerMarker struct {
 type RRprepSQL struct {
 	GetRentalAgreementByBusiness   *sql.Stmt
 	GetRentalAgreement             *sql.Stmt
-	GetUnit                        *sql.Stmt
 	GetLedger                      *sql.Stmt
 	GetTransactant                 *sql.Stmt
 	GetTenant                      *sql.Stmt

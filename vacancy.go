@@ -42,7 +42,6 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 		if n != 0 {
 			pf = float64(m-n) / float64(m)
 		}
-		// fmt.Printf("Rentable %s (rid=%d, unitid=%d). Period = %d days, covered for %d days, vacant for %d days. MarketRate = %6.2f. prorated: %6.2f\n", r.Name, r.RID, r.UNITID, m, n, m-n, umr, umr*pf)
 		var j rlib.Journal
 		j.BID = xbiz.P.BID
 		j.Amount = rlib.RoundToCent(umr * pf)
@@ -77,7 +76,7 @@ func GenVacancyJournals(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	defer rows.Close()
 	for rows.Next() {
 		var r rlib.Rentable
-		rlib.Errcheck(rows.Scan(&r.RID, &r.LID, &r.RTID, &r.BID /*&r.UNITID,*/, &r.Name, &r.Assignment, &r.Report, &r.LastModTime, &r.LastModBy))
+		rlib.Errcheck(rows.Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.LastModTime, &r.LastModBy))
 		if xbiz.RT[r.RTID].ManageToBudget > 0 {
 			ProcessRentable(xbiz, d1, d2, &r)
 		}
