@@ -140,11 +140,6 @@ func GetRentableTypeByName(name string, bid int64) (RentableType, error) {
 	return rt, err
 }
 
-// GetUnitType returns characteristics of the unit
-func GetUnitType(utid int64, ut *UnitType) {
-	Errcheck(RRdb.Prepstmt.GetUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.Frequency, &ut.Proration, &ut.Report, &ut.ManageToBudget, &ut.LastModTime, &ut.LastModBy))
-}
-
 // GetAssessmentTypeByName returns the record for the assessment type with the supplied name. If no such record exists or a database error occurred,
 // the return structure will be empty
 func GetAssessmentTypeByName(name string) (AssessmentType, error) {

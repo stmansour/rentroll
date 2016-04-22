@@ -323,22 +323,6 @@ type RentableMarketRate struct {
 	DtStop     time.Time
 }
 
-// UnitType is the set of attributes describing the different types of housing within a business
-type UnitType struct {
-	UTID           int64
-	BID            int64
-	Style          string
-	Name           string
-	Frequency      int64
-	Proration      int64
-	Report         int64 // does this type of unit show up in reporting
-	ManageToBudget int64
-	MR             []RentableMarketRate
-	MRCurrent      float64 // the current market rate (historical values are in MR)
-	LastModTime    time.Time
-	LastModBy      int64
-}
-
 // XBusiness combines the Business struct and a map of the business's unit types
 type XBusiness struct {
 	P  Business
@@ -435,7 +419,6 @@ type RRprepSQL struct {
 	GetRentableType                *sql.Stmt
 	GetRentableTypeByName          *sql.Stmt
 	InsertRentableType             *sql.Stmt
-	GetUnitType                    *sql.Stmt
 	GetUnitReceipts                *sql.Stmt
 	GetUnitAssessments             *sql.Stmt
 	GetAllRentableAssessments      *sql.Stmt

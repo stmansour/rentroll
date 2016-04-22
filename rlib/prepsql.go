@@ -43,15 +43,16 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//===============================
-	//  Unit Type
+	//  Receipt
 	//===============================
-	RRdb.Prepstmt.GetUnitType, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM unittypes where UTID=?")
-	Errcheck(err)
-
 	RRdb.Prepstmt.GetUnitReceipts, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceipt, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RCPTID=?")
 	Errcheck(err)
+
+	//===============================
+	//  Assessments
+	//===============================
 	RRdb.Prepstmt.GetUnitAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE UNITID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
