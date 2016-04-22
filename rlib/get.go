@@ -224,23 +224,6 @@ func GetRentableMarketRates(rt *RentableType) {
 	Errcheck(rows.Err())
 }
 
-// GetUnitMarketRates loads all the MarketRate rent information for this unit into an array
-func GetUnitMarketRates(rt *UnitType) {
-	var r RentableType
-	r.RTID = rt.UTID
-	GetRentableMarketRates(&r)
-	rt.BID = r.BID
-	rt.Frequency = r.Frequency
-	rt.LastModBy = r.LastModBy
-	rt.LastModTime = r.LastModTime
-	rt.MRCurrent = r.MRCurrent
-	rt.ManageToBudget = r.ManageToBudget
-	rt.Name = r.Name
-	rt.Proration = r.Proration
-	rt.Report = r.Report
-	rt.MR = r.MR
-}
-
 // GetBusinessRentableTypes returns a slice of payment types indexed by the PMTID
 func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	var t map[int64]RentableType
