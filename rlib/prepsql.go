@@ -49,8 +49,6 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	RRdb.Prepstmt.GetUnitAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE UNITID=? and Stop >= ? and Start < ?")
-	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
 

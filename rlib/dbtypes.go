@@ -95,7 +95,6 @@ type RentalAgreement struct {
 type AgreementRentable struct {
 	RAID    int64     // associated rental agreement
 	RID     int64     // the rentable
-	UNITID  int64     // unit (if applicable, 0 otherwise)
 	DtStart time.Time // start date/time for this rentable
 	DtStop  time.Time // stop date/time
 }
@@ -202,7 +201,6 @@ type Assessment struct {
 	ASMID           int64
 	BID             int64
 	RID             int64
-	UNITID          int64
 	ASMTID          int64
 	RAID            int64
 	Amount          float64
@@ -263,7 +261,6 @@ type Rentable struct {
 	LID            int64     // the ledger
 	RTID           int64     // rentable type id
 	BID            int64     // business
-	UNITID         int64     // associated unit (if applicable, 0 otherwise)
 	Name           string    // name for this rental
 	Assignment     int64     // can we pre-assign or assign only at commencement
 	Report         int64     // 1 = apply to rentroll, 0 = skip

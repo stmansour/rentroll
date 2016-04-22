@@ -29,7 +29,6 @@
 --    RTID = rentable type id
 --    TCID = transactant id
 --     TID = tenant id
---  UNITID = unit id
 --   USPID = unit specialty id
 
 DROP DATABASE IF EXISTS rentroll;
@@ -259,7 +258,6 @@ CREATE TABLE rentable (
     LID BIGINT NOT NULL DEFAULT 0,                                 -- which ledger keeps track of what's owed on this rentable
     RTID BIGINT NOT NULL DEFAULT 0,                                -- what sort of a rentable is this?
     BID BIGINT NOT NULL DEFAULT 0,                                 -- Property associated with this rentable
-    UNITID BIGINT NOT NULL DEFAULT 0,                              -- unit (if applicable)
     Name VARCHAR(10) NOT NULL DEFAULT '',                          -- name unique to the instance "101" for a room number 744 carport number, etc 
     Assignment SMALLINT NOT NULL DEFAULT 0,                        -- Pre-assign or assign at occupy commencement
     Report SMALLINT NOT NULL DEFAULT 1,                            -- 1 = apply to rentroll, 0 = skip on rentroll
@@ -295,7 +293,6 @@ CREATE TABLE unit (
 -- ===========================================
 -- For each unit, what specialties does it have...
 -- this is simply a list of USPIDs.
--- Selecting all entries where the unit == UNITID
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE rentablespecialties (
     BID BIGINT NOT NULL DEFAULT 0,                         -- the business
@@ -314,7 +311,6 @@ CREATE TABLE assessments (
     ASMID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                             -- Business id
     RID BIGINT NOT NULL DEFAULT 0,                             -- rental id
-    UNITID BIGINT NOT NULL DEFAULT 0,                          -- unit associated with this assessment (could be "subid")
     ASMTID BIGINT NOT NULL DEFAULT 0,                          -- what type of assessment (ex: Rent, SecurityDeposit, ...)
     RAID BIGINT NOT NULL DEFAULT 0,                            -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
