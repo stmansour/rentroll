@@ -57,7 +57,7 @@ func rpnPush(ctx *rpnCtx, x float64) {
 func rpnLoadRentable(ctx *rpnCtx) {
 	// only load it if necessary
 	if 0 == ctx.xu.U.UNITID {
-		rlib.GetXUnit(ctx.rid, &ctx.xu)
+		rlib.GetXRentable(ctx.rid, &ctx.xu)
 	}
 }
 

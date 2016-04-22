@@ -84,7 +84,7 @@ func printDatedJournalEntryLJ(label string, d time.Time, ra string, rn string, g
 }
 
 //
-func printJournalHeader(xbiz *rlib.XBusiness, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
+func printJournalHeader(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	// fmt.Printf("         1         2         3         4         5         6         7         8\n")
 	// fmt.Printf("12345678901234567890123456789012345678901234567890123456789012345678901234567890\n")
 	printJReportDoubleLine()

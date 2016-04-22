@@ -77,15 +77,11 @@ func GetUnit(uid int64, u *Unit) {
 		&u.LastModTime, &u.LastModBy))
 }
 
-// GetXUnit reads an XUnit structure based on the RID.
-func GetXUnit(rid int64, x *XUnit) {
+// GetXRentable reads an XUnit structure based on the RID.
+func GetXRentable(rid int64, x *XUnit) {
 	if x.R.RID == 0 && rid > 0 {
 		GetRentableByID(rid, &x.R)
 	}
-	if x.U.UNITID == 0 && x.R.UNITID > 0 {
-		GetUnit(x.R.UNITID, &x.U)
-	}
-	// fmt.Printf("GetXUnit:  bid = %d,  unitid = %d\n", x.R.BID, x.U.UNITID)
 	x.S = GetUnitSpecialties(x.R.BID, x.U.UNITID)
 }
 
@@ -403,7 +399,7 @@ func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error)
 	r.R = make([]XUnit, 0)
 	for i := 0; i < len(t); i++ {
 		var xu XUnit
-		GetXUnit(t[i].RID, &xu)
+		GetXRentable(t[i].RID, &xu)
 		r.R = append(r.R, xu)
 	}
 

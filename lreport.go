@@ -101,7 +101,7 @@ func printLedgerDescrAndBal(s string, d time.Time, x float64) {
 }
 
 //
-func printLedgerHeader(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time /*, ra *RentalAgreement, x *XPerson, xu *XUnit*/) {
+func printLedgerHeader(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time) {
 	printTReportDoubleLine()
 	fmt.Printf("   Business:  %-13s\n", xbiz.P.Name)
 	printTSubtitle(lm.GLNumber + " - " + lm.Name)
