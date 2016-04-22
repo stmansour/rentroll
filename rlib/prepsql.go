@@ -15,7 +15,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetTenant, err = RRdb.dbrr.Prepare("SELECT TID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyAddressEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber FROM tenant where TID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT RID,LID,RTID,BID,UNITID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable where RID=?")
+	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT RID,LID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable where RID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetProspect, err = RRdb.dbrr.Prepare("SELECT PRSPID,TCID,ApplicationFee FROM prospect where PRSPID=?")
 	Errcheck(err)
@@ -49,9 +49,9 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	RRdb.Prepstmt.GetUnitAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE UNITID=? and Stop >= ? and Start < ?")
+	RRdb.Prepstmt.GetUnitAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE UNITID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,UNITID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
+	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
 
 	//===============================
@@ -95,7 +95,7 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.dbrr.Prepare("INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, UNITID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments where ASMID=?")
+	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments where ASMID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalMarker, err = RRdb.dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from journalmarker where JMID=?")
 	Errcheck(err)

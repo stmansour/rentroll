@@ -60,13 +60,13 @@ func GetXPersonByPID(pid int64) XPerson {
 
 // GetRentableByID reads a Rentable structure based on the supplied rentable id
 func GetRentableByID(rid int64, r *Rentable) {
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 }
 
 // GetRentable reads and returns a Rentable structure based on the supplied rentable id
 func GetRentable(rid int64) Rentable {
 	var r Rentable
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.UNITID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 	return r
 }
 
@@ -264,7 +264,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	t = make([]Assessment, 0)
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
-		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.UNITID, &a.ASMTID,
+		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID,
 			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod,
 			&a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		t = append(t, a)
@@ -411,7 +411,7 @@ func GetReceipt(rcptid int64) Receipt {
 func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
 	err := RRdb.Prepstmt.GetAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
-		&a.UNITID, &a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
+		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
 		&a.ProrationMethod, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
 		fmt.Printf("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
