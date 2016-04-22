@@ -299,7 +299,7 @@ CREATE TABLE unit (
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE rentablespecialties (
     BID BIGINT NOT NULL DEFAULT 0,                         -- the business
-    UNITID BIGINT NOT NULL DEFAULT 0,                      -- unique id of unit
+    RID BIGINT NOT NULL DEFAULT 0,                      -- unique id of unit
     USPID BIGINT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table rentablespecialties)
 );
 

@@ -21,7 +21,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetPayor, err = RRdb.dbrr.Prepare("SELECT PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerZipcode,Occupation,LastModTime,LastModBy FROM payor where PID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableSpecialties, err = RRdb.dbrr.Prepare("SELECT USPID FROM rentablespecialties where BID=? and UNITID=?")
+	RRdb.Prepstmt.GetRentableSpecialties, err = RRdb.dbrr.Prepare("SELECT USPID FROM rentablespecialties where BID=? and RID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableSpecialty, err = RRdb.dbrr.Prepare("SELECT USPID,BID,Name,Fee,Description FROM rentablespecialtytypes where USPID=?")
 	Errcheck(err)
