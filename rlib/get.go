@@ -101,21 +101,21 @@ func GetUnitSpecialties(bid, unitid int64) []int64 {
 	return m
 }
 
-// GetUnitSpecialtyType returns a list of specialties associated with the supplied unit
-func GetUnitSpecialtyType(uspid int64, ust *UnitSpecialtyType) {
-	Errcheck(RRdb.Prepstmt.GetUnitSpecialtyType.QueryRow(uspid).Scan(&ust.USPID, &ust.BID, &ust.Name, &ust.Fee, &ust.Description))
+// GetRentableSpecialty returns a list of specialties associated with the supplied unit
+func GetRentableSpecialty(uspid int64, ust *RentableSpecialty) {
+	Errcheck(RRdb.Prepstmt.GetRentableSpecialty.QueryRow(uspid).Scan(&ust.USPID, &ust.BID, &ust.Name, &ust.Fee, &ust.Description))
 }
 
-// getUnitSpecialtiesTypes returns a list of UnitSpecialtyType structs associated with the supplied business
-func getUnitSpecialtiesTypes(m *[]int64) map[int64]UnitSpecialtyType {
+// getUnitSpecialtiesTypes returns a list of RentableSpecialty structs associated with the supplied business
+func getUnitSpecialtiesTypes(m *[]int64) map[int64]RentableSpecialty {
 	// first, get the specialties for this unit
-	var t map[int64]UnitSpecialtyType
-	t = make(map[int64]UnitSpecialtyType, 0)
+	var t map[int64]RentableSpecialty
+	t = make(map[int64]RentableSpecialty, 0)
 
 	for i := 0; i < len(*m); i++ {
 		if _, ok := t[(*m)[i]]; !ok {
-			var u UnitSpecialtyType
-			GetUnitSpecialtyType((*m)[i], &u)
+			var u RentableSpecialty
+			GetRentableSpecialty((*m)[i], &u)
 			t[(*m)[i]] = u
 		}
 	}
@@ -288,12 +288,12 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 		GetBusiness(bid, &xbiz.P)
 	}
 	xbiz.RT = GetBusinessRentableTypes(bid)
-	xbiz.US = make(map[int64]UnitSpecialtyType, 0)
+	xbiz.US = make(map[int64]RentableSpecialty, 0)
 	rows, err := RRdb.Prepstmt.GetAllBusinessSpecialtyTypes.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var a UnitSpecialtyType
+		var a RentableSpecialty
 		Errcheck(rows.Scan(&a.USPID, &a.BID, &a.Name, &a.Fee, &a.Description))
 		xbiz.US[a.USPID] = a
 	}

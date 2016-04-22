@@ -184,11 +184,11 @@ INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 -- =======================================================================
 --  UNIT TYPES
 -- =======================================================================
-INSERT INTO unittypes (BID,Style,Name,Frequency,Proration,Report,ManageToBudget) VALUES
-	(1,"GM","Geezer Miser",6,4,1,1),				-- 1  rented monthly, prorate daily
-	(1,"FS","Flat Studio", 6,4,1,1),				-- 2     "
-	(1,"SBL","SB Loft",    6,4,1,1),				-- 3     "
-	(1,"KDS","KD Suite",   6,4,1,1);				-- 4     "
+-- INSERT INTO unittypes (BID,Style,Name,Frequency,Proration,Report,ManageToBudget) VALUES
+-- 	(1,"GM","Geezer Miser",6,4,1,1),				-- 1  rented monthly, prorate daily
+-- 	(1,"FS","Flat Studio", 6,4,1,1),				-- 2     "
+-- 	(1,"SBL","SB Loft",    6,4,1,1),				-- 3     "
+-- 	(1,"KDS","KD Suite",   6,4,1,1);				-- 4     "
 
 -- define unit specialties
 
@@ -263,7 +263,7 @@ INSERT INTO unit (RID,BLDGID,UTID) VALUES
 -- =======================================================================
 --  UNIT SPECIALTIES
 -- =======================================================================
-INSERT INTO unitspecialties (BID,UNITID,USPID) VALUES
+INSERT INTO rentablespecialties (BID,UNITID,USPID) VALUES
 	(1,1,1),
 	(1,1,4),
 	(1,2,2),

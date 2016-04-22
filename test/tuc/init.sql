@@ -328,7 +328,7 @@ INSERT INTO unit (BLDGID,UTID,RID,DefaultOccType,OccType) VALUES
 	 ( 1,4,128,2,2);
 
 -- Define unit specialties...
-INSERT INTO unitspecialties (UNITID,USPID) VALUES
+INSERT INTO rentablespecialties (UNITID,USPID) VALUES
 	(1,1),
 	(1,2),
 	(2,1),

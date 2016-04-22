@@ -157,20 +157,20 @@ CREATE TABLE rentablemarketrate (
 --  it does not make sense to try to share them across properties.
 --  Offset=Debit=positive
 --  Assessment=Credit=negative
-CREATE TABLE unittypes (
-    UTID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
-    Style CHAR(15) NOT NULL DEFAULT '',
-    Name VARCHAR(256) NOT NULL DEFAULT '',
-    -- SqFt MEDIUMINT NOT NULL DEFAULT 0,
-    Frequency BIGINT NOT NULL DEFAULT 0,                    -- MarketRate accrual frequency
-    Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
-    Report SMALLINT NOT NULL DEFAULT 0,
-    ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of rentable to budget, 1 = manage to budget defined by MarketRate
-    LastModTime TIMESTAMP,                                  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (UTID)
-);
+-- CREATE TABLE unittypes (
+--     UTID BIGINT NOT NULL AUTO_INCREMENT,
+--     BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
+--     Style CHAR(15) NOT NULL DEFAULT '',
+--     Name VARCHAR(256) NOT NULL DEFAULT '',
+--     -- SqFt MEDIUMINT NOT NULL DEFAULT 0,
+--     Frequency BIGINT NOT NULL DEFAULT 0,                    -- MarketRate accrual frequency
+--     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
+--     Report SMALLINT NOT NULL DEFAULT 0,
+--     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of rentable to budget, 1 = manage to budget defined by MarketRate
+--     LastModTime TIMESTAMP,                                  -- when was this record last written
+--     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+--     PRIMARY KEY (UTID)
+-- );
 
 
 -- ===========================================
@@ -319,16 +319,16 @@ CREATE TABLE unit (
 );
 
 -- ===========================================
---   UNIT SPECIALTIES
+--   RENTABLE SPECIALTIES
 -- ===========================================
 -- For each unit, what specialties does it have...
 -- this is simply a list of USPIDs.
 -- Selecting all entries where the unit == UNITID
 -- will be the list of all the unit specialties for that unit.
-CREATE TABLE unitspecialties (
+CREATE TABLE rentablespecialties (
     BID BIGINT NOT NULL DEFAULT 0,                         -- the business
     UNITID BIGINT NOT NULL DEFAULT 0,                      -- unique id of unit
-    USPID BIGINT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table unitspecialties)
+    USPID BIGINT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table rentablespecialties)
 );
 
 

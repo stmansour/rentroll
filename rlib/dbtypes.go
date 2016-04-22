@@ -290,8 +290,8 @@ type Unit struct {
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 }
 
-// UnitSpecialtyType is the structure for attributes of a unit specialty
-type UnitSpecialtyType struct {
+// RentableSpecialty is the structure for attributes of a unit specialty
+type RentableSpecialty struct {
 	USPID       int64
 	BID         int64
 	Name        string
@@ -327,7 +327,7 @@ type RentableMarketRate struct {
 type XBusiness struct {
 	P  Business
 	RT map[int64]RentableType      // what types of things are rented here
-	US map[int64]UnitSpecialtyType // index = USPID, val = UnitSpecialtyType
+	US map[int64]RentableSpecialty // index = USPID, val = RentableSpecialty
 }
 
 // XUnit is the structure that includes both the Rentable and Unit attributes
@@ -415,7 +415,7 @@ type RRprepSQL struct {
 	GetProspect                    *sql.Stmt
 	GetPayor                       *sql.Stmt
 	GetUnitSpecialties             *sql.Stmt
-	GetUnitSpecialtyType           *sql.Stmt
+	GetRentableSpecialty           *sql.Stmt
 	GetRentableType                *sql.Stmt
 	GetRentableTypeByName          *sql.Stmt
 	InsertRentableType             *sql.Stmt
