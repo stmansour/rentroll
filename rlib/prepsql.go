@@ -47,10 +47,6 @@ func buildPreparedStatements() {
 	//===============================
 	RRdb.Prepstmt.GetUnitType, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM unittypes where UTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetUnitTypeByStyle, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM unittypes where Style=? and BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllBusinessUnitTypes, err = RRdb.dbrr.Prepare("SELECT UTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM unittypes WHERE BID=?")
-	Errcheck(err)
 
 	RRdb.Prepstmt.GetUnitReceipts, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
 	Errcheck(err)

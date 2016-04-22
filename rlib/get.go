@@ -145,13 +145,6 @@ func GetUnitType(utid int64, ut *UnitType) {
 	Errcheck(RRdb.Prepstmt.GetUnitType.QueryRow(utid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.Frequency, &ut.Proration, &ut.Report, &ut.ManageToBudget, &ut.LastModTime, &ut.LastModBy))
 }
 
-// GetUnitTypeByStyle returns the unit type record for the supplied stylename and business
-func GetUnitTypeByStyle(style string, bid int64) (UnitType, error) {
-	var ut UnitType
-	err := RRdb.Prepstmt.GetUnitTypeByStyle.QueryRow(style, bid).Scan(&ut.UTID, &ut.BID, &ut.Style, &ut.Name, &ut.Frequency, &ut.Proration, &ut.Report, &ut.ManageToBudget, &ut.LastModTime, &ut.LastModBy)
-	return ut, err
-}
-
 // GetAssessmentTypeByName returns the record for the assessment type with the supplied name. If no such record exists or a database error occurred,
 // the return structure will be empty
 func GetAssessmentTypeByName(name string) (AssessmentType, error) {
@@ -285,23 +278,6 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 	}
 	return float64(0)
 }
-
-// // GetBusinessUnitTypes returns a slice of payment types indexed by the PMTID
-// func GetBusinessUnitTypes(bid int64) map[int64]UnitType {
-// 	var t map[int64]UnitType
-// 	t = make(map[int64]UnitType, 0)
-// 	rows, err := RRdb.Prepstmt.GetAllBusinessUnitTypes.Query(bid)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var a UnitType
-// 		Errcheck(rows.Scan(&a.UTID, &a.BID, &a.Style, &a.Name, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
-// 		GetUnitMarketRates(&a)
-// 		t[a.UTID] = a
-// 	}
-// 	Errcheck(rows.Err())
-// 	return t
-// }
 
 // GetUnitMarketRate returns the market-rate rent amount for u during the given time range. If the time range
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
