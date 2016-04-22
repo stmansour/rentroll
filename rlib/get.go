@@ -70,8 +70,8 @@ func GetRentable(rid int64) Rentable {
 	return r
 }
 
-// GetXRentable reads an XUnit structure based on the RID.
-func GetXRentable(rid int64, x *XUnit) {
+// GetXRentable reads an XRentable structure based on the RID.
+func GetXRentable(rid int64, x *XRentable) {
 	if x.R.RID == 0 && rid > 0 {
 		GetRentableByID(rid, &x.R)
 	}
@@ -350,9 +350,9 @@ func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
 	r, err := GetRentalAgreement(raid)
 	t := GetAgreementRentables(raid, d1, d2)
-	r.R = make([]XUnit, 0)
+	r.R = make([]XRentable, 0)
 	for i := 0; i < len(t); i++ {
-		var xu XUnit
+		var xu XRentable
 		GetXRentable(t[i].RID, &xu)
 		r.R = append(r.R, xu)
 	}

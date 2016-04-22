@@ -12,7 +12,7 @@ import (
 type rpnCtx struct {
 	xbiz   *rlib.XBusiness // the biz associated with this assessment/payment
 	m      *[]acctRule     // READ-ONLY access to the rule array being created
-	xu     rlib.XUnit      // the rentable associated with this rule, loaded only if needed
+	xu     rlib.XRentable  // the rentable associated with this rule, loaded only if needed
 	rid    int64           // rentable id
 	d1     *time.Time      // start of time range
 	d2     *time.Time      // end of time range

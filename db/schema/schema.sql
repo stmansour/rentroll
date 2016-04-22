@@ -76,7 +76,6 @@ CREATE TABLE rentalagreement (
 CREATE TABLE agreementrentables (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
     RID BIGINT NOT NULL DEFAULT 0,                            -- rentable id
-    UNITID BIGINT NOT NULL DEFAULT 0,                         -- associated unit (0 if not applicable)
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this rentable was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this rentable was no longer being billed to this agreement
 );

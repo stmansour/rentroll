@@ -77,18 +77,18 @@ const RRDATEFMT = "01/02/06"
 
 // RentalAgreement binds one or more payors to one or more rentables
 type RentalAgreement struct {
-	RAID              int64     // internal unique id
-	RATID             int64     // reference to Occupancy Master Agreement
-	BID               int64     // business (so that we can process by business)
-	PrimaryTenant     int64     // Tenant ID of primary tenant
-	RentalStart       time.Time // start date for rental
-	RentalStop        time.Time // stop date for rental
-	Renewal           int64     // month to month automatic renewal, lease extension options, none.
-	SpecialProvisions string    // free-form text
-	LastModTime       time.Time //	-- when was this record last written
-	LastModBy         int64     // employee UID (from phonebook) that modified it
-	R                 []XUnit   // everything about the rentable
-	P                 []XPerson // everything about the payor
+	RAID              int64       // internal unique id
+	RATID             int64       // reference to Occupancy Master Agreement
+	BID               int64       // business (so that we can process by business)
+	PrimaryTenant     int64       // Tenant ID of primary tenant
+	RentalStart       time.Time   // start date for rental
+	RentalStop        time.Time   // stop date for rental
+	Renewal           int64       // month to month automatic renewal, lease extension options, none.
+	SpecialProvisions string      // free-form text
+	LastModTime       time.Time   //	-- when was this record last written
+	LastModBy         int64       // employee UID (from phonebook) that modified it
+	R                 []XRentable // everything about the rentable
+	P                 []XPerson   // everything about the payor
 }
 
 // AgreementRentable describes a rentable associated with a rental agreement
@@ -321,10 +321,10 @@ type XBusiness struct {
 	US map[int64]RentableSpecialty // index = USPID, val = RentableSpecialty
 }
 
-// XUnit is the structure that includes both the Rentable and Unit attributes
-type XUnit struct {
-	R       Rentable  // the rentable
-	U       Unit      // unit (if applicable)
+// XRentable is the structure that includes both the Rentable and Unit attributes
+type XRentable struct {
+	R Rentable // the rentable
+	//U       Unit      // unit (if applicable)
 	S       []int64   // list of specialties associated with the rentable
 	DtStart time.Time // Start date/time for this rentable (associated with the Rental Agreement, but may have different dates)
 	DtStop  time.Time // Stop time for this rentable
