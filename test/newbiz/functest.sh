@@ -32,7 +32,7 @@ fi
 
 cat >xxqq <<EOF
 use rentroll;
-select RTID,BID,Name,Frequency,Proration,Report,ManageToBudget,LastModBy from rentabletypes;
+select RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModBy from rentabletypes;
 EOF
 mysql --no-defaults <xxqq >z
 UDIFFS=$(diff z z.gold | wc -l)

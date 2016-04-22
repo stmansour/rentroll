@@ -7,8 +7,16 @@ import (
 )
 
 // CreateRentableType reads an Rentable type string array and creates a database record for the Rentable type
+//  [0]        [1]      [2]   			[3]       [4]       [5]    [6]            [7]
+// Designation,Style,	Name, 			Frequency,Proration,Report,ManageToBudget,MarketRate
+// REH,        "GM",	"Geezer Miser", 6,		  4,	 	1,		1,			  1100.00
+// REH,        "FS",	"Flat Studio",  6,		  4,	 	1,		1,			  1500.00
+// REH,        "SBL",	"SB Loft",     	6,		  4,	 	1,		1,			  1750.00
+// REH,        "KDS",	"KD Suite",    	6,		  4,	 	1,		1,			  2000.00
+// REH,        "VEH",	Vehicle,       	3,		  0,	 	1,		1,			  10.0
+// REH,        "CPT",	Carport,       	6,		  4,	 	1,		1,			  35.0
 func CreateRentableType(sa []string) {
-	if 7 != len(sa) {
+	if 8 != len(sa) {
 		Ulog("CreateRentableType: csv file line \"%s\" does not have 7 elements. Ignored.\n", sa)
 		return
 	}
@@ -31,43 +39,44 @@ func CreateRentableType(sa []string) {
 	//-------------------------------------------------------------------
 	var a RentableType
 	a.BID = b.BID
-	a.Name = strings.TrimSpace(sa[1])
+	a.Style = strings.TrimSpace(sa[1])
 
 	if len(a.Name) > 0 {
-		rt, _ := GetRentableTypeByName(a.Name, b.BID)
+		rt, _ := GetRentableTypeByName(a.Style, b.BID)
 		if rt.RTID > 0 {
-			Ulog("CreateRentableType: RentableType named %s already exists\n", a.Name)
+			Ulog("CreateRentableType: RentableType named %s already exists\n", a.Style)
 			return
 		}
 	}
+	a.Name = strings.TrimSpace(sa[2])
 
 	//-------------------------------------------------------------------
 	// Load the values based on csv input
 	//-------------------------------------------------------------------
-	n, err := strconv.Atoi(sa[2]) // frequency
+	n, err := strconv.Atoi(strings.TrimSpace(sa[3])) // frequency
 	if err != nil || n < OCCTYPEUNSET || n > OCCTYPEYEARLY {
-		Ulog("CreateRentableType: Invalid rental frequency: %s\n", sa[2])
+		Ulog("CreateRentableType: Invalid rental frequency: %s\n", sa[3])
 		return
 	}
 	a.Frequency = int64(n)
 
-	n, err = strconv.Atoi(sa[3]) // Proration
+	n, err = strconv.Atoi(strings.TrimSpace(sa[4])) // Proration
 	if err != nil || n < OCCTYPEUNSET || n > OCCTYPEYEARLY {
-		Ulog("CreateRentableType: Invalid rental proration frequency: %s\n", sa[3])
+		Ulog("CreateRentableType: Invalid rental proration frequency: %s\n", sa[4])
 		return
 	}
 	a.Proration = int64(n)
 
-	n, err = strconv.Atoi(sa[4]) // report
+	n, err = strconv.Atoi(strings.TrimSpace(sa[5])) // report
 	if err != nil || n < 0 || n > 1 {
-		Ulog("CreateRentableType: Invalid report flag: %s\n", sa[4])
+		Ulog("CreateRentableType: Invalid report flag: %s\n", sa[5])
 		return
 	}
 	a.Report = int64(n)
 
-	n, err = strconv.Atoi(sa[5]) // manage to budget
+	n, err = strconv.Atoi(strings.TrimSpace(sa[6])) // manage to budget
 	if err != nil || n < 0 || n > 1 {
-		Ulog("CreateRentableType: Invalid manage to budget flag: %s\n", sa[5])
+		Ulog("CreateRentableType: Invalid manage to budget flag: %s\n", sa[6])
 		return
 	}
 	a.ManageToBudget = int64(n)
@@ -80,8 +89,8 @@ func CreateRentableType(sa []string) {
 		m.RTID = rtid
 		m.DtStart = time.Now()
 		m.DtStop = time.Date(9999, 12, 31, 0, 0, 0, 0, time.UTC)
-		if x, err = strconv.ParseFloat(sa[6], 64); err != nil {
-			Ulog("CreateRentableType: Invalid floating point number: %s\n", sa[6])
+		if x, err = strconv.ParseFloat(strings.TrimSpace(sa[7]), 64); err != nil {
+			Ulog("CreateRentableType: Invalid floating point number: %s\n", sa[7])
 			return
 		}
 		m.MarketRate = x
