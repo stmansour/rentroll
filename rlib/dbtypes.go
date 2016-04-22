@@ -59,7 +59,6 @@ const RRDATEFMT = "01/02/06"
 
 //==========================================
 //    BID = business id
-//    UTID = unit type id
 //   USPID = unit specialty id
 //   OFSID = offset id
 //  ASMTID = assessment type id
@@ -283,7 +282,7 @@ type Rentable struct {
 type Unit struct {
 	UNITID      int64     // unique id for this unit -- it is unique across all properties and buildings
 	BLDGID      int64     // which building
-	UTID        int64     // which unit type
+	RTID        int64     // which rentable type
 	RID         int64     // which ledger keeps track of what's owed on this unit
 	AVAILID     int64     // how is the unit made available
 	LastModTime time.Time //	-- when was this record last written

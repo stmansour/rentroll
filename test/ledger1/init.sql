@@ -215,12 +215,12 @@ INSERT INTO rentalagreementtemplate (ReferenceNumber, RentalAgreementType) VALUE
 -- =======================================================================
 INSERT INTO rentable (LID,RTID,BID,UNITID,Name,Assignment) VALUES
 	(1,1,1,  1,"101",1),  -- unit 1
-  	(2,1,1,  2,"102",1),
-  	(3,1,1,  3,"103",1),
-  	(4,1,1,  4,"104",1),
+  	(2,2,1,  2,"102",1),
+  	(3,3,1,  3,"103",1),
+  	(4,4,1,  4,"104",1),
   	(5,1,1,  5,"105",1),
-  	(6,1,1,  6,"106",1),
-  	(7,1,1,  7,"107",1);
+  	(6,2,1,  6,"106",1),
+  	(7,3,1,  7,"107",1);
 
 -- =======================================================================
 --  carports
@@ -243,7 +243,7 @@ INSERT INTO rentable (LID,RTID,BID,UNITID,Name,Assignment,DefaultOccType,OccType
 --  UNITS
 -- =======================================================================
 --     OccType == occupancy type -- 0 = unset, 1 = leasehold, 2 = month-to-month, 3 = hotel, 4 = hourly rental
-INSERT INTO unit (RID,BLDGID,UTID) VALUES
+INSERT INTO unit (RID,BLDGID,RTID) VALUES
 	 (1,1,1),
 	 (2,1,2),
 	 (3,1,3),

@@ -30,7 +30,6 @@
 --    TCID = transactant id
 --     TID = tenant id
 --  UNITID = unit id
---    UTID = unit type id
 --   USPID = unit specialty id
 
 DROP DATABASE IF EXISTS rentroll;
@@ -65,10 +64,6 @@ CREATE TABLE rentalagreement (
     RAID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
     RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                            -- business (so that we can process by business)
-    -- RID BIGINT NOT NULL DEFAULT 0,                            -- rentable id
-    -- UNITID BIGINT NOT NULL DEFAULT 0,                         -- associated unit
-    -- PID BIGINT NOT NULL DEFAULT 0,                            -- who is the payor for this agreement
-    -- LID BIGINT NOT NULL DEFAULT 0,                         -- Ledger for this rental agreement
     PrimaryTenant BIGINT NOT NULL DEFAULT 0,                  -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
@@ -287,7 +282,7 @@ CREATE TABLE unit (
     UNITID BIGINT NOT NULL AUTO_INCREMENT,              -- unique id for this unit -- it is unique across all properties and buildings
     RID BIGINT NOT NULL DEFAULT 0,                      -- associated rentable
     BLDGID BIGINT NOT NULL DEFAULT 0,                   -- which building
-    UTID BIGINT NOT NULL DEFAULT 0,                     -- which unit type
+    RTID BIGINT NOT NULL DEFAULT 0,                     -- which rentable type
     AVAILID BIGINT NOT NULL DEFAULT 0,                  -- how is the unit made available
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 

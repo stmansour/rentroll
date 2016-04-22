@@ -73,7 +73,7 @@ func GetRentable(rid int64) Rentable {
 // GetUnit reads a Unit structure based on the supplied unit id
 func GetUnit(uid int64, u *Unit) {
 	Errcheck(RRdb.Prepstmt.GetUnit.QueryRow(uid).Scan(
-		&u.UNITID, &u.BLDGID, &u.UTID, &u.RID, &u.AVAILID,
+		&u.UNITID, &u.BLDGID, &u.RTID, &u.RID, &u.AVAILID,
 		&u.LastModTime, &u.LastModBy))
 }
 
@@ -238,11 +238,6 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
 // returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
 func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) float64 {
-	if r.UNITID > 0 {
-		var u Unit
-		GetUnit(r.UNITID, &u)
-		return GetUnitMarketRate(xbiz, &u, d1, d2)
-	}
 	// fmt.Printf("Get Market Rate for RTID = %d\n", r.RTID)
 	mr := xbiz.RT[r.RTID].MR
 	for i := 0; i < len(mr); i++ {
@@ -257,7 +252,7 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
 // returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
 func GetUnitMarketRate(xbiz *XBusiness, u *Unit, d1, d2 *time.Time) float64 {
-	mr := xbiz.RT[u.UTID].MR
+	mr := xbiz.RT[u.RTID].MR
 
 	for i := 0; i < len(mr); i++ {
 		if DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
@@ -340,7 +335,7 @@ func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []AgreementRentable 
 	var t []AgreementRentable
 	for rows.Next() {
 		var r AgreementRentable
-		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.UNITID, &r.DtStart, &r.DtStop))
+		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t
@@ -355,7 +350,7 @@ func GetAgreementRentables(rid int64, d1, d2 *time.Time) []AgreementRentable {
 	var t []AgreementRentable
 	for rows.Next() {
 		var r AgreementRentable
-		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.UNITID, &r.DtStart, &r.DtStop))
+		Errcheck(rows.Scan(&r.RAID, &r.RID /*&r.UNITID,*/, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t
