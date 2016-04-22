@@ -414,7 +414,7 @@ type RRprepSQL struct {
 	GetRentable                    *sql.Stmt
 	GetProspect                    *sql.Stmt
 	GetPayor                       *sql.Stmt
-	GetUnitSpecialties             *sql.Stmt
+	GetRentableSpecialties         *sql.Stmt
 	GetRentableSpecialty           *sql.Stmt
 	GetRentableType                *sql.Stmt
 	GetRentableTypeByName          *sql.Stmt

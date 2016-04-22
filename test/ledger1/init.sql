@@ -166,10 +166,10 @@ INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse) VALUES
 -- =======================================================================
 INSERT INTO rentabletypes (BID,Style, Name,Frequency,Proration,Report,ManageToBudget) VALUES
 	(1,"GM","Geezer Miser", 6,4,1,1),				-- 1  
-	(1,"FS","Flat Studio", 6,4,1,1),				-- 2  
-	(1,"SBL","SB Loft",    6,4,1,1),				-- 3  
-	(1,"KDS","KD Suite",   6,4,1,1),				-- 4  
-	(1,"CAR","Vehicle",     3,0,1,1), 			-- 5  Car
+	(1,"FS","Flat Studio",  6,4,1,1),				-- 2  
+	(1,"SBL","SB Loft",     6,4,1,1),				-- 3  
+	(1,"KDS","KD Suite",    6,4,1,1),				-- 4  
+	(1,"CAR","Vehicle",     3,0,1,1), 				-- 5  Car
 	(1,"CPT","Carport",     6,4,1,1);		 		-- 6  Carport
 
 INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
@@ -181,19 +181,11 @@ INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 	(6,   35.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 6  Carport
 	(1, 1200.00, "2015-10-01 00:00:00", "9999-12-31 00:00:00");   	-- 1:  GM, Geezer Miser  ** RAISED THE RENT **
 
--- =======================================================================
---  UNIT TYPES
--- =======================================================================
--- INSERT INTO unittypes (BID,Style,Name,Frequency,Proration,Report,ManageToBudget) VALUES
--- 	(1,"GM","Geezer Miser",6,4,1,1),				-- 1  rented monthly, prorate daily
--- 	(1,"FS","Flat Studio", 6,4,1,1),				-- 2     "
--- 	(1,"SBL","SB Loft",    6,4,1,1),				-- 3     "
--- 	(1,"KDS","KD Suite",   6,4,1,1);				-- 4     "
 
 -- define unit specialties
 
--- unitspecialtytype -> rentalspecialtytype
-INSERT INTO unitspecialtytypes (BID,Name,Fee,Description) VALUES
+-- rentablespecialtytype
+INSERT INTO rentablespecialtytypes (BID,Name,Fee,Description) VALUES
 	(1,"Lake View",50.0,"Overlooks the lake"),						-- assmt 59
 	(1,"Courtyard View",50.0,"Rear windows view the courtyard"),	-- assmt 60
 	(1,"Top Floor",100.0,"Penthouse"),								-- assmt 61
@@ -222,7 +214,7 @@ INSERT INTO rentalagreementtemplate (ReferenceNumber, RentalAgreementType) VALUE
 --  RENTABLE UNITS
 -- =======================================================================
 INSERT INTO rentable (LID,RTID,BID,UNITID,Name,Assignment) VALUES
-	(1,1,1,  1,"101",1),  -- monthly rent for unit 1, recurs on the first of the month
+	(1,1,1,  1,"101",1),  -- unit 1
   	(2,1,1,  2,"102",1),
   	(3,1,1,  3,"103",1),
   	(4,1,1,  4,"104",1),

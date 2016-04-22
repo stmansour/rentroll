@@ -149,39 +149,16 @@ CREATE TABLE rentablemarketrate (
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'    -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
 );
 
--- ===========================================
---   UNIT TYPES 
--- ===========================================
---  unit types are associated with a particular business
---  There is no "global" unit type since they are all different enough where
---  it does not make sense to try to share them across properties.
---  Offset=Debit=positive
---  Assessment=Credit=negative
--- CREATE TABLE unittypes (
---     UTID BIGINT NOT NULL AUTO_INCREMENT,
---     BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
---     Style CHAR(15) NOT NULL DEFAULT '',
---     Name VARCHAR(256) NOT NULL DEFAULT '',
---     -- SqFt MEDIUMINT NOT NULL DEFAULT 0,
---     Frequency BIGINT NOT NULL DEFAULT 0,                    -- MarketRate accrual frequency
---     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
---     Report SMALLINT NOT NULL DEFAULT 0,
---     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of rentable to budget, 1 = manage to budget defined by MarketRate
---     LastModTime TIMESTAMP,                                  -- when was this record last written
---     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
---     PRIMARY KEY (UTID)
--- );
-
 
 -- ===========================================
---   UNIT SPECIALTY TYPES
+--   RENTABLE SPECIALTY TYPES
 -- ===========================================
 -- a collection of unit specialties that are available.
 -- different units may be more or less desirable based upon special characteristics
 -- of the unit, such as Lake View, Courtyard View, Washer Dryer Connections, 
 -- Washer Dryer provided, close to parking, better views, fireplaces, special 
 -- remodeling or finishes, etc.  This is where those special characteristics are defined
-CREATE TABLE unitspecialtytypes (
+CREATE TABLE rentablespecialtytypes (
     USPID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL,
     Name VARCHAR(25) NOT NULL DEFAULT '',
