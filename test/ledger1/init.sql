@@ -255,7 +255,7 @@ INSERT INTO unit (RID,BLDGID,RTID) VALUES
 -- =======================================================================
 --  UNIT SPECIALTIES
 -- =======================================================================
-INSERT INTO rentablespecialties (BID,RID,USPID) VALUES
+INSERT INTO rentablespecialties (BID,RID,RSPID) VALUES
 	(1,1,1),
 	(1,1,4),
 	(1,2,2),

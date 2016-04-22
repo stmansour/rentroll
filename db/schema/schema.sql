@@ -29,7 +29,7 @@
 --    RTID = rentable type id
 --    TCID = transactant id
 --     TID = tenant id
---   USPID = unit specialty id
+--   RSPID = unit specialty id
 
 DROP DATABASE IF EXISTS rentroll;
 CREATE DATABASE rentroll;
@@ -152,12 +152,12 @@ CREATE TABLE rentablemarketrate (
 -- Washer Dryer provided, close to parking, better views, fireplaces, special 
 -- remodeling or finishes, etc.  This is where those special characteristics are defined
 CREATE TABLE rentablespecialtytypes (
-    USPID BIGINT NOT NULL AUTO_INCREMENT,
+    RSPID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL,
     Name VARCHAR(25) NOT NULL DEFAULT '',
     Fee DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Description VARCHAR(256) NOT NULL DEFAULT '',
-    PRIMARY KEY (USPID)
+    PRIMARY KEY (RSPID)
 );
 
 -- **************************************
@@ -291,12 +291,12 @@ CREATE TABLE unit (
 --   RENTABLE SPECIALTIES
 -- ===========================================
 -- For each unit, what specialties does it have...
--- this is simply a list of USPIDs.
+-- this is simply a list of RSPIDs.
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE rentablespecialties (
     BID BIGINT NOT NULL DEFAULT 0,                         -- the business
     RID BIGINT NOT NULL DEFAULT 0,                      -- unique id of unit
-    USPID BIGINT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table rentablespecialties)
+    RSPID BIGINT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table rentablespecialties)
 );
 
 

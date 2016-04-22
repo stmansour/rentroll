@@ -38,7 +38,7 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 	//--------------------------------------------------------------------------------------
 	if n == 0 || n != m {
 		pf := float64(1)
-		umr := rlib.GetRentableMarketRate(xbiz, r, d1, d2) // this call does the right thing whether or not the rentable is a unit
+		umr := rlib.GetRentableMarketRate(xbiz, r, d1, d2)
 		if n != 0 {
 			pf = float64(m-n) / float64(m)
 		}

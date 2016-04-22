@@ -59,7 +59,7 @@ const RRDATEFMT = "01/02/06"
 
 //==========================================
 //    BID = business id
-//   USPID = unit specialty id
+//   RSPID = rentable specialty id
 //   OFSID = offset id
 //  ASMTID = assessment type id
 //   PMTID = payment type id
@@ -219,7 +219,7 @@ type Business struct {
 	BID                  int64
 	Designation          string // reference to designation in Phonebook db
 	Name                 string
-	DefaultOccupancyType int64     // may not be default for every unit in the building: 0=unset, 1=short term, 2=longterm
+	DefaultOccupancyType int64     // may not be default for every rentable: 0=unset, 1=short term, 2=longterm
 	ParkingPermitInUse   int64     // yes/no  0 = no, 1 = yes
 	LastModTime          time.Time // when was this record last written
 	LastModBy            int64     // employee UID (from phonebook) that modified it
@@ -270,20 +270,9 @@ type Rentable struct {
 	LastModBy      int64     // who made the update (Phonebook UID)
 }
 
-// Unit is the structure for unit attributes
-type Unit struct {
-	UNITID      int64     // unique id for this unit -- it is unique across all properties and buildings
-	BLDGID      int64     // which building
-	RTID        int64     // which rentable type
-	RID         int64     // which ledger keeps track of what's owed on this unit
-	AVAILID     int64     // how is the unit made available
-	LastModTime time.Time //	-- when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
-}
-
-// RentableSpecialty is the structure for attributes of a unit specialty
+// RentableSpecialty is the structure for attributes of a rentable specialty
 type RentableSpecialty struct {
-	USPID       int64
+	RSPID       int64
 	BID         int64
 	Name        string
 	Fee         float64
@@ -314,17 +303,16 @@ type RentableMarketRate struct {
 	DtStop     time.Time
 }
 
-// XBusiness combines the Business struct and a map of the business's unit types
+// XBusiness combines the Business struct and a map of the business's rentable types
 type XBusiness struct {
 	P  Business
 	RT map[int64]RentableType      // what types of things are rented here
-	US map[int64]RentableSpecialty // index = USPID, val = RentableSpecialty
+	US map[int64]RentableSpecialty // index = RSPID, val = RentableSpecialty
 }
 
 // XRentable is the structure that includes both the Rentable and Unit attributes
 type XRentable struct {
-	R Rentable // the rentable
-	//U       Unit      // unit (if applicable)
+	R       Rentable  // the rentable
 	S       []int64   // list of specialties associated with the rentable
 	DtStart time.Time // Start date/time for this rentable (associated with the Rental Agreement, but may have different dates)
 	DtStop  time.Time // Stop time for this rentable
