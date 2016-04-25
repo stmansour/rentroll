@@ -32,6 +32,7 @@ var App struct {
 	BizFile  string  // name of csv file with new biz info
 	AsmtFile string  // name of csv file with assessment types
 	RTFile   string  // rentable types csv file
+	RSpFile  string  // rentable specialties
 }
 
 func readCommandLineArgs() {
@@ -42,6 +43,7 @@ func readCommandLineArgs() {
 	asmtPtr := flag.String("a", "", "add assessment types via csv file")
 	bizPtr := flag.String("b", "", "add business via csv file")
 	rtPtr := flag.String("R", "", "add rentable types via csv file")
+	rspPtr := flag.String("s", "", "add rentable specialties via csv file")
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
@@ -53,6 +55,7 @@ func readCommandLineArgs() {
 	App.BizFile = *bizPtr
 	App.AsmtFile = *asmtPtr
 	App.RTFile = *rtPtr
+	App.RSpFile = *rspPtr
 }
 
 func main() {
@@ -97,10 +100,13 @@ func main() {
 		rlib.LoadBusinessCSV(App.BizFile)
 	}
 	if len(App.AsmtFile) > 0 {
-		rlib.LoadAsessmentTypesCSV(App.AsmtFile)
+		rlib.LoadAssessmentTypesCSV(App.AsmtFile)
 	}
 	if len(App.RTFile) > 0 {
 		rlib.LoadRentableTypesCSV(App.RTFile)
+	}
+	if len(App.RSpFile) > 0 {
+		rlib.LoadRentalSpecialtiesCSV(App.RSpFile)
 	}
 
 }

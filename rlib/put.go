@@ -71,6 +71,12 @@ func InsertAssessmentType(a *AssessmentType) error {
 	return err
 }
 
+// InsertRentableSpecialty writes a new RentableSpecialtyType record to the database
+func InsertRentableSpecialty(a *RentableSpecialty) error {
+	_, err := RRdb.Prepstmt.InsertRentableSpecialtyType.Exec(a.RSPID, a.BID, a.Name, a.Fee, a.Description)
+	return err
+}
+
 // InsertRentableMarketRates writes a new marketrate record to the database
 func InsertRentableMarketRates(r *RentableMarketRate) error {
 	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.RTID, r.MarketRate, r.DtStart, r.DtStop)

@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -94,26 +95,34 @@ func GetRentableSpecialties(bid, rid int64) []int64 {
 	return m
 }
 
-// GetRentableSpecialty returns a list of specialties associated with the supplied rentable
-func GetRentableSpecialty(uspid int64, ust *RentableSpecialty) {
-	Errcheck(RRdb.Prepstmt.GetRentableSpecialty.QueryRow(uspid).Scan(&ust.RSPID, &ust.BID, &ust.Name, &ust.Fee, &ust.Description))
-}
-
-// GetRentableSpecialtiesTypes returns a list of RentableSpecialty structs associated with the supplied business
-func GetRentableSpecialtiesTypes(m *[]int64) map[int64]RentableSpecialty {
-	// first, get the specialties for this rentable
-	var t map[int64]RentableSpecialty
-	t = make(map[int64]RentableSpecialty, 0)
-
-	for i := 0; i < len(*m); i++ {
-		if _, ok := t[(*m)[i]]; !ok {
-			var u RentableSpecialty
-			GetRentableSpecialty((*m)[i], &u)
-			t[(*m)[i]] = u
+// GetSpecialtyByName returns a list of specialties associated with the supplied rentable
+func GetSpecialtyByName(bid int64, name string) RentableSpecialty {
+	var rsp RentableSpecialty
+	err := RRdb.Prepstmt.GetSpecialtyByName.QueryRow(bid, name).Scan(&rsp.RSPID, &rsp.BID, &rsp.Name, &rsp.Fee, &rsp.Description)
+	if err != nil {
+		s := err.Error()
+		if !strings.Contains(s, "no rows") {
+			fmt.Printf("GetSpecialtyByName: err = %v\n", err)
 		}
 	}
-	return t
+	return rsp
 }
+
+// // GetRentableSpecialtiesTypes returns a list of RentableSpecialty structs associated with the supplied business
+// func GetRentableSpecialtiesTypes(m *[]int64) map[int64]RentableSpecialty {
+// 	// first, get the specialties for this rentable
+// 	var t map[int64]RentableSpecialty
+// 	t = make(map[int64]RentableSpecialty, 0)
+
+// 	for i := 0; i < len(*m); i++ {
+// 		if _, ok := t[(*m)[i]]; !ok {
+// 			var u RentableSpecialty
+// 			GetRentableSpecialty((*m)[i], &u)
+// 			t[(*m)[i]] = u
+// 		}
+// 	}
+// 	return t
+// }
 
 // GetRentableType returns characteristics of the rentable
 func GetRentableType(rtid int64, rt *RentableType) {
@@ -121,10 +130,10 @@ func GetRentableType(rtid int64, rt *RentableType) {
 		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy))
 }
 
-// GetRentableTypeByName returns characteristics of the rentable
-func GetRentableTypeByName(name string, bid int64) (RentableType, error) {
+// GetRentableTypeByStyle returns characteristics of the rentable
+func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByName.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.Frequency,
+	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.Frequency,
 		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	return rt, err
 }

@@ -21,6 +21,14 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetPayor, err = RRdb.dbrr.Prepare("SELECT PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerZipcode,Occupation,LastModTime,LastModBy FROM payor where PID=?")
 	Errcheck(err)
+
+	//===============================
+	//  RentableSpecialty
+	//===============================
+	RRdb.Prepstmt.InsertRentableSpecialtyType, err = RRdb.dbrr.Prepare("INSERT INTO rentablespecialtytypes (RSPID,BID,Name,Fee,Description) VALUES(?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetSpecialtyByName, err = RRdb.dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM rentablespecialtytypes where BID=? and Name=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetRentableSpecialties, err = RRdb.dbrr.Prepare("SELECT RSPID FROM rentablespecialties where BID=? and RID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableSpecialty, err = RRdb.dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM rentablespecialtytypes where RSPID=?")
@@ -31,7 +39,7 @@ func buildPreparedStatements() {
 	//===============================
 	RRdb.Prepstmt.GetRentableType, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes where RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableTypeByName, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes where Name=? and BID=?")
+	RRdb.Prepstmt.GetRentableTypeByStyle, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes where Style=? and BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE BID=?")
 	Errcheck(err)

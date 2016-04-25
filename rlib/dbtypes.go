@@ -392,10 +392,8 @@ type RRprepSQL struct {
 	GetRentable                    *sql.Stmt
 	GetProspect                    *sql.Stmt
 	GetPayor                       *sql.Stmt
-	GetRentableSpecialties         *sql.Stmt
-	GetRentableSpecialty           *sql.Stmt
 	GetRentableType                *sql.Stmt
-	GetRentableTypeByName          *sql.Stmt
+	GetRentableTypeByStyle         *sql.Stmt
 	InsertRentableType             *sql.Stmt
 	GetUnitReceipts                *sql.Stmt
 	GetUnitAssessments             *sql.Stmt
@@ -447,6 +445,10 @@ type RRprepSQL struct {
 	InsertBusiness                 *sql.Stmt
 	InsertAssessmentType           *sql.Stmt
 	GetAssessmentTypeByName        *sql.Stmt
+	GetSpecialtyByName             *sql.Stmt
+	InsertRentableSpecialtyType    *sql.Stmt
+	GetRentableSpecialties         *sql.Stmt
+	GetRentableSpecialty           *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

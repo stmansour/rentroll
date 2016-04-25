@@ -26,8 +26,8 @@ func CreateAssessmentType(sa []string) {
 	Errlog(InsertAssessmentType(&a))
 }
 
-// LoadAsessmentTypesCSV loads a csv file with assessment types and processes each one
-func LoadAsessmentTypesCSV(fname string) {
+// LoadAssessmentTypesCSV loads a csv file with assessment types and processes each one
+func LoadAssessmentTypesCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateAssessmentType(t[i])

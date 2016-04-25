@@ -6,6 +6,18 @@ import (
 	"time"
 )
 
+func getBusinessBID(des string) int64 {
+	//-------------------------------------------------------------------
+	// Make sure the business exists...
+	//-------------------------------------------------------------------
+	b, err := GetBusinessByDesignation(des)
+	if err != nil || b.BID == 0 {
+		Ulog("getBusinessBID: Business with designation %s does not exist or could not be loaded\n", des)
+		return 0
+	}
+	return b.BID
+}
+
 // CreateRentableType reads an Rentable type string array and creates a database record for the Rentable type
 //  [0]        [1]      [2]   			[3]       [4]       [5]    [6]            [7]
 // Designation,Style,	Name, 			Frequency,Proration,Report,ManageToBudget,MarketRate
@@ -26,28 +38,24 @@ func CreateRentableType(sa []string) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the business exists...
-	//-------------------------------------------------------------------
-	b, err := GetBusinessByDesignation(des)
-	if err != nil || b.BID == 0 {
-		Ulog("CreateRentableType: Business with designation %s does not exist or could not be loaded\n", des)
-		return
-	}
-
-	//-------------------------------------------------------------------
 	// Check to see if this Rentable type is already in the database
 	//-------------------------------------------------------------------
 	var a RentableType
-	a.BID = b.BID
-	a.Style = strings.TrimSpace(sa[1])
+	bid := getBusinessBID(des)
+	if bid == 0 {
+		return
+	}
 
+	a.BID = bid
+	a.Style = strings.TrimSpace(sa[1])
 	if len(a.Name) > 0 {
-		rt, _ := GetRentableTypeByName(a.Style, b.BID)
+		rt, _ := GetRentableTypeByStyle(a.Style, bid)
 		if rt.RTID > 0 {
-			Ulog("CreateRentableType: RentableType named %s already exists\n", a.Style)
+			Ulog("getBusinessBID: RentableType named %s already exists\n", a.Style)
 			return
 		}
 	}
+
 	a.Name = strings.TrimSpace(sa[2])
 
 	//-------------------------------------------------------------------
