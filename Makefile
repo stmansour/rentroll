@@ -16,7 +16,7 @@ clean:
 test:
 	for dir in $(DIRS); do make -C $$dir test;done
 	go test
-	@echo "*** TESTING COMPLETE -- ALL TESTS PASSED ***"
+	@echo "*** ALL TESTS PASSED ***"
 
 man: rentroll.1
 	cp rentroll.1 /usr/local/share/man/man1

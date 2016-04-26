@@ -225,6 +225,20 @@ type Business struct {
 	LastModBy            int64     // employee UID (from phonebook) that modified it
 }
 
+// Building defines the location of a building that is part of a business
+type Building struct {
+	BLDGID      int64
+	BID         int64
+	Address     string
+	Address2    string
+	City        string
+	State       string
+	PostalCode  string
+	Country     string
+	LastModTime time.Time
+	LastModBy   int
+}
+
 // PaymentType describes how a payment was made
 type PaymentType struct {
 	PMTID       int64
@@ -449,6 +463,9 @@ type RRprepSQL struct {
 	InsertRentableSpecialtyType    *sql.Stmt
 	GetRentableSpecialties         *sql.Stmt
 	GetRentableSpecialty           *sql.Stmt
+	InsertBuilding                 *sql.Stmt
+	InsertBuildingWithID           *sql.Stmt
+	GetBuilding                    *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

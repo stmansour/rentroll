@@ -23,6 +23,16 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//===============================
+	//  Building
+	//===============================
+	RRdb.Prepstmt.InsertBuilding, err = RRdb.dbrr.Prepare("INSERT INTO building (BID,Address,Address2,City,State,PostalCode,Country,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertBuildingWithID, err = RRdb.dbrr.Prepare("INSERT INTO building (BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetBuilding, err = RRdb.dbrr.Prepare("SELECT BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy FROM building where BLDGID=?")
+	Errcheck(err)
+
+	//===============================
 	//  RentableSpecialty
 	//===============================
 	RRdb.Prepstmt.InsertRentableSpecialtyType, err = RRdb.dbrr.Prepare("INSERT INTO rentablespecialtytypes (RSPID,BID,Name,Fee,Description) VALUES(?,?,?,?,?)")

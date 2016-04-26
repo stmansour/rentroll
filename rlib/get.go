@@ -108,22 +108,6 @@ func GetSpecialtyByName(bid int64, name string) RentableSpecialty {
 	return rsp
 }
 
-// // GetRentableSpecialtiesTypes returns a list of RentableSpecialty structs associated with the supplied business
-// func GetRentableSpecialtiesTypes(m *[]int64) map[int64]RentableSpecialty {
-// 	// first, get the specialties for this rentable
-// 	var t map[int64]RentableSpecialty
-// 	t = make(map[int64]RentableSpecialty, 0)
-
-// 	for i := 0; i < len(*m); i++ {
-// 		if _, ok := t[(*m)[i]]; !ok {
-// 			var u RentableSpecialty
-// 			GetRentableSpecialty((*m)[i], &u)
-// 			t[(*m)[i]] = u
-// 		}
-// 	}
-// 	return t
-// }
-
 // GetRentableType returns characteristics of the rentable
 func GetRentableType(rtid int64, rt *RentableType) {
 	Errcheck(RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.Frequency,
@@ -144,6 +128,17 @@ func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 	var t AssessmentType
 	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
 	return t, err
+}
+
+// GetBuilding returns the record for supplied bldg id. If no such record exists or a database error occurred,
+// the return structure will be empty
+func GetBuilding(id int64) Building {
+	var t Building
+	err := RRdb.Prepstmt.GetBuilding.QueryRow(id).Scan(&t.BLDGID, &t.BID, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy)
+	if err != nil {
+		Ulog("GetBuilding: err = %v\n", err)
+	}
+	return t
 }
 
 // GetAssessmentTypes returns a slice of assessment types indexed by the ASMTID

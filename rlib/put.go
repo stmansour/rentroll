@@ -97,3 +97,35 @@ func InsertRentableType(a *RentableType) (int64, error) {
 	}
 	return rid, err
 }
+
+// InsertBuilding writes a new Building record to the database
+func InsertBuilding(a *Building) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertBuilding.Exec(a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting Building:  %v\n", err)
+	}
+	return rid, err
+}
+
+// InsertBuildingWithID writes a new Building record to the database with the supplied bldgid
+// the building ID must be set in the supplied building struct ptr (a.BLDGID).
+func InsertBuildingWithID(a *Building) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertBuildingWithID.Exec(a.BLDGID, a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("InsertBuildingWithID: error inserting Building:  %v\n", err)
+		Ulog("Bldg = %#v\n", *a)
+	}
+	return rid, err
+}
