@@ -213,21 +213,21 @@ INSERT INTO rentalagreementtemplate (ReferenceNumber, RentalAgreementType) VALUE
 -- =======================================================================
 --  RENTABLE UNITS
 -- =======================================================================
-INSERT INTO rentable (LID,RTID,BID,Name,Assignment) VALUES
-	(1,1,1,"101",1),  -- unit 1
-  	(2,2,1,"102",1),
-  	(3,3,1,"103",1),
-  	(4,4,1,"104",1),
-  	(5,1,1,"105",1),
-  	(6,2,1,"106",1),
-  	(7,3,1,"107",1);
+INSERT INTO rentable (RTID,BID,Name,Assignment) VALUES
+	(1,1,"101",1),  -- unit 1
+  	(2,1,"102",1),
+  	(3,1,"103",1),
+  	(4,1,"104",1),
+  	(1,1,"105",1),
+  	(2,1,"106",1),
+  	(3,1,"107",1);
 
 -- =======================================================================
 --  carports
 -- =======================================================================
-INSERT INTO rentable (LID,RTID,BID,Name,Assignment,DefaultOccType,OccType) VALUES
-	( 8,6,1,"CP001",1,2,2),		-- carport  Krabappel, then Simpson
-	( 9,6,1,"CP002",1,2,2);		-- carport  Simpson
+INSERT INTO rentable (RTID,BID,Name,Assignment,DefaultOccType,OccType) VALUES
+	( 6,1,"CP001",1,2,2),		-- carport  Krabappel, then Simpson
+	( 6,1,"CP002",1,2,2);		-- carport  Simpson
 	-- (10,2,1,"CP003",1,2,2),		-- carport
 	-- (11,2,1,"CP004",1,2,2),		-- carport
 	-- (12,2,1,"CP005",1,2,2),		-- carport

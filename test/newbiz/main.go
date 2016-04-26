@@ -32,6 +32,7 @@ var App struct {
 	BizFile  string  // name of csv file with new biz info
 	AsmtFile string  // name of csv file with assessment types
 	RTFile   string  // rentable types csv file
+	RFile    string  // rentables csv file
 	RSpFile  string  // rentable specialties
 	BldgFile string  // buildings for this business
 }
@@ -45,6 +46,7 @@ func readCommandLineArgs() {
 	bizPtr := flag.String("b", "", "add business via csv file")
 	bldgPtr := flag.String("D", "", "add Buildings to a business via csv file")
 	rtPtr := flag.String("R", "", "add rentable types via csv file")
+	rPtr := flag.String("r", "", "add rentables via csv file")
 	rspPtr := flag.String("s", "", "add rentable specialties via csv file")
 	flag.Parse()
 	if *verPtr {
@@ -59,6 +61,7 @@ func readCommandLineArgs() {
 	App.RTFile = *rtPtr
 	App.RSpFile = *rspPtr
 	App.BldgFile = *bldgPtr
+	App.RFile = *rPtr
 }
 
 func main() {
@@ -113,6 +116,9 @@ func main() {
 	}
 	if len(App.BldgFile) > 0 {
 		rlib.LoadBuildingCSV(App.BldgFile)
+	}
+	if len(App.RFile) > 0 {
+		rlib.LoadRentablesCSV(App.RFile)
 	}
 
 }

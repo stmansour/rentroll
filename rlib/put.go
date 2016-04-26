@@ -129,3 +129,19 @@ func InsertBuildingWithID(a *Building) (int64, error) {
 	}
 	return rid, err
 }
+
+// InsertRentable writes a new Rentable record to the database
+func InsertRentable(a *Rentable) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertRentable.Exec(a.RTID, a.BID, a.Name, a.Assignment, a.Report, a.DefaultOccType, a.OccType, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("InsertRentable: error inserting Building:  %v\n", err)
+		Ulog("Rentable = %#v\n", *a)
+	}
+	return rid, err
+}

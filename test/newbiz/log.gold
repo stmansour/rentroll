@@ -1,1 +1,10 @@
 CreateRentalSpecialty: Business reh already has a RentableSpecialty named Lake View
+2016/04/25 20:26:03 CreateBuilding: business with designation bug does net exist
+2016/04/25 20:26:03 GetBuilding: err = sql: no rows in result set
+2016/04/25 20:26:03 CreateRentables: building number 999 does not exist
+2016/04/25 20:26:03 GetRentableTypeByStyle: err = sql: no rows in result set
+2016/04/25 20:26:03 CreateRentables: rentable style XXX does not exist in business reh
+CreateRentables: invalid Assignment number: 9
+CreateRentables: invalid Report number: 9
+CreateRentables: invalid DefaultOccupancy number: 9
+CreateRentables: invalid Occupancy number: 9

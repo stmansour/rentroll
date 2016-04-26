@@ -271,8 +271,8 @@ type ReceiptAllocation struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID            int64     // unique id for this rentable
-	LID            int64     // the ledger
+	RID int64 // unique id for this rentable
+	//LID            int64     // the ledger
 	RTID           int64     // rentable type id
 	BID            int64     // business
 	Name           string    // name for this rental
@@ -466,6 +466,7 @@ type RRprepSQL struct {
 	InsertBuilding                 *sql.Stmt
 	InsertBuildingWithID           *sql.Stmt
 	GetBuilding                    *sql.Stmt
+	InsertRentable                 *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

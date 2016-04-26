@@ -61,13 +61,13 @@ func GetXPersonByPID(pid int64) XPerson {
 
 // GetRentableByID reads a Rentable structure based on the supplied rentable id
 func GetRentableByID(rid int64, r *Rentable) {
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID /*&r.LID,*/, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 }
 
 // GetRentable reads and returns a Rentable structure based on the supplied rentable id
 func GetRentable(rid int64) Rentable {
 	var r Rentable
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.LID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID /*&r.LID,*/, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 	return r
 }
 
@@ -117,8 +117,10 @@ func GetRentableType(rtid int64, rt *RentableType) {
 // GetRentableTypeByStyle returns characteristics of the rentable
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.Frequency,
-		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Frequency, &rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	if nil != err {
+		Ulog("GetRentableTypeByStyle: err = %v\n", err)
+	}
 	return rt, err
 }
 

@@ -247,11 +247,10 @@ CREATE TABLE building (
 -- **************************************
 CREATE TABLE rentable (
     RID BIGINT NOT NULL AUTO_INCREMENT,
-    LID BIGINT NOT NULL DEFAULT 0,                                 -- which ledger keeps track of what's owed on this rentable
     RTID BIGINT NOT NULL DEFAULT 0,                                -- what sort of a rentable is this?
     BID BIGINT NOT NULL DEFAULT 0,                                 -- Property associated with this rentable
     Name VARCHAR(10) NOT NULL DEFAULT '',                          -- name unique to the instance "101" for a room number 744 carport number, etc 
-    Assignment SMALLINT NOT NULL DEFAULT 0,                        -- Pre-assign or assign at occupy commencement
+    Assignment SMALLINT NOT NULL DEFAULT 0,                        -- Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
     Report SMALLINT NOT NULL DEFAULT 1,                            -- 1 = apply to rentroll, 0 = skip on rentroll
     DefaultOccType SMALLINT NOT NULL DEFAULT 0,                    -- 0 =unset, 1 = short term, 2=longterm
     OccType SMALLINT NOT NULL DEFAULT 0,                           -- 0 =unset, 1 = short term, 2=longterm

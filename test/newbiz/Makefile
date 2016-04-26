@@ -5,7 +5,7 @@ newbiz: *.go
 	go build
 
 clean:
-	rm -f newbiz [u-z] xxqq ver.go log
+	rm -f newbiz [t-z] llog llog.gold xxqq ver.go log
 	@echo "*** CLEAN completed in newbiz ***"
 
 test: newbiz

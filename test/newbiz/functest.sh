@@ -1,6 +1,6 @@
 #!/bin/bash
 pushd ../../db/schema;make newdb;popd
-./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv >log 
+./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv >log 2>&1
 
 echo -n "PHASE 1: New Businesses...  "
 cat >xxqq <<EOF
@@ -116,18 +116,48 @@ else
 	exit 1
 fi
 
+echo -n "PHASE 7: Rentables...  "
+cat >xxqq <<EOF
+use rentroll;
+select RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModBy from rentable;
+EOF
+mysql --no-defaults <xxqq >t
+if [ ! -f t.gold -o ! -f t ]; then
+	echo "Missing file: two files are required for checking this phase: t.gold and t"
+	exit 1
+fi
+UDIFFS=$(diff t t.gold | wc -l)
+if [ ${UDIFFS} -eq 0 ]; then
+	echo "PASSED"
+else
+	echo "FAILED:  differences are as follows:"
+	diff t.gold t
+	exit 1
+fi
+
 
 echo -n "PHASE x: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then
 	echo "Missing file -- Required files for this check: log.gold and log"
 	exit 1
 fi
-UDIFFS=$(diff log log.gold | wc -l)
+declare -a out_filters=(
+	's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
+)
+cp log.gold ll.g
+cp log llog
+for f in "${out_filters[@]}"
+do
+	perl -pe "$f" ll.g > x1; mv x1 ll.g
+	perl -pe "$f" llog > y1; mv y1 llog
+done
+UDIFFS=$(diff llog ll.g | wc -l)
 if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
+	rm -f ll.g llog
 else
 	echo "FAILED:  differences are as follows:"
-	diff log.gold log
+	diff ll.g llog
 	exit 1
 fi
 
