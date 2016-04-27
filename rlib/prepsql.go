@@ -157,7 +157,7 @@ func buildPreparedStatements() {
 
 	RRdb.Prepstmt.GetAllLedgersInRange, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and ?<=Dt and Dt<?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY Dt ASC")
+	RRdb.Prepstmt.GetLedgerInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedger, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy FROM ledger where LID=?")
 	Errcheck(err)
