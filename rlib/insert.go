@@ -145,3 +145,67 @@ func InsertRentable(a *Rentable) (int64, error) {
 	}
 	return rid, err
 }
+
+// InsertTransactant writes a new transactant record to the database
+func InsertTransactant(a *Transactant) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertTransactant.Exec(a.TID, a.PID, a.PRSPID, a.FirstName, a.MiddleName, a.LastName, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertTransactant: error inserting Transactant:  %v\n", err)
+		Ulog("Transactant = %#v\n", *a)
+	}
+	return tid, err
+}
+
+// InsertTenant writes a new tenant record to the database
+func InsertTenant(a *Tenant) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertTenant.Exec(a.TCID, a.Points, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.AccountRep, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.ElibigleForFutureOccupancy, a.Industry, a.Source, a.InvoicingCustomerNumber)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertTenant: error inserting Tenant:  %v\n", err)
+		Ulog("Tenant = %#v\n", *a)
+	}
+	return tid, err
+}
+
+// InsertPayor writes a new tenant record to the database
+func InsertPayor(a *Payor) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertPayor.Exec(a.TCID, a.CreditLimit, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity, a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertPayor: error inserting Payor:  %v\n", err)
+		Ulog("Payor = %#v\n", *a)
+	}
+	return tid, err
+}
+
+// InsertProspect writes a new tenant record to the database
+func InsertProspect(a *Prospect) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertProspect.Exec(a.TCID, a.ApplicationFee, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertProspect: error inserting Prospect:  %v\n", err)
+		Ulog("Prospect = %#v\n", *a)
+	}
+	return tid, err
+}

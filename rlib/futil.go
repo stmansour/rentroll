@@ -4,7 +4,21 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strings"
 )
+
+func yesnoToInt(s string) int64 {
+	s = strings.ToUpper(s)
+	switch {
+	case s == "Y" || s == "YES" || s == "1":
+		return YES
+	case s == "N" || s == "NO" || s == "0":
+		return NO
+	default:
+		fmt.Printf("Unrecognized yes/no string: %s. Returning default = No\n", s)
+		return NO
+	}
+}
 
 // LoadCSV loads a comma-separated-value file into an array of strings and returns the array of strings
 func LoadCSV(fname string) [][]string {

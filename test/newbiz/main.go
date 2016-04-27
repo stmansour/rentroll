@@ -35,6 +35,7 @@ var App struct {
 	RFile    string  // rentables csv file
 	RSpFile  string  // rentable specialties
 	BldgFile string  // buildings for this business
+	PplFile  string  // people for this business
 }
 
 func readCommandLineArgs() {
@@ -48,6 +49,7 @@ func readCommandLineArgs() {
 	rtPtr := flag.String("R", "", "add rentable types via csv file")
 	rPtr := flag.String("r", "", "add rentables via csv file")
 	rspPtr := flag.String("s", "", "add rentable specialties via csv file")
+	pPtr := flag.String("p", "", "add people")
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
@@ -62,6 +64,7 @@ func readCommandLineArgs() {
 	App.RSpFile = *rspPtr
 	App.BldgFile = *bldgPtr
 	App.RFile = *rPtr
+	App.PplFile = *pPtr
 }
 
 func main() {
@@ -119,6 +122,9 @@ func main() {
 	}
 	if len(App.RFile) > 0 {
 		rlib.LoadRentablesCSV(App.RFile)
+	}
+	if len(App.PplFile) > 0 {
+		rlib.LoadPeopleCSV(App.PplFile)
 	}
 
 }

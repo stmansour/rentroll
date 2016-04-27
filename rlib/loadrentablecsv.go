@@ -21,6 +21,7 @@ import (
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreateRentables(sa []string) {
+	var err error
 	var r Rentable
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
@@ -67,7 +68,23 @@ func CreateRentables(sa []string) {
 		r.RTID = rt.RTID
 	}
 
+	//-------------------------------------------------------------------
+	// The name must be unique. Make sure we don't have any other rentable
+	// with this name...
+	//-------------------------------------------------------------------
 	r.Name = strings.TrimSpace(sa[3])
+	r1, err := GetRentableByName(r.Name, r.BID)
+	if err != nil {
+		s := err.Error()
+		if !strings.Contains(s, "no rows") {
+			fmt.Printf("CreateRentables: error with GetRentableByName: %s\n", err.Error())
+			return
+		}
+	}
+	if r1.RID > 0 {
+		fmt.Printf("Rentable with name \"%s\" already exists. Skipping. \n", r.Name)
+		return
+	}
 
 	//-------------------------------------------------------------------
 	// parse out the Assignment value
@@ -124,7 +141,7 @@ func CreateRentables(sa []string) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	_, err := InsertRentable(&r)
+	_, err = InsertRentable(&r)
 	if nil != err {
 		fmt.Printf("CreateRentables: error inserting Rentable = %v\n", err)
 	}

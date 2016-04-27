@@ -1,0 +1,9 @@
+PID	TCID	CreditLimit	EmployerName	EmployerStreetAddress	EmployerCity	EmployerState	EmployerPostalCode	EmployerEmail	EmployerPhone	Occupation	LastModBy
+1	1	0.0000									0
+2	2	0.0000									0
+3	3	0.0000									0
+4	4	0.0000									0
+5	5	0.0000									0
+6	6	0.0000									0
+7	7	0.0000									0
+8	8	250.0000	Springfield Nuclear	1234 Burns Road	Springfield	MO		info@sprinfieldnuclear.com		Safety Inspector	0

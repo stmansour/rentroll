@@ -16,7 +16,7 @@ func GetTransactant(tid int64, t *Transactant) {
 
 // GetProspect reads a Prospect structure based on the supplied transactant id
 func GetProspect(prspid int64, p *Prospect) {
-	Errcheck(RRdb.Prepstmt.GetProspect.QueryRow(prspid).Scan(&p.PRSPID, &p.TCID, &p.ApplicationFee))
+	Errcheck(RRdb.Prepstmt.GetProspect.QueryRow(prspid).Scan(&p.PRSPID, &p.TCID, &p.ApplicationFee, &p.LastModTime, &p.LastModBy))
 }
 
 // GetTenant reads a Tenant structure based on the supplied tenant id
@@ -24,7 +24,7 @@ func GetTenant(tcid int64, t *Tenant) {
 	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tcid).Scan(&t.TID, &t.TCID, &t.Points,
 		&t.CarMake, &t.CarModel, &t.CarColor, &t.CarYear, &t.LicensePlateState, &t.LicensePlateNumber,
 		&t.ParkingPermitNumber, &t.AccountRep, &t.DateofBirth, &t.EmergencyContactName, &t.EmergencyContactAddress,
-		&t.EmergencyContactTelephone, &t.EmergencyAddressEmail, &t.AlternateAddress, &t.ElibigleForFutureOccupancy,
+		&t.EmergencyContactTelephone, &t.EmergencyEmail, &t.AlternateAddress, &t.ElibigleForFutureOccupancy,
 		&t.Industry, &t.Source, &t.InvoicingCustomerNumber))
 }
 
@@ -32,7 +32,7 @@ func GetTenant(tcid int64, t *Tenant) {
 func GetPayor(pid int64, p *Payor) {
 	Errcheck(RRdb.Prepstmt.GetPayor.QueryRow(pid).Scan(
 		&p.PID, &p.TCID, &p.CreditLimit, &p.EmployerName, &p.EmployerStreetAddress, &p.EmployerCity,
-		&p.EmployerState, &p.EmployerZipcode, &p.Occupation, &p.LastModTime, &p.LastModBy))
+		&p.EmployerState, &p.EmployerPostalCode, &p.EmployerEmail, &p.EmployerPhone, &p.Occupation, &p.LastModTime, &p.LastModBy))
 }
 
 // GetXPerson will load a full XPerson given the trid
@@ -61,14 +61,21 @@ func GetXPersonByPID(pid int64) XPerson {
 
 // GetRentableByID reads a Rentable structure based on the supplied rentable id
 func GetRentableByID(rid int64, r *Rentable) {
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID /*&r.LID,*/, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 }
 
 // GetRentable reads and returns a Rentable structure based on the supplied rentable id
 func GetRentable(rid int64) Rentable {
 	var r Rentable
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID /*&r.LID,*/, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 	return r
+}
+
+// GetRentableByName reads and returns a Rentable structure based on the supplied rentable id
+func GetRentableByName(name string, bid int64) (Rentable, error) {
+	var r Rentable
+	err := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy)
+	return r, err
 }
 
 // GetXRentable reads an XRentable structure based on the RID.

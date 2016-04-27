@@ -1,0 +1,9 @@
+TID	TCID	Points	CarMake	CarModel	CarColor	CarYear	LicensePlateState	LicensePlateNumber	ParkingPermitNumber	AccountRep	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyEmail	AlternateAddress	ElibigleForFutureOccupancy	Industry	Source	InvoicingCustomerNumber
+1	1	0				0				0	0000-00-00						0			
+2	2	0				0				0	0000-00-00						0			
+3	3	0				0				0	0000-00-00						0			
+4	4	0				0				0	0000-00-00						0			
+5	5	0				0				0	0000-00-00						0			
+6	6	0				0				0	0000-00-00						0			
+7	7	0				0				0	0000-00-00						0			
+8	8	5987		Canyonero	red	0	MO	BR549		0	0000-00-00	Marge Simpson	744 Evergreen Terrace	654-183-7946	blue@springfield.com		0	Nuclean Power		

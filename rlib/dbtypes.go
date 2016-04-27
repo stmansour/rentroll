@@ -7,6 +7,9 @@ import (
 
 // assessment types
 const (
+	NO  = int64(0)
+	YES = int64(1)
+
 	RENT                      = 1
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
@@ -136,6 +139,8 @@ type Prospect struct {
 	PRSPID         int64
 	TCID           int64
 	ApplicationFee float64 // if non-zero this prospect is an applicant
+	LastModTime    time.Time
+	LastModBy      int64
 }
 
 // Tenant contains all info common to a person
@@ -150,12 +155,12 @@ type Tenant struct {
 	LicensePlateState          string
 	LicensePlateNumber         string
 	ParkingPermitNumber        string
-	AccountRep                 int64
-	DateofBirth                string
+	AccountRep                 int64 // Phonebook id
+	DateofBirth                time.Time
 	EmergencyContactName       string
 	EmergencyContactAddress    string
 	EmergencyContactTelephone  string
-	EmergencyAddressEmail      string
+	EmergencyEmail             string
 	AlternateAddress           string
 	ElibigleForFutureOccupancy int64
 	Industry                   string
@@ -173,7 +178,9 @@ type Payor struct {
 	EmployerStreetAddress string
 	EmployerCity          string
 	EmployerState         string
-	EmployerZipcode       string
+	EmployerPostalCode    string
+	EmployerEmail         string
+	EmployerPhone         string
 	Occupation            string
 	LastModTime           time.Time
 	LastModBy             int64
@@ -398,75 +405,81 @@ type LedgerMarker struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
-	GetRentalAgreementByBusiness   *sql.Stmt
-	GetRentalAgreement             *sql.Stmt
-	GetLedger                      *sql.Stmt
-	GetTransactant                 *sql.Stmt
-	GetTenant                      *sql.Stmt
-	GetRentable                    *sql.Stmt
-	GetProspect                    *sql.Stmt
-	GetPayor                       *sql.Stmt
-	GetRentableType                *sql.Stmt
-	GetRentableTypeByStyle         *sql.Stmt
-	InsertRentableType             *sql.Stmt
-	GetUnitReceipts                *sql.Stmt
-	GetUnitAssessments             *sql.Stmt
+	DeleteJournalAllocations       *sql.Stmt
+	DeleteJournalEntry             *sql.Stmt
+	DeleteJournalMarker            *sql.Stmt
+	DeleteLedgerEntry              *sql.Stmt
+	DeleteLedgerMarker             *sql.Stmt
+	GetAgreementPayors             *sql.Stmt
+	GetAgreementRentables          *sql.Stmt
+	GetAgreementsForRentable       *sql.Stmt
+	GetAllAssessmentsByBusiness    *sql.Stmt
+	GetAllBusinessRentableTypes    *sql.Stmt
+	GetAllBusinessSpecialtyTypes   *sql.Stmt
+	GetAllJournalsInRange          *sql.Stmt
+	GetAllLedgerMarkersInRange     *sql.Stmt
+	GetAllLedgersInRange           *sql.Stmt
 	GetAllRentableAssessments      *sql.Stmt
+	GetAllRentablesByBusiness      *sql.Stmt
 	GetAssessment                  *sql.Stmt
 	GetAssessmentType              *sql.Stmt
-	GetSecurityDepositAssessment   *sql.Stmt
-	GetAllRentablesByBusiness      *sql.Stmt
-	GetAllBusinessRentableTypes    *sql.Stmt
-	GetRentableMarketRates         *sql.Stmt
-	InsertRentableMarketRates      *sql.Stmt
+	GetAssessmentTypeByName        *sql.Stmt
+	GetBuilding                    *sql.Stmt
 	GetBusiness                    *sql.Stmt
 	GetBusinessByDesignation       *sql.Stmt
-	GetAllBusinessSpecialtyTypes   *sql.Stmt
-	GetAllAssessmentsByBusiness    *sql.Stmt
-	GetReceipt                     *sql.Stmt
-	GetReceiptsInDateRange         *sql.Stmt
-	GetReceiptAllocations          *sql.Stmt
 	GetDefaultLedgerMarkers        *sql.Stmt
-	GetAllJournalsInRange          *sql.Stmt
+	GetJournal                     *sql.Stmt
+	GetJournalAllocation           *sql.Stmt
 	GetJournalAllocations          *sql.Stmt
 	GetJournalByRange              *sql.Stmt
 	GetJournalMarker               *sql.Stmt
 	GetJournalMarkers              *sql.Stmt
-	GetJournal                     *sql.Stmt
-	GetJournalAllocation           *sql.Stmt
-	InsertJournalMarker            *sql.Stmt
-	InsertJournal                  *sql.Stmt
-	InsertJournalAllocation        *sql.Stmt
-	DeleteJournalAllocations       *sql.Stmt
-	DeleteJournalEntry             *sql.Stmt
-	DeleteJournalMarker            *sql.Stmt
-	GetAllLedgersInRange           *sql.Stmt
-	GetLedgerMarkers               *sql.Stmt
-	GetLedgerMarkerByGLNo          *sql.Stmt
-	GetLedgerInRangeByGLNo         *sql.Stmt
-	GetLedgerMarkerInitList        *sql.Stmt
-	InsertLedgerMarker             *sql.Stmt
-	InsertLedger                   *sql.Stmt
-	InsertLedgerAllocation         *sql.Stmt
-	DeleteLedgerEntry              *sql.Stmt
-	DeleteLedgerMarker             *sql.Stmt
-	GetAllLedgerMarkersInRange     *sql.Stmt
-	GetAgreementRentables          *sql.Stmt
-	GetAgreementPayors             *sql.Stmt
-	GetAgreementsForRentable       *sql.Stmt
 	GetLatestLedgerMarkerByGLNo    *sql.Stmt
+	GetLedger                      *sql.Stmt
+	GetLedgerInRangeByGLNo         *sql.Stmt
+	GetLedgerMarkerByGLNo          *sql.Stmt
 	GetLedgerMarkerByGLNoDateRange *sql.Stmt
-	InsertBusiness                 *sql.Stmt
-	InsertAssessmentType           *sql.Stmt
-	GetAssessmentTypeByName        *sql.Stmt
-	GetSpecialtyByName             *sql.Stmt
-	InsertRentableSpecialtyType    *sql.Stmt
+	GetLedgerMarkerInitList        *sql.Stmt
+	GetLedgerMarkers               *sql.Stmt
+	GetPayor                       *sql.Stmt
+	GetProspect                    *sql.Stmt
+	GetReceipt                     *sql.Stmt
+	GetReceiptAllocations          *sql.Stmt
+	GetReceiptsInDateRange         *sql.Stmt
+	GetRentable                    *sql.Stmt
+	GetRentableByName              *sql.Stmt
+	GetRentableMarketRates         *sql.Stmt
 	GetRentableSpecialties         *sql.Stmt
 	GetRentableSpecialty           *sql.Stmt
+	GetRentableType                *sql.Stmt
+	GetRentableTypeByStyle         *sql.Stmt
+	GetRentalAgreement             *sql.Stmt
+	GetRentalAgreementByBusiness   *sql.Stmt
+	GetSecurityDepositAssessment   *sql.Stmt
+	GetSpecialtyByName             *sql.Stmt
+	GetTenant                      *sql.Stmt
+	GetTransactant                 *sql.Stmt
+	GetUnitAssessments             *sql.Stmt
+	GetUnitReceipts                *sql.Stmt
+	InsertAssessmentType           *sql.Stmt
 	InsertBuilding                 *sql.Stmt
 	InsertBuildingWithID           *sql.Stmt
-	GetBuilding                    *sql.Stmt
+	InsertBusiness                 *sql.Stmt
+	InsertJournal                  *sql.Stmt
+	InsertJournalAllocation        *sql.Stmt
+	InsertJournalMarker            *sql.Stmt
+	InsertLedger                   *sql.Stmt
+	InsertLedgerAllocation         *sql.Stmt
+	InsertLedgerMarker             *sql.Stmt
+	InsertPayor                    *sql.Stmt
+	InsertProspect                 *sql.Stmt
 	InsertRentable                 *sql.Stmt
+	InsertRentableMarketRates      *sql.Stmt
+	InsertRentableSpecialtyType    *sql.Stmt
+	InsertRentableType             *sql.Stmt
+	InsertTenant                   *sql.Stmt
+	InsertTransactant              *sql.Stmt
+	UpdateTransactant              *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
