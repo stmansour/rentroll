@@ -1,6 +1,6 @@
 #!/bin/bash
 pushd ../../db/schema;make newdb;popd
-./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv >log 2>&1
+./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv >log 2>&1
 
 
 # $1 = base file name
@@ -38,6 +38,7 @@ dotest "s" "PHASE  8: Transactants...  " "select TCID,TID,PID,PRSPID,FirstName,M
 dotest "r" "PHASE  9: Tenants...  " "select TID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber from tenant;"
 dotest "q" "PHASE 10: Payors...  " "select PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModBy from payor;"
 dotest "p" "PHASE 11: Prospects...  " "select PRSPID,TCID,ApplicationFee,LastModBy from prospect;"
+dotest "o" "PHASE 12: Rental Agreement Templates...  " "select RATID,ReferenceNumber,RentalAgreementType,LastModBy from rentalagreementtemplate;"
 
 
 echo -n "PHASE x: Log file check...  "

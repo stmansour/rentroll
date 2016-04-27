@@ -209,3 +209,23 @@ func InsertProspect(a *Prospect) (int64, error) {
 	}
 	return tid, err
 }
+
+//=======================================================
+//  R E N T A L   A G R E E M E N T   T E M P L A T E
+//=======================================================
+
+// InsertRentalAgreementTemplate writes a new tenant record to the database
+func InsertRentalAgreementTemplate(a *RentalAgreementTemplate) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertRentalAgreementTemplate.Exec(a.ReferenceNumber, a.RentalAgreementType, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertRentalAgreementTemplate: error inserting RentalAgreementTemplate:  %v\n", err)
+		Ulog("RentalAgreementTemplate = %#v\n", *a)
+	}
+	return tid, err
+}

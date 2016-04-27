@@ -9,8 +9,22 @@ func buildPreparedStatements() {
 	// Prepare("update classes set Name=?,Designation=?,Description=?,lastmodby=? where ClassCode=?")
 	// Errcheck(err)
 
+	//===============================
+	//  Rental Agreement Template
+	//===============================
+	RRdb.Prepstmt.GetRentalAgreementTemplate, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE RATID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE ReferenceNumber=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertRentalAgreementTemplate, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreementtemplate (ReferenceNumber,RentalAgreementType,LastModBy) VALUES(?,?,?)")
+	Errcheck(err)
+
+	//===============================
+	//  Rental Agreement
+	//===============================
 	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where BID=?")
 	Errcheck(err)
+
 	//===============================
 	//  Assessments
 	//===============================

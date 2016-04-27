@@ -345,6 +345,10 @@ func GetAgreementPayors(raid int64, d1, d2 *time.Time) []AgreementPayor {
 	return t
 }
 
+//=======================================================
+//  R E N T A L   A G R E E M E N T
+//=======================================================
+
 // GetRentalAgreement returns the RentalAgreement struct for the supplied rental agreement id
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
@@ -376,6 +380,28 @@ func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error)
 		xp := GetXPersonByPID(m[i].PID)
 		r.P = append(r.P, xp)
 	}
+	return r, err
+}
+
+//=======================================================
+//  R E N T A L   A G R E E M E N T   T E M P L A T E
+//=======================================================
+
+// GetRentalAgreementTemplate returns the RentalAgreementTemplate struct for the supplied rental agreement id
+func GetRentalAgreementTemplate(ratid int64) (RentalAgreementTemplate, error) {
+	var r RentalAgreementTemplate
+	err := RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(ratid).Scan(&r.RATID, &r.ReferenceNumber, &r.RentalAgreementType, &r.LastModTime, &r.LastModBy)
+	if nil != err {
+
+		Ulog("GetRentalAgreementTemplate: could not get rental agreement template with RATID = %d,  err = %v\n", ratid, err)
+	}
+	return r, err
+}
+
+// GetRentalAgreementTemplateByRefNum returns the RentalAgreementTemplate struct for the supplied rental agreement id
+func GetRentalAgreementTemplateByRefNum(ref string) (RentalAgreementTemplate, error) {
+	var r RentalAgreementTemplate
+	err := RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum.QueryRow(ref).Scan(&r.RATID, &r.ReferenceNumber, &r.RentalAgreementType, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
