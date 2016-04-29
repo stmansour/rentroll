@@ -1,0 +1,9 @@
+RAID	RATID	BID	PrimaryTenant	RentalStart	RentalStop	Renewal	SpecialProvisions	LastModBy
+1	1	1	1	2004-01-01	2015-11-08	1	Some Special Provisions	0
+2	1	1	2	2004-01-01	2017-07-04	1		0
+3	1	1	3	2004-01-01	2017-07-04	1		0
+4	1	1	4	2004-01-01	2017-07-04	1		0
+5	1	1	5	2004-01-01	2017-07-04	1		0
+6	1	1	6	2004-01-01	2017-07-04	1		0
+7	1	1	7	2004-01-01	2017-07-04	1		0
+8	1	1	8	2015-11-21	2016-11-21	1		0

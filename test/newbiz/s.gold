@@ -1,9 +1,9 @@
 TCID	TID	PID	PRSPID	FirstName	MiddleName	LastName	PrimaryEmail	SecondaryEmail	WorkPhone	CellPhone	Address	Address2	City	State	PostalCode	Country	LastModBy
-1	1	1	1	Edna		Krabappel											0
-2	2	2	2	Ned		Flanders											0
-3	3	3	3	Moe		Szyslak											0
-4	4	4	4	Montgomery		Burns											0
-5	5	5	5	Nelson		Muntz											0
-6	6	6	6	Milhouse		Van Houten											0
-7	7	7	7	Clancey		Wiggum											0
-8	8	8	8	Homer	J	Simpson	homerj@springfield.com		408-654-8732		744 Evergreen Terrace		Springfield	MO	64001	USA	0
+1	1	1	1	Edna		Krabappel			816-123-4561								0
+2	2	2	2	Ned		Flanders			816-123-4562								0
+3	3	3	3	Moe		Szyslak			816-123-4563								0
+4	4	4	4	Montgomery		Burns			816-123-4564								0
+5	5	5	5	Nelson		Muntz			816-123-4565								0
+6	6	6	6	Milhouse		Van Houten			816-123-4566								0
+7	7	7	7	Clancey		Wiggum			816-123-4567								0
+8	8	8	8	Homer	J	Simpson	homerj@springfield.com		816-123-4568		744 Evergreen Terrace		Springfield	MO	64001	USA	0

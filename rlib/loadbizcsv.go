@@ -37,6 +37,10 @@ func CreatePhonebookLinkedBusiness(sa []string) {
 	found := false
 	var err error
 
+	if strings.ToLower(des) == "designation" {
+		return // this is just the header line
+	}
+
 	//-------------------------------------------------------------------
 	// Check to see if this business is already in the database
 	//-------------------------------------------------------------------

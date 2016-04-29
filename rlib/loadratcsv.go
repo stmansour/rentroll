@@ -9,7 +9,7 @@ import (
 // CreateRentalAgreementTemplate creates a database record for the values supplied in sa[]
 func CreateRentalAgreementTemplate(sa []string) {
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "referencenumber" {
+	if strings.ToLower(des) == "rarefnum" {
 		return // this is just the column heading
 	}
 

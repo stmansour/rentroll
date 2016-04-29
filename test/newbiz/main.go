@@ -37,6 +37,7 @@ var App struct {
 	BldgFile string  // buildings for this business
 	PplFile  string  // people for this business
 	RatFile  string  // rentalAgreementTemplates
+	RaFile   string  //rental agreement cvs file
 }
 
 func readCommandLineArgs() {
@@ -52,6 +53,8 @@ func readCommandLineArgs() {
 	rspPtr := flag.String("s", "", "add rentable specialties via csv file")
 	pPtr := flag.String("p", "", "add people")
 	ratPtr := flag.String("T", "", "add rental agreement templates")
+	raPtr := flag.String("C", "", "add rental agreements")
+
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
@@ -68,6 +71,7 @@ func readCommandLineArgs() {
 	App.RFile = *rPtr
 	App.PplFile = *pPtr
 	App.RatFile = *ratPtr
+	App.RaFile = *raPtr
 }
 
 func main() {
@@ -131,5 +135,8 @@ func main() {
 	}
 	if len(App.RatFile) > 0 {
 		rlib.LoadRentalAgreementTemplatesCSV(App.RatFile)
+	}
+	if len(App.RaFile) > 0 {
+		rlib.LoadRentalAgreementCSV(App.RaFile)
 	}
 }

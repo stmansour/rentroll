@@ -229,3 +229,55 @@ func InsertRentalAgreementTemplate(a *RentalAgreementTemplate) (int64, error) {
 	}
 	return tid, err
 }
+
+//=======================================================
+//  R E N T A L   A G R E E M E N T
+//=======================================================
+
+// InsertRentalAgreement writes a new tenant record to the database
+func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertRentalAgreement.Exec(a.RATID, a.BID, a.PrimaryTenant, a.RentalStart, a.RentalStop, a.Renewal, a.SpecialProvisions, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertRentalAgreement: error inserting RentalAgreement:  %v\n", err)
+		Ulog("RentalAgreement = %#v\n", *a)
+	}
+	return tid, err
+}
+
+// InsertAgreementRentable writes a new tenant record to the database
+func InsertAgreementRentable(a *AgreementRentable) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertAgreementRentable.Exec(a.RAID, a.RID, a.DtStart, a.DtStop)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertAgreementRentable: error inserting AgreementRentable:  %v\n", err)
+		Ulog("AgreementRentable = %#v\n", *a)
+	}
+	return tid, err
+}
+
+// InsertAgreementPayor writes a new tenant record to the database
+func InsertAgreementPayor(a *AgreementPayor) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertAgreementPayor.Exec(a.RAID, a.PID, a.DtStart, a.DtStop)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertAgreementPayor: error inserting AgreementRentable:  %v\n", err)
+		Ulog("AgreementPayor = %#v\n", *a)
+	}
+	return tid, err
+}

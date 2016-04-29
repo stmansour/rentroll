@@ -9,6 +9,9 @@ func buildPreparedStatements() {
 	// Prepare("update classes set Name=?,Designation=?,Description=?,lastmodby=? where ClassCode=?")
 	// Errcheck(err)
 
+	RRdb.Prepstmt.FindTransactantByPhoneOrEmail, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?")
+	Errcheck(err)
+
 	//===============================
 	//  Rental Agreement Template
 	//===============================
@@ -23,6 +26,20 @@ func buildPreparedStatements() {
 	//  Rental Agreement
 	//===============================
 	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreement (RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+
+	//===============================
+	//  Agreement Payor
+	//===============================
+	RRdb.Prepstmt.InsertAgreementPayor, err = RRdb.dbrr.Prepare("INSERT INTO agreementpayors (RAID,PID,DtStart,DtStop) VALUES(?,?,?,?)")
+	Errcheck(err)
+
+	//===============================
+	//  Agreement Rentable
+	//===============================
+	RRdb.Prepstmt.InsertAgreementRentable, err = RRdb.dbrr.Prepare("INSERT INTO agreementrentables (RAID,RID,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
 
 	//===============================

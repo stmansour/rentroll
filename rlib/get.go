@@ -560,8 +560,24 @@ func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
 	// fmt.Printf("Ledger = %s\n", s)
 	err := RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
 	if nil != err {
-		fmt.Printf("GetLatestLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber \"%s\".\n", s)
 		fmt.Printf("err = %v\n", err)
 	}
 	return r
+}
+
+// GetTransactantByPhoneOrEmail searches for a transactoant match on the phone number or email
+func GetTransactantByPhoneOrEmail(s string) Transactant {
+	// fmt.Printf("GetTransactantByPhoneOrEmail:  seaching for: %s\n", s)
+	var t Transactant
+	// p := fmt.Sprintf("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?", s,s,s,s)
+	p := fmt.Sprintf("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
+	// fmt.Printf("Query = %s\n", p)
+	err := RRdb.dbrr.QueryRow(p).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName,
+		&t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State,
+		&t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy)
+	// err := RRdb.Prepstmt.GetTransactantByPhoneOrEmail.QueryRow(s, s, s, s).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy)
+	if nil != err {
+		fmt.Printf("err = %v\n", err)
+	}
+	return t
 }

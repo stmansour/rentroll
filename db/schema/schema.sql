@@ -66,7 +66,7 @@ CREATE TABLE rentalagreement (
     PrimaryTenant BIGINT NOT NULL DEFAULT 0,                  -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
-    Renewal SMALLINT NOT NULL DEFAULT 0,                      -- month to month automatic renewal, lease extension options, none.
+    Renewal SMALLINT NOT NULL DEFAULT 0,                      -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',      -- free-form text
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 

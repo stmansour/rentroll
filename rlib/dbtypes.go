@@ -60,6 +60,9 @@ const (
 // const RRDATEFMT = "01/02/06 3:04PM MST"
 const RRDATEFMT = "01/02/06"
 
+// RRDATEINPFMT is the shorthand
+const RRDATEINPFMT = "2006-01-02"
+
 //==========================================
 //    BID = business id
 //   RSPID = rentable specialty id
@@ -95,7 +98,7 @@ type RentalAgreement struct {
 	PrimaryTenant     int64       // Tenant ID of primary tenant
 	RentalStart       time.Time   // start date for rental
 	RentalStop        time.Time   // stop date for rental
-	Renewal           int64       // month to month automatic renewal, lease extension options, none.
+	Renewal           int64       // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 	SpecialProvisions string      // free-form text
 	LastModTime       time.Time   //	-- when was this record last written
 	LastModBy         int64       // employee UID (from phonebook) that modified it
@@ -419,6 +422,7 @@ type RRprepSQL struct {
 	DeleteJournalMarker                *sql.Stmt
 	DeleteLedgerEntry                  *sql.Stmt
 	DeleteLedgerMarker                 *sql.Stmt
+	GetTransactantByPhoneOrEmail       *sql.Stmt
 	GetAgreementPayors                 *sql.Stmt
 	GetAgreementRentables              *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
@@ -464,6 +468,8 @@ type RRprepSQL struct {
 	GetRentableTypeByStyle             *sql.Stmt
 	GetRentalAgreement                 *sql.Stmt
 	GetRentalAgreementByBusiness       *sql.Stmt
+	GetRentalAgreementTemplate         *sql.Stmt
+	GetRentalAgreementTemplateByRefNum *sql.Stmt
 	GetSecurityDepositAssessment       *sql.Stmt
 	GetSpecialtyByName                 *sql.Stmt
 	GetTenant                          *sql.Stmt
@@ -480,18 +486,20 @@ type RRprepSQL struct {
 	InsertLedger                       *sql.Stmt
 	InsertLedgerAllocation             *sql.Stmt
 	InsertLedgerMarker                 *sql.Stmt
+	InsertAgreementPayor               *sql.Stmt
 	InsertPayor                        *sql.Stmt
 	InsertProspect                     *sql.Stmt
 	InsertRentable                     *sql.Stmt
+	InsertAgreementRentable            *sql.Stmt
 	InsertRentableMarketRates          *sql.Stmt
 	InsertRentableSpecialtyType        *sql.Stmt
 	InsertRentableType                 *sql.Stmt
+	InsertRentalAgreement              *sql.Stmt
+	InsertRentalAgreementTemplate      *sql.Stmt
 	InsertTenant                       *sql.Stmt
 	InsertTransactant                  *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
-	GetRentalAgreementTemplate         *sql.Stmt
-	GetRentalAgreementTemplateByRefNum *sql.Stmt
-	InsertRentalAgreementTemplate      *sql.Stmt
+	FindTransactantByPhoneOrEmail      *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
