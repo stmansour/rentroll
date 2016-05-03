@@ -1,6 +1,7 @@
 #!/bin/bash
 pushd ../../db/schema;make newdb;popd
-./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv >log 2>&1
+./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -c coa.csv >log 2>&1
+# ./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv >log 2>&1
 
 
 # $1 = base file name
@@ -42,6 +43,7 @@ dotest "o" "PHASE 12: Rental Agreement Templates...  " "select RATID,ReferenceNu
 dotest "n" "PHASE 13: Rental Agreements...  " "select RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy from rentalagreement;"
 dotest "m" "PHASE 14: Agreement Rentables...  " "select * from agreementrentables;"
 dotest "l" "PHASE 15: Agreement Payors...  " "select * from agreementpayors;"
+dotest "k" "PHASE 16: Chart of Accounts...  " "select LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy from ledgermarker;"
 
 
 echo -n "PHASE x: Log file check...  "

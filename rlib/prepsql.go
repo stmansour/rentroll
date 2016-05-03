@@ -13,24 +13,6 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//===============================
-	//  Rental Agreement Template
-	//===============================
-	RRdb.Prepstmt.GetRentalAgreementTemplate, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE RATID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE ReferenceNumber=?")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertRentalAgreementTemplate, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreementtemplate (ReferenceNumber,RentalAgreementType,LastModBy) VALUES(?,?,?)")
-	Errcheck(err)
-
-	//===============================
-	//  Rental Agreement
-	//===============================
-	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreement (RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
-	Errcheck(err)
-
-	//===============================
 	//  Agreement Payor
 	//===============================
 	RRdb.Prepstmt.InsertAgreementPayor, err = RRdb.dbrr.Prepare("INSERT INTO agreementpayors (RAID,PID,DtStart,DtStop) VALUES(?,?,?,?)")
@@ -66,6 +48,92 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertBuildingWithID, err = RRdb.dbrr.Prepare("INSERT INTO building (BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 	RRdb.Prepstmt.GetBuilding, err = RRdb.dbrr.Prepare("SELECT BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM building WHERE BLDGID=?")
+	Errcheck(err)
+
+	//==========================================
+	// Business
+	//==========================================
+	RRdb.Prepstmt.InsertBusiness, err = RRdb.dbrr.Prepare("INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
+	Errcheck(err)
+
+	//==========================================
+	// LEDGER
+	//==========================================
+	RRdb.Prepstmt.GetAllLedgersInRange, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and ?<=Dt and Dt<?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedger, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy FROM ledger where LID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertLedger, err = RRdb.dbrr.Prepare("INSERT INTO ledger (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.dbrr.Prepare("DELETE FROM ledger WHERE LID=?")
+	Errcheck(err)
+
+	//==========================================
+	// LEDGER MARKER
+	//==========================================
+	// RRdb.Prepstmt.GetLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctTyp,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=?")
+	// Errcheck(err)
+	RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? ORDER BY DtStop DESC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLatestLedgerMarkerByType, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type=? ORDER BY DtStop DESC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? and DtStop>? and DtStart<? ORDER BY GLNumber ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and DtStop>? and DtStart<?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerMarkerInitList, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and State=3 ORDER BY GLNumber ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetDefaultLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type>=10 ORDER BY DtStop DESC")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.dbrr.Prepare("DELETE FROM ledgermarker WHERE LMID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertLedgerMarker, err = RRdb.dbrr.Prepare("INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateLedgerMarker, err = RRdb.dbrr.Prepare("UPDATE ledgermarker SET LMID=?,BID=?,PID=?,GLNumber=?,Status=?,State=?,DtStart=?,DtStop=?,Balance=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=? WHERE LMID=?")
+	Errcheck(err)
+
+	//==========================================
+	// PAYOR
+	//==========================================
+	RRdb.Prepstmt.InsertPayor, err = RRdb.dbrr.Prepare("INSERT INTO payor (TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetPayor, err = RRdb.dbrr.Prepare("SELECT PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModTime,LastModBy FROM payor where PID=?")
+	Errcheck(err)
+
+	//==========================================
+	// PHONEBOOK
+	//==========================================
+	RRdb.PBsql.GetCompanyByDesignation, err = RRdb.dbdir.Prepare("SELECT CoCode,LegalName,CommonName,Address,Address2,City,State,PostalCode,Country,Phone,Fax,Email,Designation,Active,EmploysPersonnel,LastModTime,LastModBy FROM companies WHERE Designation=?")
+	Errcheck(err)
+
+	//==========================================
+	// PROSPECT
+	//==========================================
+	RRdb.Prepstmt.InsertProspect, err = RRdb.dbrr.Prepare("INSERT INTO prospect (TCID,ApplicationFee,LastModBy) VALUES(?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetProspect, err = RRdb.dbrr.Prepare("SELECT PRSPID,TCID,ApplicationFee,LastModTime,LastModBy FROM prospect where PRSPID=?")
+	Errcheck(err)
+
+	//===============================
+	//  Rental Agreement Template
+	//===============================
+	RRdb.Prepstmt.GetRentalAgreementTemplate, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE RATID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE ReferenceNumber=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertRentalAgreementTemplate, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreementtemplate (ReferenceNumber,RentalAgreementType,LastModBy) VALUES(?,?,?)")
+	Errcheck(err)
+
+	//===============================
+	//  Rental Agreement
+	//===============================
+	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreement (RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 
 	//===============================
@@ -171,45 +239,12 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteJournalMarker, err = RRdb.dbrr.Prepare("DELETE FROM journalmarker WHERE JMID=?")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name FROM ledgermarker WHERE BID=? and GLNumber=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name FROM ledgermarker WHERE BID=? and GLNumber=? ORDER BY DtStop DESC")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name FROM ledgermarker WHERE BID=? and GLNumber=? and DtStop>? and DtStart<? ORDER BY GLNumber ASC")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name from ledgermarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name from ledgermarker WHERE BID=? and DtStop>? and DtStart<?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerInitList, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name from ledgermarker WHERE BID=? and State=3 ORDER BY GLNumber ASC")
-	Errcheck(err)
-	RRdb.Prepstmt.GetDefaultLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,State,DtStart,DtStop,Balance,Type,Name FROM ledgermarker WHERE BID=? and Type>=10 ORDER BY DtStop DESC")
-	Errcheck(err)
-
-	RRdb.Prepstmt.GetAllLedgersInRange, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and ?<=Dt and Dt<?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLedger, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy FROM ledger where LID=?")
-	Errcheck(err)
-
-	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.dbrr.Prepare("DELETE FROM ledger WHERE LID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.dbrr.Prepare("DELETE FROM ledgermarker WHERE LMID=?")
-	Errcheck(err)
-
-	RRdb.Prepstmt.InsertLedger, err = RRdb.dbrr.Prepare("INSERT INTO ledger (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertLedgerMarker, err = RRdb.dbrr.Prepare("INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES(?,?,?,?,?,?,?,?,?,?)")
-	Errcheck(err)
-
-	RRdb.Prepstmt.InsertBusiness, err = RRdb.dbrr.Prepare("INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
-	Errcheck(err)
-
 	//==========================================
-	// PHONEBOOK
+	// TENANT
 	//==========================================
-	RRdb.PBsql.GetCompanyByDesignation, err = RRdb.dbdir.Prepare("SELECT CoCode,LegalName,CommonName,Address,Address2,City,State,PostalCode,Country,Phone,Fax,Email,Designation,Active,EmploysPersonnel,LastModTime,LastModBy FROM companies WHERE Designation=?")
+	RRdb.Prepstmt.InsertTenant, err = RRdb.dbrr.Prepare("INSERT INTO tenant (TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetTenant, err = RRdb.dbrr.Prepare("SELECT TID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber FROM tenant where TID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -220,30 +255,6 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.UpdateTransactant, err = RRdb.dbrr.Prepare("UPDATE transactant SET TID=?,PID=?,PRSPID=?,FirstName=?,MiddleName=?,LastName=?,PrimaryEmail=?,SecondaryEmail=?,WorkPhone=?,CellPhone=?,Address=?,Address2=?,City=?,State=?,PostalCode=?,Country=?,LastModBy=? WHERE TCID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetTransactant, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant WHERE TCID=?")
-	Errcheck(err)
-
-	//==========================================
-	// TENANT
-	//==========================================
-	RRdb.Prepstmt.InsertTenant, err = RRdb.dbrr.Prepare("INSERT INTO tenant (TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.GetTenant, err = RRdb.dbrr.Prepare("SELECT TID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber FROM tenant where TID=?")
-	Errcheck(err)
-
-	//==========================================
-	// PAYOR
-	//==========================================
-	RRdb.Prepstmt.InsertPayor, err = RRdb.dbrr.Prepare("INSERT INTO payor (TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.GetPayor, err = RRdb.dbrr.Prepare("SELECT PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModTime,LastModBy FROM payor where PID=?")
-	Errcheck(err)
-
-	//==========================================
-	// PROSPECT
-	//==========================================
-	RRdb.Prepstmt.InsertProspect, err = RRdb.dbrr.Prepare("INSERT INTO prospect (TCID,ApplicationFee,LastModBy) VALUES(?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.GetProspect, err = RRdb.dbrr.Prepare("SELECT PRSPID,TCID,ApplicationFee,LastModTime,LastModBy FROM prospect where PRSPID=?")
 	Errcheck(err)
 
 }

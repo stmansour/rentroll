@@ -102,7 +102,13 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 		if m[i].Action == "c" {
 			amt = -amt
 		}
-		l := rlib.GetLedgerMarkerByGLNo(r.BID, m[i].Account)
+		l, err := rlib.GetLatestLedgerMarkerByGLNo(r.BID, m[i].Account)
+		if err != nil {
+			fmt.Printf("Could not get ledger for account named %s in busines %d\n", m[i].Account, r.BID)
+			fmt.Printf("Error = %v\n", err)
+			continue
+		}
+
 		printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.Name, m[i].Account, amt)
 	}
 }
@@ -147,7 +153,12 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Jo
 		m := parseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
 		for k := 0; k < len(m); k++ {
-			l := rlib.GetLedgerMarkerByGLNo(j.BID, m[k].Account)
+			l, err := rlib.GetLatestLedgerMarkerByGLNo(j.BID, m[k].Account)
+			if err != nil {
+				fmt.Printf("Could not get ledger for account named %s in busines %d\n", m[k].Account, j.BID)
+				fmt.Printf("Error = %v\n", err)
+				continue
+			}
 			amt := m[k].Amount
 			if m[k].Action == "c" {
 				amt = -amt

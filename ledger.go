@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"rentroll/rlib"
 	"time"
 )
@@ -112,7 +113,12 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerMarkerInitList(xbiz.P.BID) // this list contains the list of all ledger account numbers
 	// fmt.Printf("len(t) =  %d\n", len(t))
 	for i := 0; i < len(t); i++ {
-		lm := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
+		lm, err := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
+		if err != nil {
+			fmt.Printf("Could not get ledger for account named %s in busines %d\n", t[i].GLNumber, xbiz.P.BID)
+			fmt.Printf("Error = %v\n", err)
+			continue
+		}
 		// fmt.Printf("lm = %#v\n", lm)
 		closeLedgerPeriod(xbiz, &lm, d1, d2, rlib.MARKERSTATEOPEN)
 	}

@@ -5,16 +5,21 @@ import (
 	"time"
 )
 
-// assessment types
 const (
-	NO  = int64(0)
+	NO = int64(0) // std negative value
+
 	YES = int64(1)
 
 	RENT                      = 1
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
 
-	LMPAYORACCT    = 1 // ledger set up for a payor
+	LMPAYORACCT        = 1 // ledger set up for a payor
+	ACCTSTATUSINACTIVE = 1
+	ACCTSTATUSACTIVE   = 2
+	RAASSOCIATED       = 1
+	RAUNASSOCIATED     = 2
+
 	DFLTCASH       = 10
 	DFLTGENRCV     = 11
 	DFLTGSRENT     = 12
@@ -22,6 +27,7 @@ const (
 	DFLTVAC        = 14
 	DFLTSECDEPRCV  = 15
 	DFLTSECDEPASMT = 16
+	DFLTLAST       = 16 // set this to the last default account index
 
 	OCCTYPEUNSET     = 0
 	OCCTYPEHOURLY    = 1
@@ -402,17 +408,21 @@ type Ledger struct {
 // LedgerMarker describes a period of time period described. The Balance can be
 // used going forward from DtStop
 type LedgerMarker struct {
-	LMID     int64
-	BID      int64
-	PID      int64 // only valid if Type == 1
-	GLNumber string
-	Status   int64
-	State    int64
-	DtStart  time.Time
-	DtStop   time.Time
-	Balance  float64
-	Type     int64
-	Name     string
+	LMID         int64
+	BID          int64
+	PID          int64  // only valid if Type == 1
+	GLNumber     string // acct system name
+	Status       int64  // Whether a GL Account is currently unknown=0, inactive=1, active=2
+	State        int64  // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
+	DtStart      time.Time
+	DtStop       time.Time
+	Balance      float64
+	Type         int64     // flag: 0 = not a default account, 1 = Payor Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC
+	Name         string    // descriptive name for the ledger
+	AcctType     string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
+	RAAssociated int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
+	LastModTime  time.Time // auto updated
+	LastModBy    int64     // user making the mod
 }
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
@@ -422,7 +432,7 @@ type RRprepSQL struct {
 	DeleteJournalMarker                *sql.Stmt
 	DeleteLedgerEntry                  *sql.Stmt
 	DeleteLedgerMarker                 *sql.Stmt
-	GetTransactantByPhoneOrEmail       *sql.Stmt
+	FindTransactantByPhoneOrEmail      *sql.Stmt
 	GetAgreementPayors                 *sql.Stmt
 	GetAgreementRentables              *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
@@ -448,9 +458,9 @@ type RRprepSQL struct {
 	GetJournalMarker                   *sql.Stmt
 	GetJournalMarkers                  *sql.Stmt
 	GetLatestLedgerMarkerByGLNo        *sql.Stmt
+	GetLatestLedgerMarkerByType        *sql.Stmt
 	GetLedger                          *sql.Stmt
 	GetLedgerInRangeByGLNo             *sql.Stmt
-	GetLedgerMarkerByGLNo              *sql.Stmt
 	GetLedgerMarkerByGLNoDateRange     *sql.Stmt
 	GetLedgerMarkerInitList            *sql.Stmt
 	GetLedgerMarkers                   *sql.Stmt
@@ -474,8 +484,11 @@ type RRprepSQL struct {
 	GetSpecialtyByName                 *sql.Stmt
 	GetTenant                          *sql.Stmt
 	GetTransactant                     *sql.Stmt
+	GetTransactantByPhoneOrEmail       *sql.Stmt
 	GetUnitAssessments                 *sql.Stmt
 	GetUnitReceipts                    *sql.Stmt
+	InsertAgreementPayor               *sql.Stmt
+	InsertAgreementRentable            *sql.Stmt
 	InsertAssessmentType               *sql.Stmt
 	InsertBuilding                     *sql.Stmt
 	InsertBuildingWithID               *sql.Stmt
@@ -486,11 +499,9 @@ type RRprepSQL struct {
 	InsertLedger                       *sql.Stmt
 	InsertLedgerAllocation             *sql.Stmt
 	InsertLedgerMarker                 *sql.Stmt
-	InsertAgreementPayor               *sql.Stmt
 	InsertPayor                        *sql.Stmt
 	InsertProspect                     *sql.Stmt
 	InsertRentable                     *sql.Stmt
-	InsertAgreementRentable            *sql.Stmt
 	InsertRentableMarketRates          *sql.Stmt
 	InsertRentableSpecialtyType        *sql.Stmt
 	InsertRentableType                 *sql.Stmt
@@ -498,8 +509,8 @@ type RRprepSQL struct {
 	InsertRentalAgreementTemplate      *sql.Stmt
 	InsertTenant                       *sql.Stmt
 	InsertTransactant                  *sql.Stmt
+	UpdateLedgerMarker                 *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
-	FindTransactantByPhoneOrEmail      *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

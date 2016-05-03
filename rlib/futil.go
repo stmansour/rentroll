@@ -20,6 +20,12 @@ func yesnoToInt(s string) int64 {
 	}
 }
 
+// IsSQLNoResultsError returns true if the error provided is a sql err indicating no rows in the solution set.
+func IsSQLNoResultsError(err error) bool {
+	s := fmt.Sprintf("%v", err)
+	return strings.Contains(s, "no rows in result")
+}
+
 // LoadCSV loads a comma-separated-value file into an array of strings and returns the array of strings
 func LoadCSV(fname string) [][]string {
 	t := [][]string{}

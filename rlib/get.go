@@ -293,7 +293,7 @@ func GetDefaultLedgerMarkers(bid int64) LedgerMarker {
 	defer rows.Close()
 	for rows.Next() {
 		var r LedgerMarker
-		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
+		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
 	}
 	return r
@@ -514,6 +514,10 @@ func GetJournal(jid int64) (Journal, error) {
 	return r, err
 }
 
+//=======================================================
+//  L E D G E R   M A R K E R
+//=======================================================
+
 // GetLedgerMarkerInitList loads the Inititial LedgerMarker for all ledgers
 // this is essentially a way to get the exhaustive list of ledger numbers for a business
 func GetLedgerMarkerInitList(bid int64) []LedgerMarker {
@@ -524,29 +528,17 @@ func GetLedgerMarkerInitList(bid int64) []LedgerMarker {
 	t = make([]LedgerMarker, 0)
 	for rows.Next() {
 		var r LedgerMarker
-		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name))
+		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
 		t = append(t, r)
 	}
 	return t
-}
-
-// GetLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
-func GetLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
-	var r LedgerMarker
-	// fmt.Printf("Ledger = %s\n", s)
-	err := RRdb.Prepstmt.GetLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
-	if nil != err {
-		fmt.Printf("GetLedgerMarkerByGLNo: Could not find ledgermarker for GLNumber \"%s\".\n", s)
-		fmt.Printf("err = %v\n", err)
-	}
-	return r
 }
 
 // GetLedgerMarkerByGLNoDateRange returns the LedgerMarker struct for the supplied time range
 func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) LedgerMarker {
 	var r LedgerMarker
 	// fmt.Printf("Ledger = %s\n", s)
-	err := RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange.QueryRow(bid, s, d1, d2).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
+	err := RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange.QueryRow(bid, s, d1, d2).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
 	if nil != err {
 		fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not find ledgermarker for GLNumber \"%s\".\n", s)
 		fmt.Printf("err = %v\n", err)
@@ -555,15 +547,33 @@ func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) Ledg
 }
 
 // GetLatestLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
-func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
+func GetLatestLedgerMarkerByGLNo(bid int64, s string) (LedgerMarker, error) {
 	var r LedgerMarker
 	// fmt.Printf("Ledger = %s\n", s)
-	err := RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name)
+	err := RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
 	if nil != err {
-		fmt.Printf("err = %v\n", err)
+		if !IsSQLNoResultsError(err) {
+			Ulog("GetLatestLedgerMarkerByGLNo: err = %v\n", err)
+		}
 	}
-	return r
+	return r, err
 }
+
+// GetLatestLedgerMarkerByType returns the LedgerMarker struct for the GLNo with the supplied type
+func GetLatestLedgerMarkerByType(bid int64, t int64) (LedgerMarker, error) {
+	var r LedgerMarker
+	err := RRdb.Prepstmt.GetLatestLedgerMarkerByType.QueryRow(bid, t).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+	if nil != err {
+		if !IsSQLNoResultsError(err) {
+			Ulog("GetLatestLedgerMarkerByType: err = %v\n", err)
+		}
+	}
+	return r, err
+}
+
+//=======================================================
+//  T R A N S A C T A N T
+//=======================================================
 
 // GetTransactantByPhoneOrEmail searches for a transactoant match on the phone number or email
 func GetTransactantByPhoneOrEmail(s string) Transactant {

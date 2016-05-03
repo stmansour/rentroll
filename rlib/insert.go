@@ -43,7 +43,7 @@ func InsertJournalMarker(jm *JournalMarker) error {
 
 // InsertLedgerMarker writes a new journalmarker record to the database
 func InsertLedgerMarker(l *LedgerMarker) error {
-	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.BID, l.PID, l.GLNumber, l.Status, l.State, l.DtStart, l.DtStop, l.Balance, l.Type, l.Name)
+	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.BID, l.PID, l.GLNumber, l.Status, l.State, l.DtStart, l.DtStop, l.Balance, l.Type, l.Name, l.AcctType, l.RAAssociated, l.LastModBy)
 	if err != nil {
 		fmt.Printf("InsertLedgerMarker: err = %#v\n", err)
 	}

@@ -523,6 +523,10 @@ CREATE TABLE ledgermarker (
     Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a default account, 1 = Payor Account , 
     --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC
     Name VARCHAR(100) NOT NULL DEFAULT '',
+    AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 
+                                                              --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, 
+                                                              --    Cost of Goods Sold, Other Income, Other Expense
+    RAAssociated SMALLINT NOT NULL DEFAULT 0,                 -- 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LMID)

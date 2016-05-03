@@ -38,6 +38,7 @@ var App struct {
 	PplFile  string  // people for this business
 	RatFile  string  // rentalAgreementTemplates
 	RaFile   string  //rental agreement cvs file
+	CoaFile  string  //chart of accounts
 }
 
 func readCommandLineArgs() {
@@ -54,6 +55,7 @@ func readCommandLineArgs() {
 	pPtr := flag.String("p", "", "add people")
 	ratPtr := flag.String("T", "", "add rental agreement templates")
 	raPtr := flag.String("C", "", "add rental agreements")
+	coaPtr := flag.String("c", "", "add chart of accounts")
 
 	flag.Parse()
 	if *verPtr {
@@ -72,6 +74,7 @@ func readCommandLineArgs() {
 	App.PplFile = *pPtr
 	App.RatFile = *ratPtr
 	App.RaFile = *raPtr
+	App.CoaFile = *coaPtr
 }
 
 func main() {
@@ -138,5 +141,8 @@ func main() {
 	}
 	if len(App.RaFile) > 0 {
 		rlib.LoadRentalAgreementCSV(App.RaFile)
+	}
+	if len(App.CoaFile) > 0 {
+		rlib.LoadChartOfAccountsCSV(App.CoaFile)
 	}
 }
