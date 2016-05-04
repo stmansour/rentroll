@@ -6,6 +6,22 @@ import (
 	"time"
 )
 
+// GetName for RentalAgreements returns a unique identifier string.
+func (ra RentalAgreement) GetName() string {
+	return fmt.Sprintf("RA%08d", ra.RAID)
+}
+
+//=======================================================
+//  A G R E E M E N T   R E N T A B L E
+//=======================================================
+
+// FindAgreementByRentable reads a Prospect structure based on the supplied transactant id
+func FindAgreementByRentable(rid int64, d1, d2 *time.Time) (AgreementRentable, error) {
+	var a AgreementRentable
+	err := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2).Scan(&a.RAID, &a.RID, &a.DtStart, &a.DtStop)
+	return a, err
+}
+
 // GetTransactant reads a Transactant structure based on the supplied transactant id
 func GetTransactant(tid int64, t *Transactant) {
 	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tid).Scan(

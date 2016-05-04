@@ -65,6 +65,12 @@ func InsertLedgerEntry(l *Ledger) (int64, error) {
 	return rid, err
 }
 
+// InsertAssessment writes a new assessmenttype record to the database
+func InsertAssessment(a *Assessment) error {
+	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.ASMID, a.BID, a.RID, a.ASMTID, a.RAID, a.Amount, a.Start, a.Stop, a.Frequency, a.ProrationMethod, a.AcctRule, a.Comment, a.LastModBy)
+	return err
+}
+
 // InsertAssessmentType writes a new assessmenttype record to the database
 func InsertAssessmentType(a *AssessmentType) error {
 	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.Name, a.Description, a.LastModBy)

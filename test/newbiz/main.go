@@ -23,22 +23,24 @@ import _ "github.com/go-sql-driver/mysql"
 
 // App is the global application structure
 var App struct {
-	dbdir    *sql.DB // phonebook db
-	dbrr     *sql.DB //rentroll db
-	DBDir    string  // phonebook database
-	DBRR     string  //rentroll database
-	DBUser   string  // user for all databases
-	Report   int64   // if testing engine, which report/action to perform
-	BizFile  string  // name of csv file with new biz info
-	AsmtFile string  // name of csv file with assessment types
-	RTFile   string  // rentable types csv file
-	RFile    string  // rentables csv file
-	RSpFile  string  // rentable specialties
-	BldgFile string  // buildings for this business
-	PplFile  string  // people for this business
-	RatFile  string  // rentalAgreementTemplates
-	RaFile   string  //rental agreement cvs file
-	CoaFile  string  //chart of accounts
+	dbdir        *sql.DB                       // phonebook db
+	dbrr         *sql.DB                       //rentroll db
+	DBDir        string                        // phonebook database
+	DBRR         string                        //rentroll database
+	DBUser       string                        // user for all databases
+	AsmtTypes    map[int64]rlib.AssessmentType // all assessment types associated with this biz
+	Report       int64                         // if testing engine, which report/action to perform
+	BizFile      string                        // name of csv file with new biz info
+	AsmtTypeFile string                        // name of csv file with assessment types
+	RTFile       string                        // rentable types csv file
+	RFile        string                        // rentables csv file
+	RSpFile      string                        // rentable specialties
+	BldgFile     string                        // buildings for this business
+	PplFile      string                        // people for this business
+	RatFile      string                        // rentalAgreementTemplates
+	RaFile       string                        //rental agreement cvs file
+	CoaFile      string                        //chart of accounts
+	AsmtFile     string                        // assessments
 }
 
 func readCommandLineArgs() {
@@ -46,16 +48,17 @@ func readCommandLineArgs() {
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	asmtPtr := flag.String("a", "", "add assessment types via csv file")
+	asmtypePtr := flag.String("a", "", "add assessment types via csv file")
 	bizPtr := flag.String("b", "", "add business via csv file")
 	bldgPtr := flag.String("D", "", "add Buildings to a business via csv file")
 	rtPtr := flag.String("R", "", "add rentable types via csv file")
 	rPtr := flag.String("r", "", "add rentables via csv file")
 	rspPtr := flag.String("s", "", "add rentable specialties via csv file")
-	pPtr := flag.String("p", "", "add people")
-	ratPtr := flag.String("T", "", "add rental agreement templates")
-	raPtr := flag.String("C", "", "add rental agreements")
-	coaPtr := flag.String("c", "", "add chart of accounts")
+	pPtr := flag.String("p", "", "add people via csv file")
+	ratPtr := flag.String("T", "", "add rental agreement templates via csv file")
+	raPtr := flag.String("C", "", "add rental agreements via csv file")
+	coaPtr := flag.String("c", "", "add chart of accounts via csv file")
+	asmtPtr := flag.String("A", "", "add assessments via csv file")
 
 	flag.Parse()
 	if *verPtr {
@@ -66,6 +69,7 @@ func readCommandLineArgs() {
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.BizFile = *bizPtr
+	App.AsmtTypeFile = *asmtypePtr
 	App.AsmtFile = *asmtPtr
 	App.RTFile = *rtPtr
 	App.RSpFile = *rspPtr
@@ -118,8 +122,8 @@ func main() {
 	if len(App.BizFile) > 0 {
 		rlib.LoadBusinessCSV(App.BizFile)
 	}
-	if len(App.AsmtFile) > 0 {
-		rlib.LoadAssessmentTypesCSV(App.AsmtFile)
+	if len(App.AsmtTypeFile) > 0 {
+		rlib.LoadAssessmentTypesCSV(App.AsmtTypeFile)
 	}
 	if len(App.RTFile) > 0 {
 		rlib.LoadRentableTypesCSV(App.RTFile)
@@ -144,5 +148,9 @@ func main() {
 	}
 	if len(App.CoaFile) > 0 {
 		rlib.LoadChartOfAccountsCSV(App.CoaFile)
+	}
+	if len(App.AsmtFile) > 0 {
+		App.AsmtTypes = rlib.GetAssessmentTypes()
+		rlib.LoadAssessmentsCSV(App.AsmtFile, &App.AsmtTypes)
 	}
 }

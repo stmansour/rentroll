@@ -30,12 +30,14 @@ const (
 	DFLTLAST       = 16 // set this to the last default account index
 
 	OCCTYPEUNSET     = 0
-	OCCTYPEHOURLY    = 1
-	OCCTYPEDAILY     = 2
-	OCCTYPEWEEKLY    = 3
-	OCCTYPEMONTHLY   = 4
-	OCCTYPEQUARTERLY = 5
-	OCCTYPEYEARLY    = 6
+	OCCTYPESECONDLY  = 1
+	OCCTYPEMINUTELY  = 2
+	OCCTYPEHOURLY    = 3
+	OCCTYPEDAILY     = 4
+	OCCTYPEWEEKLY    = 5
+	OCCTYPEMONTHLY   = 6
+	OCCTYPEQUARTERLY = 7
+	OCCTYPEYEARLY    = 8
 
 	CREDIT = 0
 	DEBIT  = 1
@@ -223,17 +225,17 @@ type AssessmentType struct {
 
 // Assessment is a charge associated with a rentable
 type Assessment struct {
-	ASMID           int64
-	BID             int64
-	RID             int64
-	ASMTID          int64
-	RAID            int64
-	Amount          float64
-	Start           time.Time
-	Stop            time.Time
-	Frequency       int64
-	ProrationMethod int64
-	AcctRule        string
+	ASMID           int64     // unique id for this assessment
+	BID             int64     // what business
+	RID             int64     // the rentable
+	ASMTID          int64     // what type of assessment
+	RAID            int64     // associated Rental Agreement
+	Amount          float64   // how much
+	Start           time.Time // start time
+	Stop            time.Time // stop time, may be the same as start time or later
+	Frequency       int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	ProrationMethod int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	AcctRule        string    // expression showing how to account for the amount
 	Comment         string
 	LastModTime     time.Time
 	LastModBy       int64
@@ -433,6 +435,7 @@ type RRprepSQL struct {
 	DeleteLedgerEntry                  *sql.Stmt
 	DeleteLedgerMarker                 *sql.Stmt
 	FindTransactantByPhoneOrEmail      *sql.Stmt
+	FindAgreementByRentable            *sql.Stmt
 	GetAgreementPayors                 *sql.Stmt
 	GetAgreementRentables              *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
@@ -489,6 +492,7 @@ type RRprepSQL struct {
 	GetUnitReceipts                    *sql.Stmt
 	InsertAgreementPayor               *sql.Stmt
 	InsertAgreementRentable            *sql.Stmt
+	InsertAssessment                   *sql.Stmt
 	InsertAssessmentType               *sql.Stmt
 	InsertBuilding                     *sql.Stmt
 	InsertBuildingWithID               *sql.Stmt

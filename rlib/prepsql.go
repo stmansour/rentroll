@@ -23,11 +23,19 @@ func buildPreparedStatements() {
 	//===============================
 	RRdb.Prepstmt.InsertAgreementRentable, err = RRdb.dbrr.Prepare("INSERT INTO agreementrentables (RAID,RID,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
+	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables where RID=? and DtStop>? and DtStart<?")
+	Errcheck(err)
 
 	//===============================
 	//  Assessments
 	//===============================
+	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments WHERE ASMID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE BID=? and Start<? and Stop>?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertAssessment, err = RRdb.dbrr.Prepare("INSERT INTO assessments (ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 
 	//===============================
@@ -53,7 +61,43 @@ func buildPreparedStatements() {
 	//==========================================
 	// Business
 	//==========================================
+	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetBusinessByDesignation, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE DES=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM rentablespecialtytypes WHERE BID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.InsertBusiness, err = RRdb.dbrr.Prepare("INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
+	Errcheck(err)
+
+	//==========================================
+	// JOURNAL
+	//==========================================
+	RRdb.Prepstmt.GetJournal, err = RRdb.dbrr.Prepare("select JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from journal WHERE JID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetJournalMarker, err = RRdb.dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from journalmarker WHERE JMID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetJournalMarkers, err = RRdb.dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from journalmarker ORDER BY JMID DESC LIMIT ?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertJournal, err = RRdb.dbrr.Prepare("INSERT INTO journal (BID,RAID,Dt,Amount,Type,ID,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllJournalsInRange, err = RRdb.dbrr.Prepare("SELECT JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from journal WHERE BID=? and ?<=Dt and Dt<?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.dbrr.Prepare("SELECT JAID,JID,RID,Amount,ASMID,AcctRule from journalallocation WHERE JAID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.dbrr.Prepare("SELECT JAID,JID,RID,Amount,ASMID,AcctRule from journalallocation WHERE JID=?")
+	Errcheck(err)
+
+	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.dbrr.Prepare("INSERT INTO journalallocation (JID,RID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertJournalMarker, err = RRdb.dbrr.Prepare("INSERT INTO journalmarker (BID,State,DtStart,DtStop) VALUES(?,?,?,?)")
+	Errcheck(err)
+
+	RRdb.Prepstmt.DeleteJournalAllocations, err = RRdb.dbrr.Prepare("DELETE FROM journalallocation WHERE JID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteJournalEntry, err = RRdb.dbrr.Prepare("DELETE FROM journal WHERE JID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteJournalMarker, err = RRdb.dbrr.Prepare("DELETE FROM journalmarker WHERE JMID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -135,6 +179,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreement (RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement WHERE RAID=?")
+	Errcheck(err)
 
 	//===============================
 	//  Rentable
@@ -144,6 +190,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE RID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableByName, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE Name=? AND BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE BID=?")
 	Errcheck(err)
 
 	//===============================
@@ -178,28 +226,9 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetReceipt, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RCPTID=?")
 	Errcheck(err)
 
-	// RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,LID,RTID,BID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE BID=?")
-	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,LastModTime,LastModBy FROM rentable WHERE BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetBusinessByDesignation, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE DES=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM rentablespecialtytypes WHERE BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE BID=? and Start<? and Stop>?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllJournalsInRange, err = RRdb.dbrr.Prepare("SELECT JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from journal WHERE BID=? and ?<=Dt and Dt<?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement WHERE RAID=?")
-	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment from receipt WHERE BID=? and Dt >= ? and DT < ?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.dbrr.Prepare("SELECT RCPTID,Amount,ASMID,AcctRule from receiptallocation WHERE RCPTID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.dbrr.Prepare("SELECT JAID,JID,RID,Amount,ASMID,AcctRule from journalallocation WHERE JAID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.dbrr.Prepare("SELECT JAID,JID,RID,Amount,ASMID,AcctRule from journalallocation WHERE JID=?")
 	Errcheck(err)
 
 	//===============================
@@ -210,33 +239,11 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.dbrr.Prepare("INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments WHERE ASMID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetJournalMarker, err = RRdb.dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from journalmarker WHERE JMID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetJournalMarkers, err = RRdb.dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from journalmarker ORDER BY JMID DESC LIMIT ?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetJournal, err = RRdb.dbrr.Prepare("select JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from journal WHERE JID=?")
-	Errcheck(err)
 	RRdb.Prepstmt.GetAgreementRentables, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables WHERE RID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAgreementPayors, err = RRdb.dbrr.Prepare("SELECT RAID,PID,DtStart,DtStop from agreementpayors WHERE RAID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables WHERE RID=? and ?<DtStop and ?>DtStart")
-	Errcheck(err)
-
-	RRdb.Prepstmt.InsertJournal, err = RRdb.dbrr.Prepare("INSERT INTO journal (BID,RAID,Dt,Amount,Type,ID,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.dbrr.Prepare("INSERT INTO journalallocation (JID,RID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertJournalMarker, err = RRdb.dbrr.Prepare("INSERT INTO journalmarker (BID,State,DtStart,DtStop) VALUES(?,?,?,?)")
-	Errcheck(err)
-
-	RRdb.Prepstmt.DeleteJournalAllocations, err = RRdb.dbrr.Prepare("DELETE FROM journalallocation WHERE JID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteJournalEntry, err = RRdb.dbrr.Prepare("DELETE FROM journal WHERE JID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteJournalMarker, err = RRdb.dbrr.Prepare("DELETE FROM journalmarker WHERE JMID=?")
 	Errcheck(err)
 
 	//==========================================

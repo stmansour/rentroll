@@ -276,7 +276,7 @@ CREATE TABLE unit (
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (UNITID)
-    -- Abbreviation VARCHAR(100),                        -- unit abbreviation  -- REMOVED - it's part of unittype
+    -- Abbreviation VARCHAR(100),                       -- unit abbreviation  -- REMOVED - it's part of unittype
 );
 
 -- ===========================================
@@ -286,9 +286,9 @@ CREATE TABLE unit (
 -- this is simply a list of RSPIDs.
 -- will be the list of all the unit specialties for that unit.
 CREATE TABLE rentablespecialties (
-    BID BIGINT NOT NULL DEFAULT 0,                         -- the business
+    BID BIGINT NOT NULL DEFAULT 0,                      -- the business
     RID BIGINT NOT NULL DEFAULT 0,                      -- unique id of unit
-    RSPID BIGINT NOT NULL DEFAULT 0                        -- unique id of specialty (see Table rentablespecialties)
+    RSPID BIGINT NOT NULL DEFAULT 0                     -- unique id of specialty (see Table rentablespecialties)
 );
 
 
@@ -300,10 +300,10 @@ CREATE TABLE rentablespecialties (
 -- charges associated with a rentable
 CREATE TABLE assessments (
     ASMID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                             -- Business id
-    RID BIGINT NOT NULL DEFAULT 0,                             -- rental id
-    ASMTID BIGINT NOT NULL DEFAULT 0,                          -- what type of assessment (ex: Rent, SecurityDeposit, ...)
-    RAID BIGINT NOT NULL DEFAULT 0,                            -- Associated Rental Agreement ID
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
+    RID BIGINT NOT NULL DEFAULT 0,                          -- rental id
+    ASMTID BIGINT NOT NULL DEFAULT 0,                       -- what type of assessment (ex: Rent, SecurityDeposit, ...)
+    RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the tenant moves out or when the charge is no longer applicable
