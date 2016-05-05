@@ -181,6 +181,7 @@ CREATE TABLE assessmenttypes (
 -- ===========================================
 CREATE TABLE paymenttypes (
     PMTID MEDIUMINT NOT NULL AUTO_INCREMENT,
+    BID MEDIUMINT NOT NULL DEFAULT 0,
     Name VARCHAR(100) NOT NULL DEFAULT '',
     Description VARCHAR(256) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP,                                  -- when was this record last written

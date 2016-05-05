@@ -287,3 +287,9 @@ func InsertAgreementPayor(a *AgreementPayor) (int64, error) {
 	}
 	return tid, err
 }
+
+// InsertPaymentType writes a new assessmenttype record to the database
+func InsertPaymentType(a *PaymentType) error {
+	_, err := RRdb.Prepstmt.InsertPaymentType.Exec(a.BID, a.Name, a.Description, a.LastModBy)
+	return err
+}

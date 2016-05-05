@@ -134,11 +134,11 @@ INSERT INTO assessmenttypes (Name,Description) VALUES
 -- ----------------------------------------------------------------------------------------
 --     PAYMENT TYPES
 -- ----------------------------------------------------------------------------------------
-INSERT INTO paymenttypes (Name,Description) VALUES
-	("Check","Personal check from payor"),
-	("VISA","Credit card charge"),
-	("AMEX", "American Express credit card"),
-	("Cash","Cash");
+INSERT INTO paymenttypes (BID, Name,Description) VALUES
+	(1,"Check","Personal check from payor"),
+	(1,"VISA","Credit card charge"),
+	(1,"AMEX", "American Express credit card"),
+	(1,"Cash","Cash");
 
 
 -- ----------------------------------------------------------------------------------------

@@ -141,6 +141,12 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// PAYMENT TYPES
+	//==========================================
+	RRdb.Prepstmt.InsertPaymentType, err = RRdb.dbrr.Prepare("INSERT INTO paymenttypes (BID,Name,Description,LastModBy) VALUES(?,?,?,?)")
+	Errcheck(err)
+
+	//==========================================
 	// PAYOR
 	//==========================================
 	RRdb.Prepstmt.InsertPayor, err = RRdb.dbrr.Prepare("INSERT INTO payor (TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?)")

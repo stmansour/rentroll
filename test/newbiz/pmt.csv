@@ -1,0 +1,5 @@
+Designation,Name,Description
+REH,"Check","Personal check from payor"
+REH,"VISA","Credit card charge"
+REH,"AMEX","American Express credit card"
+REH,"Cash","Cash"

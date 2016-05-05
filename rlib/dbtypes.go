@@ -269,6 +269,7 @@ type Building struct {
 // PaymentType describes how a payment was made
 type PaymentType struct {
 	PMTID       int64
+	BID         int64
 	Name        string
 	Description string
 	LastModTime time.Time
@@ -504,6 +505,7 @@ type RRprepSQL struct {
 	InsertLedgerAllocation             *sql.Stmt
 	InsertLedgerMarker                 *sql.Stmt
 	InsertPayor                        *sql.Stmt
+	InsertPaymentType                  *sql.Stmt
 	InsertProspect                     *sql.Stmt
 	InsertRentable                     *sql.Stmt
 	InsertRentableMarketRates          *sql.Stmt
