@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
+// NO and all the rest are constants that are used with the RentRoll database
 const (
-	NO = int64(0) // std negative value
-
+	NO  = int64(0) // std negative value
 	YES = int64(1)
 
 	RENT                      = 1
@@ -68,25 +68,34 @@ const (
 // const RRDATEFMT = "01/02/06 3:04PM MST"
 const RRDATEFMT = "01/02/06"
 
-// RRDATEINPFMT is the shorthand
+// RRDATEINPFMT is the shorthand for database-style dates
 const RRDATEINPFMT = "2006-01-02"
 
 //==========================================
-//    BID = business id
-//   RSPID = rentable specialty id
-//   OFSID = offset id
-//  ASMTID = assessment type id
-//   PMTID = payment type id
+// ASMID = Assessment id
+// ASMTID = assessment type id
 // AVAILID = availability id
-//  BLDGID = building id
-//    TCID = transactant id
-//     TID = tenant id
-//     PID = payor id
-//   RATID = rental agreement template id
-//    RAID = occupancy agreement
-//  RCPTID = receipt id
-//  DISBID = disbursement id
-//     LID = ledger id
+// BID = business id
+// BLDGID = building id
+// DISBID = disbursement id
+// JAID = journal allocation id
+// JID = journal id
+// JMID = journal marker id
+// LID = ledger id
+// LMID = ledger marker id
+// OFSID = offset id
+// PID = payor id
+// PMTID = payment type id
+// PRSPID = Prospect id
+// RAID = rental agreement / occupancy agreement
+// RATID = occupancy agreement template id
+// RCPTID = receipt id
+// RID = rentable id
+// RSPID = unit specialty id
+// RTID = rentable type id
+// TCID = transactant id
+// TCID = transactant id
+// TID = tenant id
 //==========================================
 
 // RentalAgreementTemplate is a template used to set up new rental agreements
@@ -278,15 +287,17 @@ type PaymentType struct {
 
 // Receipt saves the information associated with a payment made by a tenant to cover one or more assessments
 type Receipt struct {
-	RCPTID   int64
-	BID      int64
-	RAID     int64
-	PMTID    int64
-	Dt       time.Time
-	Amount   float64
-	AcctRule string
-	Comment  string
-	RA       []ReceiptAllocation
+	RCPTID      int64
+	BID         int64
+	RAID        int64
+	PMTID       int64
+	Dt          time.Time
+	Amount      float64
+	AcctRule    string
+	Comment     string
+	LastModTime time.Time
+	LastModBy   int64
+	RA          []ReceiptAllocation
 }
 
 // ReceiptAllocation defines an allocation of a receipt amount.
@@ -507,6 +518,8 @@ type RRprepSQL struct {
 	InsertPayor                        *sql.Stmt
 	InsertPaymentType                  *sql.Stmt
 	InsertProspect                     *sql.Stmt
+	InsertReceipt                      *sql.Stmt
+	InsertReceiptAllocation            *sql.Stmt
 	InsertRentable                     *sql.Stmt
 	InsertRentableMarketRates          *sql.Stmt
 	InsertRentableSpecialtyType        *sql.Stmt
@@ -547,4 +560,17 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.dbrr = dbrr
 	RRdb.BizTypes = make(map[int64]*BusinessTypes, 0)
 	buildPreparedStatements()
+}
+
+// InitBusinessFields initialize the lists in rlib's internal data structures
+func InitBusinessFields(bid int64) {
+	if nil == RRdb.BizTypes[bid] {
+		bt := BusinessTypes{
+			BID:          bid,
+			AsmtTypes:    make(map[int64]*AssessmentType),
+			PmtTypes:     make(map[int64]*PaymentType),
+			DefaultAccts: make(map[int64]*LedgerMarker),
+		}
+		RRdb.BizTypes[bid] = &bt
+	}
 }

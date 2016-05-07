@@ -302,8 +302,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 }
 
 // GetDefaultLedgerMarkers loads the default LedgerMarkers for the supplied Business bid
-func GetDefaultLedgerMarkers(bid int64) LedgerMarker {
-	var r LedgerMarker
+func GetDefaultLedgerMarkers(bid int64) {
 	rows, err := RRdb.Prepstmt.GetDefaultLedgerMarkers.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
@@ -312,7 +311,6 @@ func GetDefaultLedgerMarkers(bid int64) LedgerMarker {
 		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
 	}
-	return r
 }
 
 // GetAgreementsForRentable returns an array of AgreementRentables associated with the supplied RentableID

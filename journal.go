@@ -4,73 +4,10 @@ import (
 	"fmt"
 	"math"
 	"rentroll/rlib"
-	"strings"
 	"time"
 )
 
-type acctRule struct {
-	Action  string  // "d" = debit, "c" = credit
-	Account string  // GL No for the account
-	Amount  float64 // use the entire amount of the assessment or deposit, otherwise the amount to use
-}
-
-func varAcctResolve(bid int64, s string) string {
-	i := int64(0)
-	switch {
-	case s == "DFLTCASH":
-		i = rlib.DFLTCASH
-	case s == "DFLTGENRCV":
-		i = rlib.DFLTGENRCV
-	case s == "DFLTGSRENT":
-		i = rlib.DFLTGSRENT
-	case s == "DFLTLTL":
-		i = rlib.DFLTLTL
-	case s == "DFLTVAC":
-		i = rlib.DFLTVAC
-	case s == "DFLTSECDEPRCV":
-		i = rlib.DFLTSECDEPRCV
-	case s == "DFLTSECDEPASMT":
-		i = rlib.DFLTSECDEPASMT
-	}
-	if i > 0 {
-		return rlib.RRdb.BizTypes[bid].DefaultAccts[i].GLNumber
-	}
-	return s
-}
-
-func doAcctSubstitution(bid int64, s string) string {
-	if s[0] == '$' {
-		m := rpnVariable.FindStringSubmatchIndex(s)
-		if m != nil {
-			match := s[m[2]:m[3]]
-			return varAcctResolve(bid, match)
-		}
-	}
-	return s
-}
-
-func parseAcctRule(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []acctRule {
-	var m []acctRule
-	ctx := rpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
-	if len(rule) > 0 {
-		sa := strings.Split(rule, ",")
-		for k := 0; k < len(sa); k++ {
-			var r acctRule
-			t := strings.Join(strings.Fields(sa[k]), " ")
-			ta := strings.Split(t, " ")
-			r.Action = strings.ToLower(strings.TrimSpace(ta[0]))
-			r.Account = doAcctSubstitution(xbiz.P.BID, strings.TrimSpace(ta[1]))
-			ar := strings.Join(ta[2:], " ")
-			sr := strings.TrimSpace(ar)
-			x := varParseAmount(&ctx, sr)
-			r.Amount = x
-			m = append(m, r)
-		}
-	}
-	return m
-}
-
-func sumAllocations(m *[]acctRule) (float64, float64) {
+func sumAllocations(m *[]rlib.AcctRule) (float64, float64) {
 	sum := float64(0.0)
 	debits := float64(0.0)
 	for i := 0; i < len(*m); i++ {
@@ -121,7 +58,7 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 	_, _, pf := calcProrationInfo(&ra, d1, d2, a.ProrationMethod)
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
-	m := parseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	m := rlib.ParseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
 

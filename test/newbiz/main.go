@@ -29,6 +29,7 @@ var App struct {
 	DBRR         string                        //rentroll database
 	DBUser       string                        // user for all databases
 	AsmtTypes    map[int64]rlib.AssessmentType // all assessment types associated with this biz
+	PmtTypes     map[int64]rlib.PaymentType    // all payment types in this db
 	Report       int64                         // if testing engine, which report/action to perform
 	BizFile      string                        // name of csv file with new biz info
 	AsmtTypeFile string                        // name of csv file with assessment types
@@ -42,6 +43,7 @@ var App struct {
 	CoaFile      string                        //chart of accounts
 	AsmtFile     string                        // assessments
 	PmtTypeFile  string                        // payment types
+	RcptFile     string                        // receipts of payments
 }
 
 func readCommandLineArgs() {
@@ -61,6 +63,7 @@ func readCommandLineArgs() {
 	coaPtr := flag.String("c", "", "add chart of accounts via csv file")
 	asmtPtr := flag.String("A", "", "add assessments via csv file")
 	pmtPtr := flag.String("P", "", "add payment types via csv file")
+	rcptPtr := flag.String("e", "", "add receipts via csv file")
 
 	flag.Parse()
 	if *verPtr {
@@ -82,6 +85,7 @@ func readCommandLineArgs() {
 	App.RaFile = *raPtr
 	App.CoaFile = *coaPtr
 	App.PmtTypeFile = *pmtPtr
+	App.RcptFile = *rcptPtr
 }
 
 func main() {
@@ -120,6 +124,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 
 	if len(App.BizFile) > 0 {
@@ -158,5 +163,9 @@ func main() {
 	if len(App.AsmtFile) > 0 {
 		App.AsmtTypes = rlib.GetAssessmentTypes()
 		rlib.LoadAssessmentsCSV(App.AsmtFile, &App.AsmtTypes)
+	}
+	if len(App.RcptFile) > 0 {
+		App.PmtTypes = rlib.GetPaymentTypes()
+		rlib.LoadReceiptsCSV(App.RcptFile, &App.PmtTypes)
 	}
 }

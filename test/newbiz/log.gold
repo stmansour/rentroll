@@ -1,9 +1,9 @@
 CreateRentalSpecialty: Business reh already has a RentableSpecialty named Lake View
-2016/05/04 14:12:17 CreateBuilding: business with designation bug does net exist
-2016/05/04 14:12:17 GetBuilding: err = sql: no rows in result set
-2016/05/04 14:12:17 CreateRentables: building number 999 does not exist
-2016/05/04 14:12:17 GetRentableTypeByStyle: err = sql: no rows in result set
-2016/05/04 14:12:17 CreateRentables: rentable style XXX does not exist in business reh
+2016/05/05 11:21:14 CreateBuilding: business with designation bug does net exist
+2016/05/05 11:21:14 GetBuilding: err = sql: no rows in result set
+2016/05/05 11:21:14 CreateRentables: building number 999 does not exist
+2016/05/05 11:21:14 GetRentableTypeByStyle: err = sql: no rows in result set
+2016/05/05 11:21:14 CreateRentables: rentable style XXX does not exist in business reh
 CreateRentables: invalid Assignment number: 9
 CreateRentables: invalid Report number: 9
 CreateRentables: invalid DefaultOccupancy number: 9
@@ -12,7 +12,7 @@ Rentable with name "107" already exists. Skipping.
 Invalid Default value for account 42999: 333.  Value must blank or between 10 and 16
 CreateLedgerMarkers: Account already exists: 42999
 CreateLedgerMarkers: Invalid account status: re45gg5
-2016/05/04 14:12:17 CreateLedgerMarkers: business with designation ZZZ does net exist
+2016/05/05 11:21:14 CreateAssessmentsFromCSV: business with designation ZZZ does net exist
 CreateAssessmentsFromCSV: Error loading rentable named: 9QZ.  Error = sql: no rows in result set
 CreateAssessmentsFromCSV: Assessment type is invalid: 999
 CreateAssessmentsFromCSV: Frequency must be between 1 and 8.  Found 99

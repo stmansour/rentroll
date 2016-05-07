@@ -6,30 +6,30 @@
 -- ********************************
 -- *********  UNIQUE IDS  *********
 -- ********************************
---   ASMID = Assessment id
---  ASMTID = assessment type id
+-- ASMID = Assessment id
+-- ASMTID = assessment type id
 -- AVAILID = availability id
---  BLDGID = building id
---     BID = business id
---  DISBID = disbursement id
---    JAID = journal allocation id
---     JID = journal id
---    JMID = journal marker id
---     LID = ledger id
---    LMID = ledger marker id
---   OFSID = offset id
---     PID = payor id
---     RID = rentable id
---   PMTID = payment type id
---  PRSPID = Prospect id
---    RAID = rental agreement / occupancy agreement
---   RATID = occupancy agreement template id
---    TCID = transactant id
---  RCPTID = receipt id
---    RTID = rentable type id
---    TCID = transactant id
---     TID = tenant id
---   RSPID = unit specialty id
+-- BID = business id
+-- BLDGID = building id
+-- DISBID = disbursement id
+-- JAID = journal allocation id
+-- JID = journal id
+-- JMID = journal marker id
+-- LID = ledger id
+-- LMID = ledger marker id
+-- OFSID = offset id
+-- PID = payor id
+-- PMTID = payment type id
+-- PRSPID = Prospect id
+-- RAID = rental agreement / occupancy agreement
+-- RATID = occupancy agreement template id
+-- RCPTID = receipt id
+-- RID = rentable id
+-- RSPID = unit specialty id
+-- RTID = rentable type id
+-- TCID = transactant id
+-- TCID = transactant id
+-- TID = tenant id
 
 DROP DATABASE IF EXISTS rentroll;
 CREATE DATABASE rentroll;
@@ -429,6 +429,8 @@ CREATE TABLE receipt (
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     -- ApplyToGeneralReceivable DECIMAL(19,4),                  -- Breakdown is in receiptallocation table
     -- ApplyToSecurityDeposit DECIMAL(19,4),                    -- Can we just handle this as part of receipt allocation
+    LastModTime TIMESTAMP,                                      -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RCPTID)
 );
 

@@ -217,6 +217,46 @@ func InsertProspect(a *Prospect) (int64, error) {
 }
 
 //=======================================================
+//  R E C E I P T
+//=======================================================
+
+// InsertReceipt writes a new receipt record to the database
+func InsertReceipt(r *Receipt) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.RCPTID, r.BID, r.RAID, r.PMTID, r.Dt, r.Amount, r.AcctRule, r.Comment, r.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertReceipt: error inserting Receipt:  %v\n", err)
+		Ulog("Receipt = %#v\n", *r)
+	}
+	return tid, err
+}
+
+//=======================================================
+//  R E C E I P T   A L L O C A T I O N
+//=======================================================
+
+// InsertReceiptAllocation writes a new ReceiptAllocation record to the database
+func InsertReceiptAllocation(r *ReceiptAllocation) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(r.RCPTID, r.Amount, r.ASMID, r.AcctRule)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertReceiptAllocation: error inserting ReceiptAllocation:  %v\n", err)
+		Ulog("ReceiptAllocation = %#v\n", *r)
+	}
+	return tid, err
+}
+
+//=======================================================
 //  R E N T A L   A G R E E M E N T   T E M P L A T E
 //=======================================================
 

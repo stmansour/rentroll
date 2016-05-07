@@ -5,6 +5,25 @@ import (
 	"strings"
 )
 
+// type Receipt struct {
+// 	RCPTID   int64
+// 	BID      int64
+// 	RAID     int64
+// 	PMTID    int64
+// 	Dt       time.Time
+// 	Amount   float64
+// 	AcctRule string
+// 	Comment  string
+// 	RA       []ReceiptAllocation
+// }
+
+// type ReceiptAllocation struct {
+// 	RCPTID   int64
+// 	Amount   float64
+// 	ASMID    int64
+// 	AcctRule string
+// }
+
 // 0            1    2
 // Designation, Name,Description
 // REH,"Check","Personal check from payor"
@@ -49,5 +68,13 @@ func LoadPaymentTypesCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreatePaymentTypeFromCSV(t[i])
+	}
+}
+
+// ReportPaymentTypesText formats a text report of the payment types in the database
+func ReportPaymentTypesText() {
+	t := GetPaymentTypes()
+	for k, v := range t {
+		fmt.Printf("%2d  BID(%2d)  %s\n\t%s\n", k, v.BID, v.Name, v.Description)
 	}
 }

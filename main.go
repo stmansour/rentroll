@@ -47,7 +47,7 @@ func readCommandLineArgs() {
 
 func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	fmt.Printf("INTERNAL TEST\n")
-	m := parseAcctRule(xbiz, 1, d1, d2, "d ${DFLTGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${DFLTGENRCV})} -", float64(1000), float64(8)/float64(30))
+	m := rlib.ParseAcctRule(xbiz, 1, d1, d2, "d ${DFLTGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${DFLTGENRCV})} -", float64(1000), float64(8)/float64(30))
 
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("m[%d] = %#v\n", i, m[i])
@@ -73,15 +73,16 @@ func Dispatch(d1, d2 time.Time, report int64) {
 			&xbiz.P.ParkingPermitInUse, &xbiz.P.LastModTime, &xbiz.P.LastModBy))
 		// get its info
 		rlib.GetXBusiness(xbiz.P.BID, &xbiz)
-		if nil == rlib.RRdb.BizTypes[xbiz.P.BID] {
-			bt := rlib.BusinessTypes{
-				BID:          xbiz.P.BID,
-				AsmtTypes:    make(map[int64]*rlib.AssessmentType),
-				PmtTypes:     make(map[int64]*rlib.PaymentType),
-				DefaultAccts: make(map[int64]*rlib.LedgerMarker),
-			}
-			rlib.RRdb.BizTypes[xbiz.P.BID] = &bt
-		}
+		rlib.InitBusinessFields(xbiz.P.BID)
+		// if nil == rlib.RRdb.BizTypes[xbiz.P.BID] {
+		// 	bt := rlib.BusinessTypes{
+		// 		BID:          xbiz.P.BID,
+		// 		AsmtTypes:    make(map[int64]*rlib.AssessmentType),
+		// 		PmtTypes:     make(map[int64]*rlib.PaymentType),
+		// 		DefaultAccts: make(map[int64]*rlib.LedgerMarker),
+		// 	}
+		// 	rlib.RRdb.BizTypes[xbiz.P.BID] = &bt
+		// }
 		// Gather its chart of accounts
 		rlib.GetDefaultLedgerMarkers(xbiz.P.BID)
 		// fmt.Printf("Dispatch: After call to GetDefaultLedgerMarkers: rlib.RRdb.BizTypes[%d].DefaultAccts = %#v\n", xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts)

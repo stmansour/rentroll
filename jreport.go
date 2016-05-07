@@ -96,7 +96,7 @@ func printJournalHeader(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 }
 
 func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) {
-	m := parseAcctRule(xbiz, rid, &d, &d, rule, amt, float64(1))
+	m := rlib.ParseAcctRule(xbiz, rid, &d, &d, rule, amt, float64(1))
 	for i := 0; i < len(m); i++ {
 		amt := m[i].Amount
 		if m[i].Action == "c" {
@@ -150,7 +150,7 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Jo
 	for i := 0; i < len(rcpt.RA); i++ {
 		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
 		r := rlib.GetRentable(a.RID)
-		m := parseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
+		m := rlib.ParseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
 		for k := 0; k < len(m); k++ {
 			l, err := rlib.GetLatestLedgerMarkerByGLNo(j.BID, m[k].Account)

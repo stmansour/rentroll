@@ -45,7 +45,7 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("CreateLedgerMarkers: business with designation %s does net exist\n", sa[0])
+			Ulog("CreateAssessmentsFromCSV: business with designation %s does net exist\n", sa[0])
 			return
 		}
 		a.BID = b1.BID

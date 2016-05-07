@@ -168,6 +168,18 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetProspect, err = RRdb.dbrr.Prepare("SELECT PRSPID,TCID,ApplicationFee,LastModTime,LastModBy FROM prospect where PRSPID=?")
 	Errcheck(err)
 
+	//==========================================
+	// RECEIPT
+	//==========================================
+	RRdb.Prepstmt.InsertReceipt, err = RRdb.dbrr.Prepare("INSERT INTO receipt (RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+
+	//==========================================
+	// RECEIPT ALLOCATION
+	//==========================================
+	RRdb.Prepstmt.InsertReceiptAllocation, err = RRdb.dbrr.Prepare("INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES(?,?,?,?)")
+	Errcheck(err)
+
 	//===============================
 	//  Rental Agreement Template
 	//===============================

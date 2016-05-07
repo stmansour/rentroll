@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+// Stripchars returns a string with the characters from chars removed
+func Stripchars(str, chars string) string {
+	return strings.Map(func(r rune) rune {
+		if strings.IndexRune(chars, r) < 0 {
+			return r
+		}
+		return -1
+	}, str)
+}
+
 func yesnoToInt(s string) int64 {
 	s = strings.ToUpper(s)
 	switch {
@@ -75,6 +85,8 @@ func LoadCSV(fname string) [][]string {
 		for _, sa := range rawCSVdata {
 			t = append(t, sa)
 		}
+	} else {
+		Ulog("LoadCSV: could not open CSV file. err = %v\n", err)
 	}
 	return t
 }

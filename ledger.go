@@ -40,7 +40,7 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 	// bal := lm.Balance
 
 	for i := 0; i < len(j.JA); i++ {
-		m := parseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
+		m := rlib.ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
 		for k := 0; k < len(m); k++ {
 			var l rlib.Ledger
 			l.BID = xbiz.P.BID

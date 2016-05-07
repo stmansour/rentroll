@@ -6,7 +6,7 @@ func initRentRoll() {
 	initLists()
 	initJFmt()
 	initTFmt()
-	rpnInit()
+	rlib.RpnInit()
 	loadDefaultCashAccts()
 }
 

@@ -1,12 +1,14 @@
 #!/bin/bash
 pushd ../../db/schema;make newdb;popd
-./newbiz -b nb.csv -a asmttype.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -c coa.csv -A asmt.csv -P pmt.csv >log 2>&1
-# ./newbiz -b nb.csv -a asmt.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv >log 2>&1
+./newbiz -b nb.csv -a asmttype.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv >log 2>&1
 
-
-# $1 = base file name
-# $2 = title
-# $3 = mysql select statement
+########################################
+# dotest()
+#	Parameters:
+# 		$1 = base file name
+# 		$2 = title
+# 		$3 = mysql select statement
+########################################
 dotest () {
 cat >xxqq <<EOF
 use rentroll;
@@ -46,6 +48,7 @@ dotest "l" "PHASE 15: Agreement Payors...  " "select * from agreementpayors;"
 dotest "k" "PHASE 16: Chart of Accounts...  " "select LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy from ledgermarker;"
 dotest "j" "PHASE 17: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModBy from assessments;"
 dotest "i" "PHASE 18: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from paymenttypes;"
+dotest "h" "PHASE 19: Payment allocations...  " "select * from receiptallocation order by Amount ASC;"
 
 echo -n "PHASE x: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then
