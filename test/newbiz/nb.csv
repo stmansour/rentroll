@@ -1,3 +1,5 @@
 Designation,Name,DefaultOccupancyType,ParkingPermitInUse
-REH,,4,0
-BBBB,Big Bob's Barrel Barn,4,0
+REH,,4,no
+BBBB,Big Bob's Barrel Barn,4,yes
+QQQ,,a,da
+RRR,,4,nyet

@@ -8,6 +8,7 @@ import (
 )
 
 //  CSV file format:
+//                                                                                   |<----- repeat Rentable name, as many as needed ... -->|
 //      0     1         2        3        4           5        6            7            8
 // RATRefNum,BID,PrimaryTenant,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName, ...
 // 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2015-11-08",1,"",101
@@ -31,7 +32,7 @@ func CreateRentalAgreement(sa []string) {
 	if len(des) > 0 {
 		b1, _ := GetRentalAgreementTemplateByRefNum(des)
 		if len(b1.ReferenceNumber) == 0 {
-			Ulog("CreateRentalAgreement: business with designation %s does net exist\n", des)
+			Ulog("CreateRentalAgreement: business with designation %s does net exist\n", sa[0])
 			return
 		}
 		ra.RATID = b1.RATID
@@ -54,7 +55,11 @@ func CreateRentalAgreement(sa []string) {
 	//  Determine the primary tenant
 	//-------------------------------------------------------------------
 	s := strings.TrimSpace(sa[2]) // either the email address or the phone number
-	t := GetTransactantByPhoneOrEmail(s)
+	t, err := GetTransactantByPhoneOrEmail(s)
+	if err != nil && !IsSQLNoResultsError(err) {
+		Ulog("CreateRentalAgreement: error retrieving tenant by phone or email: %v\n", err)
+		return
+	}
 	if t.TID == 0 {
 		fmt.Printf("CreateRentalAgreement: could not find tenant with contact information %s\n", s)
 		return
@@ -65,9 +70,13 @@ func CreateRentalAgreement(sa []string) {
 	//  Determine the payor
 	//-------------------------------------------------------------------
 	s = strings.TrimSpace(sa[3]) // either the email address or the phone number
-	t = GetTransactantByPhoneOrEmail(s)
+	t, err = GetTransactantByPhoneOrEmail(s)
+	if err != nil && !IsSQLNoResultsError(err) {
+		Ulog("CreateRentalAgreement: error retrieving payor by phone or email: %v\n", err)
+		return
+	}
 	if t.PID == 0 {
-		fmt.Printf("CreateRentalAgreement: could not find tenant with contact information %s\n", s)
+		fmt.Printf("CreateRentalAgreement: could not find payor with contact information %s\n", s)
 		return
 	}
 	payor.PID = t.PID

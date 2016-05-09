@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -19,8 +20,11 @@ func getBusinessBID(des string) int64 {
 }
 
 // CreateRentableType reads an Rentable type string array and creates a database record for the Rentable type
-//  [0]        [1]      [2]   			[3]       [4]       [5]    [6]            [7]
-// Designation,Style,	Name, 			Frequency,Proration,Report,ManageToBudget,MarketRate
+//
+//                                                                            Repeat as many 3-tuples as needed
+//                                                                                /----------^-------------\
+//  [0]        [1]      [2]   			[3]       [4]       [5]    [6]            7          8       9
+// Designation,Style,	Name, 			Frequency,Proration,Report,ManageToBudget,MarketRate,DtStart,DtStop
 // REH,        "GM",	"Geezer Miser", 6,		  4,	 	1,		1,			  1100.00
 // REH,        "FS",	"Flat Studio",  6,		  4,	 	1,		1,			  1500.00
 // REH,        "SBL",	"SB Loft",     	6,		  4,	 	1,		1,			  1750.00
@@ -28,7 +32,7 @@ func getBusinessBID(des string) int64 {
 // REH,        "VEH",	Vehicle,       	3,		  0,	 	1,		1,			  10.0
 // REH,        "CPT",	Carport,       	6,		  4,	 	1,		1,			  35.0
 func CreateRentableType(sa []string) {
-	if 8 != len(sa) {
+	if 8 > len(sa) {
 		Ulog("CreateRentableType: csv file line \"%s\" does not have 7 elements. Ignored.\n", sa)
 		return
 	}
@@ -48,8 +52,12 @@ func CreateRentableType(sa []string) {
 
 	a.BID = bid
 	a.Style = strings.TrimSpace(sa[1])
-	if len(a.Name) > 0 {
-		rt, _ := GetRentableTypeByStyle(a.Style, bid)
+	if len(a.Style) > 0 {
+		rt, err := GetRentableTypeByStyle(a.Style, bid)
+		if nil != err && !IsSQLNoResultsError(err) {
+			Ulog("GetRentableTypeByStyle: err = %v\n", err)
+			return
+		}
 		if rt.RTID > 0 {
 			Ulog("getBusinessBID: RentableType named %s already exists\n", a.Style)
 			return
@@ -74,35 +82,57 @@ func CreateRentableType(sa []string) {
 		return
 	}
 	a.Proration = int64(n)
+	if a.Proration > a.Frequency {
+		Ulog("CreateRentableType: Proration frequency (%d) must be greater than rental frequency (%d)\n", a.Proration, a.Frequency)
+		return
+	}
 
-	n, err = strconv.Atoi(strings.TrimSpace(sa[5])) // report
-	if err != nil || n < 0 || n > 1 {
+	n64, err := yesnoToInt(strings.TrimSpace(sa[5])) // report
+	if err != nil {
 		Ulog("CreateRentableType: Invalid report flag: %s\n", sa[5])
 		return
 	}
-	a.Report = int64(n)
+	a.Report = int64(n64)
 
-	n, err = strconv.Atoi(strings.TrimSpace(sa[6])) // manage to budget
-	if err != nil || n < 0 || n > 1 {
+	n64, err = yesnoToInt(strings.TrimSpace(sa[6])) // manage to budget
+	if err != nil {
 		Ulog("CreateRentableType: Invalid manage to budget flag: %s\n", sa[6])
 		return
 	}
-	a.ManageToBudget = int64(n)
+	a.ManageToBudget = int64(n64)
 
 	rtid, err := InsertRentableType(&a)
+
+	// Rentable Market Rates are provided in 3-tuples starting at index 7 - Amount,startdata,enddate
 	if rtid > 0 {
-		var x float64
-		var err error
-		var m RentableMarketRate
-		m.RTID = rtid
-		m.DtStart = time.Now()
-		m.DtStop = time.Date(9999, 12, 31, 0, 0, 0, 0, time.UTC)
-		if x, err = strconv.ParseFloat(strings.TrimSpace(sa[7]), 64); err != nil {
-			Ulog("CreateRentableType: Invalid floating point number: %s\n", sa[7])
-			return
+		for i := 7; i < len(sa); i += 3 {
+			var x float64
+			var err error
+			var m RentableMarketRate
+			m.RTID = rtid
+			if x, err = strconv.ParseFloat(strings.TrimSpace(sa[i]), 64); err != nil {
+				Ulog("CreateRentableType: Invalid floating point number: %s\n", sa[7])
+				return
+			}
+			m.MarketRate = x
+			DtStart, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[i+1]))
+			if err != nil {
+				fmt.Printf("CreateRentableType: invalid start date:  %s\n", sa[i+1])
+				return
+			}
+			m.DtStart = DtStart
+			DtStop, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[i+2]))
+			if err != nil {
+				fmt.Printf("CreateRentableType: invalid stop date:  %s\n", sa[i+2])
+				return
+			}
+			m.DtStop = DtStop
+			if m.DtStart.After(m.DtStop) {
+				fmt.Printf("CreateRentableType: Stop date (%s) must be after Start date (%s)\n", m.DtStop, m.DtStart)
+				return
+			}
+			InsertRentableMarketRates(&m)
 		}
-		m.MarketRate = x
-		InsertRentableMarketRates(&m)
 	}
 }
 

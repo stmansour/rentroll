@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+// 0           1    2                    3
+// Designation,Name,DefaultOccupancyType,ParkingPermitInUse
+// REH,,4,0
+// BBBB,Big Bob's Barrel Barn,4,0
+
 // SetOccType sets the DefaultOccupancyType attribute of the Business structure based on the provided string s
 func SetOccType(s string, b *Business) {
 	if len(s) > 0 {
@@ -14,18 +19,6 @@ func SetOccType(s string, b *Business) {
 			fmt.Printf("Invalid OccupancyType value: %s\n", s)
 		} else {
 			b.DefaultOccupancyType = int64(i)
-		}
-	}
-}
-
-// SetParking sets the ParkingPermitInUse attribute of the Business structure based on the provided string s
-func SetParking(s string, b *Business) {
-	if len(s) > 0 {
-		i, err := strconv.Atoi(s)
-		if err != nil || i < 0 || i > 1 {
-			fmt.Printf("Invalid ParkingPermitInUse value: %s\n", s)
-		} else {
-			b.ParkingPermitInUse = int64(i)
 		}
 	}
 }
@@ -69,7 +62,14 @@ func CreatePhonebookLinkedBusiness(sa []string) {
 			b.Name = c.CommonName
 			b.Designation = des
 			SetOccType(sa[2], &b)
-			SetParking(sa[3], &b)
+			if len(sa[3]) > 0 {
+				x, err := yesnoToInt(sa[3])
+				if err != nil {
+					fmt.Printf("SetParking: %s\n", err.Error())
+					return
+				}
+				b.ParkingPermitInUse = int64(x)
+			}
 		}
 	}
 
@@ -81,7 +81,14 @@ func CreatePhonebookLinkedBusiness(sa []string) {
 		b.Name = sa[1]
 		b.Designation = des
 		SetOccType(sa[2], &b)
-		SetParking(sa[3], &b)
+		if len(sa[3]) > 0 {
+			x, err := yesnoToInt(sa[3])
+			if err != nil {
+				fmt.Printf("SetParking: %s\n", err.Error())
+				return
+			}
+			b.ParkingPermitInUse = int64(x)
+		}
 	}
 	_, err = InsertBusiness(&b)
 	if err != nil {

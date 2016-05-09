@@ -4,4 +4,5 @@ RTID	BID	Style	Name	Frequency	Proration	Report	ManageToBudget	LastModBy
 3	1	SBL	SB Loft	6	4	1	1	0
 4	1	KDS	KD Suite	6	4	1	1	0
 5	1	VEH	Vehicle	3	0	1	1	0
-6	1	CPT	Carport	6	4	1	1	0
+6	1	CPT	Carport	6	4	1	0	0
+7	1	CAR	Car	6	4	1	0	0

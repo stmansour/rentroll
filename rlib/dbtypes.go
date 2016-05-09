@@ -94,7 +94,6 @@ const RRDATEINPFMT = "2006-01-02"
 // RSPID = unit specialty id
 // RTID = rentable type id
 // TCID = transactant id
-// TCID = transactant id
 // TID = tenant id
 //==========================================
 

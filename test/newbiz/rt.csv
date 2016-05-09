@@ -1,7 +1,16 @@
-Designation,Style,Name,Frequency,Proration,Report,ManageToBudget,MarketRate
-REH,"GM","Geezer Miser", 6,4,1,1,1100.00
-REH,"FS","Flat Studio",  6,4,1,1,1500.00
-REH,"SBL","SB Loft",     6,4,1,1,1750.00
-REH,"KDS","KD Suite",    6,4,1,1,2000.00
-REH,"VEH",Vehicle,       3,0,1,1,10.0
-REH,"CPT",Carport,       6,4,1,1,35.0
+Designation,Style,Name,Frequency,Proration,Report,ManageToBudget,MarketRate,Dt1,Dt2
+REH,"GM","Geezer Miser", 6,4,1,1,1100.00,"2014-01-01","2015-10-31",1200.00,"2015-11-01","2017-10-31"
+REH,"FS","Flat Studio",  6,4,1,1,1500.00,"2014-01-01","2016-01-01"
+REH,"SBL","SB Loft",     6,4,1,1,1750.00,"2014-01-01","2016-01-01"
+REH,"KDS","KD Suite",    6,4,1,1,2000.00,"2014-01-01","2016-01-01"
+REH,"VEH",Vehicle,       3,0,1,1,10.0,"2014-01-01","2016-01-01"
+REH,"CPT",Carport,       6,4,yes,no,35.0,"2014-01-01","2016-01-01"
+QQQ,"CPT",Carport,       6,4,1,1,35.0,"2014-01-01","2016-01-01"
+REH,"CPT",Carport,       6,4,1,1,35.0,"2014-01-01","2016-01-01"
+REH,"CAR",Car,           99,4,1,1,35.0,"2014-01-01","2016-01-01"
+REH,"CAR",Car,           6,99,1,1,35.0,"2014-01-01","2016-01-01"
+REH,"CAR",Car,           6,7,1,1,35.0,"2014-01-01","2016-01-01"
+REH,"CAR",Car,           6,4,da,nyet,35.0,"2014-01-01","2016-01-01"
+REH,"CAR",Car,           6,4,yes,nyet,35.0,"2014-01-01","2016-01-01"
+REH,"CAR",Car,           6,4,yes,3,35.0,"2016-01-01","2014-01-01"
+REH,"CAR",Car,           6,4,yes,0,35.0,"2016-01-01","2014-01-01"

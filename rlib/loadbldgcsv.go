@@ -9,9 +9,8 @@ import (
 // RentableSpecialty is the structure for attributes of a rentable specialty
 
 //  CSV file format:
-// BldgNo,Address,Address2,City,State,PostalCode,Country
-// 1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA"
-// Designation, Name,            Fee,   Description
+// Designation,BldgNo,Address,Address2,City,State,PostalCode,Country
+// REH,1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA"
 
 // CreateBuilding reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreateBuilding(sa []string) {
@@ -40,9 +39,9 @@ func CreateBuilding(sa []string) {
 		i, err := strconv.Atoi(sa[1])
 		if err != nil || i < 0 {
 			fmt.Printf("CreateBuilding: invalid building number: %s\n", sa[1])
-		} else {
-			b.BLDGID = int64(i)
+			return
 		}
+		b.BLDGID = int64(i)
 	}
 
 	b.Address = strings.TrimSpace(sa[2])

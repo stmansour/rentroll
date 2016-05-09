@@ -33,7 +33,7 @@ EOF
 dotest "x" "PHASE  1: New Businesses...  " "select BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy from business;"
 dotest "y" "PHASE  2: Assessment Types...  " "select Name,Description,LastModBy from assessmenttypes;"
 dotest "z" "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModBy from rentabletypes;"
-dotest "w" "PHASE  4: Rentable Market Rates...  " "select RTID,MarketRate,DtStop from rentablemarketrate;"
+dotest "w" "PHASE  4: Rentable Market Rates...  " "select * from rentablemarketrate;"
 dotest "v" "PHASE  5: Rentable Specialty Types...  " "select * from rentablespecialtytypes;"
 dotest "u" "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from building;"
 dotest "t" "PHASE  7: Rentables...  " "select RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModBy from rentable;"

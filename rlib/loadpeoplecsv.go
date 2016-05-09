@@ -120,7 +120,11 @@ func CreatePeopleFromCSV(sa []string) {
 			t.AlternateAddress = s
 		case i == 28:
 			if len(s) > 0 {
-				t.ElibigleForFutureOccupancy = yesnoToInt(s)
+				var err error
+				t.ElibigleForFutureOccupancy, err = yesnoToInt(s)
+				if err != nil {
+					fmt.Printf("CreatePeopleFromCSV: %s\n", err.Error())
+				}
 			}
 		case i == 29:
 			t.Industry = s
@@ -164,6 +168,32 @@ func CreatePeopleFromCSV(sa []string) {
 			fmt.Printf("i = %d, unknown field\n", i)
 		}
 	}
+	//-------------------------------------------------------------------
+	// Make sure this person doesn't already exist...
+	//-------------------------------------------------------------------
+	if len(tr.PrimaryEmail) > 0 {
+		t1, err := GetTransactantByPhoneOrEmail(tr.PrimaryEmail)
+		if err != nil && !IsSQLNoResultsError(err) {
+			Ulog("CreatePeopleFromCSV: error retrieving transactant by email: %v\n", err)
+			return
+		}
+		if t1.TCID > 0 {
+			Ulog("CreatePeopleFromCSV: Transactant with PrimaryEmail address = %s already exists\n", tr.PrimaryEmail)
+			return
+		}
+	}
+	if len(tr.CellPhone) > 0 {
+		t1, err := GetTransactantByPhoneOrEmail(tr.CellPhone)
+		if err != nil && !IsSQLNoResultsError(err) {
+			Ulog("CreatePeopleFromCSV: error retrieving transactant by phone: %v\n", err)
+			return
+		}
+		if t1.TCID > 0 {
+			Ulog("CreatePeopleFromCSV: Transactant with CellPhone number = %s already exists\n", tr.CellPhone)
+			return
+		}
+	}
+
 	//-------------------------------------------------------------------
 	// OK, just insert the records and we're done
 	//-------------------------------------------------------------------

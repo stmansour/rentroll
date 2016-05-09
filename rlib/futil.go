@@ -18,16 +18,16 @@ func Stripchars(str, chars string) string {
 	}, str)
 }
 
-func yesnoToInt(s string) int64 {
-	s = strings.ToUpper(s)
+func yesnoToInt(si string) (int64, error) {
+	s := strings.ToUpper(si)
 	switch {
 	case s == "Y" || s == "YES" || s == "1":
-		return YES
+		return YES, nil
 	case s == "N" || s == "NO" || s == "0":
-		return NO
+		return NO, nil
 	default:
-		fmt.Printf("Unrecognized yes/no string: %s. Returning default = No\n", s)
-		return NO
+		err := fmt.Errorf("Unrecognized yes/no string: %s.", si)
+		return NO, err
 	}
 }
 

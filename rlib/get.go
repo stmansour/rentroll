@@ -141,9 +141,6 @@ func GetRentableType(rtid int64, rt *RentableType) {
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
 	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Frequency, &rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
-	if nil != err {
-		Ulog("GetRentableTypeByStyle: err = %v\n", err)
-	}
 	return rt, err
 }
 
@@ -590,18 +587,14 @@ func GetLatestLedgerMarkerByType(bid int64, t int64) (LedgerMarker, error) {
 //=======================================================
 
 // GetTransactantByPhoneOrEmail searches for a transactoant match on the phone number or email
-func GetTransactantByPhoneOrEmail(s string) Transactant {
-	// fmt.Printf("GetTransactantByPhoneOrEmail:  seaching for: %s\n", s)
+func GetTransactantByPhoneOrEmail(s string) (Transactant, error) {
 	var t Transactant
-	// p := fmt.Sprintf("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?", s,s,s,s)
 	p := fmt.Sprintf("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
-	// fmt.Printf("Query = %s\n", p)
 	err := RRdb.dbrr.QueryRow(p).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName,
 		&t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State,
 		&t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy)
-	// err := RRdb.Prepstmt.GetTransactantByPhoneOrEmail.QueryRow(s, s, s, s).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy)
-	if nil != err {
-		fmt.Printf("err = %v\n", err)
-	}
-	return t
+	// if nil != err {
+	// 	fmt.Printf("err = %v\n", err)
+	// }
+	return t, err
 }

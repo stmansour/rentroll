@@ -7,3 +7,6 @@ RatRefNum,BID,PrimaryTenant,Payor,RentalStart,RentalStop,Renewal,SpecialProvisio
 "RAT001","REH","816-123-4566","816-123-4566","2004-01-01","2017-07-04",1,"",106
 "RAT001","REH","816-123-4567","816-123-4567","2004-01-01","2017-07-04",1,"",107
 "RAT001","REH","homerj@springfield.com","816-123-4568","2015-11-21","2016-11-21",1,"",101,102
+"RATQQQ","REH","homerj@springfield.com","816-123-4568","2015-11-21","2016-11-21",1,"",101,102
+"RAT001","QWQ","homerj@springfield.com","816-123-4568","2015-11-21","2016-11-21",1,"",101,102
+"RAT001","REH","billybob@springfield.com","816-123-4568","2015-11-21","2016-11-21",1,"",101,102
