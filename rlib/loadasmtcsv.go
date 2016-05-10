@@ -30,7 +30,7 @@ import (
 // }
 
 // CreateAssessmentsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) {
+func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]AssessmentType) {
 	var a Assessment
 	var r Rentable
 	var err error
@@ -45,7 +45,7 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("CreateAssessmentsFromCSV: business with designation %s does net exist\n", sa[0])
+			Ulog("CreateAssessmentsFromCSV: line %d - business with designation %s does net exist\n", lineno, sa[0])
 			return
 		}
 		a.BID = b1.BID
@@ -58,7 +58,7 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 	if len(s) > 0 {
 		r, err = GetRentableByName(s, a.BID)
 		if err != nil {
-			fmt.Printf("CreateAssessmentsFromCSV: Error loading rentable named: %s.  Error = %v\n", s, err)
+			fmt.Printf("CreateAssessmentsFromCSV: line %d - Error loading rentable named: %s.  Error = %v\n", lineno, s, err)
 			return
 		}
 		a.RID = r.RID
@@ -69,14 +69,14 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 	//-------------------------------------------------------------------
 	DtStart, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[4]))
 	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: invalid start date:  %s\n", sa[4])
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - invalid start date:  %s\n", lineno, sa[4])
 		return
 	}
 	a.Start = DtStart
 
 	DtStop, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[5]))
 	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: invalid stop date:  %s\n", sa[5])
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - invalid stop date:  %s\n", lineno, sa[5])
 		return
 	}
 	a.Stop = DtStop
@@ -86,7 +86,7 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 	//-------------------------------------------------------------------
 	ra, err := FindAgreementByRentable(a.RID, &DtStart, &DtStop)
 	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: Error finding rental agreement for rentable %s.  Error = %v\n", r.Name, err)
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - Error finding rental agreement for rentable %s.  Error = %v\n", lineno, r.Name, err)
 		return
 	}
 	a.RAID = ra.RAID
@@ -102,16 +102,16 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 	a.ASMTID = IntFromString(sa[2], "Assessment type is invalid")
 	_, ok := (*AsmtTypes)[a.ASMTID]
 	if !ok {
-		fmt.Printf("CreateAssessmentsFromCSV: Assessment type is invalid: %s\n", sa[2])
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - Assessment type is invalid: %s\n", lineno, sa[2])
 		return
 	}
 
 	//-------------------------------------------------------------------
 	// Frequency
 	//-------------------------------------------------------------------
-	a.Frequency = IntFromString(sa[6], "Assessment value is invalid")
-	if a.Frequency < OCCTYPESECONDLY || a.Frequency > OCCTYPEYEARLY {
-		fmt.Printf("CreateAssessmentsFromCSV: Frequency must be between %d and %d.  Found %d\n", OCCTYPESECONDLY, OCCTYPEYEARLY, a.Frequency)
+	a.Frequency = IntFromString(sa[6], "Frequency value is invalid")
+	if a.Frequency < 0 || a.Frequency > OCCTYPEYEARLY {
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - Frequency must be between %d and %d.  Found %d\n", lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.Frequency)
 		return
 	}
 
@@ -119,12 +119,12 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 	// Proration
 	//-------------------------------------------------------------------
 	a.ProrationMethod = IntFromString(sa[7], "Proration value is invalid")
-	if a.ProrationMethod < OCCTYPESECONDLY || a.ProrationMethod > OCCTYPEYEARLY {
-		fmt.Printf("CreateAssessmentsFromCSV: Proration must be between %d and %d.  Found %d\n", OCCTYPESECONDLY, OCCTYPEYEARLY, a.ProrationMethod)
+	if a.ProrationMethod < 0 || a.ProrationMethod > OCCTYPEYEARLY {
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - Proration must be between %d and %d.  Found %d\n", lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.ProrationMethod)
 		return
 	}
 	if a.ProrationMethod > a.Frequency {
-		fmt.Printf("CreateAssessmentsFromCSV: Proration granularity (%d) must be more frequent than the Frequency (%d)\n", a.ProrationMethod, a.Frequency)
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - Proration granularity (%d) must be more frequent than the Frequency (%d)\n", lineno, a.ProrationMethod, a.Frequency)
 		return
 	}
 
@@ -144,7 +144,7 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 
 	err = InsertAssessment(&a)
 	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: error inserting assessment: %v\n", err)
+		fmt.Printf("CreateAssessmentsFromCSV: line %d - error inserting assessment: %v\n", lineno, err)
 	}
 
 }
@@ -153,6 +153,6 @@ func CreateAssessmentsFromCSV(sa []string, AsmtTypes *map[int64]AssessmentType) 
 func LoadAssessmentsCSV(fname string, AsmtTypes *map[int64]AssessmentType) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateAssessmentsFromCSV(t[i], AsmtTypes)
+		CreateAssessmentsFromCSV(t[i], i+1, AsmtTypes)
 	}
 }

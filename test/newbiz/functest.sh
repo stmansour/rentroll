@@ -49,6 +49,7 @@ dotest "k" "PHASE 16: Chart of Accounts...  " "select LMID,BID,PID,GLNumber,Stat
 dotest "j" "PHASE 17: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModBy from assessments;"
 dotest "i" "PHASE 18: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from paymenttypes;"
 dotest "h" "PHASE 19: Payment allocations...  " "select * from receiptallocation order by Amount ASC;"
+dotest "g" "PHASE 20: Payments... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from receipt;"
 
 echo -n "PHASE x: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then

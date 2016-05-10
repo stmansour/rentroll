@@ -41,3 +41,21 @@ func DeleteLedgerMarker(lmid int64) error {
 	}
 	return err
 }
+
+// DeleteReceipt deletes the Receipt record with the supplied rcptid
+func DeleteReceipt(rcptid int64) error {
+	_, err := RRdb.Prepstmt.DeleteReceipt.Exec(rcptid)
+	if err != nil {
+		Ulog("Error deleting receipt for RCPTID = %d, error: %v\n", rcptid, err)
+	}
+	return err
+}
+
+// DeleteReceiptAllocations deletes ReceiptAllocation records with the supplied rcptid
+func DeleteReceiptAllocations(rcptid int64) error {
+	_, err := RRdb.Prepstmt.DeleteReceiptAllocations.Exec(rcptid)
+	if err != nil {
+		Ulog("Error deleting receiptallocation for RCPTID = %d, error: %v\n", rcptid, err)
+	}
+	return err
+}

@@ -16,13 +16,13 @@ import (
 // }
 
 // CVS record format:
-// 0    1           2      3             4        5
-// BID, RAID,       PMTID, Dt,           Amount,  AcctRule
+// 0    1           2      3             4        5         6
+// BID, RAID,       PMTID, Dt,           Amount,  AcctRule, Comment
 // REH, RA00000001, 2,     "2004-01-01", 1000.00, "ASM(7) d ${DFLTCASH} _, ASM(7) c 11002 _"
-// REH, RA00000001, 1,     "2015-11-21",  294.66, "ASM(1) c ${DFLTGENRCV} 266.67, ASM(1) d ${DFLTCASH} 266.67, ASM(3) c ${DFLTGENRCV} 13.33, ASM(3) d ${DFLTCASH} 13.33, ASM(4) c ${DFLTGENRCV} 5.33, ASM(4) d ${DFLTCASH} 5.33, ASM(9) c ${DFLTGENRCV} 9.33,ASM(9) d ${DFLTCASH} 9.33"
+// REH, RA00000001, 1,     "2015-11-21",  294.66, "ASM(1) c ${DFLTGENRCV} 266.67, ASM(1) d ${DFLTCASH} 266.67, ASM(3) c ${DFLTGENRCV} 13.33, ASM(3) d ${DFLTCASH} 13.33, ASM(4) c ${DFLTGENRCV} 5.33, ASM(4) d ${DFLTCASH} 5.33, ASM(9) c ${DFLTGENRCV} 9.33,ASM(9) d ${DFLTCASH} 9.33", "I am a comment"
 
 // GenerateReceiptAllocations processes the AcctRule for the supplied Receipt and generates ReceiptAllocation records
-func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) {
+func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) error {
 	var d1 = time.Date(rcpt.Dt.Year(), rcpt.Dt.Month(), 1, 0, 0, 0, 0, time.UTC)
 	var d2 = d1.AddDate(0, 0, 31)
 	t := ParseAcctRule(xbiz, 0, &d1, &d2, rcpt.AcctRule, rcpt.Amount, 1.0)
@@ -39,8 +39,15 @@ func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) {
 		a.ASMID = k
 		a.Amount = t[int(v[0])].Amount
 		a.RCPTID = rcpt.RCPTID
-		lim := int64(len(v))
+
+		// make sure the referenced assessment actually exists
+		_, err := GetAssessment(a.ASMID)
+		if err != nil {
+			return fmt.Errorf("GenerateReceiptAllocations: Referenced assessment ID %d does not exist\n", a.ASMID)
+		}
+
 		// for each index in the list, build its part of the AcctRule
+		lim := int64(len(v))
 		for i := int64(0); i < lim; i++ {
 			j := int(v[i])
 			a.AcctRule += fmt.Sprintf("ASM(%d) %s %s %s", t[j].ASMID, t[j].Action, t[j].AcctExpr, t[j].Expr)
@@ -50,6 +57,7 @@ func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) {
 		}
 		InsertReceiptAllocation(&a)
 	}
+	return nil
 }
 
 // CreateReceiptsFromCSV reads an assessment type string array and creates a database record for the assessment type
@@ -122,6 +130,8 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType) {
 	//-------------------------------------------------------------------
 	r.AcctRule = strings.TrimSpace(sa[5])
 
+	r.Comment = strings.TrimSpace(sa[6])
+
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...
 	//-------------------------------------------------------------------
@@ -140,7 +150,12 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType) {
 	//-------------------------------------------------------------------
 	// Create the allocations...
 	//-------------------------------------------------------------------
-	GenerateReceiptAllocations(&r, &xbiz)
+	err = GenerateReceiptAllocations(&r, &xbiz)
+	if err != nil {
+		fmt.Printf("CreateReceiptsFromCSV: error processing payments: %s\n", err.Error())
+		DeleteReceipt(r.RCPTID)
+		DeleteReceiptAllocations(r.RCPTID)
+	}
 
 }
 

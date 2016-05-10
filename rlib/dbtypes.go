@@ -445,6 +445,8 @@ type RRprepSQL struct {
 	DeleteJournalMarker                *sql.Stmt
 	DeleteLedgerEntry                  *sql.Stmt
 	DeleteLedgerMarker                 *sql.Stmt
+	DeleteReceipt                      *sql.Stmt
+	DeleteReceiptAllocations           *sql.Stmt
 	FindTransactantByPhoneOrEmail      *sql.Stmt
 	FindAgreementByRentable            *sql.Stmt
 	GetAgreementPayors                 *sql.Stmt
@@ -498,9 +500,7 @@ type RRprepSQL struct {
 	GetSpecialtyByName                 *sql.Stmt
 	GetTenant                          *sql.Stmt
 	GetTransactant                     *sql.Stmt
-	GetTransactantByPhoneOrEmail       *sql.Stmt
 	GetUnitAssessments                 *sql.Stmt
-	GetUnitReceipts                    *sql.Stmt
 	InsertAgreementPayor               *sql.Stmt
 	InsertAgreementRentable            *sql.Stmt
 	InsertAssessment                   *sql.Stmt

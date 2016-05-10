@@ -9,8 +9,8 @@ import (
 // RentableSpecialty is the structure for attributes of a rentable specialty
 
 // CSV file format:
-//   0           1      2     3         4      5       6      7
-// Designation,BldgNo,Style,Name,Assignment,Report,DefaultOcc,Occ
+//   0           1     2         3      4       5      7
+// Designation,Style,Name,Assignment,Report,DefaultOcc,Occ
 //	REH,1,GM, "101",1,1,2,2
 //	REH,1,FS, "102",1,1,2,2
 //	REH,1,SBL,"103",1,1,2,2
@@ -23,6 +23,7 @@ import (
 func CreateRentables(sa []string) {
 	var err error
 	var r Rentable
+	var rt RentableType
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
@@ -41,16 +42,16 @@ func CreateRentables(sa []string) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the building number is in the database
+	// Make sure the RentableType is in the database
 	//-------------------------------------------------------------------
 	if len(sa[1]) > 0 {
 		i, err := strconv.Atoi(strings.TrimSpace(sa[1]))
 		if err != nil {
-			fmt.Printf("Could not find building number %s\n", sa[1])
+			fmt.Printf("Could not find RentableType %s\n", sa[1])
 		}
-		b1 := GetBuilding(int64(i))
-		if b1.BLDGID == 0 {
-			Ulog("CreateRentables: building number %s does not exist\n", sa[1])
+		err = GetRentableType(int64(i), &rt)
+		if err != nil {
+			Ulog("CreateRentables: could not load rentable type %s, err = %s\n", sa[1], err.Error())
 			return
 		}
 	}
@@ -60,12 +61,12 @@ func CreateRentables(sa []string) {
 	//-------------------------------------------------------------------
 	style := strings.TrimSpace(sa[2])
 	if len(style) > 0 {
-		rt, _ := GetRentableTypeByStyle(style, r.BID)
-		if rt.RTID == 0 {
-			Ulog("CreateRentables: rentable style %s does not exist in business %s\n", style, des)
+		rs, _ := GetRentableTypeByStyle(style, r.BID)
+		if rs.RTID == 0 {
+			Ulog("CreateRentables: rentable type %s does not exist in business %s\n", style, des)
 			return
 		}
-		r.RTID = rt.RTID
+		r.RTID = rs.RTID
 	}
 
 	//-------------------------------------------------------------------

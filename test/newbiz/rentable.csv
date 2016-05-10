@@ -1,4 +1,4 @@
-Designation,Style,Name,Assignment,Report,DefaultOcc,Occ
+Designation,RentableType,Style,Name,Assignment,Report,DefaultOcc,Occ
 REH,1,GM, 101,1,1,2,2
 REH,1,FS, 102,1,1,2,2
 REH,1,SBL,103,1,1,2,2
@@ -13,3 +13,5 @@ REH,1,SBL,109,1,9,9,9
 REH,1,SBL,109,1,1,9,9
 REH,1,SBL,109,1,1,2,9
 REH,1,SBL,107,1,1,2,1
+REH,6,CPT,CP001,1,1,2,2
+REH,6,CPT,CP002,1,1,2,2

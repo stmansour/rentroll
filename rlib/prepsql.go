@@ -23,7 +23,7 @@ func buildPreparedStatements() {
 	//===============================
 	RRdb.Prepstmt.InsertAgreementRentable, err = RRdb.dbrr.Prepare("INSERT INTO agreementrentables (RAID,RID,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables where RID=? and DtStop>? and DtStart<?")
+	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables where RID=? and DtStop>=? and DtStart<=?")
 	Errcheck(err)
 
 	//===============================
@@ -171,13 +171,23 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT
 	//==========================================
+	RRdb.Prepstmt.GetReceipt, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy FROM receipt WHERE RCPTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy from receipt WHERE BID=? and Dt >= ? and DT < ?")
+	Errcheck(err)
 	RRdb.Prepstmt.InsertReceipt, err = RRdb.dbrr.Prepare("INSERT INTO receipt (RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteReceipt, err = RRdb.dbrr.Prepare("DELETE FROM receipt WHERE RCPTID=?")
 	Errcheck(err)
 
 	//==========================================
 	// RECEIPT ALLOCATION
 	//==========================================
+	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.dbrr.Prepare("SELECT RCPTID,Amount,ASMID,AcctRule from receiptallocation WHERE RCPTID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.InsertReceiptAllocation, err = RRdb.dbrr.Prepare("INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES(?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteReceiptAllocations, err = RRdb.dbrr.Prepare("DELETE FROM receiptallocation WHERE RCPTID=?")
 	Errcheck(err)
 
 	//===============================
@@ -234,19 +244,6 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertRentableType, err = RRdb.dbrr.Prepare("INSERT INTO rentabletypes (RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
-	Errcheck(err)
-
-	//===============================
-	//  Receipt
-	//===============================
-	RRdb.Prepstmt.GetUnitReceipts, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RAID=? and Dt>=? and Dt<?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetReceipt, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment FROM receipt WHERE RCPTID=?")
-	Errcheck(err)
-
-	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment from receipt WHERE BID=? and Dt >= ? and DT < ?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.dbrr.Prepare("SELECT RCPTID,Amount,ASMID,AcctRule from receiptallocation WHERE RCPTID=?")
 	Errcheck(err)
 
 	//===============================

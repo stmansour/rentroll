@@ -132,9 +132,10 @@ func GetSpecialtyByName(bid int64, name string) RentableSpecialty {
 }
 
 // GetRentableType returns characteristics of the rentable
-func GetRentableType(rtid int64, rt *RentableType) {
-	Errcheck(RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Name, &rt.Frequency,
-		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy))
+func GetRentableType(rtid int64, rt *RentableType) error {
+	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Frequency,
+		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	return err
 }
 
 // GetRentableTypeByStyle returns characteristics of the rentable
@@ -367,7 +368,7 @@ func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID,
 		&r.PrimaryTenant, &r.RentalStart,
 		&r.RentalStop, &r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
-	if nil != err {
+	if nil != err && !IsSQLNoResultsError(err) {
 		fmt.Printf("GetRentalAgreement: could not get rental agreement with raid = %d,  err = %v\n", raid, err)
 	}
 	return r, err
@@ -440,7 +441,7 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 	for rows.Next() {
 		var r Receipt
 		Errcheck(rows.Scan(
-			&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment))
+			&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment, &r.LastModTime, &r.LastModBy))
 		r.RA = make([]ReceiptAllocation, 0)
 		GetReceiptAllocations(r.RCPTID, &r)
 		t = append(t, r)
@@ -452,7 +453,7 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 func GetReceipt(rcptid int64) Receipt {
 	var r Receipt
 	Errcheck(RRdb.Prepstmt.GetReceipt.QueryRow(rcptid).Scan(
-		&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment))
+		&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment, &r.LastModTime, &r.LastModBy))
 	GetReceiptAllocations(rcptid, &r)
 	return r
 }
@@ -464,7 +465,7 @@ func GetAssessment(asmid int64) (Assessment, error) {
 		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
 		&a.ProrationMethod, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
-		fmt.Printf("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
+		Ulog("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
 	}
 	return a, err
 }
