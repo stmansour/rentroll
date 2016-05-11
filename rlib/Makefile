@@ -11,3 +11,6 @@ test:
 
 clean:
 	go clean
+
+package:
+	@echo "*** PACKAGE completed in rlib ***"

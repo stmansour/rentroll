@@ -1,4 +1,4 @@
-DIRS = newbiz engine
+DIRS = newbiz engine rex
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done
@@ -11,3 +11,7 @@ clean:
 test:
 	for dir in $(DIRS); do make -C $$dir test;done
 	@echo "*** TEST completed in test ***"
+
+package:
+	for dir in $(DIRS); do make -C $$dir package;done
+	@echo "*** PACKAGE completed in test ***"

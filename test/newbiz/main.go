@@ -30,7 +30,7 @@ var App struct {
 	DBUser       string                        // user for all databases
 	AsmtTypes    map[int64]rlib.AssessmentType // all assessment types associated with this biz
 	PmtTypes     map[int64]rlib.PaymentType    // all payment types in this db
-	Report       int64                         // if testing engine, which report/action to perform
+	Report       int                           // Report: 1 = journal, 2 = ledger, 3 = businesses
 	BizFile      string                        // name of csv file with new biz info
 	AsmtTypeFile string                        // name of csv file with assessment types
 	RTFile       string                        // rentable types csv file
@@ -64,6 +64,7 @@ func readCommandLineArgs() {
 	asmtPtr := flag.String("A", "", "add assessments via csv file")
 	pmtPtr := flag.String("P", "", "add payment types via csv file")
 	rcptPtr := flag.String("e", "", "add receipts via csv file")
+	lptr := flag.Int("L", 0, "Report: 1-jnl, 2-ldg, 3-biz")
 
 	flag.Parse()
 	if *verPtr {
@@ -86,6 +87,7 @@ func readCommandLineArgs() {
 	App.CoaFile = *coaPtr
 	App.PmtTypeFile = *pmtPtr
 	App.RcptFile = *rcptPtr
+	App.Report = *lptr
 }
 
 func main() {
@@ -167,5 +169,18 @@ func main() {
 	if len(App.RcptFile) > 0 {
 		App.PmtTypes = rlib.GetPaymentTypes()
 		rlib.LoadReceiptsCSV(App.RcptFile, &App.PmtTypes)
+	}
+
+	if App.Report > 0 {
+		switch App.Report {
+		case 1:
+			fmt.Printf("1 - not yet implemented\n")
+		case 2:
+			fmt.Printf("2 - not yet implemented\n")
+		case 3:
+			fmt.Printf("%s\n", rlib.RRreportBusiness(rlib.RPTTEXT))
+		default:
+			fmt.Printf("unimplemented report type: %d\n", App.Report)
+		}
 	}
 }

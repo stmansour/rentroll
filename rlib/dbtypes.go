@@ -10,6 +10,9 @@ const (
 	NO  = int64(0) // std negative value
 	YES = int64(1)
 
+	RPTTEXT = 0
+	RPTHTML = 1
+
 	RENT                      = 1
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
@@ -454,6 +457,7 @@ type RRprepSQL struct {
 	GetAgreementsForRentable           *sql.Stmt
 	GetAllAssessmentsByBusiness        *sql.Stmt
 	GetAllBusinessRentableTypes        *sql.Stmt
+	GetAllBusinesses                   *sql.Stmt
 	GetAllBusinessSpecialtyTypes       *sql.Stmt
 	GetAllJournalsInRange              *sql.Stmt
 	GetAllLedgerMarkersInRange         *sql.Stmt

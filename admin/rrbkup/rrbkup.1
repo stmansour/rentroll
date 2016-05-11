@@ -1,0 +1,43 @@
+.TH rrbkup 1 "December 23, 2015" "Version 0.9" "USER COMMANDS"
+.SH NAME
+rrbkup \- back up the Accord RentRoll database
+.SH SYNOPSIS
+.B rrbkup
+[\fB\-help\fR ]
+[\fB\-N\fR \fIdatabase_name\fR]
+
+.SH DESCRIPTION
+.B rrbkup
+make a backup of the Accord RentRoll database. Backups are
+stored in Artifactory under the path of the form
+.B accord/db/01/(databaseName)db.sql.gz.  For example, the default
+database is named "rentroll", so the file path for data-only backups would be
+.B accord/db/01/rentroll.sql.gz.
+The number in the path will range from 01 to 31 and represents the day of 
+the month on which the backup was done. For example, a backup made on
+Jan 05 will be storedin accord/db/05/accorddb.sql.gz.  This backup will be
+kept until Feb 05. When a backup is made on Feb 05, the new backup will overwrite
+the file in the path accord/db/05. 
+.SH OPTIONS
+.TP
+.IP "-B database_username"
+Username for logging into the database server. Default name is "ec2-user"
+.IP "-f"
+Back up both the data in the database as well as the pictures of individuals.
+If this option is not specified, only the data in the database is saved.
+.IP "-help"
+Lists the command options to stdout.
+.IP "-N database_name"
+The default name for the production database is "rentroll".
+.SH EXAMPLES
+
+.IP "rrbkup"
+Performs a database backup.
+
+.SH BUGS
+No known bugs.
+
+.SH AUTHOR
+Steve Mansour (sman@accordinterests.com)
+.SH "SEE ALSO"
+.BR rrrestore (1),

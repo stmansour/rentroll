@@ -1,0 +1,39 @@
+.TH rrnewdb 1 "December 23, 2015" "Version 0.9" "USER COMMANDS"
+.SH NAME
+rrnewdb \- create a new Accord RentRoll database
+.SH SYNOPSIS
+.B rrnewdb
+[\fB\-help\fR ]
+[\fB\-N\fR \fIdatabase_name\fR]
+
+.SH DESCRIPTION
+.B rrnewdb
+destroys the current Accord RentRoll database and creates a new empty one.
+This command should only be used by someone who really knows what they're doing.
+THIS COMMAND WILL DESTROY THE EXISTING RENTROLL DATABASE. You should make a backup
+of the rentroll database before using this command just in case you realize later
+that you need the data for some reason.
+.SH OPTIONS
+.TP
+.IP "-B database_username"
+Username for logging into the database server. Default name is "ec2-user"
+.IP "-f"
+Back up both the data in the database as well as the pictures of individuals.
+If this option is not specified, only the data in the database is saved.
+.IP "-help"
+Lists the command options to stdout.
+.IP "-N database_name"
+The default name for the production database is "rentroll".
+.SH EXAMPLES
+
+.IP "rrnewdb"
+Destroys the old database and creates a new one.
+
+.SH BUGS
+There should probably be 2 levels of "Are you sure?" before executing this command.
+Other than that, no known bugs.
+
+.SH AUTHOR
+Steve Mansour (sman@accordinterests.com)
+.SH "SEE ALSO"
+.BR rrbkup(1), rrrestore (1)

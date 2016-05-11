@@ -9,3 +9,6 @@ test:
 	rm -f *.txt
 	./func.sh
 	@echo "*** TEST COMPLETE - ALL TESTS PASSED in test/engine ***"
+
+package:
+	@echo "*** PACKAGE completed in test/engine ***"

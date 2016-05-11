@@ -3,15 +3,23 @@
 # It uses the values initialized in directory ../ledger1, generates
 # journal and ledger records, generates the reports, and validates that
 # the reports are what we expect
-
+RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
-APP="../../rentroll"
+APP="${RRBIN}/rentroll"
+MYSQLOPTS=""
+UNAME=$(uname)
+
+if [ ${UNAME} == "Darwin" ]; then
+	MYSQLOPTS="--no-defaults"
+fi
 
 
 #---------------------------------------------------------------------
 #  Initialize the db, run the app, generate the reports
 #---------------------------------------------------------------------
-pushd ../ledger1 ; make ; popd
+# pushd ../ledger1 ; make ; popd
+${RRBIN}/rrnewdb
+mysql ${MYSQLOPTS} <init.sql
 
 ${APP}
 ${APP} -r 1 >j.txt

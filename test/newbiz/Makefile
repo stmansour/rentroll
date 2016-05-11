@@ -11,3 +11,7 @@ clean:
 test: newbiz
 	./functest.sh
 	@echo "*** TEST completed in newbiz ***"
+
+package:
+	cp newbiz ../../tmp/rentroll/rrloadcvs
+	@echo "*** PACKAGE completed in newbiz ***"

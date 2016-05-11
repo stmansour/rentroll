@@ -1,5 +1,18 @@
 #!/bin/bash
-pushd ../../db/schema;make newdb;popd
+RRBIN="../../tmp/rentroll"
+SCRIPTLOG="f.log"
+APP="${RRBIN}/rentroll"
+MYSQLOPTS=""
+UNAME=$(uname)
+
+if [ ${UNAME} == "Darwin" ]; then
+	MYSQLOPTS="--no-defaults"
+fi
+
+
+#pushd ../../db/schema;make newdb;popd
+${RRBIN}/rrnewdb
+
 ./newbiz -b nb.csv -a asmttype.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv >log 2>&1
 
 ########################################

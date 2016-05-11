@@ -1,4 +1,4 @@
-DIRS = db rlib test
+DIRS = db rlib admin test
 .PHONY:  test
 
 rentroll: *.go mkver.sh
@@ -13,13 +13,21 @@ clean:
 	go clean
 	rm -f rentroll ver.go
 
-test:
+test: package
 	for dir in $(DIRS); do make -C $$dir test;done
 	go test
 	@echo "*** ALL TESTS PASSED ***"
 
 man: rentroll.1
 	cp rentroll.1 /usr/local/share/man/man1
+
+package: rentroll
+	rm -rf tmp
+	mkdir -p tmp/rentroll
+	mkdir -p tmp/rentroll/man/man1/
+	for dir in $(DIRS); do make -C $$dir package;done
+	cp rentroll ./tmp/rentroll/
+	@echo "*** PACKAGE COMPLETED ***"
 
 t:
 	./mdb
