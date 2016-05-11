@@ -5,7 +5,7 @@ APP="${RRBIN}/rentroll"
 MYSQLOPTS=""
 UNAME=$(uname)
 
-if [ ${UNAME} == "Darwin" ]; then
+if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
 fi
 
