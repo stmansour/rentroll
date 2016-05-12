@@ -2,8 +2,8 @@ Invalid OccupancyType value: a
 SetParking: Unrecognized yes/no string: da.
 SetParking: Unrecognized yes/no string: nyet.
 2016/05/10 12:32:55 CreateAssessmentType: AssessmentType named Rent already exists
-2016/05/10 12:32:55 getBusinessBID: Business with designation QQQ does not exist or could not be loaded
-2016/05/10 12:32:55 getBusinessBID: RentableType named CPT already exists
+2016/05/10 12:32:55 GetBusinessBID: Business with designation QQQ does not exist or could not be loaded
+2016/05/10 12:32:55 GetBusinessBID: RentableType named CPT already exists
 2016/05/10 12:32:55 CreateRentableType: Invalid rental frequency:            99
 2016/05/10 12:32:55 CreateRentableType: Invalid rental proration frequency: 99
 2016/05/10 12:32:55 CreateRentableType: Proration frequency (7) must be greater than rental frequency (6)

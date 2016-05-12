@@ -5,6 +5,7 @@ clean:
 	@echo "*** CLEAN completed in rex ***"
 
 test:
+	./functest.sh
 	@echo "*** TEST completed in rex ***"
 
 package:

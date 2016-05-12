@@ -76,7 +76,7 @@ func GenVacancyJournals(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	defer rows.Close()
 	for rows.Next() {
 		var r rlib.Rentable
-		rlib.Errcheck(rows.Scan(&r.RID /*&r.LID,*/, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.LastModTime, &r.LastModBy))
+		rlib.Errcheck(rows.Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
 		if xbiz.RT[r.RTID].ManageToBudget > 0 {
 			ProcessRentable(xbiz, d1, d2, &r)
 		}

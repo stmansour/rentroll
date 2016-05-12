@@ -10,7 +10,9 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 fi
 
 
-#pushd ../../db/schema;make newdb;popd
+########################################
+# start with a clean database
+########################################
 ${RRBIN}/rrnewdb
 
 ./newbiz -b nb.csv -a asmttype.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv >log 2>&1

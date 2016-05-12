@@ -171,7 +171,7 @@ func InsertTransactant(a *Transactant) (int64, error) {
 // InsertTenant writes a new tenant record to the database
 func InsertTenant(a *Tenant) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertTenant.Exec(a.TCID, a.Points, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.AccountRep, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.ElibigleForFutureOccupancy, a.Industry, a.Source, a.InvoicingCustomerNumber)
+	res, err := RRdb.Prepstmt.InsertTenant.Exec(a.TCID, a.Points, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.AccountRep, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.ElibigleForFutureOccupancy, a.Industry, a.Source, a.InvoicingCustomerNumber, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

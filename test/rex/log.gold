@@ -1,0 +1,102 @@
+CSV IMPORT TEST
+Date/Time: Thu May 12 15:38:08 PDT 2016
+
+CREATE NEW DATABASE
+Creating new database rentroll...
+~/Documents/src/go/src/rentroll/tmp/rentroll ~/Documents/src/go/src/rentroll/test/rex
+~/Documents/src/go/src/rentroll/test/rex
+Done.
+
+DEFINE BUSINESS
+   1    JM1    JM1
+
+
+DEFINE ASSESSMENT TYPES
+   1 - Assessment
+   2 - Rent
+   3 - Security Deposit
+   4 - Security Deposit Forfeiture
+   5 - Application Fees
+   6 - Landlord Lien Sales
+   7 - Pet Fees
+   8 - Eviction Fees
+   9 - Electric Reimbursement
+  10 - Electric Overage
+  11 - Water Reimbursement
+  12 - Water Overage
+  13 - Trash Fee
+  14 - Utility Fine
+  15 - NSF Fee
+  16 - Maintenance Fee
+  17 - Fines
+  18 - Month to Month Fee
+  19 - Cancelation Fees
+  20 - Housekeeping Fee
+  21 - Extra Person Charge
+  22 - Furniture Rental
+  23 - Platinum Service Fee
+  24 - Gold Service Fee
+  25 - Silver Service Fee
+  26 - Sales Tax
+  27 - TOT Tax
+  28 - Reletting Fees
+  29 - Carport Fees
+  30 - Garage Fees
+  31 - Reserved Parking Fees
+  32 - Transfer fees
+  33 - Washer/Dryer Fee
+  34 - Association Dues Assessment
+  35 - Insurance Reimbursement
+  36 - Tax Reimbursement
+  37 - Special Event Fees
+  38 - Convenience Store Sales
+  39 - Courtesy Car Rental
+  40 - Vending Income
+  41 - Transportation
+  42 - Food Sales
+  43 - Liquor Sales
+  44 - WashNFold Income
+  45 - Spa Sales
+  46 - Fitness Center
+  47 - CashOverShort
+  48 - Late Payment Fee
+  49 - Other Income
+  50 - Bad Debt Write-Off
+  51 - Off Line
+  52 - Concession
+  53 - Employee
+  54 - Damages
+  55 - Pest Control Reimbursement
+  56 - Security Deposit Return
+  57 - Returned Payments
+  58 - Security Deposit Assessment
+  59 - Lake View
+  60 - Courtyard View
+  61 - Top Floor
+  62 - Fireplace
+
+
+DEFINE RENTABLE TYPES
+   1 - 309  -  309
+   2 - 309.5  -  309.5
+   3 - 311  -  311
+   4 - 311.5  -  311.5
+
+
+DEFINE RENTABLES
+   1 - 309 Rexford
+   2 - 309 1/2 Rexford
+   3 - 311 Rexford
+   4 - 311 1/2 Rexford
+
+
+DEFINE PEOPLE
+ TCID   TID   PID  Name
+    1     1     1  Read, Aaron 
+    2     2     2  Read, Kirsten 
+    3     3     3  Costea, Rita 
+    4     4     4  Costea, Daniel 
+    5     5     5  Haroutunian, Gagik 
+    6     6     6  OWNER, OWNER 
+
+

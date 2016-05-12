@@ -1,0 +1,65 @@
+.TH rrloadcsv 1 "March 23, 2016" "Version 1.0" "USER COMMANDS"
+.SH NAME
+rrloadcsv \- load CSV files into the Accord RentRoll database
+.SH SYNOPSIS
+.B rrloadcsv
+[\fB\-A\fR \fIassessments.csv\fR]
+[\fB\-a\fR \fIassessmentTypes.csv\fR]
+[\fB\-B\fR\fI db_user\fR]
+[\fB\-b\fR\fI business.csv\fR]
+[\fB\-C\fR\fI rentalAgreements.csv\fR]
+[\fB\-c\fR\fI chartOfAccts.csv\fR]
+[\fB\-D\fR\fI buildings.csv\fR]
+[\fB\-e\fR\fI receipts.csv\fR]
+[\fB\-help\fR ]
+[\fB\-L\fR\fI report\fR]
+[\fB\-M\fR\fI rentrolldbname\fR]
+[\fB\-N\fR\fI directorydbname\fR]
+[\fB\-P\fR\fI payments.csv\fR]
+[\fB\-P\fR\fI people.csv\fR]
+[\fB\-R\fR\fI rentableTypes.csv\fR]
+[\fB\-r\fR\fI rentables.csv\fR]
+[\fB\-s\fR\fI rentableSpecialties.csv\fR]
+[\fB\-T\fR\fI rentalAgreementTemplates.csv\fR]
+[\fB\-v\fR]
+
+.SH DESCRIPTION
+.B rrloadcsv
+is a utility program to load comma-separated-value (CSV) files into the 
+Accord RentRoll database. It can also be used to generate a text list of the
+data it imports. 
+.SH OPTIONS
+.TP
+.IP "-A assessments.csv"
+Load assessments. 
+.IP "-a assessmentTypes.csv"
+Load assessment types in the supplied csv file. Note: use -L 4 to list assessment types. 
+.IP "-B db_user"
+Username for logging into the database server. Default name is "ec2-user"
+.IP "-b business.csv"
+Load businesses via the supplied csv file. Note: use -L 3 to list businesses.
+.IP "-f"
+Back up both the data in the database as well as the pictures of individuals.
+If this option is not specified, only the data in the database is saved.
+.IP "-help"
+Lists the command options to stdout.
+.IP "-N database_name"
+The default name for the production database is "rentroll".
+.IP "-R rentableTypes.csv"
+Load rentable types via the supplied csv file. Note: use -L 5,\fIdes\fR to list rentable 
+types, where
+.I des
+is the business name designation
+
+.SH EXAMPLES
+
+.IP "rrloadcsv -b mybiz.csv -L 3"
+Loads the businesses defined in mybiz.csv to the RentRoll database, then prints a list
+of the businesses in the database to stdout.
+
+.SH BUGS
+No known bugs.
+
+.SH AUTHOR
+Steve Mansour (sman@accordinterests.com)
+.SH "SEE ALSO"

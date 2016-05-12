@@ -10,7 +10,7 @@ MYSQLOPTS=""
 UNAME=$(uname)
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
-	MYSQLOPTS="--no-defaults"
+ 	MYSQLOPTS="--no-defaults"
 fi
 
 

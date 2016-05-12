@@ -5,7 +5,7 @@ import "strings"
 // CreateAssessmentType reads an assessment type string array and creates a database record for the assessment type
 func CreateAssessmentType(sa []string) {
 	des := strings.TrimSpace(sa[0])
-	if des == "assessment type" || des == "assessmenttype" {
+	if strings.ToLower(des) == "name" {
 		return // this is just the column heading
 	}
 

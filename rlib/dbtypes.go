@@ -186,7 +186,7 @@ type Tenant struct {
 	LicensePlateState          string
 	LicensePlateNumber         string
 	ParkingPermitNumber        string
-	AccountRep                 int64 // Phonebook id
+	AccountRep                 int64
 	DateofBirth                time.Time
 	EmergencyContactName       string
 	EmergencyContactAddress    string
@@ -197,6 +197,8 @@ type Tenant struct {
 	Industry                   string
 	Source                     string
 	InvoicingCustomerNumber    string
+	LastModTime                time.Time
+	LastModBy                  int64
 }
 
 // Payor is attributes of the person financially responsible
@@ -312,8 +314,7 @@ type ReceiptAllocation struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID int64 // unique id for this rentable
-	//LID            int64     // the ledger
+	RID            int64     // unique id for this rentable
 	RTID           int64     // rentable type id
 	BID            int64     // business
 	Name           string    // name for this rental
@@ -464,6 +465,7 @@ type RRprepSQL struct {
 	GetAllLedgersInRange               *sql.Stmt
 	GetAllRentableAssessments          *sql.Stmt
 	GetAllRentablesByBusiness          *sql.Stmt
+	GetAllTransactants                 *sql.Stmt
 	GetAssessment                      *sql.Stmt
 	GetAssessmentType                  *sql.Stmt
 	GetAssessmentTypeByName            *sql.Stmt

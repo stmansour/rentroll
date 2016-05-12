@@ -7,13 +7,14 @@ import (
 	"time"
 )
 
-func getBusinessBID(des string) int64 {
+// GetBusinessBID returns the BID for the business with the supplied designation
+func GetBusinessBID(des string) int64 {
 	//-------------------------------------------------------------------
 	// Make sure the business exists...
 	//-------------------------------------------------------------------
 	b, err := GetBusinessByDesignation(des)
 	if err != nil || b.BID == 0 {
-		Ulog("getBusinessBID: Business with designation %s does not exist or could not be loaded\n", des)
+		Ulog("GetBusinessBID: Business with designation %s does not exist or could not be loaded\n", des)
 		return 0
 	}
 	return b.BID
@@ -45,7 +46,7 @@ func CreateRentableType(sa []string) {
 	// Check to see if this Rentable type is already in the database
 	//-------------------------------------------------------------------
 	var a RentableType
-	bid := getBusinessBID(des)
+	bid := GetBusinessBID(des)
 	if bid == 0 {
 		return
 	}
@@ -59,7 +60,7 @@ func CreateRentableType(sa []string) {
 			return
 		}
 		if rt.RTID > 0 {
-			Ulog("getBusinessBID: RentableType named %s already exists\n", a.Style)
+			Ulog("GetBusinessBID: RentableType named %s already exists\n", a.Style)
 			return
 		}
 	}

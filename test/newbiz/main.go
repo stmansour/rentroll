@@ -18,6 +18,7 @@ import (
 	"os"
 	"phonebook/lib"
 	"rentroll/rlib"
+	"strings"
 )
 import _ "github.com/go-sql-driver/mysql"
 
@@ -30,7 +31,7 @@ var App struct {
 	DBUser       string                        // user for all databases
 	AsmtTypes    map[int64]rlib.AssessmentType // all assessment types associated with this biz
 	PmtTypes     map[int64]rlib.PaymentType    // all payment types in this db
-	Report       int                           // Report: 1 = journal, 2 = ledger, 3 = businesses
+	Report       string                        // Report: 1 = journal, 2 = ledger, 3 = businesses, 4 = rentable types
 	BizFile      string                        // name of csv file with new biz info
 	AsmtTypeFile string                        // name of csv file with assessment types
 	RTFile       string                        // rentable types csv file
@@ -64,7 +65,7 @@ func readCommandLineArgs() {
 	asmtPtr := flag.String("A", "", "add assessments via csv file")
 	pmtPtr := flag.String("P", "", "add payment types via csv file")
 	rcptPtr := flag.String("e", "", "add receipts via csv file")
-	lptr := flag.Int("L", 0, "Report: 1-jnl, 2-ldg, 3-biz")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-rtypes")
 
 	flag.Parse()
 	if *verPtr {
@@ -88,6 +89,15 @@ func readCommandLineArgs() {
 	App.PmtTypeFile = *pmtPtr
 	App.RcptFile = *rcptPtr
 	App.Report = *lptr
+}
+
+func loaderGetBiz(s string) int64 {
+	bid := rlib.GetBusinessBID(s)
+	if bid == 0 {
+		fmt.Printf("unrecognized business designator: %s\n", s)
+		os.Exit(1)
+	}
+	return bid
 }
 
 func main() {
@@ -171,16 +181,31 @@ func main() {
 		rlib.LoadReceiptsCSV(App.RcptFile, &App.PmtTypes)
 	}
 
-	if App.Report > 0 {
-		switch App.Report {
+	if len(App.Report) > 0 {
+		sa := strings.Split(App.Report, ",")
+		i := int64(0)
+		if len(sa) > 0 {
+			i = rlib.IntFromString(sa[0], "report number")
+		}
+		switch i {
 		case 1:
 			fmt.Printf("1 - not yet implemented\n")
 		case 2:
 			fmt.Printf("2 - not yet implemented\n")
 		case 3:
 			fmt.Printf("%s\n", rlib.RRreportBusiness(rlib.RPTTEXT))
+		case 4:
+			fmt.Printf("%s\n", rlib.RRreportAssessmentTypes(rlib.RPTTEXT))
+		case 5:
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportRentableTypes(rlib.RPTTEXT, bid))
+		case 6:
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportRentables(rlib.RPTTEXT, bid))
+		case 7:
+			fmt.Printf("%s\n", rlib.RRreportPeople(rlib.RPTTEXT))
 		default:
-			fmt.Printf("unimplemented report type: %d\n", App.Report)
+			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}
 	}
 }
