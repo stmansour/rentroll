@@ -15,8 +15,7 @@ date >> ${LOGFILE}
 echo >>${LOGFILE}
 
 echo "CREATE NEW DATABASE" >> ${LOGFILE} 2>&1
-${RRBIN}/rrnewdb >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
+${RRBIN}/rrnewdb
 
 echo "import business"
 echo "DEFINE BUSINESS" >> ${LOGFILE} 2>&1

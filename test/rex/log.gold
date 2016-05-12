@@ -1,12 +1,7 @@
 CSV IMPORT TEST
-Date/Time: Thu May 12 16:13:36 PDT 2016
+Date/Time: Thu May 12 16:16:41 PDT 2016
 
 CREATE NEW DATABASE
-Creating new database rentroll...
-~/Documents/src/go/src/rentroll/tmp/rentroll ~/Documents/src/go/src/rentroll/test/rex
-~/Documents/src/go/src/rentroll/test/rex
-Done.
-
 DEFINE BUSINESS
    1    JM1    
 
