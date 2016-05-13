@@ -9,8 +9,8 @@ import (
 
 //  CSV file format:
 //                                                                                   |<----- repeat Rentable name, as many as needed ... -->|
-//      0     1         2        3        4           5        6            7            8
-// RATRefNum,BID,PrimaryTenant,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName, ...
+//        0      1        2        3        4           5        6            7            8
+//  TemplateName,BID,PrimaryTenant,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName, ...
 // 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2015-11-08",1,"",101
 // 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2017-07-04",1,"",107
 // 		"RAT001","REH","homerj@springfield.com","866-123-4567","2015-11-21","2016-11-21",1,"",101,102
@@ -22,7 +22,7 @@ func CreateRentalAgreement(sa []string) {
 	var m []AgreementRentable
 
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "ratrefnum" {
+	if des == "templatename" {
 		return // this is just the column heading
 	}
 
@@ -44,7 +44,7 @@ func CreateRentalAgreement(sa []string) {
 	cmpdes := strings.TrimSpace(sa[1])
 	if len(cmpdes) > 0 {
 		b2, _ := GetBusinessByDesignation(cmpdes)
-		if len(b2.Name) == 0 {
+		if b2.BID == 0 {
 			fmt.Printf("CreateRentalAgreement: could not find business named %s\n", cmpdes)
 			return
 		}
@@ -54,7 +54,7 @@ func CreateRentalAgreement(sa []string) {
 	//-------------------------------------------------------------------
 	//  Determine the primary tenant
 	//-------------------------------------------------------------------
-	s := strings.TrimSpace(sa[2]) // either the email address or the phone number
+	s := strings.TrimSpace(sa[2])
 	t, err := GetTransactantByPhoneOrEmail(s)
 	if err != nil && !IsSQLNoResultsError(err) {
 		Ulog("CreateRentalAgreement: error retrieving tenant by phone or email: %v\n", err)
@@ -69,7 +69,9 @@ func CreateRentalAgreement(sa []string) {
 	//-------------------------------------------------------------------
 	//  Determine the payor
 	//-------------------------------------------------------------------
-	s = strings.TrimSpace(sa[3]) // either the email address or the phone number
+	s2 := strings.TrimSpace(sa[3]) // either the email address or the phone number
+	s1 := strings.Split(s2, ";")
+	s = strings.TrimSpace(s1[0]) // either the email address or the phone number
 	t, err = GetTransactantByPhoneOrEmail(s)
 	if err != nil && !IsSQLNoResultsError(err) {
 		Ulog("CreateRentalAgreement: error retrieving payor by phone or email: %v\n", err)
@@ -134,10 +136,31 @@ func CreateRentalAgreement(sa []string) {
 		m[i].RAID = RAID
 		InsertAgreementRentable(&m[i])
 	}
+
 	payor.RAID = RAID
 	payor.DtStart = DtStart
 	payor.DtStop = DtStop
-	InsertAgreementPayor(&payor)
+
+	var at AgreementTenant
+	at.DtStart = payor.DtStart
+	at.DtStop = payor.DtStop
+	at.RAID = payor.RAID
+
+	//==================================================
+	// Now handle payors and tenants...
+	//==================================================
+	for i := 0; i < len(s1); i++ {
+		s := strings.TrimSpace(s1[i])
+		t, err := GetTransactantByPhoneOrEmail(s)
+		if t.TCID > 0 {
+			payor.PID = t.PID
+			InsertAgreementPayor(&payor)
+			at.TID = t.TID
+			InsertAgreementTenant(&at)
+		} else {
+			fmt.Printf("CreateRentalAgreement: Coult not load payor: %s,  err = %v\n", s, err)
+		}
+	}
 }
 
 // LoadRentalAgreementCSV loads a csv file with rental specialty types and processes each one

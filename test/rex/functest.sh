@@ -47,6 +47,11 @@ echo "DEFINE RENTAL AGREEMENT TEMPLATES" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -T ratemplates.csv  -L 8 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
+echo "import rental agreements"
+echo "DEFINE RENTAL AGREEMENTS" >> ${LOGFILE} 2>&1
+${CVSLOAD} -C ra.csv >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
 echo -n "PHASE x: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then
 	echo "Missing file -- Required files for this check: log.gold and log"

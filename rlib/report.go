@@ -155,12 +155,14 @@ func RRreportRentables(t int, bid int64) string {
 
 // ReportXPersonToText returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToText(p *XPerson) string {
-	return fmt.Sprintf("%5d %5d %5d  %s, %s %s\n", p.Trn.TCID, p.Tnt.TID, p.Pay.PID, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
+	return fmt.Sprintf("%5d %5d %5d  %10s  %-25s  %s, %s %s\n",
+		p.Trn.TCID, p.Tnt.TID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
 // ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToHTML(p *XPerson) string {
-	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%5d</td><td>%s, %s %s</td></tr>", p.Trn.TCID, p.Tnt.TID, p.Pay.PID, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
+	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%5d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
+		p.Trn.TCID, p.Tnt.TID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
 // RRreportPeople generates a report of all businesses defined in the database.
@@ -168,7 +170,7 @@ func RRreportPeople(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllTransactants.Query()
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf(" TCID   TID   PID  Name\n")
+	fmt.Printf(" TCID   TID   PID  Cell Phone    Primary Email              Name\n")
 	s := ""
 	for rows.Next() {
 		var p XPerson

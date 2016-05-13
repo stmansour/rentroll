@@ -141,6 +141,14 @@ type AgreementPayor struct {
 	DtStop  time.Time // stop date/time
 }
 
+// AgreementTenant describes a Tenant associated with a rental agreement
+type AgreementTenant struct {
+	RAID    int64
+	TID     int64
+	DtStart time.Time // start date/time for this Tenant
+	DtStop  time.Time // stop date/time (when this person stopped being a tenant)
+}
+
 // Transactant is the basic structure of information
 // about a person who is a prospect, applicant, tenant, or payor
 type Transactant struct {
@@ -510,6 +518,7 @@ type RRprepSQL struct {
 	GetUnitAssessments                 *sql.Stmt
 	InsertAgreementPayor               *sql.Stmt
 	InsertAgreementRentable            *sql.Stmt
+	InsertAgreementTenant              *sql.Stmt
 	InsertAssessment                   *sql.Stmt
 	InsertAssessmentType               *sql.Stmt
 	InsertBuilding                     *sql.Stmt

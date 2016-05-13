@@ -27,6 +27,12 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//===============================
+	//  Agreement Tenant
+	//===============================
+	RRdb.Prepstmt.InsertAgreementTenant, err = RRdb.dbrr.Prepare("INSERT INTO agreementtenants (RAID,TID,DtStart,DtStop) VALUES(?,?,?,?)")
+	Errcheck(err)
+
+	//===============================
 	//  Assessments
 	//===============================
 	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments WHERE ASMID=?")

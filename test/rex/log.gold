@@ -1,74 +1,73 @@
 CSV IMPORT TEST
-Date/Time: Thu May 12 18:46:11 PDT 2016
+Date/Time: Fri May 13 14:46:53 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
-   1    JM1    
+   1    JM1    JM1
 
 
 DEFINE ASSESSMENT TYPES
-   1 - Assessment
-   2 - Rent
-   3 - Security Deposit
-   4 - Security Deposit Forfeiture
-   5 - Application Fees
-   6 - Landlord Lien Sales
-   7 - Pet Fees
-   8 - Eviction Fees
-   9 - Electric Reimbursement
-  10 - Electric Overage
-  11 - Water Reimbursement
-  12 - Water Overage
-  13 - Trash Fee
-  14 - Utility Fine
-  15 - NSF Fee
-  16 - Maintenance Fee
-  17 - Fines
-  18 - Month to Month Fee
-  19 - Cancelation Fees
-  20 - Housekeeping Fee
-  21 - Extra Person Charge
-  22 - Furniture Rental
-  23 - Platinum Service Fee
-  24 - Gold Service Fee
-  25 - Silver Service Fee
-  26 - Sales Tax
-  27 - TOT Tax
-  28 - Reletting Fees
-  29 - Carport Fees
-  30 - Garage Fees
-  31 - Reserved Parking Fees
-  32 - Transfer fees
-  33 - Washer/Dryer Fee
-  34 - Association Dues Assessment
-  35 - Insurance Reimbursement
-  36 - Tax Reimbursement
-  37 - Special Event Fees
-  38 - Convenience Store Sales
-  39 - Courtesy Car Rental
-  40 - Vending Income
-  41 - Transportation
-  42 - Food Sales
-  43 - Liquor Sales
-  44 - WashNFold Income
-  45 - Spa Sales
-  46 - Fitness Center
-  47 - CashOverShort
-  48 - Late Payment Fee
-  49 - Other Income
-  50 - Bad Debt Write-Off
-  51 - Off Line
-  52 - Concession
-  53 - Employee
-  54 - Damages
-  55 - Pest Control Reimbursement
-  56 - Security Deposit Return
-  57 - Returned Payments
-  58 - Security Deposit Assessment
-  59 - Lake View
-  60 - Courtyard View
-  61 - Top Floor
-  62 - Fireplace
+   1 - Rent
+   2 - Security Deposit
+   3 - Security Deposit Forfeiture
+   4 - Application Fees
+   5 - Landlord Lien Sales
+   6 - Pet Fees
+   7 - Eviction Fees
+   8 - Electric Reimbursement
+   9 - Electric Overage
+  10 - Water Reimbursement
+  11 - Water Overage
+  12 - Trash Fee
+  13 - Utility Fine
+  14 - NSF Fee
+  15 - Maintenance Fee
+  16 - Fines
+  17 - Month to Month Fee
+  18 - Cancelation Fees
+  19 - Housekeeping Fee
+  20 - Extra Person Charge
+  21 - Furniture Rental
+  22 - Platinum Service Fee
+  23 - Gold Service Fee
+  24 - Silver Service Fee
+  25 - Sales Tax
+  26 - TOT Tax
+  27 - Reletting Fees
+  28 - Carport Fees
+  29 - Garage Fees
+  30 - Reserved Parking Fees
+  31 - Transfer fees
+  32 - Washer/Dryer Fee
+  33 - Association Dues Assessment
+  34 - Insurance Reimbursement
+  35 - Tax Reimbursement
+  36 - Special Event Fees
+  37 - Convenience Store Sales
+  38 - Courtesy Car Rental
+  39 - Vending Income
+  40 - Transportation
+  41 - Food Sales
+  42 - Liquor Sales
+  43 - WashNFold Income
+  44 - Spa Sales
+  45 - Fitness Center
+  46 - CashOverShort
+  47 - Late Payment Fee
+  48 - Other Income
+  49 - Bad Debt Write-Off
+  50 - Off Line
+  51 - Concession
+  52 - Employee
+  53 - Damages
+  54 - Pest Control Reimbursement
+  55 - Security Deposit Return
+  56 - Returned Payments
+  57 - Security Deposit Assessment
+  58 - Lake View
+  59 - Courtyard View
+  60 - Top Floor
+  61 - Fireplace
 
 
 DEFINE RENTABLE TYPES
@@ -86,13 +85,12 @@ DEFINE RENTABLES
 
 
 DEFINE PEOPLE
- TCID   TID   PID  Name
-    1     1     1  Read, Aaron 
-    2     2     2  Read, Kirsten 
-    3     3     3  Costea, Rita 
-    4     4     4  Costea, Daniel 
-    5     5     5  Haroutunian, Gagik 
-    6     6     6  OWNER, OWNER 
+ TCID   TID   PID  Cell Phone    Primary Email              Name
+    1     1     1  123-456-7890  aaron@rexford.com          Read, Aaron 
+    2     2     2  123-456-7891  kirsten@rexford.com        Read, Kirsten 
+    3     3     3  123-456-7892  rita@rexford.com           Costea, Rita 
+    4     4     4  123-456-7893  daniel@rexford.com         Costea, Daniel 
+    5     5     5  123-456-7894  gagik@rexford.com          Haroutunian, Gagik 
 
 
 DEFINE RENTAL AGREEMENT TEMPLATES
@@ -102,4 +100,6 @@ RATID  RAType  TemplateName
     3       2   RAT003
     4       2   RAT004
 
+
+DEFINE RENTAL AGREEMENTS
 

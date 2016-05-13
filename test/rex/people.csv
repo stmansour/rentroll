@@ -1,7 +1,6 @@
 FirstName, MiddleName, LastName, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, ElibigleForFutureOccupancy, Industry, Source, InvoicingCustomerNumber, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerZipcode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
-Aaron,,Read,,,,,309 Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Kirsten,,Read,,,,,309 Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Rita,,Costea,,,,,309 1/2 Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Daniel,,Costea,,,,,309 1/2 Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Gagik,,Haroutunian,,,,,311 Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-OWNER,,OWNER,,,,,311  1/2 Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aaron,,Read,aaron@rexford.com,,,123-456-7890,309 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Kirsten,,Read,kirsten@rexford.com,,,123-456-7891,309 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Rita,,Costea,rita@rexford.com,,,123-456-7892,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Daniel,,Costea,daniel@rexford.com,,,123-456-7893,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Gagik,,Haroutunian,gagik@rexford.com,,,123-456-7894,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

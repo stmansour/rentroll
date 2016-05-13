@@ -87,14 +87,11 @@ CREATE TABLE agreementpayors (
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this payor was no longer being billed to this agreement
 );
 
--- ===========================================
---   UNIT TENANTS
--- ===========================================
--- query this table for rows where RAID=(the rental agreement for the unit)
--- the return list will be the TIDs of all tenants in that unit
-CREATE TABLE unittenants (
-    RAID BIGINT NOT NULL DEFAULT 0,                            -- the unit's occupancy agreement
-    TID BIGINT NOT NULL DEFAULT 0                              -- the tenant
+CREATE TABLE agreementtenants (
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
+    TID BIGINT NOT NULL DEFAULT 0,                            -- the tenant
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this tenant was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this tenant was no longer being billed to this agreement
 );
 
 

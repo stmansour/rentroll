@@ -328,6 +328,22 @@ func InsertAgreementPayor(a *AgreementPayor) (int64, error) {
 	return tid, err
 }
 
+// InsertAgreementTenant writes a new tenant record to the database
+func InsertAgreementTenant(a *AgreementTenant) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertAgreementTenant.Exec(a.RAID, a.TID, a.DtStart, a.DtStop)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertAgreementTenant: error inserting AgreementTenant:  %v\n", err)
+		Ulog("AgreementTenant = %#v\n", *a)
+	}
+	return tid, err
+}
+
 // InsertPaymentType writes a new assessmenttype record to the database
 func InsertPaymentType(a *PaymentType) error {
 	_, err := RRdb.Prepstmt.InsertPaymentType.Exec(a.BID, a.Name, a.Description, a.LastModBy)

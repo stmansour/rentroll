@@ -1,0 +1,4 @@
+TemplateName,Designation,PrimaryTenant,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName
+"RAT001","JM1","aaron@rexford.com","aaron@rexford.com;kirsten@rexford.com","2004-01-01","2015-11-08",1,,309
+"RAT001","JM1","123-456-7892","123-456-7892;123-456-7893","2004-01-01","2017-07-04",1,"",309 1/2 Rexford
+"RAT001","JM1","123-456-7894","123-456-7894","2004-01-01","2017-07-04",1,"",311 Rexford

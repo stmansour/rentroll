@@ -61,6 +61,9 @@ func CreatePhonebookLinkedBusiness(sa []string) {
 			found = true
 			b.Name = c.CommonName
 			b.Designation = des
+			if len(b.Name) == 0 {
+				b.Name = des
+			}
 			SetOccType(sa[2], &b)
 			if len(sa[3]) > 0 {
 				x, err := yesnoToInt(sa[3])
