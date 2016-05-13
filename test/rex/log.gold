@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Thu May 12 16:16:41 PDT 2016
+Date/Time: Thu May 12 18:46:11 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -93,5 +93,13 @@ DEFINE PEOPLE
     4     4     4  Costea, Daniel 
     5     5     5  Haroutunian, Gagik 
     6     6     6  OWNER, OWNER 
+
+
+DEFINE RENTAL AGREEMENT TEMPLATES
+RATID  RAType  TemplateName
+    1       2   RAT001
+    2       2   RAT002
+    3       2   RAT003
+    4       2   RAT004
 
 

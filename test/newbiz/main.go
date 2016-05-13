@@ -204,6 +204,8 @@ func main() {
 			fmt.Printf("%s\n", rlib.RRreportRentables(rlib.RPTTEXT, bid))
 		case 7:
 			fmt.Printf("%s\n", rlib.RRreportPeople(rlib.RPTTEXT))
+		case 8:
+			fmt.Printf("%s\n", rlib.RRreportRentalAgreementTemplates(rlib.RPTTEXT))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

@@ -45,11 +45,17 @@ If this option is not specified, only the data in the database is saved.
 Lists the command options to stdout.
 .IP "-N database_name"
 The default name for the production database is "rentroll".
+.IP "-p people.csv"
+Load people (renters, payors, prospects, ...) via the supplied csv file. Note: use -L 7 to 
+generate a list of people from the database.
 .IP "-R rentableTypes.csv"
 Load rentable types via the supplied csv file. Note: use -L 5,\fIdes\fR to list rentable 
 types, where
 .I des
 is the business name designation
+.IP "-T rentalAgreementTemplates.csv"
+Load rental agreement templates via the supplied csv file. Note: use -L 7 to 
+generate a list of people from the database.
 
 .SH EXAMPLES
 

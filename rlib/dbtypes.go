@@ -465,6 +465,7 @@ type RRprepSQL struct {
 	GetAllLedgersInRange               *sql.Stmt
 	GetAllRentableAssessments          *sql.Stmt
 	GetAllRentablesByBusiness          *sql.Stmt
+	GetAllRentalAgreementTemplates     *sql.Stmt
 	GetAllTransactants                 *sql.Stmt
 	GetAssessment                      *sql.Stmt
 	GetAssessmentType                  *sql.Stmt

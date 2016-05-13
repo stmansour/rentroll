@@ -187,3 +187,37 @@ func RRreportPeople(t int) string {
 	Errcheck(rows.Err())
 	return s
 }
+
+// ReportRentalAgreementTemplateToText returns a string representation of the supplied People suitable for a text report
+func ReportRentalAgreementTemplateToText(p *RentalAgreementTemplate) string {
+	return fmt.Sprintf("%5d  %6d   %s\n", p.RATID, p.RentalAgreementType, p.ReferenceNumber)
+}
+
+// ReportRentalAgreementTemplateToHTML returns a string representation of the supplied People suitable for a text report
+func ReportRentalAgreementTemplateToHTML(p *RentalAgreementTemplate) string {
+	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%s</td></tr>", p.RATID, p.RentalAgreementType, p.ReferenceNumber)
+}
+
+// RRreportRentalAgreementTemplates generates a report of all businesses defined in the database.
+func RRreportRentalAgreementTemplates(t int) string {
+	rows, err := RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
+	Errcheck(err)
+	defer rows.Close()
+	fmt.Printf("RATID  RAType  TemplateName\n")
+	s := ""
+	for rows.Next() {
+		var p RentalAgreementTemplate
+		Errcheck(rows.Scan(&p.RATID, &p.ReferenceNumber, &p.RentalAgreementType, &p.LastModTime, &p.LastModBy))
+		switch t {
+		case RPTTEXT:
+			s += ReportRentalAgreementTemplateToText(&p)
+		case RPTHTML:
+			s += ReportRentalAgreementTemplateToHTML(&p)
+		default:
+			fmt.Printf("RRreportBusiness: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	Errcheck(rows.Err())
+	return s
+}

@@ -193,13 +193,15 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//===============================
-	//  Rental Agreement Template
+	//  Rentable
 	//===============================
-	RRdb.Prepstmt.GetRentalAgreementTemplate, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE RATID=?")
+	RRdb.Prepstmt.InsertRentable, err = RRdb.dbrr.Prepare("INSERT INTO rentable (RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE ReferenceNumber=?")
+	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE RID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertRentalAgreementTemplate, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreementtemplate (ReferenceNumber,RentalAgreementType,LastModBy) VALUES(?,?,?)")
+	RRdb.Prepstmt.GetRentableByName, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE Name=? AND BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE BID=?")
 	Errcheck(err)
 
 	//===============================
@@ -213,15 +215,15 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//===============================
-	//  Rentable
+	//  Rental Agreement Template
 	//===============================
-	RRdb.Prepstmt.InsertRentable, err = RRdb.dbrr.Prepare("INSERT INTO rentable (RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.GetAllRentalAgreementTemplates, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE RID=?")
+	RRdb.Prepstmt.GetRentalAgreementTemplate, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE RATID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableByName, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE Name=? AND BID=?")
+	RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum, err = RRdb.dbrr.Prepare("SELECT RATID,ReferenceNumber,RentalAgreementType,LastModTime,LastModBy FROM rentalagreementtemplate WHERE ReferenceNumber=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE BID=?")
+	RRdb.Prepstmt.InsertRentalAgreementTemplate, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreementtemplate (ReferenceNumber,RentalAgreementType,LastModBy) VALUES(?,?,?)")
 	Errcheck(err)
 
 	//===============================
