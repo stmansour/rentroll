@@ -3,6 +3,7 @@ package rlib
 import (
 	"fmt"
 	"sort"
+	"time"
 )
 
 // ReportBusinessToText returns a string representation of the supplied business suitable for a text report
@@ -145,7 +146,7 @@ func RRreportRentables(t int, bid int64) string {
 		case RPTHTML:
 			s += ReportRentableToHTML(&p)
 		default:
-			fmt.Printf("RRreportBusiness: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportRentables: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
@@ -182,7 +183,7 @@ func RRreportPeople(t int) string {
 		case RPTHTML:
 			s += ReportXPersonToHTML(&p)
 		default:
-			fmt.Printf("RRreportBusiness: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportPeople: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
@@ -216,7 +217,52 @@ func RRreportRentalAgreementTemplates(t int) string {
 		case RPTHTML:
 			s += ReportRentalAgreementTemplateToHTML(&p)
 		default:
-			fmt.Printf("RRreportBusiness: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportRentalAgreementTemplates: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	Errcheck(rows.Err())
+	return s
+}
+
+// ReportRentalAgreementToText returns a string representation of the supplied People suitable for a text report
+func ReportRentalAgreementToText(p *RentalAgreement) string {
+	return fmt.Sprintf("%5d   %6d  %6d (%s %s)\n",
+		p.RAID, p.PrimaryTenant, p.P[0].Trn.PID, p.P[0].Trn.FirstName, p.P[0].Trn.LastName)
+}
+
+// ReportRentalAgreementToHTML returns a string representation of the supplied People suitable for a text report
+func ReportRentalAgreementToHTML(p *RentalAgreement) string {
+	return fmt.Sprintf("<tr><td>%5d</td><td>%6d</td><td%6d (%s %s)</td>\n",
+		p.RAID, p.PrimaryTenant, p.P[0].Trn.PID, p.P[0].Trn.FirstName, p.P[0].Trn.LastName)
+}
+
+// RRreportRentalAgreements generates a report of all businesses defined in the database.
+func RRreportRentalAgreements(t int) string {
+	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query()
+	Errcheck(err)
+	defer rows.Close()
+	fmt.Printf("RAID     Payor       Tenant\n")
+	s := ""
+	var raid int64
+	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.UTC)
+	for rows.Next() {
+		var p RentalAgreement
+
+		Errcheck(rows.Scan(&raid))
+		p, err = GetXRentalAgreement(raid, &d1, &d2)
+		if err != nil {
+			Ulog("RRreportRentalAgreements: GetXRentalAgreement returned err = %v\n", err)
+			continue
+		}
+		switch t {
+		case RPTTEXT:
+			s += ReportRentalAgreementToText(&p)
+		case RPTHTML:
+			s += ReportRentalAgreementToHTML(&p)
+		default:
+			fmt.Printf("RRreportRentalAgreements: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}

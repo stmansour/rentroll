@@ -49,7 +49,7 @@ echo >>${LOGFILE}
 
 echo "import rental agreements"
 echo "DEFINE RENTAL AGREEMENTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -C ra.csv >> ${LOGFILE} 2>&1
+${CVSLOAD} -C ra.csv -L 9 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo -n "PHASE x: Log file check...  "

@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Fri May 13 14:46:53 PDT 2016
+Date/Time: Sat May 14 10:14:48 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -102,4 +102,9 @@ RATID  RAType  TemplateName
 
 
 DEFINE RENTAL AGREEMENTS
+RAID     Payor       Tenant
+    1        1       1 (Aaron Read)
+    2        3       3 (Rita Costea)
+    3        5       5 (Gagik Haroutunian)
+
 
