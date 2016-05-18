@@ -1,13 +1,19 @@
 package main
 
-import "rentroll/rlib"
+import (
+	"fmt"
+	"os"
+	"rentroll/rlib"
+	"strings"
+	"time"
+)
 
 func initRentRoll() {
 	initLists()
 	initJFmt()
 	initTFmt()
 	rlib.RpnInit()
-	loadDefaultCashAccts()
+	// loadDefaultCashAccts()
 }
 
 func initLists() {
@@ -15,26 +21,34 @@ func initLists() {
 	App.PmtTypes = rlib.GetPaymentTypes()
 }
 
-// Basically this is turned off for now. We'll get to default cash accounts at some point.
-func loadDefaultCashAccts() {
-	// App.DefaultCash = make(map[int64]LedgerMarker, 0)
-	// s := "SELECT BID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
-	s := "SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
-	rows, err := App.dbrr.Query(s)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var xprop rlib.XBusiness
-		rlib.Errcheck(rows.Scan(&xprop.P.BID, &xprop.P.Designation,
-			/* &xprop.P.Address, &xprop.P.Address2, &xprop.P.City, &xprop.P.State,
-			&xprop.P.PostalCode, &xprop.P.Country, &xprop.P.Phone,  */
-			&xprop.P.Name, &xprop.P.DefaultOccupancyType,
-			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))
+// // Basically this is turned off for now. We'll get to default cash accounts at some point.
+// func loadDefaultCashAccts() {
+// 	s := "SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
+// 	rows, err := App.dbrr.Query(s)
+// 	rlib.Errcheck(err)
+// 	defer rows.Close()
+// 	for rows.Next() {
+// 		var xprop rlib.XBusiness
+// 		rlib.Errcheck(rows.Scan(&xprop.P.BID, &xprop.P.Designation,
+// 			&xprop.P.Name, &xprop.P.DefaultOccupancyType,
+// 			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))
+// 	}
+// }
 
-		// All we really needed was the BID...
-		// App.DefaultCash[xprop.P.BID] = GetDefaultCashLedgerMarker(xprop.P.BID)
-		// if App.DefaultCash[xprop.P.BID].LMID == 0 {
-		// 	fmt.Printf("No default cash account was found for business %d, %s\n", xprop.P.BID, xprop.P.Name)
-		// }
+func createStartupCtx() DispatchCtx {
+	var ctx DispatchCtx
+	var err error
+	ctx.DtStart, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(App.sStart))
+	if err != nil {
+		fmt.Printf("Invalid start date:  %s\n", App.sStart)
+		os.Exit(1)
 	}
+	ctx.DtStop, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(App.sStop))
+	if err != nil {
+		fmt.Printf("Invalid start date:  %s\n", App.sStop)
+		os.Exit(1)
+	}
+	ctx.Report = App.Report
+	ctx.Cmd = CmdRUNBOOKS
+	return ctx
 }

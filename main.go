@@ -8,10 +8,24 @@ import (
 	"os"
 	"phonebook/lib"
 	"rentroll/rlib"
-	"strings"
 	"time"
 )
 import _ "github.com/go-sql-driver/mysql"
+
+// CmdRUNBOOKS and the rest are command numbers used by the Dispatch function.
+const (
+	CmdRUNBOOKS = 1 // Run journal and ledgers over a defined period
+)
+
+// DispatchCtx is a type of struct needed for the Dispatch function. It defines
+// everything needed to run a particular command. It is the responsibility of the
+// caller to fill out all the needed ctx information.
+type DispatchCtx struct {
+	Cmd     int
+	DtStart time.Time
+	DtStop  time.Time
+	Report  int64
+}
 
 // App is the global data structure for this app
 var App struct {
@@ -63,57 +77,6 @@ func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	fmt.Printf("DONE\n")
 }
 
-// Dispatch generates the supplied report for all properties
-func Dispatch(d1, d2 time.Time, report int64) {
-	// s := "SELECT BID,Address,Address2,City,State,PostalCode,Country,Phone,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
-	s := "SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
-	rows, err := App.dbrr.Query(s)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	// For every business
-	for rows.Next() {
-		var xbiz rlib.XBusiness
-		// read its definition
-		rlib.Errcheck(rows.Scan(&xbiz.P.BID, &xbiz.P.Designation,
-			/* &xbiz.P.Address, &xbiz.P.Address2, &xbiz.P.City, &xbiz.P.State,
-			&xbiz.P.PostalCode, &xbiz.P.Country, &xbiz.P.Phone, */
-			&xbiz.P.Name, &xbiz.P.DefaultOccupancyType,
-			&xbiz.P.ParkingPermitInUse, &xbiz.P.LastModTime, &xbiz.P.LastModBy))
-		// get its info
-		rlib.GetXBusiness(xbiz.P.BID, &xbiz)
-		rlib.InitBusinessFields(xbiz.P.BID)
-		// if nil == rlib.RRdb.BizTypes[xbiz.P.BID] {
-		// 	bt := rlib.BusinessTypes{
-		// 		BID:          xbiz.P.BID,
-		// 		AsmtTypes:    make(map[int64]*rlib.AssessmentType),
-		// 		PmtTypes:     make(map[int64]*rlib.PaymentType),
-		// 		DefaultAccts: make(map[int64]*rlib.LedgerMarker),
-		// 	}
-		// 	rlib.RRdb.BizTypes[xbiz.P.BID] = &bt
-		// }
-		// Gather its chart of accounts
-		rlib.GetDefaultLedgerMarkers(xbiz.P.BID)
-		// fmt.Printf("Dispatch: After call to GetDefaultLedgerMarkers: rlib.RRdb.BizTypes[%d].DefaultAccts = %#v\n", xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts)
-
-		// and generate the requested report...
-		switch report {
-		case 1:
-			JournalReportText(&xbiz, &d1, &d2)
-		case 2:
-			LedgerReportText(&xbiz, &d1, &d2)
-		case 3:
-			intTest(&xbiz, &d1, &d2)
-		case 4:
-			fmt.Printf("biz csv = %s\n", App.bizfile)
-			// AddNewBusiness(*bizptr)
-		default:
-			// fmt.Printf("Generating Journal Records for %s through %s\n", d1.Format(RRDATEFMT), d2.AddDate(0, 0, -1).Format(RRDATEFMT))
-			GenerateJournalRecords(&xbiz, &d1, &d2)
-			GenerateLedgerRecords(&xbiz, &d1, &d2)
-		}
-	}
-}
-
 func main() {
 	readCommandLineArgs()
 	//==============================================
@@ -161,18 +124,6 @@ func main() {
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	initRentRoll()
 
-	//  func Date(year int64 , month Month, day, hour, min, sec, nsec int64 , loc *Location) Time
-	// start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
-	// stop := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
-	start, err := time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(App.sStart))
-	if err != nil {
-		fmt.Printf("Invalid start date:  %s\n", App.sStart)
-		os.Exit(1)
-	}
-	stop, err := time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(App.sStop))
-	if err != nil {
-		fmt.Printf("Invalid start date:  %s\n", App.sStop)
-		os.Exit(1)
-	}
-	Dispatch(start, stop, App.Report)
+	ctx := createStartupCtx()
+	Dispatch(&ctx)
 }
