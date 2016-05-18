@@ -22,7 +22,7 @@
 -- PMTID = payment type id
 -- PRSPID = Prospect id
 -- RAID = rental agreement / occupancy agreement
--- RATID = occupancy agreement template id
+-- RATID = rental agreement template id
 -- RCPTID = receipt id
 -- RID = rentable id
 -- RSPID = unit specialty id
@@ -252,6 +252,7 @@ CREATE TABLE rentable (
     Report SMALLINT NOT NULL DEFAULT 1,                            -- 1 = apply to rentroll, 0 = skip on rentroll
     DefaultOccType SMALLINT NOT NULL DEFAULT 0,                    -- 0 =unset, 1 = short term, 2=longterm
     OccType SMALLINT NOT NULL DEFAULT 0,                           -- 0 =unset, 1 = short term, 2=longterm
+    State SMALLINT NOT NULL DEFAULT 0,                             -- 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
     -- ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 = do not manage to budget, 1 = manage to MarketRate set in RentableType
     LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it 
@@ -450,7 +451,7 @@ CREATE TABLE journal (
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- date when it occurred
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- how much
     Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unknown, 1 = assessment, 2 = payment/receipt
-    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
+    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, if Type ==2 then it is the RCPTID
     -- no last mod by, etc., this is all handled in the journalaudit table
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP,                                    -- when was this record last written
@@ -517,8 +518,8 @@ CREATE TABLE ledgermarker (
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
-    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- period start
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- period end
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a default account, 1 = Payor Account , 
     --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC

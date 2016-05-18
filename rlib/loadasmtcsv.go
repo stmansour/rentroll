@@ -82,14 +82,19 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	a.Stop = DtStop
 
 	//-------------------------------------------------------------------
-	// Find and set the rental agreement
+	// Find and set the rental agreement -- but we only need to worry about
+	// this value if the rentable state is normal.  We can skip it otherwise
+	// because the other state values mean that it is not covered by a rental
+	// agreement
 	//-------------------------------------------------------------------
-	ra, err := FindAgreementByRentable(a.RID, &DtStart, &DtStop)
-	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - Error finding rental agreement for rentable %s.  Error = %v\n", lineno, r.Name, err)
-		return
+	if r.State == RENTABLESTATEONLINE {
+		ra, err := FindAgreementByRentable(a.RID, &DtStart, &DtStop)
+		if err != nil {
+			fmt.Printf("CreateAssessmentsFromCSV: line %d - Error finding rental agreement for rentable %s.  Error = %v\n", lineno, r.Name, err)
+			return
+		}
+		a.RAID = ra.RAID
 	}
-	a.RAID = ra.RAID
 
 	//-------------------------------------------------------------------
 	// Determine the amount
@@ -136,8 +141,8 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...
 	//-------------------------------------------------------------------
-	if len(a.AcctRule) == 0 || a.ASMTID == 0 ||
-		a.Amount == 0 || a.RID == 0 || a.RAID == 0 || a.BID == 0 {
+	if len(a.AcctRule) == 0 || (a.RAID == 0 && r.State == RENTABLESTATEONLINE) ||
+		a.Amount == 0 || a.RID == 0 || a.ASMTID == 0 || a.BID == 0 {
 		fmt.Printf("Skipping this record\n")
 		return
 	}

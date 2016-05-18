@@ -3,6 +3,7 @@ RRBIN="../../tmp/rentroll"
 MYSQLOPTS=""
 UNAME=$(uname)
 CVSLOAD="${RRBIN}/rrloadcsv"
+RENTROLL="${RRBIN}/rentroll"
 LOGFILE="log"
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
@@ -49,7 +50,36 @@ echo >>${LOGFILE}
 
 echo "import rental agreements"
 echo "DEFINE RENTAL AGREEMENTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -C ra.csv -L 9 >> ${LOGFILE} 2>&1
+${CVSLOAD} -C ra.csv -L 9,JM1 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "import chart of accounts"
+echo "DEFINE CHART OF ACCOUNTS" >> ${LOGFILE} 2>&1
+${CVSLOAD} -c coa.csv -L 10,JM1 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "import assessments"
+echo "DEFINE ASSESSMENTS" >> ${LOGFILE} 2>&1
+${CVSLOAD} -A asmt.csv -L 11,JM1 >> ${LOGFILE} 2>&1
+#${CVSLOAD} -A a.csv -L 11,JM1 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "import payment types"
+echo "DEFINE PAYMENT TYPES" >> ${LOGFILE} 2>&1
+${CVSLOAD} -P pmt.csv -L 12,jm1 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "import receipts"
+echo "DEFINE RECEIPTS" >> ${LOGFILE} 2>&1
+${CVSLOAD} -e rcpt.csv -L 13,jm1 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "process payments and receipts"
+echo "PROCESS PAYMENTS AND RECEIPTS" >> ${LOGFILE} 2>&1
+${RENTROLL} -j "2016-03-01" -k "2016-04-01" >> ${LOGFILE} 2>&1
+${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 1 >> ${LOGFILE} 2>&1
+${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 2  >> ${LOGFILE} 2>&1
+
 echo >>${LOGFILE}
 
 echo -n "PHASE x: Log file check...  "

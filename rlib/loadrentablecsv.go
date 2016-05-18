@@ -9,8 +9,8 @@ import (
 // RentableSpecialty is the structure for attributes of a rentable specialty
 
 // CSV file format:
-//   0           1     2         3      4       5      7
-// Designation,Style,Name,Assignment,Report,DefaultOcc,Occ
+//   0           1     2         3      4       5      7   8
+// Designation,Style,Name,Assignment,Report,DefaultOcc,Occ,State
 //	REH,1,GM, "101",1,1,2,2
 //	REH,1,FS, "102",1,1,2,2
 //	REH,1,SBL,"103",1,1,2,2
@@ -120,7 +120,7 @@ func CreateRentables(sa []string) {
 	if len(sa[6]) > 0 {
 		i, err := strconv.Atoi(sa[6])
 		if err != nil || i < 0 || i > 2 {
-			fmt.Printf("CreateRentables: invalid DefaultOccupancy number: %s\n", sa[6])
+			fmt.Printf("CreateRentables: invalid DefaultOccupancy value: %s\n", sa[6])
 			return
 		}
 		r.DefaultOccType = int64(i)
@@ -133,10 +133,23 @@ func CreateRentables(sa []string) {
 	if len(sa[7]) > 0 {
 		i, err := strconv.Atoi(sa[7])
 		if err != nil || i < 0 || i > 2 {
-			fmt.Printf("CreateRentables: invalid Occupancy number: %s\n", sa[7])
+			fmt.Printf("CreateRentables: invalid Occupancy value: %s\n", sa[7])
 			return
 		}
 		r.OccType = int64(i)
+	}
+
+	//-------------------------------------------------------------------
+	// parse out the State value
+	// 0 = normal, 1 = online, 2 = administrative unit, 3 = owner occupied, 4 = offline
+	//-------------------------------------------------------------------
+	if len(sa[8]) > 0 {
+		i, err := strconv.Atoi(sa[8])
+		if err != nil || i < RENTABLESTATEONLINE || i > RENTABLESTATELAST {
+			fmt.Printf("CreateRentables: invalid State value: %s\n", sa[8])
+			return
+		}
+		r.State = int64(i)
 	}
 
 	//-------------------------------------------------------------------

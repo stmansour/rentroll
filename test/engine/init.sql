@@ -401,8 +401,6 @@ INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 
 INSERT INTO receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
 	(1,1,1,"2015-11-21",  294.66, "ASM(1) c ${DFLTGENRCV} 266.67, ASM(1) d ${DFLTCASH} 266.67, ASM(3) c ${DFLTGENRCV} 13.33, ASM(3) d ${DFLTCASH} 13.33, ASM(4) c ${DFLTGENRCV} 5.33, ASM(4) d ${DFLTCASH} 5.33, ASM(9) c ${DFLTGENRCV} 9.33,ASM(9) d ${DFLTCASH} 9.33"); 			-- 2   Krabappel pays her fees in full
---	(1,1,1,"2015-11-21",  294.66, "c ${DFLTGENRCV} 266.67, d ${DFLTCASH} 266.67, c ${DFLTGENRCV} 13.33, d ${DFLTCASH} 13.33, c ${DFLTGENRCV} 5.33, d ${DFLTCASH} 5.33, c ${DFLTGENRCV} 9.33,d ${DFLTCASH} 9.33"); 			-- 2   Krabappel pays her fees in full
-
 INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(2,266.67,1,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- rent
 	(2, 13.33,3,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- Lake View

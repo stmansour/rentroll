@@ -8,6 +8,7 @@ import (
 	"os"
 	"phonebook/lib"
 	"rentroll/rlib"
+	"strings"
 	"time"
 )
 import _ "github.com/go-sql-driver/mysql"
@@ -22,6 +23,8 @@ var App struct {
 	Report    int64    // if testing engine, which report/action to perform
 	bizfile   string   // TEMPORARY - tests loading bizcsv
 	LogFile   *os.File // where to log messages
+	sStart    string   //start time
+	sStop     string   //stop time
 	AsmtTypes map[int64]rlib.AssessmentType
 	PmtTypes  map[int64]rlib.PaymentType
 }
@@ -30,9 +33,12 @@ func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
+	pStart := flag.String("j", "2015-11-01", "Accounting Period start time")
+	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	bizPtr := flag.String("b", "b.csv", "add business via csv file")
 	rptPtr := flag.Int64("r", 0, "report: 0 = generate journal records, 1 = journal, 2 = rentable")
+
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
@@ -43,6 +49,8 @@ func readCommandLineArgs() {
 	App.DBUser = *dbuPtr
 	App.Report = *rptPtr
 	App.bizfile = *bizPtr
+	App.sStart = *pStart
+	App.sStop = *pStop
 }
 
 func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
@@ -154,7 +162,17 @@ func main() {
 	initRentRoll()
 
 	//  func Date(year int64 , month Month, day, hour, min, sec, nsec int64 , loc *Location) Time
-	start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
-	stop := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
+	// start := time.Date(2015, time.November, 1, 0, 0, 0, 0, time.UTC)
+	// stop := time.Date(2015, time.December, 1, 0, 0, 0, 0, time.UTC)
+	start, err := time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(App.sStart))
+	if err != nil {
+		fmt.Printf("Invalid start date:  %s\n", App.sStart)
+		os.Exit(1)
+	}
+	stop, err := time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(App.sStop))
+	if err != nil {
+		fmt.Printf("Invalid start date:  %s\n", App.sStop)
+		os.Exit(1)
+	}
 	Dispatch(start, stop, App.Report)
 }

@@ -22,18 +22,24 @@ func sumAllocations(m *[]rlib.AcctRule) (float64, float64) {
 }
 
 // calcProrationInfo returns:
+//  AgrStart,AgrStop - define the time range of either the rentalAgreement or the Assessment covering the rentable
+//  d1, d2 - the time period we're being asked to analyze
+//  prorateMethod - the recurrence frequency to use for partial coverage
+//
+// Returns:
 //			asmtDur:  pf denominator, total number of days in period
 //         	rentDur:  pf numerator, total number of days applicable to this rental agreement
 //         	pf:       prorate factor = rentDur/asmtDur
-func calcProrationInfo(ra *rlib.RentalAgreement, d1, d2 *time.Time, prorateMethod int64) (int64, int64, float64) {
+//func calcProrationInfo(ra *rlib.RentalAgreement, d1, d2 *time.Time, prorateMethod int64) (int64, int64, float64) {
+func calcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, prorateMethod int64) (int64, int64, float64) {
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------
 	start := *d1
-	if ra.RentalStart.After(start) {
-		start = ra.RentalStart
+	if DtStart.After(start) {
+		start = *DtStart
 	}
-	stop := ra.RentalStop.Add(24 * 60 * time.Minute)
+	stop := DtStop.Add(24 * 60 * time.Minute)
 	if stop.After(*d2) {
 		stop = *d2
 	}
@@ -54,8 +60,32 @@ func calcProrationInfo(ra *rlib.RentalAgreement, d1, d2 *time.Time, prorateMetho
 
 // journalAssessment processes the assessment, creates a journal entry, and returns its id
 func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
-	ra, _ := rlib.GetRentalAgreement(a.RAID)
-	_, _, pf := calcProrationInfo(&ra, d1, d2, a.ProrationMethod)
+	pf := float64(0)
+
+	// ra, _ := rlib.GetRentalAgreement(a.RAID)
+	// _, _, pf = calcProrationInfo(&ra.RentalStart, &ra.RentalStop, d1, d2, a.ProrationMethod)
+
+	r := rlib.GetRentable(rid)
+	switch {
+	case r.State == rlib.RENTABLESTATEONLINE:
+		ra, _ := rlib.GetRentalAgreement(a.RAID)
+		_, _, pf = calcProrationInfo(&ra.RentalStart, &ra.RentalStop, d1, d2, a.ProrationMethod)
+
+	case r.State == rlib.RENTABLESTATEADMIN ||
+		r.State == rlib.RENTABLESTATEEMPLOYEE ||
+		r.State == rlib.RENTABLESTATEOWNEROCC ||
+		r.State == rlib.RENTABLESTATEOFFLINE:
+		ta := rlib.GetAllRentableAssessments(r.RID, d1, d2)
+		if len(ta) > 0 {
+			_, _, pf = calcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, xbiz.RT[r.RTID].Proration)
+			if len(ta) > 1 {
+				rlib.Ulog("journalAssessment: %d assessments affect rentable %d (%s) in period %s - %s\n", len(ta), r.RID, r.Name, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
+			}
+		}
+	default:
+		rlib.Ulog("journalAssessment: rentable %d is in an unknown state: %d\n", r.RID, r.State)
+	}
+
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
 	m := rlib.ParseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
@@ -101,6 +131,7 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 		}
 	}
 
+	// fmt.Printf("INSERTING JOURNAL: %#v\n", j)
 	jid, err := rlib.InsertJournalEntry(&j)
 	if err != nil {
 		rlib.Ulog("error inserting journal entry: %v\n", err)
@@ -163,6 +194,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	//===========================================================
 	//  PROCESS ASSESSMSENTS
 	//===========================================================
+	// fmt.Printf("GetAllAssessmentsByBusiness - d2 = %s   d1 = %s\n", d2.Format(rlib.RRDATEINPFMT), d1.Format(rlib.RRDATEINPFMT))
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1)
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -172,6 +204,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
 			&a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
+		// fmt.Printf("Assessment: %#v\n", a)
 		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY {
 			// TBD
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)

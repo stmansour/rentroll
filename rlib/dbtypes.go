@@ -42,6 +42,13 @@ const (
 	OCCTYPEQUARTERLY = 7
 	OCCTYPEYEARLY    = 8
 
+	RENTABLESTATEONLINE   = 0
+	RENTABLESTATEADMIN    = 1
+	RENTABLESTATEEMPLOYEE = 2
+	RENTABLESTATEOWNEROCC = 3
+	RENTABLESTATEOFFLINE  = 4
+	RENTABLESTATELAST     = 4
+
 	CREDIT = 0
 	DEBIT  = 1
 
@@ -330,6 +337,7 @@ type Rentable struct {
 	Report         int64     // 1 = apply to rentroll, 0 = skip
 	DefaultOccType int64     // 0 =unset, 1 = short term, 2=longterm
 	OccType        int64     // 0 =unset, 1 = short term, 2=longterm
+	State          int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
 	LastModTime    time.Time // time of last update to the db record
 	LastModBy      int64     // who made the update (Phonebook UID)
 }
@@ -496,6 +504,7 @@ type RRprepSQL struct {
 	GetLedgerMarkerByGLNoDateRange     *sql.Stmt
 	GetLedgerMarkerInitList            *sql.Stmt
 	GetLedgerMarkers                   *sql.Stmt
+	GetPaymentTypesByBusiness          *sql.Stmt
 	GetPayor                           *sql.Stmt
 	GetProspect                        *sql.Stmt
 	GetReceipt                         *sql.Stmt

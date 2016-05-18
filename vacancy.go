@@ -22,14 +22,27 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 	var m int64      // total number of days in the period d1-d2
 	var k int64      // number of days covered by an agreement.
 
-	// fmt.Printf("RAs for %s:  %d\n", r.Name, len(t))
-
-	for i := 0; i < len(t); i++ {
-		ra, _ := rlib.GetRentalAgreement(t[i].RAID)
-		if t[i].RID == r.RID {
-			m, k, _ = calcProrationInfo(&ra, d1, d2, xbiz.RT[r.RTID].Proration)
+	// fmt.Printf("ProcessRentable: RID=%d (%s),  State=%d\n", r.RID, r.Name, r.State)
+	switch {
+	case r.State == rlib.RENTABLESTATEONLINE:
+		for i := 0; i < len(t); i++ {
+			ra, _ := rlib.GetRentalAgreement(t[i].RAID)
+			if t[i].RID == r.RID {
+				m, k, _ = calcProrationInfo(&ra.RentalStart, &ra.RentalStop, d1, d2, xbiz.RT[r.RTID].Proration)
+				n += k
+			}
+		}
+	case r.State == rlib.RENTABLESTATEADMIN ||
+		r.State == rlib.RENTABLESTATEEMPLOYEE ||
+		r.State == rlib.RENTABLESTATEOWNEROCC ||
+		r.State == rlib.RENTABLESTATEOFFLINE:
+		ta := rlib.GetAllRentableAssessments(r.RID, d1, d2)
+		for i := 0; i < len(ta); i++ {
+			m, k, _ = calcProrationInfo(&(ta[i].Start), &(ta[i].Stop), d1, d2, xbiz.RT[r.RTID].Proration)
 			n += k
 		}
+	default:
+		rlib.Ulog("ProcessRentable: rentable %d is in an unknown state: %d\n", r.RID, r.State)
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -52,6 +65,7 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 		j.Type = rlib.JNLTYPEUNAS
 		j.ID = r.RID
 		j.RAID = 0 // this one is unassociated
+
 		jid, err := rlib.InsertJournalEntry(&j)
 		if err != nil {
 			rlib.Ulog("Error inserting journal entry: %v\n", err)
@@ -76,7 +90,7 @@ func GenVacancyJournals(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	defer rows.Close()
 	for rows.Next() {
 		var r rlib.Rentable
-		rlib.Errcheck(rows.Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.LastModTime, &r.LastModBy))
+		rlib.Errcheck(rows.Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.State, &r.LastModTime, &r.LastModBy))
 		if xbiz.RT[r.RTID].ManageToBudget > 0 {
 			ProcessRentable(xbiz, d1, d2, &r)
 		}

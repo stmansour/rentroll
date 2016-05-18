@@ -37,7 +37,7 @@ func buildPreparedStatements() {
 	//===============================
 	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments WHERE ASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE BID=? and Start<? and Stop>?")
+	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE BID=? and Start<? and Stop>=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
@@ -153,6 +153,8 @@ func buildPreparedStatements() {
 	//==========================================
 	RRdb.Prepstmt.InsertPaymentType, err = RRdb.dbrr.Prepare("INSERT INTO paymenttypes (BID,Name,Description,LastModBy) VALUES(?,?,?,?)")
 	Errcheck(err)
+	RRdb.Prepstmt.GetPaymentTypesByBusiness, err = RRdb.dbrr.Prepare("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM paymenttypes WHERE BID=?")
+	Errcheck(err)
 
 	//==========================================
 	// PAYOR
@@ -201,13 +203,13 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rentable
 	//===============================
-	RRdb.Prepstmt.InsertRentable, err = RRdb.dbrr.Prepare("INSERT INTO rentable (RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertRentable, err = RRdb.dbrr.Prepare("INSERT INTO rentable (RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,State,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE RID=?")
+	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,State,LastModTime,LastModBy FROM rentable WHERE RID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableByName, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE Name=? AND BID=?")
+	RRdb.Prepstmt.GetRentableByName, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,State,LastModTime,LastModBy FROM rentable WHERE Name=? AND BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModTime,LastModBy FROM rentable WHERE BID=?")
+	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.dbrr.Prepare("SELECT RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,State,LastModTime,LastModBy FROM rentable WHERE BID=?")
 	Errcheck(err)
 
 	//===============================
@@ -219,7 +221,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement WHERE RAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentalAgreements, err = RRdb.dbrr.Prepare("SELECT RAID from rentalagreement")
+	RRdb.Prepstmt.GetAllRentalAgreements, err = RRdb.dbrr.Prepare("SELECT RAID from rentalagreement WHERE BID=?")
 	Errcheck(err)
 
 	//===============================

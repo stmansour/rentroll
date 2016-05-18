@@ -48,14 +48,22 @@ The default name for the production database is "rentroll".
 .IP "-p people.csv"
 Load people (renters, payors, prospects, ...) via the supplied csv file. Note: use -L 7 to 
 generate a list of people from the database.
+.IP "-r rentables.csv"
+Load the individual rentables via the supplied csv file. Note: use -L 6,\fIdes\fR to list rentables, where
+.I des
+is the business name designation
+.IP "-r rentalAgreements.csv"
+Load the rentable agreements via the supplied csv file. Note: use -L 9,\fIdes\fR to list rentable agreements, where
+.I des
+is the business name designation
 .IP "-R rentableTypes.csv"
 Load rentable types via the supplied csv file. Note: use -L 5,\fIdes\fR to list rentable 
 types, where
 .I des
 is the business name designation
 .IP "-T rentalAgreementTemplates.csv"
-Load rental agreement templates via the supplied csv file. Note: use -L 7 to 
-generate a list of people from the database.
+Load rental agreement templates via the supplied csv file. Note: use -L 8 to 
+generate a list of rental templates from the database.
 
 .SH EXAMPLES
 

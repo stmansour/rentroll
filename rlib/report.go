@@ -123,12 +123,14 @@ func RRreportRentableTypes(t int, bid int64) string {
 
 // ReportRentableToText returns a string representation of the supplied Rentable suitable for a text report
 func ReportRentableToText(p *Rentable) string {
-	return fmt.Sprintf("%4d - %s\n", p.RID, p.Name)
+	return fmt.Sprintf("%4d  %5d  %s\n",
+		p.RID, p.State, p.Name)
 }
 
 // ReportRentableToHTML returns a string representation of the supplied Rentable suitable for a text report
 func ReportRentableToHTML(p *Rentable) string {
-	return fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", p.RID, p.Name)
+	return fmt.Sprintf("<tr><td>%d</td><td>%d</td><td>%s</td></tr>",
+		p.RID, p.State, p.Name)
 }
 
 // RRreportRentables generates a report of all businesses defined in the database.
@@ -137,9 +139,10 @@ func RRreportRentables(t int, bid int64) string {
 	Errcheck(err)
 	defer rows.Close()
 	s := ""
+	fmt.Printf(" RID  State  Name\n")
 	for rows.Next() {
 		var p Rentable
-		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.Assignment, &p.Report, &p.DefaultOccType, &p.OccType, &p.LastModTime, &p.LastModBy))
+		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.Assignment, &p.Report, &p.DefaultOccType, &p.OccType, &p.State, &p.LastModTime, &p.LastModBy))
 		switch t {
 		case RPTTEXT:
 			s += ReportRentableToText(&p)
@@ -238,8 +241,8 @@ func ReportRentalAgreementToHTML(p *RentalAgreement) string {
 }
 
 // RRreportRentalAgreements generates a report of all businesses defined in the database.
-func RRreportRentalAgreements(t int) string {
-	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query()
+func RRreportRentalAgreements(t int, bid int64) string {
+	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 	fmt.Printf("RAID     Payor       Tenant\n")
@@ -267,5 +270,157 @@ func RRreportRentalAgreements(t int) string {
 		}
 	}
 	Errcheck(rows.Err())
+	return s
+}
+
+// ReportChartOfAcctsToText returns a string representation of the chart of accts
+func ReportChartOfAcctsToText(p *LedgerMarker) string {
+	return fmt.Sprintf("%5d  %12s   %12.2f  %s\n",
+		p.LMID, p.GLNumber, p.Balance, p.Name)
+}
+
+// ReportChartOfAcctsToHTML returns a string representation of the chart of accts
+func ReportChartOfAcctsToHTML(p *LedgerMarker) string {
+	return fmt.Sprintf("<tr><td>%5d</td><td>%s</td><td>%12.2f</td><td>%s</td></tr>\n",
+		p.LMID, p.GLNumber, p.Balance, p.Name)
+}
+
+// RRreportChartOfAccounts generates a report of all ledger accounts
+func RRreportChartOfAccounts(t int, bid int64) string {
+	m := GetLedgerMarkerInitList(bid)
+	fmt.Printf("  LID   GLAccountNo   Name\n")
+	s := ""
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case RPTTEXT:
+			s += ReportChartOfAcctsToText(&m[i])
+		case RPTHTML:
+			s += ReportChartOfAcctsToHTML(&m[i])
+		default:
+			fmt.Printf("RRreportChartOfAccounts: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// ReportAssessmentToText returns a string representation of the chart of accts
+func ReportAssessmentToText(p *Assessment) string {
+	ra := "unassociated"
+	if p.RAID > 0 {
+		ra = fmt.Sprintf("RA%08d", p.RAID)
+	}
+	return fmt.Sprintf("ASM%08d  %12s  R%08d     %2d  %9.2f\n",
+		p.ASMID, ra, p.RID, p.Frequency, p.Amount)
+}
+
+// ReportAssessmentToHTML returns a string representation of the chart of accts
+func ReportAssessmentToHTML(p *Assessment) string {
+	ra := "unassociated"
+	if p.RAID > 0 {
+		ra = fmt.Sprintf("RA%08d", p.RAID)
+	}
+	return fmt.Sprintf("<tr><td>ASM%08d</td><td>%12s</td><td>RA%08d</td><td%d</td><td>%8.2f</d></tr\n",
+		p.ASMID, ra, p.RID, p.Frequency, p.Amount)
+}
+
+// RRreportAssessments generates a report of all ledger accounts
+func RRreportAssessments(t int, bid int64) string {
+	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	rows, err := RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
+	Errcheck(err)
+	defer rows.Close()
+	fmt.Printf("      ASMID          RAID        RID   Freq     Amount\n")
+	s := ""
+	for rows.Next() {
+		var a Assessment
+		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
+			&a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.Comment,
+			&a.LastModTime, &a.LastModBy))
+		switch t {
+		case RPTTEXT:
+			s += ReportAssessmentToText(&a)
+		case RPTHTML:
+			s += ReportAssessmentToHTML(&a)
+		default:
+			fmt.Printf("RRreportAssessments: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	Errcheck(rows.Err())
+	return s
+}
+
+// ReportPaymentTypesToText returns a string representation of the PaymentType struct
+func ReportPaymentTypesToText(p *PaymentType) string {
+	return fmt.Sprintf("PT%08d     B%08d   %s\n",
+		p.PMTID, p.BID, p.Name)
+}
+
+// ReportPaymentTypesToHTML returns a string representation of the PaymentType struct
+func ReportPaymentTypesToHTML(p *PaymentType) string {
+	return fmt.Sprintf("<tr><td>PT%08d</td><td>B%08d</td><td>%s</td></tr>\n",
+		p.PMTID, p.BID, p.Name)
+}
+
+// RRreportPaymentTypes generates a report of all ledger accounts
+func RRreportPaymentTypes(t int, bid int64) string {
+	m := GetPaymentTypesByBusiness(bid)
+
+	var keys []int
+	for k := range m {
+		keys = append(keys, int(k))
+	}
+	sort.Ints(keys)
+
+	fmt.Printf("      PTID           BID   Name\n")
+	s := ""
+	for _, k := range keys {
+		i := int64(k)
+		v := m[i]
+		switch t {
+		case RPTTEXT:
+			s += ReportPaymentTypesToText(&v)
+		case RPTHTML:
+			s += ReportPaymentTypesToHTML(&v)
+		default:
+			fmt.Printf("RRreportChartOfAccounts: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// ReportReceiptToText returns a string representation of the chart of accts
+func ReportReceiptToText(p *Receipt) string {
+	return fmt.Sprintf("RCPT%08d   %8.2f  %s\n",
+		p.RCPTID, p.Amount, p.AcctRule)
+}
+
+// ReportReceiptToHTML returns a string representation of the chart of accts
+func ReportReceiptToHTML(p *Receipt) string {
+	return fmt.Sprintf("<tr><td>RCPT%08d</td><td>%8.2f</td><td>%s</d></tr\n",
+		p.RCPTID, p.Amount, p.AcctRule)
+}
+
+// RRreportReceipts generates a report of all ledger accounts
+func RRreportReceipts(t int, bid int64) string {
+	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	m := GetReceipts(bid, &d1, &d2)
+	fmt.Printf("      RCPTID        Amount        AcctRule\n")
+	s := ""
+	for _, a := range m {
+		switch t {
+		case RPTTEXT:
+			s += ReportReceiptToText(&a)
+		case RPTHTML:
+			s += ReportReceiptToHTML(&a)
+		default:
+			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
 	return s
 }

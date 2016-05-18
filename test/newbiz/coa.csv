@@ -1,29 +1,29 @@
-Designation,Name,GL Number,GL Account Type,Balance,GL Account Status,Assoc/Unassoc,Default
-REH,Bank Account FRB 2332352,10001,bank,0,active,Associated,10
-REH,General Accounts Receivable,11001,Accounts Receivable,0,active,Associated,11
-REH,Security Deposit Receivable,11002,Accounts Receivable,0,active,Associated,15
-REH,Alternate Receivables System,11003,Accounts Receivable,0,active,Associated,
-REH,American Express 93892335 In Process,11004,Accounts Receivable,0,active,Associated,
-REH,MasterCard/VISA 38992355 in Process,11005,Accounts Receivable,0,active,Associated,
-REH,Discover 883523553 In Process,11006,Accounts Receivable,0,active,Associated,
-REH,Security Deposit Assessment,23000,liability,1234.56,active,Associated,16
-REH,Gross Schedule Rent,40001,Income,0,active,Unassociated,12
-REH,Carport Rental Income,40002,Income,0,active,Associated,
-REH,Vacancy,41001,Income,0,active,Unassociated,14
-REH,Administrative Concession,41002,Income,0,active,Unassociated,
-REH,Off Line Unit,41003,Income,0,active,Unassociated,
-REH,Loss to Lease,41004,Income,0,active,Associated,13
-REH,Employee Concession,41005,Income,0,active,Associated,
-REH,Payor Concession,41006,Income,0,active,Associated,
-REH,Bad Debt Write-Off,41007,Income,0,active,Associated,
-REH,Pet Fees,42001,Income,0,active,Associated,
-REH,Utility Reimbursement,42002,Income,0,active,Associated,
-REH,Late Fees,42003,Income,0,active,Associated,
-REH,Damages,42004,Income,0,active,Associated,
-REH,Pest Control Reimbursements,42005,Income,0,active,Associated,
-REH,Security Deposit Forfeiture,42006,Income,0,active,Associated,
-REH,Carports,42007,Income,0,active,Associated,
-REH,Other Income,42999,Income,0,active,Associated,
-REH,Other Income,42999,Income,0,active,Associated,333
-REH,Other Income,42999,Income,0,active,GargleGarble,
-REH,Other Income,456789,Income,0,re45gg5,associated,
+Designation,Name,GL Number,GL Account Type,Balance,GL Account Status,Assoc/Unassoc,Default,Start,Stop
+REH,Bank Account FRB 2332352,10001,bank,0,active,Associated,10,"2016-03-01","2016-04-01"
+REH,General Accounts Receivable,11001,Accounts Receivable,0,active,Associated,11,"2016-03-01","2016-04-01"
+REH,Security Deposit Receivable,11002,Accounts Receivable,0,active,Associated,15,"2016-03-01","2016-04-01"
+REH,Alternate Receivables System,11003,Accounts Receivable,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,American Express 93892335 In Process,11004,Accounts Receivable,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,MasterCard/VISA 38992355 in Process,11005,Accounts Receivable,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Discover 883523553 In Process,11006,Accounts Receivable,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Security Deposit Assessment,23000,liability,1234.56,active,Associated,16,"2016-03-01","2016-04-01"
+REH,Gross Schedule Rent,40001,Income,0,active,Unassociated,12,"2016-03-01","2016-04-01"
+REH,Carport Rental Income,40002,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Vacancy,41001,Income,0,active,Unassociated,14,"2016-03-01","2016-04-01"
+REH,Administrative Concession,41002,Income,0,active,Unassociated,,"2016-03-01","2016-04-01"
+REH,Off Line Unit,41003,Income,0,active,Unassociated,,"2016-03-01","2016-04-01"
+REH,Loss to Lease,41004,Income,0,active,Associated,13,"2016-03-01","2016-04-01"
+REH,Employee Concession,41005,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Payor Concession,41006,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Bad Debt Write-Off,41007,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Pet Fees,42001,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Utility Reimbursement,42002,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Late Fees,42003,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Damages,42004,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Pest Control Reimbursements,42005,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Security Deposit Forfeiture,42006,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Carports,42007,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Other Income,42999,Income,0,active,Associated,,"2016-03-01","2016-04-01"
+REH,Other Income,42999,Income,0,active,Associated,333,"2016-03-01","2016-04-01"
+REH,Other Income,42999,Income,0,active,GargleGarble,,"2016-03-01","2016-04-01"
+REH,Other Income,456789,Income,0,re45gg5,associated,,"2016-03-01","2016-04-01"

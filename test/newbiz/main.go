@@ -65,7 +65,7 @@ func readCommandLineArgs() {
 	asmtPtr := flag.String("A", "", "add assessments via csv file")
 	pmtPtr := flag.String("P", "", "add payment types via csv file")
 	rcptPtr := flag.String("e", "", "add receipts via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-rtypes")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm")
 
 	flag.Parse()
 	if *verPtr {
@@ -89,6 +89,13 @@ func readCommandLineArgs() {
 	App.PmtTypeFile = *pmtPtr
 	App.RcptFile = *rcptPtr
 	App.Report = *lptr
+}
+
+func bizErrCheck(sa []string) {
+	if len(sa) < 2 {
+		fmt.Printf("Company Designation is required to list Rental Agreements\n")
+		os.Exit(1)
+	}
 }
 
 func loaderGetBiz(s string) int64 {
@@ -197,9 +204,11 @@ func main() {
 		case 4:
 			fmt.Printf("%s\n", rlib.RRreportAssessmentTypes(rlib.RPTTEXT))
 		case 5:
+			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rlib.RRreportRentableTypes(rlib.RPTTEXT, bid))
 		case 6:
+			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rlib.RRreportRentables(rlib.RPTTEXT, bid))
 		case 7:
@@ -207,7 +216,25 @@ func main() {
 		case 8:
 			fmt.Printf("%s\n", rlib.RRreportRentalAgreementTemplates(rlib.RPTTEXT))
 		case 9:
-			fmt.Printf("%s\n", rlib.RRreportRentalAgreements(rlib.RPTTEXT))
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportRentalAgreements(rlib.RPTTEXT, bid))
+		case 10:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportChartOfAccounts(rlib.RPTTEXT, bid))
+		case 11:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportAssessments(rlib.RPTTEXT, bid))
+		case 12:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportPaymentTypes(rlib.RPTTEXT, bid))
+		case 13:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportReceipts(rlib.RPTTEXT, bid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

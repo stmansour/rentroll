@@ -70,11 +70,3 @@ func LoadPaymentTypesCSV(fname string) {
 		CreatePaymentTypeFromCSV(t[i])
 	}
 }
-
-// ReportPaymentTypesText formats a text report of the payment types in the database
-func ReportPaymentTypesText() {
-	t := GetPaymentTypes()
-	for k, v := range t {
-		fmt.Printf("%2d  BID(%2d)  %s\n\t%s\n", k, v.BID, v.Name, v.Description)
-	}
-}

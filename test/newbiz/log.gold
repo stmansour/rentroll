@@ -1,39 +1,39 @@
 Invalid OccupancyType value: a
 SetParking: Unrecognized yes/no string: da.
 SetParking: Unrecognized yes/no string: nyet.
-2016/05/10 12:32:55 CreateAssessmentType: AssessmentType named Rent already exists
-2016/05/10 12:32:55 GetBusinessBID: Business with designation QQQ does not exist or could not be loaded
-2016/05/10 12:32:55 GetBusinessBID: RentableType named CPT already exists
-2016/05/10 12:32:55 CreateRentableType: Invalid rental frequency:            99
-2016/05/10 12:32:55 CreateRentableType: Invalid rental proration frequency: 99
-2016/05/10 12:32:55 CreateRentableType: Proration frequency (7) must be greater than rental frequency (6)
-2016/05/10 12:32:55 CreateRentableType: Invalid report flag: da
-2016/05/10 12:32:55 CreateRentableType: Invalid manage to budget flag: nyet
-2016/05/10 12:32:55 CreateRentableType: Invalid manage to budget flag: 3
+2016/05/16 12:58:22 CreateAssessmentType: AssessmentType named Rent already exists
+2016/05/16 12:58:22 GetBusinessBID: Business with designation QQQ does not exist or could not be loaded
+2016/05/16 12:58:22 GetBusinessBID: RentableType named CPT already exists
+2016/05/16 12:58:22 CreateRentableType: Invalid rental frequency:            99
+2016/05/16 12:58:22 CreateRentableType: Invalid rental proration frequency: 99
+2016/05/16 12:58:22 CreateRentableType: Proration frequency (7) must be greater than rental frequency (6)
+2016/05/16 12:58:22 CreateRentableType: Invalid report flag: da
+2016/05/16 12:58:22 CreateRentableType: Invalid manage to budget flag: nyet
+2016/05/16 12:58:22 CreateRentableType: Invalid manage to budget flag: 3
 CreateRentableType: Stop date (2014-01-01 00:00:00 +0000 UTC) must be after Start date (2016-01-01 00:00:00 +0000 UTC)
 CreateRentalSpecialty: Business reh already has a RentableSpecialty named Lake View
-2016/05/10 12:32:55 CreateBuilding: business with designation bug does net exist
+2016/05/16 12:58:22 CreateBuilding: business with designation bug does net exist
 CreateBuilding: invalid building number: qe
-2016/05/10 12:32:55 CreateRentables: could not load rentable type 999, err = sql: no rows in result set
-2016/05/10 12:32:55 CreateRentables: rentable type XXX does not exist in business reh
+2016/05/16 12:58:22 CreateRentables: could not load rentable type 999, err = sql: no rows in result set
+2016/05/16 12:58:22 CreateRentables: rentable type XXX does not exist in business reh
 CreateRentables: invalid Assignment number: 9
 CreateRentables: invalid Report number: 9
-CreateRentables: invalid DefaultOccupancy number: 9
-CreateRentables: invalid Occupancy number: 9
+CreateRentables: invalid DefaultOccupancy value: 9
+CreateRentables: invalid Occupancy value: 9
 Rentable with name "107" already exists. Skipping. 
-2016/05/10 12:32:55 CreatePeopleFromCSV: Transactant with PrimaryEmail address = homerj@springfield.com already exists
-2016/05/10 12:32:55 CreatePeopleFromCSV: Transactant with CellPhone number = 816-123-4568 already exists
-2016/05/10 12:32:55 CreateRentalAgreement: business with designation RATQQQ does net exist
+2016/05/16 12:58:22 CreatePeopleFromCSV: Transactant with PrimaryEmail address = homerj@springfield.com already exists
+2016/05/16 12:58:22 CreatePeopleFromCSV: Transactant with CellPhone number = 816-123-4568 already exists
+2016/05/16 12:58:22 CreateRentalAgreement: business with designation RATQQQ does net exist
 CreateRentalAgreement: could not find business named QWQ
 CreateRentalAgreement: could not find tenant with contact information billybob@springfield.com
-Invalid Default value for account 42999: 333.  Value must blank or between 10 and 16
-CreateLedgerMarkers: Account already exists: 42999
-CreateLedgerMarkers: Invalid account status: re45gg5
-2016/05/10 12:32:55 CreateLedgerMarkers: business with designation QQQ does net exist
+CreateLedgerMarkers: line 27 - Invalid Default value for account 42999: 333.  Value must blank or between 10 and 16
+CreateLedgerMarkers: line 28 - Account already exists: 42999
+CreateLedgerMarkers: line 29 - Invalid account status: re45gg5
+2016/05/16 12:58:23 CreateLedgerMarkers: business with designation QQQ does net exist
 CreateReceiptsFromCSV: error loading Rental Agreement RA00099991, err = sql: no rows in result set
 CreateReceiptsFromCSV: Payment type is invalid: 999
 CreateReceiptsFromCSV: invalid receipt date:  12-11-2015
 CreateReceiptsFromCSV: invalid receipt date:  03/04/15
-2016/05/10 12:32:55 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
+2016/05/16 12:58:23 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
 CreateReceiptsFromCSV: error processing payments: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 
