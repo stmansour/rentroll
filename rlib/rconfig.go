@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"strings"
+
+	"github.com/kardianos/osext"
 )
 
 //==================================================================
@@ -33,29 +37,55 @@ var AppConfig rrconfig
 // RRReadConfig will read the configuration file "config.json" if
 // it exists in the current directory
 func RRReadConfig() {
-	fname := "config.json"
-	if _, err := os.Stat(fname); err == nil {
-		content, err := ioutil.ReadFile(fname)
-		Errcheck(err)
-		Errcheck(json.Unmarshal(content, &AppConfig))
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		log.Fatal(err)
 	}
+	// fmt.Printf("Executable folder = %s\n", folderPath)
+	fname := folderPath + "/conf.json"
+	_, err = os.Stat(fname)
+	if nil != err {
+		fmt.Printf("RRReadConfig: error reading %s: %v\n", fname, err)
+		os.Exit(1)
+	}
+	content, err := ioutil.ReadFile(fname)
+	Errcheck(err)
+	Errcheck(json.Unmarshal(content, &AppConfig))
+	// fmt.Printf("RRReadConfig: AppConfig = %#v\n", AppConfig)
 }
 
 // RRGetSQLOpenString builds the string to use for opening an sql database.
-// If the configuration file is not present, it uses the supplied default information.
+// Input string is the name of the database:  "accord" for phonebook, "rentroll" for RentRoll
 // Returns:  a string to pass to sql.Open()
 //=======================================================================================
-func RRGetSQLOpenString(defaultUser, defaultName string) string {
+func RRGetSQLOpenString(dbname string) string {
 	s := ""
-	switch AppConfig.Env {
-	case 0: //dev
-		s = fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", defaultUser, defaultName)
-	case 1: //production
-		s = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
-			AppConfig.RRDbuser, AppConfig.RRDbpass, AppConfig.RRDbhost, AppConfig.RRDbport, defaultName)
+	switch strings.ToLower(dbname) {
+	case "accord":
+		switch AppConfig.Env {
+		case 0: //dev
+			s = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True",
+				AppConfig.Dbuser, AppConfig.Dbpass, dbname)
+		case 1: //production
+			s = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
+				AppConfig.Dbuser, AppConfig.Dbpass, AppConfig.Dbhost, AppConfig.Dbport, dbname)
+		default:
+			fmt.Printf("Unhandled configuration environment: %d\n", AppConfig.Env)
+			os.Exit(1)
+		}
+	case "rentroll":
+		switch AppConfig.Env {
+		case 0: //dev
+			s = fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", AppConfig.RRDbuser, dbname)
+		case 1: //production
+			s = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
+				AppConfig.RRDbuser, AppConfig.RRDbpass, AppConfig.RRDbhost, AppConfig.RRDbport, dbname)
+		default:
+			fmt.Printf("Unhandled configuration environment: %d\n", AppConfig.Env)
+			os.Exit(1)
+		}
 	default:
-		fmt.Printf("Unhandled configuration environment: %d\n", AppConfig.Env)
-		os.Exit(1)
+		s = fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", AppConfig.Dbuser, dbname)
 	}
 	return s
 }
