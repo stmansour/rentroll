@@ -2,6 +2,9 @@ newdb:
 	#mysql --no-defaults < schema.sql
 	@echo "*** completed in db/schema ***"
 
+doit:
+	mysql --no-defaults < schema.sql
+
 clean:
 	@echo "*** CLEAN completed in db/schema ***"
 

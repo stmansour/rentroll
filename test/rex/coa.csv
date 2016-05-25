@@ -1,27 +1,21 @@
-Designation,Name,GL Number,GL Account Type,Balance,GL Account Status,Assoc/Unassoc,Default
-JM1,Bank Account FRB 2332352,10001,bank,0,active,Associated,10,"2016-02-01","2016-03-01"
-JM1,General Accounts Receivable,11001,Accounts Receivable,0,active,Associated,11,"2016-02-01","2016-03-01"
-JM1,Security Deposit Receivable,11002,Accounts Receivable,0,active,Associated,15,"2016-02-01","2016-03-01"
-JM1,Alternate Receivables System,11003,Accounts Receivable,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,American Express 93892335 In Process,11004,Accounts Receivable,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,MasterCard/VISA 38992355 in Process,11005,Accounts Receivable,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Discover 883523553 In Process,11006,Accounts Receivable,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Security Deposit Assessment,23000,liability,-13300.00,active,Associated,16,"2016-02-01","2016-03-01"
-JM1,Gross Schedule Rent,40001,Income,0,active,Unassociated,12,"2016-02-01","2016-03-01"
-JM1,Carport Rental Income,40002,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Vacancy,41001,Income,0,active,Unassociated,14,"2016-02-01","2016-03-01"
-JM1,Administrative Concession,41002,Income,0,active,Unassociated,,"2016-02-01","2016-03-01"
-JM1,Off Line Unit,41003,Income,0,active,Unassociated,,"2016-02-01","2016-03-01"
-JM1,Loss to Lease,41004,Income,0,active,Associated,13,"2016-02-01","2016-03-01"
-JM1,Employee Concession,41005,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Payor Concession,41006,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Bad Debt Write-Off,41007,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Owner Occupied,41008,Income,0,active,Unassociated,,"2016-02-01","2016-03-01"
-JM1,Pet Fees,42001,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Utility Reimbursement,42002,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Late Fees,42003,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Damages,42004,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Pest Control Reimbursements,42005,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Security Deposit Forfeiture,42006,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Carports,42007,Income,0,active,Associated,,"2016-02-01","2016-03-01"
-JM1,Other Income,42999,Income,0,active,Associated,,"2016-02-01","2016-03-01"
+Designation,Name,GL Number,GL Account Type,Balance,GL Account Status,Assoc/Unassoc,Default,Start,Stop
+JM1,Gross Schedule Rent,50201,Income,0,active,Unassociated,12,2/1/16,2/29/16
+JM1,Security Deposits Assessed,11002,liability,-13300,active,Associated,16,2/1/16,2/29/16
+JM1,Late Fees,50211,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,NSF Fees,50212,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Maintenance Reimbursement,50216,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Basement Storage,00001,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Change In Delinquency,00002,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Bad Debt Write-Off,50254,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Vacancy,50251,Income,0,active,Unassociated,14,2/1/16,2/29/16
+JM1,Rent Concession,50252,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Offline Units,50253,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Loss to Lease,50255,Income,0,active,Associated,13,2/1/16,2/29/16
+JM1,Administrative Unit,41008,Income,0,active,Unassociated,,2/1/16,2/29/16
+JM1,Forfeited Security Deposit,50213,Income,0,active,Associated,,2/1/16,2/29/16
+JM1,Security Deposit Receivable,33000,Accounts Receivable,0,active,Associated,15,2/1/16,2/29/16
+JM1,Cash Deposits,59998,Accounts Receivable,0,active,Associated,10,2/1/16,2/29/16
+JM1,AP Cash Dispersements,59997,Accounts Receivable,0,active,Associated,,2/1/16,2/29/16
+JM1,General Accounts Receivable,11001,Accounts Receivable,0,active,Associated,11,2/1/16,2/29/16
+JM1,OwnerEquity,33333,Accounts Receivable,13300,active,Associated,17,2/1/16,2/29/16
+JM1,I AM AN ERROR - No GLNumber,,Accounts Receivable,13300,active,Associated,17,2/1/16,2/29/16

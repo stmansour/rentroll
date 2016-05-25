@@ -41,7 +41,7 @@ func RRreportBusiness(t int) string {
 
 // ReportAssessmentTypeToText returns a string representation of the supplied AssessmentType suitable for a text report
 func ReportAssessmentTypeToText(p AssessmentType) string {
-	return fmt.Sprintf("%4d - %s\n", p.ASMTID, p.Name)
+	return fmt.Sprintf("%4d  %6d   %s\n", p.ASMTID, p.OccupancyRqd, p.Name)
 }
 
 // ReportAssessmentTypeToHTML returns a string representation of the supplied AssessmentType suitable for HTML display
@@ -54,19 +54,15 @@ func RRreportAssessmentTypes(t int) string {
 	s := ""
 	m := GetAssessmentTypes()
 
+	fmt.Printf("Name  OccRqd   Description\n")
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
 
-	// To perform the opertion you want
 	for _, k := range keys {
 		i := int64(k)
-		// 	fmt.Println("Key:", k, "Value:", m[k])
-		// }
-
-		// for _, v := range m {
 		switch t {
 		case RPTTEXT:
 			s += ReportAssessmentTypeToText(m[i])
@@ -100,6 +96,8 @@ func RRreportRentableTypes(t int, bid int64) string {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
+
+	fmt.Printf("RTID   Style      Name\n")
 
 	// To perform the opertion you want
 	for _, k := range keys {
@@ -275,20 +273,29 @@ func RRreportRentalAgreements(t int, bid int64) string {
 
 // ReportChartOfAcctsToText returns a string representation of the chart of accts
 func ReportChartOfAcctsToText(p *LedgerMarker) string {
-	return fmt.Sprintf("%5d  %12s   %12.2f  %s\n",
-		p.LMID, p.GLNumber, p.Balance, p.Name)
+	s := ""
+	if DFLTCASH <= p.Type && p.Type <= DFLTLAST {
+		s = fmt.Sprintf("%4d", p.Type)
+	}
+	return fmt.Sprintf("%5d  %4s  %12s   %12.2f   %s\n",
+		p.LMID, s, p.GLNumber, p.Balance, p.Name)
 }
 
 // ReportChartOfAcctsToHTML returns a string representation of the chart of accts
 func ReportChartOfAcctsToHTML(p *LedgerMarker) string {
-	return fmt.Sprintf("<tr><td>%5d</td><td>%s</td><td>%12.2f</td><td>%s</td></tr>\n",
-		p.LMID, p.GLNumber, p.Balance, p.Name)
+	s := ""
+	if DFLTCASH <= p.Type && p.Type <= DFLTLAST {
+		s = fmt.Sprintf("%d", p.Type)
+	}
+	return fmt.Sprintf("<tr><td>%5d</td><td>%4s</td><td>%s</td><td>%12.2f</td><td>%s</td></tr>\n",
+		p.LMID, s, p.GLNumber, p.Balance, p.Name)
 }
 
 // RRreportChartOfAccounts generates a report of all ledger accounts
 func RRreportChartOfAccounts(t int, bid int64) string {
 	m := GetLedgerMarkerInitList(bid)
-	fmt.Printf("  LID   GLAccountNo   Name\n")
+	//                               123456789012
+	fmt.Printf("  LID   Type  GLAccountNo         Amount   Name\n")
 	s := ""
 	for i := 0; i < len(m); i++ {
 		switch t {
@@ -409,7 +416,7 @@ func RRreportReceipts(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
 	m := GetReceipts(bid, &d1, &d2)
-	fmt.Printf("      RCPTID        Amount        AcctRule\n")
+	fmt.Printf("      RCPTID     Amount  AcctRule\n")
 	s := ""
 	for _, a := range m {
 		switch t {
@@ -422,5 +429,67 @@ func RRreportReceipts(t int, bid int64) string {
 			return ""
 		}
 	}
+	return s
+}
+
+// ReportCustomAttributeToText returns a string representation of the chart of accts
+func ReportCustomAttributeToText(p *CustomAttribute) string {
+	return fmt.Sprintf("%8d   %4d   %s, %s\n",
+		p.CID, p.Type, p.Name, p.Value)
+}
+
+// RRreportCustomAttributes generates a report of all ledger accounts
+func RRreportCustomAttributes(t int) string {
+	rows, err := RRdb.dbrr.Query("SELECT CID,Type,Name,Value FROM customattr")
+	Errcheck(err)
+	defer rows.Close()
+	fmt.Printf("     CID   TYPE   Name, Value\n")
+	s := ""
+	for rows.Next() {
+		var a CustomAttribute
+		Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value))
+
+		switch t {
+		case RPTTEXT:
+			s += ReportCustomAttributeToText(&a)
+		case RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	Errcheck(rows.Err())
+	return s
+}
+
+// ReportCustomAttributeRefToText returns a string representation of the chart of accts
+func ReportCustomAttributeRefToText(p *CustomAttributeRef) string {
+	return fmt.Sprintf("%6d  %8d  %8d\n",
+		p.ElementType, p.ID, p.CID)
+}
+
+// RRreportCustomAttributeRefs generates a report of all ledger accounts
+func RRreportCustomAttributeRefs(t int) string {
+	rows, err := RRdb.dbrr.Query("SELECT ElementType,ID,CID FROM customattrref")
+	Errcheck(err)
+	defer rows.Close()
+	fmt.Printf("ELEMID        ID       CID\n")
+	s := ""
+	for rows.Next() {
+		var a CustomAttributeRef
+		Errcheck(rows.Scan(&a.ElementType, &a.ID, &a.CID))
+
+		switch t {
+		case RPTTEXT:
+			s += ReportCustomAttributeRefToText(&a)
+		case RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	Errcheck(rows.Err())
 	return s
 }

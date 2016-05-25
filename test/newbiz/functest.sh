@@ -1,7 +1,7 @@
 #!/bin/bash
 RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
-APP="${RRBIN}/rentroll"
+APP="${RRBIN}/rentroll -A"
 MYSQLOPTS=""
 UNAME=$(uname)
 
@@ -15,7 +15,7 @@ fi
 ########################################
 ${RRBIN}/rrnewdb
 
-./newbiz -b nb.csv -a asmttype.csv -R rt.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv >log 2>&1
+./newbiz -b nb.csv -a asmttype.csv -R rt.csv -u custom.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv >log 2>&1
 
 ########################################
 # dotest()
@@ -64,7 +64,9 @@ dotest "k" "PHASE 16: Chart of Accounts...  " "select LMID,BID,PID,GLNumber,Stat
 dotest "j" "PHASE 17: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModBy from assessments;"
 dotest "i" "PHASE 18: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from paymenttypes;"
 dotest "h" "PHASE 19: Payment allocations...  " "select * from receiptallocation order by Amount ASC;"
-dotest "g" "PHASE 20: Payments... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from receipt;"
+dotest "g" "PHASE 20: Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from receipt;"
+dotest "f" "PHASE 21: CustomAttributes... " "select CID,Type,Name,Value,LastModBy from customattr;"
+dotest "e" "PHASE 22: CustomAttributes assignment... " "select * from customattrref;"
 
 echo -n "PHASE x: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then

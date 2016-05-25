@@ -30,8 +30,24 @@ import (
 //		LastModBy
 // }
 
+// StringToDate tries to convert the supplied string to a time.Time value. It will use the two
+// formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2
+func StringToDate(s string) (time.Time, error) {
+	// try the ansi std date format first
+	s = strings.TrimSpace(s)
+	Dt, err := time.Parse(RRDATEINPFMT, s)
+	if err != nil {
+		Dt, err = time.Parse(RRDATEFMT2, s) // try excel default version
+		if err != nil {
+			Dt, err = time.Parse(RRDATEFMT, s) // try 0 filled version
+		}
+	}
+	return Dt, err
+}
+
 // CreateLedgerMarkers reads an assessment type string array and creates a database record for the assessment type
 func CreateLedgerMarkers(sa []string, lineno int) {
+	funcname := "CreateLedgerMarkers"
 	inserting := true // this may be changed, depends on the value for sa[7]
 	// n := time.Now()
 	// d1 := time.Date(n.Year(), n.Month(), 1, 0, 0, 0, 0, time.UTC)
@@ -48,7 +64,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("CreateLedgerMarkers: line %d, business with designation %s does net exist\n", lineno, sa[0])
+			Ulog("%s: line %d, business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
 		}
 		lm.BID = b1.BID
@@ -65,15 +81,15 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	s := strings.TrimSpace(sa[7])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
-		if err != nil || i < DFLTCASH || i > DFLTLAST {
-			fmt.Printf("CreateLedgerMarkers: line %d - Invalid Default value for account %s: %s.  Value must blank or between %d and %d\n",
-				lineno, sa[2], s, DFLTCASH, DFLTLAST)
+		if err != nil || !(i == 0 || (DFLTCASH <= i && i <= DFLTLAST)) {
+			fmt.Printf("%s: line %d - Invalid Default value for account %s: %s.  Value must blank, 0, or between %d and %d\n",
+				funcname, lineno, sa[2], s, DFLTCASH, DFLTLAST)
 			return
 		}
 		lm1, err := GetLatestLedgerMarkerByType(lm.BID, int64(i))
 		if nil != err {
 			if IsSQLNoResultsError(err) {
-				Ulog("CreateLedgerMarkers: line %d - No default ledger %d exists\n", lineno, i)
+				Ulog("%s: line %d - No default ledger %d exists\n", funcname, lineno, i)
 				return
 			}
 		}
@@ -88,17 +104,21 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	// Make sure the account number is unique
 	//-------------------------------------------------------------------
 	g := strings.TrimSpace(sa[2])
+	if len(g) == 0 {
+		fmt.Printf("%s: line %d - You must suppy a GL Number for this entry\n", funcname, lineno)
+		return
+	}
 	if len(g) > 0 {
 		// if we're inserting a record then it must not already exist
 		if inserting {
 			_, err := GetLatestLedgerMarkerByGLNo(lm.BID, g)
 			if nil == err {
-				fmt.Printf("CreateLedgerMarkers: line %d - Account already exists: %s\n", lineno, g)
+				fmt.Printf("%s: line %d - Account already exists: %s\n", funcname, lineno, g)
 				return
 			}
 			// was there an error in finding an account with this GLNo?
 			if !IsSQLNoResultsError(err) {
-				Ulog("CreateLedgerMarkers: line %d, GL Account %s already exists\n", lineno, g)
+				Ulog("%s: line %d, GL Account %s already exists\n", funcname, lineno, g)
 				return
 			}
 		}
@@ -111,7 +131,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	// Set balance
 	x, err := strconv.ParseFloat(strings.TrimSpace(sa[4]), 64)
 	if err != nil {
-		Ulog("CreateLedgerMarkers: line %d - Invalid balance: %s\n", lineno, sa[4])
+		Ulog("%s: line %d - Invalid balance: %s\n", funcname, lineno, sa[4])
 		return
 	}
 	lm.Balance = x
@@ -123,7 +143,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	} else if "inactive" == s {
 		lm.Status = ACCTSTATUSINACTIVE
 	} else {
-		fmt.Printf("CreateLedgerMarkers: line %d - Invalid account status: %s\n", lineno, sa[5])
+		fmt.Printf("%s: line %d - Invalid account status: %s\n", funcname, lineno, sa[5])
 		return
 	}
 
@@ -134,21 +154,21 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	} else if "unassociated" == s {
 		lm.Status = RAUNASSOCIATED
 	} else {
-		fmt.Printf("CreateLedgerMarkers: line %d - Invalid associated/unassociated value: %s\n", lineno, sa[6])
+		fmt.Printf("%s: line %d - Invalid associated/unassociated value: %s\n", funcname, lineno, sa[6])
 		return
 	}
 
 	// get the date range
-	DtStart, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[8]))
+	DtStart, err := StringToDate(sa[8])
 	if err != nil {
-		fmt.Printf("CreateLedgerMarkers: line %d - invalid start date:  %s\n", lineno, sa[8])
+		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[8])
 		return
 	}
 	lm.DtStart = DtStart
 
-	DtStop, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[9]))
+	DtStop, err := StringToDate(sa[9])
 	if err != nil {
-		fmt.Printf("CreateLedgerMarkers: line %d - invalid stop date:  %s\n", lineno, sa[9])
+		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[9])
 		return
 	}
 	lm.DtStop = DtStop
@@ -159,7 +179,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		err = UpdateLedgerMarker(&lm)
 	}
 	if nil != err {
-		fmt.Printf("CreateLedgerMarkers: line %d - Could not save ledger marker, err = %v\n", lineno, err)
+		fmt.Printf("%s: line %d - Could not save ledger marker, err = %v\n", funcname, lineno, err)
 	}
 }
 

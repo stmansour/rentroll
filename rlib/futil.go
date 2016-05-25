@@ -39,34 +39,34 @@ func IsSQLNoResultsError(err error) bool {
 
 // IntFromString converts the supplied string to an int64 value. If there
 // is a problem in the conversion, it generates an error message.
-func IntFromString(sa string, errmsg string) int64 {
+func IntFromString(sa string, errmsg string) (int64, bool) {
 	var n = int64(0)
 	s := strings.TrimSpace(sa)
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
 			fmt.Printf("CreateAssessmentsFromCSV: %s: %s\n", errmsg, s)
-			return n
+			return n, false
 		}
 		n = int64(i)
 	}
-	return n
+	return n, true
 }
 
 // FloatFromString converts the supplied string to an int64 value. If there
 // is a problem in the conversion, it generates an error message.
-func FloatFromString(sa string, errmsg string) float64 {
+func FloatFromString(sa string, errmsg string) (float64, bool) {
 	var f = float64(0)
 	s := strings.TrimSpace(sa)
 	if len(s) > 0 {
 		x, err := strconv.ParseFloat(s, 64)
 		if err != nil {
 			Ulog("CreateAssessmentsFromCSV: I%s: %s\n", errmsg, sa)
-			return f
+			return f, false
 		}
 		f = x
 	}
-	return f
+	return f, true
 }
 
 // LoadCSV loads a comma-separated-value file into an array of strings and returns the array of strings

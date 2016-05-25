@@ -29,6 +29,7 @@ package: rentroll
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp rentroll ./tmp/rentroll/
 	cp conf.json ./tmp/rentroll/
+	cp -r html ./tmp/rentroll/
 	@echo "*** PACKAGE COMPLETED ***"
 
 t:

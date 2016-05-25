@@ -49,7 +49,9 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 	// if no rental agreements for this rentable, then n will be 0
 	// otherwise, if the total number of days (m) is not covered by n, then we have vacancy
 	//--------------------------------------------------------------------------------------
+	// fmt.Printf("Rentable = %d.  n = %d, m = %d\n", r.RID, n, m)
 	if n == 0 || n != m {
+		// fmt.Printf("VACANCY DETECTED for Rentable = %d.\n", r.RID)
 		pf := float64(1)
 		umr := rlib.GetRentableMarketRate(xbiz, r, d1, d2)
 		if n != 0 {
@@ -66,7 +68,9 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 		j.ID = r.RID
 		j.RAID = 0 // this one is unassociated
 
+		// fmt.Printf("VACANCY: inserting journal entry: %#v\n", j)
 		jid, err := rlib.InsertJournalEntry(&j)
+		// fmt.Printf("         JID = %d\n", jid)
 		if err != nil {
 			rlib.Ulog("Error inserting journal entry: %v\n", err)
 		}
@@ -77,6 +81,7 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 			ja.ASMID = 0 // it's unassociated
 			ja.AcctRule = "c ${DFLTGSRENT} _,d ${DFLTVAC} _"
 			ja.RID = r.RID
+			// fmt.Printf("VACANCY: inserting journalAllocation entry: %#v\n", ja)
 			rlib.InsertJournalAllocationEntry(&ja)
 		}
 	}

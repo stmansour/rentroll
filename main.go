@@ -5,26 +5,36 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"phonebook/lib"
 	"rentroll/rlib"
+	"strings"
 	"time"
 )
 import _ "github.com/go-sql-driver/mysql"
 
 // CmdRUNBOOKS and the rest are command numbers used by the Dispatch function.
 const (
-	CmdRUNBOOKS = 1 // Run journal and ledgers over a defined period
+	CmdRUNBOOKS     = 1 // Run journal and ledgers over a defined period
+	CmdTRIALBALANCE = 5 // balance of all ledgers at the end of the defined period
+
+	FMTTEXT = 1 // output format is text
+	FMTHTML = 2 // output format is html
 )
 
 // DispatchCtx is a type of struct needed for the Dispatch function. It defines
 // everything needed to run a particular command. It is the responsibility of the
-// caller to fill out all the needed ctx information.
+// caller to fill out all the needed ctx information. Not all information is needed
+// for all commands.
 type DispatchCtx struct {
-	Cmd     int
-	DtStart time.Time
-	DtStop  time.Time
-	Report  int64
+	Cmd          int                 // cmd to execute
+	DtStart      time.Time           // period start time
+	DtStop       time.Time           // period end
+	OutputFormat int                 // how shall the output be formatted
+	Report       int64               // which report to generate - this is used in batch mode operation
+	w            http.ResponseWriter // for web responses
+	r            *http.Request       // for web request introspection
 }
 
 // App is the global data structure for this app
@@ -38,11 +48,35 @@ var App struct {
 	Report    int64    // if testing engine, which report/action to perform
 	bizfile   string   // TEMPORARY - tests loading bizcsv
 	LogFile   *os.File // where to log messages
+	BatchMode bool     // if true, then don't start http, the command line request is for a batch process
 	sStart    string   //start time
 	sStop     string   //stop time
 	AsmtTypes map[int64]rlib.AssessmentType
 	PmtTypes  map[int64]rlib.PaymentType
 }
+
+// LMResults contains the info needed for reports about ledgers
+type LMResults struct {
+	DtStart time.Time
+	DtStop  time.Time
+	biz     *rlib.Business
+	LM      []rlib.LedgerMarker
+}
+
+// RRuiSupport is a structure of data that will be passed to all html pages.
+// It is the responsibility of the page function to populate the data needed by
+// the page. The recommendation is to populate only the data needed.
+type RRuiSupport struct {
+	L *LMResults // an array of ledger markers with time period and biz
+}
+
+// RRfuncMap is a map of functions passed to each html page that can be referenced
+// as needed to produce the page
+var RRfuncMap map[string]interface{}
+
+// Chttp is a server mux for handling unprocessed html page requests.
+// For example, a .css file or an image file.
+var Chttp = http.NewServeMux()
 
 func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
@@ -53,6 +87,8 @@ func readCommandLineArgs() {
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	bizPtr := flag.String("b", "b.csv", "add business via csv file")
 	rptPtr := flag.Int64("r", 0, "report: 0 = generate journal records, 1 = journal, 2 = rentable")
+	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
+	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 
 	flag.Parse()
 	if *verPtr {
@@ -66,6 +102,8 @@ func readCommandLineArgs() {
 	App.bizfile = *bizPtr
 	App.sStart = *pStart
 	App.sStop = *pStop
+	App.PortRR = *portPtr
+	App.BatchMode = *bPtr
 }
 
 func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
@@ -76,6 +114,23 @@ func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		fmt.Printf("m[%d] = %#v\n", i, m[i])
 	}
 	fmt.Printf("DONE\n")
+}
+
+// HomeHandler serves static http content such as the .css files
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	if strings.Contains(r.URL.Path, ".") {
+		Chttp.ServeHTTP(w, r)
+	} else {
+		http.Redirect(w, r, "/dispatch/", http.StatusFound)
+	}
+}
+
+func initHTTP() {
+	Chttp.Handle("/", http.FileServer(http.Dir("./")))
+	http.HandleFunc("/", HomeHandler)
+	http.HandleFunc("/dispatch/", dispatchHandler)
+	http.HandleFunc("/srvformTrialBal/", srvformTrialBalance)
+	http.HandleFunc("/trialbalance/", hndTrialBalance)
 }
 
 func main() {
@@ -127,6 +182,17 @@ func main() {
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	initRentRoll()
 
-	ctx := createStartupCtx()
-	Dispatch(&ctx)
+	if App.BatchMode {
+		ctx := createStartupCtx()
+		Dispatch(&ctx)
+	} else {
+		initHTTP()
+		rlib.Ulog("RentRoll initiating HTTP service on port %d\n", App.PortRR)
+		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)
+		if nil != err {
+			fmt.Printf("*** Error on http.ListenAndServe: %v\n", err)
+			rlib.Ulog("*** Error on http.ListenAndServe: %v\n", err)
+			os.Exit(1)
+		}
+	}
 }

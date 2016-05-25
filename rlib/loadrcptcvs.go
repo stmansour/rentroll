@@ -92,7 +92,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType) {
 	if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element
 		s = m[1]
 	}
-	r.RAID = IntFromString(s, "Rental Agreement number is invalid")
+	r.RAID, _ = IntFromString(s, "Rental Agreement number is invalid")
 	_, err = GetRentalAgreement(r.RAID)
 	if nil != err {
 		fmt.Printf("CreateReceiptsFromCSV: error loading Rental Agreement %s, err = %v\n", sa[1], err)
@@ -102,7 +102,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType) {
 	//-------------------------------------------------------------------
 	// Get the PaymentType
 	//-------------------------------------------------------------------
-	r.PMTID = IntFromString(sa[2], "Payment type is invalid")
+	r.PMTID, _ = IntFromString(sa[2], "Payment type is invalid")
 	_, ok := (*PmtTypes)[r.PMTID]
 	if !ok {
 		fmt.Printf("CreateReceiptsFromCSV: Payment type is invalid: %s\n", sa[2])
@@ -123,7 +123,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType) {
 	//-------------------------------------------------------------------
 	// Determine the amount
 	//-------------------------------------------------------------------
-	r.Amount = FloatFromString(sa[4], "Receipt Amount is invalid")
+	r.Amount, _ = FloatFromString(sa[4], "Receipt Amount is invalid")
 
 	//-------------------------------------------------------------------
 	// Set the AcctRule.  No checking for now...

@@ -5,6 +5,7 @@ import (
 	"os"
 	"rentroll/rlib"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -13,27 +14,20 @@ func initRentRoll() {
 	initJFmt()
 	initTFmt()
 	rlib.RpnInit()
-	// loadDefaultCashAccts()
+
+	RRfuncMap = template.FuncMap{
+		"getVersionNo": getVersionNo,
+		"getBuildTime": getBuildTime,
+		"RRCommaf":     RRCommaf,
+		"LMSum":        LMSum,
+	}
+
 }
 
 func initLists() {
 	App.AsmtTypes = rlib.GetAssessmentTypes()
 	App.PmtTypes = rlib.GetPaymentTypes()
 }
-
-// // Basically this is turned off for now. We'll get to default cash accounts at some point.
-// func loadDefaultCashAccts() {
-// 	s := "SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
-// 	rows, err := App.dbrr.Query(s)
-// 	rlib.Errcheck(err)
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var xprop rlib.XBusiness
-// 		rlib.Errcheck(rows.Scan(&xprop.P.BID, &xprop.P.Designation,
-// 			&xprop.P.Name, &xprop.P.DefaultOccupancyType,
-// 			&xprop.P.ParkingPermitInUse, &xprop.P.LastModTime, &xprop.P.LastModBy))
-// 	}
-// }
 
 func createStartupCtx() DispatchCtx {
 	var ctx DispatchCtx
@@ -50,5 +44,6 @@ func createStartupCtx() DispatchCtx {
 	}
 	ctx.Report = App.Report
 	ctx.Cmd = CmdRUNBOOKS
+	ctx.OutputFormat = FMTTEXT
 	return ctx
 }

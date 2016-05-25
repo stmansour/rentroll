@@ -6,29 +6,29 @@
    ---------------------------------------------------------------------------------------------------------------
    J00000001  Rent (8/30 days)                       
                           General Accounts Receivable  11/01/15         1              101     11001        266.67
-                                  Gross Schedule Rent  11/01/15         1              101     40001       -320.00
+                                 Gross Scheduled Rent  11/01/15         1              101     40001       -320.00
                                         Loss to Lease  11/01/15         1              101     41004         53.33
                                                      
    J00000002  Rent (10/30 days)                      
                           General Accounts Receivable  11/21/15         8              101     11001        400.00
-                                  Gross Schedule Rent  11/21/15         8              101     40001       -400.00
+                                 Gross Scheduled Rent  11/21/15         8              101     40001       -400.00
                                         Loss to Lease  11/21/15         8              101     41004          0.00
                                                      
    J00000003  Lake View (8/30 days)                  
                           General Accounts Receivable  11/01/15         1              101     11001         13.33
-                                  Gross Schedule Rent  11/01/15         1              101     40001        -13.33
+                                 Gross Scheduled Rent  11/01/15         1              101     40001        -13.33
                                                      
    J00000004  Fireplace (8/30 days)                  
                           General Accounts Receivable  11/01/15         1              101     11001          5.33
-                                  Gross Schedule Rent  11/01/15         1              101     40001         -5.33
+                                 Gross Scheduled Rent  11/01/15         1              101     40001         -5.33
                                                      
    J00000005  Lake View (10/30 days)                 
                           General Accounts Receivable  11/21/15         8              101     11001         16.67
-                                  Gross Schedule Rent  11/21/15         8              101     40001        -16.67
+                                 Gross Scheduled Rent  11/21/15         8              101     40001        -16.67
                                                      
    J00000006  Fireplace (10/30 days)                 
                           General Accounts Receivable  11/21/15         8              101     11001          6.67
-                                  Gross Schedule Rent  11/21/15         8              101     40001         -6.67
+                                 Gross Scheduled Rent  11/21/15         8              101     40001         -6.67
                                                      
    J00000007  Security Deposit                       
                           Security Deposit Receivable  11/21/15         8              101     11002       1500.00
@@ -55,32 +55,32 @@
                              Bank Account FRB 2332352  11/08/15         1              101     10001       -750.00
                                                      
    J00000013  Unassociated: 101                      
-                                  Gross Schedule Rent  11/30/15         0              101     40001       -480.00
-                                             Vancancy  11/30/15         0              101     41001        480.00
+                                 Gross Scheduled Rent  11/30/15         0              101     40001       -480.00
+                                              Vacancy  11/30/15         0              101     41001        480.00
    J00000014  Unassociated: 102                      
-                                  Gross Schedule Rent  11/30/15         0              102     40001      -1500.00
-                                             Vancancy  11/30/15         0              102     41001       1500.00
+                                 Gross Scheduled Rent  11/30/15         0              102     40001      -1500.00
+                                              Vacancy  11/30/15         0              102     41001       1500.00
    J00000015  Unassociated: 103                      
-                                  Gross Schedule Rent  11/30/15         0              103     40001      -1750.00
-                                             Vancancy  11/30/15         0              103     41001       1750.00
+                                 Gross Scheduled Rent  11/30/15         0              103     40001      -1750.00
+                                              Vacancy  11/30/15         0              103     41001       1750.00
    J00000016  Unassociated: 104                      
-                                  Gross Schedule Rent  11/30/15         0              104     40001      -2000.00
-                                             Vancancy  11/30/15         0              104     41001       2000.00
+                                 Gross Scheduled Rent  11/30/15         0              104     40001      -2000.00
+                                              Vacancy  11/30/15         0              104     41001       2000.00
    J00000017  Unassociated: 105                      
-                                  Gross Schedule Rent  11/30/15         0              105     40001      -1200.00
-                                             Vancancy  11/30/15         0              105     41001       1200.00
+                                 Gross Scheduled Rent  11/30/15         0              105     40001      -1200.00
+                                              Vacancy  11/30/15         0              105     41001       1200.00
    J00000018  Unassociated: 106                      
-                                  Gross Schedule Rent  11/30/15         0              106     40001      -1500.00
-                                             Vancancy  11/30/15         0              106     41001       1500.00
+                                 Gross Scheduled Rent  11/30/15         0              106     40001      -1500.00
+                                              Vacancy  11/30/15         0              106     41001       1500.00
    J00000019  Unassociated: 107                      
-                                  Gross Schedule Rent  11/30/15         0              107     40001      -1750.00
-                                             Vancancy  11/30/15         0              107     41001       1750.00
+                                 Gross Scheduled Rent  11/30/15         0              107     40001      -1750.00
+                                              Vacancy  11/30/15         0              107     41001       1750.00
    J00000020  Unassociated: CP001                    
-                                  Gross Schedule Rent  11/30/15         0            CP001     40001        -14.00
-                                             Vancancy  11/30/15         0            CP001     41001         14.00
+                                 Gross Scheduled Rent  11/30/15         0            CP001     40001        -14.00
+                                              Vacancy  11/30/15         0            CP001     41001         14.00
    J00000021  Unassociated: CP002                    
-                                  Gross Schedule Rent  11/30/15         0            CP002     40001        -23.33
-                                             Vancancy  11/30/15         0            CP002     41001         23.33
+                                 Gross Scheduled Rent  11/30/15         0            CP002     40001        -23.33
+                                              Vacancy  11/30/15         0            CP002     41001         23.33
    J00000022  Payment - Krabappel  294.66            
    	Rent                                             
                           General Accounts Receivable  11/21/15         1              101     11001       -266.67

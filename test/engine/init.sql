@@ -469,5 +469,13 @@ INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,T
 	(1,0,"42008",2,3,"2015-10-01","2015-10-31",0.0,0,"Utility overage"),
 	(1,0,"42999",2,3,"2015-10-01","2015-10-31",0.0,0,"Other Income");
          
+UPDATE ledgermarker SET GLNumber="10001" WHERE Name = "Bank Account";
+UPDATE ledgermarker SET GLNumber="11001" WHERE Name = "General Accounts Receivable";
+UPDATE ledgermarker SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
+UPDATE ledgermarker SET GLNumber="41004" WHERE Name = "Loss to Lease";
+UPDATE ledgermarker SET GLNumber="41001" WHERE Name = "Vacancy";
+UPDATE ledgermarker SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
+UPDATE ledgermarker SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
+
 UPDATE ledgermarker SET Balance=-1000.00 WHERE GLNumber="23000";
 UPDATE ledgermarker SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";

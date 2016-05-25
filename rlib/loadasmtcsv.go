@@ -3,7 +3,6 @@ package rlib
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 // the CSV file format:
@@ -31,6 +30,7 @@ import (
 
 // CreateAssessmentsFromCSV reads an assessment type string array and creates a database record for the assessment type
 func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]AssessmentType) {
+	funcname := "CreateAssessmentsFromCSV"
 	var a Assessment
 	var r Rentable
 	var err error
@@ -45,7 +45,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("CreateAssessmentsFromCSV: line %d - business with designation %s does net exist\n", lineno, sa[0])
+			Ulog("%s: line %d - business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
 		}
 		a.BID = b1.BID
@@ -58,7 +58,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	if len(s) > 0 {
 		r, err = GetRentableByName(s, a.BID)
 		if err != nil {
-			fmt.Printf("CreateAssessmentsFromCSV: line %d - Error loading rentable named: %s.  Error = %v\n", lineno, s, err)
+			fmt.Printf("%s: line %d - Error loading rentable named: %s.  Error = %v\n", funcname, lineno, s, err)
 			return
 		}
 		a.RID = r.RID
@@ -67,19 +67,29 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	//-------------------------------------------------------------------
 	// Get the dates
 	//-------------------------------------------------------------------
-	DtStart, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[4]))
+	DtStart, err := StringToDate(sa[4])
 	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - invalid start date:  %s\n", lineno, sa[4])
+		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[4])
 		return
 	}
 	a.Start = DtStart
 
-	DtStop, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[5]))
+	DtStop, err := StringToDate(sa[5])
 	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - invalid stop date:  %s\n", lineno, sa[5])
+		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[5])
 		return
 	}
 	a.Stop = DtStop
+
+	//-------------------------------------------------------------------
+	// Assessment Type
+	//-------------------------------------------------------------------
+	a.ASMTID, _ = IntFromString(sa[2], "Assessment type is invalid")
+	asmt, ok := (*AsmtTypes)[a.ASMTID]
+	if !ok {
+		fmt.Printf("%s: line %d - Assessment type is invalid: %s\n", funcname, lineno, sa[2])
+		return
+	}
 
 	//-------------------------------------------------------------------
 	// Find and set the rental agreement -- but we only need to worry about
@@ -90,46 +100,43 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	if r.State == RENTABLESTATEONLINE {
 		ra, err := FindAgreementByRentable(a.RID, &DtStart, &DtStop)
 		if err != nil {
-			fmt.Printf("CreateAssessmentsFromCSV: line %d - Error finding rental agreement for rentable %s.  Error = %v\n", lineno, r.Name, err)
-			return
+			if !IsSQLNoResultsError(err) {
+				fmt.Printf("%s: line %d - Error finding rental agreement for rentable %s.  Error = %v\n", funcname, lineno, r.Name, err)
+				return
+			}
 		}
 		a.RAID = ra.RAID
+	}
+	if a.RAID == 0 && asmt.OccupancyRqd == 1 {
+		fmt.Printf("%s: line %d - Assessment type %d requires a rental agreement. None found for period %s to %s\n",
+			funcname, lineno, a.ASMTID, DtStart.Format(RRDATEINPFMT), DtStop.Format(RRDATEINPFMT))
+		return
 	}
 
 	//-------------------------------------------------------------------
 	// Determine the amount
 	//-------------------------------------------------------------------
-	a.Amount = FloatFromString(sa[3], "Amount is invalid")
-
-	//-------------------------------------------------------------------
-	// Assessment Type
-	//-------------------------------------------------------------------
-	a.ASMTID = IntFromString(sa[2], "Assessment type is invalid")
-	_, ok := (*AsmtTypes)[a.ASMTID]
-	if !ok {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - Assessment type is invalid: %s\n", lineno, sa[2])
-		return
-	}
+	a.Amount, _ = FloatFromString(sa[3], "Amount is invalid")
 
 	//-------------------------------------------------------------------
 	// Frequency
 	//-------------------------------------------------------------------
-	a.Frequency = IntFromString(sa[6], "Frequency value is invalid")
+	a.Frequency, _ = IntFromString(sa[6], "Frequency value is invalid")
 	if a.Frequency < 0 || a.Frequency > OCCTYPEYEARLY {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - Frequency must be between %d and %d.  Found %d\n", lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.Frequency)
+		fmt.Printf("%s: line %d - Frequency must be between %d and %d.  Found %d\n", funcname, lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.Frequency)
 		return
 	}
 
 	//-------------------------------------------------------------------
 	// Proration
 	//-------------------------------------------------------------------
-	a.ProrationMethod = IntFromString(sa[7], "Proration value is invalid")
+	a.ProrationMethod, _ = IntFromString(sa[7], "Proration value is invalid")
 	if a.ProrationMethod < 0 || a.ProrationMethod > OCCTYPEYEARLY {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - Proration must be between %d and %d.  Found %d\n", lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.ProrationMethod)
+		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.ProrationMethod)
 		return
 	}
 	if a.ProrationMethod > a.Frequency {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - Proration granularity (%d) must be more frequent than the Frequency (%d)\n", lineno, a.ProrationMethod, a.Frequency)
+		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Frequency (%d)\n", funcname, lineno, a.ProrationMethod, a.Frequency)
 		return
 	}
 
@@ -141,15 +148,30 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...
 	//-------------------------------------------------------------------
-	if len(a.AcctRule) == 0 || (a.RAID == 0 && r.State == RENTABLESTATEONLINE) ||
-		a.Amount == 0 || a.RID == 0 || a.ASMTID == 0 || a.BID == 0 {
-		fmt.Printf("Skipping this record\n")
+	if len(a.AcctRule) == 0 {
+		fmt.Printf("%s: line %d - Skipping this record as there is no AcctRule\n", funcname, lineno)
+		return
+	}
+	if a.Amount == 0 {
+		fmt.Printf("%s: line %d - Skipping this record as the Amount is 0\n", funcname, lineno)
+		return
+	}
+	if a.RID == 0 {
+		fmt.Printf("%s: line %d - Skipping this record as the Rentable ID could not be found\n", funcname, lineno)
+		return
+	}
+	if a.ASMTID == 0 {
+		fmt.Printf("%s: line %d - Skipping this record as the AssessmentType could not be found\n", funcname, lineno)
+		return
+	}
+	if a.BID == 0 {
+		fmt.Printf("%s: line %d - Skipping this record as the business could not be found\n", funcname, lineno)
 		return
 	}
 
 	err = InsertAssessment(&a)
 	if err != nil {
-		fmt.Printf("CreateAssessmentsFromCSV: line %d - error inserting assessment: %v\n", lineno, err)
+		fmt.Printf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
 	}
 
 }

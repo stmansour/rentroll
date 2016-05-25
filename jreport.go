@@ -96,6 +96,7 @@ func printJournalHeader(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 }
 
 func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) {
+	funcname := "processAcctRuleAmount"
 	m := rlib.ParseAcctRule(xbiz, rid, &d, &d, rule, amt, float64(1))
 	for i := 0; i < len(m); i++ {
 		amt := m[i].Amount
@@ -104,8 +105,9 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 		}
 		l, err := rlib.GetLatestLedgerMarkerByGLNo(r.BID, m[i].Account)
 		if err != nil {
-			fmt.Printf("Could not get ledger for account named %s in busines %d\n", m[i].Account, r.BID)
-			fmt.Printf("Error = %v\n", err)
+			fmt.Printf("%s: Could not get ledger for account named %s in business %d\n", funcname, m[i].Account, r.BID)
+			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
+			fmt.Printf("%s: Error = %v\n", funcname, err)
 			continue
 		}
 
@@ -139,6 +141,7 @@ func getPayorLastNames(ra *rlib.RentalAgreement, d1, d2 *time.Time) []string {
 }
 
 func textPrintJournalReceipt(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
+	funcname := "textPrintJournalReceipt"
 	rntagr, _ := rlib.GetXRentalAgreement(rcpt.RAID, d1, d2)
 	sa := getPayorLastNames(&rntagr, d1, d2)
 	ps := strings.Join(sa, ",")
@@ -155,8 +158,9 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Jo
 		for k := 0; k < len(m); k++ {
 			l, err := rlib.GetLatestLedgerMarkerByGLNo(j.BID, m[k].Account)
 			if err != nil {
-				fmt.Printf("Could not get ledger for account named %s in busines %d\n", m[k].Account, j.BID)
-				fmt.Printf("Error = %v\n", err)
+				fmt.Printf("%s: Could not get ledger for account named %s in business %d\n", funcname, m[i].Account, r.BID)
+				fmt.Printf("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
+				fmt.Printf("%s: Error = %v\n", funcname, err)
 				continue
 			}
 			amt := m[k].Amount

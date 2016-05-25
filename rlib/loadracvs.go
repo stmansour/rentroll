@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 )
 
 //  CSV file format:
@@ -86,14 +85,14 @@ func CreateRentalAgreement(sa []string) {
 	//-------------------------------------------------------------------
 	// Get the dates
 	//-------------------------------------------------------------------
-	DtStart, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[4]))
+	DtStart, err := StringToDate(sa[4])
 	if err != nil {
 		fmt.Printf("CreateRentalAgreement: invalid start date:  %s\n", sa[4])
 		return
 	}
 	ra.RentalStart = DtStart
 
-	DtStop, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[5]))
+	DtStop, err := StringToDate(sa[5])
 	if err != nil {
 		fmt.Printf("CreateRentalAgreement: invalid stop date:  %s\n", sa[5])
 		return

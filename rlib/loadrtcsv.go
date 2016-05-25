@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // GetBusinessBID returns the BID for the business with the supplied designation
@@ -116,13 +115,13 @@ func CreateRentableType(sa []string) {
 				return
 			}
 			m.MarketRate = x
-			DtStart, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[i+1]))
+			DtStart, err := StringToDate(sa[i+1])
 			if err != nil {
 				fmt.Printf("CreateRentableType: invalid start date:  %s\n", sa[i+1])
 				return
 			}
 			m.DtStart = DtStart
-			DtStop, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[i+2]))
+			DtStop, err := StringToDate(sa[i+2])
 			if err != nil {
 				fmt.Printf("CreateRentableType: invalid stop date:  %s\n", sa[i+2])
 				return

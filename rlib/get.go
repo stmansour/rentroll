@@ -66,7 +66,7 @@ func GetAssessment(asmid int64) (Assessment, error) {
 // the return structure will be empty
 func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 	var t AssessmentType
-	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
+	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.OccupancyRqd, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
 	return t, err
 }
 
@@ -74,18 +74,60 @@ func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 func GetAssessmentTypes() map[int64]AssessmentType {
 	var t map[int64]AssessmentType
 	t = make(map[int64]AssessmentType, 0)
-	rows, err := RRdb.dbrr.Query("SELECT ASMTID,Name,Description,LastModTime,LastModBy FROM assessmenttypes")
+	rows, err := RRdb.dbrr.Query("SELECT ASMTID,OccupancyRqd,Name,Description,LastModTime,LastModBy FROM assessmenttypes")
 	Errcheck(err)
 	defer rows.Close()
 
 	for rows.Next() {
 		var a AssessmentType
-		Errcheck(rows.Scan(&a.ASMTID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.ASMTID, &a.OccupancyRqd, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.ASMTID] = a
 	}
 	Errcheck(rows.Err())
 	return t
 }
+
+//=======================================================
+//  C U S T O M   A T T R I B U T E
+//  CustomAttribute, CustomAttributeRef
+//=======================================================
+
+// GetCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
+func GetCustomAttribute(cid int64) (CustomAttribute, error) {
+	var a CustomAttribute
+	err := RRdb.Prepstmt.GetCustomAttribute.QueryRow(cid).Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.LastModTime, &a.LastModBy)
+	return a, err
+}
+
+// GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
+func GetAllCustomAttributes(elemid, id int64) ([]CustomAttribute, error) {
+	var t []int64
+	var m []CustomAttribute
+	rows, err := RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		var cid int64
+		Errcheck(rows.Scan(&cid))
+		t = append(t, cid)
+	}
+	Errcheck(rows.Err())
+
+	for i := 0; i < len(t); i++ {
+		var c CustomAttribute
+		c, err := GetCustomAttribute(t[i])
+		Errcheck(err)
+		m = append(m, c)
+	}
+
+	return m, err
+}
+
+//=======================================================
+//  T R A N S A C T A N T
+//  Transactant, Prospect, Tenant, Payor, XPerson
+//=======================================================
 
 // GetTransactant reads a Transactant structure based on the supplied transactant id
 func GetTransactant(tid int64, t *Transactant) {
@@ -195,6 +237,13 @@ func GetSpecialtyByName(bid int64, name string) RentableSpecialty {
 func GetRentableType(rtid int64, rt *RentableType) error {
 	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Frequency,
 		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	if nil == err {
+		var cerr error
+		rt.CA, cerr = GetAllCustomAttributes(ELEMRENTABLETYPE, rtid)
+		if !IsSQLNoResultsError(cerr) { // it's not really an error if we don't find any custom attributes
+			err = cerr
+		}
+	}
 	return err
 }
 

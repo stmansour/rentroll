@@ -3,7 +3,7 @@ RRBIN="../../tmp/rentroll"
 MYSQLOPTS=""
 UNAME=$(uname)
 CVSLOAD="${RRBIN}/rrloadcsv"
-RENTROLL="${RRBIN}/rentroll"
+RENTROLL="${RRBIN}/rentroll -A"
 LOGFILE="log"
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
@@ -61,7 +61,6 @@ echo >>${LOGFILE}
 echo "import assessments"
 echo "DEFINE ASSESSMENTS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -A asmt.csv -L 11,JM1 >> ${LOGFILE} 2>&1
-#${CVSLOAD} -A a.csv -L 11,JM1 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import payment types"
@@ -72,6 +71,16 @@ echo >>${LOGFILE}
 echo "import receipts"
 echo "DEFINE RECEIPTS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -e rcpt.csv -L 13,jm1 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "import custom attributes"
+echo "DEFINE CUSTOM ATTRIBUTES" >> ${LOGFILE} 2>&1
+${CVSLOAD} -u custom.csv -L 14 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "import assign custom attributes"
+echo "DEFINE ASSIGN CUSTOM ATTRIBUTES" >> ${LOGFILE} 2>&1
+${CVSLOAD} -U assigncustom.csv -L 15 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "process payments and receipts"

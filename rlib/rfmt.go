@@ -46,6 +46,13 @@ func Errlog(err error) {
 	}
 }
 
+// LogAndPrintError encapsulates logging and printing an error
+func LogAndPrintError(funcname string, err error) {
+	errmsg := fmt.Sprintf("%s: err = %v\n", funcname, err)
+	Ulog(errmsg)
+	fmt.Println(errmsg)
+}
+
 // RoundToCent rounds the supplied amount to the nearest cent.
 func RoundToCent(x float64) float64 {
 	return float64(int64(x*float64(100)+float64(0.5))) / float64(100)

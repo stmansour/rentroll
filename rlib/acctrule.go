@@ -34,6 +34,8 @@ func VarAcctResolve(bid int64, s string) string {
 		i = DFLTSECDEPRCV
 	case s == "DFLTSECDEPASMT":
 		i = DFLTSECDEPASMT
+	case s == "DFLTOWNREQUITY":
+		i = DFLTOWNREQUITY
 	}
 	if i > 0 {
 		return RRdb.BizTypes[bid].DefaultAccts[i].GLNumber
@@ -56,6 +58,7 @@ func DoAcctSubstitution(bid int64, s string) string {
 // ParseAcctRule expands the supplied rule string into an array of AcctRule structs and replaces any variables/formulas
 // with the final amounts.  The rules can be of the form
 func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []AcctRule {
+	funcname := "ParseAcctRule"
 	var m []AcctRule
 	ctx := RpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
 	if len(rule) > 0 {
@@ -69,9 +72,9 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 				base = 1                              // base moves by one
 				a := rpnASM.FindStringSubmatch(ta[0]) // need to find the assessment id
 				if len(a) != 2 {
-					fmt.Printf("ParseAcctRule: invalid assessment identifier: %s\n", ta[0])
+					fmt.Printf("%s: invalid assessment identifier: %s\n", funcname, ta[0])
 				} else {
-					r.ASMID = IntFromString(a[1], "Invalid Assessment ID")
+					r.ASMID, _ = IntFromString(a[1], "Invalid Assessment ID")
 				}
 			}
 			r.Action = strings.ToLower(strings.TrimSpace(ta[base])) // action is at index base

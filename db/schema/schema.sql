@@ -11,6 +11,7 @@
 -- AVAILID = availability id
 -- BID = business id
 -- BLDGID = building id
+-- CID = custom attribute id
 -- DISBID = disbursement id
 -- JAID = journal allocation id
 -- JID = journal id
@@ -95,6 +96,28 @@ CREATE TABLE agreementtenants (
 );
 
 
+
+-- **************************************
+-- ****                              ****
+-- ****    USER DEFINED ATTRIBUTES   ****
+-- ****                              ****
+-- ************************************** 
+CREATE TABLE customattr (
+    CID BIGINT NOT NULL AUTO_INCREMENT,        -- unique identifer for this custom attribute
+    Type SMALLINT NOT NULL DEFAULT 0,          -- 0 = string, 1 = int64, 2 = float64
+    Name VARCHAR (100) NOT NULL DEFAULT '',    -- a name
+    Value VARCHAR (256) NOT NULL DEFAULT '',   -- its value in string form
+    LastModTime TIMESTAMP,                     -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,    -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (CID)
+);
+
+CREATE TABLE customattrref (
+    ElementType BIGINT NOT NULL,               -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
+    ID          BIGINT NOT NULL,               -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (rentable type id)
+    CID         BIGINT NOT NULL                -- uid of the custom attribute
+);
+
 -- **************************************
 -- ****                              ****
 -- ****          BUSINESS            ****
@@ -114,6 +137,8 @@ CREATE TABLE business (
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (BID)
 );
+
+
 
 -- ===========================================
 --   RENTABLE TYPES 
@@ -164,6 +189,7 @@ CREATE TABLE rentablespecialtytypes (
 -- this will include offsets and disbursements
 CREATE TABLE assessmenttypes (
     ASMTID BIGINT NOT NULL AUTO_INCREMENT,          -- what type of assessment
+    OccupancyRqd SMALLINT NOT NULL DEFAULT 0,       -- 0 = Valid anytime, 1 = valid only during occupancy
     Name VARCHAR(100) NOT NULL DEFAULT '',           -- name for the assessment
     Description VARCHAR(1024) NOT NULL DEFAULT '',   -- describe the assessment
     -- TODO: Type needs to be removed
@@ -522,7 +548,7 @@ CREATE TABLE ledgermarker (
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- period end
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a default account, 1 = Payor Account , 
-    --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC
+    --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, 
@@ -555,10 +581,11 @@ CREATE TABLE ledgermarkeraudit (
 --    LEDGER MARKERS - These define the required ledgers
 -- ----------------------------------------------------------------------------------------
 INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES
-    (1,0,"10001",2,3,"2015-10-01","2015-10-31",0.0,10,"Bank Account"),
-    (1,0,"11001",2,3,"2015-10-01","2015-10-31",0.0,11,"General Accounts Receivable"),
-    (1,0,"40001",2,3,"2015-10-01","2015-10-31",0.0,12,"Gross Schedule Rent"),
-    (1,0,"41004",2,3,"2015-10-01","2015-10-31",0.0,13,"Loss to Lease"),
-    (1,0,"41001",2,3,"2015-10-01","2015-10-31",0.0,14,"Vancancy"),
-    (1,0,"11002",2,3,"2015-10-01","2015-10-31",0.0,15,"Security Deposit Receivable"),
-    (1,0,"23000",2,3,"2015-10-01","2015-10-31",0.0,16,"Security Deposit Assessment");
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,10,"Bank Account"),
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,11,"General Accounts Receivable"),
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,12,"Gross Scheduled Rent"),
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,13,"Loss to Lease"),
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,14,"Vacancy"),
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,15,"Security Deposit Receivable"),
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,16,"Security Deposit Assessment"),
+    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,17,"Owner Equity");

@@ -62,14 +62,12 @@ func calcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, prorateMethod int64) 
 func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
 	pf := float64(0)
 
-	// ra, _ := rlib.GetRentalAgreement(a.RAID)
-	// _, _, pf = calcProrationInfo(&ra.RentalStart, &ra.RentalStop, d1, d2, a.ProrationMethod)
-
 	r := rlib.GetRentable(rid)
 	switch {
 	case r.State == rlib.RENTABLESTATEONLINE:
 		ra, _ := rlib.GetRentalAgreement(a.RAID)
 		_, _, pf = calcProrationInfo(&ra.RentalStart, &ra.RentalStop, d1, d2, a.ProrationMethod)
+		// fmt.Printf("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
 
 	case r.State == rlib.RENTABLESTATEADMIN ||
 		r.State == rlib.RENTABLESTATEEMPLOYEE ||
@@ -204,7 +202,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
 			&a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
-		// fmt.Printf("Assessment: %#v\n", a)
+		// fmt.Printf("Assessment: ASMID = %d, Amount = %8.2f\n", a.ASMID, a.Amount)
 		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY {
 			// TBD
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)

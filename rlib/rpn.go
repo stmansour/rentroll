@@ -115,38 +115,44 @@ func varResolve(ctx *RpnCtx, s string) float64 {
 
 // RpnCalculateEquation takes a formula, parses and executes the formula and returns the number it calculates
 func RpnCalculateEquation(ctx *RpnCtx, s string) float64 {
+	// funcname := "RpnCalculateEquation"
+	// fmt.Printf("%s: entered\n", funcname)
 	t := strings.Split(s, " ")
+	// fmt.Printf("%s: t = %#v\n", funcname, t)
+
 	for i := 0; i < len(t); i++ {
 		s = t[i]
-		// fmt.Printf("\nfor loop parsing: %s\n", s)
-		if s[0] == '$' { // is it a variable?
-			m := rpnVariable.FindStringSubmatchIndex(s)
-			if m != nil {
-				match := s[m[2]:m[3]]
-				n := varResolve(ctx, match)
-				ctx.stack = append(ctx.stack, n)
-			}
-		} else if s[0] == '_' {
-			rpnPush(ctx, ctx.amount)
-		} else if ('0' <= s[0] && s[0] <= '9') || '.' == s[0] { // is it a number?
-			m := rpnNumber.FindStringSubmatchIndex(s)
-			match := s[m[0]:m[1]]
-			n, _ := strconv.ParseFloat(match, 64)
-			ctx.stack = append(ctx.stack, n*ctx.pf)
-		} else if s[0] == '-' || s[0] == '+' || s[0] == '*' || s[0] == '/' { // is it an operator?
-			op := s[0:1]
-			var x, y float64
-			y = rpnPop(ctx)
-			x = rpnPop(ctx)
-			switch op {
-			case "+":
-				ctx.stack = append(ctx.stack, x+y)
-			case "-":
-				ctx.stack = append(ctx.stack, x-y)
-			case "*":
-				ctx.stack = append(ctx.stack, x*y)
-			case "/":
-				ctx.stack = append(ctx.stack, x/y)
+		// fmt.Printf("\n%s: for loop parsing: %s\n", funcname, s)
+		if len(s) > 0 {
+			if s[0] == '$' { // is it a variable?
+				m := rpnVariable.FindStringSubmatchIndex(s)
+				if m != nil {
+					match := s[m[2]:m[3]]
+					n := varResolve(ctx, match)
+					ctx.stack = append(ctx.stack, n)
+				}
+			} else if s[0] == '_' {
+				rpnPush(ctx, ctx.amount)
+			} else if ('0' <= s[0] && s[0] <= '9') || '.' == s[0] { // is it a number?
+				m := rpnNumber.FindStringSubmatchIndex(s)
+				match := s[m[0]:m[1]]
+				n, _ := strconv.ParseFloat(match, 64)
+				ctx.stack = append(ctx.stack, n*ctx.pf)
+			} else if s[0] == '-' || s[0] == '+' || s[0] == '*' || s[0] == '/' { // is it an operator?
+				op := s[0:1]
+				var x, y float64
+				y = rpnPop(ctx)
+				x = rpnPop(ctx)
+				switch op {
+				case "+":
+					ctx.stack = append(ctx.stack, x+y)
+				case "-":
+					ctx.stack = append(ctx.stack, x-y)
+				case "*":
+					ctx.stack = append(ctx.stack, x*y)
+				case "/":
+					ctx.stack = append(ctx.stack, x/y)
+				}
 			}
 		}
 		// rpnPrintStack(ctx)

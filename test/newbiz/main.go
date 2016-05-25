@@ -44,6 +44,8 @@ var App struct {
 	AsmtFile     string                        // assessments
 	PmtTypeFile  string                        // payment types
 	RcptFile     string                        // receipts of payments
+	CustomFile   string                        // custom attributes
+	AssignFile   string                        // assign custom attributes
 }
 
 func readCommandLineArgs() {
@@ -64,7 +66,9 @@ func readCommandLineArgs() {
 	asmtPtr := flag.String("A", "", "add assessments via csv file")
 	pmtPtr := flag.String("P", "", "add payment types via csv file")
 	rcptPtr := flag.String("e", "", "add receipts via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm")
+	custPtr := flag.String("u", "", "add custom attributes via csv file")
+	asgnPtr := flag.String("U", "", "assign custom attributes via csv file")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef")
 
 	flag.Parse()
 	if *verPtr {
@@ -88,6 +92,8 @@ func readCommandLineArgs() {
 	App.PmtTypeFile = *pmtPtr
 	App.RcptFile = *rcptPtr
 	App.Report = *lptr
+	App.CustomFile = *custPtr
+	App.AssignFile = *asgnPtr
 }
 
 func bizErrCheck(sa []string) {
@@ -190,6 +196,9 @@ func main() {
 	if len(App.RTFile) > 0 {
 		rlib.LoadRentableTypesCSV(App.RTFile)
 	}
+	if len(App.CustomFile) > 0 {
+		rlib.LoadCustomAttributesCSV(App.CustomFile)
+	}
 	if len(App.RSpFile) > 0 {
 		rlib.LoadRentalSpecialtiesCSV(App.RSpFile)
 	}
@@ -219,12 +228,15 @@ func main() {
 		App.PmtTypes = rlib.GetPaymentTypes()
 		rlib.LoadReceiptsCSV(App.RcptFile, &App.PmtTypes)
 	}
+	if len(App.AssignFile) > 0 {
+		rlib.LoadCustomAttributeRefsCSV(App.AssignFile)
+	}
 
 	if len(App.Report) > 0 {
 		sa := strings.Split(App.Report, ",")
 		i := int64(0)
 		if len(sa) > 0 {
-			i = rlib.IntFromString(sa[0], "report number")
+			i, _ = rlib.IntFromString(sa[0], "report number")
 		}
 		switch i {
 		case 1:
@@ -267,6 +279,10 @@ func main() {
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rlib.RRreportReceipts(rlib.RPTTEXT, bid))
+		case 14:
+			fmt.Printf("%s\n", rlib.RRreportCustomAttributes(rlib.RPTTEXT))
+		case 15:
+			fmt.Printf("%s\n", rlib.RRreportCustomAttributeRefs(rlib.RPTTEXT))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

@@ -73,7 +73,7 @@ func InsertAssessment(a *Assessment) error {
 
 // InsertAssessmentType writes a new assessmenttype record to the database
 func InsertAssessmentType(a *AssessmentType) error {
-	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.Name, a.Description, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.OccupancyRqd, a.Name, a.Description, a.LastModBy)
 	return err
 }
 
@@ -347,5 +347,27 @@ func InsertAgreementTenant(a *AgreementTenant) (int64, error) {
 // InsertPaymentType writes a new assessmenttype record to the database
 func InsertPaymentType(a *PaymentType) error {
 	_, err := RRdb.Prepstmt.InsertPaymentType.Exec(a.BID, a.Name, a.Description, a.LastModBy)
+	return err
+}
+
+// InsertCustomAttribute writes a new tenant record to the database
+func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertCustomAttribute.Exec(a.Type, a.Name, a.Value, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertCustomAttribute: error inserting CustomAttribute:  %v\n", err)
+		Ulog("CustomAttribute = %#v\n", *a)
+	}
+	return tid, err
+}
+
+// InsertCustomAttributeRef writes a new assessmenttype record to the database
+func InsertCustomAttributeRef(a *CustomAttributeRef) error {
+	_, err := RRdb.Prepstmt.InsertCustomAttributeRef.Exec(a.ElementType, a.ID, a.CID)
 	return err
 }

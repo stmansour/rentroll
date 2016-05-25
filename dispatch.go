@@ -2,8 +2,12 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"rentroll/rlib"
+	"text/template"
 )
+
+const ()
 
 // RunBooks runs a series of commands to handle command line run requests
 func RunBooks(ctx *DispatchCtx) {
@@ -42,5 +46,34 @@ func Dispatch(ctx *DispatchCtx) {
 		RunBooks(ctx)
 	default:
 		fmt.Printf("Unrecognized command: %d\n", ctx.Cmd)
+	}
+}
+
+func dispatchHandler(w http.ResponseWriter, r *http.Request) {
+	var ui RRuiSupport
+	funcname := "dispatchHandler"
+	w.Header().Set("Content-Type", "text/html")
+
+	action := r.FormValue("action")
+	url := r.FormValue("url")
+	if len(action) > 0 {
+		switch action {
+		case "TrialBalance":
+			fmt.Printf("TrialBalance: redirect to %s\n", url)
+			http.Redirect(w, r, url, http.StatusFound)
+			return
+		default:
+			fmt.Printf("%s: Unrecognized action: %s\n", funcname, action)
+		}
+	}
+
+	t, err := template.New("dispatch.html").Funcs(RRfuncMap).ParseFiles("./html/dispatch.html")
+	if nil != err {
+		fmt.Printf("%s: error loading template: %v\n", funcname, err)
+	}
+	err = t.Execute(w, &ui)
+	if nil != err {
+		rlib.LogAndPrintError(funcname, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

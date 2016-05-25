@@ -85,6 +85,7 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time
 
 // GenerateLedgerRecords creates ledgers records based on the journal records over the supplied time range.
 func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+	funcname := "GenerateLedgerRecords"
 	err := RemoveLedgerEntries(xbiz, d1, d2)
 	if err != nil {
 		rlib.Ulog("Could not remove existing Ledger entries from %s to %s. err = %v\n", d1.Format(rlib.RRDATEFMT), d2.Format(rlib.RRDATEFMT), err)
@@ -115,8 +116,8 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	for i := 0; i < len(t); i++ {
 		lm, err := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
 		if err != nil {
-			fmt.Printf("Could not get ledger for account named %s in busines %d\n", t[i].GLNumber, xbiz.P.BID)
-			fmt.Printf("Error = %v\n", err)
+			fmt.Printf("%s: Could not get ledger for account named %s in busines %d\n", funcname, t[i].GLNumber, xbiz.P.BID)
+			fmt.Printf("%s: Error = %v\n", funcname, err)
 			continue
 		}
 		// fmt.Printf("lm = %#v\n", lm)

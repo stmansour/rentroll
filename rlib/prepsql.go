@@ -47,11 +47,11 @@ func buildPreparedStatements() {
 	//===============================
 	//  AssessmentType
 	//===============================
-	RRdb.Prepstmt.GetAssessmentType, err = RRdb.dbrr.Prepare("SELECT ASMTID,Name,Description,LastModTime,LastModBy FROM assessmenttypes WHERE ASMTID=?")
+	RRdb.Prepstmt.GetAssessmentType, err = RRdb.dbrr.Prepare("SELECT ASMTID,OccupancyRqd,Name,Description,LastModTime,LastModBy FROM assessmenttypes WHERE ASMTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentTypeByName, err = RRdb.dbrr.Prepare("SELECT ASMTID,Name,Description,LastModTime,LastModBy FROM assessmenttypes WHERE Name=?")
+	RRdb.Prepstmt.GetAssessmentTypeByName, err = RRdb.dbrr.Prepare("SELECT ASMTID,OccupancyRqd,Name,Description,LastModTime,LastModBy FROM assessmenttypes WHERE Name=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertAssessmentType, err = RRdb.dbrr.Prepare("INSERT INTO assessmenttypes (Name,Description,LastModBy) VALUES(?,?,?)")
+	RRdb.Prepstmt.InsertAssessmentType, err = RRdb.dbrr.Prepare("INSERT INTO assessmenttypes (OccupancyRqd,Name,Description,LastModBy) VALUES(?,?,?,?)")
 	Errcheck(err)
 
 	//===============================
@@ -76,6 +76,26 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM rentablespecialtytypes WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertBusiness, err = RRdb.dbrr.Prepare("INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
+	Errcheck(err)
+
+	//==========================================
+	// Custom Attribute
+	//==========================================
+	RRdb.Prepstmt.InsertCustomAttribute, err = RRdb.dbrr.Prepare("INSERT INTO customattr (Type,Name,Value,LastModBy) VALUES(?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetCustomAttribute, err = RRdb.dbrr.Prepare("SELECT CID,Type,Name,Value,LastModTime,LastModBy FROM customattr where CID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteCustomAttribute, err = RRdb.dbrr.Prepare("DELETE FROM customattr where CID=?")
+	Errcheck(err)
+
+	//==========================================
+	// Custom Attribute Ref
+	//==========================================
+	RRdb.Prepstmt.InsertCustomAttributeRef, err = RRdb.dbrr.Prepare("INSERT INTO customattrref (ElementType,ID,CID) VALUES(?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.GetCustomAttributeRefs, err = RRdb.dbrr.Prepare("SELECT CID FROM customattrref where ElementType=? and ID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteCustomAttributeRef, err = RRdb.dbrr.Prepare("DELETE FROM customattrref where CID=? and ElementType=? and ID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -135,7 +155,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and DtStop>? and DtStart<?")
+	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and DtStop>? and DtStart<=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkerInitList, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and State=3 ORDER BY GLNumber ASC")
 	Errcheck(err)

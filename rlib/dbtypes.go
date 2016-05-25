@@ -13,6 +13,18 @@ const (
 	RPTTEXT = 0
 	RPTHTML = 1
 
+	ELEMPERSON       = 1 // people
+	ELEMCOMPANY      = 2 // companies
+	ELEMCLASS        = 3 // classes
+	ELEMSVC          = 4 // the executable service
+	ELEMRENTABLETYPE = 5 // RentableType element
+	ELEMLAST         = 5 // keep in sync with last one added
+
+	CUSTSTRING = 0
+	CUSTINT    = 1
+	CUSTFLOAT  = 2
+	CUSTLAST   = 2 // this should be maintained as matching the highest index value in the group
+
 	RENT                      = 1
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
@@ -30,7 +42,8 @@ const (
 	DFLTVAC        = 14
 	DFLTSECDEPRCV  = 15
 	DFLTSECDEPASMT = 16
-	DFLTLAST       = 16 // set this to the last default account index
+	DFLTOWNREQUITY = 17
+	DFLTLAST       = 17 // set this to the last default account index
 
 	OCCTYPEUNSET     = 0
 	OCCTYPESECONDLY  = 1
@@ -78,6 +91,9 @@ const (
 // const RRDATEFMT = "01/02/06 3:04PM MST"
 const RRDATEFMT = "01/02/06"
 
+// RRDATEFMT2 is the default date format that excel outputs.  Use this for csv imports
+const RRDATEFMT2 = "1/2/06"
+
 // RRDATEINPFMT is the shorthand for database-style dates
 const RRDATEINPFMT = "2006-01-02"
 
@@ -87,6 +103,7 @@ const RRDATEINPFMT = "2006-01-02"
 // AVAILID = availability id
 // BID = business id
 // BLDGID = building id
+// CID = custom attribute id
 // DISBID = disbursement id
 // JAID = journal allocation id
 // JID = journal id
@@ -106,6 +123,26 @@ const RRDATEINPFMT = "2006-01-02"
 // TCID = transactant id
 // TID = tenant id
 //==========================================
+
+// CustomAttribute is a struct containing user-defined custom attributes for objects
+type CustomAttribute struct {
+	CID         int64     // unique id
+	Type        int64     // what type of value: 0 = string, 1 = int64, 2 = float64
+	Name        string    // what its called
+	Value       string    // string value -- will be xlated on load / store
+	LastModTime time.Time // timestamp of last changed
+	LastModBy   int64     // who changed it last
+	fval        float64   // the float value once converted
+	ival        int64     // the int value once converted
+}
+
+// CustomAttributeRef is a reference to a Custom Attribute. A query of the form:
+//		SELECT CID FROM CustomAttributeRef
+type CustomAttributeRef struct {
+	ElementType int64 // what type of element:  1=person, 2=company, 3=business-unit, 4 = executable service, 5=RentableType
+	ID          int64 // the UID of the element type. That is, if ElementType == 5, the ID is the RTID (rentable type id)
+	CID         int64 // uid of the custom attribute
+}
 
 // RentalAgreementTemplate is a template used to set up new rental agreements
 type RentalAgreementTemplate struct {
@@ -244,11 +281,12 @@ type XPerson struct {
 
 // AssessmentType describes the different types of assessments
 type AssessmentType struct {
-	ASMTID      int64
-	Name        string
-	Description string
-	LastModTime time.Time
-	LastModBy   int64
+	ASMTID       int64
+	OccupancyRqd int64
+	Name         string
+	Description  string
+	LastModTime  time.Time
+	LastModBy    int64
 }
 
 // Assessment is a charge associated with a rentable
@@ -362,6 +400,7 @@ type RentableType struct {
 	Report         int64 // does this type of rentable show up in reporting
 	ManageToBudget int64
 	MR             []RentableMarketRate
+	CA             []CustomAttribute
 	MRCurrent      float64 // the current market rate (historical values are in MR)
 	LastModTime    time.Time
 	LastModBy      int64
@@ -555,6 +594,12 @@ type RRprepSQL struct {
 	InsertTransactant                  *sql.Stmt
 	UpdateLedgerMarker                 *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
+	InsertCustomAttribute              *sql.Stmt
+	GetCustomAttribute                 *sql.Stmt
+	DeleteCustomAttribute              *sql.Stmt
+	InsertCustomAttributeRef           *sql.Stmt
+	GetCustomAttributeRefs             *sql.Stmt
+	DeleteCustomAttributeRef           *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

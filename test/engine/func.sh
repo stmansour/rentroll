@@ -5,7 +5,7 @@
 # the reports are what we expect
 RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
-APP="${RRBIN}/rentroll"
+APP="${RRBIN}/rentroll -A"
 MYSQLOPTS=""
 UNAME=$(uname)
 
@@ -20,6 +20,8 @@ fi
 # pushd ../ledger1 ; make ; popd
 ${RRBIN}/rrnewdb
 mysql ${MYSQLOPTS} <init.sql
+
+rm -f w x y z
 
 ${APP}
 ${APP} -r 1 >j.txt

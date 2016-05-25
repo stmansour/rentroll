@@ -59,3 +59,21 @@ func DeleteReceiptAllocations(rcptid int64) error {
 	}
 	return err
 }
+
+// DeleteCustomAttribute deletes CustomAttribute records with the supplied cid
+func DeleteCustomAttribute(cid int64) error {
+	_, err := RRdb.Prepstmt.DeleteCustomAttribute.Exec(cid)
+	if err != nil {
+		Ulog("Error deleting CustomAttribute for cid = %d, error: %v\n", cid, err)
+	}
+	return err
+}
+
+// DeleteCustomAttributeRef deletes CustomAttributeRef records with the supplied cid
+func DeleteCustomAttributeRef(elemid, id, cid int64) error {
+	_, err := RRdb.Prepstmt.DeleteCustomAttributeRef.Exec(elemid, id, cid)
+	if err != nil {
+		Ulog("Error deleting elemid=%d, id=%d, cid=%d, error: %v\n", elemid, id, cid, err)
+	}
+	return err
+}

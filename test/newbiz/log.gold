@@ -1,39 +1,52 @@
 Invalid OccupancyType value: a
 SetParking: Unrecognized yes/no string: da.
 SetParking: Unrecognized yes/no string: nyet.
-2016/05/16 12:58:22 CreateAssessmentType: AssessmentType named Rent already exists
-2016/05/16 12:58:22 GetBusinessBID: Business with designation QQQ does not exist or could not be loaded
-2016/05/16 12:58:22 GetBusinessBID: RentableType named CPT already exists
-2016/05/16 12:58:22 CreateRentableType: Invalid rental frequency:            99
-2016/05/16 12:58:22 CreateRentableType: Invalid rental proration frequency: 99
-2016/05/16 12:58:22 CreateRentableType: Proration frequency (7) must be greater than rental frequency (6)
-2016/05/16 12:58:22 CreateRentableType: Invalid report flag: da
-2016/05/16 12:58:22 CreateRentableType: Invalid manage to budget flag: nyet
-2016/05/16 12:58:22 CreateRentableType: Invalid manage to budget flag: 3
+2016/05/24 17:59:17 CreateAssessmentType: line 2 - Name cannot be empty
+CreateAssessmentType: line 3 - OccupancyRqd must be 0 or 1.  Found: 99
+2016/05/24 17:59:17 CreateAssessmentType: AssessmentType named Rent already exists
+2016/05/24 17:59:17 GetBusinessBID: Business with designation QQQ does not exist or could not be loaded
+2016/05/24 17:59:17 GetBusinessBID: RentableType named CPT already exists
+2016/05/24 17:59:17 CreateRentableType: Invalid rental frequency:            99
+2016/05/24 17:59:17 CreateRentableType: Invalid rental proration frequency: 99
+2016/05/24 17:59:17 CreateRentableType: Proration frequency (7) must be greater than rental frequency (6)
+2016/05/24 17:59:17 CreateRentableType: Invalid report flag: da
+2016/05/24 17:59:17 CreateRentableType: Invalid manage to budget flag: nyet
+2016/05/24 17:59:17 CreateRentableType: Invalid manage to budget flag: 3
 CreateRentableType: Stop date (2014-01-01 00:00:00 +0000 UTC) must be after Start date (2016-01-01 00:00:00 +0000 UTC)
+Type value must be a number from 0 to 2
+CreateAssessmentsFromCSV: Value cannot be converted to an integer: ab827
+2016/05/24 17:59:17 CreateAssessmentsFromCSV: IValue cannot be converted to an float: ab827
 CreateRentalSpecialty: Business reh already has a RentableSpecialty named Lake View
-2016/05/16 12:58:22 CreateBuilding: business with designation bug does net exist
+2016/05/24 17:59:17 CreateBuilding: business with designation bug does net exist
 CreateBuilding: invalid building number: qe
-2016/05/16 12:58:22 CreateRentables: could not load rentable type 999, err = sql: no rows in result set
-2016/05/16 12:58:22 CreateRentables: rentable type XXX does not exist in business reh
+2016/05/24 17:59:17 CreateRentables: could not load rentable type 999, err = sql: no rows in result set
+2016/05/24 17:59:17 CreateRentables: rentable type XXX does not exist in business reh
 CreateRentables: invalid Assignment number: 9
 CreateRentables: invalid Report number: 9
 CreateRentables: invalid DefaultOccupancy value: 9
 CreateRentables: invalid Occupancy value: 9
 Rentable with name "107" already exists. Skipping. 
-2016/05/16 12:58:22 CreatePeopleFromCSV: Transactant with PrimaryEmail address = homerj@springfield.com already exists
-2016/05/16 12:58:22 CreatePeopleFromCSV: Transactant with CellPhone number = 816-123-4568 already exists
-2016/05/16 12:58:22 CreateRentalAgreement: business with designation RATQQQ does net exist
+2016/05/24 17:59:17 CreatePeopleFromCSV: Transactant with PrimaryEmail address = homerj@springfield.com already exists
+2016/05/24 17:59:17 CreatePeopleFromCSV: Transactant with CellPhone number = 816-123-4568 already exists
+2016/05/24 17:59:17 CreateRentalAgreement: business with designation RATQQQ does net exist
 CreateRentalAgreement: could not find business named QWQ
 CreateRentalAgreement: could not find tenant with contact information billybob@springfield.com
-CreateLedgerMarkers: line 27 - Invalid Default value for account 42999: 333.  Value must blank or between 10 and 16
+CreateLedgerMarkers: line 27 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
 CreateLedgerMarkers: line 28 - Account already exists: 42999
 CreateLedgerMarkers: line 29 - Invalid account status: re45gg5
-2016/05/16 12:58:23 CreateLedgerMarkers: business with designation QQQ does net exist
+CreateAssessmentsFromCSV: line 15 - Assessment type 55 requires a rental agreement. None found for period 2018-11-08 to 2018-11-08
+CreateAssessmentsFromCSV: line 16 - Assessment type is invalid: 0
+CreateAssessmentsFromCSV: line 17 - Assessment type is invalid: 900
+2016/05/24 17:59:17 CreateAssessmentsFromCSV: line 18 - business with designation XXX does net exist
+CreateAssessmentsFromCSV: line 19 - Skipping this record as the Amount is 0
+CreateAssessmentsFromCSV: line 20 - Skipping this record as there is no AcctRule
+2016/05/24 17:59:17 CreateLedgerMarkers: business with designation QQQ does net exist
 CreateReceiptsFromCSV: error loading Rental Agreement RA00099991, err = sql: no rows in result set
 CreateReceiptsFromCSV: Payment type is invalid: 999
 CreateReceiptsFromCSV: invalid receipt date:  12-11-2015
 CreateReceiptsFromCSV: invalid receipt date:  03/04/15
-2016/05/16 12:58:23 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
+2016/05/24 17:59:17 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
 CreateReceiptsFromCSV: error processing payments: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 
+ElementType value must be a number from 5 to 5
+CreateCustomAttributeRefs: line 7 - Could not load RentableType with id 999:  error = sql: no rows in result set

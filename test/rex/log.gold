@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Tue May 17 21:04:57 PDT 2016
+Date/Time: Tue May 24 18:06:52 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -7,71 +7,73 @@ DEFINE BUSINESS
 
 
 DEFINE ASSESSMENT TYPES
-   1 - Rent
-   2 - Security Deposit
-   3 - Security Deposit Forfeiture
-   4 - Application Fees
-   5 - Landlord Lien Sales
-   6 - Pet Fees
-   7 - Eviction Fees
-   8 - Electric Reimbursement
-   9 - Electric Overage
-  10 - Water Reimbursement
-  11 - Water Overage
-  12 - Trash Fee
-  13 - Utility Fine
-  14 - NSF Fee
-  15 - Maintenance Fee
-  16 - Fines
-  17 - Month to Month Fee
-  18 - Cancelation Fees
-  19 - Housekeeping Fee
-  20 - Extra Person Charge
-  21 - Furniture Rental
-  22 - Platinum Service Fee
-  23 - Gold Service Fee
-  24 - Silver Service Fee
-  25 - Sales Tax
-  26 - TOT Tax
-  27 - Reletting Fees
-  28 - Carport Fees
-  29 - Garage Fees
-  30 - Reserved Parking Fees
-  31 - Transfer fees
-  32 - Washer/Dryer Fee
-  33 - Association Dues Assessment
-  34 - Insurance Reimbursement
-  35 - Tax Reimbursement
-  36 - Special Event Fees
-  37 - Convenience Store Sales
-  38 - Courtesy Car Rental
-  39 - Vending Income
-  40 - Transportation
-  41 - Food Sales
-  42 - Liquor Sales
-  43 - WashNFold Income
-  44 - Spa Sales
-  45 - Fitness Center
-  46 - CashOverShort
-  47 - Late Payment Fee
-  48 - Other Income
-  49 - Bad Debt Write-Off
-  50 - Off Line
-  51 - Concession
-  52 - Employee
-  53 - Damages
-  54 - Pest Control Reimbursement
-  55 - Security Deposit Return
-  56 - Returned Payments
-  57 - Security Deposit Assessment
-  58 - Lake View
-  59 - Courtyard View
-  60 - Top Floor
-  61 - Fireplace
-  62 - Owner Occupied
+Name  OccRqd   Description
+   1       1   Rent
+   2       1   Security Deposit
+   3       0   Security Deposit Forfeiture
+   4       0   Application Fees
+   5       1   Landlord Lien Sales
+   6       1   Pet Fees
+   7       1   Eviction Fees
+   8       1   Electric Reimbursement
+   9       1   Electric Overage
+  10       1   Water Reimbursement
+  11       1   Water Overage
+  12       1   Trash Fee
+  13       1   Utility Fine
+  14       0   NSF Fee
+  15       1   Maintenance Fee
+  16       1   Fines
+  17       1   Month to Month Fee
+  18       1   Cancelation Fees
+  19       1   Housekeeping Fee
+  20       1   Extra Person Charge
+  21       1   Furniture Rental
+  22       1   Platinum Service Fee
+  23       1   Gold Service Fee
+  24       1   Silver Service Fee
+  25       1   Sales Tax
+  26       1   TOT Tax
+  27       1   Reletting Fees
+  28       1   Carport Fees
+  29       1   Garage Fees
+  30       1   Reserved Parking Fees
+  31       1   Transfer fees
+  32       1   Washer/Dryer Fee
+  33       1   Association Dues Assessment
+  34       1   Insurance Reimbursement
+  35       1   Tax Reimbursement
+  36       1   Special Event Fees
+  37       1   Convenience Store Sales
+  38       1   Courtesy Car Rental
+  39       1   Vending Income
+  40       1   Transportation
+  41       1   Food Sales
+  42       1   Liquor Sales
+  43       1   WashNFold Income
+  44       1   Spa Sales
+  45       1   Fitness Center
+  46       1   CashOverShort
+  47       0   Late Payment Fee
+  48       1   Other Income
+  49       1   Bad Debt Write-Off
+  50       0   Off Line
+  51       0   Concession
+  52       1   Employee
+  53       0   Damages
+  54       1   Pest Control Reimbursement
+  55       0   Security Deposit Return
+  56       1   Returned Payments
+  57       0   Security Deposit Assessment
+  58       1   Lake View
+  59       1   Courtyard View
+  60       1   Top Floor
+  61       1   Fireplace
+  62       0   Owner Occupied
 
 
 DEFINE RENTABLE TYPES
+RTID   Style      Name
    1 - 309  -  309
    2 - 309.5  -  309.5
    3 - 311  -  311
@@ -111,42 +113,37 @@ RAID     Payor       Tenant
 
 
 DEFINE CHART OF ACCOUNTS
-  LID   GLAccountNo   Name
-    1         10001           0.00  Bank Account FRB 2332352
-    2         11001           0.00  General Accounts Receivable
-    6         11002           0.00  Security Deposit Receivable
-    8         11003           0.00  Alternate Receivables System
-    9         11004           0.00  American Express 93892335 In Process
-   10         11005           0.00  MasterCard/VISA 38992355 in Process
-   11         11006           0.00  Discover 883523553 In Process
-    7         23000      -13300.00  Security Deposit Assessment
-    3         40001           0.00  Gross Schedule Rent
-   12         40002           0.00  Carport Rental Income
-    5         41001           0.00  Vacancy
-   13         41002           0.00  Administrative Concession
-   14         41003           0.00  Off Line Unit
-    4         41004           0.00  Loss to Lease
-   15         41005           0.00  Employee Concession
-   16         41006           0.00  Payor Concession
-   17         41007           0.00  Bad Debt Write-Off
-   18         41008           0.00  Owner Occupied
-   19         42001           0.00  Pet Fees
-   20         42002           0.00  Utility Reimbursement
-   21         42003           0.00  Late Fees
-   22         42004           0.00  Damages
-   23         42005           0.00  Pest Control Reimbursements
-   24         42006           0.00  Security Deposit Forfeiture
-   25         42007           0.00  Carports
-   26         42999           0.00  Other Income
+CreateLedgerMarkers: line 21 - You must suppy a GL Number for this entry
+  LID   Type  GLAccountNo         Amount   Name
+   12               00001           0.00   Basement Storage
+   13               00002           0.00   Change In Delinquency
+    2    11         11001           0.00   General Accounts Receivable
+    7    16         11002      -13300.00   Security Deposits Assessed
+    6    15         33000           0.00   Security Deposit Receivable
+    8    17         33333       13300.00   OwnerEquity
+   17               41008           0.00   Administrative Unit
+    3    12         50201           0.00   Gross Schedule Rent
+    9               50211           0.00   Late Fees
+   10               50212           0.00   NSF Fees
+   18               50213           0.00   Forfeited Security Deposit
+   11               50216           0.00   Maintenance Reimbursement
+    5    14         50251           0.00   Vacancy
+   15               50252           0.00   Rent Concession
+   16               50253           0.00   Offline Units
+   14               50254           0.00   Bad Debt Write-Off
+    4    13         50255           0.00   Loss to Lease
+   19               59997           0.00   AP Cash Dispersements
+    1    10         59998           0.00   Cash Deposits
 
 
 DEFINE ASSESSMENTS
       ASMID          RAID        RID   Freq     Amount
 ASM00000001    RA00000001  R00000001      6    3750.00
 ASM00000002    RA00000002  R00000002      6    3550.00
-ASM00000003    RA00000003  R00000003      0    2434.71
-ASM00000004    RA00000003  R00000003      0     865.29
-ASM00000005  unassociated  R00000004      6    2500.00
+ASM00000003    RA00000003  R00000003      6    4400.00
+ASM00000004  unassociated  R00000003      0    2434.71
+ASM00000005  unassociated  R00000003      0     865.29
+ASM00000006  unassociated  R00000004      6    2500.00
 
 
 DEFINE PAYMENT TYPES
@@ -158,9 +155,25 @@ PT00000004     B00000001   AMEX
 
 
 DEFINE RECEIPTS
-      RCPTID        Amount        AcctRule
-RCPT00000001    3750.00  ASM(1) d ${DFLTCASH} _, ASM(1) c 11002 _
-RCPT00000002    3550.00  ASM(2) d ${DFLTCASH} _, ASM(2) c 11002 _
+      RCPTID     Amount  AcctRule
+RCPT00000001    3750.00  ASM(1) c ${DFLTGENRCV} _, ASM(1) d ${DFLTCASH} _
+RCPT00000002    3550.00  ASM(2) c ${DFLTGENRCV} _, ASM(2) d ${DFLTCASH} _
+
+
+DEFINE CUSTOM ATTRIBUTES
+     CID   TYPE   Name, Value
+       1      1   Square Feet, 1215
+       2      1   Square Feet, 1239
+       3      1   Square Feet, 1638
+       4      1   Square Feet, 827
+
+
+DEFINE ASSIGN CUSTOM ATTRIBUTES
+ELEMID        ID       CID
+     5         1         1
+     5         2         2
+     5         3         3
+     5         4         4
 
 
 PROCESS PAYMENTS AND RECEIPTS
@@ -172,49 +185,60 @@ PROCESS PAYMENTS AND RECEIPTS
    ---------------------------------------------------------------------------------------------------------------
    J00000001  Rent                                   
                           General Accounts Receivable  03/01/16         1      309 Rexford     11001       3750.00
-                                  Gross Schedule Rent  03/01/16         1      309 Rexford     40001      -3750.00
-                                        Loss to Lease  03/01/16         1      309 Rexford     41004          0.00
+                                  Gross Schedule Rent  03/01/16         1      309 Rexford     50201      -3750.00
+                                        Loss to Lease  03/01/16         1      309 Rexford     50255          0.00
                                                      
    J00000002  Rent                                   
                           General Accounts Receivable  03/02/16         2  309 1/2 Rexford     11001       3550.00
-                                  Gross Schedule Rent  03/02/16         2  309 1/2 Rexford     40001      -3550.00
-                                        Loss to Lease  03/02/16         2  309 1/2 Rexford     41004          0.00
+                                  Gross Schedule Rent  03/02/16         2  309 1/2 Rexford     50201      -3550.00
+                                        Loss to Lease  03/02/16         2  309 1/2 Rexford     50255          0.00
                                                      
    J00000003  Damages                                
-                          Security Deposit Assessment  03/01/16         3      311 Rexford     23000       2434.71
-                          Security Deposit Forfeiture  03/01/16         3      311 Rexford     42006      -2434.71
+                           Security Deposits Assessed  03/01/16         0      311 Rexford     11002       2434.71
+                           Forfeited Security Deposit  03/01/16         0      311 Rexford     50213      -2434.71
                                                      
    J00000004  Security Deposit Return                
-                          Security Deposit Assessment  03/01/16         3      311 Rexford     23000        865.29
-                             Bank Account FRB 2332352  03/01/16         3      311 Rexford     10001       -865.29
+                           Security Deposits Assessed  03/01/16         0      311 Rexford     11002        865.29
+                                AP Cash Dispersements  03/01/16         0      311 Rexford     59997       -865.29
                                                      
-   J00000005  Owner Occupied                         
-                                       Owner Occupied  03/01/16         0  311 1/2 Rexford     41008       2500.00
-                                  Gross Schedule Rent  03/01/16         0  311 1/2 Rexford     40001      -2500.00
-                                                     
-   J00000006  Payment - Read,Read  3750.00           
+   J00000005  Unassociated: 311 Rexford              
+                                  Gross Schedule Rent  03/31/16         0      311 Rexford     50201      -4400.00
+                                              Vacancy  03/31/16         0      311 Rexford     50251       4400.00
+   J00000006  Unassociated: 311 1/2 Rexford          
+                                  Gross Schedule Rent  03/31/16         0  311 1/2 Rexford     50201      -2500.00
+                                              Vacancy  03/31/16         0  311 1/2 Rexford     50251       2500.00
+   J00000007  Payment - Read,Read  3750.00           
    	Rent                                             
-                             Bank Account FRB 2332352  03/01/16         1      309 Rexford     10001       3750.00
-                          Security Deposit Receivable  03/01/16         1      309 Rexford     11002      -3750.00
+                          General Accounts Receivable  03/01/16         1      309 Rexford     11001      -3750.00
+                                        Cash Deposits  03/01/16         1      309 Rexford     59998       3750.00
                                                      
-   J00000007  Payment - Costea,Costea  3550.00       
+   J00000008  Payment - Costea,Costea  3550.00       
    	Rent                                             
-                             Bank Account FRB 2332352  03/02/16         2  309 1/2 Rexford     10001       3550.00
-                          Security Deposit Receivable  03/02/16         2  309 1/2 Rexford     11002      -3550.00
+                          General Accounts Receivable  03/02/16         2  309 1/2 Rexford     11001      -3550.00
+                                        Cash Deposits  03/02/16         2  309 1/2 Rexford     59998       3550.00
                                                      
    ===========================================================================================================================
    Business:  JM1          
-   10001 - Bank Account FRB 2332352             
+   00001 - Basement Storage                     
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
-            Assessment - Security Deposit Return  03/01/16          4           3      311 Rexford       -865.29       -865.29
-                                  Payment - Rent  03/01/16          6           1      309 Rexford       3750.00       2884.71
-                                  Payment - Rent  03/02/16          7           2  309 1/2 Rexford       3550.00       6434.71
    ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                             6434.71
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   00002 - Change In Delinquency                
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
 
 
    ===========================================================================================================================
@@ -227,89 +251,65 @@ PROCESS PAYMENTS AND RECEIPTS
    Opening Balance                                03/01/16                                                                0.00
                                Assessment - Rent  03/01/16          1           1      309 Rexford       3750.00       3750.00
                                Assessment - Rent  03/02/16          2           2  309 1/2 Rexford       3550.00       7300.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                             7300.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   11002 - Security Deposit Receivable          
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-                                  Payment - Rent  03/01/16          6           1      309 Rexford      -3750.00      -3750.00
-                                  Payment - Rent  03/02/16          7           2  309 1/2 Rexford      -3550.00      -7300.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                            -7300.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   11003 - Alternate Receivables System         
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
+                                  Payment - Rent  03/01/16          7           1      309 Rexford      -3750.00       3550.00
+                                  Payment - Rent  03/02/16          8           2  309 1/2 Rexford      -3550.00          0.00
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                                0.00
 
 
    ===========================================================================================================================
    Business:  JM1          
-   11004 - American Express 93892335 In Process 
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   11005 - MasterCard/VISA 38992355 in Process  
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   11006 - Discover 883523553 In Process        
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   23000 - Security Deposit Assessment          
+   11002 - Security Deposits Assessed           
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                           -13300.00
-                            Assessment - Damages  03/01/16          3           3      311 Rexford       2434.71     -10865.29
-            Assessment - Security Deposit Return  03/01/16          4           3      311 Rexford        865.29     -10000.00
+                            Assessment - Damages  03/01/16          3           0      311 Rexford       2434.71     -10865.29
+            Assessment - Security Deposit Return  03/01/16          4           0      311 Rexford        865.29     -10000.00
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                           -10000.00
 
 
    ===========================================================================================================================
    Business:  JM1          
-   40001 - Gross Schedule Rent                  
+   33000 - Security Deposit Receivable          
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   33333 - OwnerEquity                          
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                            13300.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                            13300.00
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   41008 - Administrative Unit                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   50201 - Gross Schedule Rent                  
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
@@ -317,14 +317,15 @@ PROCESS PAYMENTS AND RECEIPTS
    Opening Balance                                03/01/16                                                                0.00
                                Assessment - Rent  03/01/16          1           1      309 Rexford      -3750.00      -3750.00
                                Assessment - Rent  03/02/16          2           2  309 1/2 Rexford      -3550.00      -7300.00
-                     Assessment - Owner Occupied  03/01/16          5           0  311 1/2 Rexford      -2500.00      -9800.00
+                                    Unassociated  03/31/16          5           0      311 Rexford      -4400.00     -11700.00
+                                    Unassociated  03/31/16          6           0  311 1/2 Rexford      -2500.00     -14200.00
    ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                            -9800.00
+   Closing Balance                                03/31/16                                                           -14200.00
 
 
    ===========================================================================================================================
    Business:  JM1          
-   40002 - Carport Rental Income                
+   50211 - Late Fees                            
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
@@ -336,7 +337,7 @@ PROCESS PAYMENTS AND RECEIPTS
 
    ===========================================================================================================================
    Business:  JM1          
-   41001 - Vacancy                              
+   50212 - NSF Fees                             
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
@@ -348,7 +349,20 @@ PROCESS PAYMENTS AND RECEIPTS
 
    ===========================================================================================================================
    Business:  JM1          
-   41002 - Administrative Concession            
+   50213 - Forfeited Security Deposit           
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+                            Assessment - Damages  03/01/16          3           0      311 Rexford      -2434.71      -2434.71
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                            -2434.71
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   50216 - Maintenance Reimbursement            
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
@@ -360,7 +374,21 @@ PROCESS PAYMENTS AND RECEIPTS
 
    ===========================================================================================================================
    Business:  JM1          
-   41003 - Off Line Unit                        
+   50251 - Vacancy                              
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+                                    Unassociated  03/31/16          5           0      311 Rexford       4400.00       4400.00
+                                    Unassociated  03/31/16          6           0  311 1/2 Rexford       2500.00       6900.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                             6900.00
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   50252 - Rent Concession                      
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
@@ -372,7 +400,31 @@ PROCESS PAYMENTS AND RECEIPTS
 
    ===========================================================================================================================
    Business:  JM1          
-   41004 - Loss to Lease                        
+   50253 - Offline Units                        
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   50254 - Bad Debt Write-Off                   
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  JM1          
+   50255 - Loss to Lease                        
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
@@ -386,148 +438,29 @@ PROCESS PAYMENTS AND RECEIPTS
 
    ===========================================================================================================================
    Business:  JM1          
-   41005 - Employee Concession                  
+   59997 - AP Cash Dispersements                
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
+            Assessment - Security Deposit Return  03/01/16          4           0      311 Rexford       -865.29       -865.29
    ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
+   Closing Balance                                03/31/16                                                             -865.29
 
 
    ===========================================================================================================================
    Business:  JM1          
-   41006 - Payor Concession                     
+   59998 - Cash Deposits                        
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
+                                  Payment - Rent  03/01/16          7           1      309 Rexford       3750.00       3750.00
+                                  Payment - Rent  03/02/16          8           2  309 1/2 Rexford       3550.00       7300.00
    ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   41007 - Bad Debt Write-Off                   
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   41008 - Owner Occupied                       
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-                     Assessment - Owner Occupied  03/01/16          5           0  311 1/2 Rexford       2500.00       2500.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                             2500.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42001 - Pet Fees                             
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42002 - Utility Reimbursement                
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42003 - Late Fees                            
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42004 - Damages                              
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42005 - Pest Control Reimbursements          
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42006 - Security Deposit Forfeiture          
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-                            Assessment - Damages  03/01/16          3           3      311 Rexford      -2434.71      -2434.71
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                            -2434.71
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42007 - Carports                             
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
-
-
-   ===========================================================================================================================
-   Business:  JM1          
-   42999 - Other Income                         
-   03/01/16 - 03/31/16
-   ---------------------------------------------------------------------------------------------------------------------------
-   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
-   ---------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                03/01/16                                                                0.00
-   ---------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                03/31/16                                                                0.00
+   Closing Balance                                03/31/16                                                             7300.00
 
 
 
