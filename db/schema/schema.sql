@@ -527,7 +527,7 @@ CREATE TABLE journalmarkeraudit (
 -- ****           LEDGERS            ****
 -- ****                              ****
 -- **************************************
-CREATE TABLE ledger (
+CREATE TABLE ledgerentry (
     LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     JID BIGINT NOT NULL DEFAULT 0,                            -- journal entry giving rise to this

@@ -15,7 +15,7 @@ func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var l rlib.Ledger
+		var l rlib.LedgerEntry
 		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber,
 			&l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		rlib.DeleteLedgerEntry(l.LID)
@@ -29,7 +29,7 @@ func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	return err
 }
 
-// GenerateLedgerEntriesFromJournal creates all the ledger records necessary to describe the journal entry provided
+// GenerateLedgerEntriesFromJournal creates all the ledger entries necessary to describe the journal entry provided
 func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1, d2 *time.Time) {
 	// lm := GetLastLedgerMarker(xbiz.P.BID)
 	// if lm.DtStop.Equal(d1.AddDate(0, 0, -1)) {
@@ -42,7 +42,7 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 	for i := 0; i < len(j.JA); i++ {
 		m := rlib.ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
 		for k := 0; k < len(m); k++ {
-			var l rlib.Ledger
+			var l rlib.LedgerEntry
 			l.BID = xbiz.P.BID
 			l.JID = j.JID
 			l.JAID = j.JA[i].JAID
@@ -65,7 +65,7 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time
 	bal := lm.Balance
 	defer rows.Close()
 	for rows.Next() {
-		var l rlib.Ledger
+		var l rlib.LedgerEntry
 		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt,
 			&l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		bal += l.Amount

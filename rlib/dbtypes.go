@@ -111,7 +111,7 @@ const RRDATEINPFMT = "2006-01-02"
 // JAID = journal allocation id
 // JID = journal id
 // JMID = journal marker id
-// LID = ledger id
+// LID = ledger entry id
 // LMID = ledger marker id
 // OFSID = offset id
 // PID = payor id
@@ -471,8 +471,8 @@ type JournalMarker struct {
 	DtStop  time.Time
 }
 
-// Ledger is the structure for Ledger attributes
-type Ledger struct {
+// LedgerEntry is the structure for Ledger entry attributes
+type LedgerEntry struct {
 	LID         int64
 	BID         int64
 	JID         int64

@@ -112,7 +112,7 @@ func printLedgerHeader(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time
 }
 
 // returns the payment/accessment reason, rentable name
-func getLedgerEntryDescription(l *rlib.Ledger) (string, string, string) {
+func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 	j, _ := rlib.GetJournal(l.JID)
 	sra := fmt.Sprintf("%9d", j.RAID)
 	switch j.Type {
@@ -143,7 +143,7 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var l rlib.Ledger
+		var l rlib.LedgerEntry
 		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		bal += l.Amount
 		descr, rn, sra := getLedgerEntryDescription(&l)

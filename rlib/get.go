@@ -464,7 +464,6 @@ func GetAgreementTenants(raid int64, d1, d2 *time.Time) []AgreementTenant {
 // GetRentalAgreement returns the RentalAgreement struct for the supplied rental agreement id
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
-	// fmt.Printf("Ledger = %s\n", s)
 	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID,
 		&r.PrimaryTenant, &r.RentalStart, &r.RentalStop, &r.OccStart, &r.OccStop,
 		&r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)

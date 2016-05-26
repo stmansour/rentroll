@@ -128,15 +128,15 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER
 	//==========================================
-	RRdb.Prepstmt.GetAllLedgersInRange, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and ?<=Dt and Dt<?")
+	RRdb.Prepstmt.GetAllLedgersInRange, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledgerentry WHERE BID=? and ?<=Dt and Dt<?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledger WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
+	RRdb.Prepstmt.GetLedgerInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledgerentry WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedger, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy FROM ledger where LID=?")
+	RRdb.Prepstmt.GetLedger, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy FROM ledgerentry where LID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertLedger, err = RRdb.dbrr.Prepare("INSERT INTO ledger (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertLedger, err = RRdb.dbrr.Prepare("INSERT INTO ledgerentry (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.dbrr.Prepare("DELETE FROM ledger WHERE LID=?")
+	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.dbrr.Prepare("DELETE FROM ledgerentry WHERE LID=?")
 	Errcheck(err)
 
 	//==========================================

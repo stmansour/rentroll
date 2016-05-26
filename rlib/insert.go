@@ -51,7 +51,7 @@ func InsertLedgerMarker(l *LedgerMarker) error {
 }
 
 // InsertLedgerEntry writes a new journal entry to the database
-func InsertLedgerEntry(l *Ledger) (int64, error) {
+func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.BID, l.JID, l.JAID, l.GLNumber, l.Dt, l.Amount, l.Comment, l.LastModBy)
 	if nil == err {
