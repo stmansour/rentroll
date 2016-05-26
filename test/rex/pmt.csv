@@ -1,5 +1,5 @@
 Designation,Name,Description
-jm1,"Cash","Cash"
-jm1,"Check","Personal check from payor"
-jm1,"VISA","Credit card charge"
-jm1,"AMEX","American Express credit card"
+REX,"Cash","Cash"
+REX,"Check","Personal check from payor"
+REX,"VISA","Credit card charge"
+REX,"AMEX","American Express credit card"

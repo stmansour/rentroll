@@ -9,9 +9,6 @@ func buildPreparedStatements() {
 	// Prepare("update classes set Name=?,Designation=?,Description=?,lastmodby=? where ClassCode=?")
 	// Errcheck(err)
 
-	RRdb.Prepstmt.FindTransactantByPhoneOrEmail, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?")
-	Errcheck(err)
-
 	//===============================
 	//  Agreement Payor
 	//===============================
@@ -35,13 +32,13 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, Frequency, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments WHERE ASMID=?")
+	RRdb.Prepstmt.GetAssessment, err = RRdb.dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, Accrual, ProrationMethod, AcctRule,Comment, LastModTime, LastModBy from assessments WHERE ASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE BID=? and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Accrual,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE BID=? and Start<? and Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
+	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Accrual,ProrationMethod,AcctRule,Comment,LastModTime,LastModBy FROM assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertAssessment, err = RRdb.dbrr.Prepare("INSERT INTO assessments (ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertAssessment, err = RRdb.dbrr.Prepare("INSERT INTO assessments (ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Accrual,ProrationMethod,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 
 	//===============================
@@ -67,15 +64,15 @@ func buildPreparedStatements() {
 	//==========================================
 	// Business
 	//==========================================
-	RRdb.Prepstmt.GetAllBusinesses, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business")
+	RRdb.Prepstmt.GetAllBusinesses, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultAccrual,ParkingPermitInUse,LastModTime,LastModBy FROM business")
 	Errcheck(err)
-	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")
+	RRdb.Prepstmt.GetBusiness, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultAccrual,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetBusinessByDesignation, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE DES=?")
+	RRdb.Prepstmt.GetBusinessByDesignation, err = RRdb.dbrr.Prepare("SELECT BID,DES,Name,DefaultAccrual,ParkingPermitInUse,LastModTime,LastModBy FROM business WHERE DES=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM rentablespecialtytypes WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertBusiness, err = RRdb.dbrr.Prepare("INSERT INTO business (DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
+	RRdb.Prepstmt.InsertBusiness, err = RRdb.dbrr.Prepare("INSERT INTO business (DES,Name,DefaultAccrual,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
 	Errcheck(err)
 
 	//==========================================
@@ -145,27 +142,27 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER MARKER
 	//==========================================
-	// RRdb.Prepstmt.GetLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctTyp,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=?")
+	// RRdb.Prepstmt.GetLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctTyp,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=?")
 	// Errcheck(err)
-	RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? ORDER BY DtStop DESC")
+	RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? ORDER BY DtStop DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLatestLedgerMarkerByType, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type=? ORDER BY DtStop DESC")
+	RRdb.Prepstmt.GetLatestLedgerMarkerByType, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type=? ORDER BY DtStop DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? and DtStop>? and DtStart<? ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? and DtStop>? and DtStart<? ORDER BY GLNumber ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
+	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and DtStop>? and DtStart<=?")
+	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and DtStop>? and DtStart<=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerInitList, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and State=3 ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetLedgerMarkerInitList, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and State=3 ORDER BY GLNumber ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetDefaultLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,PID,GLNumber,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type>=10 ORDER BY DtStop DESC")
+	RRdb.Prepstmt.GetDefaultLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type>=10 ORDER BY DtStop DESC")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.dbrr.Prepare("DELETE FROM ledgermarker WHERE LMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertLedgerMarker, err = RRdb.dbrr.Prepare("INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertLedgerMarker, err = RRdb.dbrr.Prepare("INSERT INTO ledgermarker (BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateLedgerMarker, err = RRdb.dbrr.Prepare("UPDATE ledgermarker SET LMID=?,BID=?,PID=?,GLNumber=?,Status=?,State=?,DtStart=?,DtStop=?,Balance=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=? WHERE LMID=?")
+	RRdb.Prepstmt.UpdateLedgerMarker, err = RRdb.dbrr.Prepare("UPDATE ledgermarker SET LMID=?,BID=?,RAID=?,GLNumber=?,Status=?,State=?,DtStart=?,DtStop=?,Balance=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=? WHERE LMID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -182,12 +179,6 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertPayor, err = RRdb.dbrr.Prepare("INSERT INTO payor (TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 	RRdb.Prepstmt.GetPayor, err = RRdb.dbrr.Prepare("SELECT PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModTime,LastModBy FROM payor where PID=?")
-	Errcheck(err)
-
-	//==========================================
-	// PHONEBOOK
-	//==========================================
-	RRdb.PBsql.GetCompanyByDesignation, err = RRdb.dbdir.Prepare("SELECT CoCode,LegalName,CommonName,Address,Address2,City,State,PostalCode,Country,Phone,Fax,Email,Designation,Active,EmploysPersonnel,LastModTime,LastModBy FROM companies WHERE Designation=?")
 	Errcheck(err)
 
 	//==========================================
@@ -235,11 +226,11 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rental Agreement
 	//===============================
-	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where BID=?")
+	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,OccStart,OccStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement where BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreement (RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.dbrr.Prepare("INSERT INTO rentalagreement (RATID,BID,PrimaryTenant,RentalStart,RentalStop,OccStart,OccStop,Renewal,SpecialProvisions,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement WHERE RAID=?")
+	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.dbrr.Prepare("SELECT RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,OccStart,OccStop,Renewal,SpecialProvisions,LastModTime,LastModBy from rentalagreement WHERE RAID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentalAgreements, err = RRdb.dbrr.Prepare("SELECT RAID from rentalagreement WHERE BID=?")
 	Errcheck(err)
@@ -271,13 +262,13 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rentable Type
 	//===============================
-	RRdb.Prepstmt.GetRentableType, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE RTID=?")
+	RRdb.Prepstmt.GetRentableType, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Accrual,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableTypeByStyle, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE Style=? and BID=?")
+	RRdb.Prepstmt.GetRentableTypeByStyle, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Accrual,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE Style=? and BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE BID=?")
+	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.dbrr.Prepare("SELECT RTID,BID,Style,Name,Accrual,Proration,Report,ManageToBudget,LastModTime,LastModBy FROM rentabletypes WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertRentableType, err = RRdb.dbrr.Prepare("INSERT INTO rentabletypes (RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertRentableType, err = RRdb.dbrr.Prepare("INSERT INTO rentabletypes (RTID,BID,Style,Name,Accrual,Proration,Report,ManageToBudget,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 
 	//===============================
@@ -288,11 +279,13 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.dbrr.Prepare("INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetAgreementRentables, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables WHERE RID=? and ?<DtStop and ?>DtStart")
+	RRdb.Prepstmt.GetAgreementRentables, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables WHERE RID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAgreementPayors, err = RRdb.dbrr.Prepare("SELECT RAID,PID,DtStart,DtStop from agreementpayors WHERE RAID=? and ?<DtStop and ?>DtStart")
+	RRdb.Prepstmt.GetAgreementPayors, err = RRdb.dbrr.Prepare("SELECT RAID,PID,DtStart,DtStop from agreementpayors WHERE RAID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables WHERE RID=? and ?<DtStop and ?>DtStart")
+	RRdb.Prepstmt.GetAgreementTenants, err = RRdb.dbrr.Prepare("SELECT RAID,TID,DtStart,DtStop from agreementtenants WHERE RAID=? and ?<DtStop and ?>=DtStart")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.dbrr.Prepare("SELECT RAID,RID,DtStart,DtStop from agreementrentables WHERE RID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
 
 	//==========================================
@@ -306,13 +299,15 @@ func buildPreparedStatements() {
 	//==========================================
 	// TRANSACTANT
 	//==========================================
-	RRdb.Prepstmt.InsertTransactant, err = RRdb.dbrr.Prepare("INSERT INTO transactant (TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertTransactant, err = RRdb.dbrr.Prepare("INSERT INTO transactant (TID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateTransactant, err = RRdb.dbrr.Prepare("UPDATE transactant SET TID=?,PID=?,PRSPID=?,FirstName=?,MiddleName=?,LastName=?,PrimaryEmail=?,SecondaryEmail=?,WorkPhone=?,CellPhone=?,Address=?,Address2=?,City=?,State=?,PostalCode=?,Country=?,LastModBy=? WHERE TCID=?")
+	RRdb.Prepstmt.UpdateTransactant, err = RRdb.dbrr.Prepare("UPDATE transactant SET TID=?,PID=?,PRSPID=?,FirstName=?,MiddleName=?,LastName=?,CompanyName=?,IsCompany=?,PrimaryEmail=?,SecondaryEmail=?,WorkPhone=?,CellPhone=?,Address=?,Address2=?,City=?,State=?,PostalCode=?,Country=?,LastModBy=? WHERE TCID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetTransactant, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant WHERE TCID=?")
+	RRdb.Prepstmt.GetTransactant, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant WHERE TCID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllTransactants, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant")
+	RRdb.Prepstmt.GetAllTransactants, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant")
+	Errcheck(err)
+	RRdb.Prepstmt.FindTransactantByPhoneOrEmail, err = RRdb.dbrr.Prepare("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?")
 	Errcheck(err)
 
 }

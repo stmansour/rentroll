@@ -11,13 +11,13 @@ const ()
 
 // RunBooks runs a series of commands to handle command line run requests
 func RunBooks(ctx *DispatchCtx) {
-	s := "SELECT BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModTime,LastModBy from business"
+	s := "SELECT BID,DES,Name,DefaultAccrual,ParkingPermitInUse,LastModTime,LastModBy from business"
 	rows, err := App.dbrr.Query(s)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() { // For every business
 		var xbiz rlib.XBusiness
-		rlib.Errcheck(rows.Scan(&xbiz.P.BID, &xbiz.P.Designation, &xbiz.P.Name, &xbiz.P.DefaultOccupancyType, &xbiz.P.ParkingPermitInUse, &xbiz.P.LastModTime, &xbiz.P.LastModBy))
+		rlib.Errcheck(rows.Scan(&xbiz.P.BID, &xbiz.P.Designation, &xbiz.P.Name, &xbiz.P.DefaultAccrual, &xbiz.P.ParkingPermitInUse, &xbiz.P.LastModTime, &xbiz.P.LastModBy))
 		rlib.GetXBusiness(xbiz.P.BID, &xbiz) // get its info
 		rlib.InitBusinessFields(xbiz.P.BID)
 		rlib.GetDefaultLedgerMarkers(xbiz.P.BID) // Gather its chart of accounts
@@ -58,8 +58,7 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.FormValue("url")
 	if len(action) > 0 {
 		switch action {
-		case "TrialBalance":
-			fmt.Printf("TrialBalance: redirect to %s\n", url)
+		case "Ledger Balance":
 			http.Redirect(w, r, url, http.StatusFound)
 			return
 		default:

@@ -39,7 +39,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
 		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID,
-			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod,
+			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Accrual, &a.ProrationMethod,
 			&a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		t = append(t, a)
 	}
@@ -50,7 +50,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
 	err := RRdb.Prepstmt.GetAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
-		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Frequency,
+		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Accrual,
 		&a.ProrationMethod, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
 		Ulog("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
@@ -131,7 +131,7 @@ func GetAllCustomAttributes(elemid, id int64) ([]CustomAttribute, error) {
 
 // GetTransactant reads a Transactant structure based on the supplied transactant id
 func GetTransactant(tid int64, t *Transactant) {
-	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tid).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tid).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy))
 }
 
 // GetProspect reads a Prospect structure based on the supplied transactant id
@@ -170,6 +170,14 @@ func GetXPersonByPID(pid int64) XPerson {
 	var xp XPerson
 	GetPayor(pid, &xp.Pay)
 	GetXPerson(xp.Pay.TCID, &xp)
+	return xp
+}
+
+// GetXPersonByTID will load a full XPerson given the TID
+func GetXPersonByTID(tid int64) XPerson {
+	var xp XPerson
+	GetTenant(tid, &xp.Tnt)
+	GetXPerson(xp.Tnt.TCID, &xp)
 	return xp
 }
 
@@ -235,7 +243,7 @@ func GetSpecialtyByName(bid int64, name string) RentableSpecialty {
 
 // GetRentableType returns characteristics of the rentable
 func GetRentableType(rtid int64, rt *RentableType) error {
-	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Frequency,
+	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Accrual,
 		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	if nil == err {
 		var cerr error
@@ -250,7 +258,7 @@ func GetRentableType(rtid int64, rt *RentableType) error {
 // GetRentableTypeByStyle returns characteristics of the rentable
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Frequency, &rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Accrual, &rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	return rt, err
 }
 
@@ -331,7 +339,7 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.Frequency, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.Accrual, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
 		a.MR = make([]RentableMarketRate, 0)
 		GetRentableMarketRates(&a)
 		t[a.RTID] = a
@@ -358,14 +366,14 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 // GetBusiness loads the Business struct for the supplied business id
 func GetBusiness(bid int64, p *Business) {
 	Errcheck(RRdb.Prepstmt.GetBusiness.QueryRow(bid).Scan(&p.BID, &p.Designation,
-		&p.Name, &p.DefaultOccupancyType, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+		&p.Name, &p.DefaultAccrual, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
 }
 
 // GetBusinessByDesignation loads the Business struct for the supplied designation
 func GetBusinessByDesignation(des string) (Business, error) {
 	var p Business
 	err := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des).Scan(&p.BID, &p.Designation,
-		&p.Name, &p.DefaultOccupancyType, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy)
+		&p.Name, &p.DefaultAccrual, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy)
 	return p, err
 }
 
@@ -433,6 +441,22 @@ func GetAgreementPayors(raid int64, d1, d2 *time.Time) []AgreementPayor {
 	return t
 }
 
+// GetAgreementTenants returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
+// during the time range d1-d2
+func GetAgreementTenants(raid int64, d1, d2 *time.Time) []AgreementTenant {
+	rows, err := RRdb.Prepstmt.GetAgreementTenants.Query(raid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	var t []AgreementTenant
+	// t = make([]AgreementTenant, 0)
+	for rows.Next() {
+		var r AgreementTenant
+		Errcheck(rows.Scan(&r.RAID, &r.TID, &r.DtStart, &r.DtStop))
+		t = append(t, r)
+	}
+	return t
+}
+
 //=======================================================
 //  R E N T A L   A G R E E M E N T
 //=======================================================
@@ -442,8 +466,8 @@ func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
 	// fmt.Printf("Ledger = %s\n", s)
 	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID,
-		&r.PrimaryTenant, &r.RentalStart,
-		&r.RentalStop, &r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
+		&r.PrimaryTenant, &r.RentalStart, &r.RentalStop, &r.OccStart, &r.OccStop,
+		&r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
 	if nil != err && !IsSQLNoResultsError(err) {
 		fmt.Printf("GetRentalAgreement: could not get rental agreement with raid = %d,  err = %v\n", raid, err)
 	}
@@ -454,6 +478,7 @@ func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 // time period specified
 func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
 	r, err := GetRentalAgreement(raid)
+
 	t := GetAgreementRentables(raid, d1, d2)
 	r.R = make([]XRentable, 0)
 	for i := 0; i < len(t); i++ {
@@ -467,6 +492,13 @@ func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error)
 	for i := 0; i < len(m); i++ {
 		xp := GetXPersonByPID(m[i].PID)
 		r.P = append(r.P, xp)
+	}
+
+	n := GetAgreementTenants(raid, d1, d2)
+	r.T = make([]XPerson, 0)
+	for i := 0; i < len(n); i++ {
+		xp := GetXPersonByTID(n[i].TID)
+		r.T = append(r.T, xp)
 	}
 	return r, err
 }
@@ -605,7 +637,7 @@ func GetDefaultLedgerMarkers(bid int64) {
 	defer rows.Close()
 	for rows.Next() {
 		var r LedgerMarker
-		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
+		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.RAID, &r.GLNumber, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
 	}
 }
@@ -620,7 +652,7 @@ func GetLedgerMarkerInitList(bid int64) []LedgerMarker {
 	t = make([]LedgerMarker, 0)
 	for rows.Next() {
 		var r LedgerMarker
-		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
+		Errcheck(rows.Scan(&r.LMID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
 		t = append(t, r)
 	}
 	return t
@@ -630,7 +662,7 @@ func GetLedgerMarkerInitList(bid int64) []LedgerMarker {
 func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) (LedgerMarker, error) {
 	var r LedgerMarker
 	// fmt.Printf("Ledger = %s\n", s)
-	err := RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange.QueryRow(bid, s, d1, d2).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+	err := RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange.QueryRow(bid, s, d1, d2).Scan(&r.LMID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
 	// if nil != err {
 	// 	fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not find ledgermarker for GLNumber \"%s\".\n", s)
 	// 	fmt.Printf("err = %v\n", err)
@@ -642,7 +674,7 @@ func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) (Led
 func GetLatestLedgerMarkerByGLNo(bid int64, s string) (LedgerMarker, error) {
 	var r LedgerMarker
 	// fmt.Printf("Ledger = %s\n", s)
-	err := RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+	err := RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo.QueryRow(bid, s).Scan(&r.LMID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
 	if nil != err {
 		if !IsSQLNoResultsError(err) {
 			Ulog("GetLatestLedgerMarkerByGLNo: err = %v\n", err)
@@ -654,7 +686,7 @@ func GetLatestLedgerMarkerByGLNo(bid int64, s string) (LedgerMarker, error) {
 // GetLatestLedgerMarkerByType returns the LedgerMarker struct for the GLNo with the supplied type
 func GetLatestLedgerMarkerByType(bid int64, t int64) (LedgerMarker, error) {
 	var r LedgerMarker
-	err := RRdb.Prepstmt.GetLatestLedgerMarkerByType.QueryRow(bid, t).Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+	err := RRdb.Prepstmt.GetLatestLedgerMarkerByType.QueryRow(bid, t).Scan(&r.LMID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
 	if nil != err {
 		if !IsSQLNoResultsError(err) {
 			Ulog("GetLatestLedgerMarkerByType: err = %v\n", err)

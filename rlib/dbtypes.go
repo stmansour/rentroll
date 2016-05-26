@@ -45,15 +45,15 @@ const (
 	DFLTOWNREQUITY = 17
 	DFLTLAST       = 17 // set this to the last default account index
 
-	OCCTYPEUNSET     = 0
-	OCCTYPESECONDLY  = 1
-	OCCTYPEMINUTELY  = 2
-	OCCTYPEHOURLY    = 3
-	OCCTYPEDAILY     = 4
-	OCCTYPEWEEKLY    = 5
-	OCCTYPEMONTHLY   = 6
-	OCCTYPEQUARTERLY = 7
-	OCCTYPEYEARLY    = 8
+	ACCRUALUNSET     = 0
+	ACCRUALSECONDLY  = 1
+	ACCRUALMINUTELY  = 2
+	ACCRUALHOURLY    = 3
+	ACCRUALDAILY     = 4
+	ACCRUALWEEKLY    = 5
+	ACCRUALMONTHLY   = 6
+	ACCRUALQUARTERLY = 7
+	ACCRUALYEARLY    = 8
 
 	RENTABLESTATEONLINE   = 0
 	RENTABLESTATEADMIN    = 1
@@ -93,6 +93,9 @@ const RRDATEFMT = "01/02/06"
 
 // RRDATEFMT2 is the default date format that excel outputs.  Use this for csv imports
 const RRDATEFMT2 = "1/2/06"
+
+// RRDATEFMT3 is another date format that excel outputs.  Use this for csv imports
+const RRDATEFMT3 = "1/2/2006"
 
 // RRDATEINPFMT is the shorthand for database-style dates
 const RRDATEINPFMT = "2006-01-02"
@@ -161,12 +164,15 @@ type RentalAgreement struct {
 	PrimaryTenant     int64       // Tenant ID of primary tenant
 	RentalStart       time.Time   // start date for rental
 	RentalStop        time.Time   // stop date for rental
+	OccStart          time.Time   // start date for Occupancy
+	OccStop           time.Time   // stop date for Occupancy
 	Renewal           int64       // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 	SpecialProvisions string      // free-form text
 	LastModTime       time.Time   //	-- when was this record last written
 	LastModBy         int64       // employee UID (from phonebook) that modified it
-	R                 []XRentable // everything about the rentable
-	P                 []XPerson   // everything about the payor
+	R                 []XRentable // all the rentables
+	P                 []XPerson   // all the payors
+	T                 []XPerson   // all the tenants
 }
 
 // AgreementRentable describes a rentable associated with a rental agreement
@@ -203,6 +209,8 @@ type Transactant struct {
 	FirstName      string
 	MiddleName     string
 	LastName       string
+	CompanyName    string // sometimes the entity will be a company
+	IsCompany      int    // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail   string
 	SecondaryEmail string
 	WorkPhone      string
@@ -299,7 +307,7 @@ type Assessment struct {
 	Amount          float64   // how much
 	Start           time.Time // start time
 	Stop            time.Time // stop time, may be the same as start time or later
-	Frequency       int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	Accrual         int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	ProrationMethod int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	AcctRule        string    // expression showing how to account for the amount
 	Comment         string
@@ -309,13 +317,13 @@ type Assessment struct {
 
 // Business is the set of attributes describing a rental or hotel business
 type Business struct {
-	BID                  int64
-	Designation          string // reference to designation in Phonebook db
-	Name                 string
-	DefaultOccupancyType int64     // may not be default for every rentable: 0=unset, 1=short term, 2=longterm
-	ParkingPermitInUse   int64     // yes/no  0 = no, 1 = yes
-	LastModTime          time.Time // when was this record last written
-	LastModBy            int64     // employee UID (from phonebook) that modified it
+	BID                int64
+	Designation        string // reference to designation in Phonebook db
+	Name               string
+	DefaultAccrual     int64     // may not be default for every rentable: 0=unset, 1=short term, 2=longterm
+	ParkingPermitInUse int64     // yes/no  0 = no, 1 = yes
+	LastModTime        time.Time // when was this record last written
+	LastModBy          int64     // employee UID (from phonebook) that modified it
 }
 
 // Building defines the location of a building that is part of a business
@@ -395,7 +403,7 @@ type RentableType struct {
 	BID            int64
 	Style          string
 	Name           string
-	Frequency      int64
+	Accrual        int64
 	Proration      int64
 	Report         int64 // does this type of rentable show up in reporting
 	ManageToBudget int64
@@ -482,14 +490,14 @@ type Ledger struct {
 type LedgerMarker struct {
 	LMID         int64
 	BID          int64
-	PID          int64  // only valid if Type == 1
+	RAID         int64  // only valid if Type == 1
 	GLNumber     string // acct system name
 	Status       int64  // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	State        int64  // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
 	DtStart      time.Time
 	DtStop       time.Time
 	Balance      float64
-	Type         int64     // flag: 0 = not a default account, 1 = Payor Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC
+	Type         int64     // flag: 0 = not a default account, 1 = Rental Agreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name         string    // descriptive name for the ledger
 	AcctType     string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	RAAssociated int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
@@ -510,6 +518,7 @@ type RRprepSQL struct {
 	FindAgreementByRentable            *sql.Stmt
 	GetAgreementPayors                 *sql.Stmt
 	GetAgreementRentables              *sql.Stmt
+	GetAgreementTenants                *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
 	GetAllAssessmentsByBusiness        *sql.Stmt
 	GetAllBusinessRentableTypes        *sql.Stmt
@@ -604,7 +613,9 @@ type RRprepSQL struct {
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
 type PBprepSQL struct {
-	GetCompanyByDesignation *sql.Stmt
+	GetCompanyByDesignation      *sql.Stmt
+	GetCompany                   *sql.Stmt
+	GetBusinessUnitByDesignation *sql.Stmt
 }
 
 // BusinessTypes is a struct holding a collection of Types associated
@@ -612,7 +623,7 @@ type BusinessTypes struct {
 	BID          int64
 	AsmtTypes    map[int64]*AssessmentType
 	PmtTypes     map[int64]*PaymentType
-	DefaultAccts map[int64]*LedgerMarker // index by DFAC..., value = GL No of that account
+	DefaultAccts map[int64]*LedgerMarker // index by the predifined contants DFAC*, value = GL No of that account
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure
@@ -630,6 +641,7 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.dbrr = dbrr
 	RRdb.BizTypes = make(map[int64]*BusinessTypes, 0)
 	buildPreparedStatements()
+	buildPBPreparedStatements()
 }
 
 // InitBusinessFields initialize the lists in rlib's internal data structures

@@ -1,5 +1,5 @@
-Type,Name,Value
-1,"Square Feet","1215"
-1,"Square Feet","1239"
-1,"Square Feet","1638"
-1,"Square Feet","827"
+Name,ValueType,Value
+"Square Feet",1,"1215"
+"Square Feet",1,"1239"
+"Square Feet",1,"1638"
+"Square Feet",1,"827"

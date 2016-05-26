@@ -5,7 +5,7 @@ import "time"
 // GetRecurrences is a shorthand for assessment variables to get a list
 // of dates on which charges must be assessed for a particular interval of time (d1 - d2)
 func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
-	return GetRecurrences(d1, d2, &a.Start, &a.Stop, a.Frequency)
+	return GetRecurrences(d1, d2, &a.Start, &a.Stop, a.Accrual)
 }
 
 // DateInRange returns true if dt is >= start AND db < stop, otherwise it returns false
@@ -126,7 +126,7 @@ func genYearlyRecurSeq(d, start, stop *time.Time, n int64) []time.Time {
 // GetRecurrences returns a list of instance dates where an event time (aStart - aStop)
 // overlaps with an interval time (start - stop).  The recurrence frequency
 // maps to those that can happen for an assessment.
-func GetRecurrences(start, stop, aStart, aStop *time.Time, aFrequency int64) []time.Time {
+func GetRecurrences(start, stop, aStart, aStop *time.Time, aAccrual int64) []time.Time {
 	var m []time.Time
 
 	//-------------------------------------------
@@ -139,7 +139,7 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, aFrequency int64) []t
 	//-------------------------------------------
 	// next, ensure that the assessment falls in the time range...
 	//-------------------------------------------
-	if aFrequency > RECURNONE &&
+	if aAccrual > RECURNONE &&
 		(aStop.Equal(*start) || aStop.Before(*start) ||
 			aStart.After(*stop) || aStart.Equal(*stop)) {
 		return m
@@ -149,7 +149,7 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, aFrequency int64) []t
 	// first insure that the data is not bad...
 	//-------------------------------------------
 
-	switch aFrequency {
+	switch aAccrual {
 	case RECURNONE: // no recurrence
 		// if dateRangeOverlap(aStart, aStop, start, stop) {
 		if DateInRange(aStart, start, stop) {

@@ -4,18 +4,20 @@
 <link href="/html/rentroll.css" rel="stylesheet"  type="text/css">
 <!-- <link rel="icon" type="image/png" href="/images/favicon32x32.png"> -->
 
-<title>Accord RentRoll - Request Trial Balance</title>
+<title>Accord RentRoll - Ledger Balance</title>
 </head>
 <body>
-<H1>Trial Balance</H1>
+<H1>Ledger Balance</H1>
 
 
 <form action="/trialbalance/" method="POST">
 <table border="0">
-<tr><td>Business Unit</td><td><input type="text" name="Business" value="JM1"></td></tr>
-<tr><td>Start Date</td><td><input type=date name="DtStart" size="10"></td></tr>
-<tr><td>Stop Date</td><td><input type=date name="DtStop" size="10"></td></tr>
-<tr><td colspan="2"><input type="submit" name="action" value="Run Trial Balance"></td></tr>
+<tr>
+	<td>Business Unit</td><td><input type="text" name="Business" value="JM1"></td>
+	<td>Start Date</td><td><input type=date name="DtStart" size="10"></td>
+	<td>Stop Date</td><td><input type=date name="DtStop" size="10"></td>
+</tr>
+<tr><td colspan="6"><input type="submit" name="action" value="Ledger Ending Balance"></td></tr>
 </table>
 </form>
 

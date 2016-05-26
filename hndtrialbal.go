@@ -38,11 +38,11 @@ func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
 	D2 := r.FormValue("DtStop")
 	des := r.FormValue("Business")
 
-	ui.L.DtStart, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(D1))
+	ui.DtStart, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(D1))
 	if err != nil {
 		fmt.Printf("%s: Invalid start date:  %s\n", funcname, D1)
 	}
-	ui.L.DtStop, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(D2))
+	ui.DtStop, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(D2))
 	if err != nil {
 		fmt.Printf("%s: Invalid start date:  %s\n", funcname, D2)
 	}
@@ -56,13 +56,13 @@ func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
 		ui.L.biz = &b1
 	}
 
-	rows, err := rlib.RRdb.Prepstmt.GetAllLedgerMarkersInRange.Query(ui.L.biz.BID, ui.L.DtStart, ui.L.DtStop)
+	rows, err := rlib.RRdb.Prepstmt.GetAllLedgerMarkersInRange.Query(ui.L.biz.BID, ui.DtStart, ui.DtStop)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	ui.L.LM = make([]rlib.LedgerMarker, 0)
 	for rows.Next() {
 		var r rlib.LedgerMarker
-		rlib.Errcheck(rows.Scan(&r.LMID, &r.BID, &r.PID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
+		rlib.Errcheck(rows.Scan(&r.LMID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
 		ui.L.LM = append(ui.L.LM, r)
 	}
 

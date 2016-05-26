@@ -9,21 +9,19 @@ import (
 // RentableSpecialty is the structure for attributes of a rentable specialty
 
 // CSV file format:
-//   0           1     2         3      4       5      7   8
+//   0           1     2         3      4       5      6   7
 // Designation,Style,Name,Assignment,Report,DefaultOcc,Occ,State
-//	REH,1,GM, "101",1,1,2,2
-//	REH,1,FS, "102",1,1,2,2
-//	REH,1,SBL,"103",1,1,2,2
-//	REH,1,KDS,"104",1,1,2,2
-//	REH,1,GM, "105",1,1,2,2
-//	REH,1,FS, "106",1,1,2,2
-//	REH,1,SBL,"107",1,1,2,2
+// REX,        GM,   101,    1,       1,      2,       2,    0
+// REX,        FS,   102,    1,       1,      2,       2,    0
+// REX,        SBL,  103,    1,       1,      2,       2,    0
+// REX,        KDS,  104,    1,       1,      2,       2,    0
+// REX,        GM,   105,    1,       1,      2,       2,    0
+// REX,        FS,   106,    1,       1,      2,       2,    0
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreateRentables(sa []string) {
 	var err error
 	var r Rentable
-	var rt RentableType
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
@@ -42,24 +40,9 @@ func CreateRentables(sa []string) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the RentableType is in the database
-	//-------------------------------------------------------------------
-	if len(sa[1]) > 0 {
-		i, err := strconv.Atoi(strings.TrimSpace(sa[1]))
-		if err != nil {
-			fmt.Printf("Could not find RentableType %s\n", sa[1])
-		}
-		err = GetRentableType(int64(i), &rt)
-		if err != nil {
-			Ulog("CreateRentables: could not load rentable type %s, err = %s\n", sa[1], err.Error())
-			return
-		}
-	}
-
-	//-------------------------------------------------------------------
 	// Set the rentable type
 	//-------------------------------------------------------------------
-	style := strings.TrimSpace(sa[2])
+	style := strings.TrimSpace(sa[1])
 	if len(style) > 0 {
 		rs, _ := GetRentableTypeByStyle(style, r.BID)
 		if rs.RTID == 0 {
@@ -73,7 +56,7 @@ func CreateRentables(sa []string) {
 	// The name must be unique. Make sure we don't have any other rentable
 	// with this name...
 	//-------------------------------------------------------------------
-	r.Name = strings.TrimSpace(sa[3])
+	r.Name = strings.TrimSpace(sa[2])
 	r1, err := GetRentableByName(r.Name, r.BID)
 	if err != nil {
 		s := err.Error()
@@ -91,10 +74,10 @@ func CreateRentables(sa []string) {
 	// parse out the Assignment value
 	// Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
 	//-------------------------------------------------------------------
-	if len(sa[4]) > 0 {
-		i, err := strconv.Atoi(sa[4])
+	if len(sa[3]) > 0 {
+		i, err := strconv.Atoi(sa[3])
 		if err != nil || i < 0 || i > 2 {
-			fmt.Printf("CreateRentables: invalid Assignment number: %s\n", sa[4])
+			fmt.Printf("CreateRentables: invalid Assignment number: %s\n", sa[3])
 			return
 		}
 		r.Assignment = int64(i)
@@ -104,10 +87,10 @@ func CreateRentables(sa []string) {
 	// parse out the Report value
 	// 1 = apply to rentroll, 0 = skip on rentroll
 	//-------------------------------------------------------------------
-	if len(sa[5]) > 0 {
-		i, err := strconv.Atoi(sa[5])
+	if len(sa[4]) > 0 {
+		i, err := strconv.Atoi(sa[4])
 		if err != nil || i < 0 || i > 1 {
-			fmt.Printf("CreateRentables: invalid Report number: %s\n", sa[5])
+			fmt.Printf("CreateRentables: invalid Report number: %s\n", sa[4])
 			return
 		}
 		r.Report = int64(i)
@@ -115,12 +98,12 @@ func CreateRentables(sa []string) {
 
 	//-------------------------------------------------------------------
 	// parse out the DefaultOccupancy value
-	// 0 =unset, 1 = short term, 2=longterm
+	//   any accrual frequency is valid
 	//-------------------------------------------------------------------
-	if len(sa[6]) > 0 {
-		i, err := strconv.Atoi(sa[6])
-		if err != nil || i < 0 || i > 2 {
-			fmt.Printf("CreateRentables: invalid DefaultOccupancy value: %s\n", sa[6])
+	if len(sa[5]) > 0 {
+		i, err := strconv.Atoi(sa[5])
+		if err != nil || !IsValidAccrual(int64(i)) {
+			fmt.Printf("CreateRentables: invalid DefaultOccupancy value: %s\n", sa[5])
 			return
 		}
 		r.DefaultOccType = int64(i)
@@ -128,12 +111,12 @@ func CreateRentables(sa []string) {
 
 	//-------------------------------------------------------------------
 	// parse out the Occupancy value
-	// 0 =unset, 1 = short term, 2=longterm
+	// any accrual frequency is valid
 	//-------------------------------------------------------------------
-	if len(sa[7]) > 0 {
-		i, err := strconv.Atoi(sa[7])
-		if err != nil || i < 0 || i > 2 {
-			fmt.Printf("CreateRentables: invalid Occupancy value: %s\n", sa[7])
+	if len(sa[6]) > 0 {
+		i, err := strconv.Atoi(sa[6])
+		if err != nil || !IsValidAccrual(int64(i)) {
+			fmt.Printf("CreateRentables: invalid Occupancy value: %s\n", sa[6])
 			return
 		}
 		r.OccType = int64(i)
@@ -143,10 +126,10 @@ func CreateRentables(sa []string) {
 	// parse out the State value
 	// 0 = normal, 1 = online, 2 = administrative unit, 3 = owner occupied, 4 = offline
 	//-------------------------------------------------------------------
-	if len(sa[8]) > 0 {
-		i, err := strconv.Atoi(sa[8])
+	if len(sa[7]) > 0 {
+		i, err := strconv.Atoi(sa[7])
 		if err != nil || i < RENTABLESTATEONLINE || i > RENTABLESTATELAST {
-			fmt.Printf("CreateRentables: invalid State value: %s\n", sa[8])
+			fmt.Printf("CreateRentables: invalid State value: %s\n", sa[7])
 			return
 		}
 		r.State = int64(i)

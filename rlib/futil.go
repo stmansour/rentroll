@@ -31,6 +31,11 @@ func yesnoToInt(si string) (int64, error) {
 	}
 }
 
+// IsValidAccrual returns true if a is a valid accrual value, false otherwise
+func IsValidAccrual(a int64) bool {
+	return !(a < 0 || a > ACCRUALYEARLY)
+}
+
 // IsSQLNoResultsError returns true if the error provided is a sql err indicating no rows in the solution set.
 func IsSQLNoResultsError(err error) bool {
 	s := fmt.Sprintf("%v", err)

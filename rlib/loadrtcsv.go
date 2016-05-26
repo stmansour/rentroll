@@ -24,7 +24,7 @@ func GetBusinessBID(des string) int64 {
 //                                                                            Repeat as many 3-tuples as needed
 //                                                                                /----------^-------------\
 //  [0]        [1]      [2]   			[3]       [4]       [5]    [6]            7          8       9
-// Designation,Style,	Name, 			Frequency,Proration,Report,ManageToBudget,MarketRate,DtStart,DtStop
+// Designation,Style,	Name, 			Accrual,  Proration,Report,ManageToBudget,MarketRate,DtStart,DtStop
 // REH,        "GM",	"Geezer Miser", 6,		  4,	 	1,		1,			  1100.00
 // REH,        "FS",	"Flat Studio",  6,		  4,	 	1,		1,			  1500.00
 // REH,        "SBL",	"SB Loft",     	6,		  4,	 	1,		1,			  1750.00
@@ -70,20 +70,20 @@ func CreateRentableType(sa []string) {
 	// Load the values based on csv input
 	//-------------------------------------------------------------------
 	n, err := strconv.Atoi(strings.TrimSpace(sa[3])) // frequency
-	if err != nil || n < OCCTYPEUNSET || n > OCCTYPEYEARLY {
+	if err != nil || !IsValidAccrual(int64(n)) {
 		Ulog("CreateRentableType: Invalid rental frequency: %s\n", sa[3])
 		return
 	}
-	a.Frequency = int64(n)
+	a.Accrual = int64(n)
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[4])) // Proration
-	if err != nil || n < OCCTYPEUNSET || n > OCCTYPEYEARLY {
+	if err != nil || !IsValidAccrual(int64(n)) {
 		Ulog("CreateRentableType: Invalid rental proration frequency: %s\n", sa[4])
 		return
 	}
 	a.Proration = int64(n)
-	if a.Proration > a.Frequency {
-		Ulog("CreateRentableType: Proration frequency (%d) must be greater than rental frequency (%d)\n", a.Proration, a.Frequency)
+	if a.Proration > a.Accrual {
+		Ulog("CreateRentableType: Proration frequency (%d) must be greater than rental frequency (%d)\n", a.Proration, a.Accrual)
 		return
 	}
 

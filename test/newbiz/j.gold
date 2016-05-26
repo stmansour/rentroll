@@ -1,4 +1,4 @@
-ASMID	BID	RID	ASMTID	RAID	Amount	Start	Stop	Frequency	ProrationMethod	AcctRule	Comment	LastModBy
+ASMID	BID	RID	ASMTID	RAID	Amount	Start	Stop	Accrual	ProrationMethod	AcctRule	Comment	LastModBy
 1	1	1	1	1	1000.0000	2014-07-01 00:00:00	2015-11-08 00:00:00	6	4	d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -		0
 2	1	1	1	8	1200.0000	2015-11-21 00:00:00	2016-11-21 00:00:00	6	4	d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -		0
 3	1	1	59	1	50.0000	2014-07-01 00:00:00	2015-11-08 00:00:00	6	4	d ${DFLTGENRCV} _, c ${DFLTGSRENT} _		0

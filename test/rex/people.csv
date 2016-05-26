@@ -1,6 +1,6 @@
-FirstName, MiddleName, LastName, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, ElibigleForFutureOccupancy, Industry, Source, InvoicingCustomerNumber, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerZipcode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
-Aaron,,Read,aaron@rexford.com,,,123-456-7890,309 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Kirsten,,Read,kirsten@rexford.com,,,123-456-7891,309 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Rita,,Costea,rita@rexford.com,,,123-456-7892,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Daniel,,Costea,daniel@rexford.com,,,123-456-7893,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Gagik,,Haroutunian,gagik@rexford.com,,,123-456-7894,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+FirstName, MiddleName, LastName, Company Name, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, ElibigleForFutureOccupancy, Industry, Source, InvoicingCustomerNumber, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerZipcode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
+Aaron,,Read,Mystery Co,0,aaron@rexford.com,,,123-456-7890,309 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Kirsten,,Read,Chapel Hill Golf,0,kirsten@rexford.com,,,123-456-7891,309 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Rita,,Costea,,0,rita@rexford.com,,,123-456-7892,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Daniel,,Costea,,0,daniel@rexford.com,,,123-456-7893,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Gagik,,Haroutunian,,0,gagik@rexford.com,,,123-456-7894,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

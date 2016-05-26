@@ -1,6 +1,6 @@
 Designation,BldgNo,Address,Address2,City,State,PostalCode,Country
-REH,1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA"
-REH,7,"2002 Creaking Oak Drive","","Springfield","MO","65803","USA"
-REH,2,"3333 Creaking Oak Drive","","Springfield","MO","65803","USA"
+REX,1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA"
+REX,7,"2002 Creaking Oak Drive","","Springfield","MO","65803","USA"
+REX,2,"3333 Creaking Oak Drive","","Springfield","MO","65803","USA"
 BUG,1,"1","","1","1","1","1"
-REH,qe,"1","","1","1","1","1"
+REX,qe,"1","","1","1","1","1"

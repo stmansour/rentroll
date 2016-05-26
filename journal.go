@@ -86,9 +86,12 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
+	// fmt.Printf("Calling ParseAcctRule: rid=%d, d1=%s, d2=%s, a.Amount=%8.2f, pf=%f, a.AcctRule=%s\n",
+	//	rid, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT), a.Amount, pf, a.AcctRule)
 	m := rlib.ParseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
+	// fmt.Printf("j.Amount = %8.2f\n", j.Amount)
 
 	//-------------------------------------------------------------------------------------------
 	// In the event that we need to prorate, pull together the pieces and determine the
@@ -200,12 +203,12 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		var a rlib.Assessment
 		ap := &a
 		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
-			&a.Start, &a.Stop, &a.Frequency, &a.ProrationMethod, &a.AcctRule, &a.Comment,
+			&a.Start, &a.Stop, &a.Accrual, &a.ProrationMethod, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		// fmt.Printf("Assessment: ASMID = %d, Amount = %8.2f\n", a.ASMID, a.Amount)
-		if a.Frequency >= rlib.RECURSECONDLY && a.Frequency <= rlib.RECURHOURLY {
+		if a.Accrual >= rlib.RECURSECONDLY && a.Accrual <= rlib.RECURHOURLY {
 			// TBD
-			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Frequency)
+			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.Accrual)
 		} else {
 			dl := ap.GetRecurrences(d1, d2)
 			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))

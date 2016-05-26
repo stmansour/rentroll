@@ -40,6 +40,9 @@ func StringToDate(s string) (time.Time, error) {
 		Dt, err = time.Parse(RRDATEFMT2, s) // try excel default version
 		if err != nil {
 			Dt, err = time.Parse(RRDATEFMT, s) // try 0 filled version
+			if nil != err {
+				Dt, err = time.Parse(RRDATEFMT3, s) // try 4 digit year version
+			}
 		}
 	}
 	return Dt, err

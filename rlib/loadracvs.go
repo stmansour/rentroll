@@ -14,6 +14,32 @@ import (
 // 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2017-07-04",1,"",107
 // 		"RAT001","REH","homerj@springfield.com","866-123-4567","2015-11-21","2016-11-21",1,"",101,102
 
+// BuildPeopleList takes a semi-colon separated list of email addresses and phone numbers
+// and returns an array of transactant records for each.  If any of the addresses in the list
+// cannot be resolved to a transactant, then processing stops immediately and an error is returned.
+func BuildPeopleList(s string) ([]Transactant, error) {
+	var m []Transactant
+	var noerr error
+	s2 := strings.TrimSpace(s) // either the email address or the phone number
+	s1 := strings.Split(s2, ";")
+	for i := 0; i < len(s1); i++ {
+		s = strings.TrimSpace(s1[i]) // either the email address or the phone number
+		t, err := GetTransactantByPhoneOrEmail(s)
+		if err != nil && !IsSQLNoResultsError(err) {
+			rerr := fmt.Errorf("CreateRentalAgreement: error retrieving transactant by phone or email: %v", err)
+			Ulog("%s", rerr.Error())
+			return m, rerr
+		}
+		if t.PID == 0 {
+			rerr := fmt.Errorf("CreateRentalAgreement: could not find transactant with contact information %s\n", s)
+			Ulog("%s", rerr.Error())
+			return m, rerr
+		}
+		m = append(m, t)
+	}
+	return m, noerr
+}
+
 // CreateRentalAgreement creates database records for the rental agreement defined in sa[]
 func CreateRentalAgreement(sa []string) {
 	var ra RentalAgreement
@@ -53,34 +79,24 @@ func CreateRentalAgreement(sa []string) {
 	//-------------------------------------------------------------------
 	//  Determine the primary tenant
 	//-------------------------------------------------------------------
-	s := strings.TrimSpace(sa[2])
-	t, err := GetTransactantByPhoneOrEmail(s)
-	if err != nil && !IsSQLNoResultsError(err) {
-		Ulog("CreateRentalAgreement: error retrieving tenant by phone or email: %v\n", err)
+	tenants, err := BuildPeopleList(sa[2])
+	if err != nil { // save the full list
 		return
 	}
-	if t.TID == 0 {
-		fmt.Printf("CreateRentalAgreement: could not find tenant with contact information %s\n", s)
-		return
+	if len(tenants) > 0 {
+		ra.PrimaryTenant = tenants[0].TID // store the primary tenant now, we'll update the agreement tenants later
 	}
-	ra.PrimaryTenant = t.TID
 
 	//-------------------------------------------------------------------
 	//  Determine the payor
 	//-------------------------------------------------------------------
-	s2 := strings.TrimSpace(sa[3]) // either the email address or the phone number
-	s1 := strings.Split(s2, ";")
-	s = strings.TrimSpace(s1[0]) // either the email address or the phone number
-	t, err = GetTransactantByPhoneOrEmail(s)
-	if err != nil && !IsSQLNoResultsError(err) {
-		Ulog("CreateRentalAgreement: error retrieving payor by phone or email: %v\n", err)
+	payors, err := BuildPeopleList(sa[3])
+	if err != nil { // save the full list
 		return
 	}
-	if t.PID == 0 {
-		fmt.Printf("CreateRentalAgreement: could not find payor with contact information %s\n", s)
-		return
+	if len(payors) > 0 {
+		payor.PID = payors[0].PID // store the primary payor now, we'll update the agreement payors later
 	}
-	payor.PID = t.PID
 
 	//-------------------------------------------------------------------
 	// Get the dates
@@ -99,7 +115,7 @@ func CreateRentalAgreement(sa []string) {
 	}
 	ra.RentalStop = DtStop
 
-	s = strings.TrimSpace(sa[6])
+	s := strings.TrimSpace(sa[6])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
@@ -141,24 +157,20 @@ func CreateRentalAgreement(sa []string) {
 	payor.DtStop = DtStop
 
 	var at AgreementTenant
-	at.DtStart = payor.DtStart
-	at.DtStop = payor.DtStop
-	at.RAID = payor.RAID
+	at.DtStart = DtStart
+	at.DtStop = DtStop
+	at.RAID = RAID
 
 	//==================================================
 	// Now handle payors and tenants...
 	//==================================================
-	for i := 0; i < len(s1); i++ {
-		s := strings.TrimSpace(s1[i])
-		t, err := GetTransactantByPhoneOrEmail(s)
-		if t.TCID > 0 {
-			payor.PID = t.PID
-			InsertAgreementPayor(&payor)
-			at.TID = t.TID
-			InsertAgreementTenant(&at)
-		} else {
-			fmt.Printf("CreateRentalAgreement: Coult not load payor: %s,  err = %v\n", s, err)
-		}
+	for i := 0; i < len(tenants); i++ {
+		at.TID = tenants[i].TID
+		InsertAgreementTenant(&at)
+	}
+	for i := 0; i < len(payors); i++ {
+		payor.PID = payors[i].PID
+		InsertAgreementPayor(&payor)
 	}
 }
 

@@ -1,8 +1,8 @@
-Type,Name,Value
-1,"Square Feet","1215"
-1,"Square Feet","1239"
-1,"Square Feet","1638"
-1,"Square Feet","827"
-99,"Square Feet","827"
-1,"I'm an error","ab827"
-2,"I'm an error","ab827"
+Name,Type,Value
+"Square Feet",1,"1215"
+"Square Feet",1,"1239"
+"Square Feet",1,"1638"
+"Square Feet",1,"827"
+"Square Feet",99,"827"
+"I'm an error",1,"ab827"
+"I'm an error",2,"ab827"

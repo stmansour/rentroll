@@ -16,6 +16,7 @@ func initRentRoll() {
 	rlib.RpnInit()
 
 	RRfuncMap = template.FuncMap{
+		"DateToString": rlib.DateToString,
 		"getVersionNo": getVersionNo,
 		"getBuildTime": getBuildTime,
 		"RRCommaf":     RRCommaf,

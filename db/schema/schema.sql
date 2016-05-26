@@ -67,6 +67,8 @@ CREATE TABLE rentalagreement (
     PrimaryTenant BIGINT NOT NULL DEFAULT 0,                  -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
+    OccStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- date when Occupancy starts
+    OccStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when Occupancy stops
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',      -- free-form text
     LastModTime TIMESTAMP,                                    -- when was this record last written
@@ -129,12 +131,12 @@ CREATE TABLE customattrref (
 
 CREATE TABLE business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
-    DES VARCHAR(100) NOT NULL DEFAULT '',    -- this is the link to phonebook
+    DES VARCHAR(100) NOT NULL DEFAULT '',               -- this is the link to phonebook
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    DefaultOccupancyType SMALLINT NOT NULL DEFAULT 0,       -- default for every unit in the building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
-    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,         -- yes/no  0 = no, 1 = yes
-    LastModTime TIMESTAMP,                                  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    DefaultAccrual SMALLINT NOT NULL DEFAULT 0,         -- default for every unit in the building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
+    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,     -- yes/no  0 = no, 1 = yes
+    LastModTime TIMESTAMP,                              -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (BID)
 );
 
@@ -148,7 +150,7 @@ CREATE TABLE rentabletypes (
     BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
     Style CHAR(15) NOT NULL DEFAULT '',                     -- need not be unique
     Name VARCHAR(256) NOT NULL DEFAULT '',                  -- must be unique
-    Frequency BIGINT NOT NULL DEFAULT 0,                    -- price accrual frequency
+    Accrual BIGINT NOT NULL DEFAULT 0,                    -- price accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
     Report SMALLINT NOT NULL DEFAULT 0,
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of rentable to budget, 1 = manage to budget defined by MarketRate
@@ -276,8 +278,8 @@ CREATE TABLE rentable (
     Name VARCHAR(100) NOT NULL DEFAULT '',                          -- must be unique, name for this instance, "101" for a room number, CP744 carport number, etc 
     Assignment SMALLINT NOT NULL DEFAULT 0,                        -- Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
     Report SMALLINT NOT NULL DEFAULT 1,                            -- 1 = apply to rentroll, 0 = skip on rentroll
-    DefaultOccType SMALLINT NOT NULL DEFAULT 0,                    -- 0 =unset, 1 = short term, 2=longterm
-    OccType SMALLINT NOT NULL DEFAULT 0,                           -- 0 =unset, 1 = short term, 2=longterm
+    DefaultOccType SMALLINT NOT NULL DEFAULT 0,                    -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+    OccType SMALLINT NOT NULL DEFAULT 0,                           -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
     State SMALLINT NOT NULL DEFAULT 0,                             -- 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
     -- ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 = do not manage to budget, 1 = manage to MarketRate set in RentableType
     LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
@@ -332,7 +334,7 @@ CREATE TABLE assessments (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the tenant moves out or when the charge is no longer applicable
-    Frequency SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
+    Accrual SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
     ProrationMethod SMALLINT NOT NULL DEFAULT 0,            -- 
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
@@ -359,7 +361,9 @@ CREATE TABLE transactant (
     PRSPID BIGINT NOT NULL DEFAULT 0,                      -- associated prospect id
     FirstName VARCHAR(100) NOT NULL DEFAULT '',
     MiddleName VARCHAR(100) NOT NULL DEFAULT '',
-    LastName VARCHAR(100) NOT NULL DEFAULT '', 
+    LastName VARCHAR(100) NOT NULL DEFAULT '',
+    CompanyName VARCHAR(100) NOT NULL DEFAULT '',
+    IsCompany SMALLINT NOT NULL DEFAULT 0,                  -- 0 == this is a person,  1 == this is a company 
     PrimaryEmail VARCHAR(100) NOT NULL DEFAULT '',
     SecondaryEmail VARCHAR(100) NOT NULL DEFAULT '',
     WorkPhone VARCHAR(100) NOT NULL DEFAULT '',
@@ -540,7 +544,7 @@ CREATE TABLE ledger (
 CREATE TABLE ledgermarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
-    PID BIGINT NOT NULL DEFAULT 0,                            -- payor id, only valid if TYPE is
+    RAID BIGINT NOT NULL DEFAULT 0,                            -- payor id, only valid if TYPE is
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
@@ -550,7 +554,7 @@ CREATE TABLE ledgermarker (
     Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a default account, 1 = Payor Account , 
     --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 
+    AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, 
                                                               --    Cost of Goods Sold, Other Income, Other Expense
     RAAssociated SMALLINT NOT NULL DEFAULT 0,                 -- 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
@@ -580,7 +584,7 @@ CREATE TABLE ledgermarkeraudit (
 -- ----------------------------------------------------------------------------------------
 --    LEDGER MARKERS - These define the required ledgers
 -- ----------------------------------------------------------------------------------------
-INSERT INTO ledgermarker (BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES
+INSERT INTO ledgermarker (BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES
     (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,10,"Bank Account"),
     (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,11,"General Accounts Receivable"),
     (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,12,"Gross Scheduled Rent"),

@@ -6,7 +6,12 @@ table, th, td {
     border-collapse:collapse;
     border: 1px solid #ddd;
     font-family: "Open Sans","Roboto",sans-serif;
-    font-size: 8pt;
+    font-size: 9pt;
     border-spacing:5px;
     padding: 5px;
+}
+
+p {
+    font-family: "Open Sans","Roboto",sans-serif;
+    font-size: 9pt;
 }

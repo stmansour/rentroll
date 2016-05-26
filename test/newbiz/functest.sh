@@ -45,14 +45,14 @@ EOF
 	fi
 }
 
-dotest "x" "PHASE  1: New Businesses...  " "select BID,DES,Name,DefaultOccupancyType,ParkingPermitInUse,LastModBy from business;"
+dotest "x" "PHASE  1: New Businesses...  " "select BID,DES,Name,DefaultAccrual,ParkingPermitInUse,LastModBy from business;"
 dotest "y" "PHASE  2: Assessment Types...  " "select Name,Description,LastModBy from assessmenttypes;"
-dotest "z" "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,Frequency,Proration,Report,ManageToBudget,LastModBy from rentabletypes;"
+dotest "z" "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,Accrual,Proration,Report,ManageToBudget,LastModBy from rentabletypes;"
 dotest "w" "PHASE  4: Rentable Market Rates...  " "select * from rentablemarketrate;"
 dotest "v" "PHASE  5: Rentable Specialty Types...  " "select * from rentablespecialtytypes;"
 dotest "u" "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from building;"
 dotest "t" "PHASE  7: Rentables...  " "select RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModBy from rentable;"
-dotest "s" "PHASE  8: Transactants...  " "select TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from transactant;"
+dotest "s" "PHASE  8: Transactants...  " "select TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from transactant;"
 dotest "r" "PHASE  9: Tenants...  " "select TID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber from tenant;"
 dotest "q" "PHASE 10: Payors...  " "select PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModBy from payor;"
 dotest "p" "PHASE 11: Prospects...  " "select PRSPID,TCID,ApplicationFee,LastModBy from prospect;"
@@ -60,8 +60,8 @@ dotest "o" "PHASE 12: Rental Agreement Templates...  " "select RATID,ReferenceNu
 dotest "n" "PHASE 13: Rental Agreements...  " "select RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy from rentalagreement;"
 dotest "m" "PHASE 14: Agreement Rentables...  " "select * from agreementrentables;"
 dotest "l" "PHASE 15: Agreement Payors...  " "select * from agreementpayors;"
-dotest "k" "PHASE 16: Chart of Accounts...  " "select LMID,BID,PID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy from ledgermarker;"
-dotest "j" "PHASE 17: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule,Comment,LastModBy from assessments;"
+dotest "k" "PHASE 16: Chart of Accounts...  " "select LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy from ledgermarker;"
+dotest "j" "PHASE 17: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Accrual,ProrationMethod,AcctRule,Comment,LastModBy from assessments;"
 dotest "i" "PHASE 18: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from paymenttypes;"
 dotest "h" "PHASE 19: Payment allocations...  " "select * from receiptallocation order by Amount ASC;"
 dotest "g" "PHASE 20: Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from receipt;"

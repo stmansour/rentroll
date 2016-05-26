@@ -57,17 +57,17 @@ var App struct {
 
 // LMResults contains the info needed for reports about ledgers
 type LMResults struct {
-	DtStart time.Time
-	DtStop  time.Time
-	biz     *rlib.Business
-	LM      []rlib.LedgerMarker
+	biz *rlib.Business
+	LM  []rlib.LedgerMarker
 }
 
 // RRuiSupport is a structure of data that will be passed to all html pages.
 // It is the responsibility of the page function to populate the data needed by
 // the page. The recommendation is to populate only the data needed.
 type RRuiSupport struct {
-	L *LMResults // an array of ledger markers with time period and biz
+	DtStart time.Time  // start of period of interest
+	DtStop  time.Time  // end of period of interest
+	L       *LMResults // an array of ledger markers with time period and biz
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced

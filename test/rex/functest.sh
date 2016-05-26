@@ -30,12 +30,12 @@ echo >>${LOGFILE}
 
 echo "import rentable types"
 echo "DEFINE RENTABLE TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -R rentabletypes.csv -L 5,JM1 >> ${LOGFILE} 2>&1
+${CVSLOAD} -R rentabletypes.csv -L 5,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import rentables"
 echo "DEFINE RENTABLES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -r rentable.csv -L 6,JM1 >> ${LOGFILE} 2>&1
+${CVSLOAD} -r rentable.csv -L 6,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import people"
@@ -50,27 +50,27 @@ echo >>${LOGFILE}
 
 echo "import rental agreements"
 echo "DEFINE RENTAL AGREEMENTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -C ra.csv -L 9,JM1 >> ${LOGFILE} 2>&1
+${CVSLOAD} -C ra.csv -L 9,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import chart of accounts"
 echo "DEFINE CHART OF ACCOUNTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -c coa.csv -L 10,JM1 >> ${LOGFILE} 2>&1
+${CVSLOAD} -c coa.csv -L 10,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import assessments"
 echo "DEFINE ASSESSMENTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -A asmt.csv -L 11,JM1 >> ${LOGFILE} 2>&1
+${CVSLOAD} -A asmt.csv -L 11,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import payment types"
 echo "DEFINE PAYMENT TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -P pmt.csv -L 12,jm1 >> ${LOGFILE} 2>&1
+${CVSLOAD} -P pmt.csv -L 12,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import receipts"
 echo "DEFINE RECEIPTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -e rcpt.csv -L 13,jm1 >> ${LOGFILE} 2>&1
+${CVSLOAD} -e rcpt.csv -L 13,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import custom attributes"

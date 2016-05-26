@@ -22,3 +22,16 @@ type Company struct {
 	LastModTime      time.Time
 	LastModBy        int
 }
+
+// BusinessUnit is the structure of bizunit attributes
+// The historical name for BusinessUnit in Phonebook was "class" after the QuickBooks equivalent
+type BusinessUnit struct {
+	ClassCode   int
+	CoCode      int
+	Name        string
+	Designation string
+	Description string
+	LastModTime time.Time
+	LastModBy   int
+	C           Company // parent company
+}

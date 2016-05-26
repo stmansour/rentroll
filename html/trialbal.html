@@ -4,14 +4,14 @@
 <link href="/html/rentroll.css" rel="stylesheet"  type="text/css">
 <!-- <link rel="icon" type="image/png" href="/images/favicon32x32.png"> -->
 
-<title>Accord RentRoll - Trial Balance</title>
+<title>Accord RentRoll - Ledger Balance</title>
 </head>
 <body>
-<H1>Trial Balance</H1>
+<H1>Ledger Balance</H1>
 
-
+<p>Ledger Balance beginning:  {{DateToString .DtStop}}</p>
 <table border="1">
-<tr><th>Description</th><th>GL No.</th><th>RentRoll Entries</th></tr>
+<tr><th>Description</th><th>GL No.</th><th>Ledger Balance</th></tr>
 {{range .L.LM}}
 <tr><td>{{.Name}}</td><td>{{.GLNumber}}</td><td align="right">{{RRCommaf .Balance}}</td></tr>
 {{end}}

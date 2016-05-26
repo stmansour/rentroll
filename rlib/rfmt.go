@@ -58,6 +58,11 @@ func RoundToCent(x float64) float64 {
 	return float64(int64(x*float64(100)+float64(0.5))) / float64(100)
 }
 
+// DateToString rounds the supplied amount to the nearest cent.
+func DateToString(t time.Time) string {
+	return t.Format("01/02/2006")
+}
+
 // RecurStringToInt supply a recurrence string and the int64  representation is returned
 func RecurStringToInt(s string) int64 {
 	var i int64

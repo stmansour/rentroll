@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-// 0       1               2
-// Type    Name 	       Value
-//  0-2 ,  "Square Feet",  "1638"
+// 0              1       	   2
+// Name 	      ValueType    Value
+// "Square Feet", 0-2 , 	   "1638"
 
 // CreateCustomAttributes reads a CustomAttributes string array and creates a database record
 func CreateCustomAttributes(sa []string, lineno int) {
@@ -15,11 +15,11 @@ func CreateCustomAttributes(sa []string, lineno int) {
 	var ok bool
 	var c CustomAttribute
 
-	if strings.ToLower(sa[0]) == "type" {
+	if strings.ToLower(sa[0]) == "name" {
 		return // it's the header line
 	}
 
-	c.Type, ok = IntFromString(sa[0], "Type is invalid")
+	c.Type, ok = IntFromString(sa[1], "Type is invalid")
 	if !ok {
 		return
 	}
@@ -28,7 +28,7 @@ func CreateCustomAttributes(sa []string, lineno int) {
 		return
 	}
 
-	c.Name = sa[1]
+	c.Name = sa[0]
 	c.Value = sa[2]
 	switch c.Type {
 	case CUSTINT:

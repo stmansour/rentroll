@@ -7,7 +7,7 @@ import (
 
 // the CSV file format:
 //    0         1             2     3       4             5             6          7                8
-// Designation,RentableName, ASMTID,Amount, Start,        Stop,         Frequency, ProrationMethod, AcctRule
+// Designation,RentableName, ASMTID,Amount, Start,        Stop,         Accrual, ProrationMethod, AcctRule
 // REH,         "101",       1,     1000.00,"2014-07-01", "2015-11-08", 6,         4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
 // REH,         "101",       1,     1200.00,"2015-11-21", "2016-11-21", 6,         4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
 
@@ -20,7 +20,7 @@ import (
 // 	Amount          float64   // how much
 // 	Start           time.Time // start time
 // 	Stop            time.Time // stop time, may be the same as start time or later
-// 	Frequency       int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+// 	Accrual         int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 // 	ProrationMethod int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 // 	AcctRule        string    // expression showing how to account for the amount
 // 	Comment         string
@@ -119,11 +119,11 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	a.Amount, _ = FloatFromString(sa[3], "Amount is invalid")
 
 	//-------------------------------------------------------------------
-	// Frequency
+	// Accrual
 	//-------------------------------------------------------------------
-	a.Frequency, _ = IntFromString(sa[6], "Frequency value is invalid")
-	if a.Frequency < 0 || a.Frequency > OCCTYPEYEARLY {
-		fmt.Printf("%s: line %d - Frequency must be between %d and %d.  Found %d\n", funcname, lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.Frequency)
+	a.Accrual, _ = IntFromString(sa[6], "Accrual value is invalid")
+	if !IsValidAccrual(a.Accrual) {
+		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %d\n", funcname, lineno, ACCRUALSECONDLY, ACCRUALYEARLY, a.Accrual)
 		return
 	}
 
@@ -131,12 +131,12 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	// Proration
 	//-------------------------------------------------------------------
 	a.ProrationMethod, _ = IntFromString(sa[7], "Proration value is invalid")
-	if a.ProrationMethod < 0 || a.ProrationMethod > OCCTYPEYEARLY {
-		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, OCCTYPESECONDLY, OCCTYPEYEARLY, a.ProrationMethod)
+	if !IsValidAccrual(a.ProrationMethod) {
+		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, ACCRUALSECONDLY, ACCRUALYEARLY, a.ProrationMethod)
 		return
 	}
-	if a.ProrationMethod > a.Frequency {
-		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Frequency (%d)\n", funcname, lineno, a.ProrationMethod, a.Frequency)
+	if a.ProrationMethod > a.Accrual {
+		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationMethod, a.Accrual)
 		return
 	}
 

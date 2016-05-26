@@ -10,9 +10,9 @@ import (
 // PeopleSpecialty is the structure for attributes of a rentable specialty
 
 // CSV file format:
-//  |<---------------------------------------------------  TRANSACTANT ------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  Tenant  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------->|  |<------------------------------------------------------------------------- Payor ---------------------------------------------------->|  -- prospect --
-//   0           1          2          3              4              5          6          7        8        9     10      11          12      13       14       15        16       17        18                  19                  20                 21             22           23                    24                      25                           26                27                28                      29       30         31                     32           33              34                  35              36              37             38               39           40           41
-// 	FirstName, MiddleName, LastName, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, ElibigleForFutureOccupancy, Industry, Source, InvoicingCustomerNumber, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
+//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  Tenant  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------->|  |<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- prospect --
+//   0           1          2          3          4          5             6               7          8          9        10        11    12     13          14       15      16       17        18        19       20                 21                  22                   23          24           25                    26                       27                          28             29                30                          31        32      33                       34           35            36                     37            38             39                  40              41            42          43
+// 	FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, ElibigleForFutureOccupancy, Industry, Source, InvoicingCustomerNumber, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Ned,,Flanders,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Moe,,Szyslak,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -38,6 +38,7 @@ func CreatePeopleFromCSV(sa []string) {
 
 	for i := 0; i < len(sa); i++ {
 		s := strings.TrimSpace(sa[i])
+		// fmt.Printf("%d. sa[%d] = \"%s\"\n", i, i, sa[i])
 		switch {
 		case i == 0: // transactant FirstName
 			tr.FirstName = s
@@ -46,26 +47,41 @@ func CreatePeopleFromCSV(sa []string) {
 		case i == 2:
 			tr.LastName = s
 		case i == 3:
-			tr.PrimaryEmail = s
+			tr.CompanyName = s
 		case i == 4:
-			tr.SecondaryEmail = s
+			if len(s) > 0 {
+				i, err := strconv.Atoi(strings.TrimSpace(s))
+				if err != nil {
+					fmt.Printf("CreatePeopleFromCSV: IsCompany value is invalid: %s\n", s)
+					return
+				}
+				if i < 0 || i > 1 {
+					fmt.Printf("CreatePeopleFromCSV: IsCompany value is invalid: %s\n", s)
+					return
+				}
+				tr.IsCompany = i
+			}
 		case i == 5:
-			tr.WorkPhone = s
+			tr.PrimaryEmail = s
 		case i == 6:
-			tr.CellPhone = s
+			tr.SecondaryEmail = s
 		case i == 7:
-			tr.Address = s
+			tr.WorkPhone = s
 		case i == 8:
-			tr.Address2 = s
+			tr.CellPhone = s
 		case i == 9:
-			tr.City = s
+			tr.Address = s
 		case i == 10:
-			tr.State = s
+			tr.Address2 = s
 		case i == 11:
-			tr.PostalCode = s
+			tr.City = s
 		case i == 12:
-			tr.Country = s
+			tr.State = s
 		case i == 13:
+			tr.PostalCode = s
+		case i == 14:
+			tr.Country = s
+		case i == 15:
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
@@ -74,13 +90,13 @@ func CreatePeopleFromCSV(sa []string) {
 				}
 				t.Points = int64(i)
 			}
-		case i == 14:
-			t.CarMake = s
-		case i == 15:
-			t.CarModel = s
 		case i == 16:
-			t.CarColor = s
+			t.CarMake = s
 		case i == 17:
+			t.CarModel = s
+		case i == 18:
+			t.CarColor = s
+		case i == 19:
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
@@ -89,13 +105,13 @@ func CreatePeopleFromCSV(sa []string) {
 				}
 				t.CarYear = int64(i)
 			}
-		case i == 18:
-			t.LicensePlateState = s
-		case i == 19:
-			t.LicensePlateNumber = s
 		case i == 20:
-			t.ParkingPermitNumber = s
+			t.LicensePlateState = s
 		case i == 21:
+			t.LicensePlateNumber = s
+		case i == 22:
+			t.ParkingPermitNumber = s
+		case i == 23:
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
@@ -104,21 +120,21 @@ func CreatePeopleFromCSV(sa []string) {
 				}
 				t.AccountRep = int64(i)
 			}
-		case i == 22:
+		case i == 24:
 			if len(s) > 0 {
 				t.DateofBirth, _ = time.Parse(dateform, s)
 			}
-		case i == 23:
-			t.EmergencyContactName = s
-		case i == 24:
-			t.EmergencyContactAddress = s
 		case i == 25:
-			t.EmergencyContactTelephone = s
+			t.EmergencyContactName = s
 		case i == 26:
-			t.EmergencyEmail = s
+			t.EmergencyContactAddress = s
 		case i == 27:
-			t.AlternateAddress = s
+			t.EmergencyContactTelephone = s
 		case i == 28:
+			t.EmergencyEmail = s
+		case i == 29:
+			t.AlternateAddress = s
+		case i == 30:
 			if len(s) > 0 {
 				var err error
 				t.ElibigleForFutureOccupancy, err = yesnoToInt(s)
@@ -126,13 +142,13 @@ func CreatePeopleFromCSV(sa []string) {
 					fmt.Printf("CreatePeopleFromCSV: %s\n", err.Error())
 				}
 			}
-		case i == 29:
-			t.Industry = s
-		case i == 30:
-			t.Source = s
 		case i == 31:
-			t.InvoicingCustomerNumber = s
+			t.Industry = s
 		case i == 32:
+			t.Source = s
+		case i == 33:
+			t.InvoicingCustomerNumber = s
+		case i == 34:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
 					Ulog("CreatePeopleFromCSV: Invalid Credit Limit value: %s\n", s)
@@ -140,23 +156,23 @@ func CreatePeopleFromCSV(sa []string) {
 				}
 				p.CreditLimit = x
 			}
-		case i == 33:
-			p.EmployerName = s
-		case i == 34:
-			p.EmployerStreetAddress = s
 		case i == 35:
-			p.EmployerCity = s
+			p.EmployerName = s
 		case i == 36:
-			p.EmployerState = s
+			p.EmployerStreetAddress = s
 		case i == 37:
-			p.EmployerPostalCode = s
+			p.EmployerCity = s
 		case i == 38:
-			p.EmployerEmail = s
+			p.EmployerState = s
 		case i == 39:
-			p.EmployerPhone = s
+			p.EmployerPostalCode = s
 		case i == 40:
-			p.Occupation = s
+			p.EmployerEmail = s
 		case i == 41:
+			p.EmployerPhone = s
+		case i == 42:
+			p.Occupation = s
+		case i == 43:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
 					Ulog("CreatePeopleFromCSV: Invalid ApplicationFee value: %s\n", s)
