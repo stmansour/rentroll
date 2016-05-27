@@ -41,9 +41,13 @@ func InsertJournalMarker(jm *JournalMarker) error {
 	return err
 }
 
-// InsertLedgerMarker writes a new journalmarker record to the database
+//======================================
+//  LEDGER MARKER
+//======================================
+
+// InsertLedgerMarker writes a new ledgermarker record to the database
 func InsertLedgerMarker(l *LedgerMarker) error {
-	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.BID, l.RAID, l.GLNumber, l.Status, l.State, l.DtStart, l.DtStop, l.Balance, l.Type, l.Name, l.AcctType, l.RAAssociated, l.LastModBy)
+	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.DtStart, l.DtStop, l.Balance, l.State, l.LastModBy)
 	if err != nil {
 		fmt.Printf("InsertLedgerMarker: err = %#v\n", err)
 	}
@@ -53,7 +57,22 @@ func InsertLedgerMarker(l *LedgerMarker) error {
 // InsertLedgerEntry writes a new journal entry to the database
 func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.BID, l.JID, l.JAID, l.GLNumber, l.Dt, l.Amount, l.Comment, l.LastModBy)
+	res, err := RRdb.Prepstmt.InsertLedgerEntry.Exec(l.BID, l.JID, l.JAID, l.GLNumber, l.Dt, l.Amount, l.Comment, l.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting ledger entry:  %v\n", err)
+	}
+	return rid, err
+}
+
+// InsertLedger writes a new journal entry to the database
+func InsertLedger(l *Ledger) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

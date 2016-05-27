@@ -103,7 +103,7 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 		if m[i].Action == "c" {
 			amt = -amt
 		}
-		l, err := rlib.GetLatestLedgerMarkerByGLNo(r.BID, m[i].Account)
+		l, err := rlib.GetLedgerByGLNo(r.BID, m[i].Account)
 		if err != nil {
 			fmt.Printf("%s: Could not get ledger for account named %s in business %d\n", funcname, m[i].Account, r.BID)
 			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
@@ -156,7 +156,7 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, d1, d2 *time.Time, j *rlib.Jo
 		m := rlib.ParseAcctRule(xbiz, r.RID, d1, d2, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
 		for k := 0; k < len(m); k++ {
-			l, err := rlib.GetLatestLedgerMarkerByGLNo(j.BID, m[k].Account)
+			l, err := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if err != nil {
 				fmt.Printf("%s: Could not get ledger for account named %s in business %d\n", funcname, m[i].Account, r.BID)
 				fmt.Printf("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)

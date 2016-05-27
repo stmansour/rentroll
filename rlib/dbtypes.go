@@ -111,7 +111,7 @@ const RRDATEINPFMT = "2006-01-02"
 // JAID = journal allocation id
 // JID = journal id
 // JMID = journal marker id
-// LID = ledger entry id
+// LEID = ledger entry id
 // LMID = ledger marker id
 // OFSID = offset id
 // PID = payor id
@@ -473,7 +473,7 @@ type JournalMarker struct {
 
 // LedgerEntry is the structure for Ledger entry attributes
 type LedgerEntry struct {
-	LID         int64
+	LEID        int64
 	BID         int64
 	JID         int64
 	JAID        int64
@@ -488,15 +488,24 @@ type LedgerEntry struct {
 // LedgerMarker describes a period of time period described. The Balance can be
 // used going forward from DtStop
 type LedgerMarker struct {
-	LMID         int64
-	BID          int64
-	RAID         int64  // only valid if Type == 1
-	GLNumber     string // acct system name
-	Status       int64  // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	State        int64  // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
-	DtStart      time.Time
-	DtStop       time.Time
-	Balance      float64
+	LMID        int64     // unique id for this LM
+	LID         int64     // associated ledger
+	BID         int64     // only valid if Type == 1
+	DtStart     time.Time // valid period start
+	DtStop      time.Time // valid period end
+	Balance     float64   // ledger balance at the end of the period
+	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
+	LastModTime time.Time // auto updated
+	LastModBy   int64     // user making the mod
+}
+
+// Ledger describes the static (or mostly static) attributes of a ledger
+type Ledger struct {
+	LID          int64     // unique id for this ledger
+	BID          int64     // business unit associated with this ledger
+	RAID         int64     // associated rental agreement, this field is only used when Type = 1
+	GLNumber     string    // acct system name
+	Status       int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Type         int64     // flag: 0 = not a default account, 1 = Rental Agreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name         string    // descriptive name for the ledger
 	AcctType     string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
@@ -507,26 +516,29 @@ type LedgerMarker struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
+	DeleteCustomAttribute              *sql.Stmt
+	DeleteCustomAttributeRef           *sql.Stmt
 	DeleteJournalAllocations           *sql.Stmt
 	DeleteJournalEntry                 *sql.Stmt
 	DeleteJournalMarker                *sql.Stmt
+	DeleteLedger                       *sql.Stmt
 	DeleteLedgerEntry                  *sql.Stmt
 	DeleteLedgerMarker                 *sql.Stmt
 	DeleteReceipt                      *sql.Stmt
 	DeleteReceiptAllocations           *sql.Stmt
-	FindTransactantByPhoneOrEmail      *sql.Stmt
 	FindAgreementByRentable            *sql.Stmt
+	FindTransactantByPhoneOrEmail      *sql.Stmt
 	GetAgreementPayors                 *sql.Stmt
 	GetAgreementRentables              *sql.Stmt
 	GetAgreementTenants                *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
 	GetAllAssessmentsByBusiness        *sql.Stmt
 	GetAllBusinessRentableTypes        *sql.Stmt
-	GetAllBusinesses                   *sql.Stmt
 	GetAllBusinessSpecialtyTypes       *sql.Stmt
+	GetAllBusinesses                   *sql.Stmt
 	GetAllJournalsInRange              *sql.Stmt
+	GetAllLedgerEntriesInRange         *sql.Stmt
 	GetAllLedgerMarkersInRange         *sql.Stmt
-	GetAllLedgersInRange               *sql.Stmt
 	GetAllRentableAssessments          *sql.Stmt
 	GetAllRentablesByBusiness          *sql.Stmt
 	GetAllRentalAgreementTemplates     *sql.Stmt
@@ -538,19 +550,23 @@ type RRprepSQL struct {
 	GetBuilding                        *sql.Stmt
 	GetBusiness                        *sql.Stmt
 	GetBusinessByDesignation           *sql.Stmt
-	GetDefaultLedgerMarkers            *sql.Stmt
+	GetCustomAttribute                 *sql.Stmt
+	GetCustomAttributeRefs             *sql.Stmt
+	GetDefaultLedgers                  *sql.Stmt
 	GetJournal                         *sql.Stmt
 	GetJournalAllocation               *sql.Stmt
 	GetJournalAllocations              *sql.Stmt
 	GetJournalByRange                  *sql.Stmt
 	GetJournalMarker                   *sql.Stmt
 	GetJournalMarkers                  *sql.Stmt
-	GetLatestLedgerMarkerByGLNo        *sql.Stmt
-	GetLatestLedgerMarkerByType        *sql.Stmt
+	GetLatestLedgerMarkerByLID         *sql.Stmt
 	GetLedger                          *sql.Stmt
-	GetLedgerInRangeByGLNo             *sql.Stmt
-	GetLedgerMarkerByGLNoDateRange     *sql.Stmt
-	GetLedgerMarkerInitList            *sql.Stmt
+	GetLedgerByGLNo                    *sql.Stmt
+	GetLedgerByType                    *sql.Stmt
+	GetLedgerEntriesInRangeByGLNo      *sql.Stmt
+	GetLedgerEntry                     *sql.Stmt
+	GetLedgerList                      *sql.Stmt
+	GetLedgerMarkerByDateRange         *sql.Stmt
 	GetLedgerMarkers                   *sql.Stmt
 	GetPaymentTypesByBusiness          *sql.Stmt
 	GetPayor                           *sql.Stmt
@@ -582,14 +598,17 @@ type RRprepSQL struct {
 	InsertBuilding                     *sql.Stmt
 	InsertBuildingWithID               *sql.Stmt
 	InsertBusiness                     *sql.Stmt
+	InsertCustomAttribute              *sql.Stmt
+	InsertCustomAttributeRef           *sql.Stmt
 	InsertJournal                      *sql.Stmt
 	InsertJournalAllocation            *sql.Stmt
 	InsertJournalMarker                *sql.Stmt
 	InsertLedger                       *sql.Stmt
 	InsertLedgerAllocation             *sql.Stmt
+	InsertLedgerEntry                  *sql.Stmt
 	InsertLedgerMarker                 *sql.Stmt
-	InsertPayor                        *sql.Stmt
 	InsertPaymentType                  *sql.Stmt
+	InsertPayor                        *sql.Stmt
 	InsertProspect                     *sql.Stmt
 	InsertReceipt                      *sql.Stmt
 	InsertReceiptAllocation            *sql.Stmt
@@ -601,14 +620,9 @@ type RRprepSQL struct {
 	InsertRentalAgreementTemplate      *sql.Stmt
 	InsertTenant                       *sql.Stmt
 	InsertTransactant                  *sql.Stmt
+	UpdateLedger                       *sql.Stmt
 	UpdateLedgerMarker                 *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
-	InsertCustomAttribute              *sql.Stmt
-	GetCustomAttribute                 *sql.Stmt
-	DeleteCustomAttribute              *sql.Stmt
-	InsertCustomAttributeRef           *sql.Stmt
-	GetCustomAttributeRefs             *sql.Stmt
-	DeleteCustomAttributeRef           *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
@@ -623,7 +637,7 @@ type BusinessTypes struct {
 	BID          int64
 	AsmtTypes    map[int64]*AssessmentType
 	PmtTypes     map[int64]*PaymentType
-	DefaultAccts map[int64]*LedgerMarker // index by the predifined contants DFAC*, value = GL No of that account
+	DefaultAccts map[int64]*Ledger // index by the predifined contants DFAC*, value = GL No of that account
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure
@@ -651,7 +665,7 @@ func InitBusinessFields(bid int64) {
 			BID:          bid,
 			AsmtTypes:    make(map[int64]*AssessmentType),
 			PmtTypes:     make(map[int64]*PaymentType),
-			DefaultAccts: make(map[int64]*LedgerMarker),
+			DefaultAccts: make(map[int64]*Ledger),
 		}
 		RRdb.BizTypes[bid] = &bt
 	}

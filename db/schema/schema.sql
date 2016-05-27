@@ -16,7 +16,7 @@
 -- JAID = journal allocation id
 -- JID = journal id
 -- JMID = journal marker id
--- LID = ledger id
+-- LEID = ledger id
 -- LMID = ledger marker id
 -- OFSID = offset id
 -- PID = payor id
@@ -528,7 +528,7 @@ CREATE TABLE journalmarkeraudit (
 -- ****                              ****
 -- **************************************
 CREATE TABLE ledgerentry (
-    LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
+    LEID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     JID BIGINT NOT NULL DEFAULT 0,                            -- journal entry giving rise to this
     JAID BIGINT NOT NULL DEFAULT 0,                           -- the allocation giving rise to this ledger entry
@@ -538,19 +538,28 @@ CREATE TABLE ledgerentry (
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (LID)        
+    PRIMARY KEY (LEID)        
 );
 
 CREATE TABLE ledgermarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
+    LID BIGINT NOT NULL DEFAULT 0,                            -- associated ledger
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
-    RAID BIGINT NOT NULL DEFAULT 0,                            -- payor id, only valid if TYPE is
-    GLNumber VARCHAR(100) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
-    Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
-    State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- period start
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- period end
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
+    State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (LMID)
+);
+
+CREATE TABLE ledger (
+    LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this ledger
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
+    GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
     Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a default account, 1 = Payor Account , 
     --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
@@ -560,11 +569,11 @@ CREATE TABLE ledgermarker (
     RAAssociated SMALLINT NOT NULL DEFAULT 0,                 -- 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (LMID)
+    PRIMARY KEY (LID)
 );
 
 CREATE TABLE ledgeraudit (
-    LID BIGINT NOT NULL DEFAULT 0,              -- what LID was affected
+    LEID BIGINT NOT NULL DEFAULT 0,             -- what LEID was affected
     UID MEDIUMINT NOT NULL DEFAULT 0,           -- UID of person making the change
     ModTime TIMESTAMP                           -- timestamp of change    
 );
@@ -582,14 +591,26 @@ CREATE TABLE ledgermarkeraudit (
 -- ****                              ****
 -- **************************************
 -- ----------------------------------------------------------------------------------------
---    LEDGER MARKERS - These define the required ledgers
+--    LEDGERs  - These define the required ledgers
 -- ----------------------------------------------------------------------------------------
-INSERT INTO ledgermarker (BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,10,"Bank Account"),
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,11,"General Accounts Receivable"),
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,12,"Gross Scheduled Rent"),
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,13,"Loss to Lease"),
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,14,"Vacancy"),
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,15,"Security Deposit Receivable"),
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,16,"Security Deposit Assessment"),
-    (1,0,"",2,3,"2015-10-01","2015-10-31",0.0,17,"Owner Equity");
+INSERT INTO ledger (BID,RAID,GLNumber,Status,Type,Name) VALUES
+    (1,0,"",2,10,"Bank Account"),                   -- 1
+    (1,0,"",2,11,"General Accounts Receivable"),    -- 2
+    (1,0,"",2,12,"Gross Scheduled Rent"),           -- 3
+    (1,0,"",2,13,"Loss to Lease"),                  -- 4
+    (1,0,"",2,14,"Vacancy"),                        -- 5
+    (1,0,"",2,15,"Security Deposit Receivable"),    -- 6
+    (1,0,"",2,16,"Security Deposit Assessment"),    -- 7
+    (1,0,"",2,17,"Owner Equity");                   -- 8
+-- ----------------------------------------------------------------------------------------
+--    LEDGERs MARKERS - These define the required ledgers
+-- ----------------------------------------------------------------------------------------
+INSERT INTO ledgermarker (BID,LID,State,DtStart,DtStop,Balance) VALUES
+    (1,1,3,"2015-10-01","2015-10-31",0.0),
+    (1,2,3,"2015-10-01","2015-10-31",0.0),
+    (1,3,3,"2015-10-01","2015-10-31",0.0),
+    (1,4,3,"2015-10-01","2015-10-31",0.0),
+    (1,5,3,"2015-10-01","2015-10-31",0.0),
+    (1,6,3,"2015-10-01","2015-10-31",0.0),
+    (1,7,3,"2015-10-01","2015-10-31",0.0),
+    (1,8,3,"2015-10-01","2015-10-31",0.0);

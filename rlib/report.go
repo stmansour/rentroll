@@ -314,37 +314,32 @@ func RRreportRentalAgreements(t int, bid int64) string {
 }
 
 // ReportChartOfAcctsToText returns a string representation of the chart of accts
-func ReportChartOfAcctsToText(p *LedgerMarker) string {
+func ReportChartOfAcctsToText(p *Ledger) string {
 	s := ""
+	lm, err := GetLatestLedgerMarkerByLID(p.BID, p.LID)
+	if err != nil {
+		fmt.Printf("ReportChartOfAcctsToText: error getting latest LedgerMarker: %s\n", err.Error())
+		return s
+	}
 	if DFLTCASH <= p.Type && p.Type <= DFLTLAST {
 		s = fmt.Sprintf("%4d", p.Type)
 	}
 	return fmt.Sprintf("%5d  %4s  %12s   %12.2f   %s\n",
-		p.LMID, s, p.GLNumber, p.Balance, p.Name)
-}
-
-// ReportChartOfAcctsToHTML returns a string representation of the chart of accts
-func ReportChartOfAcctsToHTML(p *LedgerMarker) string {
-	s := ""
-	if DFLTCASH <= p.Type && p.Type <= DFLTLAST {
-		s = fmt.Sprintf("%d", p.Type)
-	}
-	return fmt.Sprintf("<tr><td>%5d</td><td>%4s</td><td>%s</td><td>%12.2f</td><td>%s</td></tr>\n",
-		p.LMID, s, p.GLNumber, p.Balance, p.Name)
+		lm.LMID, s, p.GLNumber, lm.Balance, p.Name)
 }
 
 // RRreportChartOfAccounts generates a report of all ledger accounts
 func RRreportChartOfAccounts(t int, bid int64) string {
-	m := GetLedgerMarkerInitList(bid)
+	m := GetLedgerList(bid)
 	//                               123456789012
-	fmt.Printf("  LID   Type  GLAccountNo         Amount   Name\n")
+	fmt.Printf("  LEID   Type  GLAccountNo         Amount   Name\n")
 	s := ""
 	for i := 0; i < len(m); i++ {
 		switch t {
 		case RPTTEXT:
 			s += ReportChartOfAcctsToText(&m[i])
 		case RPTHTML:
-			s += ReportChartOfAcctsToHTML(&m[i])
+			fmt.Printf("unimplemented\n")
 		default:
 			fmt.Printf("RRreportChartOfAccounts: unrecognized print format: %d\n", t)
 			return ""

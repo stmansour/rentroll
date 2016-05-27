@@ -174,7 +174,7 @@ func LoadReceiptsCSV(fname string, PmtTypes *map[int64]PaymentType) {
 				return
 			}
 			InitBusinessFields(b.BID)
-			GetDefaultLedgerMarkers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
+			GetDefaultLedgers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
 		}
 	}
 	for i := 0; i < len(t); i++ {

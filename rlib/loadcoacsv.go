@@ -52,10 +52,8 @@ func StringToDate(s string) (time.Time, error) {
 func CreateLedgerMarkers(sa []string, lineno int) {
 	funcname := "CreateLedgerMarkers"
 	inserting := true // this may be changed, depends on the value for sa[7]
-	// n := time.Now()
-	// d1 := time.Date(n.Year(), n.Month(), 1, 0, 0, 0, 0, time.UTC)
-	// d2 := time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC)
 	var lm LedgerMarker
+	var l Ledger
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
@@ -71,9 +69,8 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 			return
 		}
 		lm.BID = b1.BID
+		l.BID = b1.BID
 	}
-	// lm.DtStart = d1
-	// lm.DtStop = d2
 
 	lm.State = 3 // Initial marker, no prior records
 
@@ -89,19 +86,27 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 				funcname, lineno, sa[2], s, DFLTCASH, DFLTLAST)
 			return
 		}
-		lm1, err := GetLatestLedgerMarkerByType(lm.BID, int64(i))
+		l1, err := GetLedgerByType(l.BID, int64(i))
 		if nil != err {
 			if IsSQLNoResultsError(err) {
 				Ulog("%s: line %d - No default ledger %d exists\n", funcname, lineno, i)
 				return
 			}
 		}
-		lm = lm1          // we're just going to update the existing information
+		l = l1            // update existing
 		inserting = false // looks like this is an update
+		lm1, err := GetLatestLedgerMarkerByType(l.BID, l.Type)
+		if nil != err {
+			if IsSQLNoResultsError(err) {
+				Ulog("%s: line %d - No default ledgermarker %d exists\n", funcname, lineno, i)
+				return
+			}
+		}
+		lm = lm1 // we're just going to update the existing information
 	}
 
-	// Set the name
-	lm.Name = strings.TrimSpace(sa[1])
+	// Set the ledger name
+	l.Name = strings.TrimSpace(sa[1])
 
 	//-------------------------------------------------------------------
 	// Make sure the account number is unique
@@ -114,7 +119,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	if len(g) > 0 {
 		// if we're inserting a record then it must not already exist
 		if inserting {
-			_, err := GetLatestLedgerMarkerByGLNo(lm.BID, g)
+			_, err := GetLedgerByGLNo(lm.BID, g)
 			if nil == err {
 				fmt.Printf("%s: line %d - Account already exists: %s\n", funcname, lineno, g)
 				return
@@ -125,11 +130,11 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 				return
 			}
 		}
-		lm.GLNumber = g
+		l.GLNumber = g
 	}
 
 	// Set the account type
-	lm.AcctType = strings.TrimSpace(sa[3])
+	l.AcctType = strings.TrimSpace(sa[3])
 
 	// Set balance
 	x, err := strconv.ParseFloat(strings.TrimSpace(sa[4]), 64)
@@ -142,20 +147,20 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	// Set account status
 	s = strings.ToLower(strings.TrimSpace(sa[5]))
 	if "active" == s {
-		lm.Status = ACCTSTATUSACTIVE
+		l.Status = ACCTSTATUSACTIVE
 	} else if "inactive" == s {
-		lm.Status = ACCTSTATUSINACTIVE
+		l.Status = ACCTSTATUSINACTIVE
 	} else {
 		fmt.Printf("%s: line %d - Invalid account status: %s\n", funcname, lineno, sa[5])
 		return
 	}
 
-	// Set associated
+	// Set Rental Agreement Associated
 	s = strings.ToLower(strings.TrimSpace(sa[6]))
 	if "associated" == s {
-		lm.Status = RAASSOCIATED
+		l.RAAssociated = RAASSOCIATED
 	} else if "unassociated" == s {
-		lm.Status = RAUNASSOCIATED
+		l.RAAssociated = RAUNASSOCIATED
 	} else {
 		fmt.Printf("%s: line %d - Invalid associated/unassociated value: %s\n", funcname, lineno, sa[6])
 		return
@@ -176,6 +181,20 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	}
 	lm.DtStop = DtStop
 
+	// Insert / Update the ledger first, we may need the LID
+	if inserting {
+		var lid int64
+		lid, err = InsertLedger(&l)
+		lm.LID = lid
+	} else {
+		err = UpdateLedger(&l)
+		lm.LID = l.LID
+	}
+	if nil != err {
+		fmt.Printf("%s: line %d - Could not save ledger marker, err = %v\n", funcname, lineno, err)
+	}
+
+	// Now update the markers
 	if inserting {
 		err = InsertLedgerMarker(&lm)
 	} else {

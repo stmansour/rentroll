@@ -62,7 +62,7 @@ func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
 	ui.L.LM = make([]rlib.LedgerMarker, 0)
 	for rows.Next() {
 		var r rlib.LedgerMarker
-		rlib.Errcheck(rows.Scan(&r.LMID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.State, &r.DtStart, &r.DtStop, &r.Balance, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
+		rlib.Errcheck(rows.Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy))
 		ui.L.LM = append(ui.L.LM, r)
 	}
 

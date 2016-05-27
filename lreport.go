@@ -93,18 +93,18 @@ func printDatedLedgerEntryRJ(label string, d time.Time, jid int64, ra string, rn
 func printDatedLedgerEntryLJ(label string, d time.Time, jid int64, ra string, rn string, a, b float64) {
 	fmt.Printf(tfmt.DatedLedgerEntryLJ, label, d.Format(rlib.RRDATEFMT), jid, ra, rn, a, b)
 }
-func printLedgerHeaderText(lm *rlib.LedgerMarker) {
-	printTSubtitle(lm.Name)
+func printLedgerHeaderText(l *rlib.Ledger) {
+	printTSubtitle(l.Name)
 }
 func printLedgerDescrAndBal(s string, d time.Time, x float64) {
 	fmt.Printf(tfmt.DescrAndBal, s, d.Format(rlib.RRDATEFMT), x)
 }
 
 //
-func printLedgerHeader(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time) {
+func printLedgerHeader(xbiz *rlib.XBusiness, l *rlib.Ledger, d1, d2 *time.Time) {
 	printTReportDoubleLine()
 	fmt.Printf("   Business:  %-13s\n", xbiz.P.Name)
-	printTSubtitle(lm.GLNumber + " - " + lm.Name)
+	printTSubtitle(l.GLNumber + " - " + l.Name)
 	fmt.Printf("   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
 	printTReportLine()
 	fmt.Printf(tfmt.Hdr, "Description", "Date", "JournalID", "RntAgr", "Rentable", "Amount", "Balance")
@@ -136,15 +136,17 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 }
 
 func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time) {
+	l, err := rlib.GetLedger(lm.LID)
+	rlib.Errcheck(err)
 	bal := lm.Balance
-	printLedgerHeader(xbiz, lm, d1, d2)
+	printLedgerHeader(xbiz, &l, d1, d2)
 	printLedgerDescrAndBal("Opening Balance", *d1, lm.Balance)
-	rows, err := rlib.RRdb.Prepstmt.GetLedgerInRangeByGLNo.Query(lm.BID, lm.GLNumber, d1, d2)
+	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(l.BID, l.GLNumber, d1, d2)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var l rlib.LedgerEntry
-		rlib.Errcheck(rows.Scan(&l.LID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
+		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		bal += l.Amount
 		descr, rn, sra := getLedgerEntryDescription(&l)
 		printDatedLedgerEntryRJ(descr, l.Dt, l.JID, sra, rn, l.Amount, bal)
@@ -157,7 +159,7 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 
 // LedgerReportText generates a textual journal report for the supplied business and time range
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
-	t := rlib.GetLedgerMarkerInitList(xbiz.P.BID) // this list contains the list of all ledger account numbers
+	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all ledger account numbers
 	for i := 0; i < len(t); i++ {
 		dd2 := d1.AddDate(0, 0, -1)
 		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())

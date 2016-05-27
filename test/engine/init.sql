@@ -440,42 +440,74 @@ INSERT INTO journalmarker (BID,State,DtStart,DtStop) VALUES
 -- =======================================================================
 --  LEDGERS MARKERS
 -- =======================================================================
-INSERT INTO ledgermarker (BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name) VALUES
-	(1,1,"RA-1", 2,3,"2015-10-01","2015-10-31",0.0,2,"Krabappel"),						--  1 Krabappel
-	(1,2,"RA-2", 2,3,"2015-10-01","2015-10-31",0.0,2,"Flanders"),						--  2 Flanders
-	(1,3,"RA-3", 2,3,"2015-10-01","2015-10-31",0.0,2,"Szyslak"),						--  3 Szyslak
-	(1,4,"RA-4", 2,3,"2015-10-01","2015-10-31",0.0,2,"Burns"),							--  4 Burns
-	(1,5,"RA-5", 2,3,"2015-10-01","2015-10-31",0.0,2,"Muntz"),							--  5 Muntz
-	(1,6,"RA-6", 2,3,"2015-10-01","2015-10-31",0.0,2,"Van Houten"),						--  6 Van Houten
-	(1,7,"RA-7", 2,3,"2015-10-01","2015-10-31",0.0,2,"Wiggum"),							--  7 Wiggum
-	(1,8,"RA-8", 2,3,"2015-10-01","2015-10-31",0.0,2,"Simpson"),						--  8 Simpson
-	(1,0,"11003",2,3,"2015-10-01","2015-10-31",0.0,0,"American Express 93892335 In Process"),
-	(1,0,"10004",2,3,"2015-10-01","2015-10-31",0.0,0,"MasterCard/VISA 38992355 in Process"),
-	(1,0,"10005",2,3,"2015-10-01","2015-10-31",0.0,0,"Discover 883523553 In Process"),
-	(1,0,"40002",2,3,"2015-10-01","2015-10-31",0.0,0,"Carport Rental"),
-	(1,0,"41002",2,3,"2015-10-01","2015-10-31",0.0,0,"Administrative Concession"),
-	(1,0,"41003",2,3,"2015-10-01","2015-10-31",0.0,0,"Off Line Unit"),
-	(1,0,"41005",2,3,"2015-10-01","2015-10-31",0.0,0,"Employee Concession"),
-	(1,0,"41006",2,3,"2015-10-01","2015-10-31",0.0,0,"Payor Concession"),
-	(1,0,"41007",2,3,"2015-10-01","2015-10-31",0.0,0,"Bad Debt Write-Off"),
-	(1,0,"41999",2,3,"2015-10-01","2015-10-31",0.0,0,"Other Offsets"),
-	(1,0,"42001",2,3,"2015-10-01","2015-10-31",0.0,0,"Pet Fees"),
-	(1,0,"42002",2,3,"2015-10-01","2015-10-31",0.0,0,"Utility Reimbursement"),
-	(1,0,"42003",2,3,"2015-10-01","2015-10-31",0.0,0,"Late Fees"),
-	(1,0,"42004",2,3,"2015-10-01","2015-10-31",0.0,0,"Damages"),
-	(1,0,"42005",2,3,"2015-10-01","2015-10-31",0.0,0,"Pest Control Reimbursements"),
-	(1,0,"42006",2,3,"2015-10-01","2015-10-31",0.0,0,"Security Deposit Forfeiture"),
-	(1,0,"42007",2,3,"2015-10-01","2015-10-31",0.0,0,"Carports"),
-	(1,0,"42008",2,3,"2015-10-01","2015-10-31",0.0,0,"Utility overage"),
-	(1,0,"42999",2,3,"2015-10-01","2015-10-31",0.0,0,"Other Income");
+INSERT INTO ledger (BID,RAID,GLNumber,Status,Type,Name) VALUES
+	(1,1,"RA-1", 2,2,"Krabappel"),						--  1 Krabappel
+	(1,2,"RA-2", 2,2,"Flanders"),						--  2 Flanders
+	(1,3,"RA-3", 2,2,"Szyslak"),						--  3 Szyslak
+	(1,4,"RA-4", 2,2,"Burns"),							--  4 Burns
+	(1,5,"RA-5", 2,2,"Muntz"),							--  5 Muntz
+	(1,6,"RA-6", 2,2,"Van Houten"),						--  6 Van Houten
+	(1,7,"RA-7", 2,2,"Wiggum"),							--  7 Wiggum
+	(1,8,"RA-8", 2,2,"Simpson"),						--  8 Simpson
+	(1,0,"11003",2,0,"American Express 93892335 In Process"),
+	(1,0,"10004",2,0,"MasterCard/VISA 38992355 in Process"),
+	(1,0,"10005",2,0,"Discover 883523553 In Process"),
+	(1,0,"40002",2,0,"Carport Rental"),
+	(1,0,"41002",2,0,"Administrative Concession"),
+	(1,0,"41003",2,0,"Off Line Unit"),
+	(1,0,"41005",2,0,"Employee Concession"),
+	(1,0,"41006",2,0,"Payor Concession"),
+	(1,0,"41007",2,0,"Bad Debt Write-Off"),
+	(1,0,"41999",2,0,"Other Offsets"),
+	(1,0,"42001",2,0,"Pet Fees"),
+	(1,0,"42002",2,0,"Utility Reimbursement"),
+	(1,0,"42003",2,0,"Late Fees"),
+	(1,0,"42004",2,0,"Damages"),
+	(1,0,"42005",2,0,"Pest Control Reimbursements"),
+	(1,0,"42006",2,0,"Security Deposit Forfeiture"),
+	(1,0,"42007",2,0,"Carports"),
+	(1,0,"42008",2,0,"Utility overage"),
+	(1,0,"42999",2,0,"Other Income");
          
-UPDATE ledgermarker SET GLNumber="10001" WHERE Name = "Bank Account";
-UPDATE ledgermarker SET GLNumber="11001" WHERE Name = "General Accounts Receivable";
-UPDATE ledgermarker SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
-UPDATE ledgermarker SET GLNumber="41004" WHERE Name = "Loss to Lease";
-UPDATE ledgermarker SET GLNumber="41001" WHERE Name = "Vacancy";
-UPDATE ledgermarker SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
-UPDATE ledgermarker SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
+-- =======================================================================
+--  LEDGERS MARKERS
+-- =======================================================================
+INSERT INTO ledgermarker (BID,LID,State,DtStart,DtStop,Balance) VALUES
+	(1,9,3,"2015-10-01","2015-10-31",0.0),
+	(1,10,3,"2015-10-01","2015-10-31",0.0),
+	(1,11,3,"2015-10-01","2015-10-31",0.0),
+	(1,12,3,"2015-10-01","2015-10-31",0.0),
+	(1,13,3,"2015-10-01","2015-10-31",0.0),
+	(1,14,3,"2015-10-01","2015-10-31",0.0),
+	(1,15,3,"2015-10-01","2015-10-31",0.0),
+	(1,16,3,"2015-10-01","2015-10-31",0.0),
+	(1,17,3,"2015-10-01","2015-10-31",0.0),
+	(1,18,3,"2015-10-01","2015-10-31",0.0),
+	(1,19,3,"2015-10-01","2015-10-31",0.0),
+	(1,20,3,"2015-10-01","2015-10-31",0.0),
+	(1,21,3,"2015-10-01","2015-10-31",0.0),
+	(1,22,3,"2015-10-01","2015-10-31",0.0),
+	(1,23,3,"2015-10-01","2015-10-31",0.0),
+	(1,24,3,"2015-10-01","2015-10-31",0.0),
+	(1,25,3,"2015-10-01","2015-10-31",0.0),
+	(1,26,3,"2015-10-01","2015-10-31",0.0),
+	(1,27,3,"2015-10-01","2015-10-31",0.0),
+	(1,28,3,"2015-10-01","2015-10-31",0.0),
+	(1,29,3,"2015-10-01","2015-10-31",0.0),
+	(1,30,3,"2015-10-01","2015-10-31",0.0),
+	(1,31,3,"2015-10-01","2015-10-31",0.0),
+	(1,32,3,"2015-10-01","2015-10-31",0.0),
+	(1,33,3,"2015-10-01","2015-10-31",0.0),
+	(1,34,3,"2015-10-01","2015-10-31",0.0),
+	(1,35,3,"2015-10-01","2015-10-31",0.0);
+         
+UPDATE ledger SET GLNumber="10001" WHERE Name = "Bank Account";
+UPDATE ledger SET GLNumber="11001" WHERE Name = "General Accounts Receivable";
+UPDATE ledger SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
+UPDATE ledger SET GLNumber="41004" WHERE Name = "Loss to Lease";
+UPDATE ledger SET GLNumber="41001" WHERE Name = "Vacancy";
+UPDATE ledger SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
+UPDATE ledger SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
 
-UPDATE ledgermarker SET Balance=-1000.00 WHERE GLNumber="23000";
-UPDATE ledgermarker SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";
+UPDATE ledgermarker SET Balance=-1000.00 WHERE LID=7;
+UPDATE ledger SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";

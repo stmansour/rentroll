@@ -20,7 +20,7 @@ func RunBooks(ctx *DispatchCtx) {
 		rlib.Errcheck(rows.Scan(&xbiz.P.BID, &xbiz.P.Designation, &xbiz.P.Name, &xbiz.P.DefaultAccrual, &xbiz.P.ParkingPermitInUse, &xbiz.P.LastModTime, &xbiz.P.LastModBy))
 		rlib.GetXBusiness(xbiz.P.BID, &xbiz) // get its info
 		rlib.InitBusinessFields(xbiz.P.BID)
-		rlib.GetDefaultLedgerMarkers(xbiz.P.BID) // Gather its chart of accounts
+		rlib.GetDefaultLedgers(xbiz.P.BID) // Gather its chart of accounts
 
 		// and generate the requested report...
 		switch ctx.Report {

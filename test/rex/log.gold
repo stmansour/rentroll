@@ -115,7 +115,7 @@ DEFINE RENTAL AGREEMENTS
 
 DEFINE CHART OF ACCOUNTS
 CreateLedgerMarkers: line 21 - You must suppy a GL Number for this entry
-  LID   Type  GLAccountNo         Amount   Name
+  LEID   Type  GLAccountNo         Amount   Name
    12               00001           0.00   Basement Storage
    13               00002           0.00   Change In Delinquency
     2    11         11001           0.00   General Accounts Receivable

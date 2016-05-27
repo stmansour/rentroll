@@ -28,7 +28,16 @@ func DeleteJournalMarker(jmid int64) {
 func DeleteLedgerEntry(lid int64) error {
 	_, err := RRdb.Prepstmt.DeleteLedgerEntry.Exec(lid)
 	if err != nil {
-		Ulog("Error deleting ledger entry for LID = %d, error: %v\n", lid, err)
+		Ulog("Error deleting ledger entry for LEID = %d, error: %v\n", lid, err)
+	}
+	return err
+}
+
+// DeleteLedger deletes the ledger record with the supplied lid
+func DeleteLedger(lid int64) error {
+	_, err := RRdb.Prepstmt.DeleteLedger.Exec(lid)
+	if err != nil {
+		Ulog("Error deleting ledger for LID = %d, error: %v\n", lid, err)
 	}
 	return err
 }
@@ -37,7 +46,7 @@ func DeleteLedgerEntry(lid int64) error {
 func DeleteLedgerMarker(lmid int64) error {
 	_, err := RRdb.Prepstmt.DeleteLedgerMarker.Exec(lmid)
 	if err != nil {
-		Ulog("Error deleting ledger marker for LID = %d, error: %v\n", lmid, err)
+		Ulog("Error deleting ledger marker for LEID = %d, error: %v\n", lmid, err)
 	}
 	return err
 }

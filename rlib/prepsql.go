@@ -128,41 +128,56 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER
 	//==========================================
-	RRdb.Prepstmt.GetAllLedgersInRange, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledgerentry WHERE BID=? and ?<=Dt and Dt<?")
+	LDGRfields := "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.dbrr.Prepare("SELECT " + LDGRfields + " FROM ledger WHERE BID=? and GLNumber=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy from ledgerentry WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
+	RRdb.Prepstmt.GetLedgerByType, err = RRdb.dbrr.Prepare("SELECT " + LDGRfields + " FROM ledger WHERE BID=? and Type=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedger, err = RRdb.dbrr.Prepare("SELECT LID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy FROM ledgerentry where LID=?")
+	RRdb.Prepstmt.GetLedger, err = RRdb.dbrr.Prepare("SELECT " + LDGRfields + " FROM ledger WHERE LID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertLedger, err = RRdb.dbrr.Prepare("INSERT INTO ledgerentry (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.GetLedgerList, err = RRdb.dbrr.Prepare("SELECT " + LDGRfields + " FROM ledger WHERE BID=? ORDER BY GLNumber ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.dbrr.Prepare("DELETE FROM ledgerentry WHERE LID=?")
+	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.dbrr.Prepare("SELECT " + LDGRfields + " FROM ledger WHERE BID=? and Type>=10 ORDER BY GLNumber ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertLedger, err = RRdb.dbrr.Prepare("INSERT INTO ledger (BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteLedger, err = RRdb.dbrr.Prepare("DELETE FROM ledger WHERE LID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateLedger, err = RRdb.dbrr.Prepare("UPDATE ledger SET BID=?,RAID=?,GLNumber=?,Status=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=? WHERE LID=?")
+	Errcheck(err)
+
+	//==========================================
+	// LEDGER ENTRY
+	//==========================================
+	LEfields := "LEID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetAllLedgerEntriesInRange, err = RRdb.dbrr.Prepare("SELECT " + LEfields + " from ledgerentry WHERE BID=? and ?<=Dt and Dt<?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo, err = RRdb.dbrr.Prepare("SELECT " + LEfields + " from ledgerentry WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerEntry, err = RRdb.dbrr.Prepare("SELECT " + LEfields + " FROM ledgerentry where LEID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertLedgerEntry, err = RRdb.dbrr.Prepare("INSERT INTO ledgerentry (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.dbrr.Prepare("DELETE FROM ledgerentry WHERE LEID=?")
 	Errcheck(err)
 
 	//==========================================
 	// LEDGER MARKER
 	//==========================================
-	// RRdb.Prepstmt.GetLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctTyp,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=?")
-	// Errcheck(err)
-	RRdb.Prepstmt.GetLatestLedgerMarkerByGLNo, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? ORDER BY DtStop DESC")
+	LMfields := "LMID,LID,BID,DtStart,DtStop,Balance,State,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.dbrr.Prepare("SELECT " + LMfields + " FROM ledgermarker WHERE BID=? and LID=? ORDER BY DtStop DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLatestLedgerMarkerByType, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type=? ORDER BY DtStop DESC")
+	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.dbrr.Prepare("SELECT " + LMfields + " FROM ledgermarker WHERE BID=? and LID=? and DtStop>? and DtStart<? ORDER BY LID ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerByGLNoDateRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and GLNumber=? and DtStop>? and DtStart<? ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT " + LMfields + " FROM ledgermarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and DtStop>? and DtStart<=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerInitList, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy from ledgermarker WHERE BID=? and State=3 ORDER BY GLNumber ASC")
-	Errcheck(err)
-	RRdb.Prepstmt.GetDefaultLedgerMarkers, err = RRdb.dbrr.Prepare("SELECT LMID,BID,RAID,GLNumber,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy FROM ledgermarker WHERE BID=? and Type>=10 ORDER BY DtStop DESC")
+	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.dbrr.Prepare("SELECT " + LMfields + " FROM ledgermarker WHERE BID=? and DtStop>? and DtStart<=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.dbrr.Prepare("DELETE FROM ledgermarker WHERE LMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertLedgerMarker, err = RRdb.dbrr.Prepare("INSERT INTO ledgermarker (BID,RAID,GLNumber,Status,State,DtStart,DtStop,Balance,Type,Name,AcctType,RAAssociated,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertLedgerMarker, err = RRdb.dbrr.Prepare("INSERT INTO ledgermarker (LID,BID,DtStart,DtStop,Balance,State,LastModBy) VALUES(?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateLedgerMarker, err = RRdb.dbrr.Prepare("UPDATE ledgermarker SET LMID=?,BID=?,RAID=?,GLNumber=?,Status=?,State=?,DtStart=?,DtStop=?,Balance=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=? WHERE LMID=?")
+	RRdb.Prepstmt.UpdateLedgerMarker, err = RRdb.dbrr.Prepare("UPDATE ledgermarker SET LMID=?,LID=?,BID=?,DtStart=?,DtStop=?,Balance=?,State=?,LastModBy=? WHERE LMID=?")
 	Errcheck(err)
 
 	//==========================================

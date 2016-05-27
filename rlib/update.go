@@ -2,10 +2,20 @@ package rlib
 
 // UpdateLedgerMarker updates a ledger marker record
 func UpdateLedgerMarker(lm *LedgerMarker) error {
-	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LMID, lm.BID, lm.RAID, lm.GLNumber, lm.Status, lm.State, lm.DtStart, lm.DtStop, lm.Balance, lm.Type, lm.Name, lm.AcctType, lm.RAAssociated, lm.LastModBy, lm.LMID)
+	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LMID, lm.LID, lm.BID, lm.DtStart, lm.DtStop, lm.Balance, lm.State, lm.LastModBy, lm.LMID)
 	if nil != err {
 		Ulog("UpdateLedgerMarker: error inserting LedgerMarker:  %v\n", err)
 		Ulog("LedgerMarker = %#v\n", *lm)
+	}
+	return err
+}
+
+// UpdateLedger updates a ledger marker record
+func UpdateLedger(l *Ledger) error {
+	_, err := RRdb.Prepstmt.UpdateLedger.Exec(l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.LastModBy, l.LID)
+	if nil != err {
+		Ulog("UpdateLedger: error inserting Ledger:  %v\n", err)
+		Ulog("Ledger = %#v\n", *l)
 	}
 	return err
 }
