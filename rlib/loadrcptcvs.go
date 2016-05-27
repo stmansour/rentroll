@@ -112,8 +112,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType) {
 	//-------------------------------------------------------------------
 	// Get the date
 	//-------------------------------------------------------------------
-
-	Dt, err := time.Parse(RRDATEINPFMT, strings.TrimSpace(sa[3]))
+	Dt, err := StringToDate(sa[3])
 	if err != nil {
 		fmt.Printf("CreateReceiptsFromCSV: invalid receipt date:  %s\n", sa[3])
 		return

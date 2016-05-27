@@ -1,0 +1,6 @@
+Designation,RentableName,ASMTID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule
+DHR,6303-231,1,76.00,7/1/16,7/1/16,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+DHR,6303-231,1,92.00,7/5/16,7/7/16,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+DHR,6303-231,1,56.87,7/10/16,7/31/16,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+DHR,6323-301,1,730.00,12/1/14,11/30/16,6,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+DHR,6392-930,1,125.00,10/31/16,3/1/16,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"

@@ -5,52 +5,51 @@ Invalid OccupancyType value: a
 SetParking: Unrecognized yes/no string: da.
 searching for business:  RRR
 SetParking: Unrecognized yes/no string: nyet.
-2016/05/25 21:26:42 CreateAssessmentType: line 2 - Name cannot be empty
+2016/05/26 23:43:12 CreateAssessmentType: line 2 - Name cannot be empty
 CreateAssessmentType: line 3 - OccupancyRqd must be 0 or 1.  Found: 99
-2016/05/25 21:26:42 CreateAssessmentType: AssessmentType named Rent already exists
-2016/05/25 21:26:42 GetBusinessBID: Business with designation QQQ does not exist or could not be loaded
-2016/05/25 21:26:42 GetBusinessBID: RentableType named CPT already exists
-2016/05/25 21:26:42 CreateRentableType: Invalid rental frequency:            99
-2016/05/25 21:26:42 CreateRentableType: Invalid rental proration frequency: 99
-2016/05/25 21:26:42 CreateRentableType: Proration frequency (7) must be greater than rental frequency (6)
-2016/05/25 21:26:42 CreateRentableType: Invalid report flag: da
-2016/05/25 21:26:42 CreateRentableType: Invalid manage to budget flag: nyet
-2016/05/25 21:26:42 CreateRentableType: Invalid manage to budget flag: 3
+2016/05/26 23:43:12 CreateAssessmentType: AssessmentType named Rent already exists
+2016/05/26 23:43:12 GetBusinessBID: Business with designation QQQ does not exist or could not be loaded
+2016/05/26 23:43:12 GetBusinessBID: RentableType named CPT already exists
+2016/05/26 23:43:12 CreateRentableType: Invalid rental frequency:            99
+2016/05/26 23:43:12 CreateRentableType: Invalid rental proration frequency: 99
+2016/05/26 23:43:12 CreateRentableType: Proration frequency (7) must be greater than rental frequency (6)
+2016/05/26 23:43:12 CreateRentableType: Invalid report flag: da
+2016/05/26 23:43:12 CreateRentableType: Invalid manage to budget flag: nyet
+2016/05/26 23:43:12 CreateRentableType: Invalid manage to budget flag: 3
 CreateRentableType: Stop date (2014-01-01 00:00:00 +0000 UTC) must be after Start date (2016-01-01 00:00:00 +0000 UTC)
 Type value must be a number from 0 to 2
 CreateAssessmentsFromCSV: Value cannot be converted to an integer: ab827
-2016/05/25 21:26:42 CreateAssessmentsFromCSV: IValue cannot be converted to an float: ab827
+2016/05/26 23:43:12 CreateAssessmentsFromCSV: IValue cannot be converted to an float: ab827
 CreateRentalSpecialty: Business rex already has a RentableSpecialty named Lake View
-2016/05/25 21:26:42 CreateBuilding: business with designation bug does net exist
+2016/05/26 23:43:12 CreateBuilding: business with designation bug does net exist
 CreateBuilding: invalid building number: qe
-2016/05/25 21:26:42 CreateRentables: rentable type XXX does not exist in business rex
-2016/05/25 21:26:42 CreateRentables: rentable type XXX does not exist in business rex
+2016/05/26 23:43:12 CreateRentables: rentable type XXX does not exist in business rex
+2016/05/26 23:43:12 CreateRentables: rentable type XXX does not exist in business rex
 CreateRentables: invalid Assignment number: 9
 CreateRentables: invalid Report number: 9
 CreateRentables: invalid DefaultOccupancy value: 9
 CreateRentables: invalid Occupancy value: 9
 Rentable with name "107" already exists. Skipping. 
-2016/05/25 21:26:42 CreatePeopleFromCSV: Transactant with PrimaryEmail address = homerj@springfield.com already exists
-2016/05/25 21:26:42 CreatePeopleFromCSV: Transactant with CellPhone number = 816-123-4568 already exists
+2016/05/26 23:43:12 CreatePeopleFromCSV: Transactant with PrimaryEmail address = homerj@springfield.com already exists
+2016/05/26 23:43:12 CreatePeopleFromCSV: Transactant with CellPhone number = 816-123-4568 already exists
 CreatePeopleFromCSV: IsCompany value is invalid: 99
-2016/05/25 21:26:42 CreateRentalAgreement: business with designation RATQQQ does net exist
+2016/05/26 23:43:12 CreateRentalAgreement: business with designation RATQQQ does net exist
 CreateRentalAgreement: could not find business named QWQ
-2016/05/25 21:26:42 CreateRentalAgreement: could not find transactant with contact information billybob@springfield.com
+2016/05/26 23:43:12 CreateRentalAgreement: could not find transactant with contact information billybob@springfield.com
 CreateLedgerMarkers: line 27 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
 CreateLedgerMarkers: line 28 - Account already exists: 42999
 CreateLedgerMarkers: line 29 - Invalid account status: re45gg5
 CreateAssessmentsFromCSV: line 15 - Assessment type 55 requires a rental agreement. None found for period 2018-11-08 to 2018-11-08
 CreateAssessmentsFromCSV: line 16 - Assessment type is invalid: 0
 CreateAssessmentsFromCSV: line 17 - Assessment type is invalid: 900
-2016/05/25 21:26:42 CreateAssessmentsFromCSV: line 18 - business with designation XXX does net exist
+2016/05/26 23:43:12 CreateAssessmentsFromCSV: line 18 - business with designation XXX does net exist
 CreateAssessmentsFromCSV: line 19 - Skipping this record as the Amount is 0
 CreateAssessmentsFromCSV: line 20 - Skipping this record as there is no AcctRule
-2016/05/25 21:26:42 CreateLedgerMarkers: business with designation QQQ does net exist
+2016/05/26 23:43:12 CreateLedgerMarkers: business with designation QQQ does net exist
 CreateReceiptsFromCSV: error loading Rental Agreement RA00099991, err = sql: no rows in result set
 CreateReceiptsFromCSV: Payment type is invalid: 999
 CreateReceiptsFromCSV: invalid receipt date:  12-11-2015
-CreateReceiptsFromCSV: invalid receipt date:  03/04/15
-2016/05/25 21:26:42 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
+2016/05/26 23:43:12 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
 CreateReceiptsFromCSV: error processing payments: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 
 ElementType value must be a number from 5 to 5

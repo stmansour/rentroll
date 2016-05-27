@@ -1,0 +1,100 @@
+Designation,Name,GL Number,GL Account Type,Balance,GL Account Status,Assoc/Unassoc,Default,Start,Stop
+DHR,Cash,10000,Bank Account,0,active,Associated,10,2/1/16,2/29/16
+DHR,Credit Card Clearing,11000,Current Asset,0,active,Associated,,2/1/16,2/29/16
+DHR,Accounts Receivable,12000,Current Asset,0,active,Associated,11,2/1/16,2/29/16
+DHR,Security Deposits,30000,Current Liabilities,0,active,Associated,16,2/1/16,2/29/16
+DHR,Accued Taxes,30100,Current Liabilities,0,active,Associated,,2/1/16,2/29/16
+DHR,Sales Taxes,30101,Current Liabilities,0,active,Associated,,2/1/16,2/29/16
+DHR,Transient Occupancy Taxes,30102,Current Liabilities,0,active,Associated,,2/1/16,2/29/16
+DHR,Other Accrued Taxes,30199,Current Liabilities,0,active,Associated,,2/1/16,2/29/16
+DHR,Owners' Equity,39000,Equity,0,active,Associated,17,2/1/16,2/29/16
+DHR,Unit Gross Scheduled Rent-Taxable,41000,Income,0,active,Associated,12,2/1/16,2/29/16
+DHR,Unit Gross Scheduled Rent-Not Taxable,41001,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Unit Income Offsets,41100,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Vacancy,41101,Income,0,active,Associated,14,2/1/16,2/29/16
+DHR,Loss (Gain) to Lease,41102,Income,0,active,Associated,13,2/1/16,2/29/16
+DHR,Employee Concessions,41103,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Resident Concessions,41104,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Owner Occupied,41105,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Administrative Concession,41106,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Off Line Renovations,41107,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Off Line Maintenance,41108,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Othe Income Offsets,41199,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Serviced Unit Fees,41200,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Broadcast and IT Services,41201,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Food Services,41202,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Linen Services,41203,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Wash N Fold Services,41204,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Other Serviced Apartment Fees,41299,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Utility Fees,41300,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Electric Base Fee,41301,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Electric Overage,41302,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Water and Sewer Base Fee,41303,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Water and Sewer Overage,41304,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Gas Base Fee,41305,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Gas Overage,41306,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Trash Collection Base Fee,41307,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Trash Collection Overage,41308,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Other Utility Fee,41399,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Miscellaneous Income,41400,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Application Fees,41401,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Late Fees,41402,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Insufficient Funds Fee,41403,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Month to Month Fee,41404,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Unit Premium,41405,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,No Show or Termination Fee,41406,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Pet Fees,41407,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Pet Rent,41408,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Expense Reimbursement,41409,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Special Cleaning Fee,41410,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Eviction Fee Reimbursement,41411,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Extra Person Charge,41412,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Forfeited Security Deposit,41413,Income,0,active,Associated,15,2/1/16,2/29/16
+DHR,Garage and Carport Gross Scheduled Rents - Taxable,42000,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Garage and Carport Gross Scheduled Rents - Non Taxable,42001,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Garage and Carport Income Offset,42100,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Vacancy,42101,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Loss (Gain) to Lease,42102,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Employee Concessions,42103,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Resident Concessions,42104,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Owner Occupied,42105,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Administrative Concession,42106,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Off Line Renovations,42107,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Off Line Maintenance,42108,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Othe Income Offsets,42199,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Other Garage and Carport Income,42200,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Appliance and Furniture Gross Schedule Rent - Taxable,43000,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Appliance and Furniture Gross Schedule Rent - Non Taxable,43001,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Appliance and Furniture Income Offset,43100,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Not Rented,43101,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Bad Debt,43102,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Loss (Gain) to Lease,43103,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Employee Concessions,43104,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Resident Concessions,43105,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Owner Used,43106,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Administrative Concession,43107,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Off Line Maintenance,43108,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Othe Income Offsets,43199,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Other Appliance and Furniture Income,43200,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Vehicle Gross Scheduled Rents - Taxable,44000,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Vehicle Gross Scheduled Rents - Non Taxable,44001,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Garage and Carport Income Offset,44100,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Vacancy,44101,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Loss (Gain) to Lease,44102,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Employee Use,44103,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Resident Concessions,44104,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Owner Use,44105,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Administrative Concession,44106,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Off Line Maintenance,44107,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Othe Income Offsets,44199,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Other Garage and Carport Income,44200,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Ancillary Business Revenue,49000,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Convenience Store Vending,49010,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Fitness Center Revenue,49020,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Vending Income,49030,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Restaurant Sales,49040,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Bar Sales,49050,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Spa Sales,49060,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Cash Over/Short,49091,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Bad Debt,49092,Income,0,active,Associated,,2/1/16,2/29/16
+DHR,Other Ancillary Business Income,49099,Income,0,active,Associated,,2/1/16,2/29/16

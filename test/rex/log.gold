@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Wed May 25 22:38:54 PDT 2016
+Date/Time: Thu May 26 23:38:01 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -115,7 +115,7 @@ DEFINE RENTAL AGREEMENTS
 
 DEFINE CHART OF ACCOUNTS
 CreateLedgerMarkers: line 21 - You must suppy a GL Number for this entry
-  LEID   Type  GLAccountNo         Amount   Name
+  LID   Type  GLAccountNo         Amount   Name
    12               00001           0.00   Basement Storage
    13               00002           0.00   Change In Delinquency
     2    11         11001           0.00   General Accounts Receivable

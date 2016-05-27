@@ -332,7 +332,7 @@ func ReportChartOfAcctsToText(p *Ledger) string {
 func RRreportChartOfAccounts(t int, bid int64) string {
 	m := GetLedgerList(bid)
 	//                               123456789012
-	fmt.Printf("  LEID   Type  GLAccountNo         Amount   Name\n")
+	fmt.Printf("  LID   Type  GLAccountNo         Amount   Name\n")
 	s := ""
 	for i := 0; i < len(m); i++ {
 		switch t {

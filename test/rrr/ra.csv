@@ -1,0 +1,6 @@
+TemplateName,Designation,PrimaryTenant,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName
+"23jlk20951","DHR","123-456-7890","info@abc.com","7/1/2016","7/1/16",1,,6303-231
+"823988ldj","DHR","asmith@gmail.com","asmith@gmail.com","7/5/16","7/7/16",1,,6303-231
+"983dslj3l2","DHR","cjones@arcenergy.com","info@arcenergy.com","7/10/16","7/31/16",1,,6303-231
+"38235lkl","DHR","CindyJ@rexford.com","CindyJ@rexford.com;EdithJ@rexford.com","12/1/14","11/30/16",1,"",6323-301
+"832599","DHR","edj@rexford.com;acurry@rexford.com;jnight@rexford.com","info@soconstruction.com","11/1/13","10/31/16",1,"",6392-930

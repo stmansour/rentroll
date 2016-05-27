@@ -1,0 +1,5 @@
+Designation,Name,Description
+dhr,"Cash","Cash"
+dhr,"Check","Personal check from payor"
+dhr,"VISA","Credit card charge"
+dhr,"AMEX","American Express credit card"

@@ -1,0 +1,1473 @@
+CSV IMPORT TEST
+Date/Time: Thu May 26 21:10:58 PDT 2016
+
+CREATE NEW DATABASE
+DEFINE BUSINESS
+searching for business:  DHR
+   1    DHR    Daisy Hills Properties
+
+
+DEFINE ASSESSMENT TYPES
+Name  OccRqd   Description
+   1       1   Rent
+   2       1   Security Deposit
+   3       0   Security Deposit Forfeiture
+   4       0   Application Fees
+   5       1   Landlord Lien Sales
+   6       1   Pet Fees
+   7       1   Eviction Fees
+   8       1   Electric Reimbursement
+   9       1   Electric Overage
+  10       1   Water Reimbursement
+  11       1   Water Overage
+  12       1   Trash Fee
+  13       1   Utility Fine
+  14       0   NSF Fee
+  15       1   Maintenance Fee
+  16       1   Fines
+  17       1   Month to Month Fee
+  18       1   Cancelation Fees
+  19       1   Housekeeping Fee
+  20       1   Extra Person Charge
+  21       1   Furniture Rental
+  22       1   Platinum Service Fee
+  23       1   Gold Service Fee
+  24       1   Silver Service Fee
+  25       1   Sales Tax
+  26       1   TOT Tax
+  27       1   Reletting Fees
+  28       1   Carport Fees
+  29       1   Garage Fees
+  30       1   Reserved Parking Fees
+  31       1   Transfer fees
+  32       1   Washer/Dryer Fee
+  33       1   Association Dues Assessment
+  34       1   Insurance Reimbursement
+  35       1   Tax Reimbursement
+  36       1   Special Event Fees
+  37       1   Convenience Store Sales
+  38       1   Courtesy Car Rental
+  39       1   Vending Income
+  40       1   Transportation
+  41       1   Food Sales
+  42       1   Liquor Sales
+  43       1   WashNFold Income
+  44       1   Spa Sales
+  45       1   Fitness Center
+  46       1   CashOverShort
+  47       0   Late Payment Fee
+  48       1   Other Income
+  49       1   Bad Debt Write-Off
+  50       0   Off Line
+  51       0   Concession
+  52       1   Employee
+  53       0   Damages
+  54       1   Pest Control Reimbursement
+  55       0   Security Deposit Return
+  56       1   Returned Payments
+  57       0   Security Deposit Assessment
+  58       1   Lake View
+  59       1   Courtyard View
+  60       1   Top Floor
+  61       1   Fireplace
+  62       0   Owner Occupied
+
+
+DEFINE RENTABLE TYPES
+RTID   Style      Name
+   1 - A1  -  1BR1BA
+   2 - A2  -  2BR1BA
+   3 - B5  -  2BR3BA
+
+
+DEFINE RENTABLES
+ RID  State  Name
+   1      0  6303-231
+   2      0  6323-301
+   3      0  6392-930
+
+
+DEFINE PEOPLE
+ TCID    TID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
+    1      1      1     0  123-456-7890  JJones@abc.com             Jones        , Joshua           ABC Corporation          
+    2      2      2     1  123-983-2244  info@abc.com                            ,                  ABC Corporation          
+    3      3      3     0  123-456-7891  asmith@gmail.com           Smith        , Amanda                                    
+    4      4      4     0  123-456-7892  cjones@arcenergy.com       Jones        , Christoph        ARC Energy               
+    5      5      5     1  123-945-3715  info@arcenergy.com                      ,                  ARC Energy               
+    6      6      6     0  123-456-7893  CindyJ@rexford.com         Jones        , Cindy                                     
+    7      7      7     0  123-456-8516  EdithJ@rexford.com         Jones        , Edith                                     
+    8      8      8     0  123-456-7894  edj@rexford.com            Jones        , Ed                                        
+    9      9      9     0  123-456-2337  acurry@rexford.com         Curry        , Amanda                                    
+   10     10     10     0  123-456-8519  jnight@rexford.com         Night        , Jeb                                       
+   11     11     11     1  123-675-1556  info@soconstruction.com                 ,                  School of Construction   
+
+
+DEFINE RENTAL AGREEMENT TEMPLATES
+RATID  RAType  TemplateName
+    1       3   23jlk20951
+    2       3   823988ldj
+    3       3   983dslj3l2
+    4       2   38235lkl
+    5       3   832599
+
+
+DEFINE RENTAL AGREEMENTS
+ RAID  Payor                                     Tenant                                  
+    1  ABC Corporation                           Joshua Jones                            
+    2  Amanda Smith                              Amanda Smith                            
+    3  ARC Energy                                Christoph Jones                         
+    4  Cindy Jones, Edith Jones                  Cindy Jones                             
+    5  School of Construction                    Ed Jones, Amanda Curry, Jeb Night       
+
+
+DEFINE CUSTOM ATTRIBUTES
+CID       VALUETYPE  Name                       Value                    
+       1          1  Square Feet                672                      
+       2          1  Square Feet                692                      
+       3          1  Square Feet                952                      
+
+
+DEFINE CHART OF ACCOUNTS
+  LID   Type  GLAccountNo         Amount   Name
+    1    10         10000           0.00   Cash
+    9               11000           0.00   Credit Card Clearing
+    2    11         12000           0.00   Accounts Receivable
+    7    16         30000           0.00   Security Deposits
+   10               30100           0.00   Accued Taxes
+   11               30101           0.00   Sales Taxes
+   12               30102           0.00   Transient Occupancy Taxes
+   13               30199           0.00   Other Accrued Taxes
+    8    17         39000           0.00   Owners' Equity
+    3    12         41000           0.00   Unit Gross Scheduled Rent-Taxable
+   14               41001           0.00   Unit Gross Scheduled Rent-Not Taxable
+   15               41100           0.00   Unit Income Offsets
+    5    14         41101           0.00   Vacancy
+    4    13         41102           0.00   Loss (Gain) to Lease
+   16               41103           0.00   Employee Concessions
+   17               41104           0.00   Resident Concessions
+   18               41105           0.00   Owner Occupied
+   19               41106           0.00   Administrative Concession
+   20               41107           0.00   Off Line Renovations
+   21               41108           0.00   Off Line Maintenance
+   22               41199           0.00   Othe Income Offsets
+   23               41200           0.00   Serviced Unit Fees
+   24               41201           0.00   Broadcast and IT Services
+   25               41202           0.00   Food Services
+   26               41203           0.00   Linen Services
+   27               41204           0.00   Wash N Fold Services
+   28               41299           0.00   Other Serviced Apartment Fees
+   29               41300           0.00   Utility Fees
+   30               41301           0.00   Electric Base Fee
+   31               41302           0.00   Electric Overage
+   32               41303           0.00   Water and Sewer Base Fee
+   33               41304           0.00   Water and Sewer Overage
+   34               41305           0.00   Gas Base Fee
+   35               41306           0.00   Gas Overage
+   36               41307           0.00   Trash Collection Base Fee
+   37               41308           0.00   Trash Collection Overage
+   38               41399           0.00   Other Utility Fee
+   39               41400           0.00   Miscellaneous Income
+   40               41401           0.00   Application Fees
+   41               41402           0.00   Late Fees
+   42               41403           0.00   Insufficient Funds Fee
+   43               41404           0.00   Month to Month Fee
+   44               41405           0.00   Unit Premium
+   45               41406           0.00   No Show or Termination Fee
+   46               41407           0.00   Pet Fees
+   47               41408           0.00   Pet Rent
+   48               41409           0.00   Expense Reimbursement
+   49               41410           0.00   Special Cleaning Fee
+   50               41411           0.00   Eviction Fee Reimbursement
+   51               41412           0.00   Extra Person Charge
+    6    15         41413           0.00   Forfeited Security Deposit
+   52               42000           0.00   Garage and Carport Gross Scheduled Rents - Taxable
+   53               42001           0.00   Garage and Carport Gross Scheduled Rents - Non Taxable
+   54               42100           0.00   Garage and Carport Income Offset
+   55               42101           0.00   Vacancy
+   56               42102           0.00   Loss (Gain) to Lease
+   57               42103           0.00   Employee Concessions
+   58               42104           0.00   Resident Concessions
+   59               42105           0.00   Owner Occupied
+   60               42106           0.00   Administrative Concession
+   61               42107           0.00   Off Line Renovations
+   62               42108           0.00   Off Line Maintenance
+   63               42199           0.00   Othe Income Offsets
+   64               42200           0.00   Other Garage and Carport Income
+   65               43000           0.00   Appliance and Furniture Gross Schedule Rent - Taxable
+   66               43001           0.00   Appliance and Furniture Gross Schedule Rent - Non Taxable
+   67               43100           0.00   Appliance and Furniture Income Offset
+   68               43101           0.00   Not Rented
+   69               43102           0.00   Bad Debt
+   70               43103           0.00   Loss (Gain) to Lease
+   71               43104           0.00   Employee Concessions
+   72               43105           0.00   Resident Concessions
+   73               43106           0.00   Owner Used
+   74               43107           0.00   Administrative Concession
+   75               43108           0.00   Off Line Maintenance
+   76               43199           0.00   Othe Income Offsets
+   77               43200           0.00   Other Appliance and Furniture Income
+   78               44000           0.00   Vehicle Gross Scheduled Rents - Taxable
+   79               44001           0.00   Vehicle Gross Scheduled Rents - Non Taxable
+   80               44100           0.00   Garage and Carport Income Offset
+   81               44101           0.00   Vacancy
+   82               44102           0.00   Loss (Gain) to Lease
+   83               44103           0.00   Employee Use
+   84               44104           0.00   Resident Concessions
+   85               44105           0.00   Owner Use
+   86               44106           0.00   Administrative Concession
+   87               44107           0.00   Off Line Maintenance
+   88               44199           0.00   Othe Income Offsets
+   89               44200           0.00   Other Garage and Carport Income
+   90               49000           0.00   Ancillary Business Revenue
+   91               49010           0.00   Convenience Store Vending
+   92               49020           0.00   Fitness Center Revenue
+   93               49030           0.00   Vending Income
+   94               49040           0.00   Restaurant Sales
+   95               49050           0.00   Bar Sales
+   96               49060           0.00   Spa Sales
+   97               49091           0.00   Cash Over/Short
+   98               49092           0.00   Bad Debt
+   99               49099           0.00   Other Ancillary Business Income
+
+
+DEFINE ASSESSMENTS
+      ASMID          RAID        RID   Freq     Amount
+ASM00000001    RA00000001  R00000001      4      76.00
+ASM00000002    RA00000002  R00000001      4      92.00
+ASM00000003    RA00000003  R00000001      4      56.87
+ASM00000004    RA00000004  R00000002      6     730.00
+ASM00000005    RA00000005  R00000003      4     125.00
+
+
+DEFINE PAYMENT TYPES
+      PTID           BID   Name
+PT00000001     B00000001   Cash
+PT00000002     B00000001   Check
+PT00000003     B00000001   VISA
+PT00000004     B00000001   AMEX
+
+
+DEFINE RECEIPTS
+      RCPTID     Amount  AcctRule
+RCPT00000001     735.35  ASM(1) c ${DFLTGENRCV} _, ASM(1) d ${DFLTCASH} _
+RCPT00000002    1003.00  ASM(2) c ${DFLTGENRCV} _, ASM(2) d ${DFLTCASH} _
+RCPT00000003     750.00  ASM(4) c ${DFLTGENRCV} _, ASM(4) d ${DFLTCASH} _
+RCPT00000004    4200.00  ASM(5) c ${DFLTGENRCV} _, ASM(5) d ${DFLTCASH} _
+
+
+DEFINE ASSIGN CUSTOM ATTRIBUTES
+ELEMID        ID       CID
+     5         1         1
+     5         2         2
+     5         3         3
+
+
+PROCESS PAYMENTS AND RECEIPTS
+   ===============================================================================================================
+   Business:  Daisy Hills Properties
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------
+   Description                                             Date    RntAgr         Rentable     GL No        Amount
+   ---------------------------------------------------------------------------------------------------------------
+   J00000001  Rent                                   
+                                  Accounts Receivable  03/01/16         4         6323-301     12000        730.00
+                    Unit Gross Scheduled Rent-Taxable  03/01/16         4         6323-301     41000       -755.00
+                                 Loss (Gain) to Lease  03/01/16         4         6323-301     41102         25.00
+                                                     
+   J00000002  Unassociated: 6303-231                 
+                    Unit Gross Scheduled Rent-Taxable  03/31/16         0         6303-231     41000        -76.00
+                                              Vacancy  03/31/16         0         6303-231     41101         76.00
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   10000 - Cash                                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   11000 - Credit Card Clearing                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   12000 - Accounts Receivable                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+                               Assessment - Rent  03/01/16          1           4         6323-301        730.00        730.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                              730.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30000 - Security Deposits                    
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30100 - Accued Taxes                         
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30101 - Sales Taxes                          
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30102 - Transient Occupancy Taxes            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30199 - Other Accrued Taxes                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   39000 - Owners' Equity                       
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41000 - Unit Gross Scheduled Rent-Taxable    
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+                               Assessment - Rent  03/01/16          1           4         6323-301       -755.00       -755.00
+                                    Unassociated  03/31/16          2           0         6303-231        -76.00       -831.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                             -831.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41001 - Unit Gross Scheduled Rent-Not Taxable
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41100 - Unit Income Offsets                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41101 - Vacancy                              
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+                                    Unassociated  03/31/16          2           0         6303-231         76.00         76.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                               76.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41102 - Loss (Gain) to Lease                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+                               Assessment - Rent  03/01/16          1           4         6323-301         25.00         25.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                               25.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41103 - Employee Concessions                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41104 - Resident Concessions                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41105 - Owner Occupied                       
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41106 - Administrative Concession            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41107 - Off Line Renovations                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41108 - Off Line Maintenance                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41199 - Othe Income Offsets                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41200 - Serviced Unit Fees                   
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41201 - Broadcast and IT Services            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41202 - Food Services                        
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41203 - Linen Services                       
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41204 - Wash N Fold Services                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41299 - Other Serviced Apartment Fees        
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41300 - Utility Fees                         
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41301 - Electric Base Fee                    
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41302 - Electric Overage                     
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41303 - Water and Sewer Base Fee             
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41304 - Water and Sewer Overage              
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41305 - Gas Base Fee                         
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41306 - Gas Overage                          
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41307 - Trash Collection Base Fee            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41308 - Trash Collection Overage             
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41399 - Other Utility Fee                    
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41400 - Miscellaneous Income                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41401 - Application Fees                     
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41402 - Late Fees                            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41403 - Insufficient Funds Fee               
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41404 - Month to Month Fee                   
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41405 - Unit Premium                         
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41406 - No Show or Termination Fee           
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41407 - Pet Fees                             
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41408 - Pet Rent                             
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41409 - Expense Reimbursement                
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41410 - Special Cleaning Fee                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41411 - Eviction Fee Reimbursement           
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41412 - Extra Person Charge                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41413 - Forfeited Security Deposit           
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42000 - Garage and Carport Gross Scheduled Rents - Taxable
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42001 - Garage and Carport Gross Scheduled Rents - Non Taxable
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42100 - Garage and Carport Income Offset     
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42101 - Vacancy                              
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42102 - Loss (Gain) to Lease                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42103 - Employee Concessions                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42104 - Resident Concessions                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42105 - Owner Occupied                       
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42106 - Administrative Concession            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42107 - Off Line Renovations                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42108 - Off Line Maintenance                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42199 - Othe Income Offsets                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42200 - Other Garage and Carport Income      
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43000 - Appliance and Furniture Gross Schedule Rent - Taxable
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43001 - Appliance and Furniture Gross Schedule Rent - Non Taxable
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43100 - Appliance and Furniture Income Offset
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43101 - Not Rented                           
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43102 - Bad Debt                             
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43103 - Loss (Gain) to Lease                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43104 - Employee Concessions                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43105 - Resident Concessions                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43106 - Owner Used                           
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43107 - Administrative Concession            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43108 - Off Line Maintenance                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43199 - Othe Income Offsets                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43200 - Other Appliance and Furniture Income 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44000 - Vehicle Gross Scheduled Rents - Taxable
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44001 - Vehicle Gross Scheduled Rents - Non Taxable
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44100 - Garage and Carport Income Offset     
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44101 - Vacancy                              
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44102 - Loss (Gain) to Lease                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44103 - Employee Use                         
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44104 - Resident Concessions                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44105 - Owner Use                            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44106 - Administrative Concession            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44107 - Off Line Maintenance                 
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44199 - Othe Income Offsets                  
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44200 - Other Garage and Carport Income      
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49000 - Ancillary Business Revenue           
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49010 - Convenience Store Vending            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49020 - Fitness Center Revenue               
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49030 - Vending Income                       
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49040 - Restaurant Sales                     
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49050 - Bar Sales                            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49060 - Spa Sales                            
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49091 - Cash Over/Short                      
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49092 - Bad Debt                             
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49099 - Other Ancillary Business Income      
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+
