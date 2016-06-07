@@ -22,10 +22,20 @@ func UpdateLedger(l *Ledger) error {
 
 // UpdateTransactant updates a transactant record in the database
 func UpdateTransactant(a *Transactant) error {
-	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.TID, a.PID, a.PRSPID, a.FirstName, a.MiddleName, a.LastName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy, a.TCID)
+	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.RENTERID, a.PID, a.PRSPID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.Notes, a.LastModBy, a.TCID)
 	if nil != err {
 		Ulog("UpdateTransactant: error inserting Transactant:  %v\n", err)
 		Ulog("Transactant = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateAgreementPet updates a transactant record in the database
+func UpdateAgreementPet(a *AgreementPet) error {
+	_, err := RRdb.Prepstmt.UpdateAgreementPet.Exec(a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
+	if nil != err {
+		Ulog("UpdateAgreementPet: error inserting pet:  %v\n", err)
+		Ulog("AgreementPet = %#v\n", *a)
 	}
 	return err
 }

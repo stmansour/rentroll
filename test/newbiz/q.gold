@@ -1,11 +1,11 @@
-PID	TCID	CreditLimit	EmployerName	EmployerStreetAddress	EmployerCity	EmployerState	EmployerPostalCode	EmployerEmail	EmployerPhone	Occupation	LastModBy
-1	1	0.0000									0
-2	2	0.0000									0
-3	3	0.0000									0
-4	4	0.0000									0
-5	5	0.0000									0
-6	6	0.0000									0
-7	7	0.0000									0
-8	8	250.0000	Springfield Nuclear	1234 Burns Road	Springfield	MO		info@sprinfieldnuclear.com		Safety Inspector	0
-9	9	1250.0000	Springfield Elementary School	1234 Education Road	Springfield	MO	64055	info@sfelementary.com	123-456-7890	School Principal	0
-10	10	0.0000									0
+PID	TCID	CreditLimit	TaxpayorID	AccountRep	LastModBy
+1	1	0.0000		0	0
+2	2	0.0000		0	0
+3	3	0.0000		0	0
+4	4	0.0000		0	0
+5	5	0.0000		0	0
+6	6	0.0000		0	0
+7	7	0.0000		0	0
+8	8	250.0000		0	0
+9	9	1250.0000		34	0
+10	10	0.0000		0	0

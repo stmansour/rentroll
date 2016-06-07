@@ -21,15 +21,16 @@ ${RRBIN}/rrnewdb
 # dotest()
 #	Parameters:
 # 		$1 = base file name
-# 		$2 = title
-# 		$3 = mysql select statement
+#		$2 = app options to reproduce
+# 		$3 = title
+# 		$4 = mysql select statement
 ########################################
 dotest () {
 cat >xxqq <<EOF
 use rentroll;
-${3}
+${4}
 EOF
-	echo -n $2
+	echo -n $3
 	mysql --no-defaults <xxqq >${1}
 	if [ ! -f ${1}.gold -o ! -f ${1} ]; then
 		echo "Missing file: two files are required for checking this phase: ${1}.gold and ${1}"
@@ -39,35 +40,37 @@ EOF
 	if [ ${UDIFFS} -eq 0 ]; then
 		echo "PASSED"
 	else
-		echo "FAILED:  differences in ${1} are as follows:"
+		echo "FAILED...   if correct:  mv ${1} ${1}.gold"
+		echo "Command to reproduce:  ./newbiz ${2}"
+		echo "Differences in ${1} are as follows:"
 		diff ${1}.gold ${1}
 		exit 1
 	fi
 }
 
-dotest "x" "PHASE  1: New Businesses...  " "select BID,DES,Name,DefaultAccrual,ParkingPermitInUse,LastModBy from business;"
-dotest "y" "PHASE  2: Assessment Types...  " "select Name,Description,LastModBy from assessmenttypes;"
-dotest "z" "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,Accrual,Proration,Report,ManageToBudget,LastModBy from rentabletypes;"
-dotest "w" "PHASE  4: Rentable Market Rates...  " "select * from rentablemarketrate;"
-dotest "v" "PHASE  5: Rentable Specialty Types...  " "select * from rentablespecialtytypes;"
-dotest "u" "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from building;"
-dotest "t" "PHASE  7: Rentables...  " "select RID,RTID,BID,Name,Assignment,Report,DefaultOccType,OccType,LastModBy from rentable;"
-dotest "s" "PHASE  8: Transactants...  " "select TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from transactant;"
-dotest "r" "PHASE  9: Tenants...  " "select TID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,AccountRep,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,ElibigleForFutureOccupancy,Industry,Source,InvoicingCustomerNumber from tenant;"
-dotest "q" "PHASE 10: Payors...  " "select PID,TCID,CreditLimit,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,LastModBy from payor;"
-dotest "p" "PHASE 11: Prospects...  " "select PRSPID,TCID,ApplicationFee,LastModBy from prospect;"
-dotest "o" "PHASE 12: Rental Agreement Templates...  " "select RATID,ReferenceNumber,RentalAgreementType,LastModBy from rentalagreementtemplate;"
-dotest "n" "PHASE 13: Rental Agreements...  " "select RAID,RATID,BID,PrimaryTenant,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy from rentalagreement;"
-dotest "m" "PHASE 14: Agreement Rentables...  " "select * from agreementrentables;"
-dotest "l" "PHASE 15: Agreement Payors...  " "select * from agreementpayors;"
-dotest "k" "PHASE 16a: Chart of Accounts...  " "select LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy from ledger;"
-dotest "k1" "PHASE 16b: Ledger Markers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from ledgermarker;"
-dotest "j" "PHASE 17: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,Accrual,ProrationMethod,AcctRule,Comment,LastModBy from assessments;"
-dotest "i" "PHASE 18: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from paymenttypes;"
-dotest "h" "PHASE 19: Payment allocations...  " "select * from receiptallocation order by Amount ASC;"
-dotest "g" "PHASE 20: Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from receipt;"
-dotest "f" "PHASE 21: CustomAttributes... " "select CID,Type,Name,Value,LastModBy from customattr;"
-dotest "e" "PHASE 22: CustomAttributes assignment... " "select * from customattrref;"
+dotest "x" "-b nb.csv"           "PHASE  1: New Businesses...  " "select BID,DES,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from business;"
+dotest "y" "-a asmttype.csv"     "PHASE  2: Assessment Types...  " "select Name,Description,LastModBy from assessmenttypes;"
+dotest "z" "-R rt.csv"           "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,RentalPeriod,Proration,ManageToBudget,LastModBy from rentabletypes;"
+dotest "w" "-R rt.csv"           "PHASE  4: Rentable Market Rates...  " "select * from rentablemarketrate;"
+dotest "v" "-s specialties.csv"  "PHASE  5: Rentable Specialty Types...  " "select * from rentablespecialtytypes;"
+dotest "u" "-D bldg.csv"         "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from building;"
+dotest "t" "-r rentable.csv"     "PHASE  7: Rentables...  " "select RID,RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentalPeriod,LastModBy from rentable;"
+dotest "s" "-p people.csv"       "PHASE  8: Transactants...  " "select TCID,RENTERID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from transactant;"
+dotest "r" "-p people.csv"       "PHASE  9: Renters...  " "select RENTERID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureRenter,Industry,Source from renter;"
+dotest "q" "-p people.csv"       "PHASE 10: Payors...  " "select PID,TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from payor;"
+dotest "p" "-p people.csv"       "PHASE 11: Prospects...  " "select PRSPID,TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from prospect;"
+dotest "o" "-T rat.csv"          "PHASE 12: Rental Agreement Templates...  " "select RATID,RentalTemplateNumber,RentalAgreementType,LastModBy from rentalagreementtemplate;"
+dotest "n" "-C ra.csv"           "PHASE 13: Rental Agreements...  " "select RAID,RATID,BID,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy from rentalagreement;"
+dotest "m" "-C ra.csv"           "PHASE 14: Agreement Rentables...  " "select * from agreementrentables;"
+dotest "l" "-C ra.csv"           "PHASE 15: Agreement Payors...  " "select * from agreementpayors;"
+dotest "k" "-c coa.csv"          "PHASE 16a: Chart of Accounts...  " "select LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy from ledger;"
+dotest "k1" "-c coa.csv"         "PHASE 16b: Ledger Markers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from ledgermarker;"
+dotest "j" "-A asmt.csv"         "PHASE 17: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,ProrationMethod,AcctRule,Comment,LastModBy from assessments;"
+dotest "i" "-P pmt.csv"          "PHASE 18: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from paymenttypes;"
+dotest "h" "-e rcpt.csv"         "PHASE 19: Payment allocations...  " "select * from receiptallocation order by Amount ASC;"
+dotest "g" "-e rcpt.csv"         "PHASE 20: Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from receipt;"
+dotest "f" "-u custom.csv"       "PHASE 21: CustomAttributes... " "select CID,Type,Name,Value,LastModBy from customattr;"
+dotest "e" "-U assigncustom.csv" "PHASE 22: CustomAttributes AssignmentTime... " "select * from customattrref;"
 
 echo -n "PHASE x: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then
@@ -89,7 +92,8 @@ if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
 	rm -f ll.g llog
 else
-	echo "FAILED:  differences are as follows:"
+	echo "FAILED...   if correct:   mv log log.gold"
+	echo "Differences are as follows:"
 	diff ll.g llog
 	exit 1
 fi

@@ -32,11 +32,11 @@ func CreateAssessmentType(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// OccupancyRqd
+	// RARequired
 	//-------------------------------------------------------------------
-	a.OccupancyRqd, _ = IntFromString(sa[1], "OccupancyRqd value is invalid")
-	if a.OccupancyRqd < 0 || a.OccupancyRqd > 1 {
-		fmt.Printf("%s: line %d - OccupancyRqd must be 0 or 1.  Found: %s\n", funcname, lineno, sa[1])
+	a.RARequired, _ = IntFromString(sa[1], "RARequired value is invalid")
+	if a.RARequired < RARQDINRANGE || a.RARequired > RARQDANY {
+		fmt.Printf("%s: line %d - RARequired must be in the range %d to %d.  Found: %s\n", funcname, lineno, RARQDINRANGE, RARQDANY, sa[1])
 		return
 	}
 

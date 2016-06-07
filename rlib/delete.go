@@ -1,5 +1,7 @@
 package rlib
 
+import "time"
+
 // DeleteJournalAllocations deletes the allocation records associated with the supplied jid
 func DeleteJournalAllocations(jid int64) {
 	_, err := RRdb.Prepstmt.DeleteJournalAllocations.Exec(jid)
@@ -83,6 +85,34 @@ func DeleteCustomAttributeRef(elemid, id, cid int64) error {
 	_, err := RRdb.Prepstmt.DeleteCustomAttributeRef.Exec(elemid, id, cid)
 	if err != nil {
 		Ulog("Error deleting elemid=%d, id=%d, cid=%d, error: %v\n", elemid, id, cid, err)
+	}
+	return err
+}
+
+// DeleteRentableStatus deletes RentableStatus records with the supplied rid, dtstart and dtstop
+func DeleteRentableStatus(rid int64, dtstart, dtstop *time.Time) error {
+	_, err := RRdb.Prepstmt.DeleteRentableStatus.Exec(rid, dtstart, dtstop)
+	if err != nil {
+		Ulog("Error deleting RentableStatus with rid=%d, dtstart=%s, dtstop=%s, error: %v\n",
+			rid, dtstart.Format(RRDATEINPFMT), dtstop.Format(RRDATEINPFMT), err)
+	}
+	return err
+}
+
+// DeleteAgreementPet deletes the pet with the specified petid from the database
+func DeleteAgreementPet(petid int64) error {
+	_, err := RRdb.Prepstmt.DeleteAgreementPet.Exec(petid)
+	if err != nil {
+		Ulog("Error deleting petid=%d error: %v\n", petid, err)
+	}
+	return err
+}
+
+// DeleteAllAgreementPets deletes the pet with the specified petid from the database
+func DeleteAllAgreementPets(raid int64) error {
+	_, err := RRdb.Prepstmt.DeleteAllAgreementPets.Exec(raid)
+	if err != nil {
+		Ulog("Error deleting pets for rental agreement=%d error: %v\n", raid, err)
 	}
 	return err
 }

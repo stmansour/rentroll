@@ -45,7 +45,7 @@ const (
 	DFLTOWNREQUITY = 17
 	DFLTLAST       = 17 // set this to the last default account index
 
-	ACCRUALUNSET     = 0
+	ACCRUALNORECUR   = 0
 	ACCRUALSECONDLY  = 1
 	ACCRUALMINUTELY  = 2
 	ACCRUALHOURLY    = 3
@@ -55,12 +55,19 @@ const (
 	ACCRUALQUARTERLY = 7
 	ACCRUALYEARLY    = 8
 
-	RENTABLESTATEONLINE   = 0
-	RENTABLESTATEADMIN    = 1
-	RENTABLESTATEEMPLOYEE = 2
-	RENTABLESTATEOWNEROCC = 3
-	RENTABLESTATEOFFLINE  = 4
-	RENTABLESTATELAST     = 4
+	RARQDINRANGE = 0 // assessment must during the Rental Agreement period
+	RARQDPRIOR   = 1 // can be assessed prior to or during the Rental Agreement  period
+	RARQDAFTER   = 2 // can be assessed during  or after theRental Agreement period
+	RARQDANY     = 3 // can be assessed anytime: before, during, or after the Rental Agreement period
+	RARQDLAST    = 3 // keep in sync with last
+
+	RENTABLESTATUSUNKNOWN  = 0
+	RENTABLESTATUSONLINE   = 1
+	RENTABLESTATUSADMIN    = 2
+	RENTABLESTATUSEMPLOYEE = 3
+	RENTABLESTATUSOWNEROCC = 4
+	RENTABLESTATUSOFFLINE  = 5
+	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
 	CREDIT = 0
 	DEBIT  = 1
@@ -100,6 +107,9 @@ const RRDATEFMT3 = "1/2/2006"
 // RRDATEINPFMT is the shorthand for database-style dates
 const RRDATEINPFMT = "2006-01-02"
 
+// RRDATETIMEINPFMT is the shorthand for database-style dates
+const RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
+
 //==========================================
 // ASMID = Assessment id
 // ASMTID = assessment type id
@@ -120,11 +130,11 @@ const RRDATEINPFMT = "2006-01-02"
 // RAID = rental agreement / occupancy agreement
 // RATID = occupancy agreement template id
 // RCPTID = receipt id
+// RENTERID = renter id
 // RID = rentable id
 // RSPID = unit specialty id
 // RTID = rentable type id
 // TCID = transactant id
-// TID = tenant id
 //==========================================
 
 // CustomAttribute is a struct containing user-defined custom attributes for objects
@@ -149,11 +159,11 @@ type CustomAttributeRef struct {
 
 // RentalAgreementTemplate is a template used to set up new rental agreements
 type RentalAgreementTemplate struct {
-	RATID               int64
-	ReferenceNumber     string // a string associated with each rental type agreement
-	RentalAgreementType int64  // 0=unset, 1=leasehold, 2=month-to-month, 3=hotel
-	LastModTime         time.Time
-	LastModBy           int64
+	RATID                int64
+	RentalTemplateNumber string // a string associated with each rental type agreement
+	RentalAgreementType  int64  // 0=unset, 1=leasehold, 2=month-to-month, 3=hotel
+	LastModTime          time.Time
+	LastModBy            int64
 }
 
 // RentalAgreement binds one or more payors to one or more rentables
@@ -161,18 +171,17 @@ type RentalAgreement struct {
 	RAID              int64       // internal unique id
 	RATID             int64       // reference to Occupancy Master Agreement
 	BID               int64       // business (so that we can process by business)
-	PrimaryTenant     int64       // Tenant ID of primary tenant
 	RentalStart       time.Time   // start date for rental
 	RentalStop        time.Time   // stop date for rental
-	OccStart          time.Time   // start date for Occupancy
-	OccStop           time.Time   // stop date for Occupancy
+	PossessionStart   time.Time   // start date for Occupancy
+	PossessionStop    time.Time   // stop date for Occupancy
 	Renewal           int64       // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 	SpecialProvisions string      // free-form text
 	LastModTime       time.Time   //	-- when was this record last written
 	LastModBy         int64       // employee UID (from phonebook) that modified it
 	R                 []XRentable // all the rentables
 	P                 []XPerson   // all the payors
-	T                 []XPerson   // all the tenants
+	T                 []XPerson   // all the renters
 }
 
 // AgreementRentable describes a rentable associated with a rental agreement
@@ -191,24 +200,40 @@ type AgreementPayor struct {
 	DtStop  time.Time // stop date/time
 }
 
-// AgreementTenant describes a Tenant associated with a rental agreement
-type AgreementTenant struct {
-	RAID    int64
-	TID     int64
-	DtStart time.Time // start date/time for this Tenant
-	DtStop  time.Time // stop date/time (when this person stopped being a tenant)
+// AgreementPet describes a pet associated with a rental agreement. There can be as many as needed.
+type AgreementPet struct {
+	PETID       int64
+	RAID        int64
+	Type        string
+	Breed       string
+	Color       string
+	Weight      string
+	Name        string
+	DtStart     time.Time
+	DtStop      time.Time
+	LastModTime time.Time
+	LastModBy   int64
+}
+
+// AgreementRenter describes a Renter associated with a rental agreement
+type AgreementRenter struct {
+	RAID     int64
+	RENTERID int64
+	DtStart  time.Time // start date/time for this Renter
+	DtStop   time.Time // stop date/time (when this person stopped being a renter)
 }
 
 // Transactant is the basic structure of information
-// about a person who is a prospect, applicant, tenant, or payor
+// about a person who is a prospect, applicant, renter, or payor
 type Transactant struct {
 	TCID           int64
-	TID            int64
+	RENTERID       int64
 	PID            int64
 	PRSPID         int64
 	FirstName      string
 	MiddleName     string
 	LastName       string
+	PreferredName  string
 	CompanyName    string // sometimes the entity will be a company
 	IsCompany      int    // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail   string
@@ -221,52 +246,16 @@ type Transactant struct {
 	State          string
 	PostalCode     string
 	Country        string
+	Website        string // person's website
+	Notes          string // general text
 	LastModTime    time.Time
 	LastModBy      int64
 }
 
 // Prospect contains info over and above
 type Prospect struct {
-	PRSPID         int64
-	TCID           int64
-	ApplicationFee float64 // if non-zero this prospect is an applicant
-	LastModTime    time.Time
-	LastModBy      int64
-}
-
-// Tenant contains all info common to a person
-type Tenant struct {
-	TID                        int64
-	TCID                       int64
-	Points                     int64
-	CarMake                    string
-	CarModel                   string
-	CarColor                   string
-	CarYear                    int64
-	LicensePlateState          string
-	LicensePlateNumber         string
-	ParkingPermitNumber        string
-	AccountRep                 int64
-	DateofBirth                time.Time
-	EmergencyContactName       string
-	EmergencyContactAddress    string
-	EmergencyContactTelephone  string
-	EmergencyEmail             string
-	AlternateAddress           string
-	ElibigleForFutureOccupancy int64
-	Industry                   string
-	Source                     string
-	InvoicingCustomerNumber    string
-	LastModTime                time.Time
-	LastModBy                  int64
-}
-
-// Payor is attributes of the person financially responsible
-// for the rent.
-type Payor struct {
-	PID                   int64
+	PRSPID                int64
 	TCID                  int64
-	CreditLimit           float64
 	EmployerName          string
 	EmployerStreetAddress string
 	EmployerCity          string
@@ -275,26 +264,65 @@ type Payor struct {
 	EmployerEmail         string
 	EmployerPhone         string
 	Occupation            string
+	ApplicationFee        float64 // if non-zero this prospect is an applicant
 	LastModTime           time.Time
 	LastModBy             int64
+}
+
+// Renter contains all info common to a person
+type Renter struct {
+	RENTERID                  int64
+	TCID                      int64
+	Points                    int64
+	CarMake                   string
+	CarModel                  string
+	CarColor                  string
+	CarYear                   int64
+	LicensePlateState         string
+	LicensePlateNumber        string
+	ParkingPermitNumber       string
+	DateofBirth               time.Time
+	EmergencyContactName      string
+	EmergencyContactAddress   string
+	EmergencyContactTelephone string
+	EmergencyEmail            string
+	AlternateAddress          string
+	EligibleFutureRenter      int64
+	Industry                  string
+	Source                    string
+	LastModTime               time.Time
+	LastModBy                 int64
+}
+
+// Payor is attributes of the person financially responsible
+// for the rent.
+type Payor struct {
+	PID                 int64
+	TCID                int64
+	CreditLimit         float64
+	TaxpayorID          string
+	AccountRep          int64
+	EligibleFuturePayor int64
+	LastModTime         time.Time
+	LastModBy           int64
 }
 
 // XPerson of all person related attributes
 type XPerson struct {
 	Trn Transactant
-	Tnt Tenant
+	Tnt Renter
 	Psp Prospect
 	Pay Payor
 }
 
 // AssessmentType describes the different types of assessments
 type AssessmentType struct {
-	ASMTID       int64
-	OccupancyRqd int64
-	Name         string
-	Description  string
-	LastModTime  time.Time
-	LastModBy    int64
+	ASMTID      int64
+	RARequired  int64
+	Name        string
+	Description string
+	LastModTime time.Time
+	LastModBy   int64
 }
 
 // Assessment is a charge associated with a rentable
@@ -307,7 +335,7 @@ type Assessment struct {
 	Amount          float64   // how much
 	Start           time.Time // start time
 	Stop            time.Time // stop time, may be the same as start time or later
-	Accrual         int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	RentalPeriod    int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	ProrationMethod int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	AcctRule        string    // expression showing how to account for the amount
 	Comment         string
@@ -317,13 +345,13 @@ type Assessment struct {
 
 // Business is the set of attributes describing a rental or hotel business
 type Business struct {
-	BID                int64
-	Designation        string // reference to designation in Phonebook db
-	Name               string
-	DefaultAccrual     int64     // may not be default for every rentable: 0=unset, 1=short term, 2=longterm
-	ParkingPermitInUse int64     // yes/no  0 = no, 1 = yes
-	LastModTime        time.Time // when was this record last written
-	LastModBy          int64     // employee UID (from phonebook) that modified it
+	BID                 int64
+	Designation         string // reference to designation in Phonebook db
+	Name                string
+	DefaultRentalPeriod int64     // may not be default for every rentable: 0=unset, 1=short term, 2=longterm
+	ParkingPermitInUse  int64     // yes/no  0 = no, 1 = yes
+	LastModTime         time.Time // when was this record last written
+	LastModBy           int64     // employee UID (from phonebook) that modified it
 }
 
 // Building defines the location of a building that is part of a business
@@ -350,7 +378,7 @@ type PaymentType struct {
 	LastModBy   int64
 }
 
-// Receipt saves the information associated with a payment made by a tenant to cover one or more assessments
+// Receipt saves the information associated with a payment made by a renter to cover one or more assessments
 type Receipt struct {
 	RCPTID      int64
 	BID         int64
@@ -375,17 +403,17 @@ type ReceiptAllocation struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID            int64     // unique id for this rentable
-	RTID           int64     // rentable type id
-	BID            int64     // business
-	Name           string    // name for this rental
-	Assignment     int64     // can we pre-assign or assign only at commencement
-	Report         int64     // 1 = apply to rentroll, 0 = skip
-	DefaultOccType int64     // 0 =unset, 1 = short term, 2=longterm
-	OccType        int64     // 0 =unset, 1 = short term, 2=longterm
-	State          int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
-	LastModTime    time.Time // time of last update to the db record
-	LastModBy      int64     // who made the update (Phonebook UID)
+	RID                 int64     // unique id for this rentable
+	RTID                int64     // rentable type id
+	BID                 int64     // business
+	Name                string    // name for this rental
+	AssignmentTime      int64     // can we pre-assign or assign only at commencement
+	RentalPeriodDefault int64     // 0 =unset, 1 = short term, 2=longterm
+	RentalPeriod        int64     // 0 =unset, 1 = short term, 2=longterm
+	LastModTime         time.Time // time of last update to the db record
+	LastModBy           int64     // who made the update (Phonebook UID)
+	//	Report     int64     // 1 = apply to rentroll, 0 = skip
+	// State          int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
 }
 
 // RentableSpecialty is the structure for attributes of a rentable specialty
@@ -397,15 +425,25 @@ type RentableSpecialty struct {
 	Description string
 }
 
+// RentableStatus archives the state of a rentable during the specified period of time
+type RentableStatus struct {
+	RID         int64     // associated rentable
+	DtStart     time.Time // start of period
+	DtStop      time.Time // end of period
+	Status      int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
+	LastModTime time.Time // time of last update to the db record
+	LastModBy   int64     // who made the update (Phonebook UID)
+}
+
 // RentableType is the set of attributes describing the different types of rentable items
 type RentableType struct {
-	RTID           int64
-	BID            int64
-	Style          string
-	Name           string
-	Accrual        int64
-	Proration      int64
-	Report         int64 // does this type of rentable show up in reporting
+	RTID         int64
+	BID          int64
+	Style        string
+	Name         string
+	RentalPeriod int64
+	Proration    int64
+	// Report         int64 // does this type of rentable show up in reporting
 	ManageToBudget int64
 	MR             []RentableMarketRate
 	CA             []CustomAttribute
@@ -526,11 +564,12 @@ type RRprepSQL struct {
 	DeleteLedgerMarker                 *sql.Stmt
 	DeleteReceipt                      *sql.Stmt
 	DeleteReceiptAllocations           *sql.Stmt
+	DeleteRentableStatus               *sql.Stmt
 	FindAgreementByRentable            *sql.Stmt
 	FindTransactantByPhoneOrEmail      *sql.Stmt
 	GetAgreementPayors                 *sql.Stmt
 	GetAgreementRentables              *sql.Stmt
-	GetAgreementTenants                *sql.Stmt
+	GetAgreementRenters                *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
 	GetAllAssessmentsByBusiness        *sql.Stmt
 	GetAllBusinessRentableTypes        *sql.Stmt
@@ -579,6 +618,7 @@ type RRprepSQL struct {
 	GetRentableMarketRates             *sql.Stmt
 	GetRentableSpecialties             *sql.Stmt
 	GetRentableSpecialty               *sql.Stmt
+	GetRentableStatusByRange           *sql.Stmt
 	GetRentableType                    *sql.Stmt
 	GetRentableTypeByStyle             *sql.Stmt
 	GetRentalAgreement                 *sql.Stmt
@@ -587,12 +627,12 @@ type RRprepSQL struct {
 	GetRentalAgreementTemplateByRefNum *sql.Stmt
 	GetSecurityDepositAssessment       *sql.Stmt
 	GetSpecialtyByName                 *sql.Stmt
-	GetTenant                          *sql.Stmt
+	GetRenter                          *sql.Stmt
 	GetTransactant                     *sql.Stmt
 	GetUnitAssessments                 *sql.Stmt
 	InsertAgreementPayor               *sql.Stmt
 	InsertAgreementRentable            *sql.Stmt
-	InsertAgreementTenant              *sql.Stmt
+	InsertAgreementRenter              *sql.Stmt
 	InsertAssessment                   *sql.Stmt
 	InsertAssessmentType               *sql.Stmt
 	InsertBuilding                     *sql.Stmt
@@ -615,14 +655,22 @@ type RRprepSQL struct {
 	InsertRentable                     *sql.Stmt
 	InsertRentableMarketRates          *sql.Stmt
 	InsertRentableSpecialtyType        *sql.Stmt
+	InsertRentableStatus               *sql.Stmt
 	InsertRentableType                 *sql.Stmt
 	InsertRentalAgreement              *sql.Stmt
 	InsertRentalAgreementTemplate      *sql.Stmt
-	InsertTenant                       *sql.Stmt
+	InsertRenter                       *sql.Stmt
 	InsertTransactant                  *sql.Stmt
 	UpdateLedger                       *sql.Stmt
 	UpdateLedgerMarker                 *sql.Stmt
+	UpdateRentableStatus               *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
+	GetAgreementPet                    *sql.Stmt
+	GetAllAgreementPets                *sql.Stmt
+	InsertAgreementPet                 *sql.Stmt
+	UpdateAgreementPet                 *sql.Stmt
+	DeleteAgreementPet                 *sql.Stmt
+	DeleteAllAgreementPets             *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

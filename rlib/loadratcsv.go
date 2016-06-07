@@ -24,14 +24,14 @@ func CreateRentalAgreementTemplate(sa []string) {
 				Ulog("CreateRentalAgreementTemplate:  GetRentalAgreementTemplateByRefNum returned error %v\n", err)
 			}
 		}
-		if len(a1.ReferenceNumber) > 0 {
-			Ulog("CreateRentalAgreementTemplate: RentalAgreementTemplate with ReferenceNumber %s already exists\n", des)
+		if len(a1.RentalTemplateNumber) > 0 {
+			Ulog("CreateRentalAgreementTemplate: RentalAgreementTemplate with RentalTemplateNumber %s already exists\n", des)
 			return
 		}
 	}
 
 	var a RentalAgreementTemplate
-	a.ReferenceNumber = strings.TrimSpace(sa[0])
+	a.RentalTemplateNumber = strings.TrimSpace(sa[0])
 	s := strings.TrimSpace(sa[1])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(strings.TrimSpace(s))

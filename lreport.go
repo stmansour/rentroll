@@ -167,7 +167,8 @@ func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		if lm.LMID < 1 || err != nil {
 			fmt.Printf("LedgerReportText: GLNumber %s -- no Ledger Marker for: %s - %s\n",
 				t[i].GLNumber, dd1.Format(rlib.RRDATEFMT), dd2.Format(rlib.RRDATEFMT))
+		} else {
+			reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
 		}
-		reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
 	}
 }

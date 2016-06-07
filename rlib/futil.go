@@ -1,11 +1,14 @@
 package rlib
 
+// This file is a random collection of utility routines...
+
 import (
 	"encoding/csv"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Stripchars returns a string with the characters from chars removed
@@ -33,7 +36,34 @@ func yesnoToInt(si string) (int64, error) {
 
 // IsValidAccrual returns true if a is a valid accrual value, false otherwise
 func IsValidAccrual(a int64) bool {
-	return !(a < 0 || a > ACCRUALYEARLY)
+	return !(a < ACCRUALNORECUR || a > ACCRUALYEARLY)
+}
+
+// AccrualDuration converts an accrual frequency into the time duration it represents
+func AccrualDuration(a int64) time.Duration {
+	var d = time.Duration(0)
+	switch a {
+	case ACCRUALNORECUR:
+	case ACCRUALSECONDLY:
+		d = time.Second
+	case ACCRUALMINUTELY:
+		d = time.Minute
+	case ACCRUALHOURLY:
+		d = time.Hour
+	case ACCRUALDAILY:
+		d = time.Hour * 24
+	case ACCRUALWEEKLY:
+		d = time.Hour * 24 * 7
+	case ACCRUALMONTHLY:
+		d = time.Hour * 24 * 30 // yea, I know this isn't exactly right
+	case ACCRUALQUARTERLY:
+		d = time.Hour * 24 * 90 // yea, I know this isn't exactly right
+	case ACCRUALYEARLY:
+		d = time.Hour * 24 * 365 // yea, I know this isn't exactly right
+	default:
+		Ulog("AccrualDuration: invalid accrual value: %d\n", a)
+	}
+	return d
 }
 
 // IsSQLNoResultsError returns true if the error provided is a sql err indicating no rows in the solution set.

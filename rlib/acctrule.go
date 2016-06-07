@@ -61,6 +61,7 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 	funcname := "ParseAcctRule"
 	var m []AcctRule
 	ctx := RpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
+	// fmt.Printf("ctx.Amount = %f\n", ctx.amount)
 	if len(rule) > 0 {
 		sa := strings.Split(rule, ",")
 		for k := 0; k < len(sa); k++ {

@@ -112,7 +112,8 @@ if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
 	rm -f ll.g llog
 else
-	echo "FAILED:  differences are as follows:"
+	echo "FAILED...  if correct:   mv log log.gold"
+	echo "Differences are as follows:"
 	diff ll.g llog
 	exit 1
 fi

@@ -5,11 +5,32 @@ import (
 	"strings"
 )
 
+// ValidAssessmentDate determines whether the assessment type supplied can be assessed during the assessment's defined period
+// given the supplied Rental Agreement period.
+// Returns true if the assessment is valid, false otherwise
+func ValidAssessmentDate(a *Assessment, asmt *AssessmentType, ra *RentalAgreement) bool {
+	v := false // be pessimistic
+	inRange := (DateInRange(&a.Start, &ra.RentalStart, &ra.RentalStop) || a.Start.Equal(ra.RentalStart)) && (DateInRange(&a.Stop, &ra.RentalStart, &ra.RentalStop) || a.Stop.Equal(ra.RentalStop))
+	before := a.Start.Before(ra.RentalStart) && a.Stop.Before(ra.RentalStop)
+	after := (a.Start.After(ra.RentalStart) || a.Start.Equal(ra.RentalStart)) && (a.Stop.After(ra.RentalStop) || a.Stop.Equal(ra.RentalStop))
+	switch asmt.RARequired {
+	case RARQDINRANGE:
+		v = inRange
+	case RARQDPRIOR:
+		v = inRange || before
+	case RARQDAFTER:
+		v = inRange || after
+	case RARQDANY:
+		v = true
+	}
+	return v
+}
+
 // the CSV file format:
-//    0         1             2     3       4             5             6          7                8
-// Designation,RentableName, ASMTID,Amount, Start,        Stop,         Accrual, ProrationMethod, AcctRule
-// REH,         "101",       1,     1000.00,"2014-07-01", "2015-11-08", 6,         4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-// REH,         "101",       1,     1200.00,"2015-11-21", "2016-11-21", 6,         4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
+//    0         1             2      3       4             5             6     7          8              9
+// Designation,RentableName, ASMTID, Amount, Start,        Stop,         RAID, RentalPeriod, ProrationMethod, AcctRule
+// REH,         "101",       1,      1000.00,"2014-07-01", "2015-11-08",    1,  6,      4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+// REH,         "101",       1,      1200.00,"2015-11-21", "2016-11-21",    2,  6,      4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
 
 // type Assessment struct {
 // 	ASMID           int64     // unique id for this assessment
@@ -92,25 +113,19 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	}
 
 	//-------------------------------------------------------------------
-	// Find and set the rental agreement -- but we only need to worry about
-	// this value if the rentable state is normal.  We can skip it otherwise
-	// because the other state values mean that it is not covered by a rental
-	// agreement
+	// Rental Agreement ID
 	//-------------------------------------------------------------------
-	if r.State == RENTABLESTATEONLINE {
-		ra, err := FindAgreementByRentable(a.RID, &DtStart, &DtStop)
+	a.RAID, _ = IntFromString(sa[6], "Assessment type is invalid")
+	if a.RAID > 0 {
+		ra, err := GetRentalAgreement(a.RAID) // for the call to ValidAssessmentDate, we need the entire agreement start/stop period
 		if err != nil {
-			if !IsSQLNoResultsError(err) {
-				fmt.Printf("%s: line %d - Error finding rental agreement for rentable %s.  Error = %v\n", funcname, lineno, r.Name, err)
-				return
-			}
+			fmt.Printf("%s: line %d - error loading Rental Agreement with RAID = %s,  error = %s\n", funcname, lineno, sa[6], err.Error())
 		}
-		a.RAID = ra.RAID
-	}
-	if a.RAID == 0 && asmt.OccupancyRqd == 1 {
-		fmt.Printf("%s: line %d - Assessment type %d requires a rental agreement. None found for period %s to %s\n",
-			funcname, lineno, a.ASMTID, DtStart.Format(RRDATEINPFMT), DtStop.Format(RRDATEINPFMT))
-		return
+		if !ValidAssessmentDate(&a, &asmt, &ra) {
+			fmt.Printf("%s: line %d - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: %d\n",
+				funcname, lineno, asmt.RARequired)
+			return
+		}
 	}
 
 	//-------------------------------------------------------------------
@@ -121,29 +136,29 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	//-------------------------------------------------------------------
 	// Accrual
 	//-------------------------------------------------------------------
-	a.Accrual, _ = IntFromString(sa[6], "Accrual value is invalid")
-	if !IsValidAccrual(a.Accrual) {
-		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %d\n", funcname, lineno, ACCRUALSECONDLY, ACCRUALYEARLY, a.Accrual)
+	a.RentalPeriod, _ = IntFromString(sa[7], "Accrual value is invalid")
+	if !IsValidAccrual(a.RentalPeriod) {
+		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %s\n", funcname, lineno, ACCRUALSECONDLY, ACCRUALYEARLY, sa[7])
 		return
 	}
 
 	//-------------------------------------------------------------------
 	// Proration
 	//-------------------------------------------------------------------
-	a.ProrationMethod, _ = IntFromString(sa[7], "Proration value is invalid")
+	a.ProrationMethod, _ = IntFromString(sa[8], "Proration value is invalid")
 	if !IsValidAccrual(a.ProrationMethod) {
 		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, ACCRUALSECONDLY, ACCRUALYEARLY, a.ProrationMethod)
 		return
 	}
-	if a.ProrationMethod > a.Accrual {
-		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationMethod, a.Accrual)
+	if a.ProrationMethod > a.RentalPeriod {
+		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationMethod, a.RentalPeriod)
 		return
 	}
 
 	//-------------------------------------------------------------------
 	// Set the AcctRule.  No checking for now...
 	//-------------------------------------------------------------------
-	a.AcctRule = sa[8]
+	a.AcctRule = sa[9]
 
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...
@@ -166,6 +181,11 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	}
 	if a.BID == 0 {
 		fmt.Printf("%s: line %d - Skipping this record as the business could not be found\n", funcname, lineno)
+		return
+	}
+
+	if a.RAID == 0 {
+		fmt.Printf("%s: line %d - Skipping this record as the Rental Agreement could not be found\n", funcname, lineno)
 		return
 	}
 

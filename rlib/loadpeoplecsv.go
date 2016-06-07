@@ -10,9 +10,9 @@ import (
 // PeopleSpecialty is the structure for attributes of a rentable specialty
 
 // CSV file format:
-//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  Tenant  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------->|  |<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- prospect --
-//   0           1          2          3          4          5             6               7          8          9        10        11    12     13          14       15      16       17        18        19       20                 21                  22                   23          24           25                    26                       27                          28             29                30                          31        32      33                       34           35            36                     37            38             39                  40              41            42          43
-// 	FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, ElibigleForFutureOccupancy, Industry, Source, InvoicingCustomerNumber, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
+//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  Renter  ----------------------------------------------------------------------------------------------------------------------------------------------------------------->|<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- prospect --
+//   0           1          2          3          4          5             6               7          8          9        10        11    12     13          14       15      16       17        18        19       20                 21                  22                   23          24           25                    26                       27                          28             29                30                          31        32      33                   34           35               36            37            38             39                  40              41          42
+// 	FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureRenter, Industry, Source, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Ned,,Flanders,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Moe,,Szyslak,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -30,7 +30,7 @@ func CreatePeopleFromCSV(sa []string) {
 	}
 	var err error
 	var tr Transactant
-	var t Tenant
+	var t Renter
 	var p Payor
 	var pr Prospect
 	var x float64
@@ -118,7 +118,7 @@ func CreatePeopleFromCSV(sa []string) {
 					fmt.Printf("CreatePeopleFromCSV: AccountRep value is invalid: %s\n", s)
 					return
 				}
-				t.AccountRep = int64(i)
+				p.AccountRep = int64(i)
 			}
 		case i == 24:
 			if len(s) > 0 {
@@ -137,7 +137,7 @@ func CreatePeopleFromCSV(sa []string) {
 		case i == 30:
 			if len(s) > 0 {
 				var err error
-				t.ElibigleForFutureOccupancy, err = yesnoToInt(s)
+				t.EligibleFutureRenter, err = yesnoToInt(s)
 				if err != nil {
 					fmt.Printf("CreatePeopleFromCSV: %s\n", err.Error())
 				}
@@ -147,8 +147,6 @@ func CreatePeopleFromCSV(sa []string) {
 		case i == 32:
 			t.Source = s
 		case i == 33:
-			t.InvoicingCustomerNumber = s
-		case i == 34:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
 					Ulog("CreatePeopleFromCSV: Invalid Credit Limit value: %s\n", s)
@@ -156,23 +154,23 @@ func CreatePeopleFromCSV(sa []string) {
 				}
 				p.CreditLimit = x
 			}
+		case i == 34:
+			pr.EmployerName = s
 		case i == 35:
-			p.EmployerName = s
+			pr.EmployerStreetAddress = s
 		case i == 36:
-			p.EmployerStreetAddress = s
+			pr.EmployerCity = s
 		case i == 37:
-			p.EmployerCity = s
+			pr.EmployerState = s
 		case i == 38:
-			p.EmployerState = s
+			pr.EmployerPostalCode = s
 		case i == 39:
-			p.EmployerPostalCode = s
+			pr.EmployerEmail = s
 		case i == 40:
-			p.EmployerEmail = s
+			pr.EmployerPhone = s
 		case i == 41:
-			p.EmployerPhone = s
+			pr.Occupation = s
 		case i == 42:
-			p.Occupation = s
-		case i == 43:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
 					Ulog("CreatePeopleFromCSV: Invalid ApplicationFee value: %s\n", s)
@@ -223,12 +221,12 @@ func CreatePeopleFromCSV(sa []string) {
 	p.TCID = tcid
 	pr.TCID = tcid
 
-	tid, err := InsertTenant(&t)
+	tid, err := InsertRenter(&t)
 	if nil != err {
-		fmt.Printf("CreatePeople: error inserting Tenant = %v\n", err)
+		fmt.Printf("CreatePeople: error inserting Renter = %v\n", err)
 		return
 	}
-	tr.TID = tid
+	tr.RENTERID = tid
 
 	pid, err := InsertPayor(&p)
 	if nil != err {

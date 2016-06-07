@@ -5,7 +5,7 @@ import "time"
 // GetRecurrences is a shorthand for assessment variables to get a list
 // of dates on which charges must be assessed for a particular interval of time (d1 - d2)
 func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
-	return GetRecurrences(d1, d2, &a.Start, &a.Stop, a.Accrual)
+	return GetRecurrences(d1, d2, &a.Start, &a.Stop, a.RentalPeriod)
 }
 
 // DateInRange returns true if dt is >= start AND db < stop, otherwise it returns false
@@ -17,6 +17,22 @@ func DateInRange(dt, start, stop *time.Time) bool {
 
 // DateRangeOverlap returns true if time ranges a1-a2 overlaps timerange s1-s2, otherwise it returns false
 func DateRangeOverlap(a1, a2, s1, s2 *time.Time) bool {
+	sse := s1.Equal(*s2)
+	aae := a1.Equal(*a2)
+	ase := a1.Equal(*s1)
+
+	if sse && aae && ase { // single point in time, all equal
+		return true
+	}
+
+	if sse { // s = point, a = range
+		return (s1.Equal(*a1) || s1.After(*a1)) && s1.Before(*a2)
+	}
+
+	if aae { // a = point, s = range
+		return (a1.Equal(*s1) || a1.After(*s1)) && a1.Before(*s2)
+	}
+
 	return a1.Before(*s2) && a2.After(*s1)
 }
 

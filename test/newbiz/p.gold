@@ -1,11 +1,11 @@
-PRSPID	TCID	ApplicationFee	LastModBy
-1	1	0.0000	0
-2	2	0.0000	0
-3	3	0.0000	0
-4	4	0.0000	0
-5	5	0.0000	0
-6	6	0.0000	0
-7	7	0.0000	0
-8	8	0.0000	0
-9	9	255.4300	0
-10	10	0.0000	0
+PRSPID	TCID	EmployerName	EmployerStreetAddress	EmployerCity	EmployerState	EmployerPostalCode	EmployerEmail	EmployerPhone	Occupation	ApplicationFee	LastModBy
+1	1									0.0000	0
+2	2									0.0000	0
+3	3									0.0000	0
+4	4									0.0000	0
+5	5									0.0000	0
+6	6									0.0000	0
+7	7									0.0000	0
+8	8	Springfield Nuclear	1234 Burns Road	Springfield	MO		info@sprinfieldnuclear.com		Safety Inspector	0.0000	0
+9	9	Springfield Elementary School	1234 Education Road	Springfield	MO	64055	info@sfelementary.com	123-456-7890	School Principal	255.4300	0
+10	10									0.0000	0

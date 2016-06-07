@@ -99,6 +99,10 @@ func rpnFunctionResolve(ctx *RpnCtx, cmd, val string) float64 {
 func varResolve(ctx *RpnCtx, s string) float64 {
 	if s == "UMR" {
 		rpnLoadRentable(ctx) // make sure it's loaded
+		// x := GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
+		// fmt.Printf("Rentable Market Rate for Rentable %s (%d) between %s and %s :  %6.2f\n",
+		// 	ctx.xu.R.Name, ctx.xu.R.RID, ctx.d1.Format(RRDATEINPFMT), ctx.d2.Format(RRDATEINPFMT), x)
+		// return ctx.pf * x
 		return ctx.pf * GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
 	}
 

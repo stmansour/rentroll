@@ -1,9 +1,117 @@
 package main
 
 import (
+	"fmt"
 	"rentroll/rlib"
 	"time"
 )
+
+// VacancyMarker is a structure of data defining an increment in time during which a rentable is vacant
+type VacancyMarker struct {
+	DtStart time.Time // a period start time
+	DtStop  time.Time // end of period
+	Amount  float64   // unit market rate during this period
+	comment string    // comment to include with journal
+	state   int64     // rentable state
+}
+
+// VacancyDetect scans the time range specified and looks for pro[rate] periods of time when the
+// supplied rentable is not accounted for. For every period that it is not rented
+// a VacancyMarker will be added to an array marking the vacant time period. The return value
+// is the list of vacancy markers.
+//========================================================================================================
+func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable, pro int64) []VacancyMarker {
+	var m []VacancyMarker
+	var state int64
+	period := rlib.ProrateDuration(pro, *d1)
+	t := rlib.GetAgreementsForRentable(r.RID, d1, d2) // t is an array of AgreementRentables
+
+	//==================================================================
+	// Whether it's vacant or not depends on its state. For example,
+	// if it is OwnerOccupied, no rent is collected and it is not
+	// considered vacant. So, the first thing to do is cache the
+	// rentable state over the period
+	//==================================================================
+	rsa := rlib.GetRentableStatusByRange(r.RID, d1, d2)
+
+	//========================================================
+	// Mark vacancy for each time interval between d1 & d2
+	//========================================================
+	var dtNext time.Time
+	k := 0 // number of members of m
+	for dt := *d1; dt.Before(*d2); dt = dtNext {
+		dtNext = dt.Add(period)
+		vacant := true // assume it's vacant and reset if we find it's rented
+
+		// fmt.Printf("VacancyDetect:  period %s - %s\n", dt.Format(rlib.RRDATEINPFMT), dtNext.Format(rlib.RRDATEINPFMT))
+
+		rs := rlib.SelectRentableStatusForPeriod(&rsa, dt, dtNext)
+		state = rlib.RENTABLESTATUSONLINE // if there is no state info, we'll assume online
+		if len(rs) > 0 {
+			state = rs[0].Status // If this turns out to be a problem, maybe we'll choose the state with the greatest percentage of time
+		}
+
+		switch state {
+		case rlib.RENTABLESTATUSONLINE:
+			// fmt.Printf("\tonline... ")
+			for i := 0; i < len(t); i++ {
+				if rlib.DateRangeOverlap(&t[i].DtStart, &t[i].DtStop, &dt, &dtNext) {
+					// fmt.Printf("covered, RAID = %d\n", t[i].RAID)
+					vacant = false // not vacant
+				}
+			}
+		case rlib.RENTABLESTATUSADMIN:
+			fallthrough
+		case rlib.RENTABLESTATUSEMPLOYEE:
+			fallthrough
+		case rlib.RENTABLESTATUSOWNEROCC:
+			fallthrough
+		case rlib.RENTABLESTATUSOFFLINE:
+			// fmt.Printf("\t{admin|employee|ownerocc|offline}... ")
+		}
+		if !vacant {
+			continue
+		}
+		// fmt.Printf("VACANT\n")
+
+		//==================================================================
+		// if we hit this point, it means that we've found nothing
+		// that covers the rentable during this period (dt - dtNext)
+		// So, mark that it's vacant
+		//==================================================================
+		umr := rlib.GetRentableMarketRate(xbiz, r, &dt, &dtNext)
+
+		//===================================================================
+		// To compute the amount associated with a vacancy, we need to know
+		// the UMR * (proration duration) / (accrual duration).  Get the
+		// accrual duration. Then calculate the proration factor pf
+		//===================================================================
+		accrual := rlib.ProrateDuration(xbiz.RT[r.RTID].RentalPeriod, dt)
+		pf := float64(period) / float64(accrual)
+
+		//------------------------------------------------
+		// optimization to compress consecutive days...
+		//------------------------------------------------
+		if k > 0 { // If the last entry's DtStop is the same time this one's DtStart...
+			if m[k-1].DtStop.Equal(dt) && m[k-1].state == state { // and the umr is at the same rate...
+				m[k-1].DtStop = dtNext    // then we'll just adjust the end of that range to include this range too.
+				m[k-1].Amount += umr * pf // add another increment to the amount
+				m[k-1].comment = fmt.Sprintf("(%s - %s)", m[k-1].DtStart.Format("Jan 2"), m[k-1].DtStop.Format("Jan 2"))
+				continue // Range extended.  Next!
+			}
+		}
+
+		var v VacancyMarker // ok, this is either the first entry or
+		v.DtStart = dt      // it is disjoint from the last range
+		v.DtStop = dtNext   // fill it out and
+		v.Amount = umr * pf // save the rate so we don't need to look it up later
+		v.state = state     // note the cause of the vacancy
+		v.comment = fmt.Sprintf("(%s - %s)", v.DtStart.Format("Jan 2"), v.DtStop.Format("Jan 2"))
+		m = append(m, v) // add the new VacancyMarker to the list
+		k++
+	}
+	return m
+}
 
 // ProcessRentable looks for any time period for which the rentable has
 // no rent assessment during the supplied time range. If it finds any
@@ -13,71 +121,28 @@ import (
 // count the number of days that are covered.  Compare this to the total
 // number of days in the period. Then generate a vacancy entry for the time
 // period for which no rent was assessed.
+//============================================================================================
 func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) {
-	//--------------------------------------------------------------------------------------
-	// Find all rental agreements that cover r during time period d1-d2
-	//--------------------------------------------------------------------------------------
-	t := rlib.GetAgreementsForRentable(r.RID, d1, d2)
-	var n = int64(0) // total number of days covered by all rental agreements for this rentable during d1-d2
-	var m int64      // total number of days in the period d1-d2
-	var k int64      // number of days covered by an agreement.
-
-	// fmt.Printf("ProcessRentable: RID=%d (%s),  State=%d\n", r.RID, r.Name, r.State)
-	switch {
-	case r.State == rlib.RENTABLESTATEONLINE:
-		for i := 0; i < len(t); i++ {
-			ra, _ := rlib.GetRentalAgreement(t[i].RAID)
-			if t[i].RID == r.RID {
-				m, k, _ = calcProrationInfo(&ra.RentalStart, &ra.RentalStop, d1, d2, xbiz.RT[r.RTID].Proration)
-				n += k
-			}
-		}
-	case r.State == rlib.RENTABLESTATEADMIN ||
-		r.State == rlib.RENTABLESTATEEMPLOYEE ||
-		r.State == rlib.RENTABLESTATEOWNEROCC ||
-		r.State == rlib.RENTABLESTATEOFFLINE:
-		ta := rlib.GetAllRentableAssessments(r.RID, d1, d2)
-		for i := 0; i < len(ta); i++ {
-			m, k, _ = calcProrationInfo(&(ta[i].Start), &(ta[i].Stop), d1, d2, xbiz.RT[r.RTID].Proration)
-			n += k
-		}
-	default:
-		rlib.Ulog("ProcessRentable: rentable %d is in an unknown state: %d\n", r.RID, r.State)
-	}
-
-	//--------------------------------------------------------------------------------------
-	// if no rental agreements for this rentable, then n will be 0
-	// otherwise, if the total number of days (m) is not covered by n, then we have vacancy
-	//--------------------------------------------------------------------------------------
-	// fmt.Printf("Rentable = %d.  n = %d, m = %d\n", r.RID, n, m)
-	if n == 0 || n != m {
-		// fmt.Printf("VACANCY DETECTED for Rentable = %d.\n", r.RID)
-		pf := float64(1)
-		umr := rlib.GetRentableMarketRate(xbiz, r, d1, d2)
-		if n != 0 {
-			pf = float64(m-n) / float64(m)
-		}
+	pro := xbiz.RT[r.RTID].Proration
+	m := VacancyDetect(xbiz, d1, d2, r, pro)
+	for i := 0; i < len(m); i++ {
+		// the umr rate is in cost/accrualDuration. The duration of the VacancyMarkers
+		// are in integral multiples of rangeIncDur.  We need to prorate the amount of
+		// each entry accordingly
 		var j rlib.Journal
 		j.BID = xbiz.P.BID
-		j.Amount = rlib.RoundToCent(umr * pf)
-		j.Dt = d2.AddDate(0, 0, -1) // associated date is last day of period
-		if d1.After(j.Dt) {
-			j.Dt = *d1
-		}
-		j.Type = rlib.JNLTYPEUNAS
-		j.ID = r.RID
-		j.RAID = 0 // this one is unassociated
-
-		// fmt.Printf("VACANCY: inserting journal entry: %#v\n", j)
+		j.Amount = rlib.RoundToCent(m[i].Amount)
+		j.Dt = m[i].DtStop.AddDate(0, 0, -1) // associated date is last day of period
+		j.Type = rlib.JNLTYPEUNAS            // this is an unassociated entry
+		j.RAID = 0                           // we really mean it, it is unassociated
+		j.ID = r.RID                         // mark the associated rentable
+		j.Comment = m[i].comment             // this will note consecutive days for vacancy
 		jid, err := rlib.InsertJournalEntry(&j)
-		// fmt.Printf("         JID = %d\n", jid)
-		if err != nil {
-			rlib.Ulog("Error inserting journal entry: %v\n", err)
-		}
+		rlib.Errlog(err)
 		if jid > 0 {
 			var ja rlib.JournalAllocation
 			ja.JID = jid
-			ja.Amount = rlib.RoundToCent(j.Amount)
+			ja.Amount = j.Amount
 			ja.ASMID = 0 // it's unassociated
 			ja.AcctRule = "c ${DFLTGSRENT} _,d ${DFLTVAC} _"
 			ja.RID = r.RID
@@ -89,13 +154,14 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 
 // GenVacancyJournals creates journal entries that cover vacancy for
 // every rentable where the rentable type is being managed to budget
+//========================================================================================================
 func GenVacancyJournals(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var r rlib.Rentable
-		rlib.Errcheck(rows.Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.State, &r.LastModTime, &r.LastModBy))
+		rlib.Errcheck(rows.Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.AssignmentTime, &r.RentalPeriodDefault, &r.RentalPeriod, &r.LastModTime, &r.LastModBy))
 		if xbiz.RT[r.RTID].ManageToBudget > 0 {
 			ProcessRentable(xbiz, d1, d2, &r)
 		}

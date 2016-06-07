@@ -24,7 +24,7 @@ func RRreportBusiness(t int) string {
 	s := ""
 	for rows.Next() {
 		var p Business
-		Errcheck(rows.Scan(&p.BID, &p.Designation, &p.Name, &p.DefaultAccrual, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+		Errcheck(rows.Scan(&p.BID, &p.Designation, &p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
 		switch t {
 		case RPTTEXT:
 			s += ReportBusinessToText(&p)
@@ -41,7 +41,7 @@ func RRreportBusiness(t int) string {
 
 // ReportAssessmentTypeToText returns a string representation of the supplied AssessmentType suitable for a text report
 func ReportAssessmentTypeToText(p AssessmentType) string {
-	return fmt.Sprintf("%4d  %6d   %s\n", p.ASMTID, p.OccupancyRqd, p.Name)
+	return fmt.Sprintf("%4d  %6d   %s\n", p.ASMTID, p.RARequired, p.Name)
 }
 
 // ReportAssessmentTypeToHTML returns a string representation of the supplied AssessmentType suitable for HTML display
@@ -54,7 +54,7 @@ func RRreportAssessmentTypes(t int) string {
 	s := ""
 	m := GetAssessmentTypes()
 
-	fmt.Printf("Name  OccRqd   Description\n")
+	fmt.Printf("Name  RARqd    Description\n")
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
@@ -121,14 +121,14 @@ func RRreportRentableTypes(t int, bid int64) string {
 
 // ReportRentableToText returns a string representation of the supplied Rentable suitable for a text report
 func ReportRentableToText(p *Rentable) string {
-	return fmt.Sprintf("%4d  %5d  %s\n",
-		p.RID, p.State, p.Name)
+	return fmt.Sprintf("%4d  %s\n",
+		p.RID, p.Name)
 }
 
 // ReportRentableToHTML returns a string representation of the supplied Rentable suitable for a text report
 func ReportRentableToHTML(p *Rentable) string {
-	return fmt.Sprintf("<tr><td>%d</td><td>%d</td><td>%s</td></tr>",
-		p.RID, p.State, p.Name)
+	return fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>",
+		p.RID, p.Name)
 }
 
 // RRreportRentables generates a report of all businesses defined in the database.
@@ -137,10 +137,10 @@ func RRreportRentables(t int, bid int64) string {
 	Errcheck(err)
 	defer rows.Close()
 	s := ""
-	fmt.Printf(" RID  State  Name\n")
+	fmt.Printf(" RID  Name\n")
 	for rows.Next() {
 		var p Rentable
-		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.Assignment, &p.Report, &p.DefaultOccType, &p.OccType, &p.State, &p.LastModTime, &p.LastModBy))
+		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.AssignmentTime, &p.RentalPeriodDefault, &p.RentalPeriod, &p.LastModTime, &p.LastModBy))
 		switch t {
 		case RPTTEXT:
 			s += ReportRentableToText(&p)
@@ -158,13 +158,13 @@ func RRreportRentables(t int, bid int64) string {
 // ReportXPersonToText returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToText(p *XPerson) string {
 	return fmt.Sprintf("%5d  %5d  %5d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
-		p.Trn.TCID, p.Tnt.TID, p.Pay.PID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
+		p.Trn.TCID, p.Tnt.RENTERID, p.Pay.PID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
 }
 
 // ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToHTML(p *XPerson) string {
 	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%5d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
-		p.Trn.TCID, p.Tnt.TID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
+		p.Trn.TCID, p.Tnt.RENTERID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
 // RRreportPeople generates a report of all businesses defined in the database.
@@ -172,11 +172,13 @@ func RRreportPeople(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllTransactants.Query()
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "TID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
+	fmt.Printf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "RENTERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
 	s := ""
 	for rows.Next() {
 		var p XPerson
-		Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.TID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.CompanyName, &p.Trn.IsCompany, &p.Trn.PrimaryEmail, &p.Trn.SecondaryEmail, &p.Trn.WorkPhone, &p.Trn.CellPhone, &p.Trn.Address, &p.Trn.Address2, &p.Trn.City, &p.Trn.State, &p.Trn.PostalCode, &p.Trn.Country, &p.Trn.LastModTime, &p.Trn.LastModBy))
+		Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.RENTERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
+			&p.Trn.CompanyName, &p.Trn.IsCompany, &p.Trn.PrimaryEmail, &p.Trn.SecondaryEmail, &p.Trn.WorkPhone, &p.Trn.CellPhone, &p.Trn.Address, &p.Trn.Address2,
+			&p.Trn.City, &p.Trn.State, &p.Trn.PostalCode, &p.Trn.Country, &p.Trn.Website, &p.Trn.Notes, &p.Trn.LastModTime, &p.Trn.LastModBy))
 		GetXPerson(p.Trn.TCID, &p)
 		switch t {
 		case RPTTEXT:
@@ -194,12 +196,12 @@ func RRreportPeople(t int) string {
 
 // ReportRentalAgreementTemplateToText returns a string representation of the supplied People suitable for a text report
 func ReportRentalAgreementTemplateToText(p *RentalAgreementTemplate) string {
-	return fmt.Sprintf("%5d  %6d   %s\n", p.RATID, p.RentalAgreementType, p.ReferenceNumber)
+	return fmt.Sprintf("%5d  %6d   %s\n", p.RATID, p.RentalAgreementType, p.RentalTemplateNumber)
 }
 
 // ReportRentalAgreementTemplateToHTML returns a string representation of the supplied People suitable for a text report
 func ReportRentalAgreementTemplateToHTML(p *RentalAgreementTemplate) string {
-	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%s</td></tr>", p.RATID, p.RentalAgreementType, p.ReferenceNumber)
+	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%s</td></tr>", p.RATID, p.RentalAgreementType, p.RentalTemplateNumber)
 }
 
 // RRreportRentalAgreementTemplates generates a report of all businesses defined in the database.
@@ -211,7 +213,7 @@ func RRreportRentalAgreementTemplates(t int) string {
 	s := ""
 	for rows.Next() {
 		var p RentalAgreementTemplate
-		Errcheck(rows.Scan(&p.RATID, &p.ReferenceNumber, &p.RentalAgreementType, &p.LastModTime, &p.LastModBy))
+		Errcheck(rows.Scan(&p.RATID, &p.RentalTemplateNumber, &p.RentalAgreementType, &p.LastModTime, &p.LastModBy))
 		switch t {
 		case RPTTEXT:
 			s += ReportRentalAgreementTemplateToText(&p)
@@ -226,8 +228,8 @@ func RRreportRentalAgreementTemplates(t int) string {
 	return s
 }
 
-// TenantsToString is a convenience call to get all the on a rental agreement into a single comma separated string
-func (ra RentalAgreement) TenantsToString() string {
+// RentersToString is a convenience call to get all the on a rental agreement into a single comma separated string
+func (ra RentalAgreement) RentersToString() string {
 	s := ""
 	l := len(ra.T)
 	for i := 0; i < l; i++ {
@@ -271,13 +273,7 @@ func (ra RentalAgreement) PayorsToString() string {
 // ReportRentalAgreementToText returns a string representation of the supplied People suitable for a text report
 func ReportRentalAgreementToText(p *RentalAgreement) string {
 	return fmt.Sprintf("%5d  %-40s  %-40s\n",
-		p.RAID, (*p).PayorsToString(), (*p).TenantsToString())
-}
-
-// ReportRentalAgreementToHTML returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementToHTML(p *RentalAgreement) string {
-	return fmt.Sprintf("<tr><td>%5d</td><td>%6d</td><td%6d (%s %s)</td>\n",
-		p.RAID, p.PrimaryTenant, p.P[0].Trn.PID, p.P[0].Trn.FirstName, p.P[0].Trn.LastName)
+		p.RAID, (*p).PayorsToString(), (*p).RentersToString())
 }
 
 // RRreportRentalAgreements generates a report of all businesses defined in the database.
@@ -285,7 +281,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("%5s  %-40s  %-40s\n", "RAID", "Payor", "Tenant")
+	fmt.Printf("%5s  %-40s  %-40s\n", "RAID", "Payor", "Renter")
 	s := ""
 	var raid int64
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -303,7 +299,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 		case RPTTEXT:
 			s += ReportRentalAgreementToText(&p)
 		case RPTHTML:
-			s += ReportRentalAgreementToHTML(&p)
+			fallthrough
 		default:
 			fmt.Printf("RRreportRentalAgreements: unrecognized print format: %d\n", t)
 			return ""
@@ -355,7 +351,7 @@ func ReportAssessmentToText(p *Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("ASM%08d  %12s  R%08d     %2d  %9.2f\n",
-		p.ASMID, ra, p.RID, p.Accrual, p.Amount)
+		p.ASMID, ra, p.RID, p.RentalPeriod, p.Amount)
 }
 
 // ReportAssessmentToHTML returns a string representation of the chart of accts
@@ -365,7 +361,7 @@ func ReportAssessmentToHTML(p *Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("<tr><td>ASM%08d</td><td>%12s</td><td>RA%08d</td><td%d</td><td>%8.2f</d></tr\n",
-		p.ASMID, ra, p.RID, p.Accrual, p.Amount)
+		p.ASMID, ra, p.RID, p.RentalPeriod, p.Amount)
 }
 
 // RRreportAssessments generates a report of all ledger accounts
@@ -380,7 +376,7 @@ func RRreportAssessments(t int, bid int64) string {
 	for rows.Next() {
 		var a Assessment
 		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
-			&a.Start, &a.Stop, &a.Accrual, &a.ProrationMethod, &a.AcctRule, &a.Comment,
+			&a.Start, &a.Stop, &a.RentalPeriod, &a.ProrationMethod, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		switch t {
 		case RPTTEXT:

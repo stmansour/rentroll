@@ -85,9 +85,9 @@ echo >>${LOGFILE}
 
 echo "process payments and receipts"
 echo "PROCESS PAYMENTS AND RECEIPTS" >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-03-01" -k "2016-04-01" >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 1 >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 2  >> ${LOGFILE} 2>&1
+${RENTROLL} -j "2016-07-01" -k "2016-08-01" >> ${LOGFILE} 2>&1
+${RENTROLL} -j "2016-07-01" -k "2016-08-01" -r 1 >> ${LOGFILE} 2>&1
+${RENTROLL} -j "2016-07-01" -k "2016-08-01" -r 2  >> ${LOGFILE} 2>&1
 
 echo >>${LOGFILE}
 

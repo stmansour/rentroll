@@ -5,7 +5,7 @@
 # the reports are what we expect
 RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
-APP="${RRBIN}/rentroll -A"
+APP="${RRBIN}/rentroll -A -j 2015-11-01 -k 2015-12-01"
 MYSQLOPTS=""
 UNAME=$(uname)
 
@@ -20,12 +20,18 @@ fi
 # pushd ../ledger1 ; make ; popd
 ${RRBIN}/rrnewdb
 mysql ${MYSQLOPTS} <init.sql
+if [ $? -eq 0 ]; then
+	echo "Init was successful"
+else
+	echo "INIT HAD ERRORS"
+	exit 1
+fi
 
 rm -f w x y z
 
-${APP}
-${APP} -r 1 >j.txt
-${APP} -r 2 >l.txt
+${APP} >log 2>&1
+${APP} -r 1 >j.txt 2>&1
+${APP} -r 2 >l.txt 2>&1
 
 echo "BEGIN ANALYSIS..."
 cp j.gold w
@@ -35,7 +41,8 @@ UDIFFS=$(diff w x | wc -l)
 if [ ${UDIFFS} -eq 0 ]; then
 	echo "PHASE 1: PASSED"
 else
-	echo "PHASE 1: FAILED:  differences are as follows:"
+	echo "PHASE 1: FAILED...  if correct:   mv j.txt j.gold"
+	echo "Differences are as follows:"
 	diff w x
 	exit 1
 fi
@@ -47,7 +54,8 @@ UDIFFS=$(diff y z | wc -l)
 if [ ${UDIFFS} -eq 0 ]; then
 	echo "PHASE 2: PASSED"
 else
-	echo "PHASE 2: FAILED:  differences are as follows:"
+	echo "PHASE 2: FAILED...  if correct:   mv l.txt l.gold"
+	echo "Differences are as follows:"
 	diff y z
 	exit 1
 fi

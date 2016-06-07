@@ -30,7 +30,7 @@
 -- RTID = rentable type id
 -- TCID = transactant id
 -- TCID = transactant id
--- TID = tenant id
+-- RENTERID = renter id
 
 DROP DATABASE IF EXISTS rentroll;
 CREATE DATABASE rentroll;
@@ -50,8 +50,8 @@ GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 -- ===========================================
 CREATE TABLE rentalagreementtemplate (
     RATID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
-    ReferenceNumber VARCHAR(100) DEFAULT '',                   -- Occupancy Agreement Reference Number
-    RentalAgreementType SMALLINT NOT NULL DEFAULT 0,          -- 1=leasehold, 2=month-to-month, 3=hotel
+    RentalTemplateNumber VARCHAR(100) DEFAULT '',             -- Occupancy Agreement Reference Number
+    RentalAgreementType SMALLINT NOT NULL DEFAULT 0,          -- 1=leasehold, 2=month-to-month, 3=hotel REMOVE THIS ATTRIBUTE 6/2/16
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RATID)     
@@ -64,11 +64,10 @@ CREATE TABLE rentalagreement (
     RAID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
     RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                            -- business (so that we can process by business)
-    PrimaryTenant BIGINT NOT NULL DEFAULT 0,                  -- TID of primary tenant.  
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
-    OccStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- date when Occupancy starts
-    OccStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when Occupancy stops
+    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- date when Occupancy starts
+    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when Occupancy stops
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',      -- free-form text
     LastModTime TIMESTAMP,                                    -- when was this record last written
@@ -90,11 +89,26 @@ CREATE TABLE agreementpayors (
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this payor was no longer being billed to this agreement
 );
 
-CREATE TABLE agreementtenants (
+CREATE TABLE agreementrenters (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
-    TID BIGINT NOT NULL DEFAULT 0,                            -- the tenant
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this tenant was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this tenant was no longer being billed to this agreement
+    RENTERID BIGINT NOT NULL DEFAULT 0,                            -- the renter
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this renter was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this renter was no longer being billed to this agreement
+);
+
+CREATE TABLE agreementpets (
+    PETID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal id for this pet
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
+    Type VARCHAR(100) NOT NULL DEFAULT '',                    --  type of animal, ex: dog, cat, ...
+    Breed VARCHAR(100) NOT NULL DEFAULT '',                   --  breed.  example Beagle, German Shephard, Siamese, etc.
+    Color VARCHAR(100) NOT NULL DEFAULT '',                   --
+    Weight DECIMAL(19,4) NOT NULL DEFAULT 0,                  --  in pounds
+    Name VARCHAR(100) NOT NULL DEFAULT '',                    --
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this renter was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when this renter was no longer being billed to this agreement
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (PETID)
 );
 
 
@@ -133,7 +147,7 @@ CREATE TABLE business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
     DES VARCHAR(100) NOT NULL DEFAULT '',               -- this is the link to phonebook
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    DefaultAccrual SMALLINT NOT NULL DEFAULT 0,         -- default for every unit in the building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
+    DefaultRentalPeriod SMALLINT NOT NULL DEFAULT 0,         -- default for every unit in the building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
     ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,     -- yes/no  0 = no, 1 = yes
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
@@ -150,9 +164,9 @@ CREATE TABLE rentabletypes (
     BID BIGINT NOT NULL DEFAULT 0,                          -- associated business id
     Style CHAR(15) NOT NULL DEFAULT '',                     -- need not be unique
     Name VARCHAR(256) NOT NULL DEFAULT '',                  -- must be unique
-    Accrual BIGINT NOT NULL DEFAULT 0,                    -- price accrual frequency
+    RentalPeriod BIGINT NOT NULL DEFAULT 0,                      -- price accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
-    Report SMALLINT NOT NULL DEFAULT 0,
+--    Report SMALLINT NOT NULL DEFAULT 0,
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of rentable to budget, 1 = manage to budget defined by MarketRate
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
@@ -191,7 +205,7 @@ CREATE TABLE rentablespecialtytypes (
 -- this will include offsets and disbursements
 CREATE TABLE assessmenttypes (
     ASMTID BIGINT NOT NULL AUTO_INCREMENT,          -- what type of assessment
-    OccupancyRqd SMALLINT NOT NULL DEFAULT 0,       -- 0 = Valid anytime, 1 = valid only during occupancy
+    RARequired SMALLINT NOT NULL DEFAULT 0,       -- 0 = Valid anytime, 1 = valid only during occupancy
     Name VARCHAR(100) NOT NULL DEFAULT '',           -- name for the assessment
     Description VARCHAR(1024) NOT NULL DEFAULT '',   -- describe the assessment
     -- TODO: Type needs to be removed
@@ -276,35 +290,51 @@ CREATE TABLE rentable (
     RTID BIGINT NOT NULL DEFAULT 0,                                -- what sort of a rentable is this?
     BID BIGINT NOT NULL DEFAULT 0,                                 -- Business associated with this rentable
     Name VARCHAR(100) NOT NULL DEFAULT '',                          -- must be unique, name for this instance, "101" for a room number, CP744 carport number, etc 
-    Assignment SMALLINT NOT NULL DEFAULT 0,                        -- Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
-    Report SMALLINT NOT NULL DEFAULT 1,                            -- 1 = apply to rentroll, 0 = skip on rentroll
-    DefaultOccType SMALLINT NOT NULL DEFAULT 0,                    -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-    OccType SMALLINT NOT NULL DEFAULT 0,                           -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-    State SMALLINT NOT NULL DEFAULT 0,                             -- 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
-    -- ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 = do not manage to budget, 1 = manage to MarketRate set in RentableType
+    AssignmentTime SMALLINT NOT NULL DEFAULT 0,                        -- Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
+    RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,                    -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+    RentalPeriod SMALLINT NOT NULL DEFAULT 0,                           -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
     LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RID)
+--    State SMALLINT NOT NULL DEFAULT 0,                             -- NEED TO REMOVE FROM HERE  0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
+);
+
+CREATE TABLE rentablestatus (
+    RID BIGINT NOT NULL DEFAULT 0, -- associated rentable
+    Status SMALLINT NOT NULL DEFAULT 0,                              -- 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline, ...
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
+    LastModTime TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',   -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0                         -- employee UID (from phonebook) that modified it 
 );
 
 
--- **************************************
--- ****                              ****
--- ****            UNIT              ****
--- ****                              ****
--- **************************************
--- Fields unique to an apartment or hotel room 
-CREATE TABLE unit (
-    UNITID BIGINT NOT NULL AUTO_INCREMENT,              -- unique id for this unit -- it is unique across all properties and buildings
-    RID BIGINT NOT NULL DEFAULT 0,                      -- associated rentable
-    BLDGID BIGINT NOT NULL DEFAULT 0,                   -- which building
-    RTID BIGINT NOT NULL DEFAULT 0,                     -- which rentable type
-    AVAILID BIGINT NOT NULL DEFAULT 0,                  -- how is the unit made available
-    LastModTime TIMESTAMP,                              -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (UNITID)
-    -- Abbreviation VARCHAR(100),                       -- unit abbreviation  -- REMOVED - it's part of unittype
+-- I think we can delete this.  It's the same as rentable status
+CREATE TABLE availabilitystatus (
+    RID BIGINT NOT NULL DEFAULT 0,                            -- Rental  id
+    AVAILID BIGINT NOT NULL DEFAULT 0,                        -- AVAIL id during the period below
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this rentable was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this rentable was no longer being billed to this agreement
 );
+
+
+-- -- **************************************
+-- -- ****                              ****
+-- -- ****            UNIT              ****
+-- -- ****                              ****
+-- -- **************************************
+-- -- Fields unique to an apartment or hotel room 
+-- CREATE TABLE unit (
+--     UNITID BIGINT NOT NULL AUTO_INCREMENT,              -- unique id for this unit -- it is unique across all properties and buildings
+--     RID BIGINT NOT NULL DEFAULT 0,                      -- associated rentable
+--     BLDGID BIGINT NOT NULL DEFAULT 0,                   -- which building
+--     RTID BIGINT NOT NULL DEFAULT 0,                     -- which rentable type
+--     AVAILID BIGINT NOT NULL DEFAULT 0,                  -- how is the unit made available
+--     LastModTime TIMESTAMP,                              -- when was this record last written
+--     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
+--     PRIMARY KEY (UNITID)
+--     -- Abbreviation VARCHAR(100),                       -- unit abbreviation  -- REMOVED - it's part of unittype
+-- );
 
 -- ===========================================
 --   RENTABLE SPECIALTIES
@@ -333,8 +363,8 @@ CREATE TABLE assessments (
     RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
-    Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the tenant moves out or when the charge is no longer applicable
-    Accrual SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
+    Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the renter moves out or when the charge is no longer applicable
+    RentalPeriod SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
     ProrationMethod SMALLINT NOT NULL DEFAULT 0,            -- 
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
@@ -356,12 +386,13 @@ CREATE TABLE assessments (
 -- transactant - fields common to all people and
 CREATE TABLE transactant (
     TCID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id of unit
-    TID BIGINT NOT NULL DEFAULT 0,                         -- associated tenant id
+    RENTERID BIGINT NOT NULL DEFAULT 0,                         -- associated renter id
     PID BIGINT NOT NULL DEFAULT 0,                         -- associated payor id
     PRSPID BIGINT NOT NULL DEFAULT 0,                      -- associated prospect id
     FirstName VARCHAR(100) NOT NULL DEFAULT '',
     MiddleName VARCHAR(100) NOT NULL DEFAULT '',
     LastName VARCHAR(100) NOT NULL DEFAULT '',
+    PreferredName VARCHAR(100) NOT NULL DEFAULT '',
     CompanyName VARCHAR(100) NOT NULL DEFAULT '',
     IsCompany SMALLINT NOT NULL DEFAULT 0,                  -- 0 == this is a person,  1 == this is a company 
     PrimaryEmail VARCHAR(100) NOT NULL DEFAULT '',
@@ -374,6 +405,8 @@ CREATE TABLE transactant (
     State CHAR(25) NOT NULL DEFAULT '',
     PostalCode VARCHAR(100) NOT NULL DEFAULT '',
     Country VARCHAR(100) NOT NULL DEFAULT '',
+    Website VARCHAR(100) NOT NULL DEFAULT '',
+    Notes VARCHAR(256) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (TCID)
@@ -385,6 +418,14 @@ CREATE TABLE transactant (
 CREATE TABLE prospect (
     PRSPID BIGINT NOT NULL AUTO_INCREMENT,                 -- unique id of this prospect
     TCID BIGINT NOT NULL DEFAULT 0,                        -- associated transactant (has Name and all contact info)
+    EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
+    EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
+    EmployerCity VARCHAR(100) NOT NULL DEFAULT '',
+    EmployerState VARCHAR(100) NOT NULL DEFAULT '',
+    EmployerPostalCode VARCHAR(100) NOT NULL DEFAULT '',
+    EmployerEmail VARCHAR(100) NOT NULL DEFAULT '',
+    EmployerPhone VARCHAR(100) NOT NULL DEFAULT '',
+    Occupation VARCHAR(100) NOT NULL DEFAULT '',
     ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,  -- if non-zero this prospect is an applicant
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
@@ -394,10 +435,10 @@ CREATE TABLE prospect (
 -- ===========================================
 --   TENANT
 -- ===========================================
-CREATE TABLE tenant (
-    TID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this tenant
+CREATE TABLE renter (
+    RENTERID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this renter
     TCID BIGINT NOT NULL,                                  -- associated transactant
-    Points BIGINT NOT NULL DEFAULT 0,                      -- bonus points for this tenant
+    Points BIGINT NOT NULL DEFAULT 0,                      -- bonus points for this renter
     CarMake VARCHAR(100) NOT NULL DEFAULT '',
     CarModel VARCHAR(100) NOT NULL DEFAULT '',
     CarColor VARCHAR(100) NOT NULL DEFAULT '',
@@ -405,39 +446,32 @@ CREATE TABLE tenant (
     LicensePlateState VARCHAR(100) NOT NULL DEFAULT '',
     LicensePlateNumber VARCHAR(100) NOT NULL DEFAULT '',
     ParkingPermitNumber VARCHAR(100) NOT NULL DEFAULT '',
-    AccountRep BIGINT NOT NULL DEFAULT 0,                              -- Phonebook UID of account rep
     DateofBirth DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     EmergencyContactName VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactAddress VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactTelephone VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyEmail VARCHAR(100) NOT NULL DEFAULT '',
     AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
-    ElibigleForFutureOccupancy SMALLINT NOT NULL DEFAULT 1,         -- yes/no
-    Industry VARCHAR(100) NOT NULL DEFAULT '',                       -- (e.g., construction, retail, banking etc.)
-    Source  VARCHAR(100) NOT NULL DEFAULT '',                        -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
-    InvoicingCustomerNumber VARCHAR(100) NOT NULL DEFAULT '',        -- [drawn from the invoicing section] [only applies if invoicing authorization has been provide
+    EligibleFutureRenter SMALLINT NOT NULL DEFAULT 1,               -- yes/no
+    Industry VARCHAR(100) NOT NULL DEFAULT '',                      -- (e.g., construction, retail, banking etc.)
+    Source  VARCHAR(100) NOT NULL DEFAULT '',                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP,                                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (TID)
+    PRIMARY KEY (RENTERID)
 );
 
 -- ===========================================
 --   PAYOR
 -- ===========================================
 CREATE TABLE payor  (
-    PID BIGINT NOT NULL AUTO_INCREMENT,                          -- unique id of this payor
-    TCID BIGINT NOT NULL,                                        -- associated transactant
+    PID BIGINT NOT NULL AUTO_INCREMENT,                         -- unique id of this payor
+    TCID BIGINT NOT NULL,                                       -- associated transactant
+    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerCity VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerState VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerPostalCode VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerEmail VARCHAR(100) NOT NULL DEFAULT '',
-    EmployerPhone VARCHAR(100) NOT NULL DEFAULT '',
-    Occupation VARCHAR(100) NOT NULL DEFAULT '',
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    AccountRep BIGINT NOT NULL DEFAULT 0,                       -- Phonebook UID of account rep
+    EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,            -- yes/no
+    LastModTime TIMESTAMP,                                      -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (PID)
 );
 

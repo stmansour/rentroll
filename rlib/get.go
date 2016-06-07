@@ -12,6 +12,32 @@ func (ra RentalAgreement) GetName() string {
 }
 
 //=======================================================
+//  A G R E E M E N T   P E T S
+//=======================================================
+
+// GetAgreementPet reads a Pet the structure for the supplied PETID
+func GetAgreementPet(petid int64) (AgreementPet, error) {
+	var a AgreementPet
+
+	err := RRdb.Prepstmt.GetAgreementPet.QueryRow(petid).Scan(&a.PETID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
+	return a, err
+}
+
+// GetAllAgreementPets reads all Pet records for the supplied rental agreement id
+func GetAllAgreementPets(raid int64) []AgreementPet {
+	rows, err := RRdb.Prepstmt.GetAllAgreementPets.Query(raid)
+	Errcheck(err)
+	defer rows.Close()
+	var t []AgreementPet
+	for i := 0; rows.Next(); i++ {
+		var a AgreementPet
+		Errcheck(rows.Scan(&a.PETID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+		t = append(t, a)
+	}
+	return t
+}
+
+//=======================================================
 //  A G R E E M E N T   R E N T A B L E
 //=======================================================
 
@@ -35,11 +61,10 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	Errcheck(err)
 	defer rows.Close()
 	var t []Assessment
-	t = make([]Assessment, 0)
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
 		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID,
-			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Accrual, &a.ProrationMethod,
+			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RentalPeriod, &a.ProrationMethod,
 			&a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		t = append(t, a)
 	}
@@ -50,7 +75,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
 	err := RRdb.Prepstmt.GetAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
-		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.Accrual,
+		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RentalPeriod,
 		&a.ProrationMethod, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
 		Ulog("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
@@ -66,7 +91,7 @@ func GetAssessment(asmid int64) (Assessment, error) {
 // the return structure will be empty
 func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 	var t AssessmentType
-	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.OccupancyRqd, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
+	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.RARequired, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
 	return t, err
 }
 
@@ -74,13 +99,13 @@ func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 func GetAssessmentTypes() map[int64]AssessmentType {
 	var t map[int64]AssessmentType
 	t = make(map[int64]AssessmentType, 0)
-	rows, err := RRdb.dbrr.Query("SELECT ASMTID,OccupancyRqd,Name,Description,LastModTime,LastModBy FROM assessmenttypes")
+	rows, err := RRdb.dbrr.Query("SELECT ASMTID,RARequired,Name,Description,LastModTime,LastModBy FROM assessmenttypes")
 	Errcheck(err)
 	defer rows.Close()
 
 	for rows.Next() {
 		var a AssessmentType
-		Errcheck(rows.Scan(&a.ASMTID, &a.OccupancyRqd, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.ASMTID, &a.RARequired, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.ASMTID] = a
 	}
 	Errcheck(rows.Err())
@@ -126,27 +151,29 @@ func GetAllCustomAttributes(elemid, id int64) ([]CustomAttribute, error) {
 
 //=======================================================
 //  T R A N S A C T A N T
-//  Transactant, Prospect, Tenant, Payor, XPerson
+//  Transactant, Prospect, Renter, Payor, XPerson
 //=======================================================
 
 // GetTransactant reads a Transactant structure based on the supplied transactant id
 func GetTransactant(tid int64, t *Transactant) {
-	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tid).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tid).Scan(&t.TCID, &t.RENTERID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.Notes, &t.LastModTime, &t.LastModBy))
 }
 
 // GetProspect reads a Prospect structure based on the supplied transactant id
 func GetProspect(prspid int64, p *Prospect) {
-	Errcheck(RRdb.Prepstmt.GetProspect.QueryRow(prspid).Scan(&p.PRSPID, &p.TCID, &p.ApplicationFee, &p.LastModTime, &p.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetProspect.QueryRow(prspid).Scan(&p.PRSPID, &p.TCID, &p.EmployerName, &p.EmployerStreetAddress,
+		&p.EmployerCity, &p.EmployerState, &p.EmployerPostalCode, &p.EmployerEmail, &p.EmployerPhone, &p.Occupation,
+		&p.ApplicationFee, &p.LastModTime, &p.LastModBy))
 }
 
-// GetTenant reads a Tenant structure based on the supplied tenant id
-func GetTenant(tcid int64, t *Tenant) {
-	Errcheck(RRdb.Prepstmt.GetTenant.QueryRow(tcid).Scan(&t.TID, &t.TCID, &t.Points, &t.CarMake, &t.CarModel, &t.CarColor, &t.CarYear, &t.LicensePlateState, &t.LicensePlateNumber, &t.ParkingPermitNumber, &t.AccountRep, &t.DateofBirth, &t.EmergencyContactName, &t.EmergencyContactAddress, &t.EmergencyContactTelephone, &t.EmergencyEmail, &t.AlternateAddress, &t.ElibigleForFutureOccupancy, &t.Industry, &t.Source, &t.InvoicingCustomerNumber, &t.LastModTime, &t.LastModBy))
+// GetRenter reads a Renter structure based on the supplied renter id
+func GetRenter(tcid int64, t *Renter) {
+	Errcheck(RRdb.Prepstmt.GetRenter.QueryRow(tcid).Scan(&t.RENTERID, &t.TCID, &t.Points, &t.CarMake, &t.CarModel, &t.CarColor, &t.CarYear, &t.LicensePlateState, &t.LicensePlateNumber, &t.ParkingPermitNumber, &t.DateofBirth, &t.EmergencyContactName, &t.EmergencyContactAddress, &t.EmergencyContactTelephone, &t.EmergencyEmail, &t.AlternateAddress, &t.EligibleFutureRenter, &t.Industry, &t.Source, &t.LastModTime, &t.LastModBy))
 }
 
 // GetPayor reads a Payor structure based on the supplied transactant id
 func GetPayor(pid int64, p *Payor) {
-	Errcheck(RRdb.Prepstmt.GetPayor.QueryRow(pid).Scan(&p.PID, &p.TCID, &p.CreditLimit, &p.EmployerName, &p.EmployerStreetAddress, &p.EmployerCity, &p.EmployerState, &p.EmployerPostalCode, &p.EmployerEmail, &p.EmployerPhone, &p.Occupation, &p.LastModTime, &p.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetPayor.QueryRow(pid).Scan(&p.PID, &p.TCID, &p.CreditLimit, &p.TaxpayorID, &p.AccountRep, &p.EligibleFuturePayor, &p.LastModTime, &p.LastModBy))
 }
 
 // GetXPerson will load a full XPerson given the trid
@@ -157,8 +184,8 @@ func GetXPerson(tcid int64, x *XPerson) {
 	if 0 == x.Psp.PRSPID && x.Trn.PRSPID > 0 {
 		GetProspect(x.Trn.PRSPID, &x.Psp)
 	}
-	if 0 == x.Tnt.TID && x.Trn.TID > 0 {
-		GetTenant(x.Trn.TID, &x.Tnt)
+	if 0 == x.Tnt.RENTERID && x.Trn.RENTERID > 0 {
+		GetRenter(x.Trn.RENTERID, &x.Tnt)
 	}
 	if 0 == x.Pay.PID && x.Trn.PID > 0 {
 		GetPayor(x.Trn.PID, &x.Pay)
@@ -173,10 +200,10 @@ func GetXPersonByPID(pid int64) XPerson {
 	return xp
 }
 
-// GetXPersonByTID will load a full XPerson given the TID
+// GetXPersonByTID will load a full XPerson given the RENTERID
 func GetXPersonByTID(tid int64) XPerson {
 	var xp XPerson
-	GetTenant(tid, &xp.Tnt)
+	GetRenter(tid, &xp.Tnt)
 	GetXPerson(xp.Tnt.TCID, &xp)
 	return xp
 }
@@ -187,20 +214,20 @@ func GetXPersonByTID(tid int64) XPerson {
 
 // GetRentableByID reads a Rentable structure based on the supplied rentable id
 func GetRentableByID(rid int64, r *Rentable) {
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.State, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.AssignmentTime, &r.RentalPeriodDefault, &r.RentalPeriod, &r.LastModTime, &r.LastModBy))
 }
 
 // GetRentable reads and returns a Rentable structure based on the supplied rentable id
 func GetRentable(rid int64) Rentable {
 	var r Rentable
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.State, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.AssignmentTime, &r.RentalPeriodDefault, &r.RentalPeriod, &r.LastModTime, &r.LastModBy))
 	return r
 }
 
 // GetRentableByName reads and returns a Rentable structure based on the supplied rentable id
 func GetRentableByName(name string, bid int64) (Rentable, error) {
 	var r Rentable
-	err := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.Assignment, &r.Report, &r.DefaultOccType, &r.OccType, &r.State, &r.LastModTime, &r.LastModBy)
+	err := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.AssignmentTime, &r.RentalPeriodDefault, &r.RentalPeriod, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
@@ -241,10 +268,14 @@ func GetSpecialtyByName(bid int64, name string) RentableSpecialty {
 	return rsp
 }
 
+//=======================================================
+//  R E N T A B L E   T Y P E
+//=======================================================
+
 // GetRentableType returns characteristics of the rentable
 func GetRentableType(rtid int64, rt *RentableType) error {
-	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Accrual,
-		&rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentalPeriod,
+		&rt.Proration, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	if nil == err {
 		var cerr error
 		rt.CA, cerr = GetAllCustomAttributes(ELEMRENTABLETYPE, rtid)
@@ -258,9 +289,32 @@ func GetRentableType(rtid int64, rt *RentableType) error {
 // GetRentableTypeByStyle returns characteristics of the rentable
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.Accrual, &rt.Proration, &rt.Report, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentalPeriod, &rt.Proration, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	return rt, err
 }
+
+// GetBusinessRentableTypes returns a slice of payment types indexed by the PMTID
+func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
+	var t map[int64]RentableType
+	t = make(map[int64]RentableType, 0)
+	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a RentableType
+		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentalPeriod, &a.Proration, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+		a.MR = make([]RentableMarketRate, 0)
+		GetRentableMarketRates(&a)
+		t[a.RTID] = a
+	}
+	Errcheck(rows.Err())
+
+	return t
+}
+
+//=======================================================
+//  B U I L D I N G
+//=======================================================
 
 // GetBuilding returns the record for supplied bldg id. If no such record exists or a database error occurred,
 // the return structure will be empty
@@ -311,6 +365,21 @@ func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
 	return t
 }
 
+// GetRentableStatusByRange oads all the RentableStatus records that overlap the supplied time range
+func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
+	var rs []RentableStatus
+	rows, err := RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a RentableStatus
+		Errcheck(rows.Scan(&a.RID, &a.DtStart, &a.DtStop, &a.Status, &a.LastModTime, &a.LastModBy))
+		rs = append(rs, a)
+	}
+	Errcheck(rows.Err())
+	return rs
+}
+
 // GetRentableMarketRates loads all the MarketRate rent information for this rentable into an array
 func GetRentableMarketRates(rt *RentableType) {
 	// now get all the MarketRate rent info...
@@ -330,25 +399,6 @@ func GetRentableMarketRates(rt *RentableType) {
 	Errcheck(rows.Err())
 }
 
-// GetBusinessRentableTypes returns a slice of payment types indexed by the PMTID
-func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
-	var t map[int64]RentableType
-	t = make(map[int64]RentableType, 0)
-	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var a RentableType
-		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.Accrual, &a.Proration, &a.Report, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
-		a.MR = make([]RentableMarketRate, 0)
-		GetRentableMarketRates(&a)
-		t[a.RTID] = a
-	}
-	Errcheck(rows.Err())
-
-	return t
-}
-
 // GetRentableMarketRate returns the market-rate rent amount for r during the given time range. If the time range
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
 // returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
@@ -366,14 +416,14 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 // GetBusiness loads the Business struct for the supplied business id
 func GetBusiness(bid int64, p *Business) {
 	Errcheck(RRdb.Prepstmt.GetBusiness.QueryRow(bid).Scan(&p.BID, &p.Designation,
-		&p.Name, &p.DefaultAccrual, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+		&p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
 }
 
 // GetBusinessByDesignation loads the Business struct for the supplied designation
 func GetBusinessByDesignation(des string) (Business, error) {
 	var p Business
 	err := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des).Scan(&p.BID, &p.Designation,
-		&p.Name, &p.DefaultAccrual, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy)
+		&p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy)
 	return p, err
 }
 
@@ -393,6 +443,20 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 		xbiz.US[a.RSPID] = a
 	}
 	Errcheck(rows.Err())
+}
+
+// GetRentalAgreementsFromList takes an array of AgreementRentables and returns map of
+// all the rental agreements referenced. The map is indexed by the RAID
+func GetRentalAgreementsFromList(raa *[]AgreementRentable) map[int64]RentalAgreement {
+	var t map[int64]RentalAgreement
+	for i := 0; i < len(*raa); i++ {
+		ra, err := GetRentalAgreement((*raa)[i].RAID)
+		Errlog(err)
+		if ra.RAID > 0 {
+			t[ra.RAID] = ra
+		}
+	}
+	return t
 }
 
 // GetAgreementsForRentable returns an array of AgreementRentables associated with the supplied RentableID
@@ -441,17 +505,17 @@ func GetAgreementPayors(raid int64, d1, d2 *time.Time) []AgreementPayor {
 	return t
 }
 
-// GetAgreementTenants returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
+// GetAgreementRenters returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
 // during the time range d1-d2
-func GetAgreementTenants(raid int64, d1, d2 *time.Time) []AgreementTenant {
-	rows, err := RRdb.Prepstmt.GetAgreementTenants.Query(raid, d1, d2)
+func GetAgreementRenters(raid int64, d1, d2 *time.Time) []AgreementRenter {
+	rows, err := RRdb.Prepstmt.GetAgreementRenters.Query(raid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
-	var t []AgreementTenant
-	// t = make([]AgreementTenant, 0)
+	var t []AgreementRenter
+	// t = make([]AgreementRenter, 0)
 	for rows.Next() {
-		var r AgreementTenant
-		Errcheck(rows.Scan(&r.RAID, &r.TID, &r.DtStart, &r.DtStop))
+		var r AgreementRenter
+		Errcheck(rows.Scan(&r.RAID, &r.RENTERID, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t
@@ -465,7 +529,7 @@ func GetAgreementTenants(raid int64, d1, d2 *time.Time) []AgreementTenant {
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
 	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID,
-		&r.PrimaryTenant, &r.RentalStart, &r.RentalStop, &r.OccStart, &r.OccStop,
+		&r.RentalStart, &r.RentalStop, &r.PossessionStart, &r.PossessionStop,
 		&r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
 	if nil != err && !IsSQLNoResultsError(err) {
 		fmt.Printf("GetRentalAgreement: could not get rental agreement with raid = %d,  err = %v\n", raid, err)
@@ -493,10 +557,10 @@ func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error)
 		r.P = append(r.P, xp)
 	}
 
-	n := GetAgreementTenants(raid, d1, d2)
+	n := GetAgreementRenters(raid, d1, d2)
 	r.T = make([]XPerson, 0)
 	for i := 0; i < len(n); i++ {
-		xp := GetXPersonByTID(n[i].TID)
+		xp := GetXPersonByTID(n[i].RENTERID)
 		r.T = append(r.T, xp)
 	}
 	return r, err
@@ -509,7 +573,7 @@ func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error)
 // GetRentalAgreementTemplate returns the RentalAgreementTemplate struct for the supplied rental agreement id
 func GetRentalAgreementTemplate(ratid int64) (RentalAgreementTemplate, error) {
 	var r RentalAgreementTemplate
-	err := RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(ratid).Scan(&r.RATID, &r.ReferenceNumber, &r.RentalAgreementType, &r.LastModTime, &r.LastModBy)
+	err := RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(ratid).Scan(&r.RATID, &r.RentalTemplateNumber, &r.RentalAgreementType, &r.LastModTime, &r.LastModBy)
 	if nil != err {
 
 		Ulog("GetRentalAgreementTemplate: could not get rental agreement template with RATID = %d,  err = %v\n", ratid, err)
@@ -520,7 +584,7 @@ func GetRentalAgreementTemplate(ratid int64) (RentalAgreementTemplate, error) {
 // GetRentalAgreementTemplateByRefNum returns the RentalAgreementTemplate struct for the supplied rental agreement id
 func GetRentalAgreementTemplateByRefNum(ref string) (RentalAgreementTemplate, error) {
 	var r RentalAgreementTemplate
-	err := RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum.QueryRow(ref).Scan(&r.RATID, &r.ReferenceNumber, &r.RentalAgreementType, &r.LastModTime, &r.LastModBy)
+	err := RRdb.Prepstmt.GetRentalAgreementTemplateByRefNum.QueryRow(ref).Scan(&r.RATID, &r.RentalTemplateNumber, &r.RentalAgreementType, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
@@ -735,12 +799,9 @@ func GetLatestLedgerMarkerByType(bid int64, t int64) (LedgerMarker, error) {
 // GetTransactantByPhoneOrEmail searches for a transactoant match on the phone number or email
 func GetTransactantByPhoneOrEmail(s string) (Transactant, error) {
 	var t Transactant
-	p := fmt.Sprintf("SELECT TCID,TID,PID,PRSPID,FirstName,MiddleName,LastName,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModTime,LastModBy FROM transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
-	err := RRdb.dbrr.QueryRow(p).Scan(&t.TCID, &t.TID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName,
-		&t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State,
-		&t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy)
-	// if nil != err {
-	// 	fmt.Printf("err = %v\n", err)
-	// }
+	p := fmt.Sprintf("SELECT "+TRNSfields+" FROM transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
+	err := RRdb.dbrr.QueryRow(p).Scan(&t.TCID, &t.RENTERID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName,
+		&t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone,
+		&t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.Notes, &t.LastModTime, &t.LastModBy)
 	return t, err
 }

@@ -7,18 +7,18 @@ import (
 )
 
 // 0           1    2                    3
-// Designation,Name,DefaultAccrual,ParkingPermitInUse
+// Designation,Name,DefaultRentalPeriod,ParkingPermitInUse
 // REH,,4,0
 // BBBB,Big Bob's Barrel Barn,4,0
 
-// SetOccType sets the DefaultAccrual attribute of the Business structure based on the provided string s
-func SetOccType(s string, b *Business) {
+// SetAccrual sets the DefaultRentalPeriod attribute of the Business structure based on the provided string s
+func SetAccrual(s string, b *Business) {
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil || !IsValidAccrual(int64(i)) {
-			fmt.Printf("Invalid OccupancyType value: %s\n", s)
+			fmt.Printf("Invalid Accrual value: %s\n", s)
 		} else {
-			b.DefaultAccrual = int64(i)
+			b.DefaultRentalPeriod = int64(i)
 		}
 	}
 }
@@ -66,8 +66,8 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 		b.Name = bu.Name    // Phonebook Business Unit name
 		b.Designation = des // business unit designator
 
-		// OccupancyType
-		SetOccType(sa[2], &b)
+		// Accrual
+		SetAccrual(sa[2], &b)
 
 		// ParkingPermitInUse
 		if len(sa[3]) > 0 {
@@ -87,7 +87,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 	if !found {
 		b.Name = sa[1]
 		b.Designation = des
-		SetOccType(sa[2], &b)
+		SetAccrual(sa[2], &b)
 		if len(sa[3]) > 0 {
 			x, err := yesnoToInt(sa[3])
 			if err != nil {

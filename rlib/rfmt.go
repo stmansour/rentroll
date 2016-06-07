@@ -90,31 +90,6 @@ func RecurStringToInt(s string) int64 {
 	return i
 }
 
-// RecurIntToString - supply a recurrence int64  and the string representation is returned
-func RecurIntToString(i int64) string {
-	var s string
-	switch {
-	case i == RECURNONE:
-		s = "None"
-	case i == RECURHOURLY:
-		s = "Hourly"
-	case i == RECURDAILY:
-		s = "Daily"
-	case i == RECURWEEKLY:
-		s = "Weekly"
-	case i == RECURMONTHLY:
-		s = "Monthly"
-	case i == RECURQUARTERLY:
-		s = "Quarterly"
-	case i == RECURYEARLY:
-		s = "Yearly"
-	default:
-		fmt.Printf("Unknown acceptance value: %d\n", i)
-		s = "None"
-	}
-	return s
-}
-
 // MonthToInt enables arithmetic operation on months
 func MonthToInt(m time.Month) int64 {
 	switch m {

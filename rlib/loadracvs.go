@@ -9,7 +9,7 @@ import (
 //  CSV file format:
 //                                                                                   |<----- repeat Rentable name, as many as needed ... -->|
 //        0      1        2        3        4           5        6            7            8
-//  TemplateName,BID,PrimaryTenant,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName, ...
+//  TemplateName,BID,Renter,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName, ...
 // 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2015-11-08",1,"",101
 // 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2017-07-04",1,"",107
 // 		"RAT001","REH","homerj@springfield.com","866-123-4567","2015-11-21","2016-11-21",1,"",101,102
@@ -56,7 +56,7 @@ func CreateRentalAgreement(sa []string) {
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := GetRentalAgreementTemplateByRefNum(des)
-		if len(b1.ReferenceNumber) == 0 {
+		if len(b1.RentalTemplateNumber) == 0 {
 			Ulog("CreateRentalAgreement: business with designation %s does net exist\n", sa[0])
 			return
 		}
@@ -77,14 +77,11 @@ func CreateRentalAgreement(sa []string) {
 	}
 
 	//-------------------------------------------------------------------
-	//  Determine the primary tenant
+	//  Determine the primary renter
 	//-------------------------------------------------------------------
-	tenants, err := BuildPeopleList(sa[2])
+	renters, err := BuildPeopleList(sa[2])
 	if err != nil { // save the full list
 		return
-	}
-	if len(tenants) > 0 {
-		ra.PrimaryTenant = tenants[0].TID // store the primary tenant now, we'll update the agreement tenants later
 	}
 
 	//-------------------------------------------------------------------
@@ -114,6 +111,10 @@ func CreateRentalAgreement(sa []string) {
 		return
 	}
 	ra.RentalStop = DtStop
+
+	// Until we update with new params...
+	ra.PossessionStart = ra.RentalStart
+	ra.PossessionStop = ra.RentalStop
 
 	s := strings.TrimSpace(sa[6])
 	if len(s) > 0 {
@@ -156,17 +157,17 @@ func CreateRentalAgreement(sa []string) {
 	payor.DtStart = DtStart
 	payor.DtStop = DtStop
 
-	var at AgreementTenant
+	var at AgreementRenter
 	at.DtStart = DtStart
 	at.DtStop = DtStop
 	at.RAID = RAID
 
 	//==================================================
-	// Now handle payors and tenants...
+	// Now handle payors and renters...
 	//==================================================
-	for i := 0; i < len(tenants); i++ {
-		at.TID = tenants[i].TID
-		InsertAgreementTenant(&at)
+	for i := 0; i < len(renters); i++ {
+		at.RENTERID = renters[i].RENTERID
+		InsertAgreementRenter(&at)
 	}
 	for i := 0; i < len(payors); i++ {
 		payor.PID = payors[i].PID
