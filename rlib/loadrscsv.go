@@ -17,16 +17,25 @@ import (
 // }
 
 //  CSV file format:
-// REH, "Lake View",     50.0,  "Overlooks the lake"
-// REH, "Courtyard View",50.0,  "Rear windows view the courtyard"
-// REH, "Top Floor",     100.0, "Penthouse"
-// REH, "Fireplace",     20.0,  "Wood burning, gas fireplace"
+// 0            1                2      3
+// Designation, Name,            Fee,   Description
+// REH,         "Lake View",     50.0,  "Overlooks the lake"
+// REH,         "Courtyard View",50.0,  "Rear windows view the courtyard"
+// REH,         "Top Floor",     100.0, "Penthouse"
+// REH,         "Fireplace",     20.0,  "Wood burning, gas fireplace"
 
 // CreateRentalSpecialty reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRentalSpecialty(sa []string) {
+func CreateRentalSpecialty(sa []string, lineno int) {
+	funcname := "CreateRentalSpecialty"
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
+	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 4
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
 	}
 
 	//-------------------------------------------------------------------
@@ -78,6 +87,6 @@ func CreateRentalSpecialty(sa []string) {
 func LoadRentalSpecialtiesCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRentalSpecialty(t[i])
+		CreateRentalSpecialty(t[i], i+1)
 	}
 }

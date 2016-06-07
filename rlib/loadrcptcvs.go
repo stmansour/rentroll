@@ -61,13 +61,20 @@ func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) error {
 }
 
 // CreateReceiptsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType) {
+func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno int) {
+	funcname := "CreateReceiptsFromCSV"
 	var xbiz XBusiness
 	var r Receipt
 	var err error
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
+	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 7
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
 	}
 
 	//-------------------------------------------------------------------
@@ -177,6 +184,6 @@ func LoadReceiptsCSV(fname string, PmtTypes *map[int64]PaymentType) {
 		}
 	}
 	for i := 0; i < len(t); i++ {
-		CreateReceiptsFromCSV(t[i], PmtTypes)
+		CreateReceiptsFromCSV(t[i], PmtTypes, i+1)
 	}
 }

@@ -58,6 +58,12 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	if des == "designation" {
 		return // this is just the column heading
 	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 10
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
+	}
 
 	//-------------------------------------------------------------------
 	// Make sure the business is in the database

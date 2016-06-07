@@ -26,12 +26,12 @@ func BuildPeopleList(s string) ([]Transactant, error) {
 		s = strings.TrimSpace(s1[i]) // either the email address or the phone number
 		t, err := GetTransactantByPhoneOrEmail(s)
 		if err != nil && !IsSQLNoResultsError(err) {
-			rerr := fmt.Errorf("CreateRentalAgreement: error retrieving transactant by phone or email: %v", err)
+			rerr := fmt.Errorf("BuildPeopleList: error retrieving transactant by phone or email: %v", err)
 			Ulog("%s", rerr.Error())
 			return m, rerr
 		}
 		if t.PID == 0 {
-			rerr := fmt.Errorf("CreateRentalAgreement: could not find transactant with contact information %s\n", s)
+			rerr := fmt.Errorf("BuildPeopleList: could not find transactant with contact information %s\n", s)
 			Ulog("%s", rerr.Error())
 			return m, rerr
 		}
@@ -41,7 +41,8 @@ func BuildPeopleList(s string) ([]Transactant, error) {
 }
 
 // CreateRentalAgreement creates database records for the rental agreement defined in sa[]
-func CreateRentalAgreement(sa []string) {
+func CreateRentalAgreement(sa []string, lineno int) {
+	funcname := "CreateRentalAgreement"
 	var ra RentalAgreement
 	var payor AgreementPayor
 	var m []AgreementRentable
@@ -50,6 +51,12 @@ func CreateRentalAgreement(sa []string) {
 	if des == "templatename" {
 		return // this is just the column heading
 	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 8
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
+	}
 
 	//-------------------------------------------------------------------
 	// Make sure the business is in the database
@@ -57,7 +64,7 @@ func CreateRentalAgreement(sa []string) {
 	if len(des) > 0 {
 		b1, _ := GetRentalAgreementTemplateByRefNum(des)
 		if len(b1.RentalTemplateNumber) == 0 {
-			Ulog("CreateRentalAgreement: business with designation %s does net exist\n", sa[0])
+			Ulog("%s: line %d - business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
 		}
 		ra.RATID = b1.RATID
@@ -70,7 +77,7 @@ func CreateRentalAgreement(sa []string) {
 	if len(cmpdes) > 0 {
 		b2, _ := GetBusinessByDesignation(cmpdes)
 		if b2.BID == 0 {
-			fmt.Printf("CreateRentalAgreement: could not find business named %s\n", cmpdes)
+			fmt.Printf("%s: line %d - could not find business named %s\n", funcname, lineno, cmpdes)
 			return
 		}
 		ra.BID = b2.BID
@@ -100,14 +107,14 @@ func CreateRentalAgreement(sa []string) {
 	//-------------------------------------------------------------------
 	DtStart, err := StringToDate(sa[4])
 	if err != nil {
-		fmt.Printf("CreateRentalAgreement: invalid start date:  %s\n", sa[4])
+		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[4])
 		return
 	}
 	ra.RentalStart = DtStart
 
 	DtStop, err := StringToDate(sa[5])
 	if err != nil {
-		fmt.Printf("CreateRentalAgreement: invalid stop date:  %s\n", sa[5])
+		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[5])
 		return
 	}
 	ra.RentalStop = DtStop
@@ -120,7 +127,7 @@ func CreateRentalAgreement(sa []string) {
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			fmt.Printf("CreatePeopleFromCSV: Renewal value is invalid: %s\n", s)
+			fmt.Printf("%s: line %d - Renewal value is invalid: %s\n", funcname, lineno, s)
 			return
 		}
 		ra.Renewal = int64(i)
@@ -146,7 +153,7 @@ func CreateRentalAgreement(sa []string) {
 	// First write the rental agreement record, then write the agreementrentables and agreement payors
 	RAID, err := InsertRentalAgreement(&ra)
 	if nil != err {
-		fmt.Printf("CreateRentalAgreement: error inserting RentalAgreement = %v\n", err)
+		fmt.Printf("%s: line %d - error inserting RentalAgreement = %v\n", funcname, lineno, err)
 	}
 	for i := 0; i < len(m); i++ {
 		m[i].RAID = RAID
@@ -179,6 +186,6 @@ func CreateRentalAgreement(sa []string) {
 func LoadRentalAgreementCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRentalAgreement(t[i])
+		CreateRentalAgreement(t[i], i+1)
 	}
 }

@@ -1,9 +1,8 @@
 CSV IMPORT TEST
-Date/Time: Thu Jun  2 13:44:36 PDT 2016
+Date/Time: Mon Jun  6 22:24:34 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
-searching for business:  DHR
    1    DHR    Daisy Hills Properties
 
 
@@ -80,14 +79,14 @@ RTID   Style      Name
 
 
 DEFINE RENTABLES
- RID  State  Name
-   1      0  6303-231
-   2      0  6323-301
-   3      0  6392-930
+ RID  Name
+   1  6303-231
+   2  6323-301
+   3  6392-930
 
 
 DEFINE PEOPLE
- TCID    RENTERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
+ TCID  RENTERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
     1      1      1     0  123-456-7890  JJones@abc.com             Jones        , Joshua           ABC Corporation          
     2      2      2     1  123-983-2244  info@abc.com                            ,                  ABC Corporation          
     3      3      3     0  123-456-7891  asmith@gmail.com           Smith        , Amanda                                    
@@ -262,323 +261,1705 @@ ELEMID        ID       CID
 
 
 PROCESS PAYMENTS AND RECEIPTS
-   ===============================================================================================================
+   =========================================================================================================================
    Business:  Daisy Hills Properties
    07/01/16 - 07/31/16
-   ---------------------------------------------------------------------------------------------------------------
-   Description                                             Date    RntAgr         Rentable     GL No        Amount
-   ---------------------------------------------------------------------------------------------------------------
-   J00000001  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/01/16         1         6303-231     12000         76.00
-                    Unit Gross Scheduled Rent-Taxable  07/01/16         1         6303-231     41000        -76.00
-                                 Loss (Gain) to Lease  07/01/16         1         6303-231     41102          0.00
-                                                     
-   J00000002  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/02/16         1         6303-231     12000         76.00
-                    Unit Gross Scheduled Rent-Taxable  07/02/16         1         6303-231     41000        -76.00
-                                 Loss (Gain) to Lease  07/02/16         1         6303-231     41102          0.00
-                                                     
-   J00000003  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/03/16         1         6303-231     12000         76.00
-                    Unit Gross Scheduled Rent-Taxable  07/03/16         1         6303-231     41000        -76.00
-                                 Loss (Gain) to Lease  07/03/16         1         6303-231     41102          0.00
-                                                     
-   J00000004  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/05/16         2         6303-231     12000         92.00
-                    Unit Gross Scheduled Rent-Taxable  07/05/16         2         6303-231     41000        -92.00
-                                 Loss (Gain) to Lease  07/05/16         2         6303-231     41102          0.00
-                                                     
-   J00000005  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/06/16         2         6303-231     12000         92.00
-                    Unit Gross Scheduled Rent-Taxable  07/06/16         2         6303-231     41000        -92.00
-                                 Loss (Gain) to Lease  07/06/16         2         6303-231     41102          0.00
-                                                     
-   J00000006  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/10/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/10/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/10/16         3         6303-231     41102          0.00
-                                                     
-   J00000007  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/11/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/11/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/11/16         3         6303-231     41102          0.00
-                                                     
-   J00000008  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/12/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/12/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/12/16         3         6303-231     41102          0.00
-                                                     
-   J00000009  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/13/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/13/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/13/16         3         6303-231     41102          0.00
-                                                     
-   J00000010  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/14/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/14/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/14/16         3         6303-231     41102          0.00
-                                                     
-   J00000011  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/15/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/15/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/15/16         3         6303-231     41102          0.00
-                                                     
-   J00000012  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/16/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/16/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/16/16         3         6303-231     41102          0.00
-                                                     
-   J00000013  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/17/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/17/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/17/16         3         6303-231     41102          0.00
-                                                     
-   J00000014  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/18/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/18/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/18/16         3         6303-231     41102          0.00
-                                                     
-   J00000015  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/19/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/19/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/19/16         3         6303-231     41102          0.00
-                                                     
-   J00000016  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/20/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/20/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/20/16         3         6303-231     41102          0.00
-                                                     
-   J00000017  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/21/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/21/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/21/16         3         6303-231     41102          0.00
-                                                     
-   J00000018  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/22/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/22/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/22/16         3         6303-231     41102          0.00
-                                                     
-   J00000019  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/23/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/23/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/23/16         3         6303-231     41102          0.00
-                                                     
-   J00000020  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/24/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/24/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/24/16         3         6303-231     41102          0.00
-                                                     
-   J00000021  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/25/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/25/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/25/16         3         6303-231     41102          0.00
-                                                     
-   J00000022  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/26/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/26/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/26/16         3         6303-231     41102          0.00
-                                                     
-   J00000023  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/27/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/27/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/27/16         3         6303-231     41102          0.00
-                                                     
-   J00000024  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/28/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/28/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/28/16         3         6303-231     41102          0.00
-                                                     
-   J00000025  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/29/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/29/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/29/16         3         6303-231     41102          0.00
-                                                     
-   J00000026  Rent  6303-231 [A2, daily]             
-                                  Accounts Receivable  07/30/16         3         6303-231     12000         56.87
-                    Unit Gross Scheduled Rent-Taxable  07/30/16         3         6303-231     41000        -56.87
-                                 Loss (Gain) to Lease  07/30/16         3         6303-231     41102          0.00
-                                                     
-   J00000027  Rent  6323-301 [A1, monthly]           
-                                  Accounts Receivable  07/01/16         4         6323-301     12000        730.00
-                    Unit Gross Scheduled Rent-Taxable  07/01/16         4         6323-301     41000       -755.00
-                                 Loss (Gain) to Lease  07/01/16         4         6323-301     41102         25.00
-                                                     
-   J00000028  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/01/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/01/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/01/16         5         6392-930     41102          0.00
-                                                     
-   J00000029  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/02/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/02/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/02/16         5         6392-930     41102          0.00
-                                                     
-   J00000030  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/03/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/03/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/03/16         5         6392-930     41102          0.00
-                                                     
-   J00000031  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/04/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/04/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/04/16         5         6392-930     41102          0.00
-                                                     
-   J00000032  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/05/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/05/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/05/16         5         6392-930     41102          0.00
-                                                     
-   J00000033  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/06/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/06/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/06/16         5         6392-930     41102          0.00
-                                                     
-   J00000034  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/07/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/07/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/07/16         5         6392-930     41102          0.00
-                                                     
-   J00000035  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/08/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/08/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/08/16         5         6392-930     41102          0.00
-                                                     
-   J00000036  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/09/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/09/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/09/16         5         6392-930     41102          0.00
-                                                     
-   J00000037  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/10/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/10/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/10/16         5         6392-930     41102          0.00
-                                                     
-   J00000038  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/11/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/11/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/11/16         5         6392-930     41102          0.00
-                                                     
-   J00000039  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/12/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/12/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/12/16         5         6392-930     41102          0.00
-                                                     
-   J00000040  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/13/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/13/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/13/16         5         6392-930     41102          0.00
-                                                     
-   J00000041  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/14/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/14/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/14/16         5         6392-930     41102          0.00
-                                                     
-   J00000042  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/15/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/15/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/15/16         5         6392-930     41102          0.00
-                                                     
-   J00000043  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/16/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/16/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/16/16         5         6392-930     41102          0.00
-                                                     
-   J00000044  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/17/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/17/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/17/16         5         6392-930     41102          0.00
-                                                     
-   J00000045  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/18/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/18/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/18/16         5         6392-930     41102          0.00
-                                                     
-   J00000046  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/19/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/19/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/19/16         5         6392-930     41102          0.00
-                                                     
-   J00000047  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/20/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/20/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/20/16         5         6392-930     41102          0.00
-                                                     
-   J00000048  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/21/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/21/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/21/16         5         6392-930     41102          0.00
-                                                     
-   J00000049  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/22/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/22/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/22/16         5         6392-930     41102          0.00
-                                                     
-   J00000050  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/23/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/23/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/23/16         5         6392-930     41102          0.00
-                                                     
-   J00000051  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/24/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/24/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/24/16         5         6392-930     41102          0.00
-                                                     
-   J00000052  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/25/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/25/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/25/16         5         6392-930     41102          0.00
-                                                     
-   J00000053  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/26/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/26/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/26/16         5         6392-930     41102          0.00
-                                                     
-   J00000054  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/27/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/27/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/27/16         5         6392-930     41102          0.00
-                                                     
-   J00000055  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/28/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/28/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/28/16         5         6392-930     41102          0.00
-                                                     
-   J00000056  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/29/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/29/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/29/16         5         6392-930     41102          0.00
-                                                     
-   J00000057  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/30/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/30/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/30/16         5         6392-930     41102          0.00
-                                                     
-   J00000058  Rent  6392-930 [B5, daily]             
-                                  Accounts Receivable  07/31/16         5         6392-930     12000        125.00
-                    Unit Gross Scheduled Rent-Taxable  07/31/16         5         6392-930     41000       -125.00
-                                 Loss (Gain) to Lease  07/31/16         5         6392-930     41102          0.00
-                                                     
-   J00000059  Unassociated: 6303-231                 
-                    Unit Gross Scheduled Rent-Taxable  07/31/16         0         6303-231     41000        -12.26
-                                              Vacancy  07/31/16         0         6303-231     41101         12.26
-   J00000060  Payment -   735.35                     
-   	Rent                                             
-                                  Accounts Receivable  07/15/16         1         6303-231     12000       -735.35
-                                                 Cash  07/15/16         1         6303-231     10000        735.35
-                                                     
-   J00000061  Payment - Smith  1003.00               
-   	Rent                                             
-                                  Accounts Receivable  07/16/16         2         6303-231     12000      -1003.00
-                                                 Cash  07/16/16         2         6303-231     10000       1003.00
-                                                     
-   J00000062  Payment - Jones,Jones  750.00          
-   	Rent                                             
-                                  Accounts Receivable  07/03/16         4         6323-301     12000       -750.00
-                                                 Cash  07/03/16         4         6323-301     10000        750.00
-                                                     
-   J00000063  Payment -   4200.00                    
-   	Rent                                             
-                                  Accounts Receivable  07/04/16         5         6392-930     12000      -4200.00
-                                                 Cash  07/04/16         5         6392-930     10000       4200.00
-                                                     
+   -------------------------------------------------------------------------------------------------------------------------
+   Description                                                       Date    RntAgr         Rentable     GL No        Amount
+   -------------------------------------------------------------------------------------------------------------------------
+   J00000001  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/01/16         1         6303-231     12000         76.00
+                              Unit Gross Scheduled Rent-Taxable  07/01/16         1         6303-231     41000        -76.00
+                                           Loss (Gain) to Lease  07/01/16         1         6303-231     41102          0.00
+                                                               
+   J00000002  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/02/16         1         6303-231     12000         76.00
+                              Unit Gross Scheduled Rent-Taxable  07/02/16         1         6303-231     41000        -76.00
+                                           Loss (Gain) to Lease  07/02/16         1         6303-231     41102          0.00
+                                                               
+   J00000003  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/03/16         1         6303-231     12000         76.00
+                              Unit Gross Scheduled Rent-Taxable  07/03/16         1         6303-231     41000        -76.00
+                                           Loss (Gain) to Lease  07/03/16         1         6303-231     41102          0.00
+                                                               
+   J00000004  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/05/16         2         6303-231     12000         92.00
+                              Unit Gross Scheduled Rent-Taxable  07/05/16         2         6303-231     41000        -92.00
+                                           Loss (Gain) to Lease  07/05/16         2         6303-231     41102          0.00
+                                                               
+   J00000005  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/06/16         2         6303-231     12000         92.00
+                              Unit Gross Scheduled Rent-Taxable  07/06/16         2         6303-231     41000        -92.00
+                                           Loss (Gain) to Lease  07/06/16         2         6303-231     41102          0.00
+                                                               
+   J00000006  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/10/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/10/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/10/16         3         6303-231     41102          0.00
+                                                               
+   J00000007  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/11/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/11/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/11/16         3         6303-231     41102          0.00
+                                                               
+   J00000008  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/12/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/12/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/12/16         3         6303-231     41102          0.00
+                                                               
+   J00000009  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/13/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/13/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/13/16         3         6303-231     41102          0.00
+                                                               
+   J00000010  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/14/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/14/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/14/16         3         6303-231     41102          0.00
+                                                               
+   J00000011  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/15/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/15/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/15/16         3         6303-231     41102          0.00
+                                                               
+   J00000012  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/16/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/16/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/16/16         3         6303-231     41102          0.00
+                                                               
+   J00000013  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/17/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/17/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/17/16         3         6303-231     41102          0.00
+                                                               
+   J00000014  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/18/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/18/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/18/16         3         6303-231     41102          0.00
+                                                               
+   J00000015  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/19/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/19/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/19/16         3         6303-231     41102          0.00
+                                                               
+   J00000016  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/20/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/20/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/20/16         3         6303-231     41102          0.00
+                                                               
+   J00000017  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/21/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/21/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/21/16         3         6303-231     41102          0.00
+                                                               
+   J00000018  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/22/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/22/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/22/16         3         6303-231     41102          0.00
+                                                               
+   J00000019  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/23/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/23/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/23/16         3         6303-231     41102          0.00
+                                                               
+   J00000020  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/24/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/24/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/24/16         3         6303-231     41102          0.00
+                                                               
+   J00000021  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/25/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/25/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/25/16         3         6303-231     41102          0.00
+                                                               
+   J00000022  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/26/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/26/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/26/16         3         6303-231     41102          0.00
+                                                               
+   J00000023  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/27/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/27/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/27/16         3         6303-231     41102          0.00
+                                                               
+   J00000024  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/28/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/28/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/28/16         3         6303-231     41102          0.00
+                                                               
+   J00000025  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/29/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/29/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/29/16         3         6303-231     41102          0.00
+                                                               
+   J00000026  Rent  6303-231 [A2, daily]                       
+                                            Accounts Receivable  07/30/16         3         6303-231     12000         56.87
+                              Unit Gross Scheduled Rent-Taxable  07/30/16         3         6303-231     41000        -56.87
+                                           Loss (Gain) to Lease  07/30/16         3         6303-231     41102          0.00
+                                                               
+   J00000027  Rent  6323-301 [A1, monthly]                     
+                                            Accounts Receivable  07/01/16         4         6323-301     12000        730.00
+                              Unit Gross Scheduled Rent-Taxable  07/01/16         4         6323-301     41000       -755.00
+                                           Loss (Gain) to Lease  07/01/16         4         6323-301     41102         25.00
+                                                               
+   J00000028  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/01/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/01/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/01/16         5         6392-930     41102          0.00
+                                                               
+   J00000029  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/02/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/02/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/02/16         5         6392-930     41102          0.00
+                                                               
+   J00000030  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/03/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/03/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/03/16         5         6392-930     41102          0.00
+                                                               
+   J00000031  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/04/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/04/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/04/16         5         6392-930     41102          0.00
+                                                               
+   J00000032  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/05/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/05/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/05/16         5         6392-930     41102          0.00
+                                                               
+   J00000033  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/06/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/06/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/06/16         5         6392-930     41102          0.00
+                                                               
+   J00000034  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/07/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/07/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/07/16         5         6392-930     41102          0.00
+                                                               
+   J00000035  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/08/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/08/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/08/16         5         6392-930     41102          0.00
+                                                               
+   J00000036  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/09/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/09/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/09/16         5         6392-930     41102          0.00
+                                                               
+   J00000037  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/10/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/10/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/10/16         5         6392-930     41102          0.00
+                                                               
+   J00000038  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/11/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/11/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/11/16         5         6392-930     41102          0.00
+                                                               
+   J00000039  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/12/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/12/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/12/16         5         6392-930     41102          0.00
+                                                               
+   J00000040  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/13/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/13/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/13/16         5         6392-930     41102          0.00
+                                                               
+   J00000041  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/14/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/14/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/14/16         5         6392-930     41102          0.00
+                                                               
+   J00000042  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/15/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/15/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/15/16         5         6392-930     41102          0.00
+                                                               
+   J00000043  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/16/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/16/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/16/16         5         6392-930     41102          0.00
+                                                               
+   J00000044  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/17/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/17/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/17/16         5         6392-930     41102          0.00
+                                                               
+   J00000045  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/18/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/18/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/18/16         5         6392-930     41102          0.00
+                                                               
+   J00000046  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/19/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/19/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/19/16         5         6392-930     41102          0.00
+                                                               
+   J00000047  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/20/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/20/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/20/16         5         6392-930     41102          0.00
+                                                               
+   J00000048  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/21/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/21/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/21/16         5         6392-930     41102          0.00
+                                                               
+   J00000049  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/22/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/22/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/22/16         5         6392-930     41102          0.00
+                                                               
+   J00000050  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/23/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/23/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/23/16         5         6392-930     41102          0.00
+                                                               
+   J00000051  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/24/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/24/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/24/16         5         6392-930     41102          0.00
+                                                               
+   J00000052  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/25/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/25/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/25/16         5         6392-930     41102          0.00
+                                                               
+   J00000053  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/26/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/26/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/26/16         5         6392-930     41102          0.00
+                                                               
+   J00000054  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/27/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/27/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/27/16         5         6392-930     41102          0.00
+                                                               
+   J00000055  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/28/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/28/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/28/16         5         6392-930     41102          0.00
+                                                               
+   J00000056  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/29/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/29/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/29/16         5         6392-930     41102          0.00
+                                                               
+   J00000057  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/30/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/30/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/30/16         5         6392-930     41102          0.00
+                                                               
+   J00000058  Rent  6392-930 [B5, daily]                       
+                                            Accounts Receivable  07/31/16         5         6392-930     12000        125.00
+                              Unit Gross Scheduled Rent-Taxable  07/31/16         5         6392-930     41000       -125.00
+                                           Loss (Gain) to Lease  07/31/16         5         6392-930     41102          0.00
+                                                               
+   J00000059  Unassociated: 6303-231 (Jul 4 - Jul 5)           
+                              Unit Gross Scheduled Rent-Taxable  07/04/16         0         6303-231     41000        -76.00
+                                                        Vacancy  07/04/16         0         6303-231     41101         76.00
+   J00000060  Unassociated: 6303-231 (Jul 7 - Jul 10)          
+                              Unit Gross Scheduled Rent-Taxable  07/09/16         0         6303-231     41000       -276.00
+                                                        Vacancy  07/09/16         0         6303-231     41101        276.00
+   J00000061  Unassociated: 6303-231 (Jul 31 - Aug 1)          
+                              Unit Gross Scheduled Rent-Taxable  07/31/16         0         6303-231     41000        -56.87
+                                                        Vacancy  07/31/16         0         6303-231     41101         56.87
+   J00000062  Payment -   735.35                               
+   	Rent                                                       
+                                            Accounts Receivable  07/15/16         1         6303-231     12000       -735.35
+                                                           Cash  07/15/16         1         6303-231     10000        735.35
+                                                               
+   J00000063  Payment - Smith  1003.00                         
+   	Rent                                                       
+                                            Accounts Receivable  07/16/16         2         6303-231     12000      -1003.00
+                                                           Cash  07/16/16         2         6303-231     10000       1003.00
+                                                               
+   J00000064  Payment - Jones,Jones  750.00                    
+   	Rent                                                       
+                                            Accounts Receivable  07/03/16         4         6323-301     12000       -750.00
+                                                           Cash  07/03/16         4         6323-301     10000        750.00
+                                                               
+   J00000065  Payment -   4200.00                              
+   	Rent                                                       
+                                            Accounts Receivable  07/04/16         5         6392-930     12000      -4200.00
+                                                           Cash  07/04/16         5         6392-930     10000       4200.00
+                                                               
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   10000 - Cash                                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+                                  Payment - Rent  07/15/16         62           1         6303-231        735.35        735.35
+                                  Payment - Rent  07/16/16         63           2         6303-231       1003.00       1738.35
+                                  Payment - Rent  07/03/16         64           4         6323-301        750.00       2488.35
+                                  Payment - Rent  07/04/16         65           5         6392-930       4200.00       6688.35
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                             6688.35
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   11000 - Credit Card Clearing                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   12000 - Accounts Receivable                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+                               Assessment - Rent  07/01/16          1           1         6303-231         76.00         76.00
+                               Assessment - Rent  07/02/16          2           1         6303-231         76.00        152.00
+                               Assessment - Rent  07/03/16          3           1         6303-231         76.00        228.00
+                               Assessment - Rent  07/05/16          4           2         6303-231         92.00        320.00
+                               Assessment - Rent  07/06/16          5           2         6303-231         92.00        412.00
+                               Assessment - Rent  07/10/16          6           3         6303-231         56.87        468.87
+                               Assessment - Rent  07/11/16          7           3         6303-231         56.87        525.74
+                               Assessment - Rent  07/12/16          8           3         6303-231         56.87        582.61
+                               Assessment - Rent  07/13/16          9           3         6303-231         56.87        639.48
+                               Assessment - Rent  07/14/16         10           3         6303-231         56.87        696.35
+                               Assessment - Rent  07/15/16         11           3         6303-231         56.87        753.22
+                               Assessment - Rent  07/16/16         12           3         6303-231         56.87        810.09
+                               Assessment - Rent  07/17/16         13           3         6303-231         56.87        866.96
+                               Assessment - Rent  07/18/16         14           3         6303-231         56.87        923.83
+                               Assessment - Rent  07/19/16         15           3         6303-231         56.87        980.70
+                               Assessment - Rent  07/20/16         16           3         6303-231         56.87       1037.57
+                               Assessment - Rent  07/21/16         17           3         6303-231         56.87       1094.44
+                               Assessment - Rent  07/22/16         18           3         6303-231         56.87       1151.31
+                               Assessment - Rent  07/23/16         19           3         6303-231         56.87       1208.18
+                               Assessment - Rent  07/24/16         20           3         6303-231         56.87       1265.05
+                               Assessment - Rent  07/25/16         21           3         6303-231         56.87       1321.92
+                               Assessment - Rent  07/26/16         22           3         6303-231         56.87       1378.79
+                               Assessment - Rent  07/27/16         23           3         6303-231         56.87       1435.66
+                               Assessment - Rent  07/28/16         24           3         6303-231         56.87       1492.53
+                               Assessment - Rent  07/29/16         25           3         6303-231         56.87       1549.40
+                               Assessment - Rent  07/30/16         26           3         6303-231         56.87       1606.27
+                               Assessment - Rent  07/01/16         27           4         6323-301        730.00       2336.27
+                               Assessment - Rent  07/01/16         28           5         6392-930        125.00       2461.27
+                               Assessment - Rent  07/02/16         29           5         6392-930        125.00       2586.27
+                               Assessment - Rent  07/03/16         30           5         6392-930        125.00       2711.27
+                               Assessment - Rent  07/04/16         31           5         6392-930        125.00       2836.27
+                               Assessment - Rent  07/05/16         32           5         6392-930        125.00       2961.27
+                               Assessment - Rent  07/06/16         33           5         6392-930        125.00       3086.27
+                               Assessment - Rent  07/07/16         34           5         6392-930        125.00       3211.27
+                               Assessment - Rent  07/08/16         35           5         6392-930        125.00       3336.27
+                               Assessment - Rent  07/09/16         36           5         6392-930        125.00       3461.27
+                               Assessment - Rent  07/10/16         37           5         6392-930        125.00       3586.27
+                               Assessment - Rent  07/11/16         38           5         6392-930        125.00       3711.27
+                               Assessment - Rent  07/12/16         39           5         6392-930        125.00       3836.27
+                               Assessment - Rent  07/13/16         40           5         6392-930        125.00       3961.27
+                               Assessment - Rent  07/14/16         41           5         6392-930        125.00       4086.27
+                               Assessment - Rent  07/15/16         42           5         6392-930        125.00       4211.27
+                               Assessment - Rent  07/16/16         43           5         6392-930        125.00       4336.27
+                               Assessment - Rent  07/17/16         44           5         6392-930        125.00       4461.27
+                               Assessment - Rent  07/18/16         45           5         6392-930        125.00       4586.27
+                               Assessment - Rent  07/19/16         46           5         6392-930        125.00       4711.27
+                               Assessment - Rent  07/20/16         47           5         6392-930        125.00       4836.27
+                               Assessment - Rent  07/21/16         48           5         6392-930        125.00       4961.27
+                               Assessment - Rent  07/22/16         49           5         6392-930        125.00       5086.27
+                               Assessment - Rent  07/23/16         50           5         6392-930        125.00       5211.27
+                               Assessment - Rent  07/24/16         51           5         6392-930        125.00       5336.27
+                               Assessment - Rent  07/25/16         52           5         6392-930        125.00       5461.27
+                               Assessment - Rent  07/26/16         53           5         6392-930        125.00       5586.27
+                               Assessment - Rent  07/27/16         54           5         6392-930        125.00       5711.27
+                               Assessment - Rent  07/28/16         55           5         6392-930        125.00       5836.27
+                               Assessment - Rent  07/29/16         56           5         6392-930        125.00       5961.27
+                               Assessment - Rent  07/30/16         57           5         6392-930        125.00       6086.27
+                               Assessment - Rent  07/31/16         58           5         6392-930        125.00       6211.27
+                                  Payment - Rent  07/15/16         62           1         6303-231       -735.35       5475.92
+                                  Payment - Rent  07/16/16         63           2         6303-231      -1003.00       4472.92
+                                  Payment - Rent  07/03/16         64           4         6323-301       -750.00       3722.92
+                                  Payment - Rent  07/04/16         65           5         6392-930      -4200.00       -477.08
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                             -477.08
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30000 - Security Deposits                    
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30100 - Accued Taxes                         
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30101 - Sales Taxes                          
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30102 - Transient Occupancy Taxes            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   30199 - Other Accrued Taxes                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   39000 - Owners' Equity                       
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41000 - Unit Gross Scheduled Rent-Taxable    
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+                               Assessment - Rent  07/01/16          1           1         6303-231        -76.00        -76.00
+                               Assessment - Rent  07/02/16          2           1         6303-231        -76.00       -152.00
+                               Assessment - Rent  07/03/16          3           1         6303-231        -76.00       -228.00
+                               Assessment - Rent  07/05/16          4           2         6303-231        -92.00       -320.00
+                               Assessment - Rent  07/06/16          5           2         6303-231        -92.00       -412.00
+                               Assessment - Rent  07/10/16          6           3         6303-231        -56.87       -468.87
+                               Assessment - Rent  07/11/16          7           3         6303-231        -56.87       -525.74
+                               Assessment - Rent  07/12/16          8           3         6303-231        -56.87       -582.61
+                               Assessment - Rent  07/13/16          9           3         6303-231        -56.87       -639.48
+                               Assessment - Rent  07/14/16         10           3         6303-231        -56.87       -696.35
+                               Assessment - Rent  07/15/16         11           3         6303-231        -56.87       -753.22
+                               Assessment - Rent  07/16/16         12           3         6303-231        -56.87       -810.09
+                               Assessment - Rent  07/17/16         13           3         6303-231        -56.87       -866.96
+                               Assessment - Rent  07/18/16         14           3         6303-231        -56.87       -923.83
+                               Assessment - Rent  07/19/16         15           3         6303-231        -56.87       -980.70
+                               Assessment - Rent  07/20/16         16           3         6303-231        -56.87      -1037.57
+                               Assessment - Rent  07/21/16         17           3         6303-231        -56.87      -1094.44
+                               Assessment - Rent  07/22/16         18           3         6303-231        -56.87      -1151.31
+                               Assessment - Rent  07/23/16         19           3         6303-231        -56.87      -1208.18
+                               Assessment - Rent  07/24/16         20           3         6303-231        -56.87      -1265.05
+                               Assessment - Rent  07/25/16         21           3         6303-231        -56.87      -1321.92
+                               Assessment - Rent  07/26/16         22           3         6303-231        -56.87      -1378.79
+                               Assessment - Rent  07/27/16         23           3         6303-231        -56.87      -1435.66
+                               Assessment - Rent  07/28/16         24           3         6303-231        -56.87      -1492.53
+                               Assessment - Rent  07/29/16         25           3         6303-231        -56.87      -1549.40
+                               Assessment - Rent  07/30/16         26           3         6303-231        -56.87      -1606.27
+                               Assessment - Rent  07/01/16         27           4         6323-301       -755.00      -2361.27
+                               Assessment - Rent  07/01/16         28           5         6392-930       -125.00      -2486.27
+                               Assessment - Rent  07/02/16         29           5         6392-930       -125.00      -2611.27
+                               Assessment - Rent  07/03/16         30           5         6392-930       -125.00      -2736.27
+                               Assessment - Rent  07/04/16         31           5         6392-930       -125.00      -2861.27
+                               Assessment - Rent  07/05/16         32           5         6392-930       -125.00      -2986.27
+                               Assessment - Rent  07/06/16         33           5         6392-930       -125.00      -3111.27
+                               Assessment - Rent  07/07/16         34           5         6392-930       -125.00      -3236.27
+                               Assessment - Rent  07/08/16         35           5         6392-930       -125.00      -3361.27
+                               Assessment - Rent  07/09/16         36           5         6392-930       -125.00      -3486.27
+                               Assessment - Rent  07/10/16         37           5         6392-930       -125.00      -3611.27
+                               Assessment - Rent  07/11/16         38           5         6392-930       -125.00      -3736.27
+                               Assessment - Rent  07/12/16         39           5         6392-930       -125.00      -3861.27
+                               Assessment - Rent  07/13/16         40           5         6392-930       -125.00      -3986.27
+                               Assessment - Rent  07/14/16         41           5         6392-930       -125.00      -4111.27
+                               Assessment - Rent  07/15/16         42           5         6392-930       -125.00      -4236.27
+                               Assessment - Rent  07/16/16         43           5         6392-930       -125.00      -4361.27
+                               Assessment - Rent  07/17/16         44           5         6392-930       -125.00      -4486.27
+                               Assessment - Rent  07/18/16         45           5         6392-930       -125.00      -4611.27
+                               Assessment - Rent  07/19/16         46           5         6392-930       -125.00      -4736.27
+                               Assessment - Rent  07/20/16         47           5         6392-930       -125.00      -4861.27
+                               Assessment - Rent  07/21/16         48           5         6392-930       -125.00      -4986.27
+                               Assessment - Rent  07/22/16         49           5         6392-930       -125.00      -5111.27
+                               Assessment - Rent  07/23/16         50           5         6392-930       -125.00      -5236.27
+                               Assessment - Rent  07/24/16         51           5         6392-930       -125.00      -5361.27
+                               Assessment - Rent  07/25/16         52           5         6392-930       -125.00      -5486.27
+                               Assessment - Rent  07/26/16         53           5         6392-930       -125.00      -5611.27
+                               Assessment - Rent  07/27/16         54           5         6392-930       -125.00      -5736.27
+                               Assessment - Rent  07/28/16         55           5         6392-930       -125.00      -5861.27
+                               Assessment - Rent  07/29/16         56           5         6392-930       -125.00      -5986.27
+                               Assessment - Rent  07/30/16         57           5         6392-930       -125.00      -6111.27
+                               Assessment - Rent  07/31/16         58           5         6392-930       -125.00      -6236.27
+                                    Unassociated  07/04/16         59           0         6303-231        -76.00      -6312.27
+                                    Unassociated  07/09/16         60           0         6303-231       -276.00      -6588.27
+                                    Unassociated  07/31/16         61           0         6303-231        -56.87      -6645.14
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                            -6645.14
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41001 - Unit Gross Scheduled Rent-Not Taxable
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41100 - Unit Income Offsets                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41101 - Vacancy                              
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+                                    Unassociated  07/04/16         59           0         6303-231         76.00         76.00
+                                    Unassociated  07/09/16         60           0         6303-231        276.00        352.00
+                                    Unassociated  07/31/16         61           0         6303-231         56.87        408.87
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                              408.87
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41102 - Loss (Gain) to Lease                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+                               Assessment - Rent  07/01/16          1           1         6303-231          0.00          0.00
+                               Assessment - Rent  07/02/16          2           1         6303-231          0.00          0.00
+                               Assessment - Rent  07/03/16          3           1         6303-231          0.00          0.00
+                               Assessment - Rent  07/05/16          4           2         6303-231          0.00          0.00
+                               Assessment - Rent  07/06/16          5           2         6303-231          0.00          0.00
+                               Assessment - Rent  07/10/16          6           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/11/16          7           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/12/16          8           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/13/16          9           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/14/16         10           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/15/16         11           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/16/16         12           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/17/16         13           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/18/16         14           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/19/16         15           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/20/16         16           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/21/16         17           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/22/16         18           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/23/16         19           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/24/16         20           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/25/16         21           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/26/16         22           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/27/16         23           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/28/16         24           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/29/16         25           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/30/16         26           3         6303-231          0.00          0.00
+                               Assessment - Rent  07/01/16         27           4         6323-301         25.00         25.00
+                               Assessment - Rent  07/01/16         28           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/02/16         29           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/03/16         30           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/04/16         31           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/05/16         32           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/06/16         33           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/07/16         34           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/08/16         35           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/09/16         36           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/10/16         37           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/11/16         38           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/12/16         39           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/13/16         40           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/14/16         41           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/15/16         42           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/16/16         43           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/17/16         44           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/18/16         45           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/19/16         46           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/20/16         47           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/21/16         48           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/22/16         49           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/23/16         50           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/24/16         51           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/25/16         52           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/26/16         53           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/27/16         54           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/28/16         55           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/29/16         56           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/30/16         57           5         6392-930          0.00         25.00
+                               Assessment - Rent  07/31/16         58           5         6392-930          0.00         25.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                               25.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41103 - Employee Concessions                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41104 - Resident Concessions                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41105 - Owner Occupied                       
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41106 - Administrative Concession            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41107 - Off Line Renovations                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41108 - Off Line Maintenance                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41199 - Othe Income Offsets                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41200 - Serviced Unit Fees                   
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41201 - Broadcast and IT Services            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41202 - Food Services                        
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41203 - Linen Services                       
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41204 - Wash N Fold Services                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41299 - Other Serviced Apartment Fees        
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41300 - Utility Fees                         
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41301 - Electric Base Fee                    
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41302 - Electric Overage                     
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41303 - Water and Sewer Base Fee             
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41304 - Water and Sewer Overage              
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41305 - Gas Base Fee                         
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41306 - Gas Overage                          
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41307 - Trash Collection Base Fee            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41308 - Trash Collection Overage             
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41399 - Other Utility Fee                    
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41400 - Miscellaneous Income                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41401 - Application Fees                     
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41402 - Late Fees                            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41403 - Insufficient Funds Fee               
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41404 - Month to Month Fee                   
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41405 - Unit Premium                         
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41406 - No Show or Termination Fee           
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41407 - Pet Fees                             
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41408 - Pet Rent                             
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41409 - Expense Reimbursement                
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41410 - Special Cleaning Fee                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41411 - Eviction Fee Reimbursement           
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41412 - Extra Person Charge                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   41413 - Forfeited Security Deposit           
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42000 - Garage and Carport Gross Scheduled Rents - Taxable
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42001 - Garage and Carport Gross Scheduled Rents - Non Taxable
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42100 - Garage and Carport Income Offset     
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42101 - Vacancy                              
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42102 - Loss (Gain) to Lease                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42103 - Employee Concessions                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42104 - Resident Concessions                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42105 - Owner Occupied                       
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42106 - Administrative Concession            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42107 - Off Line Renovations                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42108 - Off Line Maintenance                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42199 - Othe Income Offsets                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   42200 - Other Garage and Carport Income      
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43000 - Appliance and Furniture Gross Schedule Rent - Taxable
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43001 - Appliance and Furniture Gross Schedule Rent - Non Taxable
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43100 - Appliance and Furniture Income Offset
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43101 - Not Rented                           
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43102 - Bad Debt                             
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43103 - Loss (Gain) to Lease                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43104 - Employee Concessions                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43105 - Resident Concessions                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43106 - Owner Used                           
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43107 - Administrative Concession            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43108 - Off Line Maintenance                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43199 - Othe Income Offsets                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   43200 - Other Appliance and Furniture Income 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44000 - Vehicle Gross Scheduled Rents - Taxable
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44001 - Vehicle Gross Scheduled Rents - Non Taxable
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44100 - Garage and Carport Income Offset     
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44101 - Vacancy                              
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44102 - Loss (Gain) to Lease                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44103 - Employee Use                         
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44104 - Resident Concessions                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44105 - Owner Use                            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44106 - Administrative Concession            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44107 - Off Line Maintenance                 
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44199 - Othe Income Offsets                  
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   44200 - Other Garage and Carport Income      
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49000 - Ancillary Business Revenue           
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49010 - Convenience Store Vending            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49020 - Fitness Center Revenue               
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49030 - Vending Income                       
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49040 - Restaurant Sales                     
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49050 - Bar Sales                            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49060 - Spa Sales                            
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49091 - Cash Over/Short                      
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49092 - Bad Debt                             
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  Daisy Hills Properties
+   49099 - Other Ancillary Business Income      
+   07/01/16 - 07/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                07/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                07/31/16                                                                0.00
+
+
 

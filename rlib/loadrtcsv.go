@@ -23,15 +23,16 @@ func GetBusinessBID(des string) int64 {
 //
 //                                                                     Repeat as many 3-tuples as needed
 //                                                                         /----------^-------------\
-//  [0]        [1]      [2]   			[3]       [4]       [5]            6          7       8
+//  [0]        [1]      [2]   			[3]            [4]       [5]            6          7       8
 // Designation,Style,	Name, 			RentalPeriod,  Proration,ManageToBudget,MarketRate,DtStart,DtStop
-// REH,        "GM",	"Geezer Miser", 6,		  4,	 	1,			  1100.00
-// REH,        "FS",	"Flat Studio",  6,		  4,	 	1,			  1500.00
-// REH,        "SBL",	"SB Loft",     	6,		  4,	 	1,			  1750.00
-// REH,        "KDS",	"KD Suite",    	6,		  4,	 	1,			  2000.00
-// REH,        "VEH",	Vehicle,       	3,		  0,	 	1,			  10.0
-// REH,        "CPT",	Carport,       	6,		  4,	 	1,			  35.0
-func CreateRentableType(sa []string) {
+// REH,        "GM",	"Geezer Miser", 6,		       4,        1,             1100.00,   1/1/2015, 1/1/2017
+// REH,        "FS",	"Flat Studio",  6,		       4,        1,             1500.00,   1/1/2015, 1/1/2017
+// REH,        "SBL",	"SB Loft",     	6,		       4,        1,             1750.00,   1/1/2015, 1/1/2017
+// REH,        "KDS",	"KD Suite",    	6,		       4,        1,             2000.00,   1/1/2015, 1/1/2017
+// REH,        "VEH",	Vehicle,       	3,		       0,        1,             10.0,   1/1/2015, 1/1/2017
+// REH,        "CPT",	Carport,       	6,		       4,        1,             35.0,   1/1/2015, 1/1/2017
+func CreateRentableType(sa []string, lineno int) {
+	funcname := "CreateRentableType"
 	if 8 > len(sa) {
 		Ulog("CreateRentableType: csv file line \"%s\" does not have 7 elements. Ignored.\n", sa)
 		return
@@ -39,6 +40,12 @@ func CreateRentableType(sa []string) {
 	des := strings.TrimSpace(sa[0])
 	if des == "Designation" {
 		return // this is just the column heading
+	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 8
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
 	}
 
 	//-------------------------------------------------------------------
@@ -133,6 +140,6 @@ func CreateRentableType(sa []string) {
 func LoadRentableTypesCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRentableType(t[i])
+		CreateRentableType(t[i], i+1)
 	}
 }

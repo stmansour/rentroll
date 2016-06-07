@@ -23,11 +23,19 @@ import (
 // 	Homer,J,Simpson,homerj@springfield.com,,408-654-8732,,744 Evergreen Terrace,,Springfield,MO,64001,USA,5987,,Canyonero,red,,MO,BR549,,,,Marge Simpson,744 Evergreen Terrace,654=183-7946,,,,,,,,,,,,,,,,
 
 // CreatePeopleFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreatePeopleFromCSV(sa []string) {
+func CreatePeopleFromCSV(sa []string, lineno int) {
+	funcname := "CreatePeopleFromCSV"
 	// skip the header line
 	if sa[0] == "FirstName" {
 		return
 	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 43
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
+	}
+
 	var err error
 	var tr Transactant
 	var t Renter
@@ -52,11 +60,11 @@ func CreatePeopleFromCSV(sa []string) {
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
-					fmt.Printf("CreatePeopleFromCSV: IsCompany value is invalid: %s\n", s)
+					fmt.Printf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
 					return
 				}
 				if i < 0 || i > 1 {
-					fmt.Printf("CreatePeopleFromCSV: IsCompany value is invalid: %s\n", s)
+					fmt.Printf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
 					return
 				}
 				tr.IsCompany = i
@@ -85,7 +93,7 @@ func CreatePeopleFromCSV(sa []string) {
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
-					fmt.Printf("CreatePeopleFromCSV: Points value is invalid: %s\n", s)
+					fmt.Printf("%s: line %d - Points value is invalid: %s\n", funcname, lineno, s)
 					return
 				}
 				t.Points = int64(i)
@@ -100,7 +108,7 @@ func CreatePeopleFromCSV(sa []string) {
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
-					fmt.Printf("CreatePeopleFromCSV: CarYear value is invalid: %s\n", s)
+					fmt.Printf("%s: line %d - CarYear value is invalid: %s\n", funcname, lineno, s)
 					return
 				}
 				t.CarYear = int64(i)
@@ -115,7 +123,7 @@ func CreatePeopleFromCSV(sa []string) {
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
-					fmt.Printf("CreatePeopleFromCSV: AccountRep value is invalid: %s\n", s)
+					fmt.Printf("%s: line %d - AccountRep value is invalid: %s\n", funcname, lineno, s)
 					return
 				}
 				p.AccountRep = int64(i)
@@ -139,7 +147,7 @@ func CreatePeopleFromCSV(sa []string) {
 				var err error
 				t.EligibleFutureRenter, err = yesnoToInt(s)
 				if err != nil {
-					fmt.Printf("CreatePeopleFromCSV: %s\n", err.Error())
+					fmt.Printf("%s: line %d - %s\n", funcname, lineno, err.Error())
 				}
 			}
 		case i == 31:
@@ -149,7 +157,7 @@ func CreatePeopleFromCSV(sa []string) {
 		case i == 33:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
-					Ulog("CreatePeopleFromCSV: Invalid Credit Limit value: %s\n", s)
+					Ulog("%s: line %d - Invalid Credit Limit value: %s\n", funcname, lineno, s)
 					return
 				}
 				p.CreditLimit = x
@@ -173,7 +181,7 @@ func CreatePeopleFromCSV(sa []string) {
 		case i == 42:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
-					Ulog("CreatePeopleFromCSV: Invalid ApplicationFee value: %s\n", s)
+					Ulog("%s: line %d - Invalid ApplicationFee value: %s\n", funcname, lineno, s)
 					return
 				}
 				pr.ApplicationFee = x
@@ -188,22 +196,22 @@ func CreatePeopleFromCSV(sa []string) {
 	if len(tr.PrimaryEmail) > 0 {
 		t1, err := GetTransactantByPhoneOrEmail(tr.PrimaryEmail)
 		if err != nil && !IsSQLNoResultsError(err) {
-			Ulog("CreatePeopleFromCSV: error retrieving transactant by email: %v\n", err)
+			Ulog("%s: line %d - error retrieving transactant by email: %v\n", funcname, lineno, err)
 			return
 		}
 		if t1.TCID > 0 {
-			Ulog("CreatePeopleFromCSV: Transactant with PrimaryEmail address = %s already exists\n", tr.PrimaryEmail)
+			Ulog("%s: line %d - Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
 			return
 		}
 	}
 	if len(tr.CellPhone) > 0 {
 		t1, err := GetTransactantByPhoneOrEmail(tr.CellPhone)
 		if err != nil && !IsSQLNoResultsError(err) {
-			Ulog("CreatePeopleFromCSV: error retrieving transactant by phone: %v\n", err)
+			Ulog("%s: line %d - error retrieving transactant by phone: %v\n", funcname, lineno, err)
 			return
 		}
 		if t1.TCID > 0 {
-			Ulog("CreatePeopleFromCSV: Transactant with CellPhone number = %s already exists\n", tr.CellPhone)
+			Ulog("%s: line %d - Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
 			return
 		}
 	}
@@ -213,7 +221,7 @@ func CreatePeopleFromCSV(sa []string) {
 	//-------------------------------------------------------------------
 	tcid, err := InsertTransactant(&tr)
 	if nil != err {
-		fmt.Printf("CreatePeople: error inserting Transactant = %v\n", err)
+		fmt.Printf("%s: line %d - error inserting Transactant = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.TCID = tcid
@@ -223,21 +231,21 @@ func CreatePeopleFromCSV(sa []string) {
 
 	tid, err := InsertRenter(&t)
 	if nil != err {
-		fmt.Printf("CreatePeople: error inserting Renter = %v\n", err)
+		fmt.Printf("%s: line %d - error inserting Renter = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.RENTERID = tid
 
 	pid, err := InsertPayor(&p)
 	if nil != err {
-		fmt.Printf("CreatePeople: error inserting Payor = %v\n", err)
+		fmt.Printf("%s: line %d - error inserting Payor = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.PID = pid
 
 	prid, err := InsertProspect(&pr)
 	if nil != err {
-		fmt.Printf("CreatePeople: error inserting Prospect = %v\n", err)
+		fmt.Printf("%s: line %d - error inserting Prospect = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.PRSPID = prid
@@ -251,6 +259,6 @@ func CreatePeopleFromCSV(sa []string) {
 func LoadPeopleCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreatePeopleFromCSV(t[i])
+		CreatePeopleFromCSV(t[i], i+1)
 	}
 }

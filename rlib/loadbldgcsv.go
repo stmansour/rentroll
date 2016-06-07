@@ -9,24 +9,32 @@ import (
 // RentableSpecialty is the structure for attributes of a rentable specialty
 
 //  CSV file format:
+// 0           1      2       3        4    5     6          7
 // Designation,BldgNo,Address,Address2,City,State,PostalCode,Country
 // REH,1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA"
 
 // CreateBuilding reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateBuilding(sa []string) {
+func CreateBuilding(sa []string, lineno int) {
+	funcname := "CreateBuilding"
 	var b Building
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
 	}
 
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 8
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
+	}
 	//-------------------------------------------------------------------
 	// Make sure the business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("CreateBuilding: business with designation %s does net exist\n", des)
+			Ulog("%s: line %d - business with designation %s does net exist\n", funcname, lineno, des)
 			return
 		}
 		b.BID = b1.BID
@@ -38,7 +46,7 @@ func CreateBuilding(sa []string) {
 	if len(sa[1]) > 0 {
 		i, err := strconv.Atoi(sa[1])
 		if err != nil || i < 0 {
-			fmt.Printf("CreateBuilding: invalid building number: %s\n", sa[1])
+			fmt.Printf("%s: line %d - invalid building number: %s\n", funcname, lineno, sa[1])
 			return
 		}
 		b.BLDGID = int64(i)
@@ -56,7 +64,7 @@ func CreateBuilding(sa []string) {
 	//-------------------------------------------------------------------
 	_, err := InsertBuildingWithID(&b)
 	if nil != err {
-		fmt.Printf("CreateBuilding: error inserting Building = %v\n", err)
+		fmt.Printf("%s: line %d - error inserting Building = %v\n", funcname, lineno, err)
 	}
 }
 
@@ -64,6 +72,6 @@ func CreateBuilding(sa []string) {
 func LoadBuildingCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateBuilding(t[i])
+		CreateBuilding(t[i], i+1)
 	}
 }

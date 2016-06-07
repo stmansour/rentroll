@@ -1,9 +1,8 @@
 CSV IMPORT TEST
-Date/Time: Mon Jun  6 13:43:27 PDT 2016
+Date/Time: Mon Jun  6 22:24:13 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
-searching for business:  REX
    1    REX    JGM First, LLC
 
 
@@ -110,6 +109,11 @@ DEFINE RENTAL AGREEMENTS
     1  Aaron Read, Kirsten Read                  Aaron Read                              
     2  Rita Costea, Daniel Costea                Rita Costea                             
     3  Gagik Haroutunian                         Gagik Haroutunian                       
+
+
+DEFINE PETS
+PETID        RAID        Name                       Type             Breed            Color            Weight     DtStart     DtStop    
+PET00000001  RA00000001  T-Bone                     Dog              Chihuahua        brown              7.50 lb  2004-01-01            
 
 
 DEFINE CHART OF ACCOUNTS

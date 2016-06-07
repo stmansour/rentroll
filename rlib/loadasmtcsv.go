@@ -26,11 +26,11 @@ func ValidAssessmentDate(a *Assessment, asmt *AssessmentType, ra *RentalAgreemen
 	return v
 }
 
-// the CSV file format:
-//    0         1             2      3       4             5             6     7          8              9
+// CSV FIELDS FOR THIS MODULE
+//    0         1             2      3       4             5             6     7             8                9
 // Designation,RentableName, ASMTID, Amount, Start,        Stop,         RAID, RentalPeriod, ProrationMethod, AcctRule
-// REH,         "101",       1,      1000.00,"2014-07-01", "2015-11-08",    1,  6,      4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-// REH,         "101",       1,      1200.00,"2015-11-21", "2016-11-21",    2,  6,      4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
+// REH,         "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+// REH,         "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
 
 // type Assessment struct {
 // 	ASMID           int64     // unique id for this assessment
@@ -58,6 +58,13 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
+	}
+
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 10
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
 	}
 
 	//-------------------------------------------------------------------

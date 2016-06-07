@@ -19,6 +19,13 @@ func CreateCustomAttributeRefs(sa []string, lineno int) {
 		return // it's the header line
 	}
 
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 3
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
+	}
+
 	c.ElementType, ok = IntFromString(sa[0], "ElementType is invalid")
 	if !ok {
 		return

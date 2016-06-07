@@ -46,6 +46,7 @@ var App struct {
 	RcptFile     string                        // receipts of payments
 	CustomFile   string                        // custom attributes
 	AssignFile   string                        // assign custom attributes
+	PetFile      string                        // assign pets
 }
 
 func readCommandLineArgs() {
@@ -68,7 +69,8 @@ func readCommandLineArgs() {
 	rcptPtr := flag.String("e", "", "add receipts via csv file")
 	custPtr := flag.String("u", "", "add custom attributes via csv file")
 	asgnPtr := flag.String("U", "", "assign custom attributes via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef")
+	petPtr := flag.String("E", "", "assign pets to a Rental Agreement via csv file")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets")
 
 	flag.Parse()
 	if *verPtr {
@@ -94,6 +96,7 @@ func readCommandLineArgs() {
 	App.Report = *lptr
 	App.CustomFile = *custPtr
 	App.AssignFile = *asgnPtr
+	App.PetFile = *petPtr
 }
 
 func bizErrCheck(sa []string) {
@@ -217,6 +220,9 @@ func main() {
 	if len(App.RaFile) > 0 {
 		rlib.LoadRentalAgreementCSV(App.RaFile)
 	}
+	if len(App.PetFile) > 0 {
+		rlib.LoadPetsCSV(App.PetFile)
+	}
 	if len(App.CoaFile) > 0 {
 		rlib.LoadChartOfAccountsCSV(App.CoaFile)
 	}
@@ -283,6 +289,9 @@ func main() {
 			fmt.Printf("%s\n", rlib.RRreportCustomAttributes(rlib.RPTTEXT))
 		case 15:
 			fmt.Printf("%s\n", rlib.RRreportCustomAttributeRefs(rlib.RPTTEXT))
+		case 16:
+			raid := rlib.CSVLoaderGetRAID(sa[1])
+			fmt.Printf("%s\n", rlib.RRreportAgreementPets(rlib.RPTTEXT, raid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

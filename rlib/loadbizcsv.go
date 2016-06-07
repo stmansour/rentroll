@@ -36,7 +36,14 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 		return // this is just the header line
 	}
 
-	fmt.Printf("searching for business:  %s\n", des)
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 4
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
+	}
+
+	// fmt.Printf("searching for business:  %s\n", des)
 	//-------------------------------------------------------------------
 	// Check to see if this business is already in the database
 	//-------------------------------------------------------------------

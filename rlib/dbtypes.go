@@ -207,7 +207,7 @@ type AgreementPet struct {
 	Type        string
 	Breed       string
 	Color       string
-	Weight      string
+	Weight      float64
 	Name        string
 	DtStart     time.Time
 	DtStop      time.Time

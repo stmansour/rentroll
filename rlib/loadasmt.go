@@ -5,12 +5,23 @@ import (
 	"strings"
 )
 
+// CSV FIELDS FOR THIS MODULE
+// 0    1          2
+// Name,RARequired,Description
+// Rent,0,"Rent: the recurring amount due under an Occupancy Agreement.  While most residential leases are one year or less, commecial leases may go on decades.  In those
+
 // CreateAssessmentType reads an assessment type string array and creates a database record for the assessment type
 func CreateAssessmentType(sa []string, lineno int) {
 	funcname := "CreateAssessmentType"
 	des := strings.TrimSpace(sa[0])
 	if strings.ToLower(des) == "name" {
 		return // this is just the column heading
+	}
+
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	if len(sa) < 3 {
+		fmt.Printf("%s: line %d - found %d values, there must be at least 3\n", funcname, lineno, len(sa))
+		return
 	}
 
 	//-------------------------------------------------------------------

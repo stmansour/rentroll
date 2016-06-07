@@ -10,14 +10,14 @@ import (
 // RentableSpecialty is the structure for attributes of a rentable specialty
 
 // CSV file format:
-//   0           1     2         3       4      5   6   7     8       9
-// Designation,Style,Name,AssignmentTime,DefaultOcc,Occ,Status,DtStart,DtStop
-// REX,        GM,   101,    1,        2,       2,    0,0,    ,"1/1/14",
-// REX,        FS,   102,    1,        2,       2,    0
-// REX,        SBL,  103,    1,        2,       2,    0
-// REX,        KDS,  104,    1,        2,       2,    0
-// REX,        GM,   105,    1,        2,       2,    0
-// REX,        FS,   106,    1,        2,       2,    0
+//   0          1      2     3               4           5    6       7         8
+// Designation, Style, Name, AssignmentTime, DefaultOcc, Occ, Status, DtStart,  DtStop
+// REX,         GM,    101,  1,              2,          2,   0,      "1/1/14",
+// REX,         FS,    102,  1,              2,          2,   0,      "1/1/14",
+// REX,         SBL,   103,  1,              2,          2,   0,      "1/1/14",
+// REX,         KDS,   104,  1,              2,          2,   0,      "1/1/14",
+// REX,         GM,    105,  1,              2,          2,   0,      "1/1/14",
+// REX,         FS,    106,  1,              2,          2,   0,      "1/1/14",
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreateRentables(sa []string, lineno int) {
@@ -30,6 +30,12 @@ func CreateRentables(sa []string, lineno int) {
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
+	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 9
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
 	}
 
 	//-------------------------------------------------------------------

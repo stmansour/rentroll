@@ -18,6 +18,12 @@ func CreateCustomAttributes(sa []string, lineno int) {
 	if strings.ToLower(sa[0]) == "name" {
 		return // it's the header line
 	}
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 3
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
+	}
 
 	c.Type, ok = IntFromString(sa[1], "Type is invalid")
 	if !ok {

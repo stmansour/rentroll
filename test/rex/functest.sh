@@ -53,6 +53,13 @@ echo "DEFINE RENTAL AGREEMENTS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -C ra.csv -L 9,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
+echo "import pets"
+echo "DEFINE PETS" >> ${LOGFILE} 2>&1
+# CMD="${CVSLOAD} -E pets.csv -L 16,RA0001"
+# echo ${CMD}
+${CVSLOAD} -E pets.csv -L 16,RA0001 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
 echo "import chart of accounts"
 echo "DEFINE CHART OF ACCOUNTS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -c coa.csv -L 10,REX >> ${LOGFILE} 2>&1

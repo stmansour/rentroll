@@ -32,11 +32,19 @@ import (
 // REH,"Cash","Cash"
 
 // CreatePaymentTypeFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreatePaymentTypeFromCSV(sa []string) {
+func CreatePaymentTypeFromCSV(sa []string, lineno int) {
+	funcname := "CreatePaymentTypeFromCSV"
 	var pt PaymentType
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
+	}
+
+	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
+	required := 3
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return
 	}
 
 	//-------------------------------------------------------------------
@@ -45,7 +53,7 @@ func CreatePaymentTypeFromCSV(sa []string) {
 	if len(des) > 0 {
 		b, _ := GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			Ulog("CreatePaymentTypeFromCSVType: Business named %s not found\n", des)
+			Ulog("%s: line %d - Business named %s not found\n", funcname, lineno, des)
 			return
 		}
 		pt.BID = b.BID
@@ -59,7 +67,7 @@ func CreatePaymentTypeFromCSV(sa []string) {
 	//-------------------------------------------------------------------
 	err := InsertPaymentType(&pt)
 	if nil != err {
-		fmt.Printf("CreatePaymentTypeFromCSV: error inserting PaymentType = %v\n", err)
+		fmt.Printf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
 	}
 }
 
@@ -67,6 +75,6 @@ func CreatePaymentTypeFromCSV(sa []string) {
 func LoadPaymentTypesCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreatePaymentTypeFromCSV(t[i])
+		CreatePaymentTypeFromCSV(t[i], i+1)
 	}
 }

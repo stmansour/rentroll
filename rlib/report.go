@@ -51,10 +51,9 @@ func ReportAssessmentTypeToHTML(p AssessmentType) string {
 
 // RRreportAssessmentTypes generates a report of all assessment types defined in the database.
 func RRreportAssessmentTypes(t int) string {
-	s := ""
 	m := GetAssessmentTypes()
 
-	fmt.Printf("Name  RARqd    Description\n")
+	s := fmt.Sprintf("Name  RARqd    Description\n")
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
@@ -88,7 +87,7 @@ func ReportRentableTypeToHTML(p RentableType) string {
 
 // RRreportRentableTypes generates a report of all assessment types defined in the database.
 func RRreportRentableTypes(t int, bid int64) string {
-	s := ""
+
 	m := GetBusinessRentableTypes(bid)
 
 	var keys []int
@@ -97,7 +96,7 @@ func RRreportRentableTypes(t int, bid int64) string {
 	}
 	sort.Ints(keys)
 
-	fmt.Printf("RTID   Style      Name\n")
+	s := fmt.Sprintf("RTID   Style      Name\n")
 
 	// To perform the opertion you want
 	for _, k := range keys {
@@ -136,8 +135,7 @@ func RRreportRentables(t int, bid int64) string {
 	rows, err := RRdb.Prepstmt.GetAllRentablesByBusiness.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
-	s := ""
-	fmt.Printf(" RID  Name\n")
+	s := fmt.Sprintf(" RID  Name\n")
 	for rows.Next() {
 		var p Rentable
 		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.AssignmentTime, &p.RentalPeriodDefault, &p.RentalPeriod, &p.LastModTime, &p.LastModBy))
@@ -172,8 +170,7 @@ func RRreportPeople(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllTransactants.Query()
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "RENTERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
-	s := ""
+	s := fmt.Sprintf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "RENTERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
 	for rows.Next() {
 		var p XPerson
 		Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.RENTERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
@@ -209,8 +206,7 @@ func RRreportRentalAgreementTemplates(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("RATID  RAType  TemplateName\n")
-	s := ""
+	s := fmt.Sprintf("RATID  RAType  TemplateName\n")
 	for rows.Next() {
 		var p RentalAgreementTemplate
 		Errcheck(rows.Scan(&p.RATID, &p.RentalTemplateNumber, &p.RentalAgreementType, &p.LastModTime, &p.LastModBy))
@@ -281,8 +277,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("%5s  %-40s  %-40s\n", "RAID", "Payor", "Renter")
-	s := ""
+	s := fmt.Sprintf("%5s  %-40s  %-40s\n", "RAID", "Payor", "Renter")
 	var raid int64
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -328,8 +323,7 @@ func ReportChartOfAcctsToText(p *Ledger) string {
 func RRreportChartOfAccounts(t int, bid int64) string {
 	m := GetLedgerList(bid)
 	//                               123456789012
-	fmt.Printf("  LID   Type  GLAccountNo         Amount   Name\n")
-	s := ""
+	s := fmt.Sprintf("  LID   Type  GLAccountNo         Amount   Name\n")
 	for i := 0; i < len(m); i++ {
 		switch t {
 		case RPTTEXT:
@@ -371,8 +365,7 @@ func RRreportAssessments(t int, bid int64) string {
 	rows, err := RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("      ASMID          RAID        RID   Freq     Amount\n")
-	s := ""
+	s := fmt.Sprintf("      ASMID          RAID        RID   Freq     Amount\n")
 	for rows.Next() {
 		var a Assessment
 		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
@@ -414,8 +407,7 @@ func RRreportPaymentTypes(t int, bid int64) string {
 	}
 	sort.Ints(keys)
 
-	fmt.Printf("      PTID           BID   Name\n")
-	s := ""
+	s := fmt.Sprintf("      PTID           BID   Name\n")
 	for _, k := range keys {
 		i := int64(k)
 		v := m[i]
@@ -449,8 +441,8 @@ func RRreportReceipts(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
 	m := GetReceipts(bid, &d1, &d2)
-	fmt.Printf("      RCPTID     Amount  AcctRule\n")
-	s := ""
+	s := fmt.Sprintf("      RCPTID     Amount  AcctRule\n")
+
 	for _, a := range m {
 		switch t {
 		case RPTTEXT:
@@ -476,9 +468,8 @@ func RRreportCustomAttributes(t int) string {
 	rows, err := RRdb.dbrr.Query("SELECT CID,Type,Name,Value FROM customattr")
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("%-8s  %-9s  %-25s  %-25s\n", "CID", "VALUETYPE", "Name", "Value")
+	s := fmt.Sprintf("%-8s  %-9s  %-25s  %-25s\n", "CID", "VALUETYPE", "Name", "Value")
 
-	s := ""
 	for rows.Next() {
 		var a CustomAttribute
 		Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value))
@@ -508,8 +499,7 @@ func RRreportCustomAttributeRefs(t int) string {
 	rows, err := RRdb.dbrr.Query("SELECT ElementType,ID,CID FROM customattrref")
 	Errcheck(err)
 	defer rows.Close()
-	fmt.Printf("ELEMID        ID       CID\n")
-	s := ""
+	s := fmt.Sprintf("ELEMID        ID       CID\n")
 	for rows.Next() {
 		var a CustomAttributeRef
 		Errcheck(rows.Scan(&a.ElementType, &a.ID, &a.CID))
@@ -525,5 +515,33 @@ func RRreportCustomAttributeRefs(t int) string {
 		}
 	}
 	Errcheck(rows.Err())
+	return s
+}
+
+// ReportAgreementPetToText returns a string representation of the chart of accts
+func ReportAgreementPetToText(p *AgreementPet) string {
+	end := ""
+	if p.DtStop.Year() < 9000 {
+		end = p.DtStop.Format(RRDATEINPFMT)
+	}
+	return fmt.Sprintf("PET%08d  RA%08d  %-25s  %-15s  %-15s  %-15s  %6.2f lb  %-10s  %-10s\n",
+		p.PETID, p.RAID, p.Name, p.Type, p.Breed, p.Color, p.Weight, p.DtStart.Format(RRDATEINPFMT), end)
+}
+
+// RRreportAgreementPets generates a report of all ledger accounts
+func RRreportAgreementPets(t int, raid int64) string {
+	m := GetAllAgreementPets(raid)
+	s := fmt.Sprintf("%-11s  %-10s  %-25s  %-15s  %-15s  %-15s  %-9s  %-10s  %-10s\n", "PETID", "RAID", "Name", "Type", "Breed", "Color", "Weight", "DtStart", "DtStop")
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case RPTTEXT:
+			s += ReportAgreementPetToText(&m[i])
+		case RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportAgreementPets: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
 	return s
 }
