@@ -15,7 +15,7 @@ fi
 ########################################
 ${RRBIN}/rrnewdb
 
-./newbiz -b nb.csv -a asmttype.csv -R rt.csv -u custom.csv -s specialties.csv -D bldg.csv -r Rentable.csv -p people.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv >log 2>&1
+./newbiz -b nb.csv -a asmttype.csv -R rt.csv -u custom.csv -s specialties.csv -D bldg.csv -r rentable.csv -p people.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv >log 2>&1
 
 ########################################
 # dotest()
@@ -54,9 +54,9 @@ dotest "z"  "-R rt.csv"           "PHASE  3: Rentable Types...  " "select RTID,B
 dotest "w"  "-R rt.csv"           "PHASE  4: Rentable Market Rates...  " "select * from RentableMarketrate;"
 dotest "v"  "-s specialties.csv"  "PHASE  5: Rentable Specialty Types...  " "select * from RentableSpecialtyTypes;"
 dotest "u"  "-D bldg.csv"         "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
-dotest "t"  "-r Rentable.csv"     "PHASE  7: Rentables...  " "select RID,RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentCycle,LastModBy from Rentable;"
-dotest "t1" "-r Rentable.csv"     "PHASE  8: RentableRTID...  " "select RID,RTID,DtStart,DtStop,LastModBy from RentableRTID;"
-dotest "t2" "-r Rentable.csv"     "PHASE  9: RentableStatus...  " "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
+dotest "t"  "-r rentable.csv"     "PHASE  7: Rentables...  " "select RID,RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentCycle,LastModBy from Rentable;"
+dotest "t1" "-r rentable.csv"     "PHASE  8: RentableRTID...  " "select RID,RTID,DtStart,DtStop,LastModBy from RentableRTID;"
+dotest "t2" "-r rentable.csv"     "PHASE  9: RentableStatus...  " "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
 dotest "s"  "-p people.csv"       "PHASE 10: Transactants...  " "select TCID,RENTERID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
 dotest "r"  "-p people.csv"       "PHASE 11: Renters...  " "select RENTERID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureRenter,Industry,Source from Renter;"
 dotest "q"  "-p people.csv"       "PHASE 12: Payors...  " "select PID,TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"

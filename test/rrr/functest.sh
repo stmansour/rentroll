@@ -20,7 +20,7 @@ ${RRBIN}/rrnewdb
 
 echo "import Business"
 echo "DEFINE BUSINESS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -b Business.csv -L 3 >> ${LOGFILE} 2>&1
+${CVSLOAD} -b business.csv -L 3 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import assessment types"
@@ -30,12 +30,12 @@ echo >>${LOGFILE}
 
 echo "import Rentable types"
 echo "DEFINE RENTABLE TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -R RentableTypes.csv -L 5,DHR >> ${LOGFILE} 2>&1
+${CVSLOAD} -R rentabletypes.csv -L 5,DHR >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import rentables"
 echo "DEFINE RENTABLES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -r Rentable.csv -L 6,DHR >> ${LOGFILE} 2>&1
+${CVSLOAD} -r rentable.csv -L 6,DHR >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import people"
