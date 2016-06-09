@@ -6,49 +6,49 @@ import "time"
 func DeleteJournalAllocations(jid int64) {
 	_, err := RRdb.Prepstmt.DeleteJournalAllocations.Exec(jid)
 	if err != nil {
-		Ulog("Error deleting journal allocations for JID = %d, error: %v\n", jid, err)
+		Ulog("Error deleting Journal allocations for JID = %d, error: %v\n", jid, err)
 	}
 }
 
-// DeleteJournalEntry deletes the journal record with the supplied jid
+// DeleteJournalEntry deletes the Journal record with the supplied jid
 func DeleteJournalEntry(jid int64) {
 	_, err := RRdb.Prepstmt.DeleteJournalEntry.Exec(jid)
 	if err != nil {
-		Ulog("Error deleting journal entry for JID = %d, error: %v\n", jid, err)
+		Ulog("Error deleting Journal entry for JID = %d, error: %v\n", jid, err)
 	}
 }
 
-// DeleteJournalMarker deletes the journalmarker record for the supplied jmid
+// DeleteJournalMarker deletes the JournalMarker record for the supplied jmid
 func DeleteJournalMarker(jmid int64) {
 	_, err := RRdb.Prepstmt.DeleteJournalMarker.Exec(jmid)
 	if err != nil {
-		Ulog("Error deleting journal marker for JID = %d, error: %v\n", jmid, err)
+		Ulog("Error deleting Journal marker for JID = %d, error: %v\n", jmid, err)
 	}
 }
 
-// DeleteLedgerEntry deletes the ledger record with the supplied lid
+// DeleteLedgerEntry deletes the Ledger record with the supplied lid
 func DeleteLedgerEntry(lid int64) error {
 	_, err := RRdb.Prepstmt.DeleteLedgerEntry.Exec(lid)
 	if err != nil {
-		Ulog("Error deleting ledger entry for LEID = %d, error: %v\n", lid, err)
+		Ulog("Error deleting Ledger entry for LEID = %d, error: %v\n", lid, err)
 	}
 	return err
 }
 
-// DeleteLedger deletes the ledger record with the supplied lid
+// DeleteLedger deletes the Ledger record with the supplied lid
 func DeleteLedger(lid int64) error {
 	_, err := RRdb.Prepstmt.DeleteLedger.Exec(lid)
 	if err != nil {
-		Ulog("Error deleting ledger for LID = %d, error: %v\n", lid, err)
+		Ulog("Error deleting Ledger for LID = %d, error: %v\n", lid, err)
 	}
 	return err
 }
 
-// DeleteLedgerMarker deletes the ledgermarker record with the supplied lmid
+// DeleteLedgerMarker deletes the LedgerMarker record with the supplied lmid
 func DeleteLedgerMarker(lmid int64) error {
 	_, err := RRdb.Prepstmt.DeleteLedgerMarker.Exec(lmid)
 	if err != nil {
-		Ulog("Error deleting ledger marker for LEID = %d, error: %v\n", lmid, err)
+		Ulog("Error deleting Ledger marker for LEID = %d, error: %v\n", lmid, err)
 	}
 	return err
 }
@@ -57,7 +57,7 @@ func DeleteLedgerMarker(lmid int64) error {
 func DeleteReceipt(rcptid int64) error {
 	_, err := RRdb.Prepstmt.DeleteReceipt.Exec(rcptid)
 	if err != nil {
-		Ulog("Error deleting receipt for RCPTID = %d, error: %v\n", rcptid, err)
+		Ulog("Error deleting Receipt for RCPTID = %d, error: %v\n", rcptid, err)
 	}
 	return err
 }
@@ -66,7 +66,7 @@ func DeleteReceipt(rcptid int64) error {
 func DeleteReceiptAllocations(rcptid int64) error {
 	_, err := RRdb.Prepstmt.DeleteReceiptAllocations.Exec(rcptid)
 	if err != nil {
-		Ulog("Error deleting receiptallocation for RCPTID = %d, error: %v\n", rcptid, err)
+		Ulog("Error deleting ReceiptAllocation for RCPTID = %d, error: %v\n", rcptid, err)
 	}
 	return err
 }
@@ -85,6 +85,16 @@ func DeleteCustomAttributeRef(elemid, id, cid int64) error {
 	_, err := RRdb.Prepstmt.DeleteCustomAttributeRef.Exec(elemid, id, cid)
 	if err != nil {
 		Ulog("Error deleting elemid=%d, id=%d, cid=%d, error: %v\n", elemid, id, cid, err)
+	}
+	return err
+}
+
+// DeleteRentableRTID deletes RentableRTID records with the supplied rid, dtstart and dtstop
+func DeleteRentableRTID(rid int64, dtstart, dtstop *time.Time) error {
+	_, err := RRdb.Prepstmt.DeleteRentableRTID.Exec(rid, dtstart, dtstop)
+	if err != nil {
+		Ulog("Error deleting RentableRTID with rid=%d, dtstart=%s, dtstop=%s, error: %v\n",
+			rid, dtstart.Format(RRDATEINPFMT), dtstop.Format(RRDATEINPFMT), err)
 	}
 	return err
 }

@@ -16,7 +16,7 @@ import _ "github.com/go-sql-driver/mysql"
 
 // CmdRUNBOOKS and the rest are command numbers used by the Dispatch function.
 const (
-	CmdRUNBOOKS     = 1 // Run journal and ledgers over a defined period
+	CmdRUNBOOKS     = 1 // Run Journal and ledgers over a defined period
 	CmdTRIALBALANCE = 5 // balance of all ledgers at the end of the defined period
 
 	FMTTEXT = 1 // output format is text
@@ -67,7 +67,7 @@ type LMResults struct {
 type RRuiSupport struct {
 	DtStart time.Time  // start of period of interest
 	DtStop  time.Time  // end of period of interest
-	L       *LMResults // an array of ledger markers with time period and biz
+	L       *LMResults // an array of Ledger markers with time period and biz
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
@@ -85,8 +85,8 @@ func readCommandLineArgs() {
 	pStart := flag.String("j", "2015-11-01", "Accounting Period start time")
 	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	bizPtr := flag.String("b", "b.csv", "add business via csv file")
-	rptPtr := flag.Int64("r", 0, "report: 0 = generate journal records, 1 = journal, 2 = rentable")
+	bizPtr := flag.String("b", "b.csv", "add Business via csv file")
+	rptPtr := flag.Int64("r", 0, "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 

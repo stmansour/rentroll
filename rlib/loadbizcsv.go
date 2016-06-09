@@ -23,7 +23,7 @@ func SetAccrual(s string, b *Business) {
 	}
 }
 
-// CreatePhonebookLinkedBusiness creates a new business in the
+// CreatePhonebookLinkedBusiness creates a new Business in the
 // RentRoll database from the company in Phonebook with the supplied designation
 func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 	funcname := "CreatePhonebookLinkedBusiness"
@@ -43,9 +43,9 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 		return
 	}
 
-	// fmt.Printf("searching for business:  %s\n", des)
+	// fmt.Printf("searching for Business:  %s\n", des)
 	//-------------------------------------------------------------------
-	// Check to see if this business is already in the database
+	// Check to see if this Business is already in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
@@ -71,7 +71,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 		}
 
 		b.Name = bu.Name    // Phonebook Business Unit name
-		b.Designation = des // business unit designator
+		b.Designation = des // Business unit designator
 
 		// Accrual
 		SetAccrual(sa[2], &b)
@@ -106,7 +106,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 	}
 	_, err = InsertBusiness(&b)
 	if err != nil {
-		Ulog("CreatePhonebookLinkedBusiness: error inserting business = %v\n", err)
+		Ulog("CreatePhonebookLinkedBusiness: error inserting Business = %v\n", err)
 	}
 }
 

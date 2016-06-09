@@ -26,7 +26,7 @@ import (
 
 // 0            1    2
 // Designation, Name,Description
-// REH,"Check","Personal check from payor"
+// REH,"Check","Personal check from Payor"
 // REH,"VISA","Credit card charge"
 // REH,"AMEX", "American Express credit card"
 // REH,"Cash","Cash"

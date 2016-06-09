@@ -17,7 +17,7 @@ func RRCommaf(x float64) string {
 	return humanize.FormatFloat("#,###.##", x)
 }
 
-// LMSum takes an array of ledger markers, sums the Balance value of each, and returns the sum
+// LMSum takes an array of Ledger markers, sums the Balance value of each, and returns the sum
 func LMSum(m *[]rlib.LedgerMarker) float64 {
 	bal := float64(0)
 	for _, v := range *m {
@@ -50,7 +50,7 @@ func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
 	if len(des) > 0 {
 		b1, _ := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: business with designation %s does net exist\n", funcname, des)
+			rlib.Ulog("%s: Business with designation %s does net exist\n", funcname, des)
 			return
 		}
 		ui.L.biz = &b1

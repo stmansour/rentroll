@@ -15,8 +15,8 @@ import (
 // 		"RAT001","REH","homerj@springfield.com","866-123-4567","2015-11-21","2016-11-21",1,"",101,102
 
 // BuildPeopleList takes a semi-colon separated list of email addresses and phone numbers
-// and returns an array of transactant records for each.  If any of the addresses in the list
-// cannot be resolved to a transactant, then processing stops immediately and an error is returned.
+// and returns an array of Transactant records for each.  If any of the addresses in the list
+// cannot be resolved to a Transactant, then processing stops immediately and an error is returned.
 func BuildPeopleList(s string) ([]Transactant, error) {
 	var m []Transactant
 	var noerr error
@@ -26,12 +26,12 @@ func BuildPeopleList(s string) ([]Transactant, error) {
 		s = strings.TrimSpace(s1[i]) // either the email address or the phone number
 		t, err := GetTransactantByPhoneOrEmail(s)
 		if err != nil && !IsSQLNoResultsError(err) {
-			rerr := fmt.Errorf("BuildPeopleList: error retrieving transactant by phone or email: %v", err)
+			rerr := fmt.Errorf("BuildPeopleList: error retrieving Transactant by phone or email: %v", err)
 			Ulog("%s", rerr.Error())
 			return m, rerr
 		}
 		if t.PID == 0 {
-			rerr := fmt.Errorf("BuildPeopleList: could not find transactant with contact information %s\n", s)
+			rerr := fmt.Errorf("BuildPeopleList: could not find Transactant with contact information %s\n", s)
 			Ulog("%s", rerr.Error())
 			return m, rerr
 		}
@@ -44,7 +44,7 @@ func BuildPeopleList(s string) ([]Transactant, error) {
 func CreateRentalAgreement(sa []string, lineno int) {
 	funcname := "CreateRentalAgreement"
 	var ra RentalAgreement
-	var payor AgreementPayor
+	var Payor AgreementPayor
 	var m []AgreementRentable
 
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
@@ -59,12 +59,12 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the business is in the database
+	// Make sure the Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := GetRentalAgreementTemplateByRefNum(des)
 		if len(b1.RentalTemplateNumber) == 0 {
-			Ulog("%s: line %d - business with designation %s does net exist\n", funcname, lineno, sa[0])
+			Ulog("%s: line %d - Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
 		}
 		ra.RATID = b1.RATID
@@ -77,14 +77,14 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	if len(cmpdes) > 0 {
 		b2, _ := GetBusinessByDesignation(cmpdes)
 		if b2.BID == 0 {
-			fmt.Printf("%s: line %d - could not find business named %s\n", funcname, lineno, cmpdes)
+			fmt.Printf("%s: line %d - could not find Business named %s\n", funcname, lineno, cmpdes)
 			return
 		}
 		ra.BID = b2.BID
 	}
 
 	//-------------------------------------------------------------------
-	//  Determine the primary renter
+	//  Determine the primary Renter
 	//-------------------------------------------------------------------
 	renters, err := BuildPeopleList(sa[2])
 	if err != nil { // save the full list
@@ -92,14 +92,14 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	//  Determine the payor
+	//  Determine the Payor
 	//-------------------------------------------------------------------
 	payors, err := BuildPeopleList(sa[3])
 	if err != nil { // save the full list
 		return
 	}
 	if len(payors) > 0 {
-		payor.PID = payors[0].PID // store the primary payor now, we'll update the agreement payors later
+		Payor.PID = payors[0].PID // store the primary Payor now, we'll update the agreement payors later
 	}
 
 	//-------------------------------------------------------------------
@@ -150,7 +150,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		}
 	}
 
-	// First write the rental agreement record, then write the agreementrentables and agreement payors
+	// First write the rental agreement record, then write the AgreementRentables and agreement payors
 	RAID, err := InsertRentalAgreement(&ra)
 	if nil != err {
 		fmt.Printf("%s: line %d - error inserting RentalAgreement = %v\n", funcname, lineno, err)
@@ -160,9 +160,9 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		InsertAgreementRentable(&m[i])
 	}
 
-	payor.RAID = RAID
-	payor.DtStart = DtStart
-	payor.DtStop = DtStop
+	Payor.RAID = RAID
+	Payor.DtStart = DtStart
+	Payor.DtStop = DtStop
 
 	var at AgreementRenter
 	at.DtStart = DtStart
@@ -177,8 +177,8 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		InsertAgreementRenter(&at)
 	}
 	for i := 0; i < len(payors); i++ {
-		payor.PID = payors[i].PID
-		InsertAgreementPayor(&payor)
+		Payor.PID = payors[i].PID
+		InsertAgreementPayor(&Payor)
 	}
 }
 

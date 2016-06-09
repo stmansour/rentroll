@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-// ReportBusinessToText returns a string representation of the supplied business suitable for a text report
+// ReportBusinessToText returns a string representation of the supplied Business suitable for a text report
 func ReportBusinessToText(p *Business) string {
 	return fmt.Sprintf("%4d %6s    %s\n", p.BID, p.Designation, p.Name)
 }
 
-// ReportBusinessToHTML returns a string representation of the supplied business suitable for HTML display
+// ReportBusinessToHTML returns a string representation of the supplied Business suitable for HTML display
 func ReportBusinessToHTML(p *Business) string {
 	return fmt.Sprintf("<tr><td>%d</td><td%s></td><td>%s</td></tr>", p.BID, p.Designation, p.Name)
 }
 
-// RRreportBusiness generates a report of all businesses defined in the database.
+// RRreportBusiness generates a report of all Businesses defined in the database.
 func RRreportBusiness(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllBusinesses.Query()
 	Errcheck(err)
@@ -130,7 +130,7 @@ func ReportRentableToHTML(p *Rentable) string {
 		p.RID, p.Name)
 }
 
-// RRreportRentables generates a report of all businesses defined in the database.
+// RRreportRentables generates a report of all Businesses defined in the database.
 func RRreportRentables(t int, bid int64) string {
 	rows, err := RRdb.Prepstmt.GetAllRentablesByBusiness.Query(bid)
 	Errcheck(err)
@@ -138,7 +138,7 @@ func RRreportRentables(t int, bid int64) string {
 	s := fmt.Sprintf(" RID  Name\n")
 	for rows.Next() {
 		var p Rentable
-		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.AssignmentTime, &p.RentalPeriodDefault, &p.RentalPeriod, &p.LastModTime, &p.LastModBy))
+		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.AssignmentTime, &p.RentalPeriodDefault, &p.RentCycle, &p.LastModTime, &p.LastModBy))
 		switch t {
 		case RPTTEXT:
 			s += ReportRentableToText(&p)
@@ -165,7 +165,7 @@ func ReportXPersonToHTML(p *XPerson) string {
 		p.Trn.TCID, p.Tnt.RENTERID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
-// RRreportPeople generates a report of all businesses defined in the database.
+// RRreportPeople generates a report of all Businesses defined in the database.
 func RRreportPeople(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllTransactants.Query()
 	Errcheck(err)
@@ -201,7 +201,7 @@ func ReportRentalAgreementTemplateToHTML(p *RentalAgreementTemplate) string {
 	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%s</td></tr>", p.RATID, p.RentalAgreementType, p.RentalTemplateNumber)
 }
 
-// RRreportRentalAgreementTemplates generates a report of all businesses defined in the database.
+// RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
 func RRreportRentalAgreementTemplates(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	Errcheck(err)
@@ -272,7 +272,7 @@ func ReportRentalAgreementToText(p *RentalAgreement) string {
 		p.RAID, (*p).PayorsToString(), (*p).RentersToString())
 }
 
-// RRreportRentalAgreements generates a report of all businesses defined in the database.
+// RRreportRentalAgreements generates a report of all Businesses defined in the database.
 func RRreportRentalAgreements(t int, bid int64) string {
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	Errcheck(err)
@@ -319,7 +319,7 @@ func ReportChartOfAcctsToText(p *Ledger) string {
 		lm.LMID, s, p.GLNumber, lm.Balance, p.Name)
 }
 
-// RRreportChartOfAccounts generates a report of all ledger accounts
+// RRreportChartOfAccounts generates a report of all Ledger accounts
 func RRreportChartOfAccounts(t int, bid int64) string {
 	m := GetLedgerList(bid)
 	//                               123456789012
@@ -345,7 +345,7 @@ func ReportAssessmentToText(p *Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("ASM%08d  %12s  R%08d     %2d  %9.2f\n",
-		p.ASMID, ra, p.RID, p.RentalPeriod, p.Amount)
+		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
 }
 
 // ReportAssessmentToHTML returns a string representation of the chart of accts
@@ -355,10 +355,10 @@ func ReportAssessmentToHTML(p *Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("<tr><td>ASM%08d</td><td>%12s</td><td>RA%08d</td><td%d</td><td>%8.2f</d></tr\n",
-		p.ASMID, ra, p.RID, p.RentalPeriod, p.Amount)
+		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
 }
 
-// RRreportAssessments generates a report of all ledger accounts
+// RRreportAssessments generates a report of all Ledger accounts
 func RRreportAssessments(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
@@ -369,7 +369,7 @@ func RRreportAssessments(t int, bid int64) string {
 	for rows.Next() {
 		var a Assessment
 		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
-			&a.Start, &a.Stop, &a.RentalPeriod, &a.ProrationMethod, &a.AcctRule, &a.Comment,
+			&a.Start, &a.Stop, &a.RentCycle, &a.ProrationMethod, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		switch t {
 		case RPTTEXT:
@@ -397,7 +397,7 @@ func ReportPaymentTypesToHTML(p *PaymentType) string {
 		p.PMTID, p.BID, p.Name)
 }
 
-// RRreportPaymentTypes generates a report of all ledger accounts
+// RRreportPaymentTypes generates a report of all Ledger accounts
 func RRreportPaymentTypes(t int, bid int64) string {
 	m := GetPaymentTypesByBusiness(bid)
 
@@ -436,7 +436,7 @@ func ReportReceiptToHTML(p *Receipt) string {
 		p.RCPTID, p.Amount, p.AcctRule)
 }
 
-// RRreportReceipts generates a report of all ledger accounts
+// RRreportReceipts generates a report of all Ledger accounts
 func RRreportReceipts(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
@@ -463,9 +463,9 @@ func ReportCustomAttributeToText(p *CustomAttribute) string {
 		p.CID, p.Type, p.Name, p.Value)
 }
 
-// RRreportCustomAttributes generates a report of all ledger accounts
+// RRreportCustomAttributes generates a report of all Ledger accounts
 func RRreportCustomAttributes(t int) string {
-	rows, err := RRdb.dbrr.Query("SELECT CID,Type,Name,Value FROM customattr")
+	rows, err := RRdb.dbrr.Query("SELECT CID,Type,Name,Value FROM CustomAttr")
 	Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf("%-8s  %-9s  %-25s  %-25s\n", "CID", "VALUETYPE", "Name", "Value")
@@ -494,9 +494,9 @@ func ReportCustomAttributeRefToText(p *CustomAttributeRef) string {
 		p.ElementType, p.ID, p.CID)
 }
 
-// RRreportCustomAttributeRefs generates a report of all ledger accounts
+// RRreportCustomAttributeRefs generates a report of all Ledger accounts
 func RRreportCustomAttributeRefs(t int) string {
-	rows, err := RRdb.dbrr.Query("SELECT ElementType,ID,CID FROM customattrref")
+	rows, err := RRdb.dbrr.Query("SELECT ElementType,ID,CID FROM CustomAttrRef")
 	Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf("ELEMID        ID       CID\n")
@@ -528,7 +528,7 @@ func ReportAgreementPetToText(p *AgreementPet) string {
 		p.PETID, p.RAID, p.Name, p.Type, p.Breed, p.Color, p.Weight, p.DtStart.Format(RRDATEINPFMT), end)
 }
 
-// RRreportAgreementPets generates a report of all ledger accounts
+// RRreportAgreementPets generates a report of all Ledger accounts
 func RRreportAgreementPets(t int, raid int64) string {
 	m := GetAllAgreementPets(raid)
 	s := fmt.Sprintf("%-11s  %-10s  %-25s  %-15s  %-15s  %-15s  %-9s  %-10s  %-10s\n", "PETID", "RAID", "Name", "Type", "Breed", "Color", "Weight", "DtStart", "DtStop")

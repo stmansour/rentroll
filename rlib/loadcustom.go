@@ -55,7 +55,7 @@ func CreateCustomAttributes(sa []string, lineno int) {
 	}
 }
 
-// LoadCustomAttributesCSV loads a csv file with a chart of accounts and creates ledger markers for each
+// LoadCustomAttributesCSV loads a csv file with a chart of accounts and creates Ledger markers for each
 func LoadCustomAttributesCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

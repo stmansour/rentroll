@@ -1,4 +1,4 @@
-// This code loads a csv file with business definitions.  Its format is:
+// This code loads a csv file with Business definitions.  Its format is:
 //
 // 		Company Designation, Company Name, Default Occupancy Type, Parking Permit In Use
 //
@@ -30,18 +30,18 @@ var App struct {
 	DBUser       string                        // user for all databases
 	AsmtTypes    map[int64]rlib.AssessmentType // all assessment types associated with this biz
 	PmtTypes     map[int64]rlib.PaymentType    // all payment types in this db
-	Report       string                        // Report: 1 = journal, 2 = ledger, 3 = businesses, 4 = rentable types
+	Report       string                        // Report: 1 = Journal, 2 = Ledger, 3 = Businesses, 4 = Rentable types
 	BizFile      string                        // name of csv file with new biz info
 	AsmtTypeFile string                        // name of csv file with assessment types
-	RTFile       string                        // rentable types csv file
+	RTFile       string                        // Rentable types csv file
 	RFile        string                        // rentables csv file
-	RSpFile      string                        // rentable specialties
-	BldgFile     string                        // buildings for this business
-	PplFile      string                        // people for this business
+	RSpFile      string                        // Rentable specialties
+	BldgFile     string                        // Buildings for this Business
+	PplFile      string                        // people for this Business
 	RatFile      string                        // rentalAgreementTemplates
 	RaFile       string                        //rental agreement cvs file
 	CoaFile      string                        //chart of accounts
-	AsmtFile     string                        // assessments
+	AsmtFile     string                        // Assessments
 	PmtTypeFile  string                        // payment types
 	RcptFile     string                        // receipts of payments
 	CustomFile   string                        // custom attributes
@@ -55,16 +55,16 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	asmtypePtr := flag.String("a", "", "add assessment types via csv file")
-	bizPtr := flag.String("b", "", "add business via csv file")
-	bldgPtr := flag.String("D", "", "add Buildings to a business via csv file")
-	rtPtr := flag.String("R", "", "add rentable types via csv file")
+	bizPtr := flag.String("b", "", "add Business via csv file")
+	bldgPtr := flag.String("D", "", "add Buildings to a Business via csv file")
+	rtPtr := flag.String("R", "", "add Rentable types via csv file")
 	rPtr := flag.String("r", "", "add rentables via csv file")
-	rspPtr := flag.String("s", "", "add rentable specialties via csv file")
+	rspPtr := flag.String("s", "", "add Rentable specialties via csv file")
 	pPtr := flag.String("p", "", "add people via csv file")
 	ratPtr := flag.String("T", "", "add rental agreement templates via csv file")
 	raPtr := flag.String("C", "", "add rental agreements via csv file")
 	coaPtr := flag.String("c", "", "add chart of accounts via csv file")
-	asmtPtr := flag.String("A", "", "add assessments via csv file")
+	asmtPtr := flag.String("A", "", "add Assessments via csv file")
 	pmtPtr := flag.String("P", "", "add payment types via csv file")
 	rcptPtr := flag.String("e", "", "add receipts via csv file")
 	custPtr := flag.String("u", "", "add custom attributes via csv file")
@@ -109,7 +109,7 @@ func bizErrCheck(sa []string) {
 func loaderGetBiz(s string) int64 {
 	bid := rlib.GetBusinessBID(s)
 	if bid == 0 {
-		fmt.Printf("unrecognized business designator: %s\n", s)
+		fmt.Printf("unrecognized Business designator: %s\n", s)
 		os.Exit(1)
 	}
 	return bid

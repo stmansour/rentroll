@@ -1,5 +1,5 @@
-Designation,Style,Name,Assignment,DefaultAccrual,Accrual,Status,DtStart,DtStop
-REX,Rex1,309 Rexford,1,6,6,1,"1/1/2014",
-REX,Rex2,309 1/2 Rexford,1,6,6,1,"1/1/2014",
-REX,Rex3,311 Rexford,1,6,6,1,"1/1/2014",
-REX,Rex4,311 1/2 Rexford,1,6,6,4,"1/1/2014",
+BUD,Name,Assignment,AccrualDefault,Accrual,RentableStatus,RentableRTIDRef
+REX,309 Rexford,1,6,6,"1,1/1/2014,","Rex1,1/1/14,"
+REX,309 1/2 Rexford,1,6,6,"1,1/1/2014,","Rex2,1/1/14,"
+REX,311 Rexford,1,6,6,"1,1/1/2014,","Rex3,1/1/14,"
+REX,311 1/2 Rexford,1,6,6,"4,1/1/2014,","Rex4,1/1/14,"

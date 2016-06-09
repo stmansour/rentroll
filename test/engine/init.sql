@@ -1,5 +1,5 @@
 -- Initialize Rentroll Database with EXAMPLE 1 data 
---   This example revolves around a fictional business:
+--   This example revolves around a fictional Business:
 
 -- Business:
 -- 	Springfield Retirement Castle
@@ -21,7 +21,7 @@
 -- 	Unit Specialty: Fireplace ($20)
 
 -- 	Deposit currently held:  $1000
--- 	Deposit for next renter: $1500
+-- 	Deposit for next Renter: $1500
 
 -- 	Renter 1: (Edna Krabappel) vacates unit 101
 -- 		She occupies the unit from Nov 1 – Nov 8 (8 days)
@@ -66,14 +66,14 @@ USE rentroll
 --    ASSESSMENT TYPES
 -- ----------------------------------------------------------------------------------------
 --  Type:  0 = DEBIT,  1 = CREDIT
-INSERT INTO assessmenttypes (Name,Description) VALUES
+INSERT INTO AssessmentTypes (Name,Description) VALUES
 	("Rent",						 	" 1 Rent: the recurring amount due under an Occupancy Agreement.  While most residential leases are one year or less, commecial leases may go on decades.  In those cases there is a formula for rent increases.  For example, our lease to HD Supply in Pacoima provides that we increase rent 7% on each 3rd year anniversary of Lease, and our Viacom lease provides for an annual fixed 2% increase.  Some leases provide for increases based upon CPI.   Rent is tied to a Unit and a Payor."),
-	("Security Deposit",			 	" 2 Security Deposit: We often assess an amount to secure performance by the renter under their occupancy agreement.  When collected, this amount is a liability.  A security deposit is either returned (i.e., a negative assessment) or forfeited for Renter’s non-performance (in which case it is assessed as Forfeited Security Deposit-an item of income)."),
-	("Security Deposit Forfeiture", 	" 3 Security Deposit Forfeiture: when we collect a security deposit, we record this as a liability (since we owe this money to the renter in the absence of a breach).  When the renter breaches, we may apply that deposit to their obligation, which constitutes income (and a corresponding decrease in the liability).  This is a non-recurring item, and will apply to a Payor and a Unit."),
-	("Application Fees",			 	" 4 Application Fees: the non-recurring fee charged for considering a rental application.  This fee will apply to a Unit and a Payor only if the applicant is accepted as a renter.  I believe we should set up any applicant that pays an Application fee as a Payor with very limited information just so we have a record the party by whom payments are made and other payment data.  If they end up leasing, they will already be in the system."),
-	("Landlord Lien Sales",			 	" 5 Landlord Lien Sales: under some state laws, a landlord has a lien that arises by operation of law for personal business that remains in the Unit after a tenancy has terminated.  The landlord is allowed to sell the business, and apply the sales proceeds to the amount owed to the landlord.  This is a non-recurring assessment that will apply to a Unit and a Payor."),
+	("Security Deposit",			 	" 2 Security Deposit: We often assess an amount to secure performance by the Renter under their occupancy agreement.  When collected, this amount is a liability.  A security deposit is either returned (i.e., a negative assessment) or forfeited for Renter’s non-performance (in which case it is assessed as Forfeited Security Deposit-an item of income)."),
+	("Security Deposit Forfeiture", 	" 3 Security Deposit Forfeiture: when we collect a security deposit, we record this as a liability (since we owe this money to the Renter in the absence of a breach).  When the Renter breaches, we may apply that deposit to their obligation, which constitutes income (and a corresponding decrease in the liability).  This is a non-recurring item, and will apply to a Payor and a Unit."),
+	("Application Fees",			 	" 4 Application Fees: the non-recurring fee charged for considering a rental application.  This fee will apply to a Unit and a Payor only if the applicant is accepted as a Renter.  I believe we should set up any applicant that pays an Application fee as a Payor with very limited information just so we have a record the party by whom payments are made and other payment data.  If they end up leasing, they will already be in the system."),
+	("Landlord Lien Sales",			 	" 5 Landlord Lien Sales: under some state laws, a landlord has a lien that arises by operation of law for personal Business that remains in the Unit after a tenancy has terminated.  The landlord is allowed to sell the Business, and apply the sales proceeds to the amount owed to the landlord.  This is a non-recurring assessment that will apply to a Unit and a Payor."),
 	("Pet Fees",					 	" 6 Pet Fees: some properties charge a one-time and/or monthly fee for a pet.  Thus, this may or may not be a recurring fee, and will apply to a Unit and a Payor."),
-	("Eviction Fees",				 	" 7 Eviction Fees: when we file an eviction on a renter and the renter reinstates by paying what is owed, we include a charge for the fees associated with filing the eviction.  This is not a recurring fee and will apply to a Unit and a Payor."),
+	("Eviction Fees",				 	" 7 Eviction Fees: when we file an eviction on a Renter and the Renter reinstates by paying what is owed, we include a charge for the fees associated with filing the eviction.  This is not a recurring fee and will apply to a Unit and a Payor."),
 	("Electric Reimbursement",		 	" 8 Electric Reimbursement: when we pay the electic, we charge a fixed fee to the resident for useage up to a certain amount.  This is a recurring fee, and will apply to a Payor and a Unit."),
 	("Electric Overage",			 	" 9 Electric Overage: when we pay the electric and the resident uses an amount of electricity in excess of the maximum useage, we charge the resident for the overage.  This is calculated monthly and may or may not recur.  The charge will apply to a Payor and a Unit."),
 	("Water Reimbursement",			 	"10 Water Reimbursement: when we pay the water, we charge a fixed fee to the resident for useage up to a certain amount.  This is a recurring fee, and will apply to a Payor and a Unit."),
@@ -82,7 +82,7 @@ INSERT INTO assessmenttypes (Name,Description) VALUES
 	("Utility Fine",				 	"13 Utility Fine: certain jurisdictions (CA mostly) will fine the landlord when water useage exceeds a prescribed amount.  So long as the landlord has taken certain measures for conservation, the landlord is allowed to pass these charges onto the renters.  This is a non-recurring assessment that is associated with a Payor and a Unit."),
 	("NSF Fee",						 	"14 NSF Fee: when a resident bounces a check, we charge an NSF fee.  This is a non-recurring assessment that is associated with a Payor and a Unit."),
 	("Maintenance Fee",				 	"15 Maintenance Fee: when residents damage a Unit we may impose a fee for the repair.  We may also charge a fee to replace keys or do other similar items.  This is a non-recurring assessment that is associated with a Payor and a Unit."),
-	("Fines",						 	"16 Fines: Certain acts by a resident may result in a fine being imposed, for example a towing fee for parking in a fire lane, or a fine for outside storage after a given number of warnings, etc.  These are non-recurring assessments that are associated with a Payor and a Unit."),
+	("Fines",						 	"16 Fines: Certain acts by a resident may result in a fine being imposed, for example a towing fee for parking in a fire lane, or a fine for outside storage after a given number of warnings, etc.  These are non-recurring Assessments that are associated with a Payor and a Unit."),
 	("Month to Month Fee",			 	"17 Month to Month Fee: When a permanent resident chooses to a month-to-month occupancy agreement, we may charge an increased fee for this.  This will be a recurring fee that is associated with a Payor and a Unit."),
 	("Cancelation Fees",			 	"18 Cancelation Fees: For our hotel guests, we may charge a no-show fee for those that booked a room, but never show up.  This is a non-recurring fee that is associated with a Payor, but not a Unit."),
 	("Housekeeping Fee",			 	"19 Housekeeping Fee: Some guests and residents want a special cleaning from time to time, and this fee is charged.  This is a non-recurring fee that is associated with a Payor and a Unit."),
@@ -93,15 +93,15 @@ INSERT INTO assessmenttypes (Name,Description) VALUES
 	("Silver Service Fee",			 	"24 Silver Service Fee: This is a fee that we charge for our basic level of service (housekeeping).  This will be a recurring fee that is associated with a Payor and a Unit."),
 	("Sales Tax",					 	"25 Sales Tax: This is not a fee, but rather a liability.  Although the sales tax is owed by the purchaser, state law requires that the tax be collected and remitted by the Payee.  In this respect, this assessment is exactly like a security deposit.  It is collected by us and is a liability until further disposition.  (when we remit to the state sales tax agency, we eliminate the liability.)  Not all transactions are taxable.  Generally, hotel stays are taxable, along with furniture rental, and platinum, gold and silver service fees."),
 	("TOT Tax",						 	"26 TOT Tax: This stands for Transient Occupancy Tax.  This tax is levied on hotel stays, and varies by jurisdiction.  If applicable, it will always be assessed, and will be a liability until remitted by us to the taxing authority."),
-	("Reletting Fees",				 	"27 Reletting Fees: When a renter moves early, we may charge a fee for reletting their apartment.  This is associated with a Payor and a Unit."),
+	("Reletting Fees",				 	"27 Reletting Fees: When a Renter moves early, we may charge a fee for reletting their apartment.  This is associated with a Payor and a Unit."),
 	("Carport Fees",				 	"28 Carport Fees: I think we should set these up as a Unit, since the rental of a carport is the same as any other unit."),
 	("Garage Fees",					 	"29 Garage Fees: I think we should set up a Garage as a special Unit for the same reason."),
 	("Reserved Parking Fees",		 	"30 Reserved Parking Fees: Once again, we may be better off to treat these as a special Unit."),
 	("Transfer fees",				 	"31 Transfer fees: when a resident moves from one Unit to another Unit, we often charge a fee.  This is non-recurring and will be associated with a Unit (the one from which the occupant moved) and a Payor."),
 	("Washer/Dryer Fee",			 	"32 Washer/Dryer Fee: If we provide a washer/dryer, sometimes we charge a fee.  This will be recurring and will be associated with a Payor and a Unit.  (Note: sometimes we charge a washer/dryer connection fee—a fee that is assessed because the particular unit has a connection for washer/dryer.  This will be treated as a Unit Specialty, and not tracked separately as an assessable item.)"),
-	("Association Dues Assessment", 	"33 Association Dues Assessment: Sometimes a business will have an owner’s association that charges dues, and these are billed to the renter.  This will be recurring, and will be associated with a Unit and a Payor."),
+	("Association Dues Assessment", 	"33 Association Dues Assessment: Sometimes a Business will have an owner’s association that charges dues, and these are billed to the Renter.  This will be recurring, and will be associated with a Unit and a Payor."),
 	("Insurance Reimbursement",		 	"34 Insurance Reimbursement: Sometime the occupant pays for insurance.  This may or may not be recurring, and will be associated with a Unit and a Payor."),
-	("Tax Reimbursement",			 	"35 Tax Reimbursement: Some renters pay for the ad volarem business taxes associated with their unit.  This may or may not be recurring, and will be associated with a Unit and a Payor."),
+	("Tax Reimbursement",			 	"35 Tax Reimbursement: Some renters pay for the ad volarem Business taxes associated with their unit.  This may or may not be recurring, and will be associated with a Unit and a Payor."),
 	("Special Event Fees", 				"36 Sometimes a guest or resident may use a common area or location and be charged a fee for this.  At the moment, this will cover meeting rooms (unless a particular meeting room is set up as a Unit), catering fees, set up fees, etc.  We may choose to further delineate these items in future versions.  For the moment, we need a place to record this income.  This is non-recurring.  This will be associated with a Payor, but not a Unit."),
 	("Convenience Store Sales", 		"37 We will not create the module right now to track inventory and sales by items, but we need to have a category for this to tie into our main system.  This will be non-recurring, and will be associated with a special Payor (“Convenience Store”) but not a Unit."),
 	("Courtesy Car Rental", 			"38 I would like for each of our cars to be a Unit for accounting purposes.  Renting a car is really no different than renting an apartment.  We should discuss this."),
@@ -119,7 +119,7 @@ INSERT INTO assessmenttypes (Name,Description) VALUES
 	("Off Line",						"50 Off Line"),
 	("Concession",						"51 concession"),
 	("Employee",						"52 employee"),
-	("Damages",							"53 damages to the rentable"),
+	("Damages",							"53 damages to the Rentable"),
 	("Pest Control Reimbursement",		"54 "),
 	("Security Deposit Return",			"55 "),
 	("Transfer to Alternate Receivable","56 "),
@@ -134,8 +134,8 @@ INSERT INTO assessmenttypes (Name,Description) VALUES
 -- ----------------------------------------------------------------------------------------
 --     PAYMENT TYPES
 -- ----------------------------------------------------------------------------------------
-INSERT INTO paymenttypes (BID, Name,Description) VALUES
-	(1,"Check","Personal check from payor"),
+INSERT INTO PaymentTypes (BID, Name,Description) VALUES
+	(1,"Check","Personal check from Payor"),
 	(1,"VISA","Credit card charge"),
 	(1,"AMEX", "American Express credit card"),
 	(1,"Cash","Cash");
@@ -144,7 +144,7 @@ INSERT INTO paymenttypes (BID, Name,Description) VALUES
 -- ----------------------------------------------------------------------------------------
 --     AVAILABILITY TYPES
 -- ----------------------------------------------------------------------------------------
-INSERT INTO availabilitytypes (Name) VALUES
+INSERT INTO AvailabilityTypes (Name) VALUES
 	("Occupied"),
 	("Offline"),
 	("Administrative"),
@@ -155,16 +155,16 @@ INSERT INTO availabilitytypes (Name) VALUES
 
 
 
--- define the business
--- INSERT INTO business (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultRentalPeriod,ParkingPermitInUse) VALUES
+-- define the Business
+-- INSERT INTO Business (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultRentalPeriod,ParkingPermitInUse) VALUES
 -- 	("Springfield Retirement Castle","2001 Creaking Oak Drive","","Springfield","MO","65803","USA","939-555-1000",3,0);
-INSERT INTO business (DES,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
+INSERT INTO Business (DES,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
 	("SRC", "Springfield Retirement Castle",4,0);
 
 -- =======================================================================
 --  RENTABLE TYPES
 -- =======================================================================
-INSERT INTO rentabletypes (BID,Style, Name,RentalPeriod,Proration,ManageToBudget) VALUES
+INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,ManageToBudget) VALUES
 	(1,"GM","Geezer Miser", 6,4,1),				-- 1  
 	(1,"FS","Flat Studio",  6,4,1),				-- 2  
 	(1,"SBL","SB Loft",     6,4,1),				-- 3  
@@ -172,7 +172,7 @@ INSERT INTO rentabletypes (BID,Style, Name,RentalPeriod,Proration,ManageToBudget
 	(1,"CAR","Vehicle",     3,0,1), 				-- 5  Car
 	(1,"CPT","Carport",     6,4,1);		 		-- 6  Carport
 
-INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
+INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 	(1, 1000.00, "1970-01-01 00:00:00", "2015-10-01 00:00:00"),   	-- 1:  GM, Geezer Miser 
 	(2, 1500.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 2:  FS, Flat Studio
 	(3, 1750.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 3: SBL, SB Loft
@@ -185,26 +185,26 @@ INSERT INTO rentablemarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 -- define unit specialties
 
 -- rentablespecialtytype
-INSERT INTO rentablespecialtytypes (BID,Name,Fee,Description) VALUES
+INSERT INTO RentableSpecialtyTypes (BID,Name,Fee,Description) VALUES
 	(1,"Lake View",50.0,"Overlooks the lake"),						-- assmt 59
 	(1,"Courtyard View",50.0,"Rear windows view the courtyard"),	-- assmt 60
 	(1,"Top Floor",100.0,"Penthouse"),								-- assmt 61
 	(1,"Fireplace",20.0,"Wood burning, gas fireplace");				-- assmt 62
 
--- define the assessments
-INSERT INTO businessassessments (BID,ASMTID) VALUES
+-- define the Assessments
+INSERT INTO BusinessAssessments (BID,ASMTID) VALUES
 	(1, 1),		-- Rent
 	(1, 2),		-- Security Deposit
 	(1, 3),		-- Security Deposit Forfeiture
 	(1, 4);		-- Application Fees
 
--- define the building
-INSERT INTO building (BID,Address,Address2,City,State,PostalCode,Country) VALUES
+-- define the Building
+INSERT INTO Building (BID,Address,Address2,City,State,PostalCode,Country) VALUES
 	(1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA");
 
 
 -- Rental agreement templates
-INSERT INTO rentalagreementtemplate (RentalTemplateNumber, RentalAgreementType) VALUES
+INSERT INTO RentalAgreementTemplate (RentalTemplateNumber, RentalAgreementType) VALUES
 	("RAT001", 2),
 	("RAT002", 2),	-- port
 	("RAT003", 2),	-- rental unit
@@ -213,7 +213,7 @@ INSERT INTO rentalagreementtemplate (RentalTemplateNumber, RentalAgreementType) 
 -- =======================================================================
 --  RENTABLE UNITS
 -- =======================================================================
-INSERT INTO rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentalPeriod) VALUES
+INSERT INTO Rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentCycle) VALUES
 	(1,1,"101",1,6,6),  -- RID 1
   	(2,1,"102",1,6,6),	-- RID 2
   	(3,1,"103",1,6,6),	-- RID 3
@@ -226,7 +226,7 @@ INSERT INTO rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentalPer
 -- =======================================================================
 --  carports
 -- =======================================================================
-INSERT INTO rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentalPeriod) VALUES
+INSERT INTO Rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentCycle) VALUES
 	( 6,1,"CP001",1,6,6),		-- RID 8  Krabappel, then Simpson
 	( 6,1,"CP002",1,6,6);		-- RID 9  Simpson
 	-- (10,2,1,"CP003",1,2),		-- carport
@@ -242,7 +242,7 @@ INSERT INTO rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentalPer
 -- =======================================================================
 --  RentableState - All Rentables
 -- =======================================================================
-INSERT INTO rentablestatus (RID,DtStart,DtStop,Status) VALUES
+INSERT INTO RentableStatus (RID,DtStart,DtStop,Status) VALUES
 	(1,"2014-01-01","9999-01-01",1),  -- RID 1
 	(2,"2014-01-01","9999-01-01",1),  -- RID 2
 	(3,"2014-01-01","9999-01-01",1),  -- RID 3
@@ -252,6 +252,20 @@ INSERT INTO rentablestatus (RID,DtStart,DtStop,Status) VALUES
 	(7,"2014-01-01","9999-01-01",1),  -- RID 7
 	(8,"2014-01-01","9999-01-01",1),  -- RID 8
 	(9,"2014-01-01","9999-01-01",1);  -- RID 9
+
+-- =======================================================================
+--  RentableRTID - All Rentables
+-- =======================================================================
+INSERT INTO RentableRTID (RID,RTID,DtStart,DtStop) VALUES
+	(1,1,"2014-01-01","9999-01-01"),  -- RID 1
+	(2,2,"2014-01-01","9999-01-01"),  -- RID 2
+	(3,3,"2014-01-01","9999-01-01"),  -- RID 3
+	(4,4,"2014-01-01","9999-01-01"),  -- RID 4
+	(5,1,"2014-01-01","9999-01-01"),  -- RID 5
+	(6,2,"2014-01-01","9999-01-01"),  -- RID 6
+	(7,3,"2014-01-01","9999-01-01"),  -- RID 7
+	(8,6,"2014-01-01","9999-01-01"),  -- RID 8
+	(9,6,"2014-01-01","9999-01-01");  -- RID 9
 
 
 -- -- =======================================================================
@@ -270,7 +284,7 @@ INSERT INTO rentablestatus (RID,DtStart,DtStop,Status) VALUES
 -- =======================================================================
 --  UNIT SPECIALTIES
 -- =======================================================================
-INSERT INTO rentablespecialties (BID,RID,RSPID) VALUES
+INSERT INTO RentableSpecialties (BID,RID,RSPID) VALUES
 	(1,1,1),
 	(1,1,4),
 	(1,2,2),
@@ -288,7 +302,7 @@ INSERT INTO rentablespecialties (BID,RID,RSPID) VALUES
 --  TRANSACTANTS
 -- =======================================================================
 -- define the renters.  First as transactants, second as renters, 3rd as payors
-INSERT INTO transactant (FirstName,LastName) VALUES
+INSERT INTO Transactant (FirstName,LastName) VALUES
 	("Edna", "Krabappel"),			-- 1
 	("Ned", "Flanders"),			-- 2
 	("Moe", "Szyslak"),				-- 3
@@ -299,20 +313,20 @@ INSERT INTO transactant (FirstName,LastName) VALUES
 	("Homer", "Simpson");			-- 8
 
 -- define the renters.
-INSERT INTO renter (TCID) VALUES
+INSERT INTO Renter (TCID) VALUES
 	  (1),  (2),  (3),  (4),  (5),  (6),  (7),  (8);
 
 -- define the payors.
-INSERT INTO payor (TCID) VALUES
+INSERT INTO Payor (TCID) VALUES
 	  (1),  (2),  (3),  (4),  (5),  (6),  (7),  (8);
 
 -- =======================================================================
 --  RENTAL AGREEMENTS
 --    These are initially generated when the rentor changes from
---    an applicant to a renter (or payor as the case may be)
+--    an applicant to a Renter (or Payor as the case may be)
 --    RATID - rental agreement template
 -- =======================================================================
-INSERT INTO rentalagreement (RATID,BID,RentalStart,RentalStop,PossessionStart,PossessionStop,Renewal) VALUES
+INSERT INTO RentalAgreement (RATID,BID,RentalStart,RentalStop,PossessionStart,PossessionStop,Renewal) VALUES
 	(6,1, "2004-01-01","2015-11-09","2004-01-01","2015-11-09",1),	--  1 Krabappel
 	(6,1, "2004-01-01","2017-07-04","2004-01-01","2017-07-04",1),	--  2 Flanders
 	(6,1, "2004-01-01","2017-07-04","2004-01-01","2017-07-04",1),	--  3 Szyslak
@@ -322,23 +336,23 @@ INSERT INTO rentalagreement (RATID,BID,RentalStart,RentalStop,PossessionStart,Po
 	(6,1, "2004-01-01","2017-07-04","2004-01-01","2017-07-04",1),	--  7 Wiggum
 	(6,1, "2015-11-21","2016-11-21","2015-11-21","2016-11-21",1);	--  8 Simpson
 
-INSERT INTO agreementrentables (RAID,RID,DtStart,DtStop) VALUES
+INSERT INTO AgreementRentables (RAID,RID,DtStart,DtStop) VALUES
 	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel - apartment
 	(1,8,"2004-01-01","2015-11-09"),		-- Krabappel - carport
 	(8,1,"2015-11-21","2016-11-21"),		-- Simpson - apartment
 	(8,8,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
 	(8,9,"2015-11-21","2016-11-21");		-- Simpson - carport 2
 
-INSERT INTO agreementpayors (RAID,PID,DtStart,DtStop) VALUES
-	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel is payor for rental agreement 1
-	(8,8,"2015-11-21","2016-11-21");		-- Simpson is payor for rental agreements 8
+INSERT INTO AgreementPayors (RAID,PID,DtStart,DtStop) VALUES
+	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel is Payor for rental agreement 1
+	(8,8,"2015-11-21","2016-11-21");		-- Simpson is Payor for rental agreements 8
 
 -- =======================================================================
 --  CONTRACT RENT ASSESSMENTS
 --    These are initially generated when the rentor changes from
---    an applicant to a renter (or payor as the case may be)
+--    an applicant to a Renter (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
 	(1, 1, 1, 1,1000.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"),		-- #1  Krabappel - Rent
 	(1, 1, 1, 8,1200.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -");		-- #2  Simpson rent
 	-- (1, 1, 1, 1,1000.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 1000.0, c ${DFLTGSRENT} 1000.0"),		-- #1  Krabappel - Rent
@@ -353,7 +367,7 @@ INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,Pror
 -- =======================================================================
 --  UNIT SPECIALTY ASSESSMENTS
 -- =======================================================================
-INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
 	(1, 1, 59, 1,50.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #3 Lake view  Krabappel
 	(1, 1, 62, 1,20.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #4 Fireplace  Krabappel
 	(1, 1, 59, 8,50.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #5 Lake view  Simpson
@@ -362,9 +376,9 @@ INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,Pror
 -- =======================================================================
 --  CONTRACT SECURITY DEPOSIT
 --    These are initially generated when the rentor changes from
---    an applicant to a renter (or payor as the case may be)
+--    an applicant to a Renter (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
 	(1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _"),		-- #7 Krabappel deposit
 	(1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _");		-- #8 Simpson deposit
 
@@ -373,7 +387,7 @@ INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,Pror
 --    These can be generated at any time. Typically they will be
 --    created along with the rental agreement
 -- =======================================================================
-INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
 	(1, 8, 28, 1,35.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #9  Krabappel, ends Nov 10
 	(1, 8, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #10 Simpson, starts Nov 21
 	(1, 9, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _");		-- #11 Simpson, starts Nov 21
@@ -381,14 +395,14 @@ INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,Pror
 -- =======================================================================
 --  DAMAGE ASSESSMENTS
 -- =======================================================================
-INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
 	(1, 1, 53, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 42006 _"),	-- #12  Krabappel, $250 damages
 	(1, 1, 55, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 10001 _");
 
 -- =======================================================================
 --  OTHER ASSESSMENTS
 -- =======================================================================
--- INSERT INTO assessments (BID,RID,ASMTID,Amount,Start,Stop,RentalPeriod, AcctRule) VALUES
+-- INSERT INTO Assessments (BID,RID,ASMTID,Amount,Start,Stop,RentCycle, AcctRule) VALUES
 -- 	(1,1,10, 50.00,"2015-10-01", "2016-12-31", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
 -- 	(1,1,21,150.00,"2015-12-01", "2015-12-01", 0, "d ${DFLTGENRCV}, c 42002"),	-- Furniture rental
 -- 	(1,2,10,100.00,"2015-10-01", "2016-12-21", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
@@ -409,22 +423,22 @@ INSERT INTO assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentalPeriod,Pror
 
 -- TODO:  ADD ACCTRULE TO RECEIPTS...
 
-INSERT INTO receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
+INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
 	(1,1,2,"2004-01-01", 1000.00, "d ${DFLTCASH} _, c 11002 _");			-- 1  Krabappel's initial security deposit
-INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
+INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(1,1000.00,7, "d ${DFLTCASH} 1000.00, c 11002 1000.00");		
 
-INSERT INTO receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
+INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
 	(1,1,1,"2015-11-21",  294.66, "ASM(1) c ${DFLTGENRCV} 266.67, ASM(1) d ${DFLTCASH} 266.67, ASM(3) c ${DFLTGENRCV} 13.33, ASM(3) d ${DFLTCASH} 13.33, ASM(4) c ${DFLTGENRCV} 5.33, ASM(4) d ${DFLTCASH} 5.33, ASM(9) c ${DFLTGENRCV} 9.33,ASM(9) d ${DFLTCASH} 9.33"); 			-- 2   Krabappel pays her fees in full
-INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
+INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(2,266.67,1,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- rent
 	(2, 13.33,3,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- Lake View
 	(2,  5.33,4,"c ${DFLTGENRCV} _, d ${DFLTCASH} _"),	-- Fireplace
 	(2,  9.33,9,"c ${DFLTGENRCV} _, d ${DFLTCASH} _");	-- CP001
 
-INSERT INTO receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
+INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
 	(1,8,1,"2015-11-15",1946.68, "d ${DFLTCASH} 1500.00, c 11002 1500.00, c ${DFLTGENRCV} 400.00, d ${DFLTCASH} 400.00, c ${DFLTGENRCV} 16.67, d ${DFLTCASH} 16.67, c ${DFLTGENRCV} 6.67, d ${DFLTCASH} 6.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67");  			-- 3   Simpson pays his fees in full
-INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
+INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(3,1500.00, 8,"d ${DFLTCASH}   _,c ${DFLTSECDEPRCV} _"),	--  security deposit
 	(3, 400.00, 2,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  rent
 	(3,  16.67, 5,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  Lake View
@@ -432,9 +446,9 @@ INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(3,  11.67,10,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  CP001
 	(3,  11.67,11,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _");	--  CP002
 
--- INSERT INTO receipt (BID,PID,RAID,PMTID,Dt,Amount) VALUES
+-- INSERT INTO Receipt (BID,PID,RAID,PMTID,Dt,Amount) VALUES
 -- 	(1,1,1,55,"2015-11-11", 750.00);  			-- 4   Security Deposit refuncd to Krabappel
--- INSERT INTO receiptallocation (RCPTID,Amount,ASMID) VALUES
+-- INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID) VALUES
 -- 	(4,750.00,7);		-- security deposit return
 	-- (1,1,1,"2015-12-06",1100.00),
 	-- (2,2,1,"2015-12-15", 805.00), 
@@ -448,14 +462,14 @@ INSERT INTO receiptallocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 -- =======================================================================
 --  JOURNAL MARKERS
 -- =======================================================================
-INSERT INTO journalmarker (BID,State,DtStart,DtStop) VALUES
+INSERT INTO JournalMarker (BID,State,DtStart,DtStop) VALUES
 	(1, 3, "2015-10-31", "2015-10-31");
 
 
 -- =======================================================================
 --  LEDGERS MARKERS
 -- =======================================================================
-INSERT INTO ledger (BID,RAID,GLNumber,Status,Type,Name) VALUES
+INSERT INTO Ledger (BID,RAID,GLNumber,Status,Type,Name) VALUES
 	(1,1,"RA-1", 2,2,"Krabappel"),						--  1 Krabappel
 	(1,2,"RA-2", 2,2,"Flanders"),						--  2 Flanders
 	(1,3,"RA-3", 2,2,"Szyslak"),						--  3 Szyslak
@@ -487,7 +501,7 @@ INSERT INTO ledger (BID,RAID,GLNumber,Status,Type,Name) VALUES
 -- =======================================================================
 --  LEDGERS MARKERS
 -- =======================================================================
-INSERT INTO ledgermarker (BID,LID,State,DtStart,DtStop,Balance) VALUES
+INSERT INTO LedgerMarker (BID,LID,State,DtStart,DtStop,Balance) VALUES
 	(1,9,3,"2015-10-01","2015-10-31",0.0),
 	(1,10,3,"2015-10-01","2015-10-31",0.0),
 	(1,11,3,"2015-10-01","2015-10-31",0.0),
@@ -516,13 +530,13 @@ INSERT INTO ledgermarker (BID,LID,State,DtStart,DtStop,Balance) VALUES
 	(1,34,3,"2015-10-01","2015-10-31",0.0),
 	(1,35,3,"2015-10-01","2015-10-31",0.0);
          
-UPDATE ledger SET GLNumber="10001" WHERE Name = "Bank Account";
-UPDATE ledger SET GLNumber="11001" WHERE Name = "General Accounts Receivable";
-UPDATE ledger SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
-UPDATE ledger SET GLNumber="41004" WHERE Name = "Loss to Lease";
-UPDATE ledger SET GLNumber="41001" WHERE Name = "Vacancy";
-UPDATE ledger SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
-UPDATE ledger SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
+UPDATE Ledger SET GLNumber="10001" WHERE Name = "Bank Account";
+UPDATE Ledger SET GLNumber="11001" WHERE Name = "General Accounts Receivable";
+UPDATE Ledger SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
+UPDATE Ledger SET GLNumber="41004" WHERE Name = "Loss to Lease";
+UPDATE Ledger SET GLNumber="41001" WHERE Name = "Vacancy";
+UPDATE Ledger SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
+UPDATE Ledger SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
 
-UPDATE ledgermarker SET Balance=-1000.00 WHERE LID=7;
-UPDATE ledger SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";
+UPDATE LedgerMarker SET Balance=-1000.00 WHERE LID=7;
+UPDATE Ledger SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";

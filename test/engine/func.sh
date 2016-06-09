@@ -1,7 +1,7 @@
 #!/bin/bash
 # This is a quick functional test for the rentroll enging
 # It uses the values initialized in directory ../ledger1, generates
-# journal and ledger records, generates the reports, and validates that
+# Journal and Ledger records, generates the reports, and validates that
 # the reports are what we expect
 RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
@@ -13,6 +13,8 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
  	MYSQLOPTS="--no-defaults"
 fi
 
+echo -n "Test Run " >log 2>&1
+date >>log
 
 #---------------------------------------------------------------------
 #  Initialize the db, run the app, generate the reports
@@ -29,7 +31,7 @@ fi
 
 rm -f w x y z
 
-${APP} >log 2>&1
+${APP} >>log 2>&1
 ${APP} -r 1 >j.txt 2>&1
 ${APP} -r 2 >l.txt 2>&1
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// RentableSpecialty is the structure for attributes of a rentable specialty
+// RentableSpecialty is the structure for attributes of a Rentable specialty
 
 //  CSV file format:
 // 0           1      2       3        4    5     6          7
@@ -29,24 +29,24 @@ func CreateBuilding(sa []string, lineno int) {
 		return
 	}
 	//-------------------------------------------------------------------
-	// Make sure the business is in the database
+	// Make sure the Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("%s: line %d - business with designation %s does net exist\n", funcname, lineno, des)
+			Ulog("%s: line %d - Business with designation %s does net exist\n", funcname, lineno, des)
 			return
 		}
 		b.BID = b1.BID
 	}
 
 	//-------------------------------------------------------------------
-	// parse out the building number
+	// parse out the Building number
 	//-------------------------------------------------------------------
 	if len(sa[1]) > 0 {
 		i, err := strconv.Atoi(sa[1])
 		if err != nil || i < 0 {
-			fmt.Printf("%s: line %d - invalid building number: %s\n", funcname, lineno, sa[1])
+			fmt.Printf("%s: line %d - invalid Building number: %s\n", funcname, lineno, sa[1])
 			return
 		}
 		b.BLDGID = int64(i)

@@ -12,8 +12,8 @@ import (
 type RpnCtx struct {
 	xbiz   *XBusiness  // the biz associated with this assessment/payment
 	m      *[]AcctRule // READ-ONLY access to the rule array being created
-	xu     XRentable   // the rentable associated with this rule, loaded only if needed
-	rid    int64       // rentable id
+	xu     XRentable   // the Rentable associated with this rule, loaded only if needed
+	rid    int64       // Rentable id
 	d1     *time.Time  // start of time range
 	d2     *time.Time  // end of time range
 	pf     float64     // proration factor

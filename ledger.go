@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-// RemoveLedgerEntries clears out the records in the supplied range provided the range is not closed by a ledgermarker
+// RemoveLedgerEntries clears out the records in the supplied range provided the range is not closed by a LedgerMarker
 func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
-	// Remove the ledger entries and the ledgerallocation entries
+	// Remove the Ledger entries and the ledgerallocation entries
 	rows, err := rlib.RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(xbiz.P.BID, d1, d2)
 	if err != nil {
 		return err
@@ -29,13 +29,13 @@ func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	return err
 }
 
-// GenerateLedgerEntriesFromJournal creates all the ledger entries necessary to describe the journal entry provided
+// GenerateLedgerEntriesFromJournal creates all the Ledger entries necessary to describe the Journal entry provided
 func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1, d2 *time.Time) {
 	// lm := GetLastLedgerMarker(xbiz.P.BID)
 	// if lm.DtStop.Equal(d1.AddDate(0, 0, -1)) {
 	// 	// pfmt.Printf("Generating next month's ledgers\n")
 	// } else {
-	// 	fmt.Printf("Generating these ledgers will destroy other periods of ledger records\n")
+	// 	fmt.Printf("Generating these ledgers will destroy other periods of Ledger records\n")
 	// }
 	// bal := lm.Balance
 
@@ -83,7 +83,7 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.Ledger, lm *rlib.LedgerMar
 	rlib.InsertLedgerMarker(&nlm)
 }
 
-// GenerateLedgerRecords creates ledgers records based on the journal records over the supplied time range.
+// GenerateLedgerRecords creates ledgers records based on the Journal records over the supplied time range.
 func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	funcname := "GenerateLedgerRecords"
 	err := RemoveLedgerEntries(xbiz, d1, d2)
@@ -92,7 +92,7 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		return
 	}
 	//==============================================================================
-	// Loop through the journal records for this time period, update all ledgers...
+	// Loop through the Journal records for this time period, update all ledgers...
 	//==============================================================================
 	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
 	rlib.Errcheck(err)
@@ -109,14 +109,14 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	//==============================================================================
 	// Now that all the ledgers have been updated, we can close the ledgers and mark
 	// their state as MARKERSTATEOPEN
-	// Spin through all ledgers and update the ledger markers with the ending balance...
+	// Spin through all ledgers and update the Ledger markers with the ending balance...
 	//==============================================================================
-	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all ledger account numbers
+	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all Ledger account numbers
 	// fmt.Printf("len(t) =  %d\n", len(t))
 	for i := 0; i < len(t); i++ {
 		lm, err := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
 		if err != nil {
-			fmt.Printf("%s: Could not get ledger for account named %s in busines %d\n", funcname, t[i].GLNumber, xbiz.P.BID)
+			fmt.Printf("%s: Could not get Ledger for account named %s in busines %d\n", funcname, t[i].GLNumber, xbiz.P.BID)
 			fmt.Printf("%s: Error = %v\n", funcname, err)
 			continue
 		}

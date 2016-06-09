@@ -82,8 +82,8 @@ func s2d(s string) time.Time {
 	return t
 }
 
-// ProrateDuration returns the prorateDuration in microseconds and the units as a string
-func ProrateDuration(prorateMethod int64, dt time.Time) time.Duration {
+// CycleDuration returns the prorateDuration in microseconds and the units as a string
+func CycleDuration(prorateMethod int64, dt time.Time) time.Duration {
 	var prorateDur time.Duration
 	month := dt.Month()
 	year := dt.Year()
@@ -114,12 +114,12 @@ func ProrateDuration(prorateMethod int64, dt time.Time) time.Duration {
 }
 
 // GetProrationRange returns the duration appropriate for the provided anchor dates, Accrual Rate, and Proration Rate
-func GetProrationRange(d1, d2 time.Time, RentalPeriod, Prorate int64) time.Duration {
+func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration {
 	var timerange time.Duration
-	accrueDur := ProrateDuration(RentalPeriod, d1)
+	accrueDur := CycleDuration(RentCycle, d1)
 
 	// we use d1 as the anchor point
-	switch RentalPeriod {
+	switch RentCycle {
 	case ACCRUALSECONDLY:
 		fallthrough
 	case ACCRUALMINUTELY:
@@ -141,7 +141,7 @@ func GetProrationRange(d1, d2 time.Time, RentalPeriod, Prorate int64) time.Durat
 	return timerange
 }
 
-// SelectRentableStatusForPeriod returns a subset of rentable states that overlap the supplied range.
+// SelectRentableStatusForPeriod returns a subset of Rentable states that overlap the supplied range.
 func SelectRentableStatusForPeriod(rsa *[]RentableStatus, dt1, dt2 time.Time) []RentableStatus {
 	var m []RentableStatus
 	for i := 0; i < len(*rsa); i++ {
@@ -154,7 +154,7 @@ func SelectRentableStatusForPeriod(rsa *[]RentableStatus, dt1, dt2 time.Time) []
 	return m
 }
 
-// GetRentableStateForDate returns the status of the rentable on the supplied date
+// GetRentableStateForDate returns the status of the Rentable on the supplied date
 func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
 	status := int64(RENTABLESTATUSUNKNOWN)
 	d2 := dt.Add(24 * time.Hour)
@@ -173,8 +173,8 @@ func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
 //   2015-11-21   2016-11-21   2015-11-01   2015-12-01    0          0        30        30     1.0000   2015-11-21 - 2015-12-01
 //
 // Parameters:
-//  	Start,Stop:     rental agreement period covering the rentable
-//  	d1, d2:         time period the rentable was rented
+//  	Start,Stop:     rental agreement period covering the Rentable
+//  	d1, d2:         time period the Rentable was rented
 //  	accrual:        rent cycle
 //  	prorateMethod:  method (usually the recur frequency) used to calculate proration
 //
@@ -188,7 +188,7 @@ func Prorate(RAStart, RAStop, asmtStart, asmtStop time.Time, accrual, prorateMet
 	var rentDur int64
 	var pf float64
 
-	prorateDur := ProrateDuration(prorateMethod, asmtStart)
+	prorateDur := CycleDuration(prorateMethod, asmtStart)
 	//-------------------------------------------------------------------
 	// Scope the Rental Agreement period down to this assessment period.
 	// Overlap the Rental Agreement period (RAStart to RAStop) with the

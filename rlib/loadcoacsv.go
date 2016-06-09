@@ -66,12 +66,12 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the business is in the database
+	// Make sure the Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("%s: line %d, business with designation %s does net exist\n", funcname, lineno, sa[0])
+			Ulog("%s: line %d, Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
 		}
 		lm.BID = b1.BID
@@ -95,7 +95,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		l1, err := GetLedgerByType(l.BID, int64(i))
 		if nil != err {
 			if IsSQLNoResultsError(err) {
-				Ulog("%s: line %d - No default ledger %d exists\n", funcname, lineno, i)
+				Ulog("%s: line %d - No default Ledger %d exists\n", funcname, lineno, i)
 				return
 			}
 		}
@@ -104,14 +104,14 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		lm1, err := GetLatestLedgerMarkerByType(l.BID, l.Type)
 		if nil != err {
 			if IsSQLNoResultsError(err) {
-				Ulog("%s: line %d - No default ledgermarker %d exists\n", funcname, lineno, i)
+				Ulog("%s: line %d - No default LedgerMarker %d exists\n", funcname, lineno, i)
 				return
 			}
 		}
 		lm = lm1 // we're just going to update the existing information
 	}
 
-	// Set the ledger name
+	// Set the Ledger name
 	l.Name = strings.TrimSpace(sa[1])
 
 	//-------------------------------------------------------------------
@@ -187,7 +187,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	}
 	lm.DtStop = DtStop
 
-	// Insert / Update the ledger first, we may need the LID
+	// Insert / Update the Ledger first, we may need the LID
 	if inserting {
 		var lid int64
 		lid, err = InsertLedger(&l)
@@ -197,7 +197,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		lm.LID = l.LID
 	}
 	if nil != err {
-		fmt.Printf("%s: line %d - Could not save ledger marker, err = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - Could not save Ledger marker, err = %v\n", funcname, lineno, err)
 	}
 
 	// Now update the markers
@@ -207,11 +207,11 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		err = UpdateLedgerMarker(&lm)
 	}
 	if nil != err {
-		fmt.Printf("%s: line %d - Could not save ledger marker, err = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - Could not save Ledger marker, err = %v\n", funcname, lineno, err)
 	}
 }
 
-// LoadChartOfAccountsCSV loads a csv file with a chart of accounts and creates ledger markers for each
+// LoadChartOfAccountsCSV loads a csv file with a chart of accounts and creates Ledger markers for each
 func LoadChartOfAccountsCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

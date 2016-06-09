@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// RentableSpecialty is the structure for attributes of a rentable specialty
+// RentableSpecialty is the structure for attributes of a Rentable specialty
 
 // type RentableSpecialty struct {
 // 	RSPID       int64
@@ -65,7 +65,7 @@ func CreateRentalSpecialty(sa []string, lineno int) {
 	a.BID = b.BID
 
 	//-------------------------------------------------------------------
-	// Make sure we don't already have an exact business,name match
+	// Make sure we don't already have an exact Business,name match
 	//-------------------------------------------------------------------
 	rsp := GetSpecialtyByName(a.BID, a.Name)
 	if rsp.RSPID > 0 {

@@ -11,11 +11,11 @@ const ()
 
 // RunBooks runs a series of commands to handle command line run requests
 func RunBooks(ctx *DispatchCtx) {
-	s := "SELECT BID,DES,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy from business"
+	s := "SELECT BID,DES,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy from Business"
 	rows, err := App.dbrr.Query(s)
 	rlib.Errcheck(err)
 	defer rows.Close()
-	for rows.Next() { // For every business
+	for rows.Next() { // For every Business
 		var xbiz rlib.XBusiness
 		rlib.Errcheck(rows.Scan(&xbiz.P.BID, &xbiz.P.Designation, &xbiz.P.Name, &xbiz.P.DefaultRentalPeriod, &xbiz.P.ParkingPermitInUse, &xbiz.P.LastModTime, &xbiz.P.LastModBy))
 		rlib.GetXBusiness(xbiz.P.BID, &xbiz) // get its info

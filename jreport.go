@@ -7,14 +7,14 @@ import (
 	"time"
 )
 
-// JFMTSPACE et al control the formatting of the journal report
+// JFMTSPACE et al control the formatting of the Journal report
 const (
 	JFMTSPACE   = 2  // space between cols
 	JFMTINDENT  = 3  // left indent
 	JFMTDESCR   = 60 // description width
 	JFMTDATE    = 8  // date width
 	JFMTRA      = 8  // rental agreement
-	JFMTRN      = 15 // rentable name
+	JFMTRN      = 15 // Rentable name
 	JFMTGLNO    = 8  // gl no
 	JFMTAMOUNT  = 12 // balance width
 	JFMTDECIMAL = 2  // number of decimal places
@@ -110,7 +110,7 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 		}
 		l, err := rlib.GetLedgerByGLNo(r.BID, m[i].Account)
 		if err != nil {
-			fmt.Printf("%s: Could not get ledger for account named %s in business %d\n", funcname, m[i].Account, r.BID)
+			fmt.Printf("%s: Could not get Ledger for account named %s in Business %d\n", funcname, m[i].Account, r.BID)
 			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
 			fmt.Printf("%s: Error = %v\n", funcname, err)
 			continue
@@ -126,10 +126,10 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	//-------------------------------------------------------------------------------------
 	// For reporting, we want to show any proration that needs to take place. To determine
 	// whether or not there is any proration:
-	// 1. Check to see if the Accrual period for the rentable in question is greater than
+	// 1. Check to see if the Accrual period for the Rentable in question is greater than
 	//    the ProrationMethod.
 	//        *  NO: there is no proration, we don't need to report anything, pf = 1
-	// 2. What percent of the accrual period was the rentable "occupied" during the range of interest
+	// 2. What percent of the accrual period was the Rentable "occupied" during the range of interest
 	//        *  create a time range equal to the report period [reportDtStart - reportDtStop]
 	//        *  if this range is > Accrual Period, trim the range accordingly
 	//        *  if this range is > "occupiedrange", trim the range acordingly
@@ -137,10 +137,11 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	// 3. Report the prorate factor numerator and denominator:
 	//           pf = (resulting range duration)/AccrualPeriod (both in units of the prorationMethod)
 	//-------------------------------------------------------------------------------------
-	pro := xbiz.RT[r.RTID].Proration
+	rtid := rlib.GetRentableRTIDForDate(r.RID, &a.Start) // assume we need the valid RTID at the assessment start date
+	pro := xbiz.RT[rtid].Proration
 
-	// fmt.Printf("A0  pro = %d, r.RentalPeriod = %d\n", pro, r.RentalPeriod)
-	if r.RentalPeriod > pro && pro != 0 && a.ProrationMethod != 0 { // if accrual > proration then we *may* need to show prorate info
+	// fmt.Printf("A0  pro = %d, r.RentCycle = %d\n", pro, r.RentCycle)
+	if r.RentCycle > pro && pro != 0 && a.ProrationMethod != 0 { // if accrual > proration then we *may* need to show prorate info
 		d1 := jctx.ReportStart // start with the report range
 		d2 := jctx.ReportStop  // start with the report range
 
@@ -149,8 +150,8 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		if j.Dt.After(d1) { // if this assessment is later move the start time
 			d1 = j.Dt
 		}
-		tmp := d1.Add(rlib.ProrateDuration(r.RentalPeriod, d1)) // start + accrual duration
-		if tmp.Before(d2) {                                     // if this occurs prior to the range end...
+		tmp := d1.Add(rlib.CycleDuration(r.RentCycle, d1)) // start + accrual duration
+		if tmp.Before(d2) {                                // if this occurs prior to the range end...
 			d2 = tmp // snap the range end
 		}
 
@@ -169,9 +170,9 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 
 		// fmt.Printf("C  d1 = %s, d2 = %s\n", d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
 
-		units := rlib.ProrateDuration(pro, d1) // duration of the unit for proration
+		units := rlib.CycleDuration(pro, d1) // duration of the unit for proration
 		numerator := d2.Sub(d1)
-		denominator := rlib.GetProrationRange(d1, d2, r.RentalPeriod, xbiz.RT[r.RTID].Proration)
+		denominator := rlib.GetProrationRange(d1, d2, r.RentCycle, xbiz.RT[rtid].Proration)
 
 		// fmt.Printf("   units = %v,  numerator = %v, denominator = %v\n", units, numerator, denominator)
 
@@ -182,9 +183,9 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		// s = fmt.Sprintf("%s (%d/%d days)", s, rentDuration, assessmentDuration)
 	}
 
-	s += fmt.Sprintf("  %s", r.Name) + " [" + xbiz.RT[r.RTID].Style
-	if a.RentalPeriod > rlib.ACCRUALNORECUR {
-		s += ", " + rlib.RentalPeriodToString(r.RentalPeriod)
+	s += fmt.Sprintf("  %s", r.Name) + " [" + xbiz.RT[rtid].Style
+	if a.RentCycle > rlib.ACCRUALNORECUR {
+		s += ", " + rlib.RentalPeriodToString(r.RentCycle)
 	}
 	s += "] " + j.Comment
 
@@ -197,7 +198,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 }
 
 // getPayorLastNames returns an array of strings that contains the last names
-// of every payor responsible for this rental agreement
+// of every Payor responsible for this rental agreement
 func getPayorLastNames(ra *rlib.RentalAgreement, d1, d2 *time.Time) []string {
 	var sa []string
 	for i := 0; i < len(ra.P); i++ {
@@ -226,7 +227,7 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Jour
 		for k := 0; k < len(m); k++ {
 			l, err := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if err != nil {
-				fmt.Printf("%s: Could not get ledger for account named %s in business %d\n", funcname, m[i].Account, r.BID)
+				fmt.Printf("%s: Could not get Ledger for account named %s in Business %d\n", funcname, m[i].Account, r.BID)
 				fmt.Printf("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
 				fmt.Printf("%s: Error = %v\n", funcname, err)
 				continue
@@ -298,7 +299,7 @@ func textReportJournalEntry(xbiz *rlib.XBusiness, j *rlib.Journal, jctx *jprintc
 
 }
 
-// JournalReportText generates a textual journal report for the supplied business and time range
+// JournalReportText generates a textual Journal report for the supplied Business and time range
 func JournalReportText(xbiz *rlib.XBusiness, reportDtStart, reportDtStop *time.Time) {
 	jctx := jprintctx{*reportDtStart, *reportDtStop}
 	printJournalHeader(xbiz, reportDtStart, reportDtStop)

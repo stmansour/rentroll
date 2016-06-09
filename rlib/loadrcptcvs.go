@@ -78,12 +78,12 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the business is in the database
+	// Make sure the Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("CreateLedgerMarkers: business with designation %s does net exist\n", sa[0])
+			Ulog("CreateLedgerMarkers: Business with designation %s does net exist\n", sa[0])
 			return
 		}
 		r.BID = b1.BID
@@ -121,7 +121,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 	//-------------------------------------------------------------------
 	Dt, err := StringToDate(sa[3])
 	if err != nil {
-		fmt.Printf("CreateReceiptsFromCSV: invalid receipt date:  %s\n", sa[3])
+		fmt.Printf("CreateReceiptsFromCSV: invalid Receipt date:  %s\n", sa[3])
 		return
 	}
 	r.Dt = Dt
@@ -165,7 +165,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 
 }
 
-// LoadReceiptsCSV loads a csv file with a chart of accounts and creates ledger markers for each
+// LoadReceiptsCSV loads a csv file with a chart of accounts and creates Ledger markers for each
 func LoadReceiptsCSV(fname string, PmtTypes *map[int64]PaymentType) {
 	t := LoadCSV(fname)
 	if len(t) > 1 {

@@ -11,7 +11,7 @@ const longForm = "Jan 2, 2006 3:04pm (MST)"
 //   	t, err := time.Parse(time.UnixDate, "Sat Mar  7 11:06:39 PST 2015")
 //		t, _ := time.Parse(longForm,        "Feb 3, 2013 at 7:54pm (PST)"
 
-//  struct with initializers for dummy assessments
+//  struct with initializers for dummy Assessments
 type rrtest struct {
 	amt    float64
 	start  string

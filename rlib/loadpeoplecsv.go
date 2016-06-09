@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-// PeopleSpecialty is the structure for attributes of a rentable specialty
+// PeopleSpecialty is the structure for attributes of a Rentable specialty
 
 // CSV file format:
-//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  Renter  ----------------------------------------------------------------------------------------------------------------------------------------------------------------->|<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- prospect --
+//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  Renter  ----------------------------------------------------------------------------------------------------------------------------------------------------------------->|<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- Prospect --
 //   0           1          2          3          4          5             6               7          8          9        10        11    12     13          14       15      16       17        18        19       20                 21                  22                   23          24           25                    26                       27                          28             29                30                          31        32      33                   34           35               36            37            38             39                  40              41          42
 // 	FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureRenter, Industry, Source, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -48,7 +48,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 		s := strings.TrimSpace(sa[i])
 		// fmt.Printf("%d. sa[%d] = \"%s\"\n", i, i, sa[i])
 		switch {
-		case i == 0: // transactant FirstName
+		case i == 0: // Transactant FirstName
 			tr.FirstName = s
 		case i == 1:
 			tr.MiddleName = s
@@ -196,7 +196,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 	if len(tr.PrimaryEmail) > 0 {
 		t1, err := GetTransactantByPhoneOrEmail(tr.PrimaryEmail)
 		if err != nil && !IsSQLNoResultsError(err) {
-			Ulog("%s: line %d - error retrieving transactant by email: %v\n", funcname, lineno, err)
+			Ulog("%s: line %d - error retrieving Transactant by email: %v\n", funcname, lineno, err)
 			return
 		}
 		if t1.TCID > 0 {
@@ -207,7 +207,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 	if len(tr.CellPhone) > 0 {
 		t1, err := GetTransactantByPhoneOrEmail(tr.CellPhone)
 		if err != nil && !IsSQLNoResultsError(err) {
-			Ulog("%s: line %d - error retrieving transactant by phone: %v\n", funcname, lineno, err)
+			Ulog("%s: line %d - error retrieving Transactant by phone: %v\n", funcname, lineno, err)
 			return
 		}
 		if t1.TCID > 0 {

@@ -7,15 +7,15 @@ import (
 	"time"
 )
 
-// TFMTSPACE et al control the formatting of the journal report
+// TFMTSPACE et al control the formatting of the Journal report
 const (
 	TFMTSPACE   = 2  // space between cols
 	TFMTINDENT  = 3  // left indent
 	TFMTDESCR   = 45 // description width
 	TFMTDATE    = 8  // date width
 	TFMTRA      = 10 // rental agreement
-	TFMTJID     = 9  // journal id
-	TFMTRN      = 15 // rentable name
+	TFMTJID     = 9  // Journal id
+	TFMTRN      = 15 // Rentable name
 	TFMTAMOUNT  = 12 // balance width
 	TFMTDECIMAL = 2  // number of decimal places
 	TLINELEN    = 6*TFMTSPACE + TFMTDESCR + TFMTDATE + TFMTJID + TFMTRA + TFMTRN + TFMTAMOUNT + TFMTAMOUNT
@@ -28,7 +28,7 @@ var tfmt struct {
 	Dt                 string // date
 	JID                string // transaction id
 	RentalAgr          string // rental agreement
-	RentableName       string // rentable name
+	RentableName       string // Rentable name
 	Amount             string // amount
 	Balance            string // balance
 	Sp                 string
@@ -52,7 +52,7 @@ func initTFmt() {
 	tfmt.JID = fmt.Sprintf("%%%dd", TFMTJID)                       // Journal id
 	tfmt.JIDHdrStr = fmt.Sprintf("%%%ds", TFMTJID)                 // amount for header
 	tfmt.RentalAgr = fmt.Sprintf("%%%ds", TFMTRA)                  // rental agreement
-	tfmt.RentableName = fmt.Sprintf("%%%ds", TFMTRN)               // rentable name
+	tfmt.RentableName = fmt.Sprintf("%%%ds", TFMTRN)               // Rentable name
 	tfmt.Amount = fmt.Sprintf("%%%d.%df", TFMTAMOUNT, TFMTDECIMAL) // digits
 	tfmt.AmountHdrStr = fmt.Sprintf("%%%ds", TFMTAMOUNT)           // amount
 
@@ -111,7 +111,7 @@ func printLedgerHeader(xbiz *rlib.XBusiness, l *rlib.Ledger, d1, d2 *time.Time) 
 	printTReportLine()
 }
 
-// returns the payment/accessment reason, rentable name
+// returns the payment/accessment reason, Rentable name
 func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 	j, _ := rlib.GetJournal(l.JID)
 	sra := fmt.Sprintf("%9d", j.RAID)
@@ -157,9 +157,9 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 	fmt.Printf("\n\n")
 }
 
-// LedgerReportText generates a textual journal report for the supplied business and time range
+// LedgerReportText generates a textual Journal report for the supplied Business and time range
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
-	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all ledger account numbers
+	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all Ledger account numbers
 	for i := 0; i < len(t); i++ {
 		dd2 := d1.AddDate(0, 0, -1)
 		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())

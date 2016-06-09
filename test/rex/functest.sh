@@ -18,9 +18,9 @@ echo >>${LOGFILE}
 echo "CREATE NEW DATABASE" >> ${LOGFILE} 2>&1
 ${RRBIN}/rrnewdb
 
-echo "import business"
+echo "import Business"
 echo "DEFINE BUSINESS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -b business.csv -L 3 >> ${LOGFILE} 2>&1
+${CVSLOAD} -b Business.csv -L 3 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import assessment types"
@@ -28,14 +28,14 @@ echo "DEFINE ASSESSMENT TYPES" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -a asmtypes.csv -L 4 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
-echo "import rentable types"
+echo "import Rentable types"
 echo "DEFINE RENTABLE TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -R rentabletypes.csv -L 5,REX >> ${LOGFILE} 2>&1
+${CVSLOAD} -R RentableTypes.csv -L 5,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import rentables"
 echo "DEFINE RENTABLES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -r rentable.csv -L 6,REX >> ${LOGFILE} 2>&1
+${CVSLOAD} -r Rentable.csv -L 6,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import people"
@@ -65,7 +65,7 @@ echo "DEFINE CHART OF ACCOUNTS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -c coa.csv -L 10,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
-echo "import assessments"
+echo "import Assessments"
 echo "DEFINE ASSESSMENTS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -A asmt.csv -L 11,REX >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}

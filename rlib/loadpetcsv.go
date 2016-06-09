@@ -91,7 +91,7 @@ func CreateAgreementPetsFromCSV(sa []string, lineno int) {
 	}
 }
 
-// LoadPetsCSV loads a csv file with a chart of accounts and creates ledger markers for each
+// LoadPetsCSV loads a csv file with a chart of accounts and creates Ledger markers for each
 func LoadPetsCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

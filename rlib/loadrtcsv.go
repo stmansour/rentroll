@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-// GetBusinessBID returns the BID for the business with the supplied designation
+// GetBusinessBID returns the BID for the Business with the supplied designation
 func GetBusinessBID(des string) int64 {
 	//-------------------------------------------------------------------
-	// Make sure the business exists...
+	// Make sure the Business exists...
 	//-------------------------------------------------------------------
 	b, err := GetBusinessByDesignation(des)
 	if err != nil || b.BID == 0 {
@@ -24,7 +24,7 @@ func GetBusinessBID(des string) int64 {
 //                                                                     Repeat as many 3-tuples as needed
 //                                                                         /----------^-------------\
 //  [0]        [1]      [2]   			[3]            [4]       [5]            6          7       8
-// Designation,Style,	Name, 			RentalPeriod,  Proration,ManageToBudget,MarketRate,DtStart,DtStop
+// Designation,Style,	Name, 			RentCycle,  Proration,ManageToBudget,MarketRate,DtStart,DtStop
 // REH,        "GM",	"Geezer Miser", 6,		       4,        1,             1100.00,   1/1/2015, 1/1/2017
 // REH,        "FS",	"Flat Studio",  6,		       4,        1,             1500.00,   1/1/2015, 1/1/2017
 // REH,        "SBL",	"SB Loft",     	6,		       4,        1,             1750.00,   1/1/2015, 1/1/2017
@@ -62,11 +62,11 @@ func CreateRentableType(sa []string, lineno int) {
 	if len(a.Style) > 0 {
 		rt, err := GetRentableTypeByStyle(a.Style, bid)
 		if nil != err && !IsSQLNoResultsError(err) {
-			Ulog("GetRentableTypeByStyle: err = %v\n", err)
+			Ulog("%s: line %d - err = %v\n", funcname, lineno, err)
 			return
 		}
 		if rt.RTID > 0 {
-			Ulog("GetBusinessBID: RentableType named %s already exists\n", a.Style)
+			Ulog("%s: line %d - RentableType named %s already exists\n", funcname, lineno, a.Style)
 			return
 		}
 	}
@@ -78,25 +78,25 @@ func CreateRentableType(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	n, err := strconv.Atoi(strings.TrimSpace(sa[3])) // frequency
 	if err != nil || !IsValidAccrual(int64(n)) {
-		Ulog("CreateRentableType: Invalid rental frequency: %s\n", sa[3])
+		Ulog("%s: line %d - Invalid rental frequency: %s\n", funcname, lineno, sa[3])
 		return
 	}
-	a.RentalPeriod = int64(n)
+	a.RentCycle = int64(n)
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[4])) // Proration
 	if err != nil || !IsValidAccrual(int64(n)) {
-		Ulog("CreateRentableType: Invalid rental proration frequency: %s\n", sa[4])
+		Ulog("%s: line %d - Invalid rental proration frequency: %s\n", funcname, lineno, sa[4])
 		return
 	}
 	a.Proration = int64(n)
-	if a.Proration > a.RentalPeriod {
-		Ulog("CreateRentableType: Proration frequency (%d) must be greater than rental frequency (%d)\n", a.Proration, a.RentalPeriod)
+	if a.Proration > a.RentCycle {
+		Ulog("%s: line %d - Proration frequency (%d) must be greater than rental frequency (%d)\n", funcname, lineno, a.Proration, a.RentCycle)
 		return
 	}
 
 	n64, err := yesnoToInt(strings.TrimSpace(sa[5])) // manage to budget
 	if err != nil {
-		Ulog("CreateRentableType: Invalid manage to budget flag: %s\n", sa[5])
+		Ulog("%s: line %d - Invalid manage to budget flag: %s\n", funcname, lineno, sa[5])
 		return
 	}
 	a.ManageToBudget = int64(n64)
@@ -111,24 +111,24 @@ func CreateRentableType(sa []string, lineno int) {
 			var m RentableMarketRate
 			m.RTID = rtid
 			if x, err = strconv.ParseFloat(strings.TrimSpace(sa[i]), 64); err != nil {
-				Ulog("CreateRentableType: Invalid floating point number: %s\n", sa[7])
+				Ulog("%s: line %d - Invalid floating point number: %s\n", funcname, lineno, sa[7])
 				return
 			}
 			m.MarketRate = x
 			DtStart, err := StringToDate(sa[i+1])
 			if err != nil {
-				fmt.Printf("CreateRentableType: invalid start date:  %s\n", sa[i+1])
+				fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[i+1])
 				return
 			}
 			m.DtStart = DtStart
 			DtStop, err := StringToDate(sa[i+2])
 			if err != nil {
-				fmt.Printf("CreateRentableType: invalid stop date:  %s\n", sa[i+2])
+				fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[i+2])
 				return
 			}
 			m.DtStop = DtStop
 			if m.DtStart.After(m.DtStop) {
-				fmt.Printf("CreateRentableType: Stop date (%s) must be after Start date (%s)\n", m.DtStop, m.DtStart)
+				fmt.Printf("%s: line %d - Stop date (%s) must be after Start date (%s)\n", funcname, lineno, m.DtStop, m.DtStart)
 				return
 			}
 			InsertRentableMarketRates(&m)
