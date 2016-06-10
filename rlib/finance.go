@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -163,6 +164,38 @@ func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
 		status = m[0].Status
 	}
 	return status
+}
+
+// GetRentCycleAndProration returns the RentCycle (and Proration) to use for the supplied rentable and date.
+// If the override RentCycle is set for this time period, it is returned. Otherwise, the RentCycle for this
+// Rentable's RentableType is returned
+// Returns:
+//		RentCycle
+//		Proration
+//		rtid for the supplied date
+//		error
+func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int64, int64, int64, error) {
+	var err error
+	var rc, pro, rtid int64
+
+	rrt := GetRentableRTIDForDate(r.RID, dt)
+	if rrt.RID == 0 {
+		return rc, pro, rtid, fmt.Errorf("No RentableRTID for %s", dt.Format(RRDATEINPFMT))
+	}
+	rtid = GetRTIDForDate(r.RID, dt)
+	if rrt.RentCycle > ACCRUALNORECUR { // if there's an override for RentCycle...
+		rc = rrt.RentCycle // ...set it
+	} else {
+		rc = xbiz.RT[rtid].RentCycle
+	}
+	if rrt.Proration > ACCRUALNORECUR { // if there's an override for Propration...
+		pro = rrt.Proration // ...set it
+	} else {
+		pro = xbiz.RT[rtid].Proration
+	}
+
+	// we need to load the RentableType for RentCycle or Proration or both...
+	return rc, pro, rtid, err
 }
 
 // Prorate computes basic info to perform rent proration:

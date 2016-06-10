@@ -294,20 +294,20 @@ func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
 
 // GetRentableByID reads a Rentable structure based on the supplied Rentable id
 func GetRentableByID(rid int64, r *Rentable) {
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.AssignmentTime, &r.RentalPeriodDefault, &r.RentCycle, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy))
 }
 
 // GetRentable reads and returns a Rentable structure based on the supplied Rentable id
 func GetRentable(rid int64) Rentable {
 	var r Rentable
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.AssignmentTime, &r.RentalPeriodDefault, &r.RentCycle, &r.LastModTime, &r.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy))
 	return r
 }
 
 // GetRentableByName reads and returns a Rentable structure based on the supplied Rentable id
 func GetRentableByName(name string, bid int64) (Rentable, error) {
 	var r Rentable
-	err := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid).Scan(&r.RID, &r.RTID, &r.BID, &r.Name, &r.AssignmentTime, &r.RentalPeriodDefault, &r.RentCycle, &r.LastModTime, &r.LastModBy)
+	err := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid).Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
@@ -374,8 +374,8 @@ func GetRentableRTIDsByRange(RID int64, d1, d2 *time.Time) []RentableRTID {
 	return rs
 }
 
-// GetRentableRTIDForDate returns the RTID in effect on the supplied date
-func GetRentableRTIDForDate(RID int64, d1 *time.Time) int64 {
+// GetRTIDForDate returns the RTID in effect on the supplied date
+func GetRTIDForDate(RID int64, d1 *time.Time) int64 {
 	rtid := int64(0)
 	DtStop, _ := StringToDate("1/1/9999")
 	m := GetRentableRTIDsByRange(RID, d1, &DtStop)
@@ -383,6 +383,17 @@ func GetRentableRTIDForDate(RID int64, d1 *time.Time) int64 {
 		rtid = m[0].RTID
 	}
 	return rtid
+}
+
+// GetRentableRTIDForDate returns the RTID in effect on the supplied date
+func GetRentableRTIDForDate(RID int64, d1 *time.Time) RentableRTID {
+	DtStop, _ := StringToDate("1/1/9999")
+	m := GetRentableRTIDsByRange(RID, d1, &DtStop)
+	if len(m) > 0 {
+		return m[0]
+	}
+	var r RentableRTID
+	return r
 }
 
 // GetRentableStatusByRange loads all the RentableStatus records that overlap the supplied time range
@@ -467,7 +478,7 @@ func GetRentableMarketRates(rt *RentableType) {
 // is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
 // returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
 func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) float64 {
-	rtid := GetRentableRTIDForDate(r.RID, d1) // first thing... find the RTID for this time range
+	rtid := GetRTIDForDate(r.RID, d1) // first thing... find the RTID for this time range
 	mr := xbiz.RT[rtid].MR
 	// fmt.Printf("GetRentableMarketRate: Get Market Rate for RTID = %d, %s - %s\n", rtid, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 	for i := 0; i < len(mr); i++ {

@@ -1,4 +1,4 @@
-BUD,Style,Name,Assignment,DefaultAccrual,Accrual,Status,DtStart,DtStop
-DHR,A2,6303-231,1,4,4,1,"2013-01-01",
-DHR,A1,6323-301,1,6,6,1,"2013-01-01",
-DHR,B5,6392-930,1,4,4,1,"2013-01-01",
+BUD,Style,Name,Assignment,Status,DtStart,DtStop
+DHR,A2,6303-231,1,1,"2013-01-01",
+DHR,A1,6323-301,1,1,"2013-01-01",
+DHR,B5,6392-930,1,1,"2013-01-01",

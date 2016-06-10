@@ -303,7 +303,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rentable
 	//===============================
-	RNTfields := "RID,RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentCycle,LastModTime,LastModBy"
+	RNTfields := "RID,BID,Name,AssignmentTime,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetRentable, err = RRdb.dbrr.Prepare("SELECT " + RNTfields + " FROM Rentable WHERE RID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableByName, err = RRdb.dbrr.Prepare("SELECT " + RNTfields + " FROM Rentable WHERE Name=? AND BID=?")

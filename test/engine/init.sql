@@ -213,22 +213,22 @@ INSERT INTO RentalAgreementTemplate (RentalTemplateNumber, RentalAgreementType) 
 -- =======================================================================
 --  RENTABLE UNITS
 -- =======================================================================
-INSERT INTO Rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentCycle) VALUES
-	(1,1,"101",1,6,6),  -- RID 1
-  	(2,1,"102",1,6,6),	-- RID 2
-  	(3,1,"103",1,6,6),	-- RID 3
-  	(4,1,"104",1,6,6),	-- RID 4
-  	(1,1,"105",1,6,6),	-- RID 5
-  	(2,1,"106",1,6,6),	-- RID 6
-  	(3,1,"107",1,6,6);	-- RID 7
+INSERT INTO Rentable (BID,Name,AssignmentTime) VALUES
+	(1,"101",1),  -- RID 1
+  	(1,"102",1),	-- RID 2
+  	(1,"103",1),	-- RID 3
+  	(1,"104",1),	-- RID 4
+  	(1,"105",1),	-- RID 5
+  	(1,"106",1),	-- RID 6
+  	(1,"107",1);	-- RID 7
 
 
 -- =======================================================================
 --  carports
 -- =======================================================================
-INSERT INTO Rentable (RTID,BID,Name,AssignmentTime,RentalPeriodDefault,RentCycle) VALUES
-	( 6,1,"CP001",1,6,6),		-- RID 8  Krabappel, then Simpson
-	( 6,1,"CP002",1,6,6);		-- RID 9  Simpson
+INSERT INTO Rentable (BID,Name,AssignmentTime) VALUES
+	(1,"CP001",1),		-- RID 8  Krabappel, then Simpson
+	(1,"CP002",1);		-- RID 9  Simpson
 	-- (10,2,1,"CP003",1,2),		-- carport
 	-- (11,2,1,"CP004",1,2),		-- carport
 	-- (12,2,1,"CP005",1,2),		-- carport

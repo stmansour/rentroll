@@ -90,8 +90,11 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 	case rlib.RENTABLESTATUSOFFLINE:
 		ta := rlib.GetAllRentableAssessments(r.RID, d1, d2)
 		if len(ta) > 0 {
-			rtid := rlib.GetRentableRTIDForDate(r.RID, d1)
-			pf = calcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, xbiz.RT[rtid].RentCycle, xbiz.RT[rtid].Proration)
+			rentcycle, proration, _, err := rlib.GetRentCycleAndProration(&r, d1, xbiz)
+			if err != nil {
+				rlib.Ulog("journalAssessment: error getting rent cycle for rentable %d. err = %s\n", r.RID, err.Error())
+			}
+			pf = calcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
 			if len(ta) > 1 {
 				rlib.Ulog("journalAssessment: %d Assessments affect Rentable %d (%s) in period %s - %s\n",
 					len(ta), r.RID, r.Name, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))

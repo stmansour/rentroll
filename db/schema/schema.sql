@@ -164,9 +164,8 @@ CREATE TABLE RentableTypes (
     BID BIGINT NOT NULL DEFAULT 0,                          -- associated Business id
     Style CHAR(15) NOT NULL DEFAULT '',                     -- need not be unique
     Name VARCHAR(256) NOT NULL DEFAULT '',                  -- must be unique
-    RentCycle BIGINT NOT NULL DEFAULT 0,                 -- price accrual frequency
-    Proration BIGINT NOT NULL DEFAULT 0,                    --  prorate frequency
---    Report SMALLINT NOT NULL DEFAULT 0,
+    RentCycle BIGINT NOT NULL DEFAULT 0,                    -- rent accrual frequency
+    Proration BIGINT NOT NULL DEFAULT 0,                    -- prorate frequency
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
@@ -204,14 +203,12 @@ CREATE TABLE RentableSpecialtyTypes (
 -- this table list all the pre-defined Assessments
 -- this will include offsets and disbursements
 CREATE TABLE AssessmentTypes (
-    ASMTID BIGINT NOT NULL AUTO_INCREMENT,          -- what type of assessment
-    RARequired SMALLINT NOT NULL DEFAULT 0,       -- 0 = Valid anytime, 1 = valid only during occupancy
-    Name VARCHAR(100) NOT NULL DEFAULT '',           -- name for the assessment
-    Description VARCHAR(1024) NOT NULL DEFAULT '',   -- describe the assessment
-    -- TODO: Type needs to be removed
-    -- Type SMALLINT NOT NULL DEFAULT 0,            -- normal case, positive number is: 0 = DEBIT, 1 = CREDIT
-    LastModTime TIMESTAMP,                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,         -- employee UID (from phonebook) that modified it 
+    ASMTID BIGINT NOT NULL AUTO_INCREMENT,                  -- what type of assessment
+    RARequired SMALLINT NOT NULL DEFAULT 0,                 -- 0 = Valid anytime, 1 = valid only during occupancy
+    Name VARCHAR(100) NOT NULL DEFAULT '',                  -- name for the assessment
+    Description VARCHAR(1024) NOT NULL DEFAULT '',          -- describe the assessment
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (ASMTID)
 );
 
@@ -267,16 +264,16 @@ CREATE TABLE BusinessPaymentTypes (
 -- ****                              ****
 -- **************************************
 CREATE TABLE Building (
-    BLDGID BIGINT NOT NULL AUTO_INCREMENT,        -- unique id for this Building
-    BID BIGINT NOT NULL DEFAULT 0,                -- which Business it belongs to
-    Address VARCHAR(100) NOT NULL DEFAULT '',      -- Building address
-    Address2 VARCHAR(100) NOT NULL DEFAULT '',       
-    City VARCHAR(100) NOT NULL DEFAULT '',
-    State CHAR(25) NOT NULL DEFAULT '',
-    PostalCode VARCHAR(100) NOT NULL DEFAULT '',
-    Country VARCHAR(100) NOT NULL DEFAULT '',
-    LastModTime TIMESTAMP,                        -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,       -- employee UID (from phonebook) that modified it 
+    BLDGID BIGINT NOT NULL AUTO_INCREMENT,                          -- unique id for this Building
+    BID BIGINT NOT NULL DEFAULT 0,                                  -- which Business it belongs to
+    Address VARCHAR(100) NOT NULL DEFAULT '',                       -- Building address
+    Address2 VARCHAR(100) NOT NULL DEFAULT '',                         
+    City VARCHAR(100) NOT NULL DEFAULT '',                  
+    State CHAR(25) NOT NULL DEFAULT '',                 
+    PostalCode VARCHAR(100) NOT NULL DEFAULT '',                    
+    Country VARCHAR(100) NOT NULL DEFAULT '',                   
+    LastModTime TIMESTAMP,                                          -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (BLDGID)
 );
 
@@ -287,23 +284,24 @@ CREATE TABLE Building (
 -- **************************************
 CREATE TABLE Rentable (
     RID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique identifier for this Rentable
-    RTID BIGINT NOT NULL DEFAULT 0,                                -- what sort of a Rentable is this?
     BID BIGINT NOT NULL DEFAULT 0,                                 -- Business associated with this Rentable
     Name VARCHAR(100) NOT NULL DEFAULT '',                         -- must be unique, name for this instance, "101" for a room number, CP744 carport number, etc 
     AssignmentTime SMALLINT NOT NULL DEFAULT 0,                    -- Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
-    RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,               -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-    RentCycle SMALLINT NOT NULL DEFAULT 0,                         -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
     LastModTime TIMESTAMP,                                         -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RID)
+    -- RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,               -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+    -- RentCycle SMALLINT NOT NULL DEFAULT 0,                         -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 );
 
 CREATE TABLE RentableRTID (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- the Rentable this record belongs to
     RTID BIGINT NOT NULL DEFAULT 0,                                 -- the Rentable type for this period
+    RentCycle BIGINT NOT NULL DEFAULT 0,                            -- RentCycle override. 0 = unset, > 0 means the frequency
+    ProrationMethod BIGINT NOT NULL DEFAULT 0,                      -- Proration override. 0 = unset, > 0 means the override proration
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
-    LastModTime TIMESTAMP,   -- when was this record last written
+    LastModTime TIMESTAMP,                                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that modified it 
 );
 
@@ -320,9 +318,9 @@ CREATE TABLE RentableStatus (
 --   RENTABLE SPECIALTIES
 -- ===========================================
 CREATE TABLE RentableSpecialties (
-    BID BIGINT NOT NULL DEFAULT 0,                      -- the Business
-    RID BIGINT NOT NULL DEFAULT 0,                      -- unique id of unit
-    RSPID BIGINT NOT NULL DEFAULT 0                     -- unique id of specialty (see Table RentableSpecialties)
+    BID BIGINT NOT NULL DEFAULT 0,                                  -- the Business
+    RID BIGINT NOT NULL DEFAULT 0,                                  -- unique id of unit
+    RSPID BIGINT NOT NULL DEFAULT 0                                 -- unique id of specialty (see Table RentableSpecialties)
 );
 
 

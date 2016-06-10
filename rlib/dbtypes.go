@@ -403,22 +403,22 @@ type ReceiptAllocation struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
-	RID                 int64          // unique id for this Rentable
-	RTID                int64          // Rentable type id
-	BID                 int64          // Business
-	Name                string         // name for this rental
-	AssignmentTime      int64          // can we pre-assign or assign only at commencement
-	RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
-	RentCycle           int64          // 0 =unset, 1 = short term, 2=longterm
-	LastModTime         time.Time      // time of last update to the db record
-	LastModBy           int64          // who made the update (Phonebook UID)
-	RT                  []RentableRTID // the list of RTIDs and timestamps for this Rentable
+	RID            int64          // unique id for this Rentable
+	BID            int64          // Business
+	Name           string         // name for this rental
+	AssignmentTime int64          // can we pre-assign or assign only at commencement
+	LastModTime    time.Time      // time of last update to the db record
+	LastModBy      int64          // who made the update (Phonebook UID)
+	RT             []RentableRTID // the list of RTIDs and timestamps for this Rentable
+	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
 }
 
 // RentableRTID is the time-based Rentable type attribute
 type RentableRTID struct {
 	RID         int64     // the Rentable to which this record belongs
 	RTID        int64     // the Rentable's type during this time range
+	RentCycle   int64     // Override Rent Cycle.  0 =unset,  otherwise same values as RentableType.RentCycle
+	Proration   int64     // Override Proration. 0 = unset, otherwise the same values as RentableType.Proration
 	DtStart     time.Time // timerange start
 	DtStop      time.Time // timerange stop
 	LastModTime time.Time

@@ -1,5 +1,5 @@
-BUD,Name,Assignment,AccrualDefault,Accrual,RentableStatus,RentableRTIDRef
-REX,309 Rexford,1,6,6,"1,1/1/2014,","Rex1,1/1/14,"
-REX,309 1/2 Rexford,1,6,6,"1,1/1/2014,","Rex2,1/1/14,"
-REX,311 Rexford,1,6,6,"1,1/1/2014,","Rex3,1/1/14,"
-REX,311 1/2 Rexford,1,6,6,"4,1/1/2014,","Rex4,1/1/14,"
+BUD,Name,Assignment,RentableStatus,RentableRTIDRef
+REX,309 Rexford,1,"1,1/1/2014,","Rex1,1/1/14,"
+REX,309 1/2 Rexford,1,"1,1/1/2014,","Rex2,1/1/14,"
+REX,311 Rexford,1,"1,1/1/2014,","Rex3,1/1/14,"
+REX,311 1/2 Rexford,1,"4,1/1/2014,","Rex4,1/1/14,"

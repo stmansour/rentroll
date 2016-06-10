@@ -138,7 +138,7 @@ func RRreportRentables(t int, bid int64) string {
 	s := fmt.Sprintf(" RID  Name\n")
 	for rows.Next() {
 		var p Rentable
-		Errcheck(rows.Scan(&p.RID, &p.RTID, &p.BID, &p.Name, &p.AssignmentTime, &p.RentalPeriodDefault, &p.RentCycle, &p.LastModTime, &p.LastModBy))
+		Errcheck(rows.Scan(&p.RID, &p.BID, &p.Name, &p.AssignmentTime, &p.LastModTime, &p.LastModBy))
 		switch t {
 		case RPTTEXT:
 			s += ReportRentableToText(&p)

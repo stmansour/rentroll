@@ -9,15 +9,15 @@ import (
 // RentableSpecialty is the structure for attributes of a Rentable specialty
 
 // CSV file format:
-//   0  1     2               3           4    5                                 6
-//                                             "S1,Strt1,Stp1;S2,Strt2,Stp2...", “A2,1/10/16,6/1/16;B2,6/1/16,”
-// BUD, Name, AssignmentTime, DefaultOcc, Occ, RentableStatus,                   RentableTypeRef
-// REX, 101,  1,              2,          2,   "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 102,  1,              2,          2,   "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 103,  1,              2,          2,   "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 104,  1,              2,          2,   "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 105,  1,              2,          2,   "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 106,  1,              2,          2,   "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+//   0  1     2               3                                 4
+//                            "S1,Strt1,Stp1;S2,Strt2,Stp2...", “A2,1/10/16,6/1/16;B2,6/1/16,”
+// BUD, Name, AssignmentTime, RentableStatus,                   RentableTypeRef
+// REX, 101,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 102,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 103,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 104,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 105,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 106,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreateRentables(sa []string, lineno int) {
@@ -30,7 +30,7 @@ func CreateRentables(sa []string, lineno int) {
 		return // this is just the column heading
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 7
+	required := 5
 	if len(sa) < required {
 		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
@@ -79,43 +79,43 @@ func CreateRentables(sa []string, lineno int) {
 		r.AssignmentTime = int64(i)
 	}
 
-	//-------------------------------------------------------------------
-	// parse out the DefaultOccupancy value
-	//   any accrual frequency is valid
-	//-------------------------------------------------------------------
-	if len(sa[3]) > 0 {
-		i, err := strconv.Atoi(sa[3])
-		if err != nil || !IsValidAccrual(int64(i)) {
-			fmt.Printf("%s: lineno %d - invalid DefaultOccupancy value: %s\n", funcname, lineno, sa[3])
-			return
-		}
-		r.RentalPeriodDefault = int64(i)
-	}
+	// //-------------------------------------------------------------------
+	// // parse out the DefaultOccupancy value
+	// //   any accrual frequency is valid
+	// //-------------------------------------------------------------------
+	// if len(sa[3]) > 0 {
+	// 	i, err := strconv.Atoi(sa[3])
+	// 	if err != nil || !IsValidAccrual(int64(i)) {
+	// 		fmt.Printf("%s: lineno %d - invalid DefaultOccupancy value: %s\n", funcname, lineno, sa[3])
+	// 		return
+	// 	}
+	// 	r.RentalPeriodDefault = int64(i)
+	// }
 
-	//-------------------------------------------------------------------
-	// parse out the Occupancy value
-	// any accrual frequency is valid
-	//-------------------------------------------------------------------
-	if len(sa[4]) > 0 {
-		i, err := strconv.Atoi(sa[4])
-		if err != nil || !IsValidAccrual(int64(i)) {
-			fmt.Printf("%s: lineno %d - invalid Occupancy value: %s\n", funcname, lineno, sa[4])
-			return
-		}
-		r.RentCycle = int64(i)
-	}
+	// //-------------------------------------------------------------------
+	// // parse out the Occupancy value
+	// // any accrual frequency is valid
+	// //-------------------------------------------------------------------
+	// if len(sa[4]) > 0 {
+	// 	i, err := strconv.Atoi(sa[4])
+	// 	if err != nil || !IsValidAccrual(int64(i)) {
+	// 		fmt.Printf("%s: lineno %d - invalid Occupancy value: %s\n", funcname, lineno, sa[4])
+	// 		return
+	// 	}
+	// 	r.RentCycle = int64(i)
+	// }
 
 	//-----------------------------------------------------------------------------------
 	// PARSE THE STATUS 3-TUPLEs
 	// "S1,Strt1,Stp1;S2,Strt2,Stp2 ..."
 	//-----------------------------------------------------------------------------------
-	if 0 == len(strings.TrimSpace(sa[5])) {
+	if 0 == len(strings.TrimSpace(sa[3])) {
 		fmt.Printf("%s: lineno %d - RentableStatus value is required.\n",
 			funcname, lineno)
 		return
 	}
 	var m []RentableStatus          // keep every RentableStatus we find in an array
-	st := strings.Split(sa[5], ";") // split it on Status 3-tuple separator (;)
+	st := strings.Split(sa[3], ";") // split it on Status 3-tuple separator (;)
 	for i := 0; i < len(st); i++ {  //spin through the 3-tuples
 		ss := strings.Split(st[i], ",")
 		if len(ss) != 3 {
@@ -166,13 +166,13 @@ func CreateRentables(sa []string, lineno int) {
 	// PARSE THE RTID 3-TUPLEs
 	// "RTname1,startDate1,stopDate1;RTname2,startDate2,stopDate2;..."
 	//-----------------------------------------------------------------------------------
-	if 0 == len(strings.TrimSpace(sa[6])) {
+	if 0 == len(strings.TrimSpace(sa[4])) {
 		fmt.Printf("%s: lineno %d - Rentable RTID Ref value is required.\n",
 			funcname, lineno)
 		return
 	}
 	var n []RentableRTID
-	st = strings.Split(sa[6], ";") // split on RTID 3-tuple seperator (;)
+	st = strings.Split(sa[4], ";") // split on RTID 3-tuple seperator (;)
 	for i := 0; i < len(st); i++ { // spin through the 3-tuples
 		ss := strings.Split(st[i], ",") // separate the 3 parts
 		if len(ss) != 3 {
