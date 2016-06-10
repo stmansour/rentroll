@@ -44,8 +44,8 @@ func BuildPeopleList(s string) ([]Transactant, error) {
 func CreateRentalAgreement(sa []string, lineno int) {
 	funcname := "CreateRentalAgreement"
 	var ra RentalAgreement
-	var Payor AgreementPayor
-	var m []AgreementRentable
+	var Payor RentalAgreementPayor
+	var m []RentalAgreementRentable
 
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "templatename" {
@@ -62,7 +62,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	// Make sure the Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1, _ := GetRentalAgreementTemplateByRefNum(des)
+		b1, _ := GetRentalAgreementByRentalTemplateNumber(des)
 		if len(b1.RentalTemplateNumber) == 0 {
 			Ulog("%s: line %d - Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
@@ -142,7 +142,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		r, _ := GetRentableByName(s, ra.BID)
 
 		if len(r.Name) > 0 {
-			var ar AgreementRentable
+			var ar RentalAgreementRentable
 			ar.RID = r.RID
 			ar.DtStart = DtStart
 			ar.DtStop = DtStop
@@ -150,21 +150,21 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		}
 	}
 
-	// First write the rental agreement record, then write the AgreementRentables and agreement payors
+	// First write the rental agreement record, then write the RentalAgreementRentables and agreement payors
 	RAID, err := InsertRentalAgreement(&ra)
 	if nil != err {
 		fmt.Printf("%s: line %d - error inserting RentalAgreement = %v\n", funcname, lineno, err)
 	}
 	for i := 0; i < len(m); i++ {
 		m[i].RAID = RAID
-		InsertAgreementRentable(&m[i])
+		InsertRentalAgreementRentable(&m[i])
 	}
 
 	Payor.RAID = RAID
 	Payor.DtStart = DtStart
 	Payor.DtStop = DtStop
 
-	var at AgreementRenter
+	var at RentalAgreementUser
 	at.DtStart = DtStart
 	at.DtStop = DtStop
 	at.RAID = RAID
@@ -174,11 +174,11 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//==================================================
 	for i := 0; i < len(renters); i++ {
 		at.RENTERID = renters[i].RENTERID
-		InsertAgreementRenter(&at)
+		InsertRentalAgreementUser(&at)
 	}
 	for i := 0; i < len(payors); i++ {
 		Payor.PID = payors[i].PID
-		InsertAgreementPayor(&Payor)
+		InsertRentalAgreementPayor(&Payor)
 	}
 }
 

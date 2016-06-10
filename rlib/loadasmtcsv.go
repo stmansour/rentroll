@@ -28,7 +28,7 @@ func ValidAssessmentDate(a *Assessment, asmt *AssessmentType, ra *RentalAgreemen
 
 // CSV FIELDS FOR THIS MODULE
 //    0         1             2      3       4             5             6     7             8                9
-// Designation,RentableName, ASMTID, Amount, Start,        Stop,         RAID, RentCycle, ProrationMethod, AcctRule
+// Designation,RentableName, ASMTID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, AcctRule
 // REH,         "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
 // REH,         "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
 
@@ -42,7 +42,7 @@ func ValidAssessmentDate(a *Assessment, asmt *AssessmentType, ra *RentalAgreemen
 // 	Start           time.Time // start time
 // 	Stop            time.Time // stop time, may be the same as start time or later
 // 	Accrual         int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-// 	ProrationMethod int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+// 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 // 	AcctRule        string    // expression showing how to account for the amount
 // 	Comment         string
 // 	LastModTime     time.Time
@@ -152,13 +152,13 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]Asse
 	//-------------------------------------------------------------------
 	// Proration
 	//-------------------------------------------------------------------
-	a.ProrationMethod, _ = IntFromString(sa[8], "Proration value is invalid")
-	if !IsValidAccrual(a.ProrationMethod) {
-		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, ACCRUALSECONDLY, ACCRUALYEARLY, a.ProrationMethod)
+	a.ProrationCycle, _ = IntFromString(sa[8], "Proration value is invalid")
+	if !IsValidAccrual(a.ProrationCycle) {
+		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, ACCRUALSECONDLY, ACCRUALYEARLY, a.ProrationCycle)
 		return
 	}
-	if a.ProrationMethod > a.RentCycle {
-		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationMethod, a.RentCycle)
+	if a.ProrationCycle > a.RentCycle {
+		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationCycle, a.RentCycle)
 		return
 	}
 

@@ -23,10 +23,10 @@ func CSVLoaderGetRAID(sa string) int64 {
 	return raid
 }
 
-// CreateAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
-func CreateAgreementPetsFromCSV(sa []string, lineno int) {
-	funcname := "CreateAgreementPetsFromCSV"
-	var pet AgreementPet
+// CreateRentalAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
+func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
+	funcname := "CreateRentalAgreementPetsFromCSV"
+	var pet RentalAgreementPet
 	var ok bool
 
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
@@ -85,7 +85,7 @@ func CreateAgreementPetsFromCSV(sa []string, lineno int) {
 	}
 	pet.DtStop = DtStop
 
-	_, err = InsertAgreementPet(&pet)
+	_, err = InsertRentalAgreementPet(&pet)
 	if nil != err {
 		fmt.Printf("%s: line %d - Could not save pet, err = %v\n", funcname, lineno, err)
 	}
@@ -95,6 +95,6 @@ func CreateAgreementPetsFromCSV(sa []string, lineno int) {
 func LoadPetsCSV(fname string) {
 	t := LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateAgreementPetsFromCSV(t[i], i+1)
+		CreateRentalAgreementPetsFromCSV(t[i], i+1)
 	}
 }

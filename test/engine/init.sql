@@ -158,7 +158,7 @@ INSERT INTO AvailabilityTypes (Name) VALUES
 -- define the Business
 -- INSERT INTO Business (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultRentalPeriod,ParkingPermitInUse) VALUES
 -- 	("Springfield Retirement Castle","2001 Creaking Oak Drive","","Springfield","MO","65803","USA","939-555-1000",3,0);
-INSERT INTO Business (DES,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
+INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
 	("SRC", "Springfield Retirement Castle",4,0);
 
 -- =======================================================================
@@ -173,13 +173,13 @@ INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,ManageToBudget) V
 	(1,"CPT","Carport",     6,4,1);		 		-- 6  Carport
 
 INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
-	(1, 1000.00, "1970-01-01 00:00:00", "2015-10-01 00:00:00"),   	-- 1:  GM, Geezer Miser 
-	(2, 1500.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 2:  FS, Flat Studio
+	(1, 1000.00, "1970-01-01 00:00:00", "2015-10-01 00:00:00"),   	-- 1: GM, Geezer Miser 
+	(2, 1500.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 2: FS, Flat Studio
 	(3, 1750.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 3: SBL, SB Loft
 	(4, 2000.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 4: KDS, Krusty Deluxe Suite
 	(5,   10.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 5  Car
 	(6,   35.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 6  Carport
-	(1, 1200.00, "2015-10-01 00:00:00", "9999-12-31 00:00:00");   	-- 1:  GM, Geezer Miser  ** RAISED THE RENT **
+	(1, 1200.00, "2015-10-01 00:00:00", "9999-12-31 00:00:00");   	-- 1: GM, Geezer Miser  ** RAISED THE RENT **
 
 
 -- define unit specialties
@@ -204,11 +204,11 @@ INSERT INTO Building (BID,Address,Address2,City,State,PostalCode,Country) VALUES
 
 
 -- Rental agreement templates
-INSERT INTO RentalAgreementTemplate (RentalTemplateNumber, RentalAgreementType) VALUES
-	("RAT001", 2),
-	("RAT002", 2),	-- port
-	("RAT003", 2),	-- rental unit
-	("RAT004", 2);
+INSERT INTO RentalAgreementTemplate (RentalTemplateNumber, BID) VALUES
+	("RAT001", 1),
+	("RAT002", 1),	-- port
+	("RAT003", 1),	-- rental unit
+	("RAT004", 1);
 
 -- =======================================================================
 --  RENTABLE UNITS
@@ -254,9 +254,9 @@ INSERT INTO RentableStatus (RID,DtStart,DtStop,Status) VALUES
 	(9,"2014-01-01","9999-01-01",1);  -- RID 9
 
 -- =======================================================================
---  RentableRTID - All Rentables
+--  RentableTypeRef - All Rentables
 -- =======================================================================
-INSERT INTO RentableRTID (RID,RTID,DtStart,DtStop) VALUES
+INSERT INTO RentableTypeRef (RID,RTID,DtStart,DtStop) VALUES
 	(1,1,"2014-01-01","9999-01-01"),  -- RID 1
 	(2,2,"2014-01-01","9999-01-01"),  -- RID 2
 	(3,3,"2014-01-01","9999-01-01"),  -- RID 3
@@ -336,14 +336,14 @@ INSERT INTO RentalAgreement (RATID,BID,RentalStart,RentalStop,PossessionStart,Po
 	(6,1, "2004-01-01","2017-07-04","2004-01-01","2017-07-04",1),	--  7 Wiggum
 	(6,1, "2015-11-21","2016-11-21","2015-11-21","2016-11-21",1);	--  8 Simpson
 
-INSERT INTO AgreementRentables (RAID,RID,DtStart,DtStop) VALUES
+INSERT INTO RentalAgreementRentables (RAID,RID,DtStart,DtStop) VALUES
 	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel - apartment
 	(1,8,"2004-01-01","2015-11-09"),		-- Krabappel - carport
 	(8,1,"2015-11-21","2016-11-21"),		-- Simpson - apartment
 	(8,8,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
 	(8,9,"2015-11-21","2016-11-21");		-- Simpson - carport 2
 
-INSERT INTO AgreementPayors (RAID,PID,DtStart,DtStop) VALUES
+INSERT INTO RentalAgreementPayors (RAID,PID,DtStart,DtStop) VALUES
 	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel is Payor for rental agreement 1
 	(8,8,"2015-11-21","2016-11-21");		-- Simpson is Payor for rental agreements 8
 
@@ -352,7 +352,7 @@ INSERT INTO AgreementPayors (RAID,PID,DtStart,DtStop) VALUES
 --    These are initially generated when the rentor changes from
 --    an applicant to a Renter (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 1, 1,1000.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"),		-- #1  Krabappel - Rent
 	(1, 1, 1, 8,1200.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -");		-- #2  Simpson rent
 	-- (1, 1, 1, 1,1000.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 1000.0, c ${DFLTGSRENT} 1000.0"),		-- #1  Krabappel - Rent
@@ -367,7 +367,7 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 -- =======================================================================
 --  UNIT SPECIALTY ASSESSMENTS
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 59, 1,50.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #3 Lake view  Krabappel
 	(1, 1, 62, 1,20.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #4 Fireplace  Krabappel
 	(1, 1, 59, 8,50.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #5 Lake view  Simpson
@@ -378,7 +378,7 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 --    These are initially generated when the rentor changes from
 --    an applicant to a Renter (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _"),		-- #7 Krabappel deposit
 	(1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _");		-- #8 Simpson deposit
 
@@ -387,7 +387,7 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 --    These can be generated at any time. Typically they will be
 --    created along with the rental agreement
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 8, 28, 1,35.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #9  Krabappel, ends Nov 10
 	(1, 8, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #10 Simpson, starts Nov 21
 	(1, 9, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _");		-- #11 Simpson, starts Nov 21
@@ -395,7 +395,7 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 -- =======================================================================
 --  DAMAGE ASSESSMENTS
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationMethod, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 53, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 42006 _"),	-- #12  Krabappel, $250 damages
 	(1, 1, 55, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 10001 _");
 

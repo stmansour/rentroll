@@ -1,4 +1,4 @@
-RID	RTID	RentCycle	ProrationMethod	DtStart	DtStop	LastModBy
+RID	RTID	RentCycle	ProrationCycle	DtStart	DtStop	LastModBy
 1	1	0	0	2013-01-01	9999-01-01	0
 2	2	0	0	2013-01-01	9999-01-01	0
 3	3	0	0	2013-01-01	9999-01-01	0

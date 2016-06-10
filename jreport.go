@@ -127,7 +127,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	// For reporting, we want to show any proration that needs to take place. To determine
 	// whether or not there is any proration:
 	// 1. Check to see if the Accrual period for the Rentable in question is greater than
-	//    the ProrationMethod.
+	//    the ProrationCycle.
 	//        *  NO: there is no proration, we don't need to report anything, pf = 1
 	// 2. What percent of the accrual period was the Rentable "occupied" during the range of interest
 	//        *  create a time range equal to the report period [reportDtStart - reportDtStop]
@@ -135,7 +135,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	//        *  if this range is > "occupiedrange", trim the range acordingly
 	//        *  if the resulting range == Accrual Period then we don't need to report anything, pf = 1
 	// 3. Report the prorate factor numerator and denominator:
-	//           pf = (resulting range duration)/AccrualPeriod (both in units of the prorationMethod)
+	//           pf = (resulting range duration)/AccrualPeriod (both in units of the ProrationCycle)
 	//-------------------------------------------------------------------------------------
 	rentcycle, pro, rtid, err := rlib.GetRentCycleAndProration(r, &a.Start, xbiz)
 	if err != nil {
@@ -143,7 +143,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		return
 	}
 	// fmt.Printf("A0  pro = %d\n", pro)
-	if rentcycle > pro && pro != 0 && a.ProrationMethod != 0 { // if accrual > proration then we *may* need to show prorate info
+	if rentcycle > pro && pro != 0 && a.ProrationCycle != 0 { // if accrual > proration then we *may* need to show prorate info
 		d1 := jctx.ReportStart // start with the report range
 		d2 := jctx.ReportStop  // start with the report range
 

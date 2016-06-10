@@ -178,9 +178,9 @@ func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int6
 	var err error
 	var rc, pro, rtid int64
 
-	rrt := GetRentableRTIDForDate(r.RID, dt)
+	rrt := GetRentableTypeRefForDate(r.RID, dt)
 	if rrt.RID == 0 {
-		return rc, pro, rtid, fmt.Errorf("No RentableRTID for %s", dt.Format(RRDATEINPFMT))
+		return rc, pro, rtid, fmt.Errorf("No RentableTypeRef for %s", dt.Format(RRDATEINPFMT))
 	}
 	rtid = GetRTIDForDate(r.RID, dt)
 	if rrt.RentCycle > ACCRUALNORECUR { // if there's an override for RentCycle...

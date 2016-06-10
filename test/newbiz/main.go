@@ -291,7 +291,7 @@ func main() {
 			fmt.Printf("%s\n", rlib.RRreportCustomAttributeRefs(rlib.RPTTEXT))
 		case 16:
 			raid := rlib.CSVLoaderGetRAID(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportAgreementPets(rlib.RPTTEXT, raid))
+			fmt.Printf("%s\n", rlib.RRreportRentalAgreementPets(rlib.RPTTEXT, raid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

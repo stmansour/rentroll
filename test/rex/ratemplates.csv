@@ -1,5 +1,5 @@
-TemplateName,RentalAgreementType
-"RAT001",2
-"RAT002",2
-"RAT003",2
-"RAT004",2
+BUD,RentaTemplateNumber
+REX,"RAT001"
+REX,"RAT002"
+REX,"RAT003"
+REX,"RAT004"

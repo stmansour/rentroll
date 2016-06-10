@@ -39,7 +39,7 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 	// a month. So, read all the RTIDs for the period that the loop will process first.
 	// then select from them as needed.
 	//=====================================================================================
-	rta := rlib.GetRentableRTIDsByRange(r.RID, d1, d2) // get the list
+	rta := rlib.GetRentableTypeRefsByRange(r.RID, d1, d2) // get the list
 	if len(rta) == 0 {
 		rlib.Ulog("VacancyDetect:  No valid RTID for rentable R%08d during period %s to %s\n",
 			r.RID, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
@@ -56,7 +56,7 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 	}
 
 	period := rlib.CycleDuration(xbiz.RT[rtid].Proration, *d1)
-	t := rlib.GetAgreementsForRentable(r.RID, d1, d2) // t is an array of AgreementRentables
+	t := rlib.GetAgreementsForRentable(r.RID, d1, d2) // t is an array of RentalAgreementRentables
 
 	//========================================================
 	// Mark vacancy for each time interval between d1 & d2
@@ -99,7 +99,7 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 
 		// update rtid only if its type changes during this report period...
 		if rtidMulti {
-			rtid = rlib.SelectRentableRTIDForPeriod(&rta, &dt)
+			rtid = rlib.SelectRentableTypeRefForPeriod(&rta, &dt)
 			if rtid == 0 {
 				rlib.Ulog("VacancyDetect:  No valid RTID for rentable R%08d during period %s to %s\n",
 					r.RID, dt.Format(rlib.RRDATEINPFMT), dtNext.Format(rlib.RRDATEINPFMT))

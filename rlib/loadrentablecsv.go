@@ -171,7 +171,7 @@ func CreateRentables(sa []string, lineno int) {
 			funcname, lineno)
 		return
 	}
-	var n []RentableRTID
+	var n []RentableTypeRef
 	st = strings.Split(sa[4], ";") // split on RTID 3-tuple seperator (;)
 	for i := 0; i < len(st); i++ { // spin through the 3-tuples
 		ss := strings.Split(st[i], ",") // separate the 3 parts
@@ -181,7 +181,7 @@ func CreateRentables(sa []string, lineno int) {
 			return
 		}
 
-		var rt RentableRTID                                                     // struct for the data in this 3-tuple
+		var rt RentableTypeRef                                                  // struct for the data in this 3-tuple
 		rstruct, err := GetRentableTypeByStyle(strings.TrimSpace(ss[0]), r.BID) // find the RentableType being referenced
 		if err != nil {
 			fmt.Printf("%s: lineno %d - Could not load rentable type with style name: %s  -- error = %s\n",
@@ -231,7 +231,7 @@ func CreateRentables(sa []string, lineno int) {
 		}
 		for i := 0; i < len(n); i++ {
 			n[i].RID = rid
-			err := InsertRentableRTID(&n[i])
+			err := InsertRentableTypeRef(&n[i])
 			if err != nil {
 				fmt.Printf("%s: lineno %d - error saving RentableStatus: %s\n", funcname, lineno, err.Error())
 			}

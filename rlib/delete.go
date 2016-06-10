@@ -89,11 +89,11 @@ func DeleteCustomAttributeRef(elemid, id, cid int64) error {
 	return err
 }
 
-// DeleteRentableRTID deletes RentableRTID records with the supplied rid, dtstart and dtstop
-func DeleteRentableRTID(rid int64, dtstart, dtstop *time.Time) error {
-	_, err := RRdb.Prepstmt.DeleteRentableRTID.Exec(rid, dtstart, dtstop)
+// DeleteRentableTypeRef deletes RentableTypeRef records with the supplied rid, dtstart and dtstop
+func DeleteRentableTypeRef(rid int64, dtstart, dtstop *time.Time) error {
+	_, err := RRdb.Prepstmt.DeleteRentableTypeRef.Exec(rid, dtstart, dtstop)
 	if err != nil {
-		Ulog("Error deleting RentableRTID with rid=%d, dtstart=%s, dtstop=%s, error: %v\n",
+		Ulog("Error deleting RentableTypeRef with rid=%d, dtstart=%s, dtstop=%s, error: %v\n",
 			rid, dtstart.Format(RRDATEINPFMT), dtstop.Format(RRDATEINPFMT), err)
 	}
 	return err
@@ -109,18 +109,18 @@ func DeleteRentableStatus(rid int64, dtstart, dtstop *time.Time) error {
 	return err
 }
 
-// DeleteAgreementPet deletes the pet with the specified petid from the database
-func DeleteAgreementPet(petid int64) error {
-	_, err := RRdb.Prepstmt.DeleteAgreementPet.Exec(petid)
+// DeleteRentalAgreementPet deletes the pet with the specified petid from the database
+func DeleteRentalAgreementPet(petid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentalAgreementPet.Exec(petid)
 	if err != nil {
 		Ulog("Error deleting petid=%d error: %v\n", petid, err)
 	}
 	return err
 }
 
-// DeleteAllAgreementPets deletes the pet with the specified petid from the database
-func DeleteAllAgreementPets(raid int64) error {
-	_, err := RRdb.Prepstmt.DeleteAllAgreementPets.Exec(raid)
+// DeleteAllRentalAgreementPets deletes the pet with the specified petid from the database
+func DeleteAllRentalAgreementPets(raid int64) error {
+	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementPets.Exec(raid)
 	if err != nil {
 		Ulog("Error deleting pets for rental agreement=%d error: %v\n", raid, err)
 	}

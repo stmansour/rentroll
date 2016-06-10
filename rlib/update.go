@@ -30,22 +30,22 @@ func UpdateTransactant(a *Transactant) error {
 	return err
 }
 
-// UpdateAgreementPet updates a Transactant record in the database
-func UpdateAgreementPet(a *AgreementPet) error {
-	_, err := RRdb.Prepstmt.UpdateAgreementPet.Exec(a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
+// UpdateRentalAgreementPet updates a Transactant record in the database
+func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
+	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
 	if nil != err {
-		Ulog("UpdateAgreementPet: error inserting pet:  %v\n", err)
-		Ulog("AgreementPet = %#v\n", *a)
+		Ulog("UpdateRentalAgreementPet: error inserting pet:  %v\n", err)
+		Ulog("RentalAgreementPet = %#v\n", *a)
 	}
 	return err
 }
 
-// UpdateRentableRTID updates a Transactant record in the database
-func UpdateRentableRTID(a *RentableRTID) error {
-	_, err := RRdb.Prepstmt.UpdateRentableRTID.Exec(a.RID, a.DtStart, a.DtStop)
+// UpdateRentableTypeRef updates a Transactant record in the database
+func UpdateRentableTypeRef(a *RentableTypeRef) error {
+	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RID, a.DtStart, a.DtStop)
 	if nil != err {
-		Ulog("UpdateRentableRTID: error inserting pet:  %v\n", err)
-		Ulog("RentableRTID = %#v\n", *a)
+		Ulog("UpdateRentableTypeRef: error inserting pet:  %v\n", err)
+		Ulog("RentableTypeRef = %#v\n", *a)
 	}
 	return err
 }

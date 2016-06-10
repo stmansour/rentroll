@@ -71,11 +71,11 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 		ra, _ := rlib.GetRentalAgreement(a.RAID)
 		switch a.RentCycle {
 		case rlib.ACCRUALDAILY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, &d, &d, a.RentCycle, a.ProrationMethod)
+			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, &d, &d, a.RentCycle, a.ProrationCycle)
 		case rlib.ACCRUALNORECUR:
 			fallthrough
 		case rlib.ACCRUALMONTHLY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RentCycle, a.ProrationMethod)
+			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RentCycle, a.ProrationCycle)
 		default:
 			fmt.Printf("Accrual rate %d not implemented\n", a.RentCycle)
 		}
@@ -223,7 +223,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		var a rlib.Assessment
 		ap := &a
 		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
-			&a.Start, &a.Stop, &a.RentCycle, &a.ProrationMethod, &a.AcctRule, &a.Comment,
+			&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		// fmt.Printf("Assessment: ASMID = %d, Amount = %8.2f\n", a.ASMID, a.Amount)
 		if a.RentCycle >= rlib.RECURSECONDLY && a.RentCycle <= rlib.RECURHOURLY {

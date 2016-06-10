@@ -38,20 +38,13 @@ USE rentroll;
 GRANT ALL PRIVILEGES ON rentroll TO 'ec2-user'@'localhost';
 GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 
-
--- **************************************
--- ****                              ****
--- ****       RENTAL AGREEMENT       ****
--- ****                              ****
--- **************************************
-
 -- ===========================================
 --   RENTAL AGREEMENT TEMPLATE
 -- ===========================================
 CREATE TABLE RentalAgreementTemplate (
     RATID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
+    BID BIGINT NOT NULL DEFAULT 0,                            -- BizUnit Reference
     RentalTemplateNumber VARCHAR(100) DEFAULT '',             -- Occupancy Agreement Reference Number
-    RentalAgreementType SMALLINT NOT NULL DEFAULT 0,          -- 1=leasehold, 2=month-to-month, 3=hotel REMOVE THIS ATTRIBUTE 6/2/16
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RATID)     
@@ -75,28 +68,28 @@ CREATE TABLE RentalAgreement (
     PRIMARY KEY (RAID)
 );
 
-CREATE TABLE AgreementRentables (
+CREATE TABLE RentalAgreementRentables (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
     RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Rentable was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Rentable was no longer being billed to this agreement
 );
 
-CREATE TABLE AgreementPayors (
+CREATE TABLE RentalAgreementPayors (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
     PID BIGINT NOT NULL DEFAULT 0,                            -- who is the Payor for this agreement
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Payor was no longer being billed to this agreement
 );
 
-CREATE TABLE AgreementRenters (
+CREATE TABLE RentalAgreementUsers (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
-    RENTERID BIGINT NOT NULL DEFAULT 0,                            -- the Renter
+    RENTERID BIGINT NOT NULL DEFAULT 0,                       -- the Renter
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Renter was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Renter was no longer being billed to this agreement
 );
 
-CREATE TABLE AgreementPets (
+CREATE TABLE RentalAgreementPets (
     PETID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal id for this pet
     RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
     Type VARCHAR(100) NOT NULL DEFAULT '',                    --  type of animal, ex: dog, cat, ...
@@ -145,9 +138,9 @@ CREATE TABLE CustomAttrRef (
 
 CREATE TABLE Business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
-    DES VARCHAR(100) NOT NULL DEFAULT '',               -- this is the link to phonebook
+    BUD VARCHAR(100) NOT NULL DEFAULT '',               -- Business Unit Designation
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    DefaultRentalPeriod SMALLINT NOT NULL DEFAULT 0,         -- default for every unit in the Building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
+    DefaultRentalPeriod SMALLINT NOT NULL DEFAULT 0,    -- default for every unit in the Building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
     ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,     -- yes/no  0 = no, 1 = yes
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
@@ -294,11 +287,11 @@ CREATE TABLE Rentable (
     -- RentCycle SMALLINT NOT NULL DEFAULT 0,                         -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 );
 
-CREATE TABLE RentableRTID (
+CREATE TABLE RentableTypeRef (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- the Rentable this record belongs to
     RTID BIGINT NOT NULL DEFAULT 0,                                 -- the Rentable type for this period
     RentCycle BIGINT NOT NULL DEFAULT 0,                            -- RentCycle override. 0 = unset, > 0 means the frequency
-    ProrationMethod BIGINT NOT NULL DEFAULT 0,                      -- Proration override. 0 = unset, > 0 means the override proration
+    ProrationCycle BIGINT NOT NULL DEFAULT 0,                      -- Proration override. 0 = unset, > 0 means the override proration
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     LastModTime TIMESTAMP,                                          -- when was this record last written
@@ -340,7 +333,7 @@ CREATE TABLE Assessments (
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the Renter moves out or when the charge is no longer applicable
     RentCycle SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
-    ProrationMethod SMALLINT NOT NULL DEFAULT 0,            -- 
+    ProrationCycle SMALLINT NOT NULL DEFAULT 0,            -- 
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP,                                  -- when was this record last written
