@@ -12,7 +12,7 @@ rentroll: *.go mkver.sh
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	go clean
-	rm -f rentroll ver.go conf.json
+	rm -f rentroll ver.go conf.json rentroll.log
 
 test: package
 	for dir in $(DIRS); do make -C $$dir test;done

@@ -47,6 +47,7 @@ var App struct {
 	CustomFile   string                        // custom attributes
 	AssignFile   string                        // assign custom attributes
 	PetFile      string                        // assign pets
+	RspRefsFile  string                        // assign specialties to rentables
 }
 
 func readCommandLineArgs() {
@@ -70,6 +71,7 @@ func readCommandLineArgs() {
 	custPtr := flag.String("u", "", "add custom attributes via csv file")
 	asgnPtr := flag.String("U", "", "assign custom attributes via csv file")
 	petPtr := flag.String("E", "", "assign pets to a Rental Agreement via csv file")
+	rsrefsPtr := flag.String("F", "", "assign rentable specialties to rentables via csv file")
 	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets")
 
 	flag.Parse()
@@ -97,6 +99,7 @@ func readCommandLineArgs() {
 	App.CustomFile = *custPtr
 	App.AssignFile = *asgnPtr
 	App.PetFile = *petPtr
+	App.RspRefsFile = *rsrefsPtr
 }
 
 func bizErrCheck(sa []string) {
@@ -120,37 +123,6 @@ func main() {
 	rlib.RRReadConfig()
 
 	var err error
-	// //----------------------------
-	// // Open RentRoll database
-	// //----------------------------
-	// // s := fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", DBUser, DBRR)
-	// s := rlib.RRGetSQLOpenString(App.DBUser, App.DBRR)
-	// App.dbrr, err = sql.Open("mysql", s)
-	// if nil != err {
-	// 	fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", App.DBRR, App.DBUser, err)
-	// 	os.Exit(1)
-	// }
-	// defer App.dbrr.Close()
-	// err = App.dbrr.Ping()
-	// if nil != err {
-	// 	fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, App.DBUser, err)
-	// 	os.Exit(1)
-	// }
-
-	// //----------------------------
-	// // Open Phonebook database
-	// //----------------------------
-	// s = lib.GetSQLOpenString(App.DBUser, App.DBDir)
-	// App.dbdir, err = sql.Open("mysql", s)
-	// if nil != err {
-	// 	fmt.Printf("sql.Open: Error = %v\n", err)
-	// 	os.Exit(1)
-	// }
-	// err = App.dbdir.Ping()
-	// if nil != err {
-	// 	fmt.Printf("dbdir.Ping: Error = %v\n", err)
-	// 	os.Exit(1)
-	// }
 
 	//----------------------------
 	// Open RentRoll database
@@ -208,11 +180,14 @@ func main() {
 	if len(App.BldgFile) > 0 {
 		rlib.LoadBuildingCSV(App.BldgFile)
 	}
+	if len(App.PplFile) > 0 {
+		rlib.LoadPeopleCSV(App.PplFile)
+	}
 	if len(App.RFile) > 0 {
 		rlib.LoadRentablesCSV(App.RFile)
 	}
-	if len(App.PplFile) > 0 {
-		rlib.LoadPeopleCSV(App.PplFile)
+	if len(App.RspRefsFile) > 0 {
+		rlib.LoadRentableSpecialtyRefsCSV(App.RspRefsFile)
 	}
 	if len(App.RatFile) > 0 {
 		rlib.LoadRentalAgreementTemplatesCSV(App.RatFile)

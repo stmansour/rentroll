@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-// RentableSpecialty is the structure for attributes of a Rentable specialty
-
 //  CSV file format:
 // 0           1      2       3        4    5     6          7
 // Designation,BldgNo,Address,Address2,City,State,PostalCode,Country

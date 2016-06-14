@@ -22,7 +22,7 @@ func UpdateLedger(l *Ledger) error {
 
 // UpdateTransactant updates a Transactant record in the database
 func UpdateTransactant(a *Transactant) error {
-	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.RENTERID, a.PID, a.PRSPID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.Notes, a.LastModBy, a.TCID)
+	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.USERID, a.PID, a.PRSPID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.Notes, a.LastModBy, a.TCID)
 	if nil != err {
 		Ulog("UpdateTransactant: error inserting Transactant:  %v\n", err)
 		Ulog("Transactant = %#v\n", *a)
@@ -42,10 +42,20 @@ func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
 
 // UpdateRentableTypeRef updates a Transactant record in the database
 func UpdateRentableTypeRef(a *RentableTypeRef) error {
-	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RID, a.DtStart, a.DtStop)
+	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RTID, a.RentCycle, a.ProrationCycle, a.LastModBy, a.RID, a.DtStart, a.DtStop)
 	if nil != err {
 		Ulog("UpdateRentableTypeRef: error inserting pet:  %v\n", err)
 		Ulog("RentableTypeRef = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRentableSpecialtyRef updates a Transactant record in the database
+func UpdateRentableSpecialtyRef(a *RentableSpecialtyRef) error {
+	_, err := RRdb.Prepstmt.UpdateRentableSpecialtyRef.Exec(a.RSPID, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+	if nil != err {
+		Ulog("UpdateRentableSpecialtyRef: error inserting pet:  %v\n", err)
+		Ulog("RentableSpecialtyRef = %#v\n", *a)
 	}
 	return err
 }

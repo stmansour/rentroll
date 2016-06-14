@@ -99,6 +99,16 @@ func DeleteRentableTypeRef(rid int64, dtstart, dtstop *time.Time) error {
 	return err
 }
 
+// DeleteRentableSpecialtyRef deletes RentableSpecialtyRef records with the supplied rid, dtstart and dtstop
+func DeleteRentableSpecialtyRef(rid int64, dtstart, dtstop *time.Time) error {
+	_, err := RRdb.Prepstmt.DeleteRentableSpecialtyRef.Exec(rid, dtstart, dtstop)
+	if err != nil {
+		Ulog("Error deleting RentableSpecialtyRef with rid=%d, dtstart=%s, dtstop=%s, error: %v\n",
+			rid, dtstart.Format(RRDATEINPFMT), dtstop.Format(RRDATEINPFMT), err)
+	}
+	return err
+}
+
 // DeleteRentableStatus deletes RentableStatus records with the supplied rid, dtstart and dtstop
 func DeleteRentableStatus(rid int64, dtstart, dtstop *time.Time) error {
 	_, err := RRdb.Prepstmt.DeleteRentableStatus.Exec(rid, dtstart, dtstop)

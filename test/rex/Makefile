@@ -2,6 +2,7 @@ all:
 	@echo "*** Completed in rex ***"
 
 clean:
+	rm -f rentroll.log log
 	@echo "*** CLEAN completed in rex ***"
 
 test:

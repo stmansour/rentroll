@@ -87,7 +87,7 @@ DEFINE RENTABLES
 
 
 DEFINE PEOPLE
- TCID  RENTERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
+ TCID  USERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
     1      1      1     0  123-456-7890  JJones@abc.com             Jones        , Joshua           ABC Corporation          
     2      2      2     1  123-983-2244  info@abc.com                            ,                  ABC Corporation          
     3      3      3     0  123-456-7891  asmith@gmail.com           Smith        , Amanda                                    
@@ -102,7 +102,7 @@ DEFINE PEOPLE
 
 
 DEFINE RENTAL AGREEMENT TEMPLATES
-RATID  RAType  TemplateName
+RATID  RAType  RentalTemplateNumber
     1       3   23jlk20951
     2       3   823988ldj
     3       3   983dslj3l2
@@ -111,7 +111,7 @@ RATID  RAType  TemplateName
 
 
 DEFINE RENTAL AGREEMENTS
- RAID  Payor                                     Renter                                  
+ RAID  Payor                                     User                                  
     1  ABC Corporation                           Joshua Jones                            
     2  Amanda Smith                              Amanda Smith                            
     3  ARC Energy                                Christoph Jones                         

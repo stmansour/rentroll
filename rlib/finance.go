@@ -188,8 +188,8 @@ func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int6
 	} else {
 		rc = xbiz.RT[rtid].RentCycle
 	}
-	if rrt.Proration > ACCRUALNORECUR { // if there's an override for Propration...
-		pro = rrt.Proration // ...set it
+	if rrt.ProrationCycle > ACCRUALNORECUR { // if there's an override for Propration...
+		pro = rrt.ProrationCycle // ...set it
 	} else {
 		pro = xbiz.RT[rtid].Proration
 	}

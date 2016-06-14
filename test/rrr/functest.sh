@@ -33,14 +33,14 @@ echo "DEFINE RENTABLE TYPES" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -R rentabletypes.csv -L 5,DHR >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
-echo "import rentables"
-echo "DEFINE RENTABLES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -r rentable.csv -L 6,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
 echo "import people"
 echo "DEFINE PEOPLE" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -p people.csv  -L 7 >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
+echo "import rentables"
+echo "DEFINE RENTABLES" >> ${LOGFILE} 2>&1
+${CVSLOAD} -r rentable.csv -L 6,DHR >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import rental agreement templates"

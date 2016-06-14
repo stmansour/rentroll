@@ -4,20 +4,48 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
-// RentableSpecialty is the structure for attributes of a Rentable specialty
-
 // CSV file format:
-//   0  1     2               3                                 4
-//                            "S1,Strt1,Stp1;S2,Strt2,Stp2...", “A2,1/10/16,6/1/16;B2,6/1/16,”
-// BUD, Name, AssignmentTime, RentableStatus,                   RentableTypeRef
-// REX, 101,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 102,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 103,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 104,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 105,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
-// REX, 106,  1,              "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+//   0  1     2               3                       4                                 5
+//                            "usr1;usr2;..usrN"      "S1,Strt1,Stp1;S2,Strt2,Stp2...", “A2,1/10/16,6/1/16;B2,6/1/16,”
+// BUD, Name, AssignmentTime, RentableUsers,          RentableStatus,                   RentableTypeRef
+// REX, 101,  1,              "bill@x.com;sue@x.com"  "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 102,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 103,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 104,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 105,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+// REX, 106,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
+
+// readTwoDates assumes that a date string is in ss[1] and ss[2].  It will parse and return the dates
+// along with any error it finds.
+func readTwoDates(ss []string, funcname string, lineno int) (time.Time, time.Time, error) {
+	var DtStart, DtStop time.Time
+	var err error
+	DtStart, err = StringToDate(ss[1]) // required field
+	if err != nil {
+		err = fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, ss[1])
+		return DtStart, DtStop, err
+	}
+
+	end := "1/1/9999"
+	if len(ss) > 2 { //optional field -- MAYBE, if not present assume year 9999
+		// if i+1 != len(st) {
+		// 	err = fmt.Errorf("%s: line %d - unspecified stop date is only allowed on the last RentableStatus in the list\n", funcname, lineno)
+		// 	return DtStart, DtStop, err
+		// }
+		if len(strings.TrimSpace(ss[2])) > 0 {
+			end = ss[2]
+		}
+	}
+	DtStop, err = StringToDate(end)
+	if err != nil {
+		err = fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, ss[2])
+	}
+	return DtStart, DtStop, err
+
+}
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreateRentables(sa []string, lineno int) {
@@ -70,7 +98,7 @@ func CreateRentables(sa []string, lineno int) {
 	// parse out the AssignmentTime value
 	// Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
 	//-------------------------------------------------------------------
-	if len(sa[3]) > 0 {
+	if len(sa[2]) > 0 {
 		i, err := strconv.Atoi(sa[2])
 		if err != nil || i < 0 || i > 2 {
 			fmt.Printf("%s: lineno %d - invalid AssignmentTime number: %s\n", funcname, lineno, sa[2])
@@ -79,43 +107,56 @@ func CreateRentables(sa []string, lineno int) {
 		r.AssignmentTime = int64(i)
 	}
 
-	// //-------------------------------------------------------------------
-	// // parse out the DefaultOccupancy value
-	// //   any accrual frequency is valid
-	// //-------------------------------------------------------------------
-	// if len(sa[3]) > 0 {
-	// 	i, err := strconv.Atoi(sa[3])
-	// 	if err != nil || !IsValidAccrual(int64(i)) {
-	// 		fmt.Printf("%s: lineno %d - invalid DefaultOccupancy value: %s\n", funcname, lineno, sa[3])
-	// 		return
-	// 	}
-	// 	r.RentalPeriodDefault = int64(i)
-	// }
+	//-----------------------------------------------------------------------------------
+	// USER 3-TUPLEs
+	// "User1,Strt1,Stp1;User2,Strt2,Stp2 ..."
+	//-----------------------------------------------------------------------------------
+	var rul []RentableUser // keep every RentableUser we find in an array
+	if 0 < len(strings.TrimSpace(sa[3])) {
+		st := strings.Split(sa[3], ";") // split it on Status 3-tuple separator (;)
+		for i := 0; i < len(st); i++ {  //spin through the 3-tuples
+			ss := strings.Split(st[i], ",")
+			if len(ss) != 3 {
+				fmt.Printf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+					funcname, lineno, len(ss), ss)
+				return
+			}
 
-	// //-------------------------------------------------------------------
-	// // parse out the Occupancy value
-	// // any accrual frequency is valid
-	// //-------------------------------------------------------------------
-	// if len(sa[4]) > 0 {
-	// 	i, err := strconv.Atoi(sa[4])
-	// 	if err != nil || !IsValidAccrual(int64(i)) {
-	// 		fmt.Printf("%s: lineno %d - invalid Occupancy value: %s\n", funcname, lineno, sa[4])
-	// 		return
-	// 	}
-	// 	r.RentCycle = int64(i)
-	// }
+			var ru RentableUser // struct for the data in this 3-tuple
+			name := strings.TrimSpace(ss[0])
+			t, err := GetTransactantByPhoneOrEmail(name)
+			if err != nil && !IsSQLNoResultsError(err) {
+				rerr := fmt.Sprintf("%s: line %d - error retrieving Transactant by phone or email: %v", funcname, lineno, err)
+				fmt.Printf("%s", rerr)
+				return
+			}
+			if t.PID == 0 {
+				rerr := fmt.Sprintf("%s: line %d - could not find Transactant with contact information %s\n", funcname, lineno, name)
+				fmt.Printf("%s", rerr)
+				return
+			}
+			ru.USERID = t.USERID
+
+			ru.DtStart, ru.DtStop, err = readTwoDates(ss, funcname, lineno)
+			if err != nil {
+				fmt.Printf("%s", err.Error())
+				return
+			}
+			rul = append(rul, ru) // add this struct to the list
+		}
+	}
 
 	//-----------------------------------------------------------------------------------
-	// PARSE THE STATUS 3-TUPLEs
+	// STATUS 3-TUPLEs
 	// "S1,Strt1,Stp1;S2,Strt2,Stp2 ..."
 	//-----------------------------------------------------------------------------------
-	if 0 == len(strings.TrimSpace(sa[3])) {
+	if 0 == len(strings.TrimSpace(sa[4])) {
 		fmt.Printf("%s: lineno %d - RentableStatus value is required.\n",
 			funcname, lineno)
 		return
 	}
 	var m []RentableStatus          // keep every RentableStatus we find in an array
-	st := strings.Split(sa[3], ";") // split it on Status 3-tuple separator (;)
+	st := strings.Split(sa[4], ";") // split it on Status 3-tuple separator (;)
 	for i := 0; i < len(st); i++ {  //spin through the 3-tuples
 		ss := strings.Split(st[i], ",")
 		if len(ss) != 3 {
@@ -133,25 +174,9 @@ func CreateRentables(sa []string, lineno int) {
 		}
 		rs.Status = int64(ix)
 
-		rs.DtStart, err = StringToDate(ss[1]) // required field
+		rs.DtStart, rs.DtStop, err = readTwoDates(ss, funcname, lineno)
 		if err != nil {
-			fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, ss[1])
-			return
-		}
-
-		end := "1/1/9999"
-		if len(ss) > 2 { //optional field -- MAYBE, if not present assume year 9999
-			if i+1 != len(st) {
-				fmt.Printf("%s: line %d - unspecified stop date is only allowed on the last RentableStatus in the list\n", funcname, lineno)
-				return
-			}
-			if len(strings.TrimSpace(ss[2])) > 0 {
-				end = ss[2]
-			}
-		}
-		rs.DtStop, err = StringToDate(end)
-		if err != nil {
-			fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, ss[2])
+			fmt.Printf("%s", err.Error())
 			return
 		}
 		m = append(m, rs) // add this struct to the list
@@ -163,16 +188,16 @@ func CreateRentables(sa []string, lineno int) {
 	}
 
 	//-----------------------------------------------------------------------------------
-	// PARSE THE RTID 3-TUPLEs
+	// RTID 3-TUPLEs
 	// "RTname1,startDate1,stopDate1;RTname2,startDate2,stopDate2;..."
 	//-----------------------------------------------------------------------------------
-	if 0 == len(strings.TrimSpace(sa[4])) {
+	if 0 == len(strings.TrimSpace(sa[5])) {
 		fmt.Printf("%s: lineno %d - Rentable RTID Ref value is required.\n",
 			funcname, lineno)
 		return
 	}
 	var n []RentableTypeRef
-	st = strings.Split(sa[4], ";") // split on RTID 3-tuple seperator (;)
+	st = strings.Split(sa[5], ";") // split on RTID 3-tuple seperator (;)
 	for i := 0; i < len(st); i++ { // spin through the 3-tuples
 		ss := strings.Split(st[i], ",") // separate the 3 parts
 		if len(ss) != 3 {
@@ -190,25 +215,9 @@ func CreateRentables(sa []string, lineno int) {
 		}
 		rt.RTID = rstruct.RTID
 
-		rt.DtStart, err = StringToDate(ss[1]) // required field
+		rt.DtStart, rt.DtStop, err = readTwoDates(ss, funcname, lineno)
 		if err != nil {
-			fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, ss[1])
-			return
-		}
-
-		end := "1/1/9999"
-		if len(ss) > 2 { //optional field, if not present assume year 9999
-			if i+1 != len(st) {
-				fmt.Printf("%s: line %d - unspecified stop date is only allowed on the last Rentable RTID Ref in the list\n", funcname, lineno)
-				return
-			}
-			if len(strings.TrimSpace(ss[2])) > 0 {
-				end = ss[2]
-			}
-		}
-		rt.DtStop, err = StringToDate(end)
-		if err != nil {
-			fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, ss[2])
+			fmt.Printf("%s", err.Error())
 			return
 		}
 		n = append(n, rt) // add this struct to the list
@@ -222,6 +231,10 @@ func CreateRentables(sa []string, lineno int) {
 		fmt.Printf("%s: lineno %d - error inserting Rentable = %v\n", funcname, lineno, err)
 	}
 	if rid > 0 {
+		for i := 0; i < len(rul); i++ {
+			rul[i].RID = rid
+			InsertRentableUser(&rul[i])
+		}
 		for i := 0; i < len(m); i++ {
 			m[i].RID = rid
 			err := InsertRentableStatus(&m[i])

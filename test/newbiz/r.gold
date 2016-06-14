@@ -1,4 +1,4 @@
-RENTERID	TCID	Points	CarMake	CarModel	CarColor	CarYear	LicensePlateState	LicensePlateNumber	ParkingPermitNumber	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyEmail	AlternateAddress	EligibleFutureRenter	Industry	Source
+USERID	TCID	Points	CarMake	CarModel	CarColor	CarYear	LicensePlateState	LicensePlateNumber	ParkingPermitNumber	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyEmail	AlternateAddress	EligibleFutureUser	Industry	Source
 1	1	0				0				0000-00-00						0		
 2	2	0				0				0000-00-00						0		
 3	3	0				0				0000-00-00						0		

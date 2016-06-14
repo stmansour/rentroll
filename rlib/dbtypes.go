@@ -55,6 +55,8 @@ const (
 	ACCRUALQUARTERLY = 7
 	ACCRUALYEARLY    = 8
 
+	YEARFOREVER = 9000 // an arbitrary year, anything >= to this year is taken to mean "unbounded", or no end date.
+
 	RARQDINRANGE = 0 // assessment must during the Rental Agreement period
 	RARQDPRIOR   = 1 // can be assessed prior to or during the Rental Agreement  period
 	RARQDAFTER   = 2 // can be assessed during  or after theRental Agreement period
@@ -130,7 +132,7 @@ const RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 // RAID = rental agreement / occupancy agreement
 // RATID = occupancy agreement template id
 // RCPTID = Receipt id
-// RENTERID = Renter id
+// USERID = User id
 // RID = Rentable id
 // RSPID = unit specialty id
 // RTID = Rentable type id
@@ -161,7 +163,7 @@ type CustomAttributeRef struct {
 type RentalAgreementTemplate struct {
 	RATID                int64
 	BID                  int64
-	RentalTemplateNumber string // a string associated with each rental type agreement (essentially, the doc name)
+	RentalTemplateNumber string // RentalTemplateNumber a string associated with each rental type agreement (essentially, the doc name)
 	LastModTime          time.Time
 	LastModBy            int64
 }
@@ -200,12 +202,12 @@ type RentalAgreementPayor struct {
 	DtStop  time.Time // stop date/time
 }
 
-// RentalAgreementUser describes a Renter associated with a rental agreement
-type RentalAgreementUser struct {
-	RAID     int64
-	RENTERID int64
-	DtStart  time.Time // start date/time for this Renter
-	DtStop   time.Time // stop date/time (when this person stopped being a Renter)
+// RentableUser describes a User associated with a rental agreement
+type RentableUser struct {
+	RID     int64     // associated Rentable
+	USERID  int64     // pointer to Transactant
+	DtStart time.Time // start date/time for this User
+	DtStop  time.Time // stop date/time (when this person stopped being a User)
 }
 
 // RentalAgreementPet describes a pet associated with a rental agreement. There can be as many as needed.
@@ -224,10 +226,10 @@ type RentalAgreementPet struct {
 }
 
 // Transactant is the basic structure of information
-// about a person who is a Prospect, applicant, Renter, or Payor
+// about a person who is a Prospect, applicant, User, or Payor
 type Transactant struct {
 	TCID           int64
-	RENTERID       int64
+	USERID         int64
 	PID            int64
 	PRSPID         int64
 	FirstName      string
@@ -269,9 +271,9 @@ type Prospect struct {
 	LastModBy             int64
 }
 
-// Renter contains all info common to a person
-type Renter struct {
-	RENTERID                  int64
+// User contains all info common to a person
+type User struct {
+	USERID                    int64
 	TCID                      int64
 	Points                    int64
 	CarMake                   string
@@ -287,7 +289,7 @@ type Renter struct {
 	EmergencyContactTelephone string
 	EmergencyEmail            string
 	AlternateAddress          string
-	EligibleFutureRenter      int64
+	EligibleFutureUser        int64
 	Industry                  string
 	Source                    string
 	LastModTime               time.Time
@@ -310,7 +312,7 @@ type Payor struct {
 // XPerson of all person related attributes
 type XPerson struct {
 	Trn Transactant
-	Tnt Renter
+	Tnt User
 	Psp Prospect
 	Pay Payor
 }
@@ -378,7 +380,7 @@ type PaymentType struct {
 	LastModBy   int64
 }
 
-// Receipt saves the information associated with a payment made by a Renter to cover one or more Assessments
+// Receipt saves the information associated with a payment made by a User to cover one or more Assessments
 type Receipt struct {
 	RCPTID      int64
 	BID         int64
@@ -401,46 +403,12 @@ type ReceiptAllocation struct {
 	AcctRule string
 }
 
-// Rentable is the basic struct for  entities to rent
-type Rentable struct {
-	RID            int64             // unique id for this Rentable
-	BID            int64             // Business
-	Name           string            // name for this rental
-	AssignmentTime int64             // can we pre-assign or assign only at commencement
-	LastModTime    time.Time         // time of last update to the db record
-	LastModBy      int64             // who made the update (Phonebook UID)
-	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
-	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
-}
-
-// RentableTypeRef is the time-based Rentable type attribute
-type RentableTypeRef struct {
-	RID         int64     // the Rentable to which this record belongs
-	RTID        int64     // the Rentable's type during this time range
-	RentCycle   int64     // Override Rent Cycle.  0 =unset,  otherwise same values as RentableType.RentCycle
-	Proration   int64     // Override Proration. 0 = unset, otherwise the same values as RentableType.Proration
-	DtStart     time.Time // timerange start
-	DtStop      time.Time // timerange stop
-	LastModTime time.Time
-	LastModBy   int64
-}
-
-// RentableStatus archives the state of a Rentable during the specified period of time
-type RentableStatus struct {
-	RID         int64     // associated Rentable
-	DtStart     time.Time // start of period
-	DtStop      time.Time // end of period
-	Status      int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
-	LastModTime time.Time // time of last update to the db record
-	LastModBy   int64     // who made the update (Phonebook UID)
-}
-
-// RentableSpecialty is the structure for attributes of a Rentable specialty
-type RentableSpecialty struct {
+// RentableSpecialtyType is the structure for attributes of a Rentable specialty
+type RentableSpecialtyType struct {
 	RSPID       int64
 	BID         int64
 	Name        string
-	Fee         float64
+	Fee         float64 // proration inherited from the rentable / rentable type.
 	Description string
 }
 
@@ -469,11 +437,56 @@ type RentableMarketRate struct {
 	DtStop     time.Time
 }
 
+// Rentable is the basic struct for  entities to rent
+type Rentable struct {
+	RID            int64             // unique id for this Rentable
+	BID            int64             // Business
+	Name           string            // name for this rental
+	AssignmentTime int64             // can we pre-assign or assign only at commencement
+	LastModTime    time.Time         // time of last update to the db record
+	LastModBy      int64             // who made the update (Phonebook UID)
+	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
+	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
+}
+
+// RentableTypeRef is the time-based Rentable type attribute
+type RentableTypeRef struct {
+	RID            int64     // the Rentable to which this record belongs
+	RTID           int64     // the Rentable's type during this time range
+	RentCycle      int64     // Override Rent Cycle.  0 =unset,  otherwise same values as RentableType.RentCycle
+	ProrationCycle int64     // Override Proration. 0 = unset, otherwise the same values as RentableType.Proration
+	DtStart        time.Time // timerange start
+	DtStop         time.Time // timerange stop
+	LastModTime    time.Time
+	LastModBy      int64
+}
+
+// RentableSpecialtyRef is the time-based RentableSpecialtyType attribute
+type RentableSpecialtyRef struct {
+	BID         int64     // associated business
+	RID         int64     // the Rentable to which this record belongs
+	RSPID       int64     // the rentable specialty type associated with the rentable
+	DtStart     time.Time // timerange start
+	DtStop      time.Time // timerange stop
+	LastModTime time.Time
+	LastModBy   int64
+}
+
+// RentableStatus archives the state of a Rentable during the specified period of time
+type RentableStatus struct {
+	RID         int64     // associated Rentable
+	DtStart     time.Time // start of period
+	DtStop      time.Time // end of period
+	Status      int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
+	LastModTime time.Time // time of last update to the db record
+	LastModBy   int64     // who made the update (Phonebook UID)
+}
+
 // XBusiness combines the Business struct and a map of the Business's Rentable types
 type XBusiness struct {
 	P  Business
-	RT map[int64]RentableType      // what types of things are rented here
-	US map[int64]RentableSpecialty // index = RSPID, val = RentableSpecialty
+	RT map[int64]RentableType          // what types of things are rented here
+	US map[int64]RentableSpecialtyType // index = RSPID, val = RentableSpecialtyType
 }
 
 // XRentable is the structure that includes both the Rentable and Unit attributes
@@ -578,7 +591,7 @@ type RRprepSQL struct {
 	FindTransactantByPhoneOrEmail            *sql.Stmt
 	GetRentalAgreementPayors                 *sql.Stmt
 	GetRentalAgreementRentables              *sql.Stmt
-	GetRentalAgreementUsers                  *sql.Stmt
+	GetRentableUsers                         *sql.Stmt
 	GetAgreementsForRentable                 *sql.Stmt
 	GetAllAssessmentsByBusiness              *sql.Stmt
 	GetAllBusinessRentableTypes              *sql.Stmt
@@ -625,8 +638,7 @@ type RRprepSQL struct {
 	GetRentable                              *sql.Stmt
 	GetRentableByName                        *sql.Stmt
 	GetRentableMarketRates                   *sql.Stmt
-	GetRentableSpecialties                   *sql.Stmt
-	GetRentableSpecialty                     *sql.Stmt
+	GetRentableSpecialtyType                 *sql.Stmt
 	GetRentableStatusByRange                 *sql.Stmt
 	GetRentableType                          *sql.Stmt
 	GetRentableTypeByStyle                   *sql.Stmt
@@ -635,13 +647,13 @@ type RRprepSQL struct {
 	GetRentalAgreementTemplate               *sql.Stmt
 	GetRentalAgreementByRentalTemplateNumber *sql.Stmt
 	GetSecurityDepositAssessment             *sql.Stmt
-	GetSpecialtyByName                       *sql.Stmt
-	GetRenter                                *sql.Stmt
+	GetRentableSpecialtyTypeByName           *sql.Stmt
+	GetUser                                  *sql.Stmt
 	GetTransactant                           *sql.Stmt
 	GetUnitAssessments                       *sql.Stmt
 	InsertRentalAgreementPayor               *sql.Stmt
 	InsertRentalAgreementRentable            *sql.Stmt
-	InsertRentalAgreementUser                *sql.Stmt
+	InsertRentableUser                       *sql.Stmt
 	InsertAssessment                         *sql.Stmt
 	InsertAssessmentType                     *sql.Stmt
 	InsertBuilding                           *sql.Stmt
@@ -668,7 +680,7 @@ type RRprepSQL struct {
 	InsertRentableType                       *sql.Stmt
 	InsertRentalAgreement                    *sql.Stmt
 	InsertRentalAgreementTemplate            *sql.Stmt
-	InsertRenter                             *sql.Stmt
+	InsertUser                               *sql.Stmt
 	InsertTransactant                        *sql.Stmt
 	UpdateLedger                             *sql.Stmt
 	UpdateLedgerMarker                       *sql.Stmt
@@ -684,6 +696,11 @@ type RRprepSQL struct {
 	DeleteRentableTypeRef                    *sql.Stmt
 	UpdateRentableTypeRef                    *sql.Stmt
 	GetRentableTypeRefsByRange               *sql.Stmt
+	GetRentableSpecialtyRefs                 *sql.Stmt
+	GetRentableSpecialtyRefsByRange          *sql.Stmt
+	InsertRentableSpecialtyRef               *sql.Stmt
+	UpdateRentableSpecialtyRef               *sql.Stmt
+	DeleteRentableSpecialtyRef               *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

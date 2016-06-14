@@ -1,0 +1,2 @@
+Designation,RentableName,ASMTID,Amount,Start,Stop,RAID,Frequency,ProrationMethod,AcctRule
+DHR,309 Rexford,1,3750,3/1/16,3/1/18,1,6,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${GSR}, d ${DFLTLTL} ${GSR} _ -"

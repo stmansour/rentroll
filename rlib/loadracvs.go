@@ -7,35 +7,58 @@ import (
 )
 
 //  CSV file format:
-//                                                                                   |<----- repeat Rentable name, as many as needed ... -->|
-//        0      1        2        3        4           5        6            7            8
-//  TemplateName,BID,Renter,Payor,RentalStart,RentalStop,Renewal,SpecialProvisions,RentableName, ...
-// 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2015-11-08",1,"",101
-// 		"RAT001","REH","866-123-4567","866-123-4567","2004-01-01","2017-07-04",1,"",107
-// 		"RAT001","REH","homerj@springfield.com","866-123-4567","2015-11-21","2016-11-21",1,"",101,102
+//  0                     1      2             3             4                                            5        6                  7             ... 8, 9, ... as many as needed
+//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   Payor,                                       Renewal, SpecialProvisions, RentableName, ...
+// 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                101
+// 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                107
+// 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                101,102
 
 // BuildPeopleList takes a semi-colon separated list of email addresses and phone numbers
-// and returns an array of Transactant records for each.  If any of the addresses in the list
+// and returns an array of RentalAgreementPayor records for each.  If any of the addresses in the list
 // cannot be resolved to a Transactant, then processing stops immediately and an error is returned.
-func BuildPeopleList(s string) ([]Transactant, error) {
-	var m []Transactant
+// Each value is time sensitive (has an associated time range). If the dates are not specified, then the
+// default values of dfltStart and dfltStop -- which are the start/stop time of the rental agreement --
+// are used instead. This is common because the payors will usually be the same for the entire rental
+// agreement lifetime.
+func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, lineno int) ([]RentalAgreementPayor, error) {
+	var m []RentalAgreementPayor
 	var noerr error
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
 	s1 := strings.Split(s2, ";")
 	for i := 0; i < len(s1); i++ {
-		s = strings.TrimSpace(s1[i]) // either the email address or the phone number
+		ss := strings.Split(s1[i], ",")
+		if len(ss) != 3 {
+			err := fmt.Errorf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+				funcname, lineno, len(ss), ss)
+			return m, err
+		}
+		var payor RentalAgreementPayor
+
+		// PAYOR (Transactant)
+		s = strings.TrimSpace(ss[0]) // either the email address or the phone number
 		t, err := GetTransactantByPhoneOrEmail(s)
 		if err != nil && !IsSQLNoResultsError(err) {
-			rerr := fmt.Errorf("BuildPeopleList: error retrieving Transactant by phone or email: %v", err)
+			rerr := fmt.Errorf("%s:  lineno %d - error retrieving Transactant by phone or email: %v", funcname, lineno, err)
 			Ulog("%s", rerr.Error())
 			return m, rerr
 		}
 		if t.PID == 0 {
-			rerr := fmt.Errorf("BuildPeopleList: could not find Transactant with contact information %s\n", s)
+			rerr := fmt.Errorf("%s:  lineno %d - could not find Transactant with contact information %s\n", funcname, lineno, s)
 			Ulog("%s", rerr.Error())
 			return m, rerr
 		}
-		m = append(m, t)
+		payor.PID = t.PID
+
+		// Now grab the dates
+		if len(strings.TrimSpace(ss[1])) == 0 {
+			ss[1] = dfltStart
+		}
+		if len(strings.TrimSpace(ss[2])) == 0 {
+			ss[2] = dfltStop
+		}
+		payor.DtStart, payor.DtStop, err = readTwoDates(ss, funcname, lineno)
+
+		m = append(m, payor)
 	}
 	return m, noerr
 }
@@ -44,11 +67,10 @@ func BuildPeopleList(s string) ([]Transactant, error) {
 func CreateRentalAgreement(sa []string, lineno int) {
 	funcname := "CreateRentalAgreement"
 	var ra RentalAgreement
-	var Payor RentalAgreementPayor
 	var m []RentalAgreementRentable
 
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "templatename" {
+	if des == "rentaltemplatenumber" {
 		return // this is just the column heading
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
@@ -84,37 +106,23 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	//  Determine the primary Renter
+	// RentalStartDate
 	//-------------------------------------------------------------------
-	renters, err := BuildPeopleList(sa[2])
-	if err != nil { // save the full list
-		return
-	}
-
-	//-------------------------------------------------------------------
-	//  Determine the Payor
-	//-------------------------------------------------------------------
-	payors, err := BuildPeopleList(sa[3])
-	if err != nil { // save the full list
-		return
-	}
-	if len(payors) > 0 {
-		Payor.PID = payors[0].PID // store the primary Payor now, we'll update the agreement payors later
-	}
-
-	//-------------------------------------------------------------------
-	// Get the dates
-	//-------------------------------------------------------------------
-	DtStart, err := StringToDate(sa[4])
+	dfltStart := sa[2]
+	DtStart, err := StringToDate(dfltStart)
 	if err != nil {
-		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[4])
+		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[2])
 		return
 	}
 	ra.RentalStart = DtStart
 
-	DtStop, err := StringToDate(sa[5])
+	//-------------------------------------------------------------------
+	// RentalStopDate
+	//-------------------------------------------------------------------
+	dfltStop := sa[3]
+	DtStop, err := StringToDate(dfltStop)
 	if err != nil {
-		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[5])
+		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[3])
 		return
 	}
 	ra.RentalStop = DtStop
@@ -123,7 +131,20 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	ra.PossessionStart = ra.RentalStart
 	ra.PossessionStop = ra.RentalStop
 
-	s := strings.TrimSpace(sa[6])
+	//-------------------------------------------------------------------
+	//  The Payors
+	//-------------------------------------------------------------------
+	payors, err := BuildPeopleList(sa[4], dfltStart, dfltStop, funcname, lineno)
+	if err != nil { // save the full list
+		fmt.Printf("%s", err.Error())
+		return
+	}
+
+	//-------------------------------------------------------------------
+	// Renewal
+	//-------------------------------------------------------------------
+
+	s := strings.TrimSpace(sa[5])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
@@ -133,11 +154,15 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		ra.Renewal = int64(i)
 	}
 
-	ra.SpecialProvisions = sa[7]
+	//-------------------------------------------------------------------
+	// Special Provisions
+	//-------------------------------------------------------------------
+	ra.SpecialProvisions = sa[6]
 
-	// the rest of the arguments are rentables that are associated with
-	// this rental agreement
-	for i := 8; i < len(sa); i++ {
+	//-------------------------------------------------------------------
+	// Rentables  -- all remaining columns are rentables
+	//-------------------------------------------------------------------
+	for i := 7; i < len(sa); i++ {
 		s = strings.TrimSpace(sa[i])
 		r, _ := GetRentableByName(s, ra.BID)
 
@@ -150,35 +175,28 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		}
 	}
 
-	// First write the rental agreement record, then write the RentalAgreementRentables and agreement payors
+	//------------------------------------
+	// Write the rental agreement record
+	//-----------------------------------
 	RAID, err := InsertRentalAgreement(&ra)
 	if nil != err {
 		fmt.Printf("%s: line %d - error inserting RentalAgreement = %v\n", funcname, lineno, err)
 	}
+
+	//------------------------------
+	// Add the rentables
+	//------------------------------
 	for i := 0; i < len(m); i++ {
 		m[i].RAID = RAID
 		InsertRentalAgreementRentable(&m[i])
 	}
 
-	Payor.RAID = RAID
-	Payor.DtStart = DtStart
-	Payor.DtStop = DtStop
-
-	var at RentalAgreementUser
-	at.DtStart = DtStart
-	at.DtStop = DtStop
-	at.RAID = RAID
-
-	//==================================================
-	// Now handle payors and renters...
-	//==================================================
-	for i := 0; i < len(renters); i++ {
-		at.RENTERID = renters[i].RENTERID
-		InsertRentalAgreementUser(&at)
-	}
+	//------------------------------
+	// Add the payors
+	//------------------------------
 	for i := 0; i < len(payors); i++ {
-		Payor.PID = payors[i].PID
-		InsertRentalAgreementPayor(&Payor)
+		payors[i].RAID = RAID
+		InsertRentalAgreementPayor(&payors[i])
 	}
 }
 

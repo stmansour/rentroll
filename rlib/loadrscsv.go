@@ -6,16 +6,6 @@ import (
 	"strings"
 )
 
-// RentableSpecialty is the structure for attributes of a Rentable specialty
-
-// type RentableSpecialty struct {
-// 	RSPID       int64
-// 	BID         int64
-// 	Name        string
-// 	Fee         float64
-// 	Description string
-// }
-
 //  CSV file format:
 // 0            1                2      3
 // Designation, Name,            Fee,   Description
@@ -44,14 +34,14 @@ func CreateRentalSpecialty(sa []string, lineno int) {
 	var b Business
 
 	if len(des) > 0 {
-		b, _ := GetBusinessByDesignation(des)
+		b, _ = GetBusinessByDesignation(des)
 		if b.BID < 1 {
 			Ulog("CreateRentalSpecialtyType: Business named %s not found\n", des)
 			return
 		}
 	}
 
-	var a RentableSpecialty
+	var a RentableSpecialtyType
 	var x float64
 	var err error
 
@@ -67,9 +57,9 @@ func CreateRentalSpecialty(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Make sure we don't already have an exact Business,name match
 	//-------------------------------------------------------------------
-	rsp := GetSpecialtyByName(a.BID, a.Name)
+	rsp := GetRentableSpecialtyTypeByName(a.BID, a.Name)
 	if rsp.RSPID > 0 {
-		fmt.Printf("CreateRentalSpecialty: Business %s already has a RentableSpecialty named %s\n", des, a.Name)
+		fmt.Printf("CreateRentalSpecialty: Business %s already has a RentableSpecialtyType named %s\n", des, a.Name)
 		return
 	}
 

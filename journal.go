@@ -106,7 +106,9 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
-	m := rlib.ParseAcctRule(xbiz, rid, &d, &d, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	// fmt.Printf("calling ParseAcctRule:\n  asmt = %#v\n  rid = %d\n", a, rid)
+	// m := rlib.ParseAcctRule(xbiz, rid, &d, &d, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	m := rlib.ParseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
 	// fmt.Printf("After ParseAcctRule - j.Amount = %8.2f\n", j.Amount)

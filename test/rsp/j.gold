@@ -1,0 +1,117 @@
+   =========================================================================================================================
+   Business:  Springfield Retirement Castle
+   11/01/15 - 11/30/15
+   -------------------------------------------------------------------------------------------------------------------------
+   Description                                                       Date    RntAgr         Rentable     GL No        Amount
+   -------------------------------------------------------------------------------------------------------------------------
+   J00000001  Rent (8/30 days)  101 [GM, monthly]              
+                                    General Accounts Receivable  11/01/15         1              101     11001        266.67
+                                           Gross Scheduled Rent  11/01/15         1              101     40001       -320.00
+                                                  Loss to Lease  11/01/15         1              101     41004         53.33
+                                                               
+   J00000002  Rent (10/30 days)  101 [GM, monthly]             
+                                    General Accounts Receivable  11/21/15         8              101     11001        400.00
+                                           Gross Scheduled Rent  11/21/15         8              101     40001       -400.00
+                                                  Loss to Lease  11/21/15         8              101     41004          0.00
+                                                               
+   J00000003  Lake View (8/30 days)  101 [GM, monthly]         
+                                    General Accounts Receivable  11/01/15         1              101     11001         13.33
+                                           Gross Scheduled Rent  11/01/15         1              101     40001        -13.33
+                                                               
+   J00000004  Fireplace (8/30 days)  101 [GM, monthly]         
+                                    General Accounts Receivable  11/01/15         1              101     11001          5.33
+                                           Gross Scheduled Rent  11/01/15         1              101     40001         -5.33
+                                                               
+   J00000005  Lake View (10/30 days)  101 [GM, monthly]        
+                                    General Accounts Receivable  11/21/15         8              101     11001         16.67
+                                           Gross Scheduled Rent  11/21/15         8              101     40001        -16.67
+                                                               
+   J00000006  Fireplace (10/30 days)  101 [GM, monthly]        
+                                    General Accounts Receivable  11/21/15         8              101     11001          6.67
+                                           Gross Scheduled Rent  11/21/15         8              101     40001         -6.67
+                                                               
+   J00000007  Security Deposit  101 [GM]                       
+                                    Security Deposit Receivable  11/21/15         8              101     11002       1500.00
+                                    Security Deposit Assessment  11/21/15         8              101     23000      -1500.00
+                                                               
+   J00000008  Carport Fees (8/30 days)  CP001 [CPT, monthly]   
+                                    General Accounts Receivable  11/01/15         1            CP001     11001          9.33
+                                                       Carports  11/01/15         1            CP001     42007         -9.33
+                                                               
+   J00000009  Carport Fees (10/30 days)  CP001 [CPT, monthly]  
+                                    General Accounts Receivable  11/21/15         8            CP001     11001         11.67
+                                                       Carports  11/21/15         8            CP001     42007        -11.67
+                                                               
+   J00000010  Carport Fees (10/30 days)  CP002 [CPT, monthly]  
+                                    General Accounts Receivable  11/21/15         8            CP002     11001         11.67
+                                                       Carports  11/21/15         8            CP002     42007        -11.67
+                                                               
+   J00000011  Damages  101 [GM]                                
+                                    Security Deposit Assessment  11/08/15         1              101     23000        250.00
+                                    Security Deposit Forfeiture  11/08/15         1              101     42006       -250.00
+                                                               
+   J00000012  Security Deposit Return  101 [GM]                
+                                    Security Deposit Assessment  11/08/15         1              101     23000        750.00
+                                       Bank Account FRB 2332352  11/08/15         1              101     10001       -750.00
+                                                               
+   J00000013  Unassociated: 101 (Nov 9 - Nov 21)               
+                                           Gross Scheduled Rent  11/20/15         0              101     40001       -508.00
+                                                        Vacancy  11/20/15         0              101     41001        508.00
+   J00000014  Unassociated: 102 (Nov 1 - Dec 1)                
+                                           Gross Scheduled Rent  11/30/15         0              102     40001      -1670.00
+                                                        Vacancy  11/30/15         0              102     41001       1670.00
+   J00000015  Unassociated: 103 (Nov 1 - Dec 1)                
+                                           Gross Scheduled Rent  11/30/15         0              103     40001      -1800.00
+                                                        Vacancy  11/30/15         0              103     41001       1800.00
+   J00000016  Unassociated: 104 (Nov 1 - Dec 1)                
+                                           Gross Scheduled Rent  11/30/15         0              104     40001      -2070.00
+                                                        Vacancy  11/30/15         0              104     41001       2070.00
+   J00000017  Unassociated: 105 (Nov 1 - Dec 1)                
+                                           Gross Scheduled Rent  11/30/15         0              105     40001      -1200.00
+                                                        Vacancy  11/30/15         0              105     41001       1200.00
+   J00000018  Unassociated: 106 (Nov 1 - Dec 1)                
+                                           Gross Scheduled Rent  11/30/15         0              106     40001      -1600.00
+                                                        Vacancy  11/30/15         0              106     41001       1600.00
+   J00000019  Unassociated: 107 (Nov 1 - Dec 1)                
+                                           Gross Scheduled Rent  11/30/15         0              107     40001      -1920.00
+                                                        Vacancy  11/30/15         0              107     41001       1920.00
+   J00000020  Unassociated: CP001 (Nov 9 - Nov 21)             
+                                           Gross Scheduled Rent  11/20/15         0            CP001     40001        -14.00
+                                                        Vacancy  11/20/15         0            CP001     41001         14.00
+   J00000021  Unassociated: CP002 (Nov 1 - Nov 21)             
+                                           Gross Scheduled Rent  11/20/15         0            CP002     40001        -23.33
+                                                        Vacancy  11/20/15         0            CP002     41001         23.33
+   J00000022  Payment - Krabappel  294.66                      
+   	Rent                                                       
+                                    General Accounts Receivable  11/21/15         1              101     11001       -266.67
+                                       Bank Account FRB 2332352  11/21/15         1              101     10001        266.67
+   	Lake View                                                  
+                                    General Accounts Receivable  11/21/15         1              101     11001        -13.33
+                                       Bank Account FRB 2332352  11/21/15         1              101     10001         13.33
+   	Fireplace                                                  
+                                    General Accounts Receivable  11/21/15         1              101     11001         -5.33
+                                       Bank Account FRB 2332352  11/21/15         1              101     10001          5.33
+   	Carport Fees                                               
+                                    General Accounts Receivable  11/21/15         1            CP001     11001         -9.33
+                                       Bank Account FRB 2332352  11/21/15         1            CP001     10001          9.33
+                                                               
+   J00000023  Payment - Simpson  1946.68                       
+   	Security Deposit                                           
+                                       Bank Account FRB 2332352  11/15/15         8              101     10001       1500.00
+                                    Security Deposit Receivable  11/15/15         8              101     11002      -1500.00
+   	Rent                                                       
+                                    General Accounts Receivable  11/15/15         8              101     11001       -400.00
+                                       Bank Account FRB 2332352  11/15/15         8              101     10001        400.00
+   	Lake View                                                  
+                                    General Accounts Receivable  11/15/15         8              101     11001        -16.67
+                                       Bank Account FRB 2332352  11/15/15         8              101     10001         16.67
+   	Fireplace                                                  
+                                    General Accounts Receivable  11/15/15         8              101     11001         -6.67
+                                       Bank Account FRB 2332352  11/15/15         8              101     10001          6.67
+   	Carport Fees                                               
+                                    General Accounts Receivable  11/15/15         8            CP001     11001        -11.67
+                                       Bank Account FRB 2332352  11/15/15         8            CP001     10001         11.67
+   	Carport Fees                                               
+                                    General Accounts Receivable  11/15/15         8            CP002     11001        -11.67
+                                       Bank Account FRB 2332352  11/15/15         8            CP002     10001         11.67
+                                                               

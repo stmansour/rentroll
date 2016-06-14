@@ -10,9 +10,9 @@ import (
 // PeopleSpecialty is the structure for attributes of a Rentable specialty
 
 // CSV file format:
-//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  Renter  ----------------------------------------------------------------------------------------------------------------------------------------------------------------->|<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- Prospect --
+//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  User  ----------------------------------------------------------------------------------------------------------------------------------------------------------------->|<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- Prospect --
 //   0           1          2          3          4          5             6               7          8          9        10        11    12     13          14       15      16       17        18        19       20                 21                  22                   23          24           25                    26                       27                          28             29                30                          31        32      33                   34           35               36            37            38             39                  40              41          42
-// 	FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureRenter, Industry, Source, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
+// 	FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, Source, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Ned,,Flanders,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Moe,,Szyslak,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -38,7 +38,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 
 	var err error
 	var tr Transactant
-	var t Renter
+	var t User
 	var p Payor
 	var pr Prospect
 	var x float64
@@ -145,7 +145,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 		case i == 30:
 			if len(s) > 0 {
 				var err error
-				t.EligibleFutureRenter, err = yesnoToInt(s)
+				t.EligibleFutureUser, err = yesnoToInt(s)
 				if err != nil {
 					fmt.Printf("%s: line %d - %s\n", funcname, lineno, err.Error())
 				}
@@ -229,12 +229,12 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 	p.TCID = tcid
 	pr.TCID = tcid
 
-	tid, err := InsertRenter(&t)
+	tid, err := InsertUser(&t)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting Renter = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting User = %v\n", funcname, lineno, err)
 		return
 	}
-	tr.RENTERID = tid
+	tr.USERID = tid
 
 	pid, err := InsertPayor(&p)
 	if nil != err {

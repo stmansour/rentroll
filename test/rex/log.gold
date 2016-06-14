@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Fri Jun 10 11:24:41 PDT 2016
+Date/Time: Fri Jun 10 18:00:31 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -79,6 +79,15 @@ RTID   Style      Name
    4 - Rex4  -  311 1/2 Rexford
 
 
+DEFINE PEOPLE
+ TCID  USERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
+    1      1      1     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
+    2      2      2     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
+    3      3      3     0  123-456-7892  rita@rexford.com           Costea       , Rita                                      
+    4      4      4     0  123-456-7893  daniel@rexford.com         Costea       , Daniel                                    
+    5      5      5     0  123-456-7894  gagik@rexford.com          Haroutunian  , Gagik                                     
+
+
 DEFINE RENTABLES
  RID  Name
    1  309 Rexford
@@ -87,17 +96,8 @@ DEFINE RENTABLES
    4  311 1/2 Rexford
 
 
-DEFINE PEOPLE
- TCID  RENTERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
-    1      1      1     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
-    2      2      2     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
-    3      3      3     0  123-456-7892  rita@rexford.com           Costea       , Rita                                      
-    4      4      4     0  123-456-7893  daniel@rexford.com         Costea       , Daniel                                    
-    5      5      5     0  123-456-7894  gagik@rexford.com          Haroutunian  , Gagik                                     
-
-
 DEFINE RENTAL AGREEMENT TEMPLATES
-RATID  BID         TemplateName
+RATID  BID         RentalTemplateNumber
     1  B00000001   RAT001
     2  B00000001   RAT002
     3  B00000001   RAT003
@@ -105,9 +105,9 @@ RATID  BID         TemplateName
 
 
 DEFINE RENTAL AGREEMENTS
- RAID  Payor                                     Renter                                  
-    1  Aaron Read, Kirsten Read                  Aaron Read                              
-    2  Rita Costea, Daniel Costea                Rita Costea                             
+ RAID  Payor                                     User                                    
+    1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                
+    2  Rita Costea, Daniel Costea                Rita Costea, Daniel Costea              
     3  Gagik Haroutunian                         Gagik Haroutunian                       
 
 

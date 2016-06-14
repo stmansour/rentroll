@@ -99,7 +99,8 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 
 		// update rtid only if its type changes during this report period...
 		if rtidMulti {
-			rtid = rlib.SelectRentableTypeRefForPeriod(&rta, &dt)
+			rt := rlib.SelectRentableTypeRefForDate(&rta, &dt)
+			rtid = rt.RTID
 			if rtid == 0 {
 				rlib.Ulog("VacancyDetect:  No valid RTID for rentable R%08d during period %s to %s\n",
 					r.RID, dt.Format(rlib.RRDATEINPFMT), dtNext.Format(rlib.RRDATEINPFMT))
@@ -107,7 +108,14 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 			}
 		}
 
-		rentThisPeriod := CalculateGSR(dt, dtNext, xbiz.RT[rtid])
+		rsa, err := rlib.GetRentableSpecialtyTypesForRentableByRange(r, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
+		if err != nil {
+			rlib.Ulog("VacancyDetect:  Error retrieving rentable specialties for rentable R%08d during period %s to %s\n",
+				r.RID, dt.Format(rlib.RRDATEINPFMT), dtNext.Format(rlib.RRDATEINPFMT))
+			return m // this is bad! No RTID for the supplied time range
+
+		}
+		rentThisPeriod := rlib.CalculateGSR(dt, dtNext, xbiz.RT[rtid], rsa)
 
 		//------------------------------------------------
 		// optimization to compress consecutive days...

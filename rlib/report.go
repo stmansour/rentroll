@@ -156,13 +156,13 @@ func RRreportRentables(t int, bid int64) string {
 // ReportXPersonToText returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToText(p *XPerson) string {
 	return fmt.Sprintf("%5d  %5d  %5d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
-		p.Trn.TCID, p.Tnt.RENTERID, p.Pay.PID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
+		p.Trn.TCID, p.Tnt.USERID, p.Pay.PID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
 }
 
 // ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToHTML(p *XPerson) string {
 	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%5d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
-		p.Trn.TCID, p.Tnt.RENTERID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
+		p.Trn.TCID, p.Tnt.USERID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
@@ -170,10 +170,10 @@ func RRreportPeople(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllTransactants.Query()
 	Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "RENTERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
+	s := fmt.Sprintf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "USERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
 	for rows.Next() {
 		var p XPerson
-		Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.RENTERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
+		Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.USERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
 			&p.Trn.CompanyName, &p.Trn.IsCompany, &p.Trn.PrimaryEmail, &p.Trn.SecondaryEmail, &p.Trn.WorkPhone, &p.Trn.CellPhone, &p.Trn.Address, &p.Trn.Address2,
 			&p.Trn.City, &p.Trn.State, &p.Trn.PostalCode, &p.Trn.Country, &p.Trn.Website, &p.Trn.Notes, &p.Trn.LastModTime, &p.Trn.LastModBy))
 		GetXPerson(p.Trn.TCID, &p)
@@ -206,7 +206,7 @@ func RRreportRentalAgreementTemplates(t int) string {
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("RATID  BID         TemplateName\n")
+	s := fmt.Sprintf("RATID  BID         RentalTemplateNumber\n")
 	for rows.Next() {
 		var p RentalAgreementTemplate
 		Errcheck(rows.Scan(&p.RATID, &p.BID, &p.RentalTemplateNumber, &p.LastModTime, &p.LastModBy))
@@ -224,8 +224,8 @@ func RRreportRentalAgreementTemplates(t int) string {
 	return s
 }
 
-// RentersToString is a convenience call to get all the on a rental agreement into a single comma separated string
-func (ra RentalAgreement) RentersToString() string {
+// UsersToString is a convenience call to get all the on a rental agreement into a single comma separated string
+func (ra RentalAgreement) UsersToString() string {
 	s := ""
 	l := len(ra.T)
 	for i := 0; i < l; i++ {
@@ -269,7 +269,7 @@ func (ra RentalAgreement) PayorsToString() string {
 // ReportRentalAgreementToText returns a string representation of the supplied People suitable for a text report
 func ReportRentalAgreementToText(p *RentalAgreement) string {
 	return fmt.Sprintf("%5d  %-40s  %-40s\n",
-		p.RAID, (*p).PayorsToString(), (*p).RentersToString())
+		p.RAID, (*p).PayorsToString(), (*p).UsersToString())
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
@@ -277,7 +277,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("%5s  %-40s  %-40s\n", "RAID", "Payor", "Renter")
+	s := fmt.Sprintf("%5s  %-40s  %-40s\n", "RAID", "Payor", "User")
 	var raid int64
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -521,7 +521,7 @@ func RRreportCustomAttributeRefs(t int) string {
 // ReportRentalAgreementPetToText returns a string representation of the chart of accts
 func ReportRentalAgreementPetToText(p *RentalAgreementPet) string {
 	end := ""
-	if p.DtStop.Year() < 9000 {
+	if p.DtStop.Year() < YEARFOREVER {
 		end = p.DtStop.Format(RRDATEINPFMT)
 	}
 	return fmt.Sprintf("PET%08d  RA%08d  %-25s  %-15s  %-15s  %-15s  %6.2f lb  %-10s  %-10s\n",

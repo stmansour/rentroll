@@ -19,6 +19,8 @@ type RpnCtx struct {
 	pf     float64     // proration factor
 	amount float64     // the full amount of the assessment or payment
 	stack  []float64   // the stack used by the rpn calculator
+	GSRset bool        // initially false, set to true after GSR is calculated
+	GSR    float64     // this is a heavyweight calculation. If GSRset is true, then don't recalculate, just use current value
 }
 
 var rpnVariable *regexp.Regexp
@@ -75,6 +77,7 @@ func RpnCreateCtx(xbiz *XBusiness, rid int64, d1, d2 *time.Time, m *[]AcctRule, 
 	ctx.stack = make([]float64, 0)
 	ctx.pf = pf
 	ctx.amount = amount
+	ctx.GSRset = false
 	return ctx
 }
 
@@ -97,15 +100,22 @@ func rpnFunctionResolve(ctx *RpnCtx, cmd, val string) float64 {
 }
 
 func varResolve(ctx *RpnCtx, s string) float64 {
-	if s == "UMR" {
+	if s == "UMR" { // Unit MARKET RATE
 		rpnLoadRentable(ctx) // make sure it's loaded
-		// x := GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
-		// fmt.Printf("Rentable Market Rate for Rentable %s (%d) between %s and %s :  %6.2f\n",
-		// 	ctx.xu.R.Name, ctx.xu.R.RID, ctx.d1.Format(RRDATEINPFMT), ctx.d2.Format(RRDATEINPFMT), x)
-		// return ctx.pf * x
 		return ctx.pf * GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
 	}
-
+	if s == "GSR" { // Gross Schedule Rent = Market Rate + Specialties
+		if ctx.GSRset { // don't recalculate if already set
+			return ctx.pf * ctx.GSR
+		}
+		rpnLoadRentable(ctx) // make sure it's loaded
+		amt, err := CalculateLoadedGSR(&ctx.xu.R, ctx.d1, ctx.d2, ctx.xbiz)
+		if err == nil {
+			ctx.GSR = amt
+			ctx.GSRset = true
+			return ctx.pf * ctx.GSR
+		}
+	}
 	m1 := rpnFunction.FindAllStringSubmatchIndex(s, -1)
 	if m1 != nil {
 		m := m1[0]

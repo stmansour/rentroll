@@ -1,0 +1,4 @@
+RentalTemplateNumber,BUD,RentalStart,RentalStop,Payor,Renewal,SpecialProvisions,RentableName
+"RAT001","DHR","2004-01-01","2018-06-01","aaron@rexford.com,,;kirsten@rexford.com,,",1,,309 Rexford
+"RAT001","DHR","2004-01-01","2018-06-01","123-456-7892,,;123-456-7893,,",1,"",309 1/2 Rexford
+"RAT001","DHR","2004-01-01","2016-02-08","123-456-7894,,",1,"",311 Rexford
