@@ -34,3 +34,5 @@ package: rentroll
 t:
 	./mdb
 	./rentroll
+
+all: clean rentroll test
