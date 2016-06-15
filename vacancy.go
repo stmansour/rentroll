@@ -45,8 +45,8 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 			r.RID, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
 		return m // this is bad! No RTID for the supplied time range
 	}
-	rtidMulti := len(rta) > 1 // flag to indicate we need to look for a change in rtid in every pass
-	rtid := rta[0].RTID       // initialize to the first RTID
+	// rtidMulti := len(rta) > 1 // flag to indicate we need to look for a change in rtid in every pass
+	rtid := rta[0].RTID // initialize to the first RTID
 
 	// We may not need to do anything if this rentable is not being managed to budget.  We didn't
 	// check it earlier because the code to load the rentable type is here. If there's an issue,
@@ -67,7 +67,7 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 		dtNext = dt.Add(period)
 		vacant := true // assume it's vacant and reset if we find it's rented
 
-		// fmt.Printf("VacancyDetect:  period %s - %s\n", dt.Format(rlib.RRDATEINPFMT), dtNext.Format(rlib.RRDATEINPFMT))
+		// fmt.Printf("VacancyDetect:  %s (%d), period %s - %s\n", r.Name, r.RID, dt.Format(rlib.RRDATEINPFMT), dtNext.Format(rlib.RRDATEINPFMT))
 
 		rs := rlib.SelectRentableStatusForPeriod(&rsa, dt, dtNext)
 		state = rlib.RENTABLESTATUSONLINE // if there is no state info, we'll assume online
@@ -91,21 +91,13 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 		case rlib.RENTABLESTATUSOWNEROCC:
 			fallthrough
 		case rlib.RENTABLESTATUSOFFLINE:
-			// fmt.Printf("\t{admin|employee|ownerocc|offline}... ")
-		}
-		if !vacant {
-			continue
+			// fmt.Printf("\t{admin|employee|ownerocc|offline}...\n")
 		}
 
-		// update rtid only if its type changes during this report period...
-		if rtidMulti {
-			rt := rlib.SelectRentableTypeRefForDate(&rta, &dt)
-			rtid = rt.RTID
-			if rtid == 0 {
-				rlib.Ulog("VacancyDetect:  No valid RTID for rentable R%08d during period %s to %s\n",
-					r.RID, dt.Format(rlib.RRDATEINPFMT), dtNext.Format(rlib.RRDATEINPFMT))
-				return m // this is bad! No RTID for the supplied time range
-			}
+		// fmt.Printf("VacancyDetect:  vacant = %v\n", vacant)
+
+		if !vacant {
+			continue
 		}
 
 		rsa, err := rlib.GetRentableSpecialtyTypesForRentableByRange(r, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
@@ -115,7 +107,15 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 			return m // this is bad! No RTID for the supplied time range
 
 		}
-		rentThisPeriod := rlib.CalculateGSR(dt, dtNext, xbiz.RT[rtid], rsa)
+
+		// fmt.Printf("dt = %s, dtNext = %s, r = %s(%d), len(rta) = %d, len(rsa) = %d\n",
+		// 	dt.Format("Jan 2"), dtNext.Format("Jan 2"), r.Name, r.RID, len(rta), len(rsa))
+		// for iq := 0; iq < len(rta); iq++ {
+		// 	fmt.Printf("rta[%d] = (%s - %s) RTID = %d\n", iq, rta[iq].DtStart.Format("1/2/06"), rta[iq].DtStop.Format("1/2/06"), rta[iq].RTID)
+		// }
+
+		rentThisPeriod := rlib.CalculateGSR(dt, dtNext, r, &rta, rsa, xbiz)
+		// fmt.Printf("rentThisPeriod = %8.2f\n", rentThisPeriod)
 
 		//------------------------------------------------
 		// optimization to compress consecutive days...
@@ -154,6 +154,7 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 //============================================================================================
 func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) {
 	m := VacancyDetect(xbiz, d1, d2, r)
+	// fmt.Printf("ProcessRentable: r = %s (%d), period=(%s - %s) len(m) = %d\n", r.Name, r.RID, d1.Format("Jan 2"), d2.Format("Jan 2"), len(m))
 	for i := 0; i < len(m); i++ {
 		// the umr rate is in cost/accrualDuration. The duration of the VacancyMarkers
 		// are in integral multiples of rangeIncDur.  We need to prorate the amount of
@@ -166,6 +167,7 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 		j.RAID = 0                           // we really mean it, it is unassociated
 		j.ID = r.RID                         // mark the associated Rentable
 		j.Comment = m[i].comment             // this will note consecutive days for vacancy
+		// fmt.Printf("ProcessRentable: insert journal entry: %s - %s, %8.2f\n", j.Dt.Format(rlib.RRDATEINPFMT), j.Comment, j.Amount)
 		jid, err := rlib.InsertJournalEntry(&j)
 		rlib.Errlog(err)
 		if jid > 0 {
@@ -183,7 +185,7 @@ func ProcessRentable(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) 
 
 // GenVacancyJournals creates Journal entries that cover vacancy for
 // every Rentable where the Rentable type is being managed to budget
-//========================================================================================================
+//===============================================================================================
 func GenVacancyJournals(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
 	rlib.Errcheck(err)

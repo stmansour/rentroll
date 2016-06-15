@@ -1,11 +1,12 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strings"
 )
 
-// type Receipt struct {
+// type rlib.Receipt struct {
 // 	RCPTID   int64
 // 	BID      int64
 // 	RAID     int64
@@ -14,10 +15,10 @@ import (
 // 	Amount   float64
 // 	AcctRule string
 // 	Comment  string
-// 	RA       []ReceiptAllocation
+// 	RA       []rlib.ReceiptAllocation
 // }
 
-// type ReceiptAllocation struct {
+// type rlib.ReceiptAllocation struct {
 // 	RCPTID   int64
 // 	Amount   float64
 // 	ASMID    int64
@@ -26,7 +27,7 @@ import (
 
 // 0            1    2
 // Designation, Name,Description
-// REH,"Check","Personal check from Payor"
+// REH,"Check","Personal check from rlib.Payor"
 // REH,"VISA","Credit card charge"
 // REH,"AMEX", "American Express credit card"
 // REH,"Cash","Cash"
@@ -34,7 +35,7 @@ import (
 // CreatePaymentTypeFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreatePaymentTypeFromCSV(sa []string, lineno int) {
 	funcname := "CreatePaymentTypeFromCSV"
-	var pt PaymentType
+	var pt rlib.PaymentType
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
@@ -51,9 +52,9 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) {
 	// Check to see if this rental specialty type is already in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b, _ := GetBusinessByDesignation(des)
+		b, _ := rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			Ulog("%s: line %d - Business named %s not found\n", funcname, lineno, des)
+			rlib.Ulog("%s: line %d - rlib.Business named %s not found\n", funcname, lineno, des)
 			return
 		}
 		pt.BID = b.BID
@@ -65,15 +66,15 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	err := InsertPaymentType(&pt)
+	err := rlib.InsertPaymentType(&pt)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting rlib.PaymentType = %v\n", funcname, lineno, err)
 	}
 }
 
 // LoadPaymentTypesCSV loads a csv file with rental specialty types and processes each one
 func LoadPaymentTypesCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreatePaymentTypeFromCSV(t[i], i+1)
 	}

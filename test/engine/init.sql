@@ -164,13 +164,13 @@ INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
 -- =======================================================================
 --  RENTABLE TYPES
 -- =======================================================================
-INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,ManageToBudget) VALUES
-	(1,"GM","Geezer Miser", 6,4,1),				-- 1  
-	(1,"FS","Flat Studio",  6,4,1),				-- 2  
-	(1,"SBL","SB Loft",     6,4,1),				-- 3  
-	(1,"KDS","KD Suite",    6,4,1),				-- 4  
-	(1,"CAR","Vehicle",     3,0,1), 				-- 5  Car
-	(1,"CPT","Carport",     6,4,1);		 		-- 6  Carport
+INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,GSPRC,ManageToBudget) VALUES
+	(1,"GM","Geezer Miser", 6,4,4,1),				-- 1  
+	(1,"FS","Flat Studio",  6,4,4,1),				-- 2  
+	(1,"SBL","SB Loft",     6,4,4,1),				-- 3  
+	(1,"KDS","KD Suite",    6,4,4,1),				-- 4  
+	(1,"CAR","Vehicle",     3,0,4,1), 				-- 5  Car
+	(1,"CPT","Carport",     6,4,4,1);		 		-- 6  Carport
 
 INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 	(1, 1000.00, "1970-01-01 00:00:00", "2015-10-01 00:00:00"),   	-- 1: GM, Geezer Miser 

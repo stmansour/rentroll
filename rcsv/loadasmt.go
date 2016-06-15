@@ -1,7 +1,8 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -28,36 +29,36 @@ func CreateAssessmentType(sa []string, lineno int) {
 	// Check to see if this assessment type is already in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		a1, _ := GetAssessmentTypeByName(des)
+		a1, _ := rlib.GetAssessmentTypeByName(des)
 		if len(a1.Name) > 0 {
-			Ulog("%s: AssessmentType named %s already exists\n", funcname, des)
+			rlib.Ulog("%s: rlib.AssessmentType named %s already exists\n", funcname, des)
 			return
 		}
 	}
 
-	var a AssessmentType
+	var a rlib.AssessmentType
 	a.Name = strings.TrimSpace(sa[0])
 	if len(a.Name) == 0 {
-		Ulog("%s: line %d - Name cannot be empty\n", funcname, lineno)
+		rlib.Ulog("%s: line %d - Name cannot be empty\n", funcname, lineno)
 		return
 	}
 
 	//-------------------------------------------------------------------
 	// RARequired
 	//-------------------------------------------------------------------
-	a.RARequired, _ = IntFromString(sa[1], "RARequired value is invalid")
-	if a.RARequired < RARQDINRANGE || a.RARequired > RARQDANY {
-		fmt.Printf("%s: line %d - RARequired must be in the range %d to %d.  Found: %s\n", funcname, lineno, RARQDINRANGE, RARQDANY, sa[1])
+	a.RARequired, _ = rlib.IntFromString(sa[1], "RARequired value is invalid")
+	if a.RARequired < rlib.RARQDINRANGE || a.RARequired > rlib.RARQDANY {
+		fmt.Printf("%s: line %d - RARequired must be in the range %d to %d.  Found: %s\n", funcname, lineno, rlib.RARQDINRANGE, rlib.RARQDANY, sa[1])
 		return
 	}
 
 	a.Description = sa[2]
-	Errlog(InsertAssessmentType(&a))
+	rlib.Errlog(rlib.InsertAssessmentType(&a))
 }
 
 // LoadAssessmentTypesCSV loads a csv file with assessment types and processes each one
 func LoadAssessmentTypesCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateAssessmentType(t[i], i+1)
 	}

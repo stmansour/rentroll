@@ -164,13 +164,13 @@ INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
 -- =======================================================================
 --  RENTABLE TYPES
 -- =======================================================================
-INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,ManageToBudget) VALUES
-	(1,"GM","Geezer Miser", 6,4,1),				-- 1  
-	(1,"FS","Flat Studio",  6,4,1),				-- 2  
-	(1,"SBL","SB Loft",     6,4,1),				-- 3  
-	(1,"KDS","KD Suite",    6,4,1),				-- 4  
-	(1,"CAR","Vehicle",     3,0,1), 				-- 5  Car
-	(1,"CPT","Carport",     6,4,1);		 		-- 6  Carport
+INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,GSPRC,ManageToBudget) VALUES
+	(1,"GM","Geezer Miser", 6,4,4,1),				-- 1  
+	(1,"FS","Flat Studio",  6,4,4,1),				-- 2  
+	(1,"SBL","SB Loft",     6,4,4,1),				-- 3  
+	(1,"KDS","KD Suite",    6,4,4,1),				-- 4  
+	(1,"CAR","Vehicle",     3,0,4,1), 				-- 5  Car
+	(1,"CPT","Carport",     6,4,4,1);		 		-- 6  Carport
 
 INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 	(1, 1000.00, "1970-01-01 00:00:00", "2015-10-01 00:00:00"),   	-- 1: GM, Geezer Miser 
@@ -343,14 +343,6 @@ INSERT INTO RentalAgreementPayors (RAID,PID,DtStart,DtStop) VALUES
 INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 1, 1,1000.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"),		-- #1  Krabappel - Rent
 	(1, 1, 1, 8,1200.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -");		-- #2  Simpson rent
-	-- (1, 1, 1, 1,1000.00,"2014-07-01","2015-11-08", 6, 4, "d ${DFLTGENRCV} 1000.0, c ${DFLTGSRENT} 1000.0"),		-- #1  Krabappel - Rent
-	-- (1, 1, 1, 8,1000.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} 1000.0, c ${DFLTGSRENT} 1000.0");		-- #2  Simpson rent
-	-- (1, 2, 1, 2,1050.00,"2011-04-01","2016-04-30", 6, 4, "d ${DFLTGENRCV} 1050.00, c ${DFLTGSRENT} 1050.00"),		
-	-- (1, 3, 1, 3,1095.00,"2015-04-01","2016-03-31", 6, 4, "d ${DFLTGENRCV} 1095.00, c ${DFLTGSRENT} 1095.00"),
-	-- (1, 4, 1, 4,1075.00,"2013-10-01","2016-03-31", 6, 4, "d ${DFLTGENRCV} 1075.00, c ${DFLTGSRENT} 1075.00"),
-	-- (1, 5, 1, 5, 950.00,"2015-04-01","2016-03-31", 6, 4, "d ${DFLTGENRCV}  950.00, c ${DFLTGSRENT}  950.00"),
-	-- (1, 6, 1, 6,1095.00,"2015-10-01","2015-10-31", 6, 4, "d ${DFLTGENRCV} 1095.00, c ${DFLTGSRENT} 1095.00"),
-	-- (1, 7, 1, 7,1045.00,"2001-11-01","2016-05-31", 6, 4, "d ${DFLTGENRCV} 1045.00, c ${DFLTGSRENT} 1045.00");
 
 -- =======================================================================
 --  UNIT SPECIALTY ASSESSMENTS
@@ -387,23 +379,6 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 	(1, 1, 53, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 42006 _"),	-- #12  Krabappel, $250 damages
 	(1, 1, 55, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 10001 _");
 
--- =======================================================================
---  OTHER ASSESSMENTS
--- =======================================================================
--- INSERT INTO Assessments (BID,RID,ASMTID,Amount,Start,Stop,RentCycle, AcctRule) VALUES
--- 	(1,1,10, 50.00,"2015-10-01", "2016-12-31", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
--- 	(1,1,21,150.00,"2015-12-01", "2015-12-01", 0, "d ${DFLTGENRCV}, c 42002"),	-- Furniture rental
--- 	(1,2,10,100.00,"2015-10-01", "2016-12-21", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
--- 	(1,2,47, 90.00,"2015-12-01", "2015-12-01", 0, "d ${DFLTGENRCV}, c 42003"),	-- Late payment fee
--- 	(1,3,47,155.00,"2015-12-01", "2015-12-01", 0, "d ${DFLTGENRCV}, c 42003"),	-- Late payment fee
--- 	(1,4,10,100.00,"2015-10-01", "2016-12-31", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
--- 	(1,4,28,105.00,"2001-10-01", "2016-05-31", 6, "d ${DFLTGENRCV}, c 42007"),	-- carport fee
--- 	(1,5,10,100.00,"2015-10-01", "2016-12-31", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
--- 	(1,5,28, 35.00,"2015-10-01", "2016-12-01", 6, "d ${DFLTGENRCV}, c 42007"),	-- carport fee
--- 	(1,6,10,100.00,"2015-10-01", "2016-12-31", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
--- 	(1,7,47, 90.00,"2015-12-01", "2015-12-01", 0, "d ${DFLTGENRCV}, c 42003"),	-- Late payment fee
--- 	(1,7,10,100.00,"2015-10-01", "2016-12-31", 6, "d ${DFLTGENRCV}, c 42002"),	-- Water (utility) reimbursement
--- 	(1,7,11, 17.00,"2015-12-01", "2015-12-31", 0, "d ${DFLTGENRCV}, c 42002");	-- Water (utility) Overage
 
 -- =======================================================================
 --  RECEIPTS
@@ -434,18 +409,6 @@ INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(3,  11.67,10,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  CP001
 	(3,  11.67,11,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _");	--  CP002
 
--- INSERT INTO Receipt (BID,PID,RAID,PMTID,Dt,Amount) VALUES
--- 	(1,1,1,55,"2015-11-11", 750.00);  			-- 4   Security Deposit refuncd to Krabappel
--- INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID) VALUES
--- 	(4,750.00,7);		-- security deposit return
-	-- (1,1,1,"2015-12-06",1100.00),
-	-- (2,2,1,"2015-12-15", 805.00), 
-	-- (3,3,1,"2015-12-15",1060.00),
-	-- (4,4,4,"2015-12-07", 200.00),	
-	-- (4,4,4,"2015-12-09", 350.00),	
-	-- (6,6,1,"2015-12-15", 995.00),	
-	-- (7,7,1,"2015-12-03", 950.00),	
-	-- (7,7,1,"2015-12-10", 950.00);
 
 -- =======================================================================
 --  JOURNAL MARKERS

@@ -1,7 +1,8 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -13,7 +14,7 @@ import (
 func CreateCustomAttributes(sa []string, lineno int) {
 	funcname := "CreateCustomAttributes"
 	var ok bool
-	var c CustomAttribute
+	var c rlib.CustomAttribute
 
 	if strings.ToLower(sa[0]) == "name" {
 		return // it's the header line
@@ -25,39 +26,39 @@ func CreateCustomAttributes(sa []string, lineno int) {
 		return
 	}
 
-	c.Type, ok = IntFromString(sa[1], "Type is invalid")
+	c.Type, ok = rlib.IntFromString(sa[1], "Type is invalid")
 	if !ok {
 		return
 	}
-	if c.Type < CUSTSTRING || c.Type > CUSTLAST {
-		fmt.Printf("Type value must be a number from %d to %d\n", CUSTSTRING, CUSTLAST)
+	if c.Type < rlib.CUSTSTRING || c.Type > rlib.CUSTLAST {
+		fmt.Printf("Type value must be a number from %d to %d\n", rlib.CUSTSTRING, rlib.CUSTLAST)
 		return
 	}
 
 	c.Name = sa[0]
 	c.Value = sa[2]
 	switch c.Type {
-	case CUSTINT:
-		_, ok = IntFromString(c.Value, "Value cannot be converted to an integer")
+	case rlib.CUSTINT:
+		_, ok = rlib.IntFromString(c.Value, "Value cannot be converted to an integer")
 		if !ok {
 			return
 		}
-	case CUSTFLOAT:
-		_, ok = FloatFromString(c.Value, "Value cannot be converted to an float")
+	case rlib.CUSTFLOAT:
+		_, ok = rlib.FloatFromString(c.Value, "Value cannot be converted to an float")
 		if !ok {
 			return
 		}
 	}
 
-	_, err := InsertCustomAttribute(&c)
+	_, err := rlib.InsertCustomAttribute(&c)
 	if err != nil {
-		fmt.Printf("%s: line %d - Could not insert CustomAttribute. err = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - Could not insert rlib.CustomAttribute. err = %v\n", funcname, lineno, err)
 	}
 }
 
-// LoadCustomAttributesCSV loads a csv file with a chart of accounts and creates Ledger markers for each
+// LoadCustomAttributesCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
 func LoadCustomAttributesCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateCustomAttributes(t[i], i+1)
 	}

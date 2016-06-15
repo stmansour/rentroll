@@ -1,7 +1,8 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -28,13 +29,13 @@ func CreateRentalAgreementTemplate(sa []string, lineno int) {
 		return // this is just the column heading
 	}
 	//-------------------------------------------------------------------
-	// Make sure the Business is in the database
+	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
-	var a RentalAgreementTemplate // start the struct we'll be saving
-	if len(des) > 0 {             // make sure it's not empty
-		b1, _ := GetBusinessByDesignation(des) // see if we can find the biz
+	var a rlib.RentalAgreementTemplate // start the struct we'll be saving
+	if len(des) > 0 {                  // make sure it's not empty
+		b1, _ := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			Ulog("%s: line %d, Business with designation %s does net exist\n", funcname, lineno, sa[0])
+			rlib.Ulog("%s: line %d, rlib.Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
 		}
 		a.BID = b1.BID
@@ -45,27 +46,27 @@ func CreateRentalAgreementTemplate(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	des = strings.TrimSpace(sa[1]) // this should be the RentalTemplateNumber
 	if len(des) > 0 {
-		a1, err := GetRentalAgreementByRentalTemplateNumber(des)
+		a1, err := rlib.GetRentalAgreementByRentalTemplateNumber(des)
 		if err != nil {
 			s := err.Error()
 			if !strings.Contains(s, "no rows") {
-				Ulog("%s: line %d -  GetRentalAgreementByRentalTemplateNumber returned error %v\n", funcname, lineno, err)
+				rlib.Ulog("%s: line %d -  rlib.GetRentalAgreementByRentalTemplateNumber returned error %v\n", funcname, lineno, err)
 			}
 		}
 		if len(a1.RentalTemplateNumber) > 0 {
-			Ulog("%s: line %d - RentalAgreementTemplate with RentalTemplateNumber %s already exists\n", funcname, lineno, des)
+			rlib.Ulog("%s: line %d - rlib.RentalAgreementTemplate with RentalTemplateNumber %s already exists\n", funcname, lineno, des)
 			return
 		}
 	}
 
 	a.RentalTemplateNumber = des
 
-	InsertRentalAgreementTemplate(&a)
+	rlib.InsertRentalAgreementTemplate(&a)
 }
 
 // LoadRentalAgreementTemplatesCSV loads a csv file with assessment types and processes each one
 func LoadRentalAgreementTemplatesCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateRentalAgreementTemplate(t[i], i+1)
 	}

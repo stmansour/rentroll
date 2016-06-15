@@ -16,6 +16,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 )
@@ -110,7 +111,7 @@ func bizErrCheck(sa []string) {
 }
 
 func loaderGetBiz(s string) int64 {
-	bid := rlib.GetBusinessBID(s)
+	bid := rcsv.GetBusinessBID(s)
 	if bid == 0 {
 		fmt.Printf("unrecognized Business designator: %s\n", s)
 		os.Exit(1)
@@ -160,57 +161,57 @@ func main() {
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 
 	if len(App.BizFile) > 0 {
-		rlib.LoadBusinessCSV(App.BizFile)
+		rcsv.LoadBusinessCSV(App.BizFile)
 	}
 	if len(App.AsmtTypeFile) > 0 {
-		rlib.LoadAssessmentTypesCSV(App.AsmtTypeFile)
+		rcsv.LoadAssessmentTypesCSV(App.AsmtTypeFile)
 	}
 	if len(App.PmtTypeFile) > 0 {
-		rlib.LoadPaymentTypesCSV(App.PmtTypeFile)
+		rcsv.LoadPaymentTypesCSV(App.PmtTypeFile)
 	}
 	if len(App.RTFile) > 0 {
-		rlib.LoadRentableTypesCSV(App.RTFile)
+		rcsv.LoadRentableTypesCSV(App.RTFile)
 	}
 	if len(App.CustomFile) > 0 {
-		rlib.LoadCustomAttributesCSV(App.CustomFile)
+		rcsv.LoadCustomAttributesCSV(App.CustomFile)
 	}
 	if len(App.RSpFile) > 0 {
-		rlib.LoadRentalSpecialtiesCSV(App.RSpFile)
+		rcsv.LoadRentalSpecialtiesCSV(App.RSpFile)
 	}
 	if len(App.BldgFile) > 0 {
-		rlib.LoadBuildingCSV(App.BldgFile)
+		rcsv.LoadBuildingCSV(App.BldgFile)
 	}
 	if len(App.PplFile) > 0 {
-		rlib.LoadPeopleCSV(App.PplFile)
+		rcsv.LoadPeopleCSV(App.PplFile)
 	}
 	if len(App.RFile) > 0 {
-		rlib.LoadRentablesCSV(App.RFile)
+		rcsv.LoadRentablesCSV(App.RFile)
 	}
 	if len(App.RspRefsFile) > 0 {
-		rlib.LoadRentableSpecialtyRefsCSV(App.RspRefsFile)
+		rcsv.LoadRentableSpecialtyRefsCSV(App.RspRefsFile)
 	}
 	if len(App.RatFile) > 0 {
-		rlib.LoadRentalAgreementTemplatesCSV(App.RatFile)
+		rcsv.LoadRentalAgreementTemplatesCSV(App.RatFile)
 	}
 	if len(App.RaFile) > 0 {
-		rlib.LoadRentalAgreementCSV(App.RaFile)
+		rcsv.LoadRentalAgreementCSV(App.RaFile)
 	}
 	if len(App.PetFile) > 0 {
-		rlib.LoadPetsCSV(App.PetFile)
+		rcsv.LoadPetsCSV(App.PetFile)
 	}
 	if len(App.CoaFile) > 0 {
-		rlib.LoadChartOfAccountsCSV(App.CoaFile)
+		rcsv.LoadChartOfAccountsCSV(App.CoaFile)
 	}
 	if len(App.AsmtFile) > 0 {
 		App.AsmtTypes = rlib.GetAssessmentTypes()
-		rlib.LoadAssessmentsCSV(App.AsmtFile, &App.AsmtTypes)
+		rcsv.LoadAssessmentsCSV(App.AsmtFile, &App.AsmtTypes)
 	}
 	if len(App.RcptFile) > 0 {
 		App.PmtTypes = rlib.GetPaymentTypes()
-		rlib.LoadReceiptsCSV(App.RcptFile, &App.PmtTypes)
+		rcsv.LoadReceiptsCSV(App.RcptFile, &App.PmtTypes)
 	}
 	if len(App.AssignFile) > 0 {
-		rlib.LoadCustomAttributeRefsCSV(App.AssignFile)
+		rcsv.LoadCustomAttributeRefsCSV(App.AssignFile)
 	}
 
 	if len(App.Report) > 0 {
@@ -225,48 +226,48 @@ func main() {
 		case 2:
 			fmt.Printf("2 - not yet implemented\n")
 		case 3:
-			fmt.Printf("%s\n", rlib.RRreportBusiness(rlib.RPTTEXT))
+			fmt.Printf("%s\n", rcsv.RRreportBusiness(rlib.RPTTEXT))
 		case 4:
-			fmt.Printf("%s\n", rlib.RRreportAssessmentTypes(rlib.RPTTEXT))
+			fmt.Printf("%s\n", rcsv.RRreportAssessmentTypes(rlib.RPTTEXT))
 		case 5:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportRentableTypes(rlib.RPTTEXT, bid))
+			fmt.Printf("%s\n", rcsv.RRreportRentableTypes(rlib.RPTTEXT, bid))
 		case 6:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportRentables(rlib.RPTTEXT, bid))
+			fmt.Printf("%s\n", rcsv.RRreportRentables(rlib.RPTTEXT, bid))
 		case 7:
-			fmt.Printf("%s\n", rlib.RRreportPeople(rlib.RPTTEXT))
+			fmt.Printf("%s\n", rcsv.RRreportPeople(rlib.RPTTEXT))
 		case 8:
-			fmt.Printf("%s\n", rlib.RRreportRentalAgreementTemplates(rlib.RPTTEXT))
+			fmt.Printf("%s\n", rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT))
 		case 9:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportRentalAgreements(rlib.RPTTEXT, bid))
+			fmt.Printf("%s\n", rcsv.RRreportRentalAgreements(rlib.RPTTEXT, bid))
 		case 10:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportChartOfAccounts(rlib.RPTTEXT, bid))
+			fmt.Printf("%s\n", rcsv.RRreportChartOfAccounts(rlib.RPTTEXT, bid))
 		case 11:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportAssessments(rlib.RPTTEXT, bid))
+			fmt.Printf("%s\n", rcsv.RRreportAssessments(rlib.RPTTEXT, bid))
 		case 12:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportPaymentTypes(rlib.RPTTEXT, bid))
+			fmt.Printf("%s\n", rcsv.RRreportPaymentTypes(rlib.RPTTEXT, bid))
 		case 13:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportReceipts(rlib.RPTTEXT, bid))
+			fmt.Printf("%s\n", rcsv.RRreportReceipts(rlib.RPTTEXT, bid))
 		case 14:
-			fmt.Printf("%s\n", rlib.RRreportCustomAttributes(rlib.RPTTEXT))
+			fmt.Printf("%s\n", rcsv.RRreportCustomAttributes(rlib.RPTTEXT))
 		case 15:
-			fmt.Printf("%s\n", rlib.RRreportCustomAttributeRefs(rlib.RPTTEXT))
+			fmt.Printf("%s\n", rcsv.RRreportCustomAttributeRefs(rlib.RPTTEXT))
 		case 16:
-			raid := rlib.CSVLoaderGetRAID(sa[1])
-			fmt.Printf("%s\n", rlib.RRreportRentalAgreementPets(rlib.RPTTEXT, raid))
+			raid := rcsv.CSVLoaderGetRAID(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportRentalAgreementPets(rlib.RPTTEXT, raid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

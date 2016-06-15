@@ -1,7 +1,8 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strconv"
 	"strings"
 )
@@ -14,7 +15,7 @@ import (
 // CreateBuilding reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreateBuilding(sa []string, lineno int) {
 	funcname := "CreateBuilding"
-	var b Building
+	var b rlib.Building
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
 		return // this is just the column heading
@@ -27,24 +28,24 @@ func CreateBuilding(sa []string, lineno int) {
 		return
 	}
 	//-------------------------------------------------------------------
-	// Make sure the Business is in the database
+	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1, _ := GetBusinessByDesignation(des)
+		b1, _ := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("%s: line %d - Business with designation %s does net exist\n", funcname, lineno, des)
+			rlib.Ulog("%s: line %d - rlib.Business with designation %s does net exist\n", funcname, lineno, des)
 			return
 		}
 		b.BID = b1.BID
 	}
 
 	//-------------------------------------------------------------------
-	// parse out the Building number
+	// parse out the rlib.Building number
 	//-------------------------------------------------------------------
 	if len(sa[1]) > 0 {
 		i, err := strconv.Atoi(sa[1])
 		if err != nil || i < 0 {
-			fmt.Printf("%s: line %d - invalid Building number: %s\n", funcname, lineno, sa[1])
+			fmt.Printf("%s: line %d - invalid rlib.Building number: %s\n", funcname, lineno, sa[1])
 			return
 		}
 		b.BLDGID = int64(i)
@@ -60,15 +61,15 @@ func CreateBuilding(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	_, err := InsertBuildingWithID(&b)
+	_, err := rlib.InsertBuildingWithID(&b)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting Building = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting rlib.Building = %v\n", funcname, lineno, err)
 	}
 }
 
 // LoadBuildingCSV loads a csv file with rental specialty types and processes each one
 func LoadBuildingCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateBuilding(t[i], i+1)
 	}

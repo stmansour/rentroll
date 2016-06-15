@@ -1,27 +1,28 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strconv"
 	"strings"
 )
 
 //  CSV file format:
 //  0                     1      2             3             4                                            5        6                  7             ... 8, 9, ... as many as needed
-//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   Payor,                                       Renewal, SpecialProvisions, RentableName, ...
+//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   rlib.Payor,                                       Renewal, SpecialProvisions, RentableName, ...
 // 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                101
 // 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                107
 // 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                101,102
 
 // BuildPeopleList takes a semi-colon separated list of email addresses and phone numbers
-// and returns an array of RentalAgreementPayor records for each.  If any of the addresses in the list
-// cannot be resolved to a Transactant, then processing stops immediately and an error is returned.
+// and returns an array of rlib.RentalAgreementPayor records for each.  If any of the addresses in the list
+// cannot be resolved to a rlib.Transactant, then processing stops immediately and an error is returned.
 // Each value is time sensitive (has an associated time range). If the dates are not specified, then the
 // default values of dfltStart and dfltStop -- which are the start/stop time of the rental agreement --
 // are used instead. This is common because the payors will usually be the same for the entire rental
 // agreement lifetime.
-func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, lineno int) ([]RentalAgreementPayor, error) {
-	var m []RentalAgreementPayor
+func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, error) {
+	var m []rlib.RentalAgreementPayor
 	var noerr error
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
 	s1 := strings.Split(s2, ";")
@@ -32,19 +33,19 @@ func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, line
 				funcname, lineno, len(ss), ss)
 			return m, err
 		}
-		var payor RentalAgreementPayor
+		var payor rlib.RentalAgreementPayor
 
-		// PAYOR (Transactant)
+		// PAYOR (rlib.Transactant)
 		s = strings.TrimSpace(ss[0]) // either the email address or the phone number
-		t, err := GetTransactantByPhoneOrEmail(s)
-		if err != nil && !IsSQLNoResultsError(err) {
-			rerr := fmt.Errorf("%s:  lineno %d - error retrieving Transactant by phone or email: %v", funcname, lineno, err)
-			Ulog("%s", rerr.Error())
+		t, err := rlib.GetTransactantByPhoneOrEmail(s)
+		if err != nil && !rlib.IsSQLNoResultsError(err) {
+			rerr := fmt.Errorf("%s:  lineno %d - error retrieving rlib.Transactant by phone or email: %v", funcname, lineno, err)
+			rlib.Ulog("%s", rerr.Error())
 			return m, rerr
 		}
 		if t.PID == 0 {
-			rerr := fmt.Errorf("%s:  lineno %d - could not find Transactant with contact information %s\n", funcname, lineno, s)
-			Ulog("%s", rerr.Error())
+			rerr := fmt.Errorf("%s:  lineno %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, s)
+			rlib.Ulog("%s", rerr.Error())
 			return m, rerr
 		}
 		payor.PID = t.PID
@@ -66,8 +67,8 @@ func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, line
 // CreateRentalAgreement creates database records for the rental agreement defined in sa[]
 func CreateRentalAgreement(sa []string, lineno int) {
 	funcname := "CreateRentalAgreement"
-	var ra RentalAgreement
-	var m []RentalAgreementRentable
+	var ra rlib.RentalAgreement
+	var m []rlib.RentalAgreementRentable
 
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "rentaltemplatenumber" {
@@ -81,12 +82,12 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the Business is in the database
+	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1, _ := GetRentalAgreementByRentalTemplateNumber(des)
+		b1, _ := rlib.GetRentalAgreementByRentalTemplateNumber(des)
 		if len(b1.RentalTemplateNumber) == 0 {
-			Ulog("%s: line %d - Business with designation %s does net exist\n", funcname, lineno, sa[0])
+			rlib.Ulog("%s: line %d - rlib.Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return
 		}
 		ra.RATID = b1.RATID
@@ -97,9 +98,9 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	cmpdes := strings.TrimSpace(sa[1])
 	if len(cmpdes) > 0 {
-		b2, _ := GetBusinessByDesignation(cmpdes)
+		b2, _ := rlib.GetBusinessByDesignation(cmpdes)
 		if b2.BID == 0 {
-			fmt.Printf("%s: line %d - could not find Business named %s\n", funcname, lineno, cmpdes)
+			fmt.Printf("%s: line %d - could not find rlib.Business named %s\n", funcname, lineno, cmpdes)
 			return
 		}
 		ra.BID = b2.BID
@@ -164,10 +165,10 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	for i := 7; i < len(sa); i++ {
 		s = strings.TrimSpace(sa[i])
-		r, _ := GetRentableByName(s, ra.BID)
+		r, _ := rlib.GetRentableByName(s, ra.BID)
 
 		if len(r.Name) > 0 {
-			var ar RentalAgreementRentable
+			var ar rlib.RentalAgreementRentable
 			ar.RID = r.RID
 			ar.DtStart = DtStart
 			ar.DtStop = DtStop
@@ -178,9 +179,9 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//------------------------------------
 	// Write the rental agreement record
 	//-----------------------------------
-	RAID, err := InsertRentalAgreement(&ra)
+	RAID, err := rlib.InsertRentalAgreement(&ra)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting RentalAgreement = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting rlib.RentalAgreement = %v\n", funcname, lineno, err)
 	}
 
 	//------------------------------
@@ -188,7 +189,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//------------------------------
 	for i := 0; i < len(m); i++ {
 		m[i].RAID = RAID
-		InsertRentalAgreementRentable(&m[i])
+		rlib.InsertRentalAgreementRentable(&m[i])
 	}
 
 	//------------------------------
@@ -196,13 +197,13 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//------------------------------
 	for i := 0; i < len(payors); i++ {
 		payors[i].RAID = RAID
-		InsertRentalAgreementPayor(&payors[i])
+		rlib.InsertRentalAgreementPayor(&payors[i])
 	}
 }
 
 // LoadRentalAgreementCSV loads a csv file with rental specialty types and processes each one
 func LoadRentalAgreementCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateRentalAgreement(t[i], i+1)
 	}

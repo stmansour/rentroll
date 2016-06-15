@@ -414,17 +414,17 @@ type RentableSpecialtyType struct {
 
 // RentableType is the set of attributes describing the different types of Rentable items
 type RentableType struct {
-	RTID      int64
-	BID       int64
-	Style     string
-	Name      string
-	RentCycle int64
-	Proration int64
-	// Report         int64 // does this type of Rentable show up in reporting
-	ManageToBudget int64
-	MR             []RentableMarketRate
-	CA             []CustomAttribute
-	MRCurrent      float64 // the current market rate (historical values are in MR)
+	RTID           int64                // unique identifier for this RentableType
+	BID            int64                // the business unit to which this RentableType belongs
+	Style          string               // a short name
+	Name           string               // longer name
+	RentCycle      int64                // frequency at which rent accrues, 0 = not set or n/a, 1 = secondly, 2=minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly...
+	Proration      int64                // frequency for prorating rent if the full rentcycle is not used
+	GSPRC          int64                // Time increments in which GSR is calculated to account for rate changes
+	ManageToBudget int64                // 0=no, 1 = yes
+	MR             []RentableMarketRate // array of time sensitive market rates
+	CA             []CustomAttribute    // associated custom attributes
+	MRCurrent      float64              // the current market rate (historical values are in MR)
 	LastModTime    time.Time
 	LastModBy      int64
 }
@@ -722,15 +722,15 @@ type BusinessTypes struct {
 var RRdb struct {
 	Prepstmt RRprepSQL
 	PBsql    PBprepSQL
-	dbdir    *sql.DB // phonebook db
-	dbrr     *sql.DB //rentroll db
+	Dbdir    *sql.DB // phonebook db
+	Dbrr     *sql.DB //rentroll db
 	BizTypes map[int64]*BusinessTypes
 }
 
 // InitDBHelpers initializes the db infrastructure
 func InitDBHelpers(dbrr, dbdir *sql.DB) {
-	RRdb.dbdir = dbdir
-	RRdb.dbrr = dbrr
+	RRdb.Dbdir = dbdir
+	RRdb.Dbrr = dbrr
 	RRdb.BizTypes = make(map[int64]*BusinessTypes, 0)
 	buildPreparedStatements()
 	buildPBPreparedStatements()

@@ -1,57 +1,58 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"sort"
 	"time"
 )
 
-// ReportBusinessToText returns a string representation of the supplied Business suitable for a text report
-func ReportBusinessToText(p *Business) string {
+// ReportBusinessToText returns a string representation of the supplied rlib.Business suitable for a text report
+func ReportBusinessToText(p *rlib.Business) string {
 	return fmt.Sprintf("%4d %6s    %s\n", p.BID, p.Designation, p.Name)
 }
 
-// ReportBusinessToHTML returns a string representation of the supplied Business suitable for HTML display
-func ReportBusinessToHTML(p *Business) string {
+// ReportBusinessToHTML returns a string representation of the supplied rlib.Business suitable for HTML display
+func ReportBusinessToHTML(p *rlib.Business) string {
 	return fmt.Sprintf("<tr><td>%d</td><td%s></td><td>%s</td></tr>", p.BID, p.Designation, p.Name)
 }
 
 // RRreportBusiness generates a report of all Businesses defined in the database.
 func RRreportBusiness(t int) string {
-	rows, err := RRdb.Prepstmt.GetAllBusinesses.Query()
-	Errcheck(err)
+	rows, err := rlib.RRdb.Prepstmt.GetAllBusinesses.Query()
+	rlib.Errcheck(err)
 	defer rows.Close()
 	s := ""
 	for rows.Next() {
-		var p Business
-		Errcheck(rows.Scan(&p.BID, &p.Designation, &p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+		var p rlib.Business
+		rlib.Errcheck(rows.Scan(&p.BID, &p.Designation, &p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportBusinessToText(&p)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportBusinessToHTML(&p)
 		default:
 			fmt.Printf("RRreportBusiness: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
-// ReportAssessmentTypeToText returns a string representation of the supplied AssessmentType suitable for a text report
-func ReportAssessmentTypeToText(p AssessmentType) string {
+// ReportAssessmentTypeToText returns a string representation of the supplied rlib.AssessmentType suitable for a text report
+func ReportAssessmentTypeToText(p rlib.AssessmentType) string {
 	return fmt.Sprintf("%4d  %6d   %s\n", p.ASMTID, p.RARequired, p.Name)
 }
 
-// ReportAssessmentTypeToHTML returns a string representation of the supplied AssessmentType suitable for HTML display
-func ReportAssessmentTypeToHTML(p AssessmentType) string {
+// ReportAssessmentTypeToHTML returns a string representation of the supplied rlib.AssessmentType suitable for HTML display
+func ReportAssessmentTypeToHTML(p rlib.AssessmentType) string {
 	return fmt.Sprintf("<tr><td>%d</td><td%s></td><td>%s</td></tr>", p.ASMTID, p.Name, p.Description)
 }
 
 // RRreportAssessmentTypes generates a report of all assessment types defined in the database.
 func RRreportAssessmentTypes(t int) string {
-	m := GetAssessmentTypes()
+	m := rlib.GetAssessmentTypes()
 
 	s := fmt.Sprintf("Name  RARqd    Description\n")
 	var keys []int
@@ -63,9 +64,9 @@ func RRreportAssessmentTypes(t int) string {
 	for _, k := range keys {
 		i := int64(k)
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportAssessmentTypeToText(m[i])
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportAssessmentTypeToHTML(m[i])
 		default:
 			fmt.Printf("RRreportAssessmentTypes: unrecognized print format: %d\n", t)
@@ -75,20 +76,20 @@ func RRreportAssessmentTypes(t int) string {
 	return s
 }
 
-// ReportRentableTypeToText returns a string representation of the supplied RentableType suitable for a text report
-func ReportRentableTypeToText(p RentableType) string {
+// ReportRentableTypeToText returns a string representation of the supplied rlib.RentableType suitable for a text report
+func ReportRentableTypeToText(p rlib.RentableType) string {
 	return fmt.Sprintf("%4d - %s  -  %s\n", p.RTID, p.Style, p.Name)
 }
 
-// ReportRentableTypeToHTML returns a string representation of the supplied RentableType suitable for HTML display
-func ReportRentableTypeToHTML(p RentableType) string {
+// ReportRentableTypeToHTML returns a string representation of the supplied rlib.RentableType suitable for HTML display
+func ReportRentableTypeToHTML(p rlib.RentableType) string {
 	return fmt.Sprintf("<tr><td>%d</td><td%s></td><td%s></td></tr>", p.RTID, p.Style, p.Name)
 }
 
 // RRreportRentableTypes generates a report of all assessment types defined in the database.
 func RRreportRentableTypes(t int, bid int64) string {
 
-	m := GetBusinessRentableTypes(bid)
+	m := rlib.GetBusinessRentableTypes(bid)
 
 	var keys []int
 	for k := range m {
@@ -106,9 +107,9 @@ func RRreportRentableTypes(t int, bid int64) string {
 
 		// for _, v := range m {
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportRentableTypeToText(m[i])
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportRentableTypeToHTML(m[i])
 		default:
 			fmt.Printf("RRreportRentableTypes: unrecognized print format: %d\n", t)
@@ -118,217 +119,175 @@ func RRreportRentableTypes(t int, bid int64) string {
 	return s
 }
 
-// ReportRentableToText returns a string representation of the supplied Rentable suitable for a text report
-func ReportRentableToText(p *Rentable) string {
+// ReportRentableToText returns a string representation of the supplied rlib.Rentable suitable for a text report
+func ReportRentableToText(p *rlib.Rentable) string {
 	return fmt.Sprintf("%4d  %s\n",
 		p.RID, p.Name)
 }
 
-// ReportRentableToHTML returns a string representation of the supplied Rentable suitable for a text report
-func ReportRentableToHTML(p *Rentable) string {
+// ReportRentableToHTML returns a string representation of the supplied rlib.Rentable suitable for a text report
+func ReportRentableToHTML(p *rlib.Rentable) string {
 	return fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>",
 		p.RID, p.Name)
 }
 
 // RRreportRentables generates a report of all Businesses defined in the database.
 func RRreportRentables(t int, bid int64) string {
-	rows, err := RRdb.Prepstmt.GetAllRentablesByBusiness.Query(bid)
-	Errcheck(err)
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(bid)
+	rlib.Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf(" RID  Name\n")
 	for rows.Next() {
-		var p Rentable
-		Errcheck(rows.Scan(&p.RID, &p.BID, &p.Name, &p.AssignmentTime, &p.LastModTime, &p.LastModBy))
+		var p rlib.Rentable
+		rlib.Errcheck(rows.Scan(&p.RID, &p.BID, &p.Name, &p.AssignmentTime, &p.LastModTime, &p.LastModBy))
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportRentableToText(&p)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportRentableToHTML(&p)
 		default:
 			fmt.Printf("RRreportRentables: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
 // ReportXPersonToText returns a string representation of the supplied People suitable for a text report
-func ReportXPersonToText(p *XPerson) string {
+func ReportXPersonToText(p *rlib.XPerson) string {
 	return fmt.Sprintf("%5d  %5d  %5d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
 		p.Trn.TCID, p.Tnt.USERID, p.Pay.PID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
 }
 
 // ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
-func ReportXPersonToHTML(p *XPerson) string {
+func ReportXPersonToHTML(p *rlib.XPerson) string {
 	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%5d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
 		p.Trn.TCID, p.Tnt.USERID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
 func RRreportPeople(t int) string {
-	rows, err := RRdb.Prepstmt.GetAllTransactants.Query()
-	Errcheck(err)
+	rows, err := rlib.RRdb.Prepstmt.GetAllTransactants.Query()
+	rlib.Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "USERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
 	for rows.Next() {
-		var p XPerson
-		Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.USERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
+		var p rlib.XPerson
+		rlib.Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.USERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
 			&p.Trn.CompanyName, &p.Trn.IsCompany, &p.Trn.PrimaryEmail, &p.Trn.SecondaryEmail, &p.Trn.WorkPhone, &p.Trn.CellPhone, &p.Trn.Address, &p.Trn.Address2,
 			&p.Trn.City, &p.Trn.State, &p.Trn.PostalCode, &p.Trn.Country, &p.Trn.Website, &p.Trn.Notes, &p.Trn.LastModTime, &p.Trn.LastModBy))
-		GetXPerson(p.Trn.TCID, &p)
+		rlib.GetXPerson(p.Trn.TCID, &p)
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportXPersonToText(&p)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportXPersonToHTML(&p)
 		default:
 			fmt.Printf("RRreportPeople: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
 // ReportRentalAgreementTemplateToText returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementTemplateToText(p *RentalAgreementTemplate) string {
+func ReportRentalAgreementTemplateToText(p *rlib.RentalAgreementTemplate) string {
 	return fmt.Sprintf("%5d  B%08d   %s\n", p.RATID, p.BID, p.RentalTemplateNumber)
 }
 
 // ReportRentalAgreementTemplateToHTML returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementTemplateToHTML(p *RentalAgreementTemplate) string {
+func ReportRentalAgreementTemplateToHTML(p *rlib.RentalAgreementTemplate) string {
 	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%s</td></tr>", p.RATID, p.BID, p.RentalTemplateNumber)
 }
 
 // RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
 func RRreportRentalAgreementTemplates(t int) string {
-	rows, err := RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
-	Errcheck(err)
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
+	rlib.Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf("RATID  BID         RentalTemplateNumber\n")
 	for rows.Next() {
-		var p RentalAgreementTemplate
-		Errcheck(rows.Scan(&p.RATID, &p.BID, &p.RentalTemplateNumber, &p.LastModTime, &p.LastModBy))
+		var p rlib.RentalAgreementTemplate
+		rlib.Errcheck(rows.Scan(&p.RATID, &p.BID, &p.RentalTemplateNumber, &p.LastModTime, &p.LastModBy))
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportRentalAgreementTemplateToText(&p)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportRentalAgreementTemplateToHTML(&p)
 		default:
 			fmt.Printf("RRreportRentalAgreementTemplates: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
-	return s
-}
-
-// UsersToString is a convenience call to get all the on a rental agreement into a single comma separated string
-func (ra RentalAgreement) UsersToString() string {
-	s := ""
-	l := len(ra.T)
-	for i := 0; i < l; i++ {
-		if ra.T[i].Trn.IsCompany > 0 {
-			s += ra.T[i].Trn.CompanyName
-		} else {
-			s += ra.T[i].Trn.FirstName + " "
-			if len(ra.T[i].Trn.MiddleName) > 0 {
-				s += ra.T[i].Trn.MiddleName + " "
-			}
-			s += ra.T[i].Trn.LastName
-		}
-		if i+1 < l {
-			s += ", "
-		}
-	}
-	return s
-}
-
-// PayorsToString is a convenience call to get all the on a rental agreement into a single comma separated string
-func (ra RentalAgreement) PayorsToString() string {
-	s := ""
-	l := len(ra.P)
-	for i := 0; i < l; i++ {
-		if ra.P[i].Trn.IsCompany > 0 {
-			s += ra.P[i].Trn.CompanyName
-		} else {
-			s += ra.P[i].Trn.FirstName + " "
-			if len(ra.P[i].Trn.MiddleName) > 0 {
-				s += ra.P[i].Trn.MiddleName + " "
-			}
-			s += ra.P[i].Trn.LastName
-		}
-		if i+1 < l {
-			s += ", "
-		}
-	}
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
 // ReportRentalAgreementToText returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementToText(p *RentalAgreement) string {
+func ReportRentalAgreementToText(p *rlib.RentalAgreement) string {
 	return fmt.Sprintf("%5d  %-40s  %-40s\n",
 		p.RAID, (*p).PayorsToString(), (*p).UsersToString())
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
 func RRreportRentalAgreements(t int, bid int64) string {
-	rows, err := RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
-	Errcheck(err)
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
+	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("%5s  %-40s  %-40s\n", "RAID", "Payor", "User")
+	s := fmt.Sprintf("%5s  %-40s  %-40s\n", "RAID", "rlib.Payor", "rlib.User")
 	var raid int64
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.UTC)
 	for rows.Next() {
-		var p RentalAgreement
+		var p rlib.RentalAgreement
 
-		Errcheck(rows.Scan(&raid))
-		p, err = GetXRentalAgreement(raid, &d1, &d2)
+		rlib.Errcheck(rows.Scan(&raid))
+		p, err = rlib.GetXRentalAgreement(raid, &d1, &d2)
 		if err != nil {
-			Ulog("RRreportRentalAgreements: GetXRentalAgreement returned err = %v\n", err)
+			rlib.Ulog("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
 			continue
 		}
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportRentalAgreementToText(&p)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			fallthrough
 		default:
 			fmt.Printf("RRreportRentalAgreements: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
 // ReportChartOfAcctsToText returns a string representation of the chart of accts
-func ReportChartOfAcctsToText(p *Ledger) string {
+func ReportChartOfAcctsToText(p *rlib.Ledger) string {
 	s := ""
-	lm, err := GetLatestLedgerMarkerByLID(p.BID, p.LID)
+	lm, err := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
 	if err != nil {
-		fmt.Printf("ReportChartOfAcctsToText: error getting latest LedgerMarker: %s\n", err.Error())
+		fmt.Printf("ReportChartOfAcctsToText: error getting latest rlib.LedgerMarker: %s\n", err.Error())
 		return s
 	}
-	if DFLTCASH <= p.Type && p.Type <= DFLTLAST {
+	if rlib.DFLTCASH <= p.Type && p.Type <= rlib.DFLTLAST {
 		s = fmt.Sprintf("%4d", p.Type)
 	}
 	return fmt.Sprintf("%5d  %4s  %12s   %12.2f   %s\n",
 		lm.LMID, s, p.GLNumber, lm.Balance, p.Name)
 }
 
-// RRreportChartOfAccounts generates a report of all Ledger accounts
+// RRreportChartOfAccounts generates a report of all rlib.Ledger accounts
 func RRreportChartOfAccounts(t int, bid int64) string {
-	m := GetLedgerList(bid)
+	m := rlib.GetLedgerList(bid)
 	//                               123456789012
 	s := fmt.Sprintf("  LID   Type  GLAccountNo         Amount   Name\n")
 	for i := 0; i < len(m); i++ {
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportChartOfAcctsToText(&m[i])
-		case RPTHTML:
+		case rlib.RPTHTML:
 			fmt.Printf("unimplemented\n")
 		default:
 			fmt.Printf("RRreportChartOfAccounts: unrecognized print format: %d\n", t)
@@ -339,7 +298,7 @@ func RRreportChartOfAccounts(t int, bid int64) string {
 }
 
 // ReportAssessmentToText returns a string representation of the chart of accts
-func ReportAssessmentToText(p *Assessment) string {
+func ReportAssessmentToText(p *rlib.Assessment) string {
 	ra := "unassociated"
 	if p.RAID > 0 {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
@@ -349,7 +308,7 @@ func ReportAssessmentToText(p *Assessment) string {
 }
 
 // ReportAssessmentToHTML returns a string representation of the chart of accts
-func ReportAssessmentToHTML(p *Assessment) string {
+func ReportAssessmentToHTML(p *rlib.Assessment) string {
 	ra := "unassociated"
 	if p.RAID > 0 {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
@@ -358,48 +317,48 @@ func ReportAssessmentToHTML(p *Assessment) string {
 		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
 }
 
-// RRreportAssessments generates a report of all Ledger accounts
+// RRreportAssessments generates a report of all rlib.Ledger accounts
 func RRreportAssessments(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	rows, err := RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
-	Errcheck(err)
+	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
+	rlib.Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf("      ASMID          RAID        RID   Freq     Amount\n")
 	for rows.Next() {
-		var a Assessment
-		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
+		var a rlib.Assessment
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
 			&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportAssessmentToText(&a)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportAssessmentToHTML(&a)
 		default:
 			fmt.Printf("RRreportAssessments: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
-// ReportPaymentTypesToText returns a string representation of the PaymentType struct
-func ReportPaymentTypesToText(p *PaymentType) string {
+// ReportPaymentTypesToText returns a string representation of the rlib.PaymentType struct
+func ReportPaymentTypesToText(p *rlib.PaymentType) string {
 	return fmt.Sprintf("PT%08d     B%08d   %s\n",
 		p.PMTID, p.BID, p.Name)
 }
 
-// ReportPaymentTypesToHTML returns a string representation of the PaymentType struct
-func ReportPaymentTypesToHTML(p *PaymentType) string {
+// ReportPaymentTypesToHTML returns a string representation of the rlib.PaymentType struct
+func ReportPaymentTypesToHTML(p *rlib.PaymentType) string {
 	return fmt.Sprintf("<tr><td>PT%08d</td><td>B%08d</td><td>%s</td></tr>\n",
 		p.PMTID, p.BID, p.Name)
 }
 
-// RRreportPaymentTypes generates a report of all Ledger accounts
+// RRreportPaymentTypes generates a report of all rlib.Ledger accounts
 func RRreportPaymentTypes(t int, bid int64) string {
-	m := GetPaymentTypesByBusiness(bid)
+	m := rlib.GetPaymentTypesByBusiness(bid)
 
 	var keys []int
 	for k := range m {
@@ -412,9 +371,9 @@ func RRreportPaymentTypes(t int, bid int64) string {
 		i := int64(k)
 		v := m[i]
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportPaymentTypesToText(&v)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportPaymentTypesToHTML(&v)
 		default:
 			fmt.Printf("RRreportChartOfAccounts: unrecognized print format: %d\n", t)
@@ -425,29 +384,29 @@ func RRreportPaymentTypes(t int, bid int64) string {
 }
 
 // ReportReceiptToText returns a string representation of the chart of accts
-func ReportReceiptToText(p *Receipt) string {
+func ReportReceiptToText(p *rlib.Receipt) string {
 	return fmt.Sprintf("RCPT%08d   %8.2f  %s\n",
 		p.RCPTID, p.Amount, p.AcctRule)
 }
 
 // ReportReceiptToHTML returns a string representation of the chart of accts
-func ReportReceiptToHTML(p *Receipt) string {
+func ReportReceiptToHTML(p *rlib.Receipt) string {
 	return fmt.Sprintf("<tr><td>RCPT%08d</td><td>%8.2f</td><td>%s</d></tr\n",
 		p.RCPTID, p.Amount, p.AcctRule)
 }
 
-// RRreportReceipts generates a report of all Ledger accounts
+// RRreportReceipts generates a report of all rlib.Ledger accounts
 func RRreportReceipts(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	m := GetReceipts(bid, &d1, &d2)
+	m := rlib.GetReceipts(bid, &d1, &d2)
 	s := fmt.Sprintf("      RCPTID     Amount  AcctRule\n")
 
 	for _, a := range m {
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportReceiptToText(&a)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			s += ReportReceiptToHTML(&a)
 		default:
 			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
@@ -458,88 +417,88 @@ func RRreportReceipts(t int, bid int64) string {
 }
 
 // ReportCustomAttributeToText returns a string representation of the chart of accts
-func ReportCustomAttributeToText(p *CustomAttribute) string {
+func ReportCustomAttributeToText(p *rlib.CustomAttribute) string {
 	return fmt.Sprintf("%8d  %9d  %-25s  %-25s\n",
 		p.CID, p.Type, p.Name, p.Value)
 }
 
-// RRreportCustomAttributes generates a report of all Ledger accounts
+// RRreportCustomAttributes generates a report of all rlib.Ledger accounts
 func RRreportCustomAttributes(t int) string {
-	rows, err := RRdb.dbrr.Query("SELECT CID,Type,Name,Value FROM CustomAttr")
-	Errcheck(err)
+	rows, err := rlib.RRdb.Dbrr.Query("SELECT CID,Type,Name,Value FROM CustomAttr")
+	rlib.Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf("%-8s  %-9s  %-25s  %-25s\n", "CID", "VALUETYPE", "Name", "Value")
 
 	for rows.Next() {
-		var a CustomAttribute
-		Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value))
+		var a rlib.CustomAttribute
+		rlib.Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value))
 
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportCustomAttributeToText(&a)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
 // ReportCustomAttributeRefToText returns a string representation of the chart of accts
-func ReportCustomAttributeRefToText(p *CustomAttributeRef) string {
+func ReportCustomAttributeRefToText(p *rlib.CustomAttributeRef) string {
 	return fmt.Sprintf("%6d  %8d  %8d\n",
 		p.ElementType, p.ID, p.CID)
 }
 
-// RRreportCustomAttributeRefs generates a report of all Ledger accounts
+// RRreportCustomAttributeRefs generates a report of all rlib.Ledger accounts
 func RRreportCustomAttributeRefs(t int) string {
-	rows, err := RRdb.dbrr.Query("SELECT ElementType,ID,CID FROM CustomAttrRef")
-	Errcheck(err)
+	rows, err := rlib.RRdb.Dbrr.Query("SELECT ElementType,ID,CID FROM CustomAttrRef")
+	rlib.Errcheck(err)
 	defer rows.Close()
 	s := fmt.Sprintf("ELEMID        ID       CID\n")
 	for rows.Next() {
-		var a CustomAttributeRef
-		Errcheck(rows.Scan(&a.ElementType, &a.ID, &a.CID))
+		var a rlib.CustomAttributeRef
+		rlib.Errcheck(rows.Scan(&a.ElementType, &a.ID, &a.CID))
 
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportCustomAttributeRefToText(&a)
-		case RPTHTML:
+		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
-	Errcheck(rows.Err())
+	rlib.Errcheck(rows.Err())
 	return s
 }
 
 // ReportRentalAgreementPetToText returns a string representation of the chart of accts
-func ReportRentalAgreementPetToText(p *RentalAgreementPet) string {
+func ReportRentalAgreementPetToText(p *rlib.RentalAgreementPet) string {
 	end := ""
-	if p.DtStop.Year() < YEARFOREVER {
-		end = p.DtStop.Format(RRDATEINPFMT)
+	if p.DtStop.Year() < rlib.YEARFOREVER {
+		end = p.DtStop.Format(rlib.RRDATEINPFMT)
 	}
 	return fmt.Sprintf("PET%08d  RA%08d  %-25s  %-15s  %-15s  %-15s  %6.2f lb  %-10s  %-10s\n",
-		p.PETID, p.RAID, p.Name, p.Type, p.Breed, p.Color, p.Weight, p.DtStart.Format(RRDATEINPFMT), end)
+		p.PETID, p.RAID, p.Name, p.Type, p.Breed, p.Color, p.Weight, p.DtStart.Format(rlib.RRDATEINPFMT), end)
 }
 
-// RRreportRentalAgreementPets generates a report of all Ledger accounts
+// RRreportRentalAgreementPets generates a report of all rlib.Ledger accounts
 func RRreportRentalAgreementPets(t int, raid int64) string {
-	m := GetAllRentalAgreementPets(raid)
+	m := rlib.GetAllRentalAgreementPets(raid)
 	s := fmt.Sprintf("%-11s  %-10s  %-25s  %-15s  %-15s  %-15s  %-9s  %-10s  %-10s\n", "PETID", "RAID", "Name", "Type", "Breed", "Color", "Weight", "DtStart", "DtStop")
 	for i := 0; i < len(m); i++ {
 		switch t {
-		case RPTTEXT:
+		case rlib.RPTTEXT:
 			s += ReportRentalAgreementPetToText(&m[i])
-		case RPTHTML:
+		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportRentalAgreementPets: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportrlib.RentalAgreementPets: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}

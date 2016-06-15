@@ -60,12 +60,21 @@ func FindApplicableMarketRate(dt, start, stop time.Time, mr []RentableMarketRate
 // Params:
 //    dt = The time/date for which we need information
 //   rta = an array of RentableTypeRefs for the supplied date/time
+//
+// Returns:
+//   RentCycle
+//   ProrationCycle
+//   GSRPC
+//   err
 //========================================================================================================
-func GetProrationCycle(dt *time.Time, r *Rentable, rta []RentableTypeRef, xbiz *XBusiness) (int64, int64, error) {
+func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz *XBusiness) (int64, int64, int64, error) {
 	rentCycle := int64(-1)
 	prorationCycle := int64(-1)
 	var err error
-	rt := SelectRentableTypeRefForDate(&rta, dt)
+	rt := SelectRentableTypeRefForDate(rta, dt)
+
+	// fmt.Printf("GetProrationCycle: rt = (%s - %s) rentcycle=%d, prorate=%d, rtid=%d\n",
+	// 	rt.DtStart.Format("1/2/06"), rt.DtStop.Format("1/2/06"), rt.RentCycle, rt.ProrationCycle, rt.RTID)
 
 	if rt.ProrationCycle > ACCRUALNORECUR { // if there's an override
 		prorationCycle = rt.ProrationCycle //use the override
@@ -74,21 +83,18 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta []RentableTypeRef, xbiz *
 		rentCycle = rt.RentCycle // ...use it
 	}
 
-	if prorationCycle < 0 || rentCycle < 0 { // if either of these values are unset...
-		// determine the rentable type for time dt
-		if rt.RTID == 0 {
-			err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d during period %s\n", r.RID, dt.Format(RRDATEINPFMT))
-			return 0, 0, err // this is bad! No RTID for the supplied time range
-		}
-		if prorationCycle < 0 { // if there was no override..
-			prorationCycle = xbiz.RT[rt.RTID].Proration
-		}
-		if rentCycle == ACCRUALNORECUR {
-			rentCycle = xbiz.RT[rt.RTID].RentCycle
-		}
+	// determine the rentable type for time dt
+	if rt.RTID == 0 {
+		err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d during period %s\n", r.RID, dt.Format(RRDATEINPFMT))
+		return 0, 0, 0, err // this is bad! No RTID for the supplied time range
 	}
-	return rentCycle, prorationCycle, err
-
+	if prorationCycle < 0 { // if there was no override..
+		prorationCycle = xbiz.RT[rt.RTID].Proration
+	}
+	if rentCycle < 0 {
+		rentCycle = xbiz.RT[rt.RTID].RentCycle
+	}
+	return rentCycle, prorationCycle, xbiz.RT[rt.RTID].GSPRC, err
 }
 
 // CalculateGSR calculates the gross scheduled rent as described above.
@@ -99,16 +105,31 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta []RentableTypeRef, xbiz *
 //        This array is the MR attribute in the RentableMarketRate struct
 //  rsa = array of rentable specialties that apply to the rentable we're calculating
 //========================================================================================================
-func CalculateGSR(d1, d2 time.Time, rt RentableType, rsa []RentableSpecialtyType) float64 {
-	var total = float64(0)                          // init total
-	prorateDur := CycleDuration(rt.Proration, d1)   // the proration cycle expressed as a duration
-	inc := prorateDur                               // increment durations for rent calculation -- FOR NOW I'VE MAPPED IT TO PRORATE CYCLE
-	rentCycleDur := CycleDuration(rt.RentCycle, d1) // this is the rentcycle expressed as a duration
+func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []RentableSpecialtyType, xbiz *XBusiness) float64 {
+	var total = float64(0) // init total
+
+	// rentCycle, prorateCycle, gsrpc, err := GetProrationCycle(&d1, r, rta, xbiz)
+	rentCycle, _, gsrpc, err := GetProrationCycle(&d1, r, rta, xbiz)
+	if err != nil {
+		Ulog("CalculateGSR: GetProrationCycle returned error: %s\n", err.Error())
+		return float64(0)
+	}
+	if rentCycle < 0 || gsrpc < 0 {
+		Ulog("CalculateGSR: warning: one or more cycle values is unset\n")
+	}
+	// prorateDur := CycleDuration(prorateCycle, d1) // the proration cycle expressed as a duration
+	inc := CycleDuration(gsrpc, d1)              // increment durations for rent calculation
+	rentCycleDur := CycleDuration(rentCycle, d1) // this is the rentcycle expressed as a duration
+	rtr := SelectRentableTypeRefForDate(rta, &d1)
+
+	// fmt.Printf("CalculateGSR: rentCycle = %d (%v), prorateCycle = %d (%v), gsrpc = %d (%v)\n",
+	// 	rentCycle, rentCycleDur, prorateCycle, prorateDur, gsrpc, inc)
+	// fmt.Printf("rtr = (%s - %s) rtid = %d\n", rtr.DtStart.Format("1/2/06"), rtr.DtStop.Format("1/2/06"), rtr.RTID)
 
 	for d := d1; d.Before(d2); d = d.Add(inc) { // spin through the period in the defined increments
-		rate := FindApplicableMarketRate(d, d1, d2, rt.MR)  // find the rate applicable for this increment
-		rent := float64(inc) * rate / float64(rentCycleDur) // how much for the period: inc
-		total += rent                                       // increment the total by this amount
+		rate := FindApplicableMarketRate(d, d1, d2, xbiz.RT[rtr.RTID].MR) // find the rate applicable for this increment
+		rent := float64(inc) * rate / float64(rentCycleDur)               // how much for the period: inc
+		total += rent                                                     // increment the total by this amount
 		for i := 0; i < len(rsa); i++ {
 			total += rsa[i].Fee * float64(inc) / float64(rentCycleDur)
 		}
@@ -139,31 +160,16 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 	}
 
 	// find the Gross Scheduled Rent Proration Cycle - GSRPC - the intervals over which the GSR is calculated
-	// for now... we just use the proration Cycle
-	_, gsrpc, err := GetProrationCycle(d1, r, rta, xbiz)
+	_, _, gsrpc, err := GetProrationCycle(d1, r, &rta, xbiz)
 	if err != nil {
 		return gsr, err
 	}
 	period := CycleDuration(gsrpc, *d1)          // increment of time we'll use to determine gsr in increments between d1 & d2
-	rtidMulti := len(rta) > 1                    // flag to indicate we need to look for a change in rtid in every pass
-	rt := rta[0]                                 // initialize to the first RTID
 	dtNext := *d1                                // initialize so that the variable is known
 	for dt := *d1; dt.Before(*d2); dt = dtNext { // spin through time period d1 - d2 in increments of gsrpc and add up the GSR
 		dtNext = dt.Add(period) // establish the end of the period.  We'll add up the gsr for period dt to dtNext.
-		//-------------------------------------------------------------------------------------------
-		//  First, make sure we have the correct RentableTypeRef for the rent for this increment...
-		//-------------------------------------------------------------------------------------------
-		if rtidMulti { // update rtid only if its type changes during this report period...
-			rt = SelectRentableTypeRefForDate(&rta, &dt) // get the updated rtid for this increment
-			if rt.RTID == 0 {                            // big problems if we don't find a rentable type defined for this time
-				err = fmt.Errorf("%s:  No valid RTID for rentable R%08d during period %s to %s\n",
-					funcname, r.RID, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT))
-				Ulog("%s", err.Error())
-				break
-			}
-		}
 		//--------------------------------------------------------------------
-		// Next, get the RentableSpecialties applicable for this increment...
+		// Get the RentableSpecialties applicable for this increment...
 		//--------------------------------------------------------------------
 		rsa, nerr := GetRentableSpecialtyTypesForRentableByRange(r, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
 		if nerr != nil {
@@ -175,7 +181,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		//------------------------------------------------------------------
 		// Finally, calculate the GSR for this increment...
 		//------------------------------------------------------------------
-		rentThisPeriod := CalculateGSR(dt, dtNext, xbiz.RT[rt.RTID], rsa)
+		rentThisPeriod := CalculateGSR(dt, dtNext, r, &rta, rsa, xbiz)
 		gsr += rentThisPeriod
 	}
 	return gsr, err

@@ -1,16 +1,17 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// PeopleSpecialty is the structure for attributes of a Rentable specialty
+// PeopleSpecialty is the structure for attributes of a rlib.Rentable specialty
 
 // CSV file format:
-//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  User  ----------------------------------------------------------------------------------------------------------------------------------------------------------------->|<------------------------------------------------------------------------- Payor ------------------------------------------------------>|  -- Prospect --
+//  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ----------------------------------------------------------------------------------------------------------------------------------------------------------------->|<------------------------------------------------------------------------- rlib.Payor ------------------------------------------------------>|  -- rlib.Prospect --
 //   0           1          2          3          4          5             6               7          8          9        10        11    12     13          14       15      16       17        18        19       20                 21                  22                   23          24           25                    26                       27                          28             29                30                          31        32      33                   34           35               36            37            38             39                  40              41          42
 // 	FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, Source, CreditLimit, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -37,10 +38,10 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 	}
 
 	var err error
-	var tr Transactant
-	var t User
-	var p Payor
-	var pr Prospect
+	var tr rlib.Transactant
+	var t rlib.User
+	var p rlib.Payor
+	var pr rlib.Prospect
 	var x float64
 	dateform := "2006-01-02"
 
@@ -48,7 +49,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 		s := strings.TrimSpace(sa[i])
 		// fmt.Printf("%d. sa[%d] = \"%s\"\n", i, i, sa[i])
 		switch {
-		case i == 0: // Transactant FirstName
+		case i == 0: // rlib.Transactant FirstName
 			tr.FirstName = s
 		case i == 1:
 			tr.MiddleName = s
@@ -145,7 +146,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 		case i == 30:
 			if len(s) > 0 {
 				var err error
-				t.EligibleFutureUser, err = yesnoToInt(s)
+				t.EligibleFutureUser, err = rlib.YesNoToInt(s)
 				if err != nil {
 					fmt.Printf("%s: line %d - %s\n", funcname, lineno, err.Error())
 				}
@@ -157,7 +158,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 		case i == 33:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
-					Ulog("%s: line %d - Invalid Credit Limit value: %s\n", funcname, lineno, s)
+					rlib.Ulog("%s: line %d - Invalid Credit Limit value: %s\n", funcname, lineno, s)
 					return
 				}
 				p.CreditLimit = x
@@ -181,7 +182,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 		case i == 42:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
-					Ulog("%s: line %d - Invalid ApplicationFee value: %s\n", funcname, lineno, s)
+					rlib.Ulog("%s: line %d - Invalid ApplicationFee value: %s\n", funcname, lineno, s)
 					return
 				}
 				pr.ApplicationFee = x
@@ -194,24 +195,24 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 	// Make sure this person doesn't already exist...
 	//-------------------------------------------------------------------
 	if len(tr.PrimaryEmail) > 0 {
-		t1, err := GetTransactantByPhoneOrEmail(tr.PrimaryEmail)
-		if err != nil && !IsSQLNoResultsError(err) {
-			Ulog("%s: line %d - error retrieving Transactant by email: %v\n", funcname, lineno, err)
+		t1, err := rlib.GetTransactantByPhoneOrEmail(tr.PrimaryEmail)
+		if err != nil && !rlib.IsSQLNoResultsError(err) {
+			rlib.Ulog("%s: line %d - error retrieving rlib.Transactant by email: %v\n", funcname, lineno, err)
 			return
 		}
 		if t1.TCID > 0 {
-			Ulog("%s: line %d - Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
+			rlib.Ulog("%s: line %d - rlib.Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
 			return
 		}
 	}
 	if len(tr.CellPhone) > 0 {
-		t1, err := GetTransactantByPhoneOrEmail(tr.CellPhone)
-		if err != nil && !IsSQLNoResultsError(err) {
-			Ulog("%s: line %d - error retrieving Transactant by phone: %v\n", funcname, lineno, err)
+		t1, err := rlib.GetTransactantByPhoneOrEmail(tr.CellPhone)
+		if err != nil && !rlib.IsSQLNoResultsError(err) {
+			rlib.Ulog("%s: line %d - error retrieving rlib.Transactant by phone: %v\n", funcname, lineno, err)
 			return
 		}
 		if t1.TCID > 0 {
-			Ulog("%s: line %d - Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
+			rlib.Ulog("%s: line %d - rlib.Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
 			return
 		}
 	}
@@ -219,9 +220,9 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// OK, just insert the records and we're done
 	//-------------------------------------------------------------------
-	tcid, err := InsertTransactant(&tr)
+	tcid, err := rlib.InsertTransactant(&tr)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting Transactant = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting rlib.Transactant = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.TCID = tcid
@@ -229,35 +230,35 @@ func CreatePeopleFromCSV(sa []string, lineno int) {
 	p.TCID = tcid
 	pr.TCID = tcid
 
-	tid, err := InsertUser(&t)
+	tid, err := rlib.InsertUser(&t)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting User = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting rlib.User = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.USERID = tid
 
-	pid, err := InsertPayor(&p)
+	pid, err := rlib.InsertPayor(&p)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting Payor = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting rlib.Payor = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.PID = pid
 
-	prid, err := InsertProspect(&pr)
+	prid, err := rlib.InsertProspect(&pr)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting Prospect = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting rlib.Prospect = %v\n", funcname, lineno, err)
 		return
 	}
 	tr.PRSPID = prid
 
-	// now that we have all the other ids, update the Transactant record
-	UpdateTransactant(&tr)
+	// now that we have all the other ids, update the rlib.Transactant record
+	rlib.UpdateTransactant(&tr)
 
 }
 
 // LoadPeopleCSV loads a csv file with rental specialty types and processes each one
 func LoadPeopleCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreatePeopleFromCSV(t[i], i+1)
 	}

@@ -21,7 +21,8 @@ func Stripchars(str, chars string) string {
 	}, str)
 }
 
-func yesnoToInt(si string) (int64, error) {
+// YesNoToInt takes multiple forms of "Yes" and converts to integer 1, multiple forms of "No" to integer 0
+func YesNoToInt(si string) (int64, error) {
 	s := strings.ToUpper(si)
 	switch {
 	case s == "Y" || s == "YES" || s == "1":

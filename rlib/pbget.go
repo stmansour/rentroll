@@ -27,6 +27,6 @@ func GetCompany(n int64) (Company, error) {
 func GetBusinessUnitByDesignation(des string) (BusinessUnit, error) {
 	var c BusinessUnit
 	// err := RRdb.PBsql.GetBusinessUnitByDesignation.QueryRow(des).Scan(&c.ClassCode, &c.CoCode, &c.Name, &c.Designation, &c.Description, &c.LastModTime, &c.LastModBy)
-	err := RRdb.dbdir.QueryRow("SELECT ClassCode,CoCode,Name,Designation,Description,LastModTime,LastModBy FROM classes WHERE Designation=?", des).Scan(&c.ClassCode, &c.CoCode, &c.Name, &c.Designation, &c.Description, &c.LastModTime, &c.LastModBy)
+	err := RRdb.Dbdir.QueryRow("SELECT ClassCode,CoCode,Name,Designation,Description,LastModTime,LastModBy FROM classes WHERE Designation=?", des).Scan(&c.ClassCode, &c.CoCode, &c.Name, &c.Designation, &c.Description, &c.LastModTime, &c.LastModBy)
 	return c, err
 }

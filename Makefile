@@ -1,13 +1,16 @@
-DIRS = db rlib admin test
+DIRS = db rlib rcsv admin test
 .PHONY:  test
 
-rentroll: *.go mkver.sh
+rentroll: *.go ver.go
 	cp confdev.json conf.json
 	for dir in $(DIRS); do make -C $$dir;done
 	go vet
 	golint
 	./mkver.sh
 	go build
+
+ver.go:
+	./mkver.sh
 
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done

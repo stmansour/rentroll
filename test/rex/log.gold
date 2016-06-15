@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Fri Jun 10 18:00:31 PDT 2016
+Date/Time: Tue Jun 14 16:46:46 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -105,7 +105,7 @@ RATID  BID         RentalTemplateNumber
 
 
 DEFINE RENTAL AGREEMENTS
- RAID  Payor                                     User                                    
+ RAID  rlib.Payor                                rlib.User                               
     1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                
     2  Rita Costea, Daniel Costea                Rita Costea, Daniel Costea              
     3  Gagik Haroutunian                         Gagik Haroutunian                       
@@ -141,7 +141,7 @@ CreateLedgerMarkers: line 21 - You must suppy a GL Number for this entry
 
 
 DEFINE ASSESSMENTS
-CreateAssessmentsFromCSV: line 7 - Assessment type is invalid: 62
+CreateAssessmentsFromCSV: line 7 - rlib.Assessment type is invalid: 62
       ASMID          RAID        RID   Freq     Amount
 ASM00000001    RA00000001  R00000001      6    3750.00
 ASM00000002    RA00000002  R00000002      6    3550.00

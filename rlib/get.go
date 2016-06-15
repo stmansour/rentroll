@@ -99,7 +99,7 @@ func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 func GetAssessmentTypes() map[int64]AssessmentType {
 	var t map[int64]AssessmentType
 	t = make(map[int64]AssessmentType, 0)
-	rows, err := RRdb.dbrr.Query("SELECT ASMTID,RARequired,Name,Description,LastModTime,LastModBy FROM AssessmentTypes")
+	rows, err := RRdb.Dbrr.Query("SELECT ASMTID,RARequired,Name,Description,LastModTime,LastModBy FROM AssessmentTypes")
 	Errcheck(err)
 	defer rows.Close()
 
@@ -258,7 +258,7 @@ func GetLatestLedgerMarkerByType(bid int64, t int64) (LedgerMarker, error) {
 func GetPaymentTypes() map[int64]PaymentType {
 	var t map[int64]PaymentType
 	t = make(map[int64]PaymentType, 0)
-	rows, err := RRdb.dbrr.Query("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentTypes")
+	rows, err := RRdb.Dbrr.Query("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentTypes")
 	Errcheck(err)
 	defer rows.Close()
 
@@ -470,7 +470,7 @@ func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 // GetRentableType returns characteristics of the Rentable
 func GetRentableType(rtid int64, rt *RentableType) error {
 	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle,
-		&rt.Proration, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+		&rt.Proration, &rt.GSPRC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	if nil == err {
 		var cerr error
 		rt.CA, cerr = GetAllCustomAttributes(ELEMRENTABLETYPE, rtid)
@@ -484,7 +484,7 @@ func GetRentableType(rtid int64, rt *RentableType) error {
 // GetRentableTypeByStyle returns characteristics of the Rentable
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle, &rt.Proration, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle, &rt.Proration, &rt.GSPRC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	return rt, err
 }
 
@@ -497,7 +497,7 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSPRC, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
 		a.MR = make([]RentableMarketRate, 0)
 		GetRentableMarketRates(&a)
 		t[a.RTID] = a
@@ -850,7 +850,7 @@ func GetDefaultLedgers(bid int64) {
 func GetTransactantByPhoneOrEmail(s string) (Transactant, error) {
 	var t Transactant
 	p := fmt.Sprintf("SELECT "+TRNSfields+" FROM Transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
-	err := RRdb.dbrr.QueryRow(p).Scan(&t.TCID, &t.USERID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName,
+	err := RRdb.Dbrr.QueryRow(p).Scan(&t.TCID, &t.USERID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName,
 		&t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone,
 		&t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.Notes, &t.LastModTime, &t.LastModBy)
 	return t, err

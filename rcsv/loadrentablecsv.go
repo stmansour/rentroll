@@ -1,7 +1,8 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strconv"
 	"strings"
 	"time"
@@ -10,7 +11,7 @@ import (
 // CSV file format:
 //   0  1     2               3                       4                                 5
 //                            "usr1;usr2;..usrN"      "S1,Strt1,Stp1;S2,Strt2,Stp2...", “A2,1/10/16,6/1/16;B2,6/1/16,”
-// BUD, Name, AssignmentTime, RentableUsers,          RentableStatus,                   RentableTypeRef
+// BUD, Name, AssignmentTime, RentableUsers,          rlib.RentableStatus,                   rlib.RentableTypeRef
 // REX, 101,  1,              "bill@x.com;sue@x.com"  "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
 // REX, 102,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
 // REX, 103,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
@@ -32,7 +33,7 @@ func readTwoDates(ss []string, funcname string, lineno int) (time.Time, time.Tim
 	end := "1/1/9999"
 	if len(ss) > 2 { //optional field -- MAYBE, if not present assume year 9999
 		// if i+1 != len(st) {
-		// 	err = fmt.Errorf("%s: line %d - unspecified stop date is only allowed on the last RentableStatus in the list\n", funcname, lineno)
+		// 	err = fmt.Errorf("%s: line %d - unspecified stop date is only allowed on the last rlib.RentableStatus in the list\n", funcname, lineno)
 		// 	return DtStart, DtStop, err
 		// }
 		if len(strings.TrimSpace(ss[2])) > 0 {
@@ -51,7 +52,7 @@ func readTwoDates(ss []string, funcname string, lineno int) (time.Time, time.Tim
 func CreateRentables(sa []string, lineno int) {
 	funcname := "CreateRentables"
 	var err error
-	var r Rentable
+	var r rlib.Rentable
 
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "bud" {
@@ -65,32 +66,32 @@ func CreateRentables(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the Business is in the database
+	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1, _ := GetBusinessByDesignation(des)
+		b1, _ := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("%s: line %d - Business with bud %s does not exist\n", funcname, lineno, des)
+			rlib.Ulog("%s: line %d - rlib.Business with bud %s does not exist\n", funcname, lineno, des)
 			return
 		}
 		r.BID = b1.BID
 	}
 
 	//-------------------------------------------------------------------
-	// The name must be unique. Make sure we don't have any other Rentable
+	// The name must be unique. Make sure we don't have any other rlib.Rentable
 	// with this name...
 	//-------------------------------------------------------------------
 	r.Name = strings.TrimSpace(sa[1])
-	r1, err := GetRentableByName(r.Name, r.BID)
+	r1, err := rlib.GetRentableByName(r.Name, r.BID)
 	if err != nil {
 		s := err.Error()
 		if !strings.Contains(s, "no rows") {
-			fmt.Printf("%s: lineno %d - error with GetRentableByName: %s\n", funcname, lineno, err.Error())
+			fmt.Printf("%s: lineno %d - error with rlib.GetRentableByName: %s\n", funcname, lineno, err.Error())
 			return
 		}
 	}
 	if r1.RID > 0 {
-		fmt.Printf("%s: lineno %d - Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, r.Name)
+		fmt.Printf("%s: lineno %d - rlib.Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, r.Name)
 		return
 	}
 
@@ -111,7 +112,7 @@ func CreateRentables(sa []string, lineno int) {
 	// USER 3-TUPLEs
 	// "User1,Strt1,Stp1;User2,Strt2,Stp2 ..."
 	//-----------------------------------------------------------------------------------
-	var rul []RentableUser // keep every RentableUser we find in an array
+	var rul []rlib.RentableUser // keep every rlib.RentableUser we find in an array
 	if 0 < len(strings.TrimSpace(sa[3])) {
 		st := strings.Split(sa[3], ";") // split it on Status 3-tuple separator (;)
 		for i := 0; i < len(st); i++ {  //spin through the 3-tuples
@@ -122,16 +123,16 @@ func CreateRentables(sa []string, lineno int) {
 				return
 			}
 
-			var ru RentableUser // struct for the data in this 3-tuple
+			var ru rlib.RentableUser // struct for the data in this 3-tuple
 			name := strings.TrimSpace(ss[0])
-			t, err := GetTransactantByPhoneOrEmail(name)
-			if err != nil && !IsSQLNoResultsError(err) {
-				rerr := fmt.Sprintf("%s: line %d - error retrieving Transactant by phone or email: %v", funcname, lineno, err)
+			t, err := rlib.GetTransactantByPhoneOrEmail(name)
+			if err != nil && !rlib.IsSQLNoResultsError(err) {
+				rerr := fmt.Sprintf("%s: line %d - error retrieving rlib.Transactant by phone or email: %v", funcname, lineno, err)
 				fmt.Printf("%s", rerr)
 				return
 			}
 			if t.PID == 0 {
-				rerr := fmt.Sprintf("%s: line %d - could not find Transactant with contact information %s\n", funcname, lineno, name)
+				rerr := fmt.Sprintf("%s: line %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, name)
 				fmt.Printf("%s", rerr)
 				return
 			}
@@ -151,11 +152,11 @@ func CreateRentables(sa []string, lineno int) {
 	// "S1,Strt1,Stp1;S2,Strt2,Stp2 ..."
 	//-----------------------------------------------------------------------------------
 	if 0 == len(strings.TrimSpace(sa[4])) {
-		fmt.Printf("%s: lineno %d - RentableStatus value is required.\n",
+		fmt.Printf("%s: lineno %d - rlib.RentableStatus value is required.\n",
 			funcname, lineno)
 		return
 	}
-	var m []RentableStatus          // keep every RentableStatus we find in an array
+	var m []rlib.RentableStatus     // keep every rlib.RentableStatus we find in an array
 	st := strings.Split(sa[4], ";") // split it on Status 3-tuple separator (;)
 	for i := 0; i < len(st); i++ {  //spin through the 3-tuples
 		ss := strings.Split(st[i], ",")
@@ -165,11 +166,11 @@ func CreateRentables(sa []string, lineno int) {
 			return
 		}
 
-		var rs RentableStatus // struct for the data in this 3-tuple
+		var rs rlib.RentableStatus // struct for the data in this 3-tuple
 		ix, err := strconv.Atoi(ss[0])
-		if err != nil || ix < RENTABLESTATUSONLINE || ix > RENTABLESTATUSLAST {
+		if err != nil || ix < rlib.RENTABLESTATUSONLINE || ix > rlib.RENTABLESTATUSLAST {
 			fmt.Printf("%s: lineno %d - invalid Status value: %s.  Must be in the range %d to %d\n",
-				funcname, lineno, ss[0], RENTABLESTATUSONLINE, RENTABLESTATUSLAST)
+				funcname, lineno, ss[0], rlib.RENTABLESTATUSONLINE, rlib.RENTABLESTATUSLAST)
 			return
 		}
 		rs.Status = int64(ix)
@@ -182,7 +183,7 @@ func CreateRentables(sa []string, lineno int) {
 		m = append(m, rs) // add this struct to the list
 	}
 	if len(m) == 0 {
-		fmt.Printf("%s: lineno %d - RentableStatus value is required.\n",
+		fmt.Printf("%s: lineno %d - rlib.RentableStatus value is required.\n",
 			funcname, lineno)
 		return
 	}
@@ -192,11 +193,11 @@ func CreateRentables(sa []string, lineno int) {
 	// "RTname1,startDate1,stopDate1;RTname2,startDate2,stopDate2;..."
 	//-----------------------------------------------------------------------------------
 	if 0 == len(strings.TrimSpace(sa[5])) {
-		fmt.Printf("%s: lineno %d - Rentable RTID Ref value is required.\n",
+		fmt.Printf("%s: lineno %d - rlib.Rentable RTID Ref value is required.\n",
 			funcname, lineno)
 		return
 	}
-	var n []RentableTypeRef
+	var n []rlib.RentableTypeRef
 	st = strings.Split(sa[5], ";") // split on RTID 3-tuple seperator (;)
 	for i := 0; i < len(st); i++ { // spin through the 3-tuples
 		ss := strings.Split(st[i], ",") // separate the 3 parts
@@ -206,8 +207,8 @@ func CreateRentables(sa []string, lineno int) {
 			return
 		}
 
-		var rt RentableTypeRef                                                  // struct for the data in this 3-tuple
-		rstruct, err := GetRentableTypeByStyle(strings.TrimSpace(ss[0]), r.BID) // find the RentableType being referenced
+		var rt rlib.RentableTypeRef                                                  // struct for the data in this 3-tuple
+		rstruct, err := rlib.GetRentableTypeByStyle(strings.TrimSpace(ss[0]), r.BID) // find the rlib.RentableType being referenced
 		if err != nil {
 			fmt.Printf("%s: lineno %d - Could not load rentable type with style name: %s  -- error = %s\n",
 				funcname, lineno, ss[0], err.Error())
@@ -226,27 +227,27 @@ func CreateRentables(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and its sub-records and we're done
 	//-------------------------------------------------------------------
-	rid, err := InsertRentable(&r)
+	rid, err := rlib.InsertRentable(&r)
 	if nil != err {
-		fmt.Printf("%s: lineno %d - error inserting Rentable = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: lineno %d - error inserting rlib.Rentable = %v\n", funcname, lineno, err)
 	}
 	if rid > 0 {
 		for i := 0; i < len(rul); i++ {
 			rul[i].RID = rid
-			InsertRentableUser(&rul[i])
+			rlib.InsertRentableUser(&rul[i])
 		}
 		for i := 0; i < len(m); i++ {
 			m[i].RID = rid
-			err := InsertRentableStatus(&m[i])
+			err := rlib.InsertRentableStatus(&m[i])
 			if err != nil {
-				fmt.Printf("%s: lineno %d - error saving RentableStatus: %s\n", funcname, lineno, err.Error())
+				fmt.Printf("%s: lineno %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())
 			}
 		}
 		for i := 0; i < len(n); i++ {
 			n[i].RID = rid
-			err := InsertRentableTypeRef(&n[i])
+			err := rlib.InsertRentableTypeRef(&n[i])
 			if err != nil {
-				fmt.Printf("%s: lineno %d - error saving RentableStatus: %s\n", funcname, lineno, err.Error())
+				fmt.Printf("%s: lineno %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())
 			}
 		}
 	}
@@ -254,7 +255,7 @@ func CreateRentables(sa []string, lineno int) {
 
 // LoadRentablesCSV loads a csv file with rental specialty types and processes each one
 func LoadRentablesCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateRentables(t[i], i+1)
 	}

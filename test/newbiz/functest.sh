@@ -50,7 +50,7 @@ EOF
 
 dotest "x"  "-b nb.csv"           "PHASE  1: New Businesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
 dotest "y"  "-a asmttype.csv"     "PHASE  2: Assessment Types...  " "select Name,Description,LastModBy from AssessmentTypes;"
-dotest "z"  "-R rt.csv"           "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,RentCycle,Proration,ManageToBudget,LastModBy from RentableTypes;"
+dotest "z"  "-R rt.csv"           "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSPRC,ManageToBudget,LastModBy from RentableTypes;"
 dotest "w"  "-R rt.csv"           "PHASE  4: Rentable Market Rates...  " "select * from RentableMarketrate;"
 dotest "v"  "-s specialties.csv"  "PHASE  5: Rentable Specialty Types...  " "select * from RentableSpecialtyType;"
 dotest "u"  "-D bldg.csv"         "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"

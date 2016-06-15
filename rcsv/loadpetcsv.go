@@ -1,8 +1,9 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
 	"regexp"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -19,14 +20,14 @@ func CSVLoaderGetRAID(sa string) int64 {
 	if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element
 		s = m[1]
 	}
-	raid, _ := IntFromString(s, "Rental Agreement number is invalid")
+	raid, _ := rlib.IntFromString(s, "Rental Agreement number is invalid")
 	return raid
 }
 
 // CreateRentalAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
 func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
 	funcname := "CreateRentalAgreementPetsFromCSV"
-	var pet RentalAgreementPet
+	var pet rlib.RentalAgreementPet
 	var ok bool
 
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
@@ -42,7 +43,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
 	// Find Rental Agreement
 	//-------------------------------------------------------------------
 	pet.RAID = CSVLoaderGetRAID(sa[0])
-	_, err := GetRentalAgreement(pet.RAID)
+	_, err := rlib.GetRentalAgreement(pet.RAID)
 	if nil != err {
 		fmt.Printf("%s: line %d - error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[0], err)
 		return
@@ -56,7 +57,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Get the Weight
 	//-------------------------------------------------------------------
-	pet.Weight, ok = FloatFromString(sa[5], "Weight is invalid")
+	pet.Weight, ok = rlib.FloatFromString(sa[5], "Weight is invalid")
 	if !ok {
 		fmt.Printf("%s: line %d - Weight is invalid: %s\n", funcname, lineno, sa[5])
 		return
@@ -85,15 +86,15 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
 	}
 	pet.DtStop = DtStop
 
-	_, err = InsertRentalAgreementPet(&pet)
+	_, err = rlib.InsertRentalAgreementPet(&pet)
 	if nil != err {
 		fmt.Printf("%s: line %d - Could not save pet, err = %v\n", funcname, lineno, err)
 	}
 }
 
-// LoadPetsCSV loads a csv file with a chart of accounts and creates Ledger markers for each
+// LoadPetsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
 func LoadPetsCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateRentalAgreementPetsFromCSV(t[i], i+1)
 	}

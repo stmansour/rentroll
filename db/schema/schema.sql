@@ -157,6 +157,7 @@ CREATE TABLE RentableTypes (
     Name VARCHAR(256) NOT NULL DEFAULT '',                  -- must be unique
     RentCycle BIGINT NOT NULL DEFAULT 0,                    -- rent accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    -- prorate frequency
+    GSPRC BIGINT NOT NULL DEFAULT 0,                        -- Increments in which GSR is calculated to account for rate changes
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 

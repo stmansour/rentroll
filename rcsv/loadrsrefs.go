@@ -1,7 +1,8 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -11,8 +12,8 @@ import (
 //    REX, 1,   Lake View,       1/1/2014,
 //    REX, 1,   Fireplace,       1/1/2014,
 
-// type RentableSpecialtyRef struct {
-// 	RID         int64     // the Rentable to which this record belongs
+// type rlib.RentableSpecialtyRef struct {
+// 	RID         int64     // the rlib.Rentable to which this record belongs
 // 	RSPID       int64     // the rentable specialty type associated with the rentable
 // 	DtStart     time.Time // timerange start
 // 	DtStop      time.Time // timerange stop
@@ -23,8 +24,8 @@ import (
 // CreateRentableSpecialtyRefsCSV reads an assessment type string array and creates a database record for the assessment type
 func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 	funcname := "CreateRentableSpecialtyRefsCSV"
-	var a RentableSpecialtyRef
-	var r Rentable
+	var a rlib.RentableSpecialtyRef
+	var r rlib.Rentable
 	var err error
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "bud" {
@@ -38,25 +39,25 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 		return
 	}
 
-	var b Business
+	var b rlib.Business
 	if len(des) > 0 {
-		b, _ = GetBusinessByDesignation(des)
+		b, _ = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			Ulog("CreateRentalSpecialtyType: Business named %s not found\n", sa[0])
+			rlib.Ulog("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[0])
 			return
 		}
 	}
 	a.BID = b.BID
 
 	//-------------------------------------------------------------------
-	// Find and set the Rentable
+	// Find and set the rlib.Rentable
 	//-------------------------------------------------------------------
 	s := strings.TrimSpace(sa[1])
 	if len(s) > 0 {
 		// fmt.Printf("Searching: rentable name = %s, BID = %d\n", s, b.BID)
-		r, err = GetRentableByName(s, b.BID)
+		r, err = rlib.GetRentableByName(s, b.BID)
 		if err != nil {
-			fmt.Printf("%s: line %d - Error loading Rentable named: %s.  Error = %v\n", funcname, lineno, s, err)
+			fmt.Printf("%s: line %d - Error loading rlib.Rentable named: %s.  Error = %v\n", funcname, lineno, s, err)
 			return
 		}
 	}
@@ -66,9 +67,9 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 	// Make sure we can find the RentableSpecialty
 	//-------------------------------------------------------------------
 	name := strings.TrimSpace(sa[2])
-	rsp := GetRentableSpecialtyTypeByName(r.BID, name)
+	rsp := rlib.GetRentableSpecialtyTypeByName(r.BID, name)
 	if rsp.RSPID == 0 {
-		fmt.Printf("%s: line %d - could not find a RentableSpecialtyType named %s in Business %d\n", funcname, lineno, name, r.BID)
+		fmt.Printf("%s: line %d - could not find a rlib.RentableSpecialtyType named %s in rlib.Business %d\n", funcname, lineno, name, r.BID)
 		return
 	}
 	a.RSPID = rsp.RSPID
@@ -82,15 +83,15 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 		return
 	}
 
-	err = InsertRentableSpecialtyRef(&a)
+	err = rlib.InsertRentableSpecialtyRef(&a)
 	if err != nil {
 		fmt.Printf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
 	}
 }
 
-// LoadRentableSpecialtyRefsCSV loads a csv file with a chart of accounts and creates Ledger markers for each
+// LoadRentableSpecialtyRefsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
 func LoadRentableSpecialtyRefsCSV(fname string) {
-	t := LoadCSV(fname)
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		CreateRentableSpecialtyRefsCSV(t[i], i+1)
 	}

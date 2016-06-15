@@ -1,2 +1,2 @@
-Designation,Style,Name,RentCycle,Proration,ManageToBudget,MarketRate,Dt1,Dt2
-DHR,"Rex1","309 Rexford",6,4,1,3750.00,"2014-01-01","2017-01-01"
+Designation,Style,Name,RentCycle,GSPRC,Proration,ManageToBudget,MarketRate,Dt1,Dt2
+DHR,"Rex1","309 Rexford",6,4,4,1,3750.00,"2014-01-01","2017-01-01"

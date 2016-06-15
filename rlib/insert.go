@@ -111,7 +111,7 @@ func InsertRentableMarketRates(r *RentableMarketRate) error {
 // InsertRentableType writes a new RentableType record to the database
 func InsertRentableType(a *RentableType) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.RTID, a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.ManageToBudget, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSPRC, a.ManageToBudget, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

@@ -1,8 +1,9 @@
-package rlib
+package rcsv
 
 import (
 	"fmt"
 	"regexp"
+	"rentroll/rlib"
 	"strings"
 	"time"
 )
@@ -12,20 +13,20 @@ import (
 // 	Action  string // "d" = debit, "c" = credit
 // 	Account string // GL No for the account
 // 	Amount  string // use the entire amount of the assessment or deposit, otherwise the amount to use
-// 	ASMID   string // Used only for ReceiptAllocation; the assessment that caused this payment
+// 	ASMID   string // Used only for rlib.ReceiptAllocation; the assessment that caused this payment
 // }
 
 // CVS record format:
 // 0    1           2      3             4        5         6
 // BID, RAID,       PMTID, Dt,           Amount,  AcctRule, Comment
-// REH, RA00000001, 2,     "2004-01-01", 1000.00, "ASM(7) d ${DFLTCASH} _, ASM(7) c 11002 _"
-// REH, RA00000001, 1,     "2015-11-21",  294.66, "ASM(1) c ${DFLTGENRCV} 266.67, ASM(1) d ${DFLTCASH} 266.67, ASM(3) c ${DFLTGENRCV} 13.33, ASM(3) d ${DFLTCASH} 13.33, ASM(4) c ${DFLTGENRCV} 5.33, ASM(4) d ${DFLTCASH} 5.33, ASM(9) c ${DFLTGENRCV} 9.33,ASM(9) d ${DFLTCASH} 9.33", "I am a comment"
+// REH, RA00000001, 2,     "2004-01-01", 1000.00, "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _"
+// REH, RA00000001, 1,     "2015-11-21",  294.66, "ASM(1) c ${DFLTGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${DFLTGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${DFLTGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${DFLTGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
 
-// GenerateReceiptAllocations processes the AcctRule for the supplied Receipt and generates ReceiptAllocation records
-func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) error {
+// GenerateReceiptAllocations processes the AcctRule for the supplied rlib.Receipt and generates rlib.ReceiptAllocation records
+func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error {
 	var d1 = time.Date(rcpt.Dt.Year(), rcpt.Dt.Month(), 1, 0, 0, 0, 0, time.UTC)
 	var d2 = d1.AddDate(0, 0, 31)
-	t := ParseAcctRule(xbiz, 0, &d1, &d2, rcpt.AcctRule, rcpt.Amount, 1.0)
+	t := rlib.ParseAcctRule(xbiz, 0, &d1, &d2, rcpt.AcctRule, rcpt.Amount, 1.0)
 	u := make(map[int64][]int64)
 
 	// First, group together all entries that refer to a single ASMID into a list of lists
@@ -34,14 +35,14 @@ func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) error {
 	}
 	// Process each list in the list of lists.
 	for k, v := range u {
-		var a ReceiptAllocation
+		var a rlib.ReceiptAllocation
 		a.AcctRule = ""
 		a.ASMID = k
 		a.Amount = t[int(v[0])].Amount
 		a.RCPTID = rcpt.RCPTID
 
 		// make sure the referenced assessment actually exists
-		_, err := GetAssessment(a.ASMID)
+		_, err := rlib.GetAssessment(a.ASMID)
 		if err != nil {
 			return fmt.Errorf("GenerateReceiptAllocations: Referenced assessment ID %d does not exist\n", a.ASMID)
 		}
@@ -55,16 +56,16 @@ func GenerateReceiptAllocations(rcpt *Receipt, xbiz *XBusiness) error {
 				a.AcctRule += ","
 			}
 		}
-		InsertReceiptAllocation(&a)
+		rlib.InsertReceiptAllocation(&a)
 	}
 	return nil
 }
 
 // CreateReceiptsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno int) {
+func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, lineno int) {
 	funcname := "CreateReceiptsFromCSV"
-	var xbiz XBusiness
-	var r Receipt
+	var xbiz rlib.XBusiness
+	var r rlib.Receipt
 	var err error
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "designation" {
@@ -78,16 +79,16 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the Business is in the database
+	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1, _ := GetBusinessByDesignation(des)
+		b1, _ := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			Ulog("CreateLedgerMarkers: Business with designation %s does net exist\n", sa[0])
+			rlib.Ulog("CreateLedgerMarkers: rlib.Business with designation %s does net exist\n", sa[0])
 			return
 		}
 		r.BID = b1.BID
-		GetXBusiness(r.BID, &xbiz)
+		rlib.GetXBusiness(r.BID, &xbiz)
 	}
 
 	//-------------------------------------------------------------------
@@ -99,17 +100,17 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 	if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element
 		s = m[1]
 	}
-	r.RAID, _ = IntFromString(s, "Rental Agreement number is invalid")
-	_, err = GetRentalAgreement(r.RAID)
+	r.RAID, _ = rlib.IntFromString(s, "Rental Agreement number is invalid")
+	_, err = rlib.GetRentalAgreement(r.RAID)
 	if nil != err {
 		fmt.Printf("CreateReceiptsFromCSV: error loading Rental Agreement %s, err = %v\n", sa[1], err)
 		return
 	}
 
 	//-------------------------------------------------------------------
-	// Get the PaymentType
+	// Get the rlib.PaymentType
 	//-------------------------------------------------------------------
-	r.PMTID, _ = IntFromString(sa[2], "Payment type is invalid")
+	r.PMTID, _ = rlib.IntFromString(sa[2], "Payment type is invalid")
 	_, ok := (*PmtTypes)[r.PMTID]
 	if !ok {
 		fmt.Printf("CreateReceiptsFromCSV: Payment type is invalid: %s\n", sa[2])
@@ -121,7 +122,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 	//-------------------------------------------------------------------
 	Dt, err := StringToDate(sa[3])
 	if err != nil {
-		fmt.Printf("CreateReceiptsFromCSV: invalid Receipt date:  %s\n", sa[3])
+		fmt.Printf("CreateReceiptsFromCSV: invalid rlib.Receipt date:  %s\n", sa[3])
 		return
 	}
 	r.Dt = Dt
@@ -129,7 +130,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 	//-------------------------------------------------------------------
 	// Determine the amount
 	//-------------------------------------------------------------------
-	r.Amount, _ = FloatFromString(sa[4], "Receipt Amount is invalid")
+	r.Amount, _ = rlib.FloatFromString(sa[4], "rlib.Receipt Amount is invalid")
 
 	//-------------------------------------------------------------------
 	// Set the AcctRule.  No checking for now...
@@ -147,7 +148,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 		return
 	}
 
-	rcptid, err := InsertReceipt(&r)
+	rcptid, err := rlib.InsertReceipt(&r)
 	if err != nil {
 		fmt.Printf("CreateReceiptsFromCSV: error inserting assessment: %v\n", err)
 	}
@@ -159,28 +160,28 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]PaymentType, lineno 
 	err = GenerateReceiptAllocations(&r, &xbiz)
 	if err != nil {
 		fmt.Printf("CreateReceiptsFromCSV: error processing payments: %s\n", err.Error())
-		DeleteReceipt(r.RCPTID)
-		DeleteReceiptAllocations(r.RCPTID)
+		rlib.DeleteReceipt(r.RCPTID)
+		rlib.DeleteReceiptAllocations(r.RCPTID)
 	}
 
 }
 
-// LoadReceiptsCSV loads a csv file with a chart of accounts and creates Ledger markers for each
-func LoadReceiptsCSV(fname string, PmtTypes *map[int64]PaymentType) {
-	t := LoadCSV(fname)
+// LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
+func LoadReceiptsCSV(fname string, PmtTypes *map[int64]rlib.PaymentType) {
+	t := rlib.LoadCSV(fname)
 	if len(t) > 1 {
 		//-------------------------------------------------------------------
 		// Check to see if this rental specialty type is already in the database
 		//-------------------------------------------------------------------
 		des := strings.TrimSpace(t[1][0])
 		if len(des) > 0 {
-			b, _ := GetBusinessByDesignation(des)
+			b, _ := rlib.GetBusinessByDesignation(des)
 			if b.BID < 1 {
-				Ulog("LoadReceiptsCSV: Business named %s not found\n", des)
+				rlib.Ulog("LoadReceiptsCSV: rlib.Business named %s not found\n", des)
 				return
 			}
-			InitBusinessFields(b.BID)
-			GetDefaultLedgers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
+			rlib.InitBusinessFields(b.BID)
+			rlib.GetDefaultLedgers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
 		}
 	}
 	for i := 0; i < len(t); i++ {
