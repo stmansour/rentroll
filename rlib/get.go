@@ -218,7 +218,7 @@ func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) (Led
 	return r, err
 }
 
-// GetLatestLedgerMarkerByLID returns the LedgerMarker struct for the GLNo with the supplied name
+// GetLatestLedgerMarkerByLID returns the LedgerMarker struct for the Ledger with the supplied LID
 func GetLatestLedgerMarkerByLID(bid, lid int64) (LedgerMarker, error) {
 	var r LedgerMarker
 	err := RRdb.Prepstmt.GetLatestLedgerMarkerByLID.QueryRow(bid, lid).Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy)
@@ -829,7 +829,14 @@ func GetLedgerByType(bid, t int64) (Ledger, error) {
 	return r, err
 }
 
-// GetDefaultLedgers loads the default LedgerMarkers for the supplied Business bid
+// GetRABalanceLedger returns the Ledger struct for the supplied Type
+func GetRABalanceLedger(bid, RAID int64) (Ledger, error) {
+	var r Ledger
+	err := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid, RAID).Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+	return r, err
+}
+
+// GetDefaultLedgers loads the default Ledger for the supplied Business bid
 func GetDefaultLedgers(bid int64) {
 	rows, err := RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
 	Errcheck(err)
@@ -839,6 +846,26 @@ func GetDefaultLedgers(bid int64) {
 		Errcheck(rows.Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
 	}
+}
+
+//=======================================================
+//  LEDGER ENTRUY
+//=======================================================
+
+// GetLedgerEntriesForRAID returns a list of CustomAttributes for the supplied elementid and instanceid
+func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
+	var m []LedgerEntry
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		var le LedgerEntry
+		Errcheck(rows.Scan(&le.LEID, &le.BID, &le.JID, &le.JAID, &le.LID, &le.RAID, &le.Dt, &le.Amount, &le.Comment, &le.LastModTime, &le.LastModBy))
+		m = append(m, le)
+	}
+	Errcheck(rows.Err())
+	return m, err
 }
 
 //=======================================================

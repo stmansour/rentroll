@@ -141,12 +141,13 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 	bal := lm.Balance
 	printLedgerHeader(xbiz, &l, d1, d2)
 	printLedgerDescrAndBal("Opening Balance", *d1, lm.Balance)
-	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(l.BID, l.GLNumber, d1, d2)
+	// rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(l.BID, l.GLNumber, d1, d2)
+	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(l.BID, l.LID, d1, d2)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var l rlib.LedgerEntry
-		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
+		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.LID, &l.RAID, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		bal += l.Amount
 		descr, rn, sra := getLedgerEntryDescription(&l)
 		printDatedLedgerEntryRJ(descr, l.Dt, l.JID, sra, rn, l.Amount, bal)
@@ -161,6 +162,9 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all Ledger account numbers
 	for i := 0; i < len(t); i++ {
+		if t[i].Type == rlib.RABALANCEACCOUNT {
+			continue
+		}
 		dd2 := d1.AddDate(0, 0, -1)
 		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
 		lm, err := rlib.GetLedgerMarkerByGLNoDateRange(xbiz.P.BID, t[i].GLNumber, &dd1, &dd2)

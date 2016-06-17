@@ -29,7 +29,8 @@ const (
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
 
-	LMPAYORACCT        = 1 // Ledger set up for a Payor
+	RABALANCEACCOUNT = 1 // Ledger set up for a RentalAgreement balance
+
 	ACCTSTATUSINACTIVE = 1
 	ACCTSTATUSACTIVE   = 2
 	RAASSOCIATED       = 1
@@ -518,7 +519,7 @@ type JournalAllocation struct {
 	JID      int64   // associated Journal entry
 	RID      int64   // associated Rentable
 	Amount   float64 // amount of this allocation
-	ASMID    int64   // associated AssessmentID -- source of the charge/payment
+	ASMID    int64   // associated AssessmentID -- source of the charge
 	AcctRule string  // describes how this amount distributed across the accounts
 }
 
@@ -537,12 +538,14 @@ type LedgerEntry struct {
 	BID         int64
 	JID         int64
 	JAID        int64
-	GLNumber    string
-	Dt          time.Time
+	LID         int64     // the entry is part of this ledger
+	RAID        int64     // RentalAgreement associated with this entry
+	Dt          time.Time // date associated with this transaction
 	Amount      float64
 	Comment     string    // for notes like "prior period adjustment"
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod
+	//GLNo        string    // glnumber for the ledger -- DELETE THIS ATTRIBUTE
 }
 
 // LedgerMarker describes a period of time period described. The Balance can be
@@ -566,7 +569,7 @@ type Ledger struct {
 	RAID         int64     // associated rental agreement, this field is only used when Type = 1
 	GLNumber     string    // acct system name
 	Status       int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	Type         int64     // flag: 0 = not a default account, 1 = Rental Agreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Type         int64     // flag: 0 = not a default account, 1 = RentalAgreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name         string    // descriptive name for the Ledger
 	AcctType     string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	RAAssociated int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
@@ -576,6 +579,7 @@ type Ledger struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
+	GetRABalanceLedger                       *sql.Stmt
 	DeleteCustomAttribute                    *sql.Stmt
 	DeleteCustomAttributeRef                 *sql.Stmt
 	DeleteJournalAllocations                 *sql.Stmt
@@ -604,6 +608,7 @@ type RRprepSQL struct {
 	GetAllRentablesByBusiness                *sql.Stmt
 	GetAllRentalAgreementTemplates           *sql.Stmt
 	GetAllRentalAgreements                   *sql.Stmt
+	GetAllRentalAgreementsByRange            *sql.Stmt
 	GetAllTransactants                       *sql.Stmt
 	GetAssessment                            *sql.Stmt
 	GetAssessmentType                        *sql.Stmt
@@ -701,6 +706,8 @@ type RRprepSQL struct {
 	InsertRentableSpecialtyRef               *sql.Stmt
 	UpdateRentableSpecialtyRef               *sql.Stmt
 	DeleteRentableSpecialtyRef               *sql.Stmt
+	GetLedgerEntriesInRangeByLID             *sql.Stmt
+	GetLedgerEntriesForRAID                  *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

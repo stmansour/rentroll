@@ -199,15 +199,17 @@ func buildPreparedStatements() {
 	// LEDGER
 	//==========================================
 	LDGRfields := "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? and GLNumber=?")
+	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? and Type=?")
+	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND Type=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND Type=1 AND RAID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE LID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? ORDER BY GLNumber ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? and Type>=10 ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertLedger, err = RRdb.Dbrr.Prepare("INSERT INTO Ledger (BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
@@ -219,14 +221,18 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER ENTRY
 	//==========================================
-	LEfields := "LEID,BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetAllLedgerEntriesInRange, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? and ?<=Dt and Dt<?")
+	LEfields := "LEID,BID,JID,JAID,LID,RAID,Dt,Amount,Comment,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetAllLedgerEntriesInRange, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? AND ?<=Dt AND Dt<?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? and GLNumber=? and ?<=Dt and Dt<? ORDER BY JAID ASC")
+	// RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? AND GLNo=? AND ?<=Dt AND Dt<? ORDER BY JAID ASC")
+	// Errcheck(err)
+	RRdb.Prepstmt.GetLedgerEntriesInRangeByLID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? AND LID=? AND ?<=Dt AND Dt<? ORDER BY JAID ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerEntriesForRAID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RAID=? AND LID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntry, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry where LEID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertLedgerEntry, err = RRdb.Dbrr.Prepare("INSERT INTO LedgerEntry (BID,JID,JAID,GLNumber,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertLedgerEntry, err = RRdb.Dbrr.Prepare("INSERT INTO LedgerEntry (BID,JID,JAID,LID,RAID,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.Dbrr.Prepare("DELETE FROM LedgerEntry WHERE LEID=?")
 	Errcheck(err)
@@ -320,8 +326,11 @@ func buildPreparedStatements() {
 	RAfields := "RAID,RATID,BID,RentalStart,RentalStop,PossessionStart,PossessionStop,Renewal,SpecialProvisions,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + RAfields + " from RentalAgreement where BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.Dbrr.Prepare("SELECT " + RAfields + " from RentalAgreement WHERE RAID=?")
+	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.Dbrr.Prepare("SELECT " + RAfields + " FROM RentalAgreement WHERE RAID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentalAgreementsByRange, err = RRdb.Dbrr.Prepare("SELECT " + RAfields + " FROM RentalAgreement WHERE BID=? AND ?<=RentalStop AND ?>RentalStart")
+	Errcheck(err)
+
 	s1, s2, s3 = GenSQLInsertAndUpdateStrings(RAfields)
 	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreement (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)

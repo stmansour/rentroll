@@ -451,7 +451,7 @@ CREATE TABLE Payor  (
 CREATE TABLE Receipt (
     RCPTID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Receipt
     BID BIGINT NOT NULL DEFAULT 0,
-    RAID BIGINT NOT NULL DEFAULT 0,
+    RAID BIGINT NOT NULL DEFAULT 0,  -- THIS IS AN ISSUE... It can go away -- ReceiptAllocation has an associated Assessment, which has the RAID
     PMTID BIGINT NOT NULL DEFAULT 0,
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
@@ -529,12 +529,15 @@ CREATE TABLE JournalMarkerAudit (
 -- ****           LEDGERS            ****
 -- ****                              ****
 -- **************************************
+-- RENAME to Ledger
 CREATE TABLE LedgerEntry (
-    LEID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
+    LEID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this Ledger
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     JID BIGINT NOT NULL DEFAULT 0,                            -- Journal entry giving rise to this
     JAID BIGINT NOT NULL DEFAULT 0,                           -- the allocation giving rise to this Ledger entry
-    GLNumber VARCHAR(100) NOT NULL DEFAULT '',                 -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    LID BIGINT NOT NULL DEFAULT 0,                            -- associated Ledger
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- associated Rental Agreement
+    -- GLNo VARCHAR(100) NOT NULL DEFAULT '',                    -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount since last close
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
@@ -550,19 +553,20 @@ CREATE TABLE LedgerMarker (
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- period start
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- period end
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
+    State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LMID)
 );
 
+-- GL Account
 CREATE TABLE Ledger (
     LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
-    Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a default account, 1 = Payor Account , 
+    Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a special account of any kind, 1 = RentalAgreement Balance, 
     --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 

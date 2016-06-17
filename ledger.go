@@ -16,29 +16,47 @@ func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	defer rows.Close()
 	for rows.Next() {
 		var l rlib.LedgerEntry
-		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.GLNumber,
+		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.LID, &l.RAID,
 			&l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		rlib.DeleteLedgerEntry(l.LEID)
-
-		// only delete the marker if it is in this time range and if it is not the origin marker
-		// lm := GetLastLedgerMarker(xbiz.P.BID)
-		// if lm.State == MARKERSTATEOPEN && (lm.DtStart.After(*d1) || lm.DtStart.Equal(*d1)) && (lm.DtStop.Before(*d2) || lm.DtStop.Equal(*d2)) {
-		// 	deleteLedgerMarker(lm.LMID)
-		// }
 	}
 	return err
 }
 
+// ledgerCache is a mapping of glNames to ledger structs
+var ledgerCache map[string]rlib.Ledger
+
+// initLedgerCache starts a new ledger cache
+func initLedgerCache() {
+	ledgerCache = make(map[string]rlib.Ledger)
+}
+
+// GetCachedLedgerByGL checks the cache with index string s. If there is an entry there and the BID matches the
+// requested BID we return the ledger struct immediately. Otherwise, the ledger is loaded from the database and
+// stored in the cache at index s.  If no ledger is found with GLNumber s, then a ledger with LID = 0 is returned.
+func GetCachedLedgerByGL(bid int64, s string) rlib.Ledger {
+	var l rlib.Ledger
+	var ok bool
+	var err error
+
+	l, ok = ledgerCache[s]
+	if ok {
+		if l.BID == bid {
+			return l
+		}
+	}
+	l, err = rlib.GetLedgerByGLNo(bid, s)
+	if err != nil {
+		rlib.Ulog("GetCachedLedgerByGL: error getting ledger %s from business %d, err = %s\n", s, bid, err.Error())
+		l.LID = 0
+	} else {
+		ledgerCache[s] = l
+	}
+	return l
+}
+
 // GenerateLedgerEntriesFromJournal creates all the Ledger entries necessary to describe the Journal entry provided
 func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1, d2 *time.Time) {
-	// lm := GetLastLedgerMarker(xbiz.P.BID)
-	// if lm.DtStop.Equal(d1.AddDate(0, 0, -1)) {
-	// 	// pfmt.Printf("Generating next month's ledgers\n")
-	// } else {
-	// 	fmt.Printf("Generating these ledgers will destroy other periods of Ledger records\n")
-	// }
-	// bal := lm.Balance
-
 	for i := 0; i < len(j.JA); i++ {
 		m := rlib.ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
 		for k := 0; k < len(m); k++ {
@@ -51,22 +69,24 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 			if m[k].Action == "c" {
 				l.Amount = -l.Amount
 			}
-			l.GLNumber = m[k].Account
+			ledger := GetCachedLedgerByGL(l.BID, m[k].Account)
+			l.LID = ledger.LID
+			// l.GLNo = ledger.GLNumber
+			l.RAID = j.RAID
 			rlib.InsertLedgerEntry(&l)
-
-			// bal += l.Amount
 		}
 	}
 }
 
 func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.Ledger, lm *rlib.LedgerMarker, d1, d2 *time.Time, state int64) {
-	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(li.BID, li.GLNumber, d1, d2)
+	// rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(li.BID, li.GLNumber, d1, d2)
+	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(li.BID, li.LID, d1, d2)
 	rlib.Errcheck(err)
 	bal := lm.Balance
 	defer rows.Close()
 	for rows.Next() {
 		var l rlib.LedgerEntry
-		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.GLNumber, &l.Dt,
+		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.LID, &l.RAID, &l.Dt,
 			&l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
 		bal += l.Amount
 	}
@@ -76,11 +96,105 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.Ledger, lm *rlib.LedgerMar
 	nlm = *lm
 	nlm.Balance = bal
 	nlm.DtStart = *d1
-	nlm.DtStop = d2.AddDate(0, 0, -1)
+	nlm.DtStop = d2.AddDate(0, 0, -1) // TODO: subtracting 1 day may not be correct
 	nlm.State = state
 	// fmt.Printf("nlm - %s - %s   GLNo: %s, Balance: %6.2f\n",
 	// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.DtStop.Format(rlib.RRDATEFMT), nlm.GLNumber, nlm.Balance)
 	rlib.InsertLedgerMarker(&nlm)
+}
+
+// GetRABalanceLedger returns a balance ledger for the supplied RentalAgreement, creating it if necessary.
+func GetRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) (rlib.Ledger, error) {
+	l, err := rlib.GetRABalanceLedger(bid, ra.RAID)
+	if err != nil {
+		if rlib.IsSQLNoResultsError(err) {
+			var l rlib.Ledger
+			l.BID = bid
+			l.Type = rlib.RABALANCEACCOUNT
+			l.RAAssociated = 2
+			l.RAID = ra.RAID
+			l.Status = 2
+			l.LID, err = rlib.InsertLedger(&l)
+			return l, err
+		}
+		rlib.Ulog("GetRABalanceLedger: error getting RABalanceLedger for BID=%d, RAID=%d, err = %s\n", bid, ra.RAID, err.Error())
+	}
+	return l, err
+}
+
+// GetAccountBalanceForRA returns the summed Amount balance for activity
+// in Ledger lid associated with RentalAgreement raid
+func GetAccountBalanceForRA(bid, lid, raid int64, d1, d2 *time.Time) (float64, error) {
+	var bal = float64(0)
+	m, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, lid)
+	if err != nil {
+		return bal, err
+	}
+	for i := 0; i < len(m); i++ {
+		bal += m[i].Amount
+	}
+	return bal, err
+}
+
+// GenerateRABalances
+func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
+	var state = int64(rlib.MARKERSTATEOPEN)
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementsByRange.Query(bid, d1, d2)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	// Spin through all the RentalAgreements that are active in this timeframe
+	for rows.Next() {
+		var ra rlib.RentalAgreement
+		rlib.Errcheck(rows.Scan(&ra.RAID, &ra.RATID, &ra.BID, &ra.RentalStart, &ra.RentalStop, &ra.PossessionStart, &ra.PossessionStop,
+			&ra.Renewal, &ra.SpecialProvisions, &ra.LastModTime, &ra.LastModBy))
+
+		// get or create a ledger for this rental agreement
+		l, err := GetRABalanceLedger(&ra, d1, d2, bid)
+		if err != nil {
+			return err
+		}
+
+		// initialize balance from the last marker if it exists
+		openingBal := float64(0)
+		lm, err := rlib.GetLatestLedgerMarkerByLID(bid, l.LID)
+		if err != nil {
+			if !rlib.IsSQLNoResultsError(err) {
+				return err
+			}
+			state = int64(rlib.MARKERSTATEORIGIN)
+		} else {
+			// if the stop date of this marker is past our startdate, then we have big problems.
+			if d1.Before(lm.DtStop) {
+				return fmt.Errorf("GenerateRABalances: existing LedgerMarker for RAID %d has stop date %s, past current period start date %s\n",
+					ra.RAID, lm.DtStop.Format(rlib.RRDATEINPFMT), d1.Format(rlib.RRDATEINPFMT))
+			}
+			openingBal = lm.Balance
+		}
+
+		// With the opening balance now set, we now need to add up the activity that has happened over the current period.
+		// This means we total up all the activity in the GeneralReceivables account during this period.
+		lid := rlib.RRdb.BizTypes[bid].DefaultAccts[rlib.DFLTGENRCV].LID
+		delta, err := GetAccountBalanceForRA(bid, lid, ra.RAID, d1, d2)
+		if err != nil {
+			return err
+		}
+
+		// Create a new LedgerMarker for Ledger l with the updated balance:
+		var nlm rlib.LedgerMarker
+		nlm.LID = lid
+		nlm.BID = bid
+		nlm.DtStart = *d1
+		nlm.DtStop = *d2
+		nlm.Balance = openingBal + delta
+		nlm.State = state
+		// fmt.Printf("nlm - %s - %s   LID: %d, Balance: %6.2f\n",
+		// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.DtStop.Format(rlib.RRDATEFMT), nlm.LID, nlm.Balance)
+		err = rlib.InsertLedgerMarker(&nlm)
+		rlib.Errlog(err)
+	}
+	rlib.Errcheck(rows.Err())
+	return err
 }
 
 // GenerateLedgerRecords creates ledgers records based on the Journal records over the supplied time range.
@@ -91,6 +205,7 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		rlib.Ulog("Could not remove existing Ledger entries from %s to %s. err = %v\n", d1.Format(rlib.RRDATEFMT), d2.Format(rlib.RRDATEFMT), err)
 		return
 	}
+	initLedgerCache()
 	//==============================================================================
 	// Loop through the Journal records for this time period, update all ledgers...
 	//==============================================================================
@@ -114,14 +229,17 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all Ledger account numbers
 	// fmt.Printf("len(t) =  %d\n", len(t))
 	for i := 0; i < len(t); i++ {
-		lm, err := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
-		if err != nil {
-			fmt.Printf("%s: Could not get Ledger for account named %s in busines %d\n", funcname, t[i].GLNumber, xbiz.P.BID)
-			fmt.Printf("%s: Error = %v\n", funcname, err)
-			continue
+		if t[i].Type != rlib.RABALANCEACCOUNT {
+			lm, err := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
+			if err != nil {
+				fmt.Printf("%s: Could not get Ledger for account %d (%s) in busines %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
+				fmt.Printf("%s: Error = %v\n", funcname, err)
+				continue
+			}
+			// fmt.Printf("lm = %#v\n", lm)
+			closeLedgerPeriod(xbiz, &t[i], &lm, d1, d2, rlib.MARKERSTATEOPEN)
 		}
-		// fmt.Printf("lm = %#v\n", lm)
-		closeLedgerPeriod(xbiz, &t[i], &lm, d1, d2, rlib.MARKERSTATEOPEN)
 	}
 	rlib.Errcheck(rows.Err())
+	rlib.Errlog(GenerateRABalances(xbiz.P.BID, d1, d2))
 }
