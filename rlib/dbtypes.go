@@ -29,7 +29,7 @@ const (
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
 
-	RABALANCEACCOUNT = 1 // Ledger set up for a RentalAgreement balance
+	RABALANCEACCOUNT = 1 // GLAccount set up for a RentalAgreement balance
 
 	ACCTSTATUSINACTIVE = 1
 	ACCTSTATUSACTIVE   = 2
@@ -86,7 +86,7 @@ const (
 	JNLTYPEASMT = 1 // record is the result of an assessment
 	JNLTYPERCPT = 2 // record is the result of a Receipt
 
-	MARKERSTATEOPEN   = 0 // Journal/Ledger Marker state
+	MARKERSTATEOPEN   = 0 // Journal/LedgerMarker state
 	MARKERSTATECLOSED = 1
 	MARKERSTATELOCKED = 2
 	MARKERSTATEORIGIN = 3
@@ -124,8 +124,8 @@ const RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 // JAID = Journal allocation id
 // JID = Journal id
 // JMID = Journal marker id
-// LEID = Ledger entry id
-// LMID = Ledger marker id
+// LEID = LedgerEntry id
+// LMID = LedgerMarker id
 // OFSID = offset id
 // PID = Payor id
 // PMTID = payment type id
@@ -338,7 +338,7 @@ type Assessment struct {
 	Amount         float64   // how much
 	Start          time.Time // start time
 	Stop           time.Time // stop time, may be the same as start time or later
-	RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	RecurCycle     int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	AcctRule       string    // expression showing how to account for the amount
 	Comment        string
@@ -532,7 +532,7 @@ type JournalMarker struct {
 	DtStop  time.Time
 }
 
-// LedgerEntry is the structure for Ledger entry attributes
+// LedgerEntry is the structure for LedgerEntry attributes
 type LedgerEntry struct {
 	LEID        int64
 	BID         int64
@@ -552,27 +552,29 @@ type LedgerEntry struct {
 // used going forward from DtStop
 type LedgerMarker struct {
 	LMID        int64     // unique id for this LM
-	LID         int64     // associated Ledger
+	LID         int64     // associated GLAccount
 	BID         int64     // only valid if Type == 1
 	DtStart     time.Time // valid period start
 	DtStop      time.Time // valid period end
-	Balance     float64   // Ledger balance at the end of the period
+	Balance     float64   // GLAccount balance at the end of the period
 	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod
 }
 
-// Ledger describes the static (or mostly static) attributes of a Ledger
-type Ledger struct {
-	LID          int64     // unique id for this Ledger
-	BID          int64     // Business unit associated with this Ledger
+// GLAccount describes the static (or mostly static) attributes of a Ledger
+type GLAccount struct {
+	LID          int64     // unique id for this GLAccount
+	PLID         int64     // unique id of Parent, 0 if no parent
+	BID          int64     // Business unit associated with this GLAccount
 	RAID         int64     // associated rental agreement, this field is only used when Type = 1
 	GLNumber     string    // acct system name
 	Status       int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Type         int64     // flag: 0 = not a default account, 1 = RentalAgreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
-	Name         string    // descriptive name for the Ledger
+	Name         string    // descriptive name for the GLAccount
 	AcctType     string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	RAAssociated int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
+	AllowPost    int64     // 0 = no posting, 1 = posting is allowed
 	LastModTime  time.Time // auto updated
 	LastModBy    int64     // user making the mod
 }
@@ -722,7 +724,7 @@ type BusinessTypes struct {
 	BID          int64
 	AsmtTypes    map[int64]*AssessmentType
 	PmtTypes     map[int64]*PaymentType
-	DefaultAccts map[int64]*Ledger // index by the predifined contants DFAC*, value = GL No of that account
+	DefaultAccts map[int64]*GLAccount // index by the predifined contants DFAC*, value = GL No of that account
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure
@@ -750,7 +752,7 @@ func InitBusinessFields(bid int64) {
 			BID:          bid,
 			AsmtTypes:    make(map[int64]*AssessmentType),
 			PmtTypes:     make(map[int64]*PaymentType),
-			DefaultAccts: make(map[int64]*Ledger),
+			DefaultAccts: make(map[int64]*GLAccount),
 		}
 		RRdb.BizTypes[bid] = &bt
 	}

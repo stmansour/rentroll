@@ -264,7 +264,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 }
 
 // ReportChartOfAcctsToText returns a string representation of the chart of accts
-func ReportChartOfAcctsToText(p *rlib.Ledger) string {
+func ReportChartOfAcctsToText(p *rlib.GLAccount) string {
 	s := ""
 	lm, err := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
 	if err != nil {
@@ -278,7 +278,7 @@ func ReportChartOfAcctsToText(p *rlib.Ledger) string {
 		lm.LMID, s, p.GLNumber, lm.Balance, p.Name)
 }
 
-// RRreportChartOfAccounts generates a report of all rlib.Ledger accounts
+// RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
 func RRreportChartOfAccounts(t int, bid int64) string {
 	m := rlib.GetLedgerList(bid)
 	//                               123456789012
@@ -304,7 +304,7 @@ func ReportAssessmentToText(p *rlib.Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("ASM%08d  %12s  R%08d     %2d  %9.2f\n",
-		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
+		p.ASMID, ra, p.RID, p.RecurCycle, p.Amount)
 }
 
 // ReportAssessmentToHTML returns a string representation of the chart of accts
@@ -314,10 +314,10 @@ func ReportAssessmentToHTML(p *rlib.Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("<tr><td>ASM%08d</td><td>%12s</td><td>RA%08d</td><td%d</td><td>%8.2f</d></tr\n",
-		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
+		p.ASMID, ra, p.RID, p.RecurCycle, p.Amount)
 }
 
-// RRreportAssessments generates a report of all rlib.Ledger accounts
+// RRreportAssessments generates a report of all rlib.GLAccount accounts
 func RRreportAssessments(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
@@ -328,7 +328,7 @@ func RRreportAssessments(t int, bid int64) string {
 	for rows.Next() {
 		var a rlib.Assessment
 		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
-			&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
+			&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		switch t {
 		case rlib.RPTTEXT:
@@ -356,7 +356,7 @@ func ReportPaymentTypesToHTML(p *rlib.PaymentType) string {
 		p.PMTID, p.BID, p.Name)
 }
 
-// RRreportPaymentTypes generates a report of all rlib.Ledger accounts
+// RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
 func RRreportPaymentTypes(t int, bid int64) string {
 	m := rlib.GetPaymentTypesByBusiness(bid)
 
@@ -395,7 +395,7 @@ func ReportReceiptToHTML(p *rlib.Receipt) string {
 		p.RCPTID, p.Amount, p.AcctRule)
 }
 
-// RRreportReceipts generates a report of all rlib.Ledger accounts
+// RRreportReceipts generates a report of all rlib.GLAccount accounts
 func RRreportReceipts(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
@@ -422,7 +422,7 @@ func ReportCustomAttributeToText(p *rlib.CustomAttribute) string {
 		p.CID, p.Type, p.Name, p.Value)
 }
 
-// RRreportCustomAttributes generates a report of all rlib.Ledger accounts
+// RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
 func RRreportCustomAttributes(t int) string {
 	rows, err := rlib.RRdb.Dbrr.Query("SELECT CID,Type,Name,Value FROM CustomAttr")
 	rlib.Errcheck(err)
@@ -453,7 +453,7 @@ func ReportCustomAttributeRefToText(p *rlib.CustomAttributeRef) string {
 		p.ElementType, p.ID, p.CID)
 }
 
-// RRreportCustomAttributeRefs generates a report of all rlib.Ledger accounts
+// RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
 func RRreportCustomAttributeRefs(t int) string {
 	rows, err := rlib.RRdb.Dbrr.Query("SELECT ElementType,ID,CID FROM CustomAttrRef")
 	rlib.Errcheck(err)
@@ -487,7 +487,7 @@ func ReportRentalAgreementPetToText(p *rlib.RentalAgreementPet) string {
 		p.PETID, p.RAID, p.Name, p.Type, p.Breed, p.Color, p.Weight, p.DtStart.Format(rlib.RRDATEINPFMT), end)
 }
 
-// RRreportRentalAgreementPets generates a report of all rlib.Ledger accounts
+// RRreportRentalAgreementPets generates a report of all rlib.GLAccount accounts
 func RRreportRentalAgreementPets(t int, raid int64) string {
 	m := rlib.GetAllRentalAgreementPets(raid)
 	s := fmt.Sprintf("%-11s  %-10s  %-25s  %-15s  %-15s  %-15s  %-9s  %-10s  %-10s\n", "PETID", "RAID", "Name", "Type", "Breed", "Color", "Weight", "DtStart", "DtStop")

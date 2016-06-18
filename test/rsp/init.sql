@@ -340,14 +340,14 @@ INSERT INTO RentalAgreementPayors (RAID,PID,DtStart,DtStop) VALUES
 --    These are initially generated when the rentor changes from
 --    an applicant to a User (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 1, 1,1000.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"),		-- #1  Krabappel - Rent
 	(1, 1, 1, 8,1200.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -");		-- #2  Simpson rent
 
 -- =======================================================================
 --  UNIT SPECIALTY ASSESSMENTS
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 59, 1,50.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #3 Lake view  Krabappel
 	(1, 1, 62, 1,20.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #4 Fireplace  Krabappel
 	(1, 1, 59, 8,50.00,"2015-11-21","2016-11-21", 6, 4, "d ${DFLTGENRCV} _, c ${DFLTGSRENT} _"),		-- #5 Lake view  Simpson
@@ -358,7 +358,7 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 --    These are initially generated when the rentor changes from
 --    an applicant to a User (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _"),		-- #7 Krabappel deposit
 	(1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${DFLTSECDEPRCV} _, c ${DFLTSECDEPASMT} _");		-- #8 Simpson deposit
 
@@ -367,7 +367,7 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 --    These can be generated at any time. Typically they will be
 --    created along with the rental agreement
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
 	(1, 8, 28, 1,35.00,"2014-07-01","2015-11-09", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #9  Krabappel, ends Nov 10
 	(1, 8, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _"),		-- #10 Simpson, starts Nov 21
 	(1, 9, 28, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${DFLTGENRCV} _, c 42007 _");		-- #11 Simpson, starts Nov 21
@@ -375,7 +375,7 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,Prorati
 -- =======================================================================
 --  DAMAGE ASSESSMENTS
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 53, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 42006 _"),	-- #12  Krabappel, $250 damages
 	(1, 1, 55, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${DFLTSECDEPASMT} _, c 10001 _");
 
@@ -420,7 +420,7 @@ INSERT INTO JournalMarker (BID,State,DtStart,DtStop) VALUES
 -- =======================================================================
 --  LEDGERS MARKERS
 -- =======================================================================
-INSERT INTO Ledger (BID,RAID,GLNumber,Status,Type,Name) VALUES
+INSERT INTO GLAccount (BID,RAID,GLNumber,Status,Type,Name) VALUES
 	(1,1,"RA-1", 2,2,"Krabappel"),						--  1 Krabappel
 	(1,2,"RA-2", 2,2,"Flanders"),						--  2 Flanders
 	(1,3,"RA-3", 2,2,"Szyslak"),						--  3 Szyslak
@@ -481,13 +481,13 @@ INSERT INTO LedgerMarker (BID,LID,State,DtStart,DtStop,Balance) VALUES
 	(1,34,3,"2015-10-01","2015-10-31",0.0),
 	(1,35,3,"2015-10-01","2015-10-31",0.0);
          
-UPDATE Ledger SET GLNumber="10001" WHERE Name = "Bank Account";
-UPDATE Ledger SET GLNumber="11001" WHERE Name = "General Accounts Receivable";
-UPDATE Ledger SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
-UPDATE Ledger SET GLNumber="41004" WHERE Name = "Loss to Lease";
-UPDATE Ledger SET GLNumber="41001" WHERE Name = "Vacancy";
-UPDATE Ledger SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
-UPDATE Ledger SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
+UPDATE GLAccount SET GLNumber="10001" WHERE Name = "Bank Account";
+UPDATE GLAccount SET GLNumber="11001" WHERE Name = "General Accounts Receivable";
+UPDATE GLAccount SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
+UPDATE GLAccount SET GLNumber="41004" WHERE Name = "Loss to Lease";
+UPDATE GLAccount SET GLNumber="41001" WHERE Name = "Vacancy";
+UPDATE GLAccount SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
+UPDATE GLAccount SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
 
 UPDATE LedgerMarker SET Balance=-1000.00 WHERE LID=7;
-UPDATE Ledger SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";
+UPDATE GLAccount SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";

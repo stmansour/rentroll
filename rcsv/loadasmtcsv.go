@@ -144,8 +144,8 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 	//-------------------------------------------------------------------
 	// Accrual
 	//-------------------------------------------------------------------
-	a.RentCycle, _ = rlib.IntFromString(sa[7], "Accrual value is invalid")
-	if !rlib.IsValidAccrual(a.RentCycle) {
+	a.RecurCycle, _ = rlib.IntFromString(sa[7], "Accrual value is invalid")
+	if !rlib.IsValidAccrual(a.RecurCycle) {
 		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %s\n", funcname, lineno, rlib.ACCRUALSECONDLY, rlib.ACCRUALYEARLY, sa[7])
 		return
 	}
@@ -158,8 +158,8 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, rlib.ACCRUALSECONDLY, rlib.ACCRUALYEARLY, a.ProrationCycle)
 		return
 	}
-	if a.ProrationCycle > a.RentCycle {
-		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationCycle, a.RentCycle)
+	if a.ProrationCycle > a.RecurCycle {
+		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationCycle, a.RecurCycle)
 		return
 	}
 
@@ -204,7 +204,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 
 }
 
-// LoadAssessmentsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
+// LoadAssessmentsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadAssessmentsCSV(fname string, AsmtTypes *map[int64]rlib.AssessmentType) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

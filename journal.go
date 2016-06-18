@@ -60,8 +60,15 @@ func calcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate in
 }
 
 // journalAssessment processes the assessment, creates a Journal entry, and returns its id
+// Parameters:
+//		xbiz - the business struct
+//		rid - Rentable ID
+//		d - date of this assessment
+//		a - the assessment
+//		d1-d2 - defines the timerange being covered in this period
 //=================================================================================================
 func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
+	funcname := "journalAssessment"
 	pf := float64(0)
 
 	r := rlib.GetRentable(rid)
@@ -69,15 +76,15 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 	switch status {
 	case rlib.RENTABLESTATUSONLINE:
 		ra, _ := rlib.GetRentalAgreement(a.RAID)
-		switch a.RentCycle {
+		switch a.RecurCycle {
 		case rlib.ACCRUALDAILY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, &d, &d, a.RentCycle, a.ProrationCycle)
+			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, &d, &d, a.RecurCycle, a.ProrationCycle)
 		case rlib.ACCRUALNORECUR:
 			fallthrough
 		case rlib.ACCRUALMONTHLY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RentCycle, a.ProrationCycle)
+			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RecurCycle, a.ProrationCycle)
 		default:
-			fmt.Printf("Accrual rate %d not implemented\n", a.RentCycle)
+			fmt.Printf("Accrual rate %d not implemented\n", a.RecurCycle)
 		}
 		// fmt.Printf("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
 
@@ -92,16 +99,16 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 		if len(ta) > 0 {
 			rentcycle, proration, _, err := rlib.GetRentCycleAndProration(&r, d1, xbiz)
 			if err != nil {
-				rlib.Ulog("journalAssessment: error getting rent cycle for rentable %d. err = %s\n", r.RID, err.Error())
+				rlib.Ulog("%s: error getting rent cycle for rentable %d. err = %s\n", funcname, r.RID, err.Error())
 			}
 			pf = calcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
 			if len(ta) > 1 {
-				rlib.Ulog("journalAssessment: %d Assessments affect Rentable %d (%s) in period %s - %s\n",
-					len(ta), r.RID, r.Name, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
+				rlib.Ulog("%s: %d Assessments affect Rentable %d (%s) in period %s - %s\n",
+					funcname, len(ta), r.RID, r.Name, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
 			}
 		}
 	default:
-		rlib.Ulog("journalAssessment: Rentable %d is in an unknown status: %d\n", r.RID, status)
+		rlib.Ulog("%s: Rentable %d is in an unknown status: %d\n", funcname, r.RID, status)
 	}
 
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
@@ -225,12 +232,12 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		var a rlib.Assessment
 		ap := &a
 		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
-			&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
+			&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		// fmt.Printf("Assessment: ASMID = %d, Amount = %8.2f\n", a.ASMID, a.Amount)
-		if a.RentCycle >= rlib.RECURSECONDLY && a.RentCycle <= rlib.RECURHOURLY {
+		if a.RecurCycle >= rlib.RECURSECONDLY && a.RecurCycle <= rlib.RECURHOURLY {
 			// TBD
-			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RentCycle)
+			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RecurCycle)
 		} else {
 			dl := ap.GetRecurrences(d1, d2)
 			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))

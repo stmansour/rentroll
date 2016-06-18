@@ -67,7 +67,7 @@ type LMResults struct {
 type RRuiSupport struct {
 	DtStart time.Time  // start of period of interest
 	DtStop  time.Time  // end of period of interest
-	L       *LMResults // an array of Ledger markers with time period and biz
+	L       *LMResults // an array of LedgerMarkers with time period and biz
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced

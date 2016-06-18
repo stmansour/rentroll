@@ -17,7 +17,7 @@ func RRCommaf(x float64) string {
 	return humanize.FormatFloat("#,###.##", x)
 }
 
-// LMSum takes an array of Ledger markers, sums the Balance value of each, and returns the sum
+// LMSum takes an array of LedgerMarkers, sums the Balance value of each, and returns the sum
 func LMSum(m *[]rlib.LedgerMarker) float64 {
 	bal := float64(0)
 	for _, v := range *m {

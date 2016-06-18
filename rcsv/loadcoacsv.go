@@ -8,28 +8,11 @@ import (
 	"time"
 )
 
-//    0           1                             2            3                    4             5                 6           7       8            9
-// Designation, Name,                         GLNumber,  GLAccountType,         Balance,   GLAccountStatus,    Associated,  Default,  DtStart,     DtStop
-// REH,         Bank Account FRB 2332352,     10001,     bank,                     0,         active,          Associated,   10,     "2016-03-01","2016-04-01"
-// REH,         General Accounts Receivable,  11001,     Accounts Receivable,      0,         active,          Associated,   11
-// REH,         Friday Lunch Fund,            11099,     Accounts Receivable,     0.00,       active,          Unssociated,
-
-// type rlib.LedgerMarker struct {
-// 		LMID     int64
-// 		BID      int64
-// 		PID      int64 // only valid if Type == 1
-// 		GLNumber string
-// 		Status   int64 // Whether a GL Account is currently unknown=0, inactive=1, active=2
-// 		State    int64 //0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
-// 		DtStart  time.Time
-// 		DtStop   time.Time
-// 		Balance  float64
-// 		Type     int64 // flag: 0 = not a default account, 1 = rlib.Payor Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC
-// 		Name     string
-//		AcctType string  Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-//		LastModTime
-//		LastModBy
-// }
+//    0           1                             2        3,               4                       5            6                7             8         9          10
+// Designation, Name,                         GLNumber,  Parent GLNumber   Account TYpe,        Balance,   GL Account Status,    Associated,  Type,     Date,      AllowPost
+// REH,         Bank Account FRB 2332352,     10001,      10000           bank,                     0,         active,          Yes,         10,  "2016-03-01",  Yes
+// REH,         General Accounts Receivable,  11001,      11000           Accounts Receivable,      0,         active,          Yes,         11,  "2016-03-01",  Yes
+// REH,         Friday Lunch Fund,            11099,      11000           Accounts Receivable,     0.00,       active,          No,
 
 // StringToDate tries to convert the supplied string to a time.Time value. It will use the two
 // formats called out in dbtypes.go:  rlib.RRDATEFMT, rlib.RRDATEINPFMT, rlib.RRDATEINPFMT2
@@ -54,13 +37,13 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	funcname := "CreateLedgerMarkers"
 	inserting := true // this may be changed, depends on the value for sa[7]
 	var lm rlib.LedgerMarker
-	var l rlib.Ledger
+	var l rlib.GLAccount
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "designation" {
+	if des == "bud" {
 		return // this is just the column heading
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 10
+	required := 11
 	if len(sa) < required {
 		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
@@ -82,10 +65,11 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	lm.State = 3 // Initial marker, no prior records
 
 	//----------------------------------------------------------------------
+	// TYPE
 	// We'll either be updating an existing account or inserting a new one
 	// If updating existing, preload lm with existing info...
 	//----------------------------------------------------------------------
-	s := strings.TrimSpace(sa[7])
+	s := strings.TrimSpace(sa[8])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil || !(i == 0 || (rlib.DFLTCASH <= i && i <= rlib.DFLTLAST)) {
@@ -96,7 +80,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		l1, err := rlib.GetLedgerByType(l.BID, int64(i))
 		if nil != err {
 			if rlib.IsSQLNoResultsError(err) {
-				rlib.Ulog("%s: line %d - No default rlib.Ledger %d exists\n", funcname, lineno, i)
+				rlib.Ulog("%s: line %d - No default rlib.GLAccount %d exists\n", funcname, lineno, i)
 				return
 			}
 		}
@@ -112,12 +96,15 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		lm = lm1 // we're just going to update the existing information
 	}
 
-	// Set the rlib.Ledger name
+	//----------------------------------------------------------------------
+	// NAME
+	//----------------------------------------------------------------------
 	l.Name = strings.TrimSpace(sa[1])
 
-	//-------------------------------------------------------------------
+	//----------------------------------------------------------------------
+	// GLNUMBER
 	// Make sure the account number is unique
-	//-------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	g := strings.TrimSpace(sa[2])
 	if len(g) == 0 {
 		fmt.Printf("%s: line %d - You must suppy a GL Number for this entry\n", funcname, lineno)
@@ -140,55 +127,104 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		l.GLNumber = g
 	}
 
-	// Set the account type
-	l.AcctType = strings.TrimSpace(sa[3])
-
-	// Set balance
-	x, err := strconv.ParseFloat(strings.TrimSpace(sa[4]), 64)
-	if err != nil {
-		rlib.Ulog("%s: line %d - Invalid balance: %s\n", funcname, lineno, sa[4])
-		return
+	//----------------------------------------------------------------------
+	// PARENT GLNUMBER
+	//----------------------------------------------------------------------
+	l.PLID = int64(0) // assume no parent
+	g = strings.TrimSpace(sa[3])
+	if len(g) > 0 {
+		parent, err := rlib.GetLedgerByGLNo(l.BID, g)
+		if nil != err {
+			fmt.Printf("%s: line %d - Error getting GLAccount: %s,  error = %s\n", funcname, lineno, g, err.Error())
+			return
+		}
+		l.PLID = parent.LID
 	}
-	lm.Balance = x
 
-	// Set account status
-	s = strings.ToLower(strings.TrimSpace(sa[5]))
+	//----------------------------------------------------------------------
+	// ACCOUNT TYPE
+	//----------------------------------------------------------------------
+	l.AcctType = strings.TrimSpace(sa[4])
+
+	//----------------------------------------------------------------------
+	// OPENING BALANCE
+	//----------------------------------------------------------------------
+	lm.Balance = float64(0) // assume a 0 starting balance
+	g = strings.TrimSpace(sa[5])
+	if len(g) > 0 {
+		x, err := strconv.ParseFloat(g, 64)
+		if err != nil {
+			rlib.Ulog("%s: line %d - Invalid balance: %s\n", funcname, lineno, sa[5])
+			return
+		}
+		lm.Balance = x
+	}
+
+	//----------------------------------------------------------------------
+	// GLACCOUNT STATUS
+	//----------------------------------------------------------------------
+	s = strings.ToLower(strings.TrimSpace(sa[6]))
 	if "active" == s {
 		l.Status = rlib.ACCTSTATUSACTIVE
 	} else if "inactive" == s {
 		l.Status = rlib.ACCTSTATUSINACTIVE
 	} else {
-		fmt.Printf("%s: line %d - Invalid account status: %s\n", funcname, lineno, sa[5])
+		fmt.Printf("%s: line %d - Invalid account status: %s\n", funcname, lineno, sa[6])
 		return
 	}
 
-	// Set Rental Agreement Associated
-	s = strings.ToLower(strings.TrimSpace(sa[6]))
-	if "associated" == s {
+	//----------------------------------------------------------------------
+	// ASSOCIATED
+	//----------------------------------------------------------------------
+	s = strings.ToLower(strings.TrimSpace(sa[7]))
+	if "associated" == s || s == "y" || s == "yes" || s == "1" {
 		l.RAAssociated = rlib.RAASSOCIATED
-	} else if "unassociated" == s {
+	} else if "unassociated" == s || s == "n" || s == "no" || s == "0" {
 		l.RAAssociated = rlib.RAUNASSOCIATED
 	} else {
-		fmt.Printf("%s: line %d - Invalid associated/unassociated value: %s\n", funcname, lineno, sa[6])
+		fmt.Printf("%s: line %d - Invalid associated/unassociated value: %s\n", funcname, lineno, sa[7])
 		return
 	}
 
-	// get the date range
-	DtStart, err := StringToDate(sa[8])
-	if err != nil {
-		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[8])
-		return
-	}
-	lm.DtStart = DtStart
+	//----------------------------------------------------------------------
+	// TYPE
+	//----------------------------------------------------------------------
+	s = strings.TrimSpace(sa[8])
+	if len(s) > 0 {
 
+		i, err := strconv.Atoi(strings.TrimSpace(s))
+		if err != nil {
+			fmt.Printf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
+			return
+		}
+		if i < 0 || (2 <= i && i <= 9) || i > rlib.DFLTLAST {
+			fmt.Printf("%s: line %d - Type value is invalid: %s\n", funcname, lineno, s)
+			return
+		}
+		l.Type = int64(i)
+	}
+
+	//----------------------------------------------------------------------
+	// DATE for opening balance
+	//----------------------------------------------------------------------
 	DtStop, err := StringToDate(sa[9])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[9])
 		return
 	}
 	lm.DtStop = DtStop
+	lm.DtStart = DtStop.AddDate(0, -1, 0)
 
-	// Insert / Update the rlib.Ledger first, we may need the LID
+	//----------------------------------------------------------------------
+	// ALLOW POST
+	//----------------------------------------------------------------------
+	l.AllowPost, err = rlib.YesNoToInt(sa[10])
+	if err != nil {
+		fmt.Printf("%s: line %d - invalid value for AllowPost:  %s\n", funcname, lineno, sa[10])
+		return
+	}
+
+	// Insert / Update the rlib.GLAccount first, we may need the LID
 	if inserting {
 		var lid int64
 		lid, err = rlib.InsertLedger(&l)
@@ -198,7 +234,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		lm.LID = l.LID
 	}
 	if nil != err {
-		fmt.Printf("%s: line %d - Could not save rlib.Ledger marker, err = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - Could not save rlib.GLAccount marker, err = %v\n", funcname, lineno, err)
 	}
 
 	// Now update the markers
@@ -208,11 +244,11 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		err = rlib.UpdateLedgerMarker(&lm)
 	}
 	if nil != err {
-		fmt.Printf("%s: line %d - Could not save rlib.Ledger marker, err = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - Could not save rlib.GLAccount marker, err = %v\n", funcname, lineno, err)
 	}
 }
 
-// LoadChartOfAccountsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
+// LoadChartOfAccountsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadChartOfAccountsCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

@@ -166,7 +166,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 
 }
 
-// LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
+// LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadReceiptsCSV(fname string, PmtTypes *map[int64]rlib.PaymentType) {
 	t := rlib.LoadCSV(fname)
 	if len(t) > 1 {

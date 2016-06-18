@@ -92,7 +92,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
 	}
 }
 
-// LoadPetsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
+// LoadPetsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadPetsCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

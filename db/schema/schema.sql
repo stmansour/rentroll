@@ -16,8 +16,8 @@
 -- JAID = Journal allocation id
 -- JID = Journal id
 -- JMID = Journal marker id
--- LEID = Ledger id
--- LMID = Ledger marker id
+-- LEID = LedgerEntry id
+-- LMID = LedgerMarker id
 -- OFSID = offset id
 -- PID = Payor id
 -- PMTID = payment type id
@@ -332,8 +332,8 @@ CREATE TABLE Assessments (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the User moves out or when the charge is no longer applicable
-    RentCycle SMALLINT NOT NULL DEFAULT 0,                  -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
-    ProrationCycle SMALLINT NOT NULL DEFAULT 0,            -- 
+    RecurCycle SMALLINT NOT NULL DEFAULT 0,                 -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
+    ProrationCycle SMALLINT NOT NULL DEFAULT 0,             -- 
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP,                                  -- when was this record last written
@@ -531,11 +531,11 @@ CREATE TABLE JournalMarkerAudit (
 -- **************************************
 -- RENAME to Ledger
 CREATE TABLE LedgerEntry (
-    LEID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this Ledger
+    LEID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this LedgerEntry
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     JID BIGINT NOT NULL DEFAULT 0,                            -- Journal entry giving rise to this
-    JAID BIGINT NOT NULL DEFAULT 0,                           -- the allocation giving rise to this Ledger entry
-    LID BIGINT NOT NULL DEFAULT 0,                            -- associated Ledger
+    JAID BIGINT NOT NULL DEFAULT 0,                           -- the allocation giving rise to this LedgerEntry
+    LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     RAID BIGINT NOT NULL DEFAULT 0,                           -- associated Rental Agreement
     -- GLNo VARCHAR(100) NOT NULL DEFAULT '',                    -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
@@ -548,7 +548,7 @@ CREATE TABLE LedgerEntry (
 
 CREATE TABLE LedgerMarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
-    LID BIGINT NOT NULL DEFAULT 0,                            -- associated Ledger
+    LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- period start
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- period end
@@ -560,8 +560,9 @@ CREATE TABLE LedgerMarker (
 );
 
 -- GL Account
-CREATE TABLE Ledger (
-    LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Ledger
+CREATE TABLE GLAccount (
+    LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this GLAccount
+    PLID BIGINT NOT NULL DEFAULT 0,                           -- Parent ID for this GLAccount.  0 if no parent.
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
@@ -573,6 +574,7 @@ CREATE TABLE Ledger (
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, 
                                                               --    Cost of Goods Sold, Other Income, Other Expense
     RAAssociated SMALLINT NOT NULL DEFAULT 0,                 -- 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
+    AllowPost SMALLINT NOT NULL DEFAULT 0,                    -- 0 - do not allow posts to this ledger. 1 = allow posts
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LID)
@@ -599,7 +601,7 @@ CREATE TABLE LedgerMarkerAudit (
 -- ----------------------------------------------------------------------------------------
 --    LEDGERs  - These define the required ledgers
 -- ----------------------------------------------------------------------------------------
-INSERT INTO Ledger (BID,RAID,GLNumber,Status,Type,Name) VALUES
+INSERT INTO GLAccount (BID,RAID,GLNumber,Status,Type,Name) VALUES
     (1,0,"",2,10,"Bank Account"),                   -- 1
     (1,0,"",2,11,"General Accounts Receivable"),    -- 2
     (1,0,"",2,12,"Gross Scheduled Rent"),           -- 3

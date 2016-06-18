@@ -54,7 +54,7 @@ func InsertLedgerMarker(l *LedgerMarker) error {
 	return err
 }
 
-// InsertLedgerEntry writes a new Journal entry to the database
+// InsertLedgerEntry writes a new LedgerEntry to the database
 func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertLedgerEntry.Exec(l.BID, l.JID, l.JAID, l.LID, l.RAID, l.Dt, l.Amount, l.Comment, l.LastModBy)
@@ -64,29 +64,29 @@ func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("Error inserting Ledger entry:  %v\n", err)
+		Ulog("Error inserting LedgerEntry:  %v\n", err)
 	}
 	return rid, err
 }
 
-// InsertLedger writes a new Journal entry to the database
-func InsertLedger(l *Ledger) (int64, error) {
+// InsertLedger writes a new GLAccount to the database
+func InsertLedger(l *GLAccount) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.LastModBy)
+	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("Error inserting Ledger:  %v\n", err)
+		Ulog("Error inserting GLAccount:  %v\n", err)
 	}
 	return rid, err
 }
 
 // InsertAssessment writes a new assessmenttype record to the database
 func InsertAssessment(a *Assessment) error {
-	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.ASMID, a.BID, a.RID, a.ASMTID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.AcctRule, a.Comment, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ASMTID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.AcctRule, a.Comment, a.LastModBy)
 	return err
 }
 

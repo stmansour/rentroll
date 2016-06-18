@@ -1,10 +1,10 @@
 #!/bin/bash
 RRBIN="../../tmp/rentroll"
-MYSQLOPTS=""
-UNAME=$(uname)
 CVSLOAD="${RRBIN}/rrloadcsv"
+UNAME=$(uname)
 RENTROLL="${RRBIN}/rentroll -A"
 LOGFILE="log"
+MYSQLOPTS=""
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"

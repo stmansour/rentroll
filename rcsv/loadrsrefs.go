@@ -89,7 +89,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 	}
 }
 
-// LoadRentableSpecialtyRefsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
+// LoadRentableSpecialtyRefsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadRentableSpecialtyRefsCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

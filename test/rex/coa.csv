@@ -1,21 +1,21 @@
-Designation,Name,GL Number,GL Account Type,Balance,GL Account Status,Assoc/Unassoc,Default,Start,Stop
-REX,Gross Schedule Rent,50201,Income,0,active,Unassociated,12,2/1/16,2/29/16
-REX,Security Deposits Assessed,11002,liability,-13300,active,Associated,16,2/1/16,2/29/16
-REX,Late Fees,50211,Income,0,active,Associated,,2/1/16,2/29/16
-REX,NSF Fees,50212,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Maintenance Reimbursement,50216,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Basement Storage,00001,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Change In Delinquency,00002,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Bad Debt Write-Off,50254,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Vacancy,50251,Income,0,active,Unassociated,14,2/1/16,2/29/16
-REX,Rent Concession,50252,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Offline Units,50253,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Loss to Lease,50255,Income,0,active,Associated,13,2/1/16,2/29/16
-REX,Administrative Unit,41008,Income,0,active,Unassociated,,2/1/16,2/29/16
-REX,Forfeited Security Deposit,50213,Income,0,active,Associated,,2/1/16,2/29/16
-REX,Security Deposit Receivable,33000,Accounts Receivable,0,active,Associated,15,2/1/16,2/29/16
-REX,Cash Deposits,59998,Accounts Receivable,0,active,Associated,10,2/1/16,2/29/16
-REX,AP Cash Dispersements,59997,Accounts Receivable,0,active,Associated,,2/1/16,2/29/16
-REX,General Accounts Receivable,11001,Accounts Receivable,0,active,Associated,11,2/1/16,2/29/16
-REX,OwnerEquity,33333,Accounts Receivable,13300,active,Associated,17,2/1/16,2/29/16
-REX,I AM AN ERROR - No GLNumber,,Accounts Receivable,13300,active,Associated,17,2/1/16,2/29/16
+BUD,Name,GLNumber,Parent GLNumber,Account Type,Balance,GL Account Status,RAAssociated,Type,Date,AllowPost
+REX,Gross Schedule Rent,50201,,Income,0,active,Unassociated,12,2/29/16,yes
+REX,Security Deposits Assessed,11002,,liability,-13300,active,Associated,16,2/29/16,yes
+REX,Late Fees,50211,,Income,0,active,Associated,,2/29/16,yes
+REX,NSF Fees,50212,,Income,0,active,Associated,,2/29/16,yes
+REX,Maintenance Reimbursement,50216,,Income,0,active,Associated,,2/29/16,yes
+REX,Basement Storage,1,,Income,0,active,Associated,,2/29/16,yes
+REX,Change In Delinquency,2,,Income,0,active,Associated,,2/29/16,yes
+REX,Bad Debt Write-Off,50254,,Income,0,active,Associated,,2/29/16,yes
+REX,Vacancy,50251,,Income,0,active,Unassociated,14,2/29/16,yes
+REX,Rent Concession,50252,,Income,0,active,Associated,,2/29/16,yes
+REX,Offline Units,50253,,Income,0,active,Associated,,2/29/16,yes
+REX,Loss to Lease,50255,,Income,0,active,Associated,13,2/29/16,yes
+REX,Administrative Unit,41008,,Income,0,active,Unassociated,,2/29/16,yes
+REX,Forfeited Security Deposit,50213,,Income,0,active,Associated,,2/29/16,yes
+REX,Security Deposit Receivable,33000,,Accounts Receivable,0,active,Associated,15,2/29/16,yes
+REX,Cash Deposits,59998,,Accounts Receivable,0,active,Associated,10,2/29/16,yes
+REX,AP Cash Dispersements,59997,,Accounts Receivable,0,active,Associated,,2/29/16,yes
+REX,General Accounts Receivable,11001,,Accounts Receivable,0,active,Associated,11,2/29/16,yes
+REX,OwnerEquity,33333,,Accounts Receivable,13300,active,Associated,17,2/29/16,yes
+REX,I AM AN ERROR - No GLNumber,,,Accounts Receivable,13300,active,Associated,17,2/29/16,yes

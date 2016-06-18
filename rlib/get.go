@@ -64,7 +64,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
 		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID,
-			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle,
+			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle,
 			&a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		t = append(t, a)
 	}
@@ -75,7 +75,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
 	err := RRdb.Prepstmt.GetAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
-		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RentCycle,
+		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle,
 		&a.ProrationCycle, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
 		Ulog("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
@@ -218,7 +218,7 @@ func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) (Led
 	return r, err
 }
 
-// GetLatestLedgerMarkerByLID returns the LedgerMarker struct for the Ledger with the supplied LID
+// GetLatestLedgerMarkerByLID returns the LedgerMarker struct for the GLAccount with the supplied LID
 func GetLatestLedgerMarkerByLID(bid, lid int64) (LedgerMarker, error) {
 	var r LedgerMarker
 	err := RRdb.Prepstmt.GetLatestLedgerMarkerByLID.QueryRow(bid, lid).Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy)
@@ -792,58 +792,57 @@ func GetJournal(jid int64) (Journal, error) {
 //  L E D G E R
 //=======================================================
 
-// GetLedgerList loads the Ledgers for all ledgers
-// this is essentially a way to get the exhaustive list of Ledger numbers for a Business
-func GetLedgerList(bid int64) []Ledger {
+// GetLedgerList returns an array of all GLAccount
+// this is essentially a way to get the exhaustive list of GLAccount numbers for a Business
+func GetLedgerList(bid int64) []GLAccount {
 	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
-	var t []Ledger
-	t = make([]Ledger, 0)
+	var t []GLAccount
 	for rows.Next() {
-		var r Ledger
-		Errcheck(rows.Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
+		var r GLAccount
+		Errcheck(rows.Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy))
 		t = append(t, r)
 	}
 	return t
 }
 
-// GetLedger returns the Ledger struct for the supplied LID
-func GetLedger(lid int64) (Ledger, error) {
-	var r Ledger
-	err := RRdb.Prepstmt.GetLedger.QueryRow(lid).Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+// GetLedger returns the GLAccount struct for the supplied LID
+func GetLedger(lid int64) (GLAccount, error) {
+	var r GLAccount
+	err := RRdb.Prepstmt.GetLedger.QueryRow(lid).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
-// GetLedgerByGLNo returns the Ledger struct for the supplied GLNo
-func GetLedgerByGLNo(bid int64, s string) (Ledger, error) {
-	var r Ledger
-	err := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s).Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+// GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
+func GetLedgerByGLNo(bid int64, s string) (GLAccount, error) {
+	var r GLAccount
+	err := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
-// GetLedgerByType returns the Ledger struct for the supplied Type
-func GetLedgerByType(bid, t int64) (Ledger, error) {
-	var r Ledger
-	err := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t).Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+// GetLedgerByType returns the GLAccount struct for the supplied Type
+func GetLedgerByType(bid, t int64) (GLAccount, error) {
+	var r GLAccount
+	err := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
-// GetRABalanceLedger returns the Ledger struct for the supplied Type
-func GetRABalanceLedger(bid, RAID int64) (Ledger, error) {
-	var r Ledger
-	err := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid, RAID).Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy)
+// GetRABalanceLedger returns the GLAccount struct for the supplied Type
+func GetRABalanceLedger(bid, RAID int64) (GLAccount, error) {
+	var r GLAccount
+	err := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid, RAID).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
 	return r, err
 }
 
-// GetDefaultLedgers loads the default Ledger for the supplied Business bid
+// GetDefaultLedgers loads the default GLAccount for the supplied Business bid
 func GetDefaultLedgers(bid int64) {
 	rows, err := RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var r Ledger
-		Errcheck(rows.Scan(&r.LID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.LastModTime, &r.LastModBy))
+		var r GLAccount
+		Errcheck(rows.Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy))
 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
 	}
 }

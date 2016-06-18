@@ -102,13 +102,15 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT ASMID, BID, RID, ASMTID, RAID, Amount, Start, Stop, RentCycle, ProrationCycle, AcctRule,Comment, LastModTime, LastModBy from Assessments WHERE ASMID=?")
+	AsmFlds := "ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " from Assessments WHERE ASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModTime,LastModBy FROM Assessments WHERE BID=? and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and Start<? and Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModTime,LastModBy FROM Assessments WHERE RID=? and Stop >= ? and Start < ?")
+	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(AsmFlds)
+	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 
 	//===============================
@@ -196,26 +198,29 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
-	// LEDGER
+	// LEDGER;  GLAccount
 	//==========================================
-	LDGRfields := "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND GLNumber=?")
+	LDGRfields := "LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND Type=?")
+	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND Type=1 AND RAID=?")
+	RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=1 AND RAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE LID=?")
+	RRdb.Prepstmt.GetLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE LID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? ORDER BY GLNumber ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM Ledger WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertLedger, err = RRdb.Dbrr.Prepare("INSERT INTO Ledger (BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(LDGRfields)
+
+	RRdb.Prepstmt.InsertLedger, err = RRdb.Dbrr.Prepare("INSERT INTO GLAccount (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteLedger, err = RRdb.Dbrr.Prepare("DELETE FROM Ledger WHERE LID=?")
+	RRdb.Prepstmt.DeleteLedger, err = RRdb.Dbrr.Prepare("DELETE FROM GLAccount WHERE LID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateLedger, err = RRdb.Dbrr.Prepare("UPDATE Ledger SET BID=?,RAID=?,GLNumber=?,Status=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=? WHERE LID=?")
+	RRdb.Prepstmt.UpdateLedger, err = RRdb.Dbrr.Prepare("UPDATE GLAccount SET " + s3 + " WHERE LID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -232,7 +237,9 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntry, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry where LEID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertLedgerEntry, err = RRdb.Dbrr.Prepare("INSERT INTO LedgerEntry (BID,JID,JAID,LID,RAID,Dt,Amount,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(LEfields)
+	RRdb.Prepstmt.InsertLedgerEntry, err = RRdb.Dbrr.Prepare("INSERT INTO LedgerEntry (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerEntry, err = RRdb.Dbrr.Prepare("DELETE FROM LedgerEntry WHERE LEID=?")
 	Errcheck(err)

@@ -93,7 +93,7 @@ func printDatedLedgerEntryRJ(label string, d time.Time, jid int64, ra string, rn
 func printDatedLedgerEntryLJ(label string, d time.Time, jid int64, ra string, rn string, a, b float64) {
 	fmt.Printf(tfmt.DatedLedgerEntryLJ, label, d.Format(rlib.RRDATEFMT), jid, ra, rn, a, b)
 }
-func printLedgerHeaderText(l *rlib.Ledger) {
+func printLedgerHeaderText(l *rlib.GLAccount) {
 	printTSubtitle(l.Name)
 }
 func printLedgerDescrAndBal(s string, d time.Time, x float64) {
@@ -101,7 +101,7 @@ func printLedgerDescrAndBal(s string, d time.Time, x float64) {
 }
 
 //
-func printLedgerHeader(xbiz *rlib.XBusiness, l *rlib.Ledger, d1, d2 *time.Time) {
+func printLedgerHeader(xbiz *rlib.XBusiness, l *rlib.GLAccount, d1, d2 *time.Time) {
 	printTReportDoubleLine()
 	fmt.Printf("   Business:  %-13s\n", xbiz.P.Name)
 	printTSubtitle(l.GLNumber + " - " + l.Name)
@@ -160,7 +160,7 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 
 // LedgerReportText generates a textual Journal report for the supplied Business and time range
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
-	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all Ledger account numbers
+	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {
 		if t[i].Type == rlib.RABALANCEACCOUNT {
 			continue
@@ -169,7 +169,7 @@ func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
 		lm, err := rlib.GetLedgerMarkerByGLNoDateRange(xbiz.P.BID, t[i].GLNumber, &dd1, &dd2)
 		if lm.LMID < 1 || err != nil {
-			fmt.Printf("LedgerReportText: GLNumber %s -- no Ledger Marker for: %s - %s\n",
+			fmt.Printf("LedgerReportText: GLNumber %s -- no LedgerMarker for: %s - %s\n",
 				t[i].GLNumber, dd1.Format(rlib.RRDATEFMT), dd2.Format(rlib.RRDATEFMT))
 		} else {
 			reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)

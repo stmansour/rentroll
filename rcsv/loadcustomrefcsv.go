@@ -61,7 +61,7 @@ func CreateCustomAttributeRefs(sa []string, lineno int) {
 	}
 }
 
-// LoadCustomAttributeRefsCSV loads a csv file with a chart of accounts and creates rlib.Ledger markers for each
+// LoadCustomAttributeRefsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadCustomAttributeRefsCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {

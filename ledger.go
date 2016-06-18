@@ -8,7 +8,7 @@ import (
 
 // RemoveLedgerEntries clears out the records in the supplied range provided the range is not closed by a LedgerMarker
 func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
-	// Remove the Ledger entries and the ledgerallocation entries
+	// Remove the LedgerEntries and the ledgerallocation entries
 	rows, err := rlib.RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(xbiz.P.BID, d1, d2)
 	if err != nil {
 		return err
@@ -24,18 +24,18 @@ func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 }
 
 // ledgerCache is a mapping of glNames to ledger structs
-var ledgerCache map[string]rlib.Ledger
+var ledgerCache map[string]rlib.GLAccount
 
 // initLedgerCache starts a new ledger cache
 func initLedgerCache() {
-	ledgerCache = make(map[string]rlib.Ledger)
+	ledgerCache = make(map[string]rlib.GLAccount)
 }
 
 // GetCachedLedgerByGL checks the cache with index string s. If there is an entry there and the BID matches the
 // requested BID we return the ledger struct immediately. Otherwise, the ledger is loaded from the database and
 // stored in the cache at index s.  If no ledger is found with GLNumber s, then a ledger with LID = 0 is returned.
-func GetCachedLedgerByGL(bid int64, s string) rlib.Ledger {
-	var l rlib.Ledger
+func GetCachedLedgerByGL(bid int64, s string) rlib.GLAccount {
+	var l rlib.GLAccount
 	var ok bool
 	var err error
 
@@ -55,7 +55,7 @@ func GetCachedLedgerByGL(bid int64, s string) rlib.Ledger {
 	return l
 }
 
-// GenerateLedgerEntriesFromJournal creates all the Ledger entries necessary to describe the Journal entry provided
+// GenerateLedgerEntriesFromJournal creates all the LedgerEntries necessary to describe the Journal entry provided
 func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1, d2 *time.Time) {
 	for i := 0; i < len(j.JA); i++ {
 		m := rlib.ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
@@ -78,7 +78,7 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 	}
 }
 
-func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.Ledger, lm *rlib.LedgerMarker, d1, d2 *time.Time, state int64) {
+func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.GLAccount, lm *rlib.LedgerMarker, d1, d2 *time.Time, state int64) {
 	// rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(li.BID, li.GLNumber, d1, d2)
 	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(li.BID, li.LID, d1, d2)
 	rlib.Errcheck(err)
@@ -104,11 +104,11 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.Ledger, lm *rlib.LedgerMar
 }
 
 // GetRABalanceLedger returns a balance ledger for the supplied RentalAgreement, creating it if necessary.
-func GetRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) (rlib.Ledger, error) {
+func GetRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) (rlib.GLAccount, error) {
 	l, err := rlib.GetRABalanceLedger(bid, ra.RAID)
 	if err != nil {
 		if rlib.IsSQLNoResultsError(err) {
-			var l rlib.Ledger
+			var l rlib.GLAccount
 			l.BID = bid
 			l.Type = rlib.RABALANCEACCOUNT
 			l.RAAssociated = 2
@@ -123,7 +123,7 @@ func GetRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) 
 }
 
 // GetAccountBalanceForRA returns the summed Amount balance for activity
-// in Ledger lid associated with RentalAgreement raid
+// in GLAccount lid associated with RentalAgreement raid
 func GetAccountBalanceForRA(bid, lid, raid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
 	m, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, lid)
@@ -136,7 +136,7 @@ func GetAccountBalanceForRA(bid, lid, raid int64, d1, d2 *time.Time) (float64, e
 	return bal, err
 }
 
-// GenerateRABalances
+// GenerateRABalances creates the ledgerMarkers for the Type 1 RentalAgreement accounts
 func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 	var state = int64(rlib.MARKERSTATEOPEN)
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementsByRange.Query(bid, d1, d2)
@@ -180,7 +180,7 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 			return err
 		}
 
-		// Create a new LedgerMarker for Ledger l with the updated balance:
+		// Create a new LedgerMarker for GLAccount l with the updated balance:
 		var nlm rlib.LedgerMarker
 		nlm.LID = lid
 		nlm.BID = bid
@@ -202,7 +202,7 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	funcname := "GenerateLedgerRecords"
 	err := RemoveLedgerEntries(xbiz, d1, d2)
 	if err != nil {
-		rlib.Ulog("Could not remove existing Ledger entries from %s to %s. err = %v\n", d1.Format(rlib.RRDATEFMT), d2.Format(rlib.RRDATEFMT), err)
+		rlib.Ulog("Could not remove existing LedgerEntries from %s to %s. err = %v\n", d1.Format(rlib.RRDATEFMT), d2.Format(rlib.RRDATEFMT), err)
 		return
 	}
 	initLedgerCache()
@@ -224,15 +224,15 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	//==============================================================================
 	// Now that all the ledgers have been updated, we can close the ledgers and mark
 	// their state as MARKERSTATEOPEN
-	// Spin through all ledgers and update the Ledger markers with the ending balance...
+	// Spin through all ledgers and update the LedgerMarkers with the ending balance...
 	//==============================================================================
-	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all Ledger account numbers
+	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	// fmt.Printf("len(t) =  %d\n", len(t))
 	for i := 0; i < len(t); i++ {
 		if t[i].Type != rlib.RABALANCEACCOUNT {
 			lm, err := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
 			if err != nil {
-				fmt.Printf("%s: Could not get Ledger for account %d (%s) in busines %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
+				fmt.Printf("%s: Could not get GLAccount %d (%s) in busines %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
 				fmt.Printf("%s: Error = %v\n", funcname, err)
 				continue
 			}

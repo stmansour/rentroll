@@ -110,7 +110,7 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 		}
 		l, err := rlib.GetLedgerByGLNo(r.BID, m[i].Account)
 		if err != nil {
-			fmt.Printf("%s: Could not get Ledger for account named %s in Business %d\n", funcname, m[i].Account, r.BID)
+			fmt.Printf("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
 			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
 			fmt.Printf("%s: Error = %v\n", funcname, err)
 			continue
@@ -137,13 +137,13 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	// 3. Report the prorate factor numerator and denominator:
 	//           pf = (resulting range duration)/AccrualPeriod (both in units of the ProrationCycle)
 	//-------------------------------------------------------------------------------------
-	rentcycle, pro, rtid, err := rlib.GetRentCycleAndProration(r, &a.Start, xbiz)
+	_, pro, rtid, err := rlib.GetRentCycleAndProration(r, &a.Start, xbiz)
 	if err != nil {
 		rlib.Ulog("textPrintJournalAssessment: error getting RentCycle and Proration: err = %s\n", err.Error())
 		return
 	}
 	// fmt.Printf("A0  pro = %d\n", pro)
-	if rentcycle > pro && pro != 0 && a.ProrationCycle != 0 { // if accrual > proration then we *may* need to show prorate info
+	if a.RecurCycle > pro && pro != 0 && a.ProrationCycle != 0 { // if accrual > proration then we *may* need to show prorate info
 		d1 := jctx.ReportStart // start with the report range
 		d2 := jctx.ReportStop  // start with the report range
 
@@ -152,8 +152,8 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		if j.Dt.After(d1) { // if this assessment is later move the start time
 			d1 = j.Dt
 		}
-		tmp := d1.Add(rlib.CycleDuration(rentcycle, d1)) // start + accrual duration
-		if tmp.Before(d2) {                              // if this occurs prior to the range end...
+		tmp := d1.Add(rlib.CycleDuration(a.RecurCycle, d1)) // start + accrual duration
+		if tmp.Before(d2) {                                 // if this occurs prior to the range end...
 			d2 = tmp // snap the range end
 		}
 
@@ -174,7 +174,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 
 		units := rlib.CycleDuration(pro, d1) // duration of the unit for proration
 		numerator := d2.Sub(d1)
-		denominator := rlib.GetProrationRange(d1, d2, rentcycle, pro)
+		denominator := rlib.GetProrationRange(d1, d2, a.RecurCycle, pro)
 
 		// fmt.Printf("   units = %v,  numerator = %v, denominator = %v\n", units, numerator, denominator)
 
@@ -186,8 +186,8 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	}
 
 	s += fmt.Sprintf("  %s", r.Name) + " [" + xbiz.RT[rtid].Style
-	if a.RentCycle > rlib.ACCRUALNORECUR {
-		s += ", " + rlib.RentalPeriodToString(rentcycle)
+	if a.RecurCycle > rlib.ACCRUALNORECUR {
+		s += ", " + rlib.RentalPeriodToString(a.RecurCycle)
 	}
 	s += "] " + j.Comment
 
@@ -229,7 +229,7 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Jour
 		for k := 0; k < len(m); k++ {
 			l, err := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if err != nil {
-				fmt.Printf("%s: Could not get Ledger for account named %s in Business %d\n", funcname, m[i].Account, r.BID)
+				fmt.Printf("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
 				fmt.Printf("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
 				fmt.Printf("%s: Error = %v\n", funcname, err)
 				continue

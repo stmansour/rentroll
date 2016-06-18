@@ -1,20 +1,20 @@
-Designation,Name,GL Number,GL Account Type,Balance,GL Account Status,Assoc/Unassoc,Default,Start,Stop
-DHR,Gross Schedule Rent,50201,Income,0,active,Unassociated,12,2/1/16,2/29/16
-DHR,Security Deposits Assessed,11002,liability,-13300,active,Associated,16,2/1/16,2/29/16
-DHR,Late Fees,50211,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,NSF Fees,50212,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Maintenance Reimbursement,50216,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Basement Storage,00001,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Change In Delinquency,00002,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Bad Debt Write-Off,50254,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Vacancy,50251,Income,0,active,Unassociated,14,2/1/16,2/29/16
-DHR,Rent Concession,50252,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Offline Units,50253,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Loss to Lease,50255,Income,0,active,Associated,13,2/1/16,2/29/16
-DHR,Administrative Unit,41008,Income,0,active,Unassociated,,2/1/16,2/29/16
-DHR,Forfeited Security Deposit,50213,Income,0,active,Associated,,2/1/16,2/29/16
-DHR,Security Deposit Receivable,33000,Accounts Receivable,0,active,Associated,15,2/1/16,2/29/16
-DHR,Cash Deposits,59998,Accounts Receivable,0,active,Associated,10,2/1/16,2/29/16
-DHR,AP Cash Dispersements,59997,Accounts Receivable,0,active,Associated,,2/1/16,2/29/16
-DHR,General Accounts Receivable,11001,Accounts Receivable,0,active,Associated,11,2/1/16,2/29/16
-DHR,OwnerEquity,33333,Accounts Receivable,13300,active,Associated,17,2/1/16,2/29/16
+BUD,Name,GLNumber,Parent GLNumber,Account Type,Balance,GL Account Status,RAAssociated,Type,Date,AllowPost
+DHR,Gross Schedule Rent,50201,,Income,0,active,no,12,2/29/16,yes
+DHR,Security Deposits Assessed,11002,,liability,-13300,active,yes,16,2/29/16,yes
+DHR,Late Fees,50211,,Income,0,active,yes,,2/29/16,yes
+DHR,NSF Fees,50212,,Income,0,active,yes,,2/29/16,yes
+DHR,Maintenance Reimbursement,50216,,Income,0,active,yes,,2/29/16,yes
+DHR,Basement Storage,1,,Income,0,active,yes,,2/29/16,yes
+DHR,Change In Delinquency,2,1,Income,0,active,yes,,2/29/16,yes
+DHR,Bad Debt Write-Off,50254,,Income,0,active,yes,,2/29/16,yes
+DHR,Vacancy,50251,,Income,0,active,no,14,2/29/16,yes
+DHR,Rent Concession,50252,,Income,0,active,yes,,2/29/16,yes
+DHR,Offline Units,50253,,Income,0,active,yes,,2/29/16,yes
+DHR,Loss to Lease,50255,,Income,0,active,yes,13,2/29/16,yes
+DHR,Administrative Unit,41008,,Income,0,active,no,,2/29/16,yes
+DHR,Forfeited Security Deposit,50213,,Income,0,active,yes,,2/29/16,yes
+DHR,Security Deposit Receivable,33000,,Accounts Receivable,0,active,yes,15,2/29/16,yes
+DHR,Cash Deposits,59998,,Accounts Receivable,0,active,yes,10,2/29/16,yes
+DHR,AP Cash Dispersements,59997,,Accounts Receivable,0,active,yes,,2/29/16,yes
+DHR,General Accounts Receivable,11001,,Accounts Receivable,0,active,yes,11,2/29/16,yes
+DHR,OwnerEquity,33333,,Accounts Receivable,13300,active,yes,17,2/29/16,yes
