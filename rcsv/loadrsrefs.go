@@ -77,7 +77,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Get the dates
 	//-------------------------------------------------------------------
-	a.DtStart, a.DtStop, err = readTwoDates(sa[2:], funcname, lineno)
+	a.DtStart, a.DtStop, err = readTwoDates(sa[3], sa[4], funcname, lineno)
 	if err != nil {
 		fmt.Printf("%s", err.Error())
 		return

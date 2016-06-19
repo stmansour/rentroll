@@ -47,7 +47,7 @@ func FindAgreementByRentable(rid int64, d1, d2 *time.Time) (RentalAgreementRenta
 
 	// SELECT RAID,RID,DtStart,DtStop from RentalAgreementRentables where RID=? and DtStop>=? and DtStart<=?
 
-	err := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2).Scan(&a.RAID, &a.RID, &a.DtStart, &a.DtStop)
+	err := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2).Scan(&a.RAID, &a.RID, &a.ContractRent, &a.DtStart, &a.DtStop)
 	return a, err
 }
 
@@ -564,7 +564,7 @@ func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []RentalAgreementRen
 	var t []RentalAgreementRentable
 	for rows.Next() {
 		var r RentalAgreementRentable
-		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.DtStart, &r.DtStop))
+		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.ContractRent, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t
@@ -579,7 +579,7 @@ func GetRentalAgreementRentables(rid int64, d1, d2 *time.Time) []RentalAgreement
 	var t []RentalAgreementRentable
 	for rows.Next() {
 		var r RentalAgreementRentable
-		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.DtStart, &r.DtStop))
+		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.ContractRent, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t

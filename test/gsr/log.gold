@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Fri Jun 17 16:00:02 PDT 2016
+Date/Time: Sun Jun 19 12:29:00 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -101,8 +101,6 @@ RATID  BID         RentalTemplateNumber
 DEFINE RENTAL AGREEMENTS
  RAID  rlib.Payor                                rlib.User                               
     1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                
-    2  Rita Costea, Daniel Costea                                                        
-    3  Gagik Haroutunian                                                                 
 
 
 DEFINE PETS

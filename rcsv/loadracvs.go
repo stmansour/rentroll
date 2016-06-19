@@ -8,9 +8,9 @@ import (
 )
 
 //  CSV file format:
-//  0                     1      2             3             4                                            5        6                  7             ... 8, 9, ... as many as needed
-//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   rlib.Payor,                                       Renewal, SpecialProvisions, RentableName, ...
-// 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                101
+//  0                     1      2             3             4                                            5        6                  7
+//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   rlib.Payor,                                  Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...""
+// 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                “U101,2500.00;U102,2350.00”
 // 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                107
 // 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                101,102
 
@@ -57,7 +57,7 @@ func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, line
 		if len(strings.TrimSpace(ss[2])) == 0 {
 			ss[2] = dfltStop
 		}
-		payor.DtStart, payor.DtStop, err = readTwoDates(ss, funcname, lineno)
+		payor.DtStart, payor.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 
 		m = append(m, payor)
 	}
@@ -163,17 +163,30 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Rentables  -- all remaining columns are rentables
 	//-------------------------------------------------------------------
-	for i := 7; i < len(sa); i++ {
-		s = strings.TrimSpace(sa[i])
-		r, _ := rlib.GetRentableByName(s, ra.BID)
+	ss := strings.Split(sa[7], ";")
+	for i := 0; i < len(ss); i++ {
+		sss := strings.Split(ss[i], ",")
+		if len(sss) != 2 {
+			fmt.Printf("%s: line %d - Badly formated string: %s . Format for each semicolon delimited part must be RentableName,ContractRent\n", funcname, lineno, ss)
+			return
 
-		if len(r.Name) > 0 {
-			var ar rlib.RentalAgreementRentable
-			ar.RID = r.RID
-			ar.DtStart = DtStart
-			ar.DtStop = DtStop
-			m = append(m, ar)
 		}
+		var rar rlib.RentalAgreementRentable
+		rnt, err := rlib.GetRentableByName(sss[0], ra.BID)
+		if err != nil {
+			fmt.Printf("%s: line %d - Could not load rentable named: %s  err = %s\n", funcname, lineno, sss[0], err.Error())
+			return
+		}
+		x, err := strconv.ParseFloat(strings.TrimSpace(sss[1]), 64)
+		if err != nil {
+			rlib.Ulog("%s: line %d - Invalid amount:  %s\n", funcname, lineno, sss[1])
+			return
+		}
+		rar.RID = rnt.RID
+		rar.DtStart = DtStart
+		rar.DtStop = DtStop
+		rar.ContractRent = x
+		m = append(m, rar)
 	}
 
 	//------------------------------------

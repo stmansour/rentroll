@@ -21,31 +21,26 @@ import (
 
 // readTwoDates assumes that a date string is in ss[1] and ss[2].  It will parse and return the dates
 // along with any error it finds.
-func readTwoDates(ss []string, funcname string, lineno int) (time.Time, time.Time, error) {
+func readTwoDates(s1, s2 string, funcname string, lineno int) (time.Time, time.Time, error) {
 	var DtStart, DtStop time.Time
 	var err error
-	DtStart, err = StringToDate(ss[1]) // required field
+	DtStart, err = StringToDate(s1) // required field
 	if err != nil {
-		err = fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, ss[1])
+		err = fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, s1)
 		return DtStart, DtStop, err
 	}
 
 	end := "1/1/9999"
-	if len(ss) > 2 { //optional field -- MAYBE, if not present assume year 9999
-		// if i+1 != len(st) {
-		// 	err = fmt.Errorf("%s: line %d - unspecified stop date is only allowed on the last rlib.RentableStatus in the list\n", funcname, lineno)
-		// 	return DtStart, DtStop, err
-		// }
-		if len(strings.TrimSpace(ss[2])) > 0 {
-			end = ss[2]
+	if len(s2) > 0 { //optional field -- MAYBE, if not present assume year 9999
+		if len(strings.TrimSpace(s2)) > 0 {
+			end = s2
 		}
 	}
 	DtStop, err = StringToDate(end)
 	if err != nil {
-		err = fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, ss[2])
+		err = fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, s2)
 	}
 	return DtStart, DtStop, err
-
 }
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
@@ -138,7 +133,7 @@ func CreateRentables(sa []string, lineno int) {
 			}
 			ru.USERID = t.USERID
 
-			ru.DtStart, ru.DtStop, err = readTwoDates(ss, funcname, lineno)
+			ru.DtStart, ru.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 			if err != nil {
 				fmt.Printf("%s", err.Error())
 				return
@@ -175,7 +170,7 @@ func CreateRentables(sa []string, lineno int) {
 		}
 		rs.Status = int64(ix)
 
-		rs.DtStart, rs.DtStop, err = readTwoDates(ss, funcname, lineno)
+		rs.DtStart, rs.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 		if err != nil {
 			fmt.Printf("%s", err.Error())
 			return
@@ -190,7 +185,7 @@ func CreateRentables(sa []string, lineno int) {
 
 	//-----------------------------------------------------------------------------------
 	// RTID 3-TUPLEs
-	// "RTname1,startDate1,stopDate1;RTname2,startDate2,stopDate2;..."
+	// "RTname1,Amount,startDate1,stopDate1;RTname2,startDate2,stopDate2;..."
 	//-----------------------------------------------------------------------------------
 	if 0 == len(strings.TrimSpace(sa[5])) {
 		fmt.Printf("%s: lineno %d - rlib.Rentable RTID Ref value is required.\n",
@@ -216,7 +211,7 @@ func CreateRentables(sa []string, lineno int) {
 		}
 		rt.RTID = rstruct.RTID
 
-		rt.DtStart, rt.DtStop, err = readTwoDates(ss, funcname, lineno)
+		rt.DtStart, rt.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 		if err != nil {
 			fmt.Printf("%s", err.Error())
 			return

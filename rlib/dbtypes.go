@@ -189,10 +189,11 @@ type RentalAgreement struct {
 
 // RentalAgreementRentable describes a Rentable associated with a rental agreement
 type RentalAgreementRentable struct {
-	RAID    int64     // associated rental agreement
-	RID     int64     // the Rentable
-	DtStart time.Time // start date/time for this Rentable
-	DtStop  time.Time // stop date/time
+	RAID         int64     // associated rental agreement
+	RID          int64     // the Rentable
+	ContractRent float64   // the rent
+	DtStart      time.Time // start date/time for this Rentable
+	DtStop       time.Time // stop date/time
 }
 
 // RentalAgreementPayor describes a Payor associated with a rental agreement
