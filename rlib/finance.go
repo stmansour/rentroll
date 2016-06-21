@@ -142,6 +142,17 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 	return timerange
 }
 
+// AssessmentIsType returns true if the supplied assessment type name matches the supplied string t.
+// Otherwise, it returns false.
+func AssessmentIsType(a *Assessment, t string, xbiz *XBusiness) bool {
+	for _, v := range RRdb.AsmtTypes {
+		if a.ASMTID == v.ASMTID {
+			return strings.ToLower(strings.TrimSpace(t)) == strings.ToLower(v.Name)
+		}
+	}
+	return false
+}
+
 // SelectRentableStatusForPeriod returns a subset of Rentable states that overlap the supplied range.
 func SelectRentableStatusForPeriod(rsa *[]RentableStatus, dt1, dt2 time.Time) []RentableStatus {
 	var m []RentableStatus

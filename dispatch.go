@@ -32,6 +32,8 @@ func RunBooks(ctx *DispatchCtx) {
 			intTest(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 4:
 			fmt.Printf("biz csv = %s\n", App.bizfile)
+		case 5:
+			AssessmentCheckReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

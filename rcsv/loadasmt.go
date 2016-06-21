@@ -7,8 +7,8 @@ import (
 )
 
 // CSV FIELDS FOR THIS MODULE
-// 0    1          2
-// Name,RARequired,Description
+// 0    1          2              3
+// Name,RARequired,ManageToBudget,Description
 // Rent,0,"Rent: the recurring amount due under an Occupancy Agreement.  While most residential leases are one year or less, commecial leases may go on decades.  In those
 
 // CreateAssessmentType reads an assessment type string array and creates a database record for the assessment type
@@ -19,9 +19,9 @@ func CreateAssessmentType(sa []string, lineno int) {
 		return // this is just the column heading
 	}
 
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	if len(sa) < 3 {
-		fmt.Printf("%s: line %d - found %d values, there must be at least 3\n", funcname, lineno, len(sa))
+	required := 4
+	if len(sa) < required {
+		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
 	}
 
@@ -52,7 +52,20 @@ func CreateAssessmentType(sa []string, lineno int) {
 		return
 	}
 
-	a.Description = sa[2]
+	//-------------------------------------------------------------------
+	// ManageToBudget
+	//-------------------------------------------------------------------
+	var err error
+	a.ManageToBudget, err = rlib.YesNoToInt(sa[2])
+	if err != nil {
+		fmt.Printf("%s: line %d - Invalid value for ManageToBudget - expecting Yes / No, found: %s\n", funcname, lineno, sa[2])
+		return
+	}
+
+	//-------------------------------------------------------------------
+	// Description
+	//-------------------------------------------------------------------
+	a.Description = sa[3]
 	rlib.Errlog(rlib.InsertAssessmentType(&a))
 }
 

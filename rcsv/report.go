@@ -42,7 +42,7 @@ func RRreportBusiness(t int) string {
 
 // ReportAssessmentTypeToText returns a string representation of the supplied rlib.AssessmentType suitable for a text report
 func ReportAssessmentTypeToText(p rlib.AssessmentType) string {
-	return fmt.Sprintf("%4d  %6d   %s\n", p.ASMTID, p.RARequired, p.Name)
+	return fmt.Sprintf("%4d  %6d   %14d  %s\n", p.ASMTID, p.RARequired, p.ManageToBudget, p.Name)
 }
 
 // ReportAssessmentTypeToHTML returns a string representation of the supplied rlib.AssessmentType suitable for HTML display
@@ -54,7 +54,7 @@ func ReportAssessmentTypeToHTML(p rlib.AssessmentType) string {
 func RRreportAssessmentTypes(t int) string {
 	m := rlib.GetAssessmentTypes()
 
-	s := fmt.Sprintf("Name  RARqd    Description\n")
+	s := fmt.Sprintf("Name  RARqd    ManageToBudget  Description\n")
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))

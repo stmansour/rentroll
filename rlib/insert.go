@@ -92,7 +92,7 @@ func InsertAssessment(a *Assessment) error {
 
 // InsertAssessmentType writes a new assessmenttype record to the database
 func InsertAssessmentType(a *AssessmentType) error {
-	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.RARequired, a.Name, a.Description, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.RARequired, a.ManageToBudget, a.Name, a.Description, a.LastModBy)
 	return err
 }
 

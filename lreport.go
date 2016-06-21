@@ -123,11 +123,11 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 		ja, _ := rlib.GetJournalAllocation(l.JAID)
 		a, _ := rlib.GetAssessment(ja.ASMID)
 		r := rlib.GetRentable(a.RID)
-		return "Payment - " + App.AsmtTypes[a.ASMTID].Name, r.Name, sra
+		return "Payment - " + rlib.RRdb.AsmtTypes[a.ASMTID].Name, r.Name, sra
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)
-		return "Assessment - " + App.AsmtTypes[a.ASMTID].Name, r.Name, sra
+		return "Assessment - " + rlib.RRdb.AsmtTypes[a.ASMTID].Name, r.Name, sra
 
 	default:
 		fmt.Printf("getLedgerEntryDescription: unrecognized type: %d\n", j.Type)

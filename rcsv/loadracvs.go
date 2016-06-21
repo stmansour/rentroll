@@ -70,6 +70,9 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	var ra rlib.RentalAgreement
 	var m []rlib.RentalAgreementRentable
 
+	//-------------------------------------------------------------------
+	// RENTAL TEMPLATE
+	//-------------------------------------------------------------------
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "rentaltemplatenumber" {
 		return // this is just the column heading
@@ -82,7 +85,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// Make sure the rlib.Business is in the database
+	// Make sure the RentalTemplate exists
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1, _ := rlib.GetRentalAgreementByRentalTemplateNumber(des)
@@ -94,7 +97,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// See if the biz exists, if so, set the BID
+	// BUD
 	//-------------------------------------------------------------------
 	cmpdes := strings.TrimSpace(sa[1])
 	if len(cmpdes) > 0 {
@@ -144,7 +147,6 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Renewal
 	//-------------------------------------------------------------------
-
 	s := strings.TrimSpace(sa[5])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)

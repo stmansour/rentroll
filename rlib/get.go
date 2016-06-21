@@ -91,7 +91,7 @@ func GetAssessment(asmid int64) (Assessment, error) {
 // the return structure will be empty
 func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 	var t AssessmentType
-	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.RARequired, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
+	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.RARequired, &t.ManageToBudget, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
 	return t, err
 }
 
@@ -99,13 +99,13 @@ func GetAssessmentTypeByName(name string) (AssessmentType, error) {
 func GetAssessmentTypes() map[int64]AssessmentType {
 	var t map[int64]AssessmentType
 	t = make(map[int64]AssessmentType, 0)
-	rows, err := RRdb.Dbrr.Query("SELECT ASMTID,RARequired,Name,Description,LastModTime,LastModBy FROM AssessmentTypes")
+	rows, err := RRdb.Dbrr.Query("SELECT " + ASMTflds + " FROM AssessmentTypes")
 	Errcheck(err)
 	defer rows.Close()
 
 	for rows.Next() {
 		var a AssessmentType
-		Errcheck(rows.Scan(&a.ASMTID, &a.RARequired, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.ASMTID, &a.RARequired, &a.ManageToBudget, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.ASMTID] = a
 	}
 	Errcheck(rows.Err())

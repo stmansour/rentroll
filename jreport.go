@@ -121,7 +121,7 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 }
 
 func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
-	s := fmt.Sprintf("J%08d  %s", j.JID, App.AsmtTypes[a.ASMTID].Name)
+	s := fmt.Sprintf("J%08d  %s", j.JID, rlib.RRdb.AsmtTypes[a.ASMTID].Name)
 
 	//-------------------------------------------------------------------------------------
 	// For reporting, we want to show any proration that needs to take place. To determine
@@ -181,7 +181,6 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		if numerator != denominator {
 			s += fmt.Sprintf(" (%d/%d %s)", numerator/units, denominator/units, rlib.ProrationUnits(pro))
 		}
-
 		// s = fmt.Sprintf("%s (%d/%d days)", s, rentDuration, assessmentDuration)
 	}
 
@@ -225,7 +224,7 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Jour
 		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
 		r := rlib.GetRentable(a.RID)
 		m := rlib.ParseAcctRule(xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
-		printJournalSubtitle("\t" + App.AsmtTypes[a.ASMTID].Name)
+		printJournalSubtitle("\t" + rlib.RRdb.AsmtTypes[a.ASMTID].Name)
 		for k := 0; k < len(m); k++ {
 			l, err := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if err != nil {

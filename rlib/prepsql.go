@@ -15,6 +15,9 @@ var myRpl = mySQLRpl
 // TRNSfields defined fields for Transactant, used in at least one other function
 var TRNSfields = string("TCID,USERID,PID,PRSPID,FirstName,MiddleName,LastName,PreferredName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,Website,Notes,LastModTime,LastModBy")
 
+// ASMTflds defined fields for AssessmentTypes, used in at least one other function
+var ASMTflds = string("ASMTID,RARequired,ManageToBudget,Name,Description,LastModTime,LastModBy")
+
 // GenSQLInsertAndUpdateStrings generates a string suitable for SQL INSERT and UPDATE statements given the fields as used in SELECT statements.
 //
 //    example:  given this string:      "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy"
@@ -116,11 +119,13 @@ func buildPreparedStatements() {
 	//===============================
 	//  AssessmentType
 	//===============================
-	RRdb.Prepstmt.GetAssessmentType, err = RRdb.Dbrr.Prepare("SELECT ASMTID,RARequired,Name,Description,LastModTime,LastModBy FROM AssessmentTypes WHERE ASMTID=?")
+	// ASMTflds := "ASMTID,RARequired,ManageToBudget,Name,Description,LastModTime,LastModBy"   DEFINED ABOVE, global
+	RRdb.Prepstmt.GetAssessmentType, err = RRdb.Dbrr.Prepare("SELECT " + ASMTflds + " FROM AssessmentTypes WHERE ASMTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentTypeByName, err = RRdb.Dbrr.Prepare("SELECT ASMTID,RARequired,Name,Description,LastModTime,LastModBy FROM AssessmentTypes WHERE Name=?")
+	RRdb.Prepstmt.GetAssessmentTypeByName, err = RRdb.Dbrr.Prepare("SELECT " + ASMTflds + " FROM AssessmentTypes WHERE Name=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertAssessmentType, err = RRdb.Dbrr.Prepare("INSERT INTO AssessmentTypes (RARequired,Name,Description,LastModBy) VALUES(?,?,?,?)")
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(ASMTflds)
+	RRdb.Prepstmt.InsertAssessmentType, err = RRdb.Dbrr.Prepare("INSERT INTO AssessmentTypes (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 
 	//===============================

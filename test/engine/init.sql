@@ -336,12 +336,12 @@ INSERT INTO RentalAgreement (RATID,BID,RentalStart,RentalStop,PossessionStart,Po
 	(6,1, "2004-01-01","2017-07-04","2004-01-01","2017-07-04",1),	--  7 Wiggum
 	(6,1, "2015-11-21","2016-11-21","2015-11-21","2016-11-21",1);	--  8 Simpson
 
-INSERT INTO RentalAgreementRentables (RAID,RID,DtStart,DtStop) VALUES
-	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel - apartment
-	(1,8,"2004-01-01","2015-11-09"),		-- Krabappel - carport
-	(8,1,"2015-11-21","2016-11-21"),		-- Simpson - apartment
-	(8,8,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
-	(8,9,"2015-11-21","2016-11-21");		-- Simpson - carport 2
+INSERT INTO RentalAgreementRentables (RAID,RID,ContractRent,DtStart,DtStop) VALUES
+	(1,1,1000,"2004-01-01","2015-11-09"),		-- Krabappel - apartment
+	(1,8,  35,"2004-01-01","2015-11-09"),		-- Krabappel - carport
+	(8,1,1200,"2015-11-21","2016-11-21"),		-- Simpson - apartment
+	(8,8,  35,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
+	(8,9,  35,"2015-11-21","2016-11-21");		-- Simpson - carport 2
 
 INSERT INTO RentalAgreementPayors (RAID,PID,DtStart,DtStop) VALUES
 	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel is Payor for rental agreement 1

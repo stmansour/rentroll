@@ -8,7 +8,6 @@ import (
 )
 
 func initRentRoll() {
-	initLists()
 	initJFmt()
 	initTFmt()
 	rlib.RpnInit()
@@ -20,12 +19,6 @@ func initRentRoll() {
 		"RRCommaf":     RRCommaf,
 		"LMSum":        LMSum,
 	}
-
-}
-
-func initLists() {
-	App.AsmtTypes = rlib.GetAssessmentTypes()
-	App.PmtTypes = rlib.GetPaymentTypes()
 }
 
 func createStartupCtx() DispatchCtx {

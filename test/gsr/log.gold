@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Sun Jun 19 12:29:00 PDT 2016
+Date/Time: Mon Jun 20 20:06:03 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -7,68 +7,68 @@ DEFINE BUSINESS
 
 
 DEFINE ASSESSMENT TYPES
-Name  RARqd    Description
-   1       0   Rent
-   2       0   Security Deposit
-   3       2   Security Deposit Forfeiture
-   4       3   Application Fees
-   5       0   Landlord Lien Sales
-   6       0   Pet Fees
-   7       2   Eviction Fees
-   8       0   Electric Reimbursement
-   9       0   Electric Overage
-  10       0   Water Reimbursement
-  11       2   Water Overage
-  12       2   Trash Fee
-  13       2   Utility Fine
-  14       2   NSF Fee
-  15       2   Maintenance Fee
-  16       2   Fines
-  17       0   Month to Month Fee
-  18       0   Cancelation Fees
-  19       0   Housekeeping Fee
-  20       0   Extra Person Charge
-  21       0   Furniture Rental
-  22       0   Platinum Service Fee
-  23       0   Gold Service Fee
-  24       0   Silver Service Fee
-  25       0   Sales Tax
-  26       0   TOT Tax
-  27       0   Reletting Fees
-  28       0   Carport Fees
-  29       0   Garage Fees
-  30       0   Reserved Parking Fees
-  31       0   Transfer fees
-  32       0   Washer/Dryer Fee
-  33       0   Association Dues Assessment
-  34       0   Insurance Reimbursement
-  35       0   Tax Reimbursement
-  36       0   Special Event Fees
-  37       0   Convenience Store Sales
-  38       0   Courtesy Car Rental
-  39       0   Vending Income
-  40       0   Transportation
-  41       0   Food Sales
-  42       0   Liquor Sales
-  43       0   WashNFold Income
-  44       0   Spa Sales
-  45       0   Fitness Center
-  46       0   CashOverShort
-  47       2   Late Payment Fee
-  48       0   Other Income
-  49       0   Bad Debt Write-Off
-  50       0   Off Line
-  51       0   Concession
-  52       0   Employee
-  53       2   Damages
-  54       0   Pest Control Reimbursement
-  55       2   Security Deposit Return
-  56       2   Returned Payments
-  57       0   Security Deposit Assessment
-  58       0   Lake View
-  59       0   Courtyard View
-  60       0   Top Floor
-  61       0   Fireplace
+Name  RARqd    ManageToBudget  Description
+   1       0                1  Rent
+   2       0                0  Security Deposit
+   3       2                0  Security Deposit Forfeiture
+   4       3                0  Application Fees
+   5       0                0  Landlord Lien Sales
+   6       0                0  Pet Fees
+   7       2                0  Eviction Fees
+   8       0                0  Electric Reimbursement
+   9       0                0  Electric Overage
+  10       0                0  Water Reimbursement
+  11       2                0  Water Overage
+  12       2                0  Trash Fee
+  13       2                0  Utility Fine
+  14       2                0  NSF Fee
+  15       2                0  Maintenance Fee
+  16       2                0  Fines
+  17       0                0  Month to Month Fee
+  18       0                0  Cancelation Fees
+  19       0                0  Housekeeping Fee
+  20       0                0  Extra Person Charge
+  21       0                0  Furniture Rental
+  22       0                0  Platinum Service Fee
+  23       0                0  Gold Service Fee
+  24       0                0  Silver Service Fee
+  25       0                0  Sales Tax
+  26       0                0  TOT Tax
+  27       0                0  Reletting Fees
+  28       0                1  Carport Fees
+  29       0                0  Garage Fees
+  30       0                0  Reserved Parking Fees
+  31       0                0  Transfer fees
+  32       0                0  Washer/Dryer Fee
+  33       0                0  Association Dues Assessment
+  34       0                0  Insurance Reimbursement
+  35       0                0  Tax Reimbursement
+  36       0                0  Special Event Fees
+  37       0                0  Convenience Store Sales
+  38       0                0  Courtesy Car Rental
+  39       0                0  Vending Income
+  40       0                0  Transportation
+  41       0                0  Food Sales
+  42       0                0  Liquor Sales
+  43       0                0  WashNFold Income
+  44       0                0  Spa Sales
+  45       0                0  Fitness Center
+  46       0                0  CashOverShort
+  47       2                0  Late Payment Fee
+  48       0                0  Other Income
+  49       0                0  Bad Debt Write-Off
+  50       0                0  Off Line
+  51       0                0  Concession
+  52       0                0  Employee
+  53       2                0  Damages
+  54       0                0  Pest Control Reimbursement
+  55       2                0  Security Deposit Return
+  56       2                0  Returned Payments
+  57       0                0  Security Deposit Assessment
+  58       0                0  Lake View
+  59       0                0  Courtyard View
+  60       0                0  Top Floor
+  61       0                0  Fireplace
 
 
 DEFINE RENTABLE TYPES

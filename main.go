@@ -51,8 +51,8 @@ var App struct {
 	BatchMode bool     // if true, then don't start http, the command line request is for a batch process
 	sStart    string   //start time
 	sStop     string   //stop time
-	AsmtTypes map[int64]rlib.AssessmentType
-	PmtTypes  map[int64]rlib.PaymentType
+	// AsmtTypes map[int64]rlib.AssessmentType
+	// PmtTypes  map[int64]rlib.PaymentType
 }
 
 // LMResults contains the info needed for reports about ledgers

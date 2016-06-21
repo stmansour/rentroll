@@ -197,7 +197,8 @@ CREATE TABLE RentableSpecialtyType (
 -- this will include offsets and disbursements
 CREATE TABLE AssessmentTypes (
     ASMTID BIGINT NOT NULL AUTO_INCREMENT,                      -- what type of assessment
-    RARequired SMALLINT NOT NULL DEFAULT 0,                     -- 0 = Valid anytime, 1 = valid only during occupancy
+    RARequired SMALLINT NOT NULL DEFAULT 0,                     -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+    ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
     Name VARCHAR(100) NOT NULL DEFAULT '',                      -- name for the assessment
     Description VARCHAR(1024) NOT NULL DEFAULT '',              -- describe the assessment
     LastModTime TIMESTAMP,                                      -- when was this record last written

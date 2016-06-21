@@ -321,12 +321,13 @@ type XPerson struct {
 
 // AssessmentType describes the different types of Assessments
 type AssessmentType struct {
-	ASMTID      int64
-	RARequired  int64
-	Name        string
-	Description string
-	LastModTime time.Time
-	LastModBy   int64
+	ASMTID         int64
+	RARequired     int64 // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+	ManageToBudget int64 //  0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
+	Name           string
+	Description    string
+	LastModTime    time.Time
+	LastModBy      int64
 }
 
 // Assessment is a charge associated with a Rentable
@@ -720,38 +721,40 @@ type PBprepSQL struct {
 	GetBusinessUnitByDesignation *sql.Stmt
 }
 
-// BusinessTypes is a struct holding a collection of Types associated
-type BusinessTypes struct {
-	BID          int64
-	AsmtTypes    map[int64]*AssessmentType
+// BusinessTypeLists is a struct holding a collection of Types associated with a business
+type BusinessTypeLists struct {
+	BID int64
+	//AsmtTypes    map[int64]*AssessmentType // moved to parent as it is biz-independent
 	PmtTypes     map[int64]*PaymentType
 	DefaultAccts map[int64]*GLAccount // index by the predifined contants DFAC*, value = GL No of that account
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure
 var RRdb struct {
-	Prepstmt RRprepSQL
-	PBsql    PBprepSQL
-	Dbdir    *sql.DB // phonebook db
-	Dbrr     *sql.DB //rentroll db
-	BizTypes map[int64]*BusinessTypes
+	Prepstmt  RRprepSQL
+	PBsql     PBprepSQL
+	Dbdir     *sql.DB                  // phonebook db
+	Dbrr      *sql.DB                  //rentroll db
+	AsmtTypes map[int64]AssessmentType // every one in the db
+	BizTypes  map[int64]*BusinessTypeLists
 }
 
 // InitDBHelpers initializes the db infrastructure
 func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.Dbdir = dbdir
 	RRdb.Dbrr = dbrr
-	RRdb.BizTypes = make(map[int64]*BusinessTypes, 0)
+	RRdb.BizTypes = make(map[int64]*BusinessTypeLists, 0)
 	buildPreparedStatements()
 	buildPBPreparedStatements()
+	RRdb.AsmtTypes = GetAssessmentTypes()
 }
 
 // InitBusinessFields initialize the lists in rlib's internal data structures
 func InitBusinessFields(bid int64) {
 	if nil == RRdb.BizTypes[bid] {
-		bt := BusinessTypes{
-			BID:          bid,
-			AsmtTypes:    make(map[int64]*AssessmentType),
+		bt := BusinessTypeLists{
+			BID: bid,
+			// AsmtTypes:    make(map[int64]*AssessmentType),
 			PmtTypes:     make(map[int64]*PaymentType),
 			DefaultAccts: make(map[int64]*GLAccount),
 		}
