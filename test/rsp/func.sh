@@ -45,6 +45,7 @@ fi
 ${APP} >>log 2>&1
 ${APP} -r 1 >j.txt 2>&1
 ${APP} -r 2 >l.txt 2>&1
+${APP} -r 5 >c.txt 2>&1
 
 echo "BEGIN ANALYSIS..."
 cp j.gold w
@@ -70,6 +71,19 @@ else
 	echo "PHASE 2: FAILED...  if correct:   mv l.txt l.gold"
 	echo "Differences are as follows:"
 	diff y z
+	exit 1
+fi
+
+cp c.gold c1
+cp c.txt c2
+
+UDIFFS=$(diff c1 c2 | wc -l)
+if [ ${UDIFFS} -eq 0 ]; then
+	echo "PHASE 3: PASSED"
+else
+	echo "PHASE 3: FAILED...  if correct:   mv c.txt c.gold"
+	echo "Differences are as follows:"
+	diff c1 c2
 	exit 1
 fi
 

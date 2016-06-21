@@ -2,7 +2,7 @@ engine:
 	@echo "*** COMPLETED in test/engine ***"
 
 clean:
-	rm -f *.txt [u-z] log rsplog rentroll.log
+	rm -f *.txt [u-z] c? log rsplog rentroll.log
 	@echo "*** CLEAN COMPLETE in test/engine ***"
 
 test:

@@ -327,7 +327,7 @@ INSERT INTO RentalAgreement (RATID,BID,RentalStart,RentalStop,PossessionStart,Po
 INSERT INTO RentalAgreementRentables (RAID,RID,ContractRent,DtStart,DtStop) VALUES
 	(1,1,1000.0,"2004-01-01","2015-11-09"),		-- Krabappel - apartment
 	(1,8,35.0,"2004-01-01","2015-11-09"),		-- Krabappel - carport
-	(8,1,1200.0,"2015-11-21","2016-11-21"),		-- Simpson - apartment
+	(8,1,1100.0,"2015-11-21","2016-11-21"),		-- Simpson - apartment
 	(8,8,35.0,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
 	(8,9,35.0,"2015-11-21","2016-11-21");		-- Simpson - carport 2
 
@@ -383,9 +383,6 @@ INSERT INTO Assessments (BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,Prorat
 -- =======================================================================
 --  RECEIPTS
 -- =======================================================================
-
--- TODO:  ADD ACCTRULE TO RECEIPTS...
-
 INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
 	(1,1,2,"2004-01-01", 1000.00, "d ${DFLTCASH} _, c 11002 _");			-- 1  Krabappel's initial security deposit
 INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
