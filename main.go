@@ -55,21 +55,6 @@ var App struct {
 	// PmtTypes  map[int64]rlib.PaymentType
 }
 
-// LMResults contains the info needed for reports about ledgers
-type LMResults struct {
-	biz *rlib.Business
-	LM  []rlib.LedgerMarker
-}
-
-// RRuiSupport is a structure of data that will be passed to all html pages.
-// It is the responsibility of the page function to populate the data needed by
-// the page. The recommendation is to populate only the data needed.
-type RRuiSupport struct {
-	DtStart time.Time  // start of period of interest
-	DtStop  time.Time  // end of period of interest
-	L       *LMResults // an array of LedgerMarkers with time period and biz
-}
-
 // RRfuncMap is a map of functions passed to each html page that can be referenced
 // as needed to produce the page
 var RRfuncMap map[string]interface{}

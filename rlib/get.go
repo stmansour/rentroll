@@ -250,6 +250,22 @@ func GetLatestLedgerMarkerByType(bid int64, t int64) (LedgerMarker, error) {
 	return GetLatestLedgerMarkerByLID(bid, l.LID)
 }
 
+// GetAllLedgerMarkersInRange returns a map of all ledgermarkers for the supplied business and dat
+func GetAllLedgerMarkersInRange(bid int64, DtStart, DtStop *time.Time) map[int64]LedgerMarker {
+	var t map[int64]LedgerMarker
+	t = make(map[int64]LedgerMarker, 0) // this line is absolutely necessary
+	rows, err := RRdb.Prepstmt.GetAllLedgerMarkersInRange.Query(bid, DtStart, DtStop)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var r LedgerMarker
+		Errcheck(rows.Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy))
+		t[r.LID] = r
+	}
+	Errcheck(rows.Err())
+	return t
+}
+
 //=======================================================
 //  P A Y M E N T   T Y P E S
 //=======================================================
@@ -803,6 +819,20 @@ func GetLedgerList(bid int64) []GLAccount {
 		var r GLAccount
 		Errcheck(rows.Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy))
 		t = append(t, r)
+	}
+	return t
+}
+
+// GetGLAccountMap returns a map of all GLAccounts for the supplied business
+func GetGLAccountMap(bid int64) map[int64]GLAccount {
+	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	var t map[int64]GLAccount
+	for rows.Next() {
+		var r GLAccount
+		Errcheck(rows.Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy))
+		t[r.LID] = r
 	}
 	return t
 }

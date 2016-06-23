@@ -142,12 +142,13 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 	return timerange
 }
 
-// AssessmentIsType returns true if the supplied assessment type name matches the supplied string t.
+// IsManageToBudget returns true if the supplied assessment type is managed to budget.
 // Otherwise, it returns false.
-func AssessmentIsType(a *Assessment, t string, xbiz *XBusiness) bool {
+func IsManageToBudget(a *Assessment) bool {
 	for _, v := range RRdb.AsmtTypes {
 		if a.ASMTID == v.ASMTID {
-			return strings.ToLower(strings.TrimSpace(t)) == strings.ToLower(v.Name)
+			// return strings.ToLower(strings.TrimSpace(t)) == strings.ToLower(v.Name)
+			return v.ManageToBudget == YES
 		}
 	}
 	return false

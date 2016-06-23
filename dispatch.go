@@ -34,6 +34,10 @@ func RunBooks(ctx *DispatchCtx) {
 			fmt.Printf("biz csv = %s\n", App.bizfile)
 		case 5:
 			AssessmentCheckReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
+		case 6:
+			var ui RRuiSupport
+			BuildXLedgerList(&ui, xbiz.P.BID, ctx.DtStart, ctx.DtStop)
+			UILedgerTextReport(&ui)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

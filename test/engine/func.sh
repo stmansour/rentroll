@@ -13,13 +13,40 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
  	MYSQLOPTS="--no-defaults"
 fi
 
+
+#############################################################################
+# dotest()
+#   Description:
+#		This routine runs a test, validates the results, and prints results
+#
+#	Parameters:
+# 		$1 = base file name.  Expects to find $1.txt and $1.gold
+#		$2 = app options
+# 		$3 = title
+#############################################################################
+dotest () {
+	echo -n "${3}... "
+	${APP} $2 >$1.txt 2>&1
+	UDIFFS=$(diff $1.gold $1.txt | wc -l)
+	if [ ${UDIFFS} -eq 0 ]; then
+		echo "PASSED"
+	else
+		echo "FAILED..."
+		echo "    if correct:    mv $1.txt $1.gold"
+		echo "    to reproduce:  ${APP} $2"
+		echo "Differences are as follows:"
+		diff $1.gold $1.txt
+		exit 1
+	fi
+}
+
+
+#--------------------------------------------------------------------------
+#  On with the test! Initialize the db, run the app, generate the reports
+#--------------------------------------------------------------------------
 echo -n "Test Run " >log 2>&1
 date >>log
 
-#---------------------------------------------------------------------
-#  Initialize the db, run the app, generate the reports
-#---------------------------------------------------------------------
-# pushd ../ledger1 ; make ; popd
 ${RRBIN}/rrnewdb
 mysql ${MYSQLOPTS} <init.sql
 if [ $? -eq 0 ]; then
@@ -28,39 +55,13 @@ else
 	echo "INIT HAD ERRORS"
 	exit 1
 fi
-
 rm -f w x y z
 
-${APP} >>log 2>&1
-${APP} -r 1 >j.txt 2>&1
-${APP} -r 2 >l.txt 2>&1
-
-echo "BEGIN ANALYSIS..."
-cp j.gold w
-cp j.txt x
-
-UDIFFS=$(diff w x | wc -l)
-if [ ${UDIFFS} -eq 0 ]; then
-	echo "PHASE 1: PASSED"
-else
-	echo "PHASE 1: FAILED...  if correct:   mv j.txt j.gold"
-	echo "Differences are as follows:"
-	diff w x
-	exit 1
-fi
-
-cp l.gold y
-cp l.txt z
-
-UDIFFS=$(diff y z | wc -l)
-if [ ${UDIFFS} -eq 0 ]; then
-	echo "PHASE 2: PASSED"
-else
-	echo "PHASE 2: FAILED...  if correct:   mv l.txt l.gold"
-	echo "Differences are as follows:"
-	diff y z
-	exit 1
-fi
+dotest "gjl" " " "Generate Journal and Ledgers"
+dotest "j" "-r 1" "Journal Report"
+dotest "l" "-r 2" "Ledger Report"
+dotest "c" "-r 5" "Assessment Checker"
+dotest "lb" "-r 6" "Ledger Balances"
 
 echo "RENTROLL ENGINE TESTS PASSED"
 exit 0

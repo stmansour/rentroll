@@ -7,32 +7,15 @@ import (
 	"strings"
 	"text/template"
 	"time"
-
-	"github.com/dustin/go-humanize"
 )
 
-// RRCommaf returns a floating point number formated with commas for every 3 orders of magnitude
-// and 2 points after the decimal
-func RRCommaf(x float64) string {
-	return humanize.FormatFloat("#,###.##", x)
-}
-
-// LMSum takes an array of LedgerMarkers, sums the Balance value of each, and returns the sum
-func LMSum(m *[]rlib.LedgerMarker) float64 {
-	bal := float64(0)
-	for _, v := range *m {
-		bal += v.Balance
-	}
-	return bal
-}
-
 func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
-	var err error
-	var ui RRuiSupport
-	var L LMResults
-	ui.L = &L
-
 	funcname := "trialBalanceHandler"
+	var ui RRuiSupport
+	var err error
+	var biz rlib.Business
+
+	fmt.Printf("Entered %s\n", funcname)
 
 	D1 := r.FormValue("DtStart")
 	D2 := r.FormValue("DtStop")
@@ -48,23 +31,14 @@ func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(des) > 0 {
-		b1, _ := rlib.GetBusinessByDesignation(des)
-		if len(b1.Designation) == 0 {
+		biz, _ := rlib.GetBusinessByDesignation(des)
+		if len(biz.Designation) == 0 {
 			rlib.Ulog("%s: Business with designation %s does net exist\n", funcname, des)
 			return
 		}
-		ui.L.biz = &b1
 	}
 
-	rows, err := rlib.RRdb.Prepstmt.GetAllLedgerMarkersInRange.Query(ui.L.biz.BID, ui.DtStart, ui.DtStop)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	ui.L.LM = make([]rlib.LedgerMarker, 0)
-	for rows.Next() {
-		var r rlib.LedgerMarker
-		rlib.Errcheck(rows.Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy))
-		ui.L.LM = append(ui.L.LM, r)
-	}
+	BuildXLedgerList(&ui, biz.BID, ui.DtStart, ui.DtStop)
 
 	w.Header().Set("Content-Type", "text/html")
 
@@ -72,7 +46,10 @@ func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
 	if nil != err {
 		fmt.Printf("%s: error loading template: %v\n", funcname, err)
 	}
+	fmt.Printf("%s - calling t.execute\n", funcname)
+	fmt.Printf("ui = %#v\n", ui)
 	err = t.Execute(w, &ui)
+	fmt.Printf("returned from t.Execute.\n")
 	if nil != err {
 		rlib.LogAndPrintError(funcname, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
