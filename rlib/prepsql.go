@@ -263,7 +263,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + LMfields + " FROM LedgerMarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.Dbrr.Prepare("SELECT " + LMfields + " FROM LedgerMarker WHERE BID=? and DtStop>? and DtStart<=?")
+	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.Dbrr.Prepare("SELECT " + LMfields + " FROM LedgerMarker WHERE BID=? and DtStop>? and DtStart<=? ORDER BY LMID")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.Dbrr.Prepare("DELETE FROM LedgerMarker WHERE LMID=?")
 	Errcheck(err)

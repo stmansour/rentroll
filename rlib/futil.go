@@ -40,7 +40,7 @@ func PrintSum(a []SumFloat) {
 // that 6 of these types are rented and charged for on a single Assessment. The
 // charge per month would be $60. Suppose they returned the items early using
 // only 20 out of 30 days.  This is 2/3 of the rental price or $40. The ProrationCycle
-// for this item is daily. But if you itemize the charge, the amount for each
+// for this item is daily. If you itemize the charge, the amount for each
 // item is $6.66666666...  This rounds to $6.67 per item. But if you add up
 // each item, the cumulative error due to rounding will cause it to total
 // to more than $40.
@@ -78,14 +78,15 @@ func PrintSum(a []SumFloat) {
 // |   1  |  6.6666667  |  6.67  | -0.0016667 | 60.0000000  | 60.00
 // |   1  |  6.6666667  |  6.67  |  0.0033333 | 66.6666667  | 66.67
 //
-// The Amt value is changed by a penny here and there to keep the running
-// total as close to the actual value as possible.
+// The routine works properly with lists of all negative numbers, all
+// positive numbers, and any combination.  The result will always have
+// an error of less than $0.005
 //
 // The code and tests for this are in the Sandbox
 //
 // The basic rule on using the rounding capabilities:
 //		a) When breaking up a single assessment and calculating prorated charges,
-//         call this routine and use the Amount values it generates
+//         call this routine and use the Amount values it generates for allocations.
 //      b) When summing multiple separate assessments, use RoundToCent on the
 //         Amount and sum the amounts
 //=================================================================================
