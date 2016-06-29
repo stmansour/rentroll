@@ -216,7 +216,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE LID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? ORDER BY GLNumber ASC, Name ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
 	Errcheck(err)
