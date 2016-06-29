@@ -110,6 +110,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and Start<? and Stop>=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAllAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE RAID=? and Start<? and Stop>=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
 	s1, s2, s3 = GenSQLInsertAndUpdateStrings(AsmFlds)
@@ -141,7 +143,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Business
 	//==========================================
-	RRdb.Prepstmt.GetAllBusinesses, err = RRdb.Dbrr.Prepare("SELECT BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy FROM Business")
+	RRdb.Prepstmt.GetAllBusinesses, err = RRdb.Dbrr.Prepare("SELECT BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy FROM Business ORDER BY Name ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetBusiness, err = RRdb.Dbrr.Prepare("SELECT BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy FROM Business WHERE BID=?")
 	Errcheck(err)
@@ -257,6 +259,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + LMfields + " FROM LedgerMarker WHERE BID=? and LID=? and DtStop>? and DtStart<? ORDER BY LID ASC")
 	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerMarkerByRAID, err = RRdb.Dbrr.Prepare("SELECT " + LMfields + " FROM LedgerMarker WHERE BID=? and LID=? and DtStop>? and DtStart<? ORDER BY LID ASC")
+	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + LMfields + " FROM LedgerMarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllLedgerMarkersInRange, err = RRdb.Dbrr.Prepare("SELECT " + LMfields + " FROM LedgerMarker WHERE BID=? and DtStop>? and DtStart<=?")
@@ -302,6 +306,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy from Receipt WHERE BID=? and Dt >= ? and DT < ?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetReceiptsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy from Receipt WHERE BID=? and RAID=? and Dt >= ? and DT < ?")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertReceipt, err = RRdb.Dbrr.Prepare("INSERT INTO Receipt (RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
 	Errcheck(err)

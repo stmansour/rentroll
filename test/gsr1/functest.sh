@@ -54,6 +54,7 @@ dotest "DEFINE ASSIGN CUSTOM ATTRIBUTES" "-U assigncustom.csv -L 15"
 
 echo "process payments and receipts"
 echo "PROCESS PAYMENTS AND RECEIPTS" >> ${LOGFILE} 2>&1
+
 ${RENTROLL} -j "2016-03-01" -k "2016-04-01" >> ${LOGFILE} 2>&1
 ${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 1 >> ${LOGFILE} 2>&1
 ${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 2  >> ${LOGFILE} 2>&1
@@ -61,7 +62,6 @@ ${RENTROLL} -j "2016-04-01" -k "2016-05-01" >> ${LOGFILE} 2>&1
 ${RENTROLL} -j "2016-05-01" -k "2016-06-01" >> ${LOGFILE} 2>&1
 ${RENTROLL} -j "2016-05-01" -k "2016-06-01" -r 1 >> ${LOGFILE} 2>&1
 ${RENTROLL} -j "2016-05-01" -k "2016-06-01" -r 2  >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-05-01" -k "2016-06-01" -r 8  >> ${LOGFILE} 2>&1
 
 echo >>${LOGFILE}
 

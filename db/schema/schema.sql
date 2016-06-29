@@ -121,9 +121,9 @@ CREATE TABLE CustomAttr (
 );
 
 CREATE TABLE CustomAttrRef (
-    ElementType BIGINT NOT NULL,               -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
-    ID          BIGINT NOT NULL,               -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
-    CID         BIGINT NOT NULL                -- uid of the custom attribute
+    ElementType BIGINT NOT NULL,   -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
+    ID          BIGINT NOT NULL,   -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
+    CID         BIGINT NOT NULL    -- uid of the custom attribute
 );
 
 -- **************************************

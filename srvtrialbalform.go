@@ -16,6 +16,7 @@ func srvformTrialBalance(w http.ResponseWriter, r *http.Request) {
 	if nil != err {
 		fmt.Printf("%s: error loading template: %v\n", funcname, err)
 	}
+	UIInitBizList(&ui)
 	err = t.Execute(w, &ui)
 	if nil != err {
 		rlib.LogAndPrintError(funcname, err)

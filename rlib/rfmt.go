@@ -55,7 +55,11 @@ func LogAndPrintError(funcname string, err error) {
 
 // RoundToCent rounds the supplied amount to the nearest cent.
 func RoundToCent(x float64) float64 {
-	return float64(int64(x*float64(100)+float64(0.5))) / float64(100)
+	var xtra = float64(0.5)
+	if x < float64(0) {
+		xtra = -xtra
+	}
+	return float64(int64(x*float64(100)+xtra)) / float64(100)
 }
 
 // DateToString rounds the supplied amount to the nearest cent.

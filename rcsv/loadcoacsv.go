@@ -8,11 +8,11 @@ import (
 	"time"
 )
 
-//    0           1                             2        3,               4                       5            6                7             8         9          10
-// Designation, Name,                         GLNumber,  Parent GLNumber   Account TYpe,        Balance,   GL Account Status,    Associated,  Type,     Date,      AllowPost
-// REH,         Bank Account FRB 2332352,     10001,      10000           bank,                     0,         active,          Yes,         10,  "2016-03-01",  Yes
-// REH,         General Accounts Receivable,  11001,      11000           Accounts Receivable,      0,         active,          Yes,         11,  "2016-03-01",  Yes
-// REH,         Friday Lunch Fund,            11099,      11000           Accounts Receivable,     0.00,       active,          No,
+//   0   1                             2          3,                4                    5          6                  7             8         9          10
+// BUD,  Name,                         GLNumber,  Parent GLNumber   Account TYpe,        Balance,   GL Account Status, Associated,  Type,     Date,      AllowPost
+// REH,  Bank Account FRB 2332352,     10001,     10000             bank,                0,         active,            Yes,         10,  "2016-03-01",  Yes
+// REH,  General Accounts Receivable,  11001,     11000             Accounts Receivable, 0,         active,            Yes,         11,  "2016-03-01",  Yes
+// REH,  Friday Lunch Fund,            11099,     11000             Accounts Receivable, 0.00,      active,            No,
 
 // StringToDate tries to convert the supplied string to a time.Time value. It will use the two
 // formats called out in dbtypes.go:  rlib.RRDATEFMT, rlib.RRDATEINPFMT, rlib.RRDATEINPFMT2
@@ -177,7 +177,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	// ASSOCIATED
 	//----------------------------------------------------------------------
 	s = strings.ToLower(strings.TrimSpace(sa[7]))
-	if "associated" == s || s == "y" || s == "yes" || s == "1" {
+	if len(s) == 0 || "associated" == s || s == "y" || s == "yes" || s == "1" {
 		l.RAAssociated = rlib.RAASSOCIATED
 	} else if "unassociated" == s || s == "n" || s == "no" || s == "0" {
 		l.RAAssociated = rlib.RAUNASSOCIATED

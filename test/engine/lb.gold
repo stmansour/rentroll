@@ -1,23 +1,27 @@
+LEDGER MARKERS
+Springfield Retirement Castle
+Opening Balances:  December 1, 2015
+
                                     Name    GLNumber       Balance
-                                                              0.00
-                                                              0.00
-                                                              0.00
-                                                              0.00
-                                                              0.00
-                                                              0.00
-                                                              0.00
-                                                              0.00
-                Bank Account FRB 2332352       10001       1491.34
+                      RA00000001 Balance                      0.00
+                      RA00000002 Balance                      0.00
+                      RA00000003 Balance                      0.00
+                      RA00000004 Balance                      0.00
+                      RA00000005 Balance                      0.00
+                      RA00000006 Balance                      0.00
+                      RA00000007 Balance                      0.00
+                      RA00000008 Balance                      0.00
+                Bank Account FRB 2332352       10001      1,491.34
      MasterCard/VISA 38992355 in Process       10004          0.00
            Discover 883523553 In Process       10005          0.00
              General Accounts Receivable       11001          0.00
              Security Deposit Receivable       11002          0.00
     American Express 93892335 In Process       11003          0.00
                             Owner Equity       20001          0.00
-             Security Deposit Assessment       23000      -1500.00
-                    Gross Scheduled Rent       40001     -10981.33
+             Security Deposit Assessment       23000       -500.00
+                    Gross Scheduled Rent       40001    -10,981.33
                           Carport Rental       40002          0.00
-                                 Vacancy       41001      10219.33
+                                 Vacancy       41001     10,219.33
                Administrative Concession       41002          0.00
                            Off Line Unit       41003          0.00
                            Loss to Lease       41004         53.33
@@ -35,4 +39,4 @@
                          Utility overage       42008          0.00
                             Other Income       42999          0.00
 ------------------------------------------------------------------
-                                                          -1000.00
+                                                              0.00

@@ -90,12 +90,12 @@ echo "DEFINE ASSIGN CUSTOM ATTRIBUTES" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -U assigncustom.csv -L 15 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
-echo "process payments and receipts"
-echo "PROCESS PAYMENTS AND RECEIPTS" >> ${LOGFILE} 2>&1
+echo "process Statements, Assessments, and Payments"
+echo "PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS" >> ${LOGFILE} 2>&1
 ${RENTROLL} -j "2016-03-01" -k "2016-04-01" >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 1 >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 2  >> ${LOGFILE} 2>&1
-
+${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 1 >> ${LOGFILE} 2>&1		# Journals
+${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 2  >> ${LOGFILE} 2>&1	# Ledgers
+${RENTROLL} -j "2016-03-01" -k "2016-04-01" -r 8  >> ${LOGFILE} 2>&1	# Statements
 echo >>${LOGFILE}
 
 echo -n "PHASE x: Log file check...  "

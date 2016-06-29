@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"rentroll/rlib"
 	"time"
 )
@@ -59,26 +58,27 @@ func calcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate in
 	return pf
 }
 
-// journalAssessment processes the assessment, creates a Journal entry, and returns its id
+// ProrateAssessment - determines the proration factor for this assessment
+//
 // Parameters:
-//		xbiz - the business struct
-//		rid - Rentable ID
-//		d - date of this assessment
-//		a - the assessment
-//		d1-d2 - defines the timerange being covered in this period
+//		a			pointer to the assessment
+//      d           date or the recurrence date of the assessment being analyzed
+//  	d1, d2:     the time period we're being asked to analyze
+//
+// Returns:
+//         	pf:       prorate factor = rentDur/asmtDur
 //=================================================================================================
-func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
-	funcname := "journalAssessment"
+func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time.Time) float64 {
+	funcname := "ProrateAssessment"
 	pf := float64(0)
-
-	r := rlib.GetRentable(rid)
-	status := rlib.GetRentableStateForDate(r.RID, &d)
+	r := rlib.GetRentable(a.RID)
+	status := rlib.GetRentableStateForDate(r.RID, d)
 	switch status {
 	case rlib.RENTABLESTATUSONLINE:
 		ra, _ := rlib.GetRentalAgreement(a.RAID)
 		switch a.RecurCycle {
 		case rlib.ACCRUALDAILY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, &d, &d, a.RecurCycle, a.ProrationCycle)
+			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d, d, a.RecurCycle, a.ProrationCycle)
 		case rlib.ACCRUALNORECUR:
 			fallthrough
 		case rlib.ACCRUALMONTHLY:
@@ -111,11 +111,25 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 		rlib.Ulog("%s: Rentable %d is in an unknown status: %d\n", funcname, r.RID, status)
 	}
 
+	return pf
+}
+
+// journalAssessment processes the assessment, creates a Journal entry, and returns its id
+// Parameters:
+//		xbiz - the business struct
+//		rid - Rentable ID
+//		d - date of this assessment
+//		a - the assessment
+//		d1-d2 - defines the timerange being covered in this period
+//=================================================================================================
+func journalAssessment(xbiz *rlib.XBusiness, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
+	// funcname := "journalAssessment"
+	pf := ProrateAssessment(xbiz, a, &d, d1, d2)
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
 	// fmt.Printf("calling ParseAcctRule:\n  asmt = %#v\n  rid = %d\n", a, rid)
 	// m := rlib.ParseAcctRule(xbiz, rid, &d, &d, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
-	m := rlib.ParseAcctRule(xbiz, rid, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	m := rlib.ParseAcctRule(xbiz, a.RID, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
 	// fmt.Printf("After ParseAcctRule - j.Amount = %8.2f\n", j.Amount)
@@ -127,36 +141,59 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 	// handle this is to apply the extra cent to the largest number
 	//-------------------------------------------------------------------------------------------
 	if pf < 1.0 {
-		sum := float64(0.0)
-		debits := float64(0)
-		k := 0 // index of the largest number
+		// sum := float64(0.0)
+		// debits := float64(0)
+		// k := 0 // index of the largest number
+		// for i := 0; i < len(m); i++ {
+		// 	m[i].Amount = rlib.RoundToCent(m[i].Amount)
+		// 	if m[i].Amount > m[k].Amount {
+		// 		k = i
+		// 	}
+		// 	if m[i].Action == "c" {
+		// 		sum -= m[i].Amount
+		// 	} else {
+		// 		sum += m[i].Amount
+		// 		debits += m[i].Amount
+		// 	}
+		// }
+		// if sum != float64(0) {
+		// 	m[k].Amount += sum // first try adding the penny
+		// 	x, xd := sumAllocations(&m)
+		// 	j.Amount = rlib.RoundToCent(xd)
+		// 	if x != float64(0) { // if that doesn't work...
+		// 		m[k].Amount -= sum + sum // subtract the penny:  remove the one we added above, then remove another, i.e.: sum + sum
+		// 		y, yd := sumAllocations(&m)
+		// 		j.Amount = rlib.RoundToCent(yd)
+		// 		// if there's some strange number that causes issues, use the one closest to 0
+		// 		if math.Abs(float64(y)) > math.Abs(float64(x)) { // if y is farther from 0 than x, go back to the value for x
+		// 			m[k].Amount += sum + sum
+		// 			j.Amount = xd
+		// 		}
+		// 	}
+		// }
+
+		// new method using ProcessSum
+		var asum []rlib.SumFloat
 		for i := 0; i < len(m); i++ {
-			m[i].Amount = rlib.RoundToCent(m[i].Amount)
-			if m[i].Amount > m[k].Amount {
-				k = i
-			}
+			var b rlib.SumFloat
 			if m[i].Action == "c" {
-				sum -= m[i].Amount
+				b.Val = -m[i].Amount
 			} else {
-				sum += m[i].Amount
-				debits += m[i].Amount
+				b.Val = m[i].Amount
+			}
+			b.Amount = rlib.RoundToCent(b.Val)
+			b.Remainder = b.Amount - b.Val
+			asum = append(asum, b)
+		}
+		rlib.ProcessSumFloats(asum)
+		for i := 0; i < len(asum); i++ {
+			if m[i].Action == "c" {
+				m[i].Amount = -asum[i].Amount // the adjusted value after ProcessSumFloats
+			} else {
+				m[i].Amount = asum[i].Amount // the adjusted value after ProcessSumFloats
 			}
 		}
-		if sum != float64(0) {
-			m[k].Amount += sum // first try adding the penny
-			x, xd := sumAllocations(&m)
-			j.Amount = rlib.RoundToCent(xd)
-			if x != float64(0) { // if that doesn't work...
-				m[k].Amount -= sum + sum // subtract the penny:  remove the one we added above, then remove another, i.e.: sum + sum
-				y, yd := sumAllocations(&m)
-				j.Amount = rlib.RoundToCent(yd)
-				// if there's some strange number that causes issues, use the one closest to 0
-				if math.Abs(float64(y)) > math.Abs(float64(x)) { // if y is farther from 0 than x, go back to the value for x
-					m[k].Amount += sum + sum
-					j.Amount = xd
-				}
-			}
-		}
+
 	}
 
 	// fmt.Printf("INSERTING JOURNAL: Date = %s, Type = %d, amount = %f\n", j.Dt, j.Type, j.Amount)
@@ -175,7 +212,7 @@ func journalAssessment(xbiz *rlib.XBusiness, rid int64, d time.Time, a *rlib.Ass
 		if jid > 0 {
 			var ja rlib.JournalAllocation
 			ja.JID = jid
-			ja.RID = rid
+			ja.RID = a.RID
 			ja.ASMID = a.ASMID
 			ja.Amount = rlib.RoundToCent(j.Amount)
 			ja.AcctRule = s
@@ -242,7 +279,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 			dl := ap.GetRecurrences(d1, d2)
 			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
 			for i := 0; i < len(dl); i++ {
-				journalAssessment(xbiz, a.RID, dl[i], &a, d1, d2)
+				journalAssessment(xbiz, dl[i], &a, d1, d2)
 			}
 		}
 	}

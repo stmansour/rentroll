@@ -172,10 +172,10 @@ INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
 --  RENTABLE TYPES
 -- =======================================================================
 INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,GSPRC,ManageToBudget) VALUES
-	(1,"GM","Geezer Miser", 6,4,4,1),				-- 1  
-	(1,"FS","Flat Studio",  6,4,4,1),				-- 2  
-	(1,"SBL","SB Loft",     6,4,4,1),				-- 3  
-	(1,"KDS","KD Suite",    6,4,4,1),				-- 4  
+	(1,"GM","Geezer Miser", 6,4,4,1),				-- 1  From TUC "Efficiency"  385 sqft
+	(1,"FS","Flat Studio",  6,4,4,1),				-- 2  From TUC "1/1 Studio"  726 sqft
+	(1,"SBL","SB Loft",     6,4,4,1),				-- 3  From TUC "2/2 Flat"    770 sqft
+	(1,"KDS","KD Suite",    6,4,4,1),				-- 4  From TUC "2/2 Studio" 1123 sqft
 	(1,"CAR","Vehicle",     3,0,4,1), 				-- 5  Car
 	(1,"CPT","Carport",     6,4,4,1);		 		-- 6  Carport
 
@@ -445,7 +445,7 @@ INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(2,  9.33,9,"c ${DFLTGENRCV} _, d ${DFLTCASH} _");	-- CP001
 
 INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
-	(1,8,1,"2015-11-15",1946.68, "d ${DFLTCASH} 1500.00, c 11002 1500.00, c ${DFLTGENRCV} 400.00, d ${DFLTCASH} 400.00, c ${DFLTGENRCV} 16.67, d ${DFLTCASH} 16.67, c ${DFLTGENRCV} 6.67, d ${DFLTCASH} 6.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67");  			-- 3   Simpson pays his fees in full
+	(1,8,1,"2015-11-30",1946.68, "d ${DFLTCASH} 1500.00, c 11002 1500.00, c ${DFLTGENRCV} 400.00, d ${DFLTCASH} 400.00, c ${DFLTGENRCV} 16.67, d ${DFLTCASH} 16.67, c ${DFLTGENRCV} 6.67, d ${DFLTCASH} 6.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67, c ${DFLTGENRCV} 11.67,d ${DFLTCASH} 11.67");  			-- 3   Simpson pays his fees in full
 INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(3,1500.00, 8,"d ${DFLTCASH}   _,c ${DFLTSECDEPRCV} _"),	--  security deposit
 	(3, 400.00, 2,"c ${DFLTGENRCV} _,d ${DFLTCASH}      _"),	--  rent
@@ -547,5 +547,5 @@ UPDATE GLAccount SET GLNumber="11002" WHERE Name = "Security Deposit Receivable"
 UPDATE GLAccount SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
 UPDATE GLAccount SET GLNumber="20001" WHERE Name = "Owner Equity";
 
-UPDATE LedgerMarker SET Balance=-1000.00 WHERE LID=7;
+-- UPDATE LedgerMarker SET Balance=-1000.00 WHERE LID=7;
 UPDATE GLAccount SET Name="Bank Account FRB 2332352" WHERE GLNumber = "10001";

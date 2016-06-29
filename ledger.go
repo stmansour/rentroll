@@ -103,8 +103,8 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.GLAccount, lm *rlib.Ledger
 	rlib.InsertLedgerMarker(&nlm)
 }
 
-// GetRABalanceLedger returns a balance ledger for the supplied RentalAgreement, creating it if necessary.
-func GetRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) (rlib.GLAccount, error) {
+// LoadRABalanceLedger returns a balance ledger for the supplied RentalAgreement, creating it if necessary.
+func LoadRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) (rlib.GLAccount, error) {
 	l, err := rlib.GetRABalanceLedger(bid, ra.RAID)
 	if err != nil {
 		if rlib.IsSQLNoResultsError(err) {
@@ -114,10 +114,12 @@ func GetRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) 
 			l.RAAssociated = 2
 			l.RAID = ra.RAID
 			l.Status = 2
+			l.Name = fmt.Sprintf("RA%08d Balance", ra.RAID)
 			l.LID, err = rlib.InsertLedger(&l)
+			// fmt.Printf("LoadRABalanceLedger: CREATING LedgerBalance account: for RAID = %d;  LID = %d\n", ra.RAID, l.LID)
 			return l, err
 		}
-		rlib.Ulog("GetRABalanceLedger: error getting RABalanceLedger for BID=%d, RAID=%d, err = %s\n", bid, ra.RAID, err.Error())
+		rlib.Ulog("LoadRABalanceLedger: error getting RABalanceLedger for BID=%d, RAID=%d, err = %s\n", bid, ra.RAID, err.Error())
 	}
 	return l, err
 }
@@ -150,7 +152,7 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 			&ra.Renewal, &ra.SpecialProvisions, &ra.LastModTime, &ra.LastModBy))
 
 		// get or create a ledger for this rental agreement
-		l, err := GetRABalanceLedger(&ra, d1, d2, bid)
+		l, err := LoadRABalanceLedger(&ra, d1, d2, bid)
 		if err != nil {
 			return err
 		}
@@ -177,18 +179,19 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 		lid := rlib.RRdb.BizTypes[bid].DefaultAccts[rlib.DFLTGENRCV].LID
 		delta, err := GetAccountBalanceForRA(bid, lid, ra.RAID, d1, d2)
 		if err != nil {
+			fmt.Printf("error returned from GetAccountBalanceForRA:  err = %s\n", err.Error()) // ****** PURGE ME *******
 			return err
 		}
 
 		// Create a new LedgerMarker for GLAccount l with the updated balance:
 		var nlm rlib.LedgerMarker
-		nlm.LID = lid
+		nlm.LID = l.LID
 		nlm.BID = bid
 		nlm.DtStart = *d1
 		nlm.DtStop = *d2
 		nlm.Balance = openingBal + delta
 		nlm.State = state
-		// fmt.Printf("nlm - %s - %s   LID: %d, Balance: %6.2f\n",
+		// fmt.Printf("INSERTING LEDGER MARKER:  %s - %s   LID: %d, Balance: %6.2f\n",
 		// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.DtStop.Format(rlib.RRDATEFMT), nlm.LID, nlm.Balance)
 		err = rlib.InsertLedgerMarker(&nlm)
 		rlib.Errlog(err)

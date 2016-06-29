@@ -24,20 +24,27 @@ func RunBooks(ctx *DispatchCtx) {
 
 		// and generate the requested report...
 		switch ctx.Report {
-		case 1:
+		case 1: // JOURNAL
 			JournalReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 2:
+		case 2: // LEDGER
 			LedgerReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 3:
+		case 3: // INTERNAL ACCT RULE TEST
 			intTest(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 4:
+		case 4: // ??? available ???
 			fmt.Printf("biz csv = %s\n", App.bizfile)
-		case 5:
+		case 5: // ASSESSMENT CHECK REPORT
 			AssessmentCheckReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 6:
+		case 6: // LEDGER BALANCE REPORT
 			var ui RRuiSupport
+			ui.B = xbiz.P
+			ui.DtStart = ctx.DtStart
+			ui.DtStop = ctx.DtStop
 			BuildXLedgerList(&ui, xbiz.P.BID, ctx.DtStart, ctx.DtStop)
 			UILedgerTextReport(&ui)
+		case 7: // RENTABLE COUNT BY TYPE
+			UIRentableCountByRentableTypeReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
+		case 8: // STATEMENT
+			UIStatementTextReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

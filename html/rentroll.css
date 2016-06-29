@@ -7,8 +7,8 @@ table, th, td {
     border: 1px solid #ddd;
     font-family: "Open Sans","Roboto",sans-serif;
     font-size: 9pt;
-    border-spacing:5px;
-    padding: 5px;
+    border-spacing:2px;
+    padding: 2px;
 }
 
 p {

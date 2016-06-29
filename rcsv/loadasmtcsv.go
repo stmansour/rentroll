@@ -28,10 +28,10 @@ func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.AssessmentType, ra *rlib
 }
 
 // CSV FIELDS FOR THIS MODULE
-//    0         1             2      3       4             5             6     7             8                9
-// Designation,RentableName, ASMTID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, AcctRule
-// REH,         "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-// REH,         "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
+//    0  1             2      3       4             5             6     7             8                9
+// BUD   ,RentableName, ASMTID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, AcctRule
+// REH,  "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+// REH,  "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
 
 // type rlib.Assessment struct {
 // 	ASMID           int64     // unique id for this assessment
@@ -57,7 +57,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 	var r rlib.Rentable
 	var err error
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "designation" {
+	if des == "bud" {
 		return // this is just the column heading
 	}
 

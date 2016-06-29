@@ -39,3 +39,6 @@ t:
 	./rentroll
 
 all: clean rentroll test
+
+
+try: clean rentroll package

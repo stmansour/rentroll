@@ -583,7 +583,7 @@ type GLAccount struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
-	GetRABalanceLedger                       *sql.Stmt
+	DeleteAllRentalAgreementPets             *sql.Stmt
 	DeleteCustomAttribute                    *sql.Stmt
 	DeleteCustomAttributeRef                 *sql.Stmt
 	DeleteJournalAllocations                 *sql.Stmt
@@ -594,25 +594,27 @@ type RRprepSQL struct {
 	DeleteLedgerMarker                       *sql.Stmt
 	DeleteReceipt                            *sql.Stmt
 	DeleteReceiptAllocations                 *sql.Stmt
+	DeleteRentableSpecialtyRef               *sql.Stmt
 	DeleteRentableStatus                     *sql.Stmt
+	DeleteRentableTypeRef                    *sql.Stmt
+	DeleteRentalAgreementPet                 *sql.Stmt
 	FindAgreementByRentable                  *sql.Stmt
 	FindTransactantByPhoneOrEmail            *sql.Stmt
-	GetRentalAgreementPayors                 *sql.Stmt
-	GetRentalAgreementRentables              *sql.Stmt
-	GetRentableUsers                         *sql.Stmt
 	GetAgreementsForRentable                 *sql.Stmt
 	GetAllAssessmentsByBusiness              *sql.Stmt
+	GetAllAssessmentsByRAID                  *sql.Stmt
+	GetAllBusinesses                         *sql.Stmt
 	GetAllBusinessRentableTypes              *sql.Stmt
 	GetAllBusinessSpecialtyTypes             *sql.Stmt
-	GetAllBusinesses                         *sql.Stmt
 	GetAllJournalsInRange                    *sql.Stmt
 	GetAllLedgerEntriesInRange               *sql.Stmt
 	GetAllLedgerMarkersInRange               *sql.Stmt
 	GetAllRentableAssessments                *sql.Stmt
 	GetAllRentablesByBusiness                *sql.Stmt
-	GetAllRentalAgreementTemplates           *sql.Stmt
+	GetAllRentalAgreementPets                *sql.Stmt
 	GetAllRentalAgreements                   *sql.Stmt
 	GetAllRentalAgreementsByRange            *sql.Stmt
+	GetAllRentalAgreementTemplates           *sql.Stmt
 	GetAllTransactants                       *sql.Stmt
 	GetAssessment                            *sql.Stmt
 	GetAssessmentType                        *sql.Stmt
@@ -633,36 +635,46 @@ type RRprepSQL struct {
 	GetLedger                                *sql.Stmt
 	GetLedgerByGLNo                          *sql.Stmt
 	GetLedgerByType                          *sql.Stmt
+	GetLedgerEntriesForRAID                  *sql.Stmt
 	GetLedgerEntriesInRangeByGLNo            *sql.Stmt
+	GetLedgerEntriesInRangeByLID             *sql.Stmt
 	GetLedgerEntry                           *sql.Stmt
 	GetLedgerList                            *sql.Stmt
 	GetLedgerMarkerByDateRange               *sql.Stmt
+	GetLedgerMarkerByLIDDateRange            *sql.Stmt
+	GetLedgerMarkerByRAID                    *sql.Stmt
 	GetLedgerMarkers                         *sql.Stmt
 	GetPaymentTypesByBusiness                *sql.Stmt
 	GetPayor                                 *sql.Stmt
 	GetProspect                              *sql.Stmt
+	GetRABalanceLedger                       *sql.Stmt
 	GetReceipt                               *sql.Stmt
 	GetReceiptAllocations                    *sql.Stmt
 	GetReceiptsInDateRange                   *sql.Stmt
+	GetReceiptsInRAIDDateRange               *sql.Stmt
 	GetRentable                              *sql.Stmt
 	GetRentableByName                        *sql.Stmt
 	GetRentableMarketRates                   *sql.Stmt
+	GetRentableSpecialtyRefs                 *sql.Stmt
+	GetRentableSpecialtyRefsByRange          *sql.Stmt
 	GetRentableSpecialtyType                 *sql.Stmt
+	GetRentableSpecialtyTypeByName           *sql.Stmt
 	GetRentableStatusByRange                 *sql.Stmt
 	GetRentableType                          *sql.Stmt
 	GetRentableTypeByStyle                   *sql.Stmt
+	GetRentableTypeRefsByRange               *sql.Stmt
+	GetRentableUsers                         *sql.Stmt
 	GetRentalAgreement                       *sql.Stmt
 	GetRentalAgreementByBusiness             *sql.Stmt
-	GetRentalAgreementTemplate               *sql.Stmt
 	GetRentalAgreementByRentalTemplateNumber *sql.Stmt
+	GetRentalAgreementPayors                 *sql.Stmt
+	GetRentalAgreementPet                    *sql.Stmt
+	GetRentalAgreementRentables              *sql.Stmt
+	GetRentalAgreementTemplate               *sql.Stmt
 	GetSecurityDepositAssessment             *sql.Stmt
-	GetRentableSpecialtyTypeByName           *sql.Stmt
-	GetUser                                  *sql.Stmt
 	GetTransactant                           *sql.Stmt
 	GetUnitAssessments                       *sql.Stmt
-	InsertRentalAgreementPayor               *sql.Stmt
-	InsertRentalAgreementRentable            *sql.Stmt
-	InsertRentableUser                       *sql.Stmt
+	GetUser                                  *sql.Stmt
 	InsertAssessment                         *sql.Stmt
 	InsertAssessmentType                     *sql.Stmt
 	InsertBuilding                           *sql.Stmt
@@ -684,34 +696,26 @@ type RRprepSQL struct {
 	InsertReceiptAllocation                  *sql.Stmt
 	InsertRentable                           *sql.Stmt
 	InsertRentableMarketRates                *sql.Stmt
+	InsertRentableSpecialtyRef               *sql.Stmt
 	InsertRentableSpecialtyType              *sql.Stmt
 	InsertRentableStatus                     *sql.Stmt
 	InsertRentableType                       *sql.Stmt
+	InsertRentableTypeRef                    *sql.Stmt
+	InsertRentableUser                       *sql.Stmt
 	InsertRentalAgreement                    *sql.Stmt
+	InsertRentalAgreementPayor               *sql.Stmt
+	InsertRentalAgreementPet                 *sql.Stmt
+	InsertRentalAgreementRentable            *sql.Stmt
 	InsertRentalAgreementTemplate            *sql.Stmt
-	InsertUser                               *sql.Stmt
 	InsertTransactant                        *sql.Stmt
+	InsertUser                               *sql.Stmt
 	UpdateLedger                             *sql.Stmt
 	UpdateLedgerMarker                       *sql.Stmt
-	UpdateRentableStatus                     *sql.Stmt
-	UpdateTransactant                        *sql.Stmt
-	GetRentalAgreementPet                    *sql.Stmt
-	GetAllRentalAgreementPets                *sql.Stmt
-	InsertRentalAgreementPet                 *sql.Stmt
-	UpdateRentalAgreementPet                 *sql.Stmt
-	DeleteRentalAgreementPet                 *sql.Stmt
-	DeleteAllRentalAgreementPets             *sql.Stmt
-	InsertRentableTypeRef                    *sql.Stmt
-	DeleteRentableTypeRef                    *sql.Stmt
-	UpdateRentableTypeRef                    *sql.Stmt
-	GetRentableTypeRefsByRange               *sql.Stmt
-	GetRentableSpecialtyRefs                 *sql.Stmt
-	GetRentableSpecialtyRefsByRange          *sql.Stmt
-	InsertRentableSpecialtyRef               *sql.Stmt
 	UpdateRentableSpecialtyRef               *sql.Stmt
-	DeleteRentableSpecialtyRef               *sql.Stmt
-	GetLedgerEntriesInRangeByLID             *sql.Stmt
-	GetLedgerEntriesForRAID                  *sql.Stmt
+	UpdateRentableStatus                     *sql.Stmt
+	UpdateRentableTypeRef                    *sql.Stmt
+	UpdateRentalAgreementPet                 *sql.Stmt
+	UpdateTransactant                        *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

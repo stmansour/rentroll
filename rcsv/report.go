@@ -274,15 +274,15 @@ func ReportChartOfAcctsToText(p *rlib.GLAccount) string {
 	if rlib.DFLTCASH <= p.Type && p.Type <= rlib.DFLTLAST {
 		s = fmt.Sprintf("%4d", p.Type)
 	}
-	return fmt.Sprintf("%5d  %4s  %12s   %12.2f   %s\n",
-		lm.LMID, s, p.GLNumber, lm.Balance, p.Name)
+	return fmt.Sprintf("%5d  %4s  %12s  %12d  %12.2f  %s\n",
+		lm.LMID, s, p.GLNumber, p.PLID, lm.Balance, p.Name)
 }
 
 // RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
 func RRreportChartOfAccounts(t int, bid int64) string {
 	m := rlib.GetLedgerList(bid)
 	//                               123456789012
-	s := fmt.Sprintf("  LID   Type  GLAccountNo         Amount   Name\n")
+	s := fmt.Sprintf("%5s  %4s  %12s  %12s  %12s  %s\n", "LMID", "Type", "GLNumber", "Parent LMID", "Balance", "Name")
 	for i := 0; i < len(m); i++ {
 		switch t {
 		case rlib.RPTTEXT:

@@ -131,6 +131,21 @@ func GetBuilding(id int64) Building {
 //  B U S I N E S S
 //=======================================================
 
+// GetAllBusinesses generates a report of all Businesses defined in the database.
+func GetAllBusinesses() ([]Business, error) {
+	var m []Business
+	rows, err := RRdb.Prepstmt.GetAllBusinesses.Query()
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var p Business
+		Errcheck(rows.Scan(&p.BID, &p.Designation, &p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+		m = append(m, p)
+	}
+	Errcheck(rows.Err())
+	return m, err
+}
+
 // GetBusiness loads the Business struct for the supplied Business id
 func GetBusiness(bid int64, p *Business) {
 	Errcheck(RRdb.Prepstmt.GetBusiness.QueryRow(bid).Scan(&p.BID, &p.Designation,
@@ -208,13 +223,26 @@ func GetAllCustomAttributes(elemid, id int64) ([]CustomAttribute, error) {
 func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) (LedgerMarker, error) {
 	var r LedgerMarker
 	l, err := GetLedgerByGLNo(bid, s)
-	if err == nil {
-		err = RRdb.Prepstmt.GetLedgerMarkerByDateRange.QueryRow(bid, l.LID, d1, d2).Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy)
-		// if nil != err {
-		// 	fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not find LedgerMarker for GLNumber \"%s\".\n", s)
-		// 	fmt.Printf("err = %v\n", err)
-		// }
+	if err != nil {
+		fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not load Ledger for GLNumber: %s,  err = %s\n	", s, err.Error())
+		return r, err
 	}
+	err = RRdb.Prepstmt.GetLedgerMarkerByDateRange.QueryRow(bid, l.LID, d1, d2).Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy)
+	if nil != err {
+		fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not find LedgerMarker for GLNumber \"%s\".\n", s)
+		fmt.Printf("err = %v\n", err)
+	}
+	return r, err
+}
+
+// GetLedgerMarkerByLIDDateRange returns the LedgerMarker struct for the supplied time range
+func GetLedgerMarkerByLIDDateRange(bid, lid int64, d1, d2 *time.Time) (LedgerMarker, error) {
+	var r LedgerMarker
+	err := RRdb.Prepstmt.GetLedgerMarkerByDateRange.QueryRow(bid, lid, d1, d2).Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy)
+	// if nil != err {
+	// 	fmt.Printf("GetLedgerMarkerByLIDDateRange: Could not find LedgerMarker for BID=%d, LID=%d, d1=%s, d2=%s\n", bid, lid, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+	// 	fmt.Printf("err = %v\n", err)
+	// }
 	return r, err
 }
 
@@ -265,6 +293,22 @@ func GetAllLedgerMarkersInRange(bid int64, DtStart, DtStop *time.Time) map[int64
 	Errcheck(rows.Err())
 	return t
 }
+
+// // GetAllLedgerMarkersInRange returns a map of all ledgermarkers for the supplied business and dat
+// func GetLedgerMarkersInRange(bid, lid int64, DtStart, DtStop *time.Time) map[int64]LedgerMarker {
+// 	var t map[int64]LedgerMarker
+// 	t = make(map[int64]LedgerMarker, 0) // this line is absolutely necessary
+// 	rows, err := RRdb.Prepstmt.GetLedgerMarkersInRange.Query(bid, lid, DtStart, DtStop)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	for rows.Next() {
+// 		var r LedgerMarker
+// 		Errcheck(rows.Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy))
+// 		t[r.LID] = r
+// 	}
+// 	Errcheck(rows.Err())
+// 	return t
+// }
 
 //=======================================================
 //  P A Y M E N T   T Y P E S
@@ -649,10 +693,13 @@ func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	return r, err
 }
 
-// GetXRentalAgreement gets the RentalAgreement plus the associated rentables and payors for the
-// time period specified
-func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
-	r, err := GetRentalAgreement(raid)
+// LoadXRentalAgreement is like GetXRentalAgreement except that it assumes that some of the structure may
+// already be loaded. It only loads those portions that appear not to already be loaded.
+func LoadXRentalAgreement(raid int64, r *RentalAgreement, d1, d2 *time.Time) error {
+	var err error
+	if r.RAID != raid {
+		(*r), err = GetRentalAgreement(raid)
+	}
 
 	t := GetRentalAgreementRentables(raid, d1, d2)
 	r.R = make([]XRentable, 0)
@@ -675,7 +722,39 @@ func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error)
 		xp := GetXPersonByTID(n[i].USERID)
 		r.T = append(r.T, xp)
 	}
-	return r, err
+	return err
+}
+
+// GetXRentalAgreement gets the RentalAgreement plus the associated rentables and payors for the
+// time period specified
+func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
+	var ra RentalAgreement
+	err := LoadXRentalAgreement(raid, &ra, d1, d2)
+	return ra, err
+	// r, err := GetRentalAgreement(raid)
+
+	// t := GetRentalAgreementRentables(raid, d1, d2)
+	// r.R = make([]XRentable, 0)
+	// for i := 0; i < len(t); i++ {
+	// 	var xu XRentable
+	// 	GetXRentable(t[i].RID, &xu)
+	// 	r.R = append(r.R, xu)
+	// }
+
+	// m := GetRentalAgreementPayors(raid, d1, d2)
+	// r.P = make([]XPerson, 0)
+	// for i := 0; i < len(m); i++ {
+	// 	xp := GetXPersonByPID(m[i].PID)
+	// 	r.P = append(r.P, xp)
+	// }
+
+	// n := GetRentableUsers(raid, d1, d2)
+	// r.T = make([]XPerson, 0)
+	// for i := 0; i < len(n); i++ {
+	// 	xp := GetXPersonByTID(n[i].USERID)
+	// 	r.T = append(r.T, xp)
+	// }
+	// return r, err
 }
 
 //=======================================================
@@ -726,8 +805,24 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 	t = make([]Receipt, 0)
 	for rows.Next() {
 		var r Receipt
-		Errcheck(rows.Scan(
-			&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment, &r.LastModTime, &r.LastModBy))
+		ReadReceipt(rows, &r)
+		r.RA = make([]ReceiptAllocation, 0)
+		GetReceiptAllocations(r.RCPTID, &r)
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetReceiptsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2)
+func GetReceiptsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []Receipt {
+	rows, err := RRdb.Prepstmt.GetReceiptsInRAIDDateRange.Query(bid, raid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	var t []Receipt
+	t = make([]Receipt, 0)
+	for rows.Next() {
+		var r Receipt
+		ReadReceipt(rows, &r)
 		r.RA = make([]ReceiptAllocation, 0)
 		GetReceiptAllocations(r.RCPTID, &r)
 		t = append(t, r)

@@ -13,7 +13,7 @@
 <form action="/trialbalance/" method="POST">
 <table border="0">
 <tr>
-	<td>Business Unit</td><td><input type="text" name="Business" value="JM1"></td>
+	<td>Business Unit</td><td><select name="BID">{{range .BL}}<option value="{{.BID}}">{{.Name}}</option>{{end}}</select></td>
 	<td>Start Date</td><td><input type=date name="DtStart" size="10"></td>
 	<td>Stop Date</td><td><input type=date name="DtStop" size="10"></td>
 </tr>

@@ -1,5 +1,5 @@
-Designation,RentableName,ASMTID,Amount,Start,Stop,RAID,Frequency,ProrationMethod,AcctRule
-REX,309 Rexford,1,3750,3/1/16,3/1/18,1,6,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+BUD,RentableName,ASMTID,Amount,Start,Stop,RAID,Frequency,ProrationMethod,AcctRule
+REX,309 Rexford,1,3750,3/1/16,3/1/18,1,6,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${GSR}, d ${DFLTLTL} ${GSR} _ -"
 REX,309 1/2 Rexford,1,3550,3/1/16,3/1/18,2,6,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
 REX,311 Rexford,1,4400,3/1/15,2/8/16,3,6,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
 REX,311 Rexford,53,2434.71,3/1/16,3/1/16,3,0,0,"d ${DFLTSECDEPASMT} _, c 50213 _"

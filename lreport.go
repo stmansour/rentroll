@@ -167,7 +167,7 @@ func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		}
 		dd2 := d1.AddDate(0, 0, -1)
 		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
-		lm, err := rlib.GetLedgerMarkerByGLNoDateRange(xbiz.P.BID, t[i].GLNumber, &dd1, &dd2)
+		lm, err := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, t[i].LID, &dd1, &dd2)
 		if lm.LMID < 1 || err != nil {
 			fmt.Printf("LedgerReportText: GLNumber %s -- no LedgerMarker for: %s - %s\n",
 				t[i].GLNumber, dd1.Format(rlib.RRDATEFMT), dd2.Format(rlib.RRDATEFMT))

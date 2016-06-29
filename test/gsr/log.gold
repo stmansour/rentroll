@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Mon Jun 20 20:06:03 PDT 2016
+Date/Time: Wed Jun 29 10:14:03 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -109,26 +109,26 @@ PET00000001  RA00000001  T-Bone                     Dog              Chihuahua  
 
 
 DEFINE CHART OF ACCOUNTS
-  LID   Type  GLAccountNo         Amount   Name
-   12                   1           0.00   Basement Storage
-    2    11         11001           0.00   General Accounts Receivable
-    7    16         11002      -13300.00   Security Deposits Assessed
-   13                   2           0.00   Change In Delinquency
-    6    15         33000           0.00   Security Deposit Receivable
-    8    17         33333       13300.00   OwnerEquity
-   17               41008           0.00   Administrative Unit
-    3    12         50201           0.00   Gross Schedule Rent
-    9               50211           0.00   Late Fees
-   10               50212           0.00   NSF Fees
-   18               50213           0.00   Forfeited Security Deposit
-   11               50216           0.00   Maintenance Reimbursement
-    5    14         50251           0.00   Vacancy
-   15               50252           0.00   Rent Concession
-   16               50253           0.00   Offline Units
-   14               50254           0.00   Bad Debt Write-Off
-    4    13         50255           0.00   Loss to Lease
-   19               59997           0.00   AP Cash Dispersements
-    1    10         59998           0.00   Cash Deposits
+ LMID  Type      GLNumber   Parent LMID       Balance  Name
+   12                   1             0          0.00  Basement Storage
+    2    11         11001             0          0.00  General Accounts Receivable
+    7    16         11002             0     -13300.00  Security Deposits Assessed
+   13                   2            12          0.00  Change In Delinquency
+    6    15         33000             0          0.00  Security Deposit Receivable
+    8    17         33333             0      13300.00  OwnerEquity
+   17               41008             0          0.00  Administrative Unit
+    3    12         50201             0          0.00  Gross Schedule Rent
+    9               50211             0          0.00  Late Fees
+   10               50212             0          0.00  NSF Fees
+   18               50213             0          0.00  Forfeited Security Deposit
+   11               50216             0          0.00  Maintenance Reimbursement
+    5    14         50251             0          0.00  Vacancy
+   15               50252             0          0.00  Rent Concession
+   16               50253             0          0.00  Offline Units
+   14               50254             0          0.00  Bad Debt Write-Off
+    4    13         50255             0          0.00  Loss to Lease
+   19               59997             0          0.00  AP Cash Dispersements
+    1    10         59998             0          0.00  Cash Deposits
 
 
 DEFINE SPECIALTIES
@@ -663,5 +663,16 @@ PROCESS PAYMENTS AND RECEIPTS
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                05/31/16                                                            12000.00
 
+
+Statement  -  Rental Agreement RA00000001   Payor(s): Aaron Read, Kirsten Read
+Period  May 1, 2016 - May 31, 2016
+
+Date        ID           Description                           Charge       Payment       Balance
+-------------------------------------------------------------------------------------------------
+2016-05-01               Opening Balance                                                  -500.00
+2016-05-01  ASM00000001  Rent                                3,750.00                    3,250.00
+2016-05-02  R0000000003  Payment received                                  4,000.00       -750.00
+-------------------------------------------------------------------------------------------------
+Totals                                                       3,750.00      4,000.00       -750.00
 
 

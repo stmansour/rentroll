@@ -1,0 +1,100 @@
+BUD,Name,GLNumber,Parent GLNumber,AccountType,Balance,Status,RAAssociated,Type,Date,Allow Posting
+DHR,Cash,10000,,Bank Account,0.00,active,Unassociated,10,3/1/16,yes
+DHR,Credit Card Clearing,11000,,Current Asset,0.00,active,Unassociated,,3/1/16,yes
+DHR,Accounts Receivable,12000,,Current Asset,0.00,active,Unassociated,11,3/1/16,yes
+DHR,Security Deposits,30000,,Current Liabilities,0.00,active,Associated,16,3/1/16,yes
+DHR,Accued Taxes,30100,,Current Liabilities,0.00,active,Associated,,3/1/16,yes
+DHR,Sales Taxes,30101,30100,Current Liabilities,0.00,active,Associated,,3/1/16,yes
+DHR,Transient Occupancy Taxes,30102,30100,Current Liabilities,0.00,active,Associated,,3/1/16,yes
+DHR,Other Accrued Taxes,30199,30100,Current Liabilities,0.00,active,Associated,,3/1/16,yes
+DHR,Owners' Equity,39000,,Equity,0.00,active,Unassociated,17,3/1/16,yes
+DHR,Unit Gross Scheduled Rent-Taxable,41000,,Income,0.00,active,Unassociated,12,3/1/16,yes
+DHR,Unit Gross Scheduled Rent-Not Taxable,41001,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Unit Income Offsets,41100,,Income,0.00,active,,,3/1/16,no
+DHR,Vacancy,41101,41100,Income,0.00,active,Unassociated,14,3/1/16,yes
+DHR,Loss (Gain) to Lease,41102,41100,Income,0.00,active,Associated,13,3/1/16,yes
+DHR,Employee Concessions,41103,41100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Resident Concessions,41104,41100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Owner Occupied,41105,41100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Administrative Concession,41106,41100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Off Line Renovations,41107,41100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Off Line Maintenance,41108,41100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Othe Income Offsets,41199,41100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Serviced Unit Fees,41200,,Income,0.00,active,,,3/1/16,no
+DHR,Broadcast and IT Services,41201,41200,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Food Services,41202,41200,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Linen Services,41203,41200,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Wash N Fold Services,41204,41200,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Other Serviced Apartment Fees,41299,41200,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Utility Fees,41300,,Income,0.00,active,,,3/1/16,no
+DHR,Electric Base Fee,41301,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Electric Overage,41302,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Water and Sewer Base Fee,41303,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Water and Sewer Overage,41304,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Gas Base Fee,41305,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Gas Overage,41306,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Trash Collection Base Fee,41307,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Trash Collection Overage,41308,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Other Utility Fee,41399,41300,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Miscellaneous Income,41400,,Income,0.00,active,,,3/1/16,no
+DHR,Application Fees,41401,41400,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Late Fees,41402,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Insufficient Funds Fee,41403,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Month to Month Fee,41404,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Premium Upgrades,41405,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,No Show or Termination Fee,41406,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Pet Fees,41407,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Pet Rent,41408,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Expense Reimbursement,41409,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Special Cleaning Fee,41410,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Eviction Fee Reimbursement,41411,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Extra Person Charge,41412,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Forfeited Security Deposit,41413,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Other Miscellaneous Income,41499,41400,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Garage and Carport Gross Scheduled Rents - Taxable,42000,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Garage and Carport Gross Scheduled Rents - Non Taxable,42001,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Garage and Carport Income Offset,42100,,Income,0.00,active,,,3/1/16,no
+DHR,Vacancy,42101,42100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Loss (Gain) to Lease,42102,42100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Employee Concessions,42103,42100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Resident Concessions,42104,42100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Owner Occupied,42105,42100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Administrative Concession,42106,42100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Off Line Renovations,42107,42100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Off Line Maintenance,42108,42100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Othe Income Offsets,42199,42100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Other Garage and Carport Income,42200,,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Appliance and Furniture Gross Schedule Rent - Taxable,43000,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Appliance and Furniture Gross Schedule Rent - Non Taxable,43001,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Appliance and Furniture Income Offset,43100,,Income,0.00,active,,,3/1/16,no
+DHR,Not Rented,43101,43100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Loss (Gain) to Lease,43102,43100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Employee Concessions,43103,43100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Resident Concessions,43104,43100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Owner Used,43105,43100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Administrative Concession,43106,43100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Off Line Maintenance,43107,43100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Othe Income Offsets,43108,43100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Other Appliance and Furniture Income,43200,,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Vehicle Gross Scheduled Rents - Taxable,44000,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Vehicle Gross Scheduled Rents - Non Taxable,44001,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Garage and Carport Income Offset,44100,,Income,0.00,active,,,3/1/16,no
+DHR,Vacancy,44101,44100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Loss (Gain) to Lease,44102,44100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Employee Use,44103,44100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Resident Concessions,44104,44100,Income,0.00,active,Associated,,3/1/16,yes
+DHR,Owner Use,44105,44100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Administrative Concession,44106,44100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Off Line Maintenance,44107,44100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Othe Income Offsets,44199,44100,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Other Garage and Carport Income,44200,,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Ancillary Business Revenue,49000,,Income,0.00,active,,,3/1/16,no
+DHR,Convenience Store Vending,49010,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Fitness Center Revenue,49020,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Vending Income,49030,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Restaurant Sales,49040,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Bar Sales,49050,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Spa Sales,49060,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Cash Over/Short,49091,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Bad Debt,49092,49000,Income,0.00,active,Unassociated,,3/1/16,yes
+DHR,Other Ancillary Business Income,49099,49000,Income,0.00,active,Unassociated,,3/1/16,yes
