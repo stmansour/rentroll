@@ -39,6 +39,14 @@ GRANT ALL PRIVILEGES ON rentroll TO 'ec2-user'@'localhost';
 GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 
 -- ===========================================
+--   ID COUNTERS
+-- ===========================================
+CREATE TABLE IDCounters (
+    InvoiceNo BIGINT NOT NULL DEFAULT 0                       -- unique number for invoices
+);
+
+
+-- ===========================================
 --   RENTAL AGREEMENT TEMPLATE
 -- ===========================================
 CREATE TABLE RentalAgreementTemplate (
@@ -191,22 +199,6 @@ CREATE TABLE RentableSpecialtyType (
 );
 
 -- ===========================================
---   ASSESSMENT TYPES
--- ===========================================
--- this table list all the pre-defined Assessments
--- this will include offsets and disbursements
--- CREATE TABLE AssessmentTypes (
---     ASMTID BIGINT NOT NULL AUTO_INCREMENT,                      -- what type of assessment
---     RARequired SMALLINT NOT NULL DEFAULT 0,                     -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
---     ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
---     Name VARCHAR(100) NOT NULL DEFAULT '',                      -- name for the assessment
---     Description VARCHAR(1024) NOT NULL DEFAULT '',              -- describe the assessment
---     LastModTime TIMESTAMP,                                      -- when was this record last written
---     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
---     PRIMARY KEY (ASMTID)    
--- );
-
--- ===========================================
 --   PAYMENT TYPES
 -- ===========================================
 CREATE TABLE PaymentTypes (
@@ -336,6 +328,7 @@ CREATE TABLE Assessments (
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the User moves out or when the charge is no longer applicable
     RecurCycle SMALLINT NOT NULL DEFAULT 0,                 -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
     ProrationCycle SMALLINT NOT NULL DEFAULT 0,             -- 
+    InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- Which invoice
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP,                                  -- when was this record last written

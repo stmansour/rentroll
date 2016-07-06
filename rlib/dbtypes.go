@@ -331,6 +331,7 @@ type Assessment struct {
 	Stop           time.Time // stop time, may be the same as start time or later
 	RecurCycle     int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	InvoiceNo      int64     // A uniqueID for the invoice number
 	AcctRule       string    // expression showing how to account for the amount
 	Comment        string
 	LastModTime    time.Time

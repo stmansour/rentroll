@@ -28,10 +28,10 @@ func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.Rent
 }
 
 // CSV FIELDS FOR THIS MODULE
-//    0  1             2      3       4             5             6     7             8                9
-// BUD   ,RentableName, ATypeLID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, AcctRule
-// REH,  "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
-// REH,  "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} ${aval(${GLGENRCV})} -"
+//    0  1             2      3       4             5             6     7             8                9          10
+// BUD   ,RentableName, ATypeLID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, InvoiceNo, AcctRule
+// REH,  "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               20122,     "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+// REH,  "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               739928,    "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} ${aval(${GLGENRCV})} -"
 
 // type rlib.Assessment struct {
 // 	ASMID           int64     // unique id for this assessment
@@ -62,7 +62,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	}
 
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 10
+	required := 11
 	if len(sa) < required {
 		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
@@ -168,9 +168,17 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
+	// Set the InvoiceNo.  If not specified, just leave it as 0
+	//-------------------------------------------------------------------
+	a.InvoiceNo, ok = rlib.IntFromString(sa[9], "InvoiceNo is invalid")
+	if !ok {
+		return
+	}
+
+	//-------------------------------------------------------------------
 	// Set the AcctRule.  No checking for now...
 	//-------------------------------------------------------------------
-	a.AcctRule = sa[9]
+	a.AcctRule = sa[10]
 
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...

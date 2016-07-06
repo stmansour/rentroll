@@ -323,9 +323,10 @@ func RRreportAssessments(t int, bid int64) string {
 	s := fmt.Sprintf("      ASMID          RAID        RID   Freq     Amount\n")
 	for rows.Next() {
 		var a rlib.Assessment
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
-			&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
-			&a.LastModTime, &a.LastModBy))
+		rlib.ReadAssessment(rows, &a)
+		// rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
+		// 	&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment,
+		// 	&a.LastModTime, &a.LastModBy))
 		switch t {
 		case rlib.RPTTEXT:
 			s += ReportAssessmentToText(&a)

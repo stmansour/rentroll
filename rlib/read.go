@@ -8,7 +8,7 @@ import "database/sql"
 // ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessment(rows *sql.Rows, a *Assessment) {
 	Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
-		&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
+		&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment,
 		&a.LastModTime, &a.LastModBy))
 }
 

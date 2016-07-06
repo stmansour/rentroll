@@ -5,6 +5,8 @@ APP="${RRBIN}/rentroll -A"
 MYSQLOPTS=""
 UNAME=$(uname)
 
+TESTCOUNT=1
+
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
 fi
@@ -30,7 +32,9 @@ cat >xxqq <<EOF
 use rentroll;
 ${4}
 EOF
-	echo -n $3
+	# echo -n $3
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %s" ${TESTCOUNT} $3
 	mysql --no-defaults <xxqq >${1}
 	if [ ! -f ${1}.gold -o ! -f ${1} ]; then
 		echo "Missing file: two files are required for checking this phase: ${1}.gold and ${1}"
@@ -48,32 +52,31 @@ EOF
 	fi
 }
 
-dotest "x"  "-b nb.csv"           "PHASE  1: New Businesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
-dotest "y"  "-a asmttype.csv"     "PHASE  2: Assessment Types...  " "select Name,Description,LastModBy from AssessmentTypes;"
-dotest "z"  "-R rt.csv"           "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModBy from RentableTypes;"
-dotest "w"  "-R rt.csv"           "PHASE  4: Rentable Market Rates...  " "select * from RentableMarketrate;"
-dotest "v"  "-s specialties.csv"  "PHASE  5: Rentable Specialty Types...  " "select * from RentableSpecialtyType;"
-dotest "u"  "-D bldg.csv"         "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
-dotest "t"  "-r rentable.csv"     "PHASE  7: Rentables...  " "select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
-dotest "t1" "-r rentable.csv"     "PHASE  8: RentableTypeRef...  " "select RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
-dotest "t2" "-r rentable.csv"     "PHASE  9: RentableStatus...  " "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
-dotest "s"  "-p people.csv"       "PHASE 10: Transactants...  " "select TCID,USERID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
-dotest "r"  "-p people.csv"       "PHASE 11: Users...  " "select USERID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,Source from User;"
-dotest "q"  "-p people.csv"       "PHASE 12: Payors...  " "select PID,TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
-dotest "p"  "-p people.csv"       "PHASE 13: Prospects...  " "select PRSPID,TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
-dotest "o"  "-T rat.csv"          "PHASE 14: Rental Agreement Templates...  " "select RATID,BID,RentalTemplateNumber,LastModBy from RentalAgreementTemplate;"
-dotest "n"  "-C ra.csv"           "PHASE 15: Rental Agreements...  " "select RAID,RATID,BID,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy from RentalAgreement;"
-dotest "n1" "-E pet.csv"          "PHASE 16: Pets...  " "select PETID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from RentalAgreementPets;"
-dotest "m"  "-C ra.csv"           "PHASE 17: Agreement Rentables...  " "select * from RentalAgreementRentables;"
-dotest "l"  "-C ra.csv"           "PHASE 18: Agreement Payors...  " "select * from RentalAgreementPayors;"
-dotest "k"  "-c coa.csv"          "PHASE 19: Chart of Accounts...  " "select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
-dotest "k1" "-c coa.csv"          "PHASE 20: LedgerMarkers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from LedgerMarker;"
-dotest "j"  "-A asmt.csv"         "PHASE 21: Assessments...  " "select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
-dotest "i"  "-P pmt.csv"          "PHASE 22: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
-dotest "h"  "-e rcpt.csv"         "PHASE 23: Payment allocations...  " "select * from ReceiptAllocation order by Amount ASC;"
-dotest "g"  "-e rcpt.csv"         "PHASE 24: Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"
-dotest "f"  "-u custom.csv"       "PHASE 25: CustomAttributes... " "select CID,Type,Name,Value,LastModBy from CustomAttr;"
-dotest "e"  "-U assigncustom.csv" "PHASE 26: CustomAttributes AssignmentTime... " "select * from CustomAttrRef;"
+dotest "x"  "-b nb.csv"           "New Businesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
+dotest "z"  "-R rt.csv"           "Rentable Types...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModBy from RentableTypes;"
+dotest "w"  "-R rt.csv"           "Rentable Market Rates...  " "select * from RentableMarketrate;"
+dotest "v"  "-s specialties.csv"  "Rentable Specialty Types...  " "select * from RentableSpecialtyType;"
+dotest "u"  "-D bldg.csv"         "Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
+dotest "t"  "-r rentable.csv"     "Rentables...  " "select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
+dotest "t1" "-r rentable.csv"     "RentableTypeRef...  " "select RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
+dotest "t2" "-r rentable.csv"     "RentableStatus...  " "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
+dotest "s"  "-p people.csv"       "Transactants...  " "select TCID,USERID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
+dotest "r"  "-p people.csv"       "Users...  " "select USERID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,Source from User;"
+dotest "q"  "-p people.csv"       "Payors...  " "select PID,TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
+dotest "p"  "-p people.csv"       "Prospects...  " "select PRSPID,TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
+dotest "o"  "-T rat.csv"          "Rental Agreement Templates...  " "select RATID,BID,RentalTemplateNumber,LastModBy from RentalAgreementTemplate;"
+dotest "n"  "-C ra.csv"           "Rental Agreements...  " "select RAID,RATID,BID,RentalStart,RentalStop,Renewal,SpecialProvisions,LastModBy from RentalAgreement;"
+dotest "n1" "-E pet.csv"          "Pets...  " "select PETID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from RentalAgreementPets;"
+dotest "m"  "-C ra.csv"           "Agreement Rentables...  " "select * from RentalAgreementRentables;"
+dotest "l"  "-C ra.csv"           "Agreement Payors...  " "select * from RentalAgreementPayors;"
+dotest "k"  "-c coa.csv"          "Chart of Accounts...  " "select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
+dotest "k1" "-c coa.csv"          "LedgerMarkers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from LedgerMarker;"
+dotest "j"  "-A asmt.csv"         "Assessments...  " "select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
+dotest "i"  "-P pmt.csv"          "Payment types...  " "select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
+dotest "h"  "-e rcpt.csv"         "Payment allocations...  " "select * from ReceiptAllocation order by Amount ASC;"
+dotest "g"  "-e rcpt.csv"         "Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"
+dotest "f"  "-u custom.csv"       "CustomAttributes... " "select CID,Type,Name,Value,LastModBy from CustomAttr;"
+dotest "e"  "-U assigncustom.csv" "CustomAttributes AssignmentTime... " "select * from CustomAttrRef;"
 
 echo -n "PHASE FINAL: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then

@@ -86,7 +86,7 @@ func InsertLedger(l *GLAccount) (int64, error) {
 
 // InsertAssessment writes a new assessmenttype record to the database
 func InsertAssessment(a *Assessment) error {
-	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.AcctRule, a.Comment, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy)
 	return err
 }
 

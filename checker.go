@@ -28,7 +28,8 @@ func AssessmentChecker(xbiz *rlib.XBusiness, d1, d2 *time.Time) []CheckIssue {
 	for rows.Next() {
 		var a rlib.Assessment
 		ap := &a
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
+		rlib.ReadAssessment(rows, &a)
+		// rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		if rlib.IsManageToBudget(xbiz, &a) { // process it only if it is managed to budget
 			dl := ap.GetRecurrences(d1, d2) // get the recurrences that fall in the specified range
 			for i := 0; i < len(dl); i++ {  // process each occurrence

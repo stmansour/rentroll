@@ -1,6 +1,6 @@
-BUD,RentableName,ATypeLID,Amount,Start,Stop,RAID,Frequency,ProrationMethod,AcctRule
-REX,309 Rexford,3,3750,3/1/16,3/1/18,1,6,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -"
-REX,309 1/2 Rexford,3,3550,3/1/16,3/1/18,2,6,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
-REX,311 Rexford,3,4400,3/1/15,2/8/16,3,6,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
-REX,311 Rexford,18,2434.71,3/1/16,3/1/16,3,0,0,"d ${GLSECDEPASMT} _, c 50213 _"
-REX,311 Rexford,6,865.29,3/1/16,3/1/16,3,0,0,"d ${GLSECDEPASMT} _, c 59997 _"
+BUD,RentableName,ATypeLID,Amount,Start,Stop,RAID,Frequency,ProrationMethod,InvoiceNo,AcctRule
+REX,309 Rexford,3,3750,3/1/16,3/1/18,1,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -"
+REX,309 1/2 Rexford,3,3550,3/1/16,3/1/18,2,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+REX,311 Rexford,3,4400,3/1/15,2/8/16,3,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+REX,311 Rexford,18,2434.71,3/1/16,3/1/16,3,0,0,,"d ${GLSECDEPASMT} _, c 50213 _"
+REX,311 Rexford,6,865.29,3/1/16,3/1/16,3,0,0,,"d ${GLSECDEPASMT} _, c 59997 _"

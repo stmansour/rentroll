@@ -63,9 +63,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	var t []Assessment
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
-		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID,
-			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle,
-			&a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
+		ReadAssessment(rows, &a)
 		t = append(t, a)
 	}
 	return t
@@ -76,7 +74,7 @@ func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
 	err := RRdb.Prepstmt.GetAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
 		&a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle,
-		&a.ProrationCycle, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
+		&a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
 		Ulog("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
 	}
