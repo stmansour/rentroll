@@ -24,4 +24,6 @@ LID	PLID	BID	RAID	GLNumber	Status	Type	Name	AcctType	RAAssociated	AllowPost	Last
 23	0	1	0	42005	2	0	Pest Control Reimbursements	Income	1	1	0
 24	0	1	0	42006	2	0	Security Deposit Forfeiture	Income	1	1	0
 25	0	1	0	42007	2	0	Carports	Income	1	1	0
-26	0	1	0	42999	2	0	Other Income	Income	1	1	0
+26	0	1	0	42008	2	0	Courtyard View	Income	1	1	0
+27	0	1	0	42009	2	0	Fireplace	Income	1	1	0
+28	0	1	0	42999	2	0	Other Income	Income	1	1	0

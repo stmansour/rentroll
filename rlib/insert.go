@@ -72,7 +72,7 @@ func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 // InsertLedger writes a new GLAccount to the database
 func InsertLedger(l *GLAccount) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.LastModBy)
+	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.RARequired, l.ManageToBudget, l.Description, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -86,13 +86,7 @@ func InsertLedger(l *GLAccount) (int64, error) {
 
 // InsertAssessment writes a new assessmenttype record to the database
 func InsertAssessment(a *Assessment) error {
-	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ASMTID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.AcctRule, a.Comment, a.LastModBy)
-	return err
-}
-
-// InsertAssessmentType writes a new assessmenttype record to the database
-func InsertAssessmentType(a *AssessmentType) error {
-	_, err := RRdb.Prepstmt.InsertAssessmentType.Exec(a.RARequired, a.ManageToBudget, a.Name, a.Description, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.AcctRule, a.Comment, a.LastModBy)
 	return err
 }
 
@@ -111,7 +105,7 @@ func InsertRentableMarketRates(r *RentableMarketRate) error {
 // InsertRentableType writes a new RentableType record to the database
 func InsertRentableType(a *RentableType) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSPRC, a.ManageToBudget, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

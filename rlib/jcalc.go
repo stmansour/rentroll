@@ -94,7 +94,7 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 	if rentCycle < 0 {
 		rentCycle = xbiz.RT[rt.RTID].RentCycle
 	}
-	return rentCycle, prorationCycle, xbiz.RT[rt.RTID].GSPRC, err
+	return rentCycle, prorationCycle, xbiz.RT[rt.RTID].GSRPC, err
 }
 
 // CalculateGSR calculates the gross scheduled rent as described above.

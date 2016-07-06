@@ -36,7 +36,7 @@ echo "CREATE NEW DATABASE" >> ${LOGFILE} 2>&1
 ${RRBIN}/rrnewdb
 
 dotest "DEFINE BUSINESS" "-b business.csv -L 3"
-dotest "DEFINE ASSESSMENT TYPES" "-a asmtypes.csv -L 4"
+# dotest "DEFINE ASSESSMENT TYPES" "-a asmtypes.csv -L 4"
 dotest "DEFINE RENTABLE TYPES" "-R rentabletypes.csv -L 5,DHR"
 dotest "DEFINE PEOPLE" "-p people.csv  -L 7"
 dotest "DEFINE RENTABLES" "-r rentable.csv -L 6,DHR"

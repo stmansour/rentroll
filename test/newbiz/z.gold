@@ -1,4 +1,4 @@
-RTID	BID	Style	Name	RentCycle	Proration	GSPRC	ManageToBudget	LastModBy
+RTID	BID	Style	Name	RentCycle	Proration	GSRPC	ManageToBudget	LastModBy
 1	1	GM	Geezer Miser	6	4	4	1	0
 2	1	FS	Flat Studio	6	4	4	1	0
 3	1	SBL	SB Loft	6	4	4	1	0

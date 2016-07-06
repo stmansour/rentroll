@@ -36,15 +36,15 @@ const (
 	RAASSOCIATED       = 1
 	RAUNASSOCIATED     = 2
 
-	DFLTCASH       = 10
-	DFLTGENRCV     = 11
-	DFLTGSRENT     = 12
-	DFLTLTL        = 13
-	DFLTVAC        = 14
-	DFLTSECDEPRCV  = 15
-	DFLTSECDEPASMT = 16
-	DFLTOWNREQUITY = 17
-	DFLTLAST       = 17 // set this to the last default account index
+	GLCASH       = 10
+	GLGENRCV     = 11
+	GLGSRENT     = 12
+	GLLTL        = 13
+	GLVAC        = 14
+	GLSECDEPRCV  = 15
+	GLSECDEPASMT = 16
+	GLOWNREQUITY = 17
+	GLLAST       = 17 // set this to the last default account index
 
 	ACCRUALNORECUR   = 0
 	ACCRUALSECONDLY  = 1
@@ -115,7 +115,7 @@ const RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 
 //==========================================
 // ASMID = Assessment id
-// ASMTID = assessment type id
+// ATypeLID = assessment type id
 // AVAILID = availability id
 // BID = Business id
 // BLDGID = Building id
@@ -319,23 +319,12 @@ type XPerson struct {
 	Pay Payor
 }
 
-// AssessmentType describes the different types of Assessments
-type AssessmentType struct {
-	ASMTID         int64
-	RARequired     int64 // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-	ManageToBudget int64 //  0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
-	Name           string
-	Description    string
-	LastModTime    time.Time
-	LastModBy      int64
-}
-
 // Assessment is a charge associated with a Rentable
 type Assessment struct {
 	ASMID          int64     // unique id for this assessment
 	BID            int64     // what Business
 	RID            int64     // the Rentable
-	ASMTID         int64     // what type of assessment
+	ATypeLID       int64     // what type of assessment
 	RAID           int64     // associated Rental Agreement
 	Amount         float64   // how much
 	Start          time.Time // start time
@@ -423,7 +412,7 @@ type RentableType struct {
 	Name           string               // longer name
 	RentCycle      int64                // frequency at which rent accrues, 0 = not set or n/a, 1 = secondly, 2=minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly...
 	Proration      int64                // frequency for prorating rent if the full rentcycle is not used
-	GSPRC          int64                // Time increments in which GSR is calculated to account for rate changes
+	GSRPC          int64                // Time increments in which GSR is calculated to account for rate changes
 	ManageToBudget int64                // 0=no, 1 = yes
 	MR             []RentableMarketRate // array of time sensitive market rates
 	CA             []CustomAttribute    // associated custom attributes
@@ -566,19 +555,22 @@ type LedgerMarker struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	LID          int64     // unique id for this GLAccount
-	PLID         int64     // unique id of Parent, 0 if no parent
-	BID          int64     // Business unit associated with this GLAccount
-	RAID         int64     // associated rental agreement, this field is only used when Type = 1
-	GLNumber     string    // acct system name
-	Status       int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	Type         int64     // flag: 0 = not a default account, 1 = RentalAgreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
-	Name         string    // descriptive name for the GLAccount
-	AcctType     string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-	RAAssociated int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
-	AllowPost    int64     // 0 = no posting, 1 = posting is allowed
-	LastModTime  time.Time // auto updated
-	LastModBy    int64     // user making the mod
+	LID            int64     // unique id for this GLAccount
+	PLID           int64     // unique id of Parent, 0 if no parent
+	BID            int64     // Business unit associated with this GLAccount
+	RAID           int64     // associated rental agreement, this field is only used when Type = 1
+	GLNumber       string    // acct system name
+	Status         int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
+	Type           int64     // flag: 0 = not a default account, 1 = RentalAgreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Name           string    // descriptive name for the GLAccount
+	AcctType       string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
+	RAAssociated   int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
+	AllowPost      int64     // 0 = no posting, 1 = posting is allowed
+	RARequired     int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+	ManageToBudget int64     //  0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
+	Description    string    // description for this account
+	LastModTime    time.Time // auto updated
+	LastModBy      int64     // user making the mod
 }
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
@@ -727,20 +719,19 @@ type PBprepSQL struct {
 
 // BusinessTypeLists is a struct holding a collection of Types associated with a business
 type BusinessTypeLists struct {
-	BID int64
-	//AsmtTypes    map[int64]*AssessmentType // moved to parent as it is biz-independent
-	PmtTypes     map[int64]*PaymentType
-	DefaultAccts map[int64]*GLAccount // index by the predifined contants DFAC*, value = GL No of that account
+	BID          int64
+	PmtTypes     map[int64]*PaymentType // payment types accepted
+	DefaultAccts map[int64]*GLAccount   // index by the predifined contants DFAC*, value = GL No of that account
+	GLAccounts   map[int64]GLAccount    // all the accounts for this business
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure
 var RRdb struct {
-	Prepstmt  RRprepSQL
-	PBsql     PBprepSQL
-	Dbdir     *sql.DB                  // phonebook db
-	Dbrr      *sql.DB                  //rentroll db
-	AsmtTypes map[int64]AssessmentType // every one in the db
-	BizTypes  map[int64]*BusinessTypeLists
+	Prepstmt RRprepSQL
+	PBsql    PBprepSQL
+	Dbdir    *sql.DB // phonebook db
+	Dbrr     *sql.DB //rentroll db
+	BizTypes map[int64]*BusinessTypeLists
 }
 
 // InitDBHelpers initializes the db infrastructure
@@ -750,17 +741,17 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.BizTypes = make(map[int64]*BusinessTypeLists, 0)
 	buildPreparedStatements()
 	buildPBPreparedStatements()
-	RRdb.AsmtTypes = GetAssessmentTypes()
+	// RRdb.AsmtTypes = GetAssessmentTypes()
 }
 
 // InitBusinessFields initialize the lists in rlib's internal data structures
 func InitBusinessFields(bid int64) {
 	if nil == RRdb.BizTypes[bid] {
 		bt := BusinessTypeLists{
-			BID: bid,
-			// AsmtTypes:    make(map[int64]*AssessmentType),
+			BID:          bid,
 			PmtTypes:     make(map[int64]*PaymentType),
 			DefaultAccts: make(map[int64]*GLAccount),
+			GLAccounts:   make(map[int64]GLAccount),
 		}
 		RRdb.BizTypes[bid] = &bt
 	}

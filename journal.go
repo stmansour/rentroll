@@ -268,7 +268,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	for rows.Next() {
 		var a rlib.Assessment
 		ap := &a
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
 			&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		// fmt.Printf("Assessment: ASMID = %d, Amount = %8.2f\n", a.ASMID, a.Amount)
@@ -277,7 +277,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RecurCycle)
 		} else {
 			dl := ap.GetRecurrences(d1, d2)
-			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ASMTID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
+			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ATypeLID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
 			for i := 0; i < len(dl); i++ {
 				journalAssessment(xbiz, dl[i], &a, d1, d2)
 			}

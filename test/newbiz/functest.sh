@@ -15,7 +15,7 @@ fi
 ########################################
 ${RRBIN}/rrnewdb
 
-./newbiz -b nb.csv -a asmttype.csv -R rt.csv -u custom.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv >log 2>&1
+./newbiz -b nb.csv -R rt.csv -u custom.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv >log 2>&1
 
 ########################################
 # dotest()
@@ -50,7 +50,7 @@ EOF
 
 dotest "x"  "-b nb.csv"           "PHASE  1: New Businesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
 dotest "y"  "-a asmttype.csv"     "PHASE  2: Assessment Types...  " "select Name,Description,LastModBy from AssessmentTypes;"
-dotest "z"  "-R rt.csv"           "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSPRC,ManageToBudget,LastModBy from RentableTypes;"
+dotest "z"  "-R rt.csv"           "PHASE  3: Rentable Types...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModBy from RentableTypes;"
 dotest "w"  "-R rt.csv"           "PHASE  4: Rentable Market Rates...  " "select * from RentableMarketrate;"
 dotest "v"  "-s specialties.csv"  "PHASE  5: Rentable Specialty Types...  " "select * from RentableSpecialtyType;"
 dotest "u"  "-D bldg.csv"         "PHASE  6: Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
@@ -68,7 +68,7 @@ dotest "m"  "-C ra.csv"           "PHASE 17: Agreement Rentables...  " "select *
 dotest "l"  "-C ra.csv"           "PHASE 18: Agreement Payors...  " "select * from RentalAgreementPayors;"
 dotest "k"  "-c coa.csv"          "PHASE 19: Chart of Accounts...  " "select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
 dotest "k1" "-c coa.csv"          "PHASE 20: LedgerMarkers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from LedgerMarker;"
-dotest "j"  "-A asmt.csv"         "PHASE 21: Assessments...  " "select ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
+dotest "j"  "-A asmt.csv"         "PHASE 21: Assessments...  " "select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
 dotest "i"  "-P pmt.csv"          "PHASE 22: Payment types...  " "select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
 dotest "h"  "-e rcpt.csv"         "PHASE 23: Payment allocations...  " "select * from ReceiptAllocation order by Amount ASC;"
 dotest "g"  "-e rcpt.csv"         "PHASE 24: Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"

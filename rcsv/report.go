@@ -40,42 +40,6 @@ func RRreportBusiness(t int) string {
 	return s
 }
 
-// ReportAssessmentTypeToText returns a string representation of the supplied rlib.AssessmentType suitable for a text report
-func ReportAssessmentTypeToText(p rlib.AssessmentType) string {
-	return fmt.Sprintf("%4d  %6d   %14d  %s\n", p.ASMTID, p.RARequired, p.ManageToBudget, p.Name)
-}
-
-// ReportAssessmentTypeToHTML returns a string representation of the supplied rlib.AssessmentType suitable for HTML display
-func ReportAssessmentTypeToHTML(p rlib.AssessmentType) string {
-	return fmt.Sprintf("<tr><td>%d</td><td%s></td><td>%s</td></tr>", p.ASMTID, p.Name, p.Description)
-}
-
-// RRreportAssessmentTypes generates a report of all assessment types defined in the database.
-func RRreportAssessmentTypes(t int) string {
-	m := rlib.GetAssessmentTypes()
-
-	s := fmt.Sprintf("Name  RARqd    ManageToBudget  Description\n")
-	var keys []int
-	for k := range m {
-		keys = append(keys, int(k))
-	}
-	sort.Ints(keys)
-
-	for _, k := range keys {
-		i := int64(k)
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportAssessmentTypeToText(m[i])
-		case rlib.RPTHTML:
-			s += ReportAssessmentTypeToHTML(m[i])
-		default:
-			fmt.Printf("RRreportAssessmentTypes: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	return s
-}
-
 // ReportRentableTypeToText returns a string representation of the supplied rlib.RentableType suitable for a text report
 func ReportRentableTypeToText(p rlib.RentableType) string {
 	return fmt.Sprintf("%4d - %s  -  %s\n", p.RTID, p.Style, p.Name)
@@ -264,29 +228,61 @@ func RRreportRentalAgreements(t int, bid int64) string {
 }
 
 // ReportChartOfAcctsToText returns a string representation of the chart of accts
-func ReportChartOfAcctsToText(p *rlib.GLAccount) string {
+func ReportChartOfAcctsToText(p rlib.GLAccount) string {
 	s := ""
 	lm, err := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
 	if err != nil {
 		fmt.Printf("ReportChartOfAcctsToText: error getting latest rlib.LedgerMarker: %s\n", err.Error())
 		return s
 	}
-	if rlib.DFLTCASH <= p.Type && p.Type <= rlib.DFLTLAST {
+	if rlib.GLCASH <= p.Type && p.Type <= rlib.GLLAST {
 		s = fmt.Sprintf("%4d", p.Type)
 	}
-	return fmt.Sprintf("%5d  %4s  %12s  %12d  %12.2f  %s\n",
-		lm.LMID, s, p.GLNumber, p.PLID, lm.Balance, p.Name)
+
+	sp := ""
+	switch p.RAAssociated {
+	case 0:
+		sp = "unknown"
+	case 1:
+		sp = "Unassociated"
+	case 2:
+		sp = "Associated"
+	default:
+		sp = fmt.Sprintf("??? invalid: %d", p.RAAssociated)
+	}
+
+	return fmt.Sprintf("%5d  %4s  %12s  %-60s  %12d  %12.2f  %12s  %5d\n",
+		lm.LMID, s, p.GLNumber, p.Name, p.PLID, lm.Balance, sp, p.RARequired)
 }
 
 // RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
 func RRreportChartOfAccounts(t int, bid int64) string {
-	m := rlib.GetLedgerList(bid)
-	//                               123456789012
-	s := fmt.Sprintf("%5s  %4s  %12s  %12s  %12s  %s\n", "LMID", "Type", "GLNumber", "Parent LMID", "Balance", "Name")
-	for i := 0; i < len(m); i++ {
+	rlib.InitBusinessFields(bid)
+	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
+
+	// we need to sort the GLAccounts map so that our test output comparison will be the same every time
+	// We'll sort by GLNumber.  First make an array of all the LIDs
+	var a []int64
+	for k := range rlib.RRdb.BizTypes[bid].GLAccounts {
+		a = append(a, k)
+	}
+	// now sort based on GLNumber...
+	m := rlib.RRdb.BizTypes[bid].GLAccounts // for notational convenience
+	for i := 0; i < len(a); i++ {
+		for j := i + 1; j < len(a); j++ {
+			if m[a[i]].GLNumber > m[a[j]].GLNumber {
+				tmp := a[i]
+				a[i] = a[j]
+				a[j] = tmp
+			}
+		}
+	}
+
+	s := fmt.Sprintf("%5s  %4s  %12s  %-60s  %-12s  %-12s  %-12s  %-5s\n", "LMID", "Type", "GLNumber", "Name", "Parent LMID", "Balance", "RAAssoc", "RARqd")
+	for i := 0; i < len(a); i++ {
 		switch t {
 		case rlib.RPTTEXT:
-			s += ReportChartOfAcctsToText(&m[i])
+			s += ReportChartOfAcctsToText(m[a[i]])
 		case rlib.RPTHTML:
 			fmt.Printf("unimplemented\n")
 		default:
@@ -327,7 +323,7 @@ func RRreportAssessments(t int, bid int64) string {
 	s := fmt.Sprintf("      ASMID          RAID        RID   Freq     Amount\n")
 	for rows.Next() {
 		var a rlib.Assessment
-		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
+		rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
 			&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
 			&a.LastModTime, &a.LastModBy))
 		switch t {

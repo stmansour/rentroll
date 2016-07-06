@@ -20,22 +20,22 @@ type AcctRule struct {
 func VarAcctResolve(bid int64, s string) string {
 	i := int64(0)
 	switch {
-	case s == "DFLTCASH":
-		i = DFLTCASH
-	case s == "DFLTGENRCV":
-		i = DFLTGENRCV
-	case s == "DFLTGSRENT":
-		i = DFLTGSRENT
-	case s == "DFLTLTL":
-		i = DFLTLTL
-	case s == "DFLTVAC":
-		i = DFLTVAC
-	case s == "DFLTSECDEPRCV":
-		i = DFLTSECDEPRCV
-	case s == "DFLTSECDEPASMT":
-		i = DFLTSECDEPASMT
-	case s == "DFLTOWNREQUITY":
-		i = DFLTOWNREQUITY
+	case s == "GLCASH":
+		i = GLCASH
+	case s == "GLGENRCV":
+		i = GLGENRCV
+	case s == "GLGSRENT":
+		i = GLGSRENT
+	case s == "GLLTL":
+		i = GLLTL
+	case s == "GLVAC":
+		i = GLVAC
+	case s == "GLSECDEPRCV":
+		i = GLSECDEPRCV
+	case s == "GLSECDEPASMT":
+		i = GLSECDEPASMT
+	case s == "GLOWNREQUITY":
+		i = GLOWNREQUITY
 	}
 	if i > 0 {
 		return RRdb.BizTypes[bid].DefaultAccts[i].GLNumber

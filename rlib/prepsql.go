@@ -105,7 +105,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	AsmFlds := "ASMID,BID,RID,ASMTID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModTime,LastModBy"
+	AsmFlds := "ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and Start<? and Stop>=?")
@@ -116,18 +116,6 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	s1, s2, s3 = GenSQLInsertAndUpdateStrings(AsmFlds)
 	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")
-	Errcheck(err)
-
-	//===============================
-	//  AssessmentType
-	//===============================
-	// ASMTflds := "ASMTID,RARequired,ManageToBudget,Name,Description,LastModTime,LastModBy"   DEFINED ABOVE, global
-	RRdb.Prepstmt.GetAssessmentType, err = RRdb.Dbrr.Prepare("SELECT " + ASMTflds + " FROM AssessmentTypes WHERE ASMTID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentTypeByName, err = RRdb.Dbrr.Prepare("SELECT " + ASMTflds + " FROM AssessmentTypes WHERE Name=?")
-	Errcheck(err)
-	s1, s2, s3 = GenSQLInsertAndUpdateStrings(ASMTflds)
-	RRdb.Prepstmt.InsertAssessmentType, err = RRdb.Dbrr.Prepare("INSERT INTO AssessmentTypes (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 
 	//===============================
@@ -207,7 +195,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER;  GLAccount
 	//==========================================
-	LDGRfields := "LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModTime,LastModBy"
+	LDGRfields := "LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,RARequired,ManageToBudget,Description,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=?")
@@ -426,7 +414,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rentable Type
 	//===============================
-	RTYfields := "RTID,BID,Style,Name,RentCycle,Proration,GSPRC,ManageToBudget,LastModTime,LastModBy"
+	RTYfields := "RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetRentableType, err = RRdb.Dbrr.Prepare("SELECT " + RTYfields + " FROM RentableTypes WHERE RTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableTypeByStyle, err = RRdb.Dbrr.Prepare("SELECT " + RTYfields + " FROM RentableTypes WHERE Style=? and BID=?")

@@ -24,31 +24,29 @@ import _ "github.com/go-sql-driver/mysql"
 
 // App is the global application structure
 var App struct {
-	dbdir        *sql.DB                       // phonebook db
-	dbrr         *sql.DB                       //rentroll db
-	DBDir        string                        // phonebook database
-	DBRR         string                        //rentroll database
-	DBUser       string                        // user for all databases
-	AsmtTypes    map[int64]rlib.AssessmentType // all assessment types associated with this biz
-	PmtTypes     map[int64]rlib.PaymentType    // all payment types in this db
-	Report       string                        // Report: 1 = Journal, 2 = Ledger, 3 = Businesses, 4 = Rentable types
-	BizFile      string                        // name of csv file with new biz info
-	AsmtTypeFile string                        // name of csv file with assessment types
-	RTFile       string                        // Rentable types csv file
-	RFile        string                        // rentables csv file
-	RSpFile      string                        // Rentable specialties
-	BldgFile     string                        // Buildings for this Business
-	PplFile      string                        // people for this Business
-	RatFile      string                        // rentalAgreementTemplates
-	RaFile       string                        //rental agreement cvs file
-	CoaFile      string                        //chart of accounts
-	AsmtFile     string                        // Assessments
-	PmtTypeFile  string                        // payment types
-	RcptFile     string                        // receipts of payments
-	CustomFile   string                        // custom attributes
-	AssignFile   string                        // assign custom attributes
-	PetFile      string                        // assign pets
-	RspRefsFile  string                        // assign specialties to rentables
+	dbdir       *sql.DB                    // phonebook db
+	dbrr        *sql.DB                    //rentroll db
+	DBDir       string                     // phonebook database
+	DBRR        string                     //rentroll database
+	DBUser      string                     // user for all databases
+	PmtTypes    map[int64]rlib.PaymentType // all payment types in this db
+	Report      string                     // Report: 1 = Journal, 2 = Ledger, 3 = Businesses, 4 = Rentable types
+	BizFile     string                     // name of csv file with new biz info
+	RTFile      string                     // Rentable types csv file
+	RFile       string                     // rentables csv file
+	RSpFile     string                     // Rentable specialties
+	BldgFile    string                     // Buildings for this Business
+	PplFile     string                     // people for this Business
+	RatFile     string                     // rentalAgreementTemplates
+	RaFile      string                     //rental agreement cvs file
+	CoaFile     string                     //chart of accounts
+	AsmtFile    string                     // Assessments
+	PmtTypeFile string                     // payment types
+	RcptFile    string                     // receipts of payments
+	CustomFile  string                     // custom attributes
+	AssignFile  string                     // assign custom attributes
+	PetFile     string                     // assign pets
+	RspRefsFile string                     // assign specialties to rentables
 }
 
 func readCommandLineArgs() {
@@ -56,7 +54,6 @@ func readCommandLineArgs() {
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	asmtypePtr := flag.String("a", "", "add assessment types via csv file")
 	bizPtr := flag.String("b", "", "add Business via csv file")
 	bldgPtr := flag.String("D", "", "add Buildings to a Business via csv file")
 	rtPtr := flag.String("R", "", "add Rentable types via csv file")
@@ -84,7 +81,6 @@ func readCommandLineArgs() {
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.BizFile = *bizPtr
-	App.AsmtTypeFile = *asmtypePtr
 	App.AsmtFile = *asmtPtr
 	App.RTFile = *rtPtr
 	App.RSpFile = *rspPtr
@@ -163,9 +159,6 @@ func main() {
 	if len(App.BizFile) > 0 {
 		rcsv.LoadBusinessCSV(App.BizFile)
 	}
-	if len(App.AsmtTypeFile) > 0 {
-		rcsv.LoadAssessmentTypesCSV(App.AsmtTypeFile)
-	}
 	if len(App.PmtTypeFile) > 0 {
 		rcsv.LoadPaymentTypesCSV(App.PmtTypeFile)
 	}
@@ -203,8 +196,7 @@ func main() {
 		rcsv.LoadChartOfAccountsCSV(App.CoaFile)
 	}
 	if len(App.AsmtFile) > 0 {
-		App.AsmtTypes = rlib.GetAssessmentTypes()
-		rcsv.LoadAssessmentsCSV(App.AsmtFile, &App.AsmtTypes)
+		rcsv.LoadAssessmentsCSV(App.AsmtFile)
 	}
 	if len(App.RcptFile) > 0 {
 		App.PmtTypes = rlib.GetPaymentTypes()
@@ -227,8 +219,6 @@ func main() {
 			fmt.Printf("2 - not yet implemented\n")
 		case 3:
 			fmt.Printf("%s\n", rcsv.RRreportBusiness(rlib.RPTTEXT))
-		case 4:
-			fmt.Printf("%s\n", rcsv.RRreportAssessmentTypes(rlib.RPTTEXT))
 		case 5:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])

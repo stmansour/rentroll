@@ -1,0 +1,7 @@
+Test Run Tue Jul  5 20:31:24 CDT 2016
+GenerateLedgerRecords: Could not get GLAccount 36 (42010) in busines 1
+GenerateLedgerRecords: Error = sql: no rows in result set
+GenerateLedgerRecords: Could not get GLAccount 37 (43003) in busines 1
+GenerateLedgerRecords: Error = sql: no rows in result set
+GenerateLedgerRecords: Could not get GLAccount 38 (43004) in busines 1
+GenerateLedgerRecords: Error = sql: no rows in result set

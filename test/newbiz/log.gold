@@ -1,52 +1,48 @@
 Invalid Accrual value: a
 SetParking: Unrecognized yes/no string: da.
 SetParking: Unrecognized yes/no string: nyet.
-2016/06/20 20:13:30 CreateAssessmentType: line 2 - Name cannot be empty
-CreateAssessmentType: line 3 - RARequired must be in the range 0 to 3.  Found: 99
-CreateAssessmentType: line 4 - Invalid value for ManageToBudget - expecting Yes / No, found: da
-2016/06/20 20:13:30 CreateAssessmentType: rlib.AssessmentType named Rent already exists
-2016/06/20 20:13:30 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
-2016/06/20 20:13:30 CreateRentableType: line 9 - rlib.RentableType named CPT already exists
-2016/06/20 20:13:30 CreateRentableType: line 10 - Invalid rental frequency:            99
-2016/06/20 20:13:30 CreateRentableType: line 11 - Invalid rental proration frequency: 99
-2016/06/20 20:13:30 CreateRentableType: line 12 - Proration frequency (7) must be greater than rental frequency (6)
-2016/06/20 20:13:30 CreateRentableType: line 13 - Invalid manage to budget flag: nyet
-2016/06/20 20:13:30 CreateRentableType: line 14 - Invalid manage to budget flag: nyet
-2016/06/20 20:13:30 CreateRentableType: line 15 - Invalid manage to budget flag: 3
+2016/07/06 12:07:17 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2016/07/06 12:07:17 CreateRentableType: line 9 - rlib.RentableType named CPT already exists
+2016/07/06 12:07:17 CreateRentableType: line 10 - Invalid rental frequency:            99
+2016/07/06 12:07:17 CreateRentableType: line 11 - Invalid rental proration frequency: 99
+2016/07/06 12:07:17 CreateRentableType: line 12 - Proration frequency (7) must be greater than rental frequency (6)
+2016/07/06 12:07:17 CreateRentableType: line 13 - Invalid manage to budget flag: nyet
+2016/07/06 12:07:17 CreateRentableType: line 14 - Invalid manage to budget flag: nyet
+2016/07/06 12:07:17 CreateRentableType: line 15 - Invalid manage to budget flag: 3
 CreateRentableType: line 16 - Stop date (2014-01-01 00:00:00 +0000 UTC) must be after Start date (2016-01-01 00:00:00 +0000 UTC)
 Type value must be a number from 0 to 2
 CreateAssessmentsFromCSV: Value cannot be converted to an integer: ab827
-2016/06/20 20:13:30 CreateAssessmentsFromCSV: IValue cannot be converted to an float: ab827
+2016/07/06 12:07:17 CreateAssessmentsFromCSV: IValue cannot be converted to an float: ab827
 CreateRentalSpecialty: rlib.Business rex already has a rlib.RentableSpecialtyType named Lake View
-2016/06/20 20:13:30 CreateBuilding: line 5 - rlib.Business with designation bug does net exist
+2016/07/06 12:07:17 CreateBuilding: line 5 - rlib.Business with designation bug does net exist
 CreateBuilding: line 6 - invalid rlib.Building number: qe
-2016/06/20 20:13:30 CreatePeopleFromCSV: line 10 - rlib.Transactant with PrimaryEmail address = homerj@springfield.com already exists
-2016/06/20 20:13:30 CreatePeopleFromCSV: line 11 - rlib.Transactant with CellPhone number = 816-123-4568 already exists
+2016/07/06 12:07:17 CreatePeopleFromCSV: line 10 - rlib.Transactant with PrimaryEmail address = homerj@springfield.com already exists
+2016/07/06 12:07:17 CreatePeopleFromCSV: line 11 - rlib.Transactant with CellPhone number = 816-123-4568 already exists
 CreatePeopleFromCSV: line 13 - IsCompany value is invalid: 99
-2016/06/20 20:13:30 CreateRentables: line 2 - rlib.Business with bud aaa does not exist
+2016/07/06 12:07:17 CreateRentables: line 2 - rlib.Business with bud aaa does not exist
 CreateRentables: lineno 3 - Could not load rentable type with style name: QYX  -- error = sql: no rows in result set
 CreateRentables: lineno 13 - invalid AssignmentTime number: 9
 CreateRentables: lineno 14 - invalid AssignmentTime number: 9
 CreateRentables: lineno 15 - invalid AssignmentTime number: 9
 CreateRentables: lineno 16 - rlib.Rentable with name "107" already exists. Skipping. 
 CreateRentables: lineno 17 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
-2016/06/20 20:13:30 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does net exist
+2016/07/06 12:07:17 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does net exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
-2016/06/20 20:13:30 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
+2016/07/06 12:07:17 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
-CreateLedgerMarkers: line 27 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
-CreateLedgerMarkers: line 28 - Account already exists: 42999
-CreateLedgerMarkers: line 29 - Invalid account status: re45gg5
+CreateLedgerMarkers: line 29 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
+CreateLedgerMarkers: line 30 - Account already exists: 42999
+CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
 CreateAssessmentsFromCSV: line 15 - rlib.Assessment type is invalid: 0
 CreateAssessmentsFromCSV: line 16 - rlib.Assessment type is invalid: 900
-2016/06/20 20:13:30 CreateAssessmentsFromCSV: line 17 - rlib.Business with designation XXX does net exist
+2016/07/06 12:07:17 CreateAssessmentsFromCSV: line 17 - rlib.Business with designation XXX does net exist
 CreateAssessmentsFromCSV: line 18 - rlib.Assessment occurs outside the allowable time range for the rlib.Rentable Agreement Require attribute value: 0
 CreateAssessmentsFromCSV: line 19 - rlib.Assessment occurs outside the allowable time range for the rlib.Rentable Agreement Require attribute value: 0
-2016/06/20 20:13:30 CreateLedgerMarkers: rlib.Business with designation QQQ does net exist
+2016/07/06 12:07:17 CreateLedgerMarkers: rlib.Business with designation QQQ does net exist
 CreateReceiptsFromCSV: error loading Rental Agreement RA00099991, err = sql: no rows in result set
 CreateReceiptsFromCSV: Payment type is invalid: 999
 CreateReceiptsFromCSV: invalid rlib.Receipt date:  12-11-2015
-2016/06/20 20:13:30 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
+2016/07/06 12:07:17 GetAssessment: could not get assessment with asmid = 999,  err = sql: no rows in result set
 CreateReceiptsFromCSV: error processing payments: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 
 ElementType value must be a number from 5 to 5

@@ -9,7 +9,7 @@ import (
 // ValidAssessmentDate determines whether the assessment type supplied can be assessed during the assessment's defined period
 // given the supplied Rental Agreement period.
 // Returns true if the assessment is valid, false otherwise
-func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.AssessmentType, ra *rlib.RentalAgreement) bool {
+func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.RentalAgreement) bool {
 	v := false // be pessimistic
 	inRange := (rlib.DateInRange(&a.Start, &ra.RentalStart, &ra.RentalStop) || a.Start.Equal(ra.RentalStart)) && (rlib.DateInRange(&a.Stop, &ra.RentalStart, &ra.RentalStop) || a.Stop.Equal(ra.RentalStop))
 	before := a.Start.Before(ra.RentalStart) && a.Stop.Before(ra.RentalStop)
@@ -29,15 +29,15 @@ func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.AssessmentType, ra *rlib
 
 // CSV FIELDS FOR THIS MODULE
 //    0  1             2      3       4             5             6     7             8                9
-// BUD   ,RentableName, ASMTID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, AcctRule
-// REH,  "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-// REH,  "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               "d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} ${aval(${DFLTGENRCV})} -"
+// BUD   ,RentableName, ATypeLID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, AcctRule
+// REH,  "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+// REH,  "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} ${aval(${GLGENRCV})} -"
 
 // type rlib.Assessment struct {
 // 	ASMID           int64     // unique id for this assessment
 // 	BID             int64     // what rlib.Business
 // 	RID             int64     // the rlib.Rentable
-// 	ASMTID          int64     // what type of assessment
+// 	ATypeLID          int64     // what type of assessment
 // 	RAID            int64     // associated Rental Agreement
 // 	Amount          float64   // how much
 // 	Start           time.Time // start time
@@ -51,7 +51,7 @@ func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.AssessmentType, ra *rlib
 // }
 
 // CreateAssessmentsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib.AssessmentType) {
+func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	funcname := "CreateAssessmentsFromCSV"
 	var a rlib.Assessment
 	var r rlib.Rentable
@@ -113,8 +113,12 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 	//-------------------------------------------------------------------
 	// rlib.Assessment Type
 	//-------------------------------------------------------------------
-	a.ASMTID, _ = rlib.IntFromString(sa[2], "rlib.Assessment type is invalid")
-	asmt, ok := (*AsmtTypes)[a.ASMTID]
+	a.ATypeLID, _ = rlib.IntFromString(sa[2], "rlib.Assessment type is invalid")
+	// asmt, ok := (*AsmtTypes)[a.ATypeLID]
+	rlib.InitBusinessFields(a.BID)
+	rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
+	rlib.RRdb.BizTypes[a.BID].GLAccounts = rlib.GetGLAccountMap(a.BID)
+	gla, ok := rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
 	if !ok {
 		fmt.Printf("%s: line %d - rlib.Assessment type is invalid: %s\n", funcname, lineno, sa[2])
 		return
@@ -129,9 +133,9 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 		if err != nil {
 			fmt.Printf("%s: line %d - error loading Rental Agreement with RAID = %s,  error = %s\n", funcname, lineno, sa[6], err.Error())
 		}
-		if !ValidAssessmentDate(&a, &asmt, &ra) {
+		if !ValidAssessmentDate(&a, &gla, &ra) {
 			fmt.Printf("%s: line %d - rlib.Assessment occurs outside the allowable time range for the rlib.Rentable Agreement Require attribute value: %d\n",
-				funcname, lineno, asmt.RARequired)
+				funcname, lineno, gla.RARequired)
 			return
 		}
 	}
@@ -183,10 +187,6 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 		fmt.Printf("%s: line %d - Skipping this record as the rlib.Rentable ID could not be found\n", funcname, lineno)
 		return
 	}
-	if a.ASMTID == 0 {
-		fmt.Printf("%s: line %d - Skipping this record as the rlib.AssessmentType could not be found\n", funcname, lineno)
-		return
-	}
 	if a.BID == 0 {
 		fmt.Printf("%s: line %d - Skipping this record as the rlib.Business could not be found\n", funcname, lineno)
 		return
@@ -205,9 +205,9 @@ func CreateAssessmentsFromCSV(sa []string, lineno int, AsmtTypes *map[int64]rlib
 }
 
 // LoadAssessmentsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadAssessmentsCSV(fname string, AsmtTypes *map[int64]rlib.AssessmentType) {
+func LoadAssessmentsCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateAssessmentsFromCSV(t[i], i+1, AsmtTypes)
+		CreateAssessmentsFromCSV(t[i], i+1)
 	}
 }

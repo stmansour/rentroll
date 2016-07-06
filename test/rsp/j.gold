@@ -4,12 +4,12 @@
    -------------------------------------------------------------------------------------------------------------------------
    Description                                                       Date    RntAgr         Rentable     GL No        Amount
    -------------------------------------------------------------------------------------------------------------------------
-   J00000001  Rent (8/30 days)  101 [GM, monthly]              
+   J00000001  Gross Scheduled Rent (8/30 days)  101 [GM, monthly] 
                                     General Accounts Receivable  11/01/15         1              101     11001        266.67
                                            Gross Scheduled Rent  11/01/15         1              101     40001       -320.00
                                                   Loss to Lease  11/01/15         1              101     41004         53.33
                                                                
-   J00000002  Rent (10/30 days)  101 [GM, monthly]             
+   J00000002  Gross Scheduled Rent (10/30 days)  101 [GM, monthly] 
                                     General Accounts Receivable  11/21/15         8              101     11001        400.00
                                            Gross Scheduled Rent  11/21/15         8              101     40001       -400.00
                                                   Loss to Lease  11/21/15         8              101     41004          0.00
@@ -30,27 +30,27 @@
                                     General Accounts Receivable  11/21/15         8              101     11001          6.67
                                            Gross Scheduled Rent  11/21/15         8              101     40001         -6.67
                                                                
-   J00000007  Security Deposit  101 [GM]                       
+   J00000007  General Accounts Receivable  101 [GM]            
                                     Security Deposit Receivable  11/21/15         8              101     11002       1500.00
                                     Security Deposit Assessment  11/21/15         8              101     23000      -1500.00
                                                                
-   J00000008  Carport Fees (8/30 days)  CP001 [CPT, monthly]   
+   J00000008  Carport (8/30 days)  CP001 [CPT, monthly]        
                                     General Accounts Receivable  11/01/15         1            CP001     11001          9.33
                                                        Carports  11/01/15         1            CP001     42007         -9.33
                                                                
-   J00000009  Carport Fees (10/30 days)  CP001 [CPT, monthly]  
+   J00000009  Carport (10/30 days)  CP001 [CPT, monthly]       
                                     General Accounts Receivable  11/21/15         8            CP001     11001         11.67
                                                        Carports  11/21/15         8            CP001     42007        -11.67
                                                                
-   J00000010  Carport Fees (10/30 days)  CP002 [CPT, monthly]  
+   J00000010  Carport (10/30 days)  CP002 [CPT, monthly]       
                                     General Accounts Receivable  11/21/15         8            CP002     11001         11.67
                                                        Carports  11/21/15         8            CP002     42007        -11.67
                                                                
-   J00000011  Damages  101 [GM]                                
+   J00000011  Security Deposit Forfeiture  101 [GM]            
                                     Security Deposit Assessment  11/08/15         1              101     23000        250.00
                                     Security Deposit Forfeiture  11/08/15         1              101     42006       -250.00
                                                                
-   J00000012  Security Deposit Return  101 [GM]                
+   J00000012  Security Deposit Receivable  101 [GM]            
                                     Security Deposit Assessment  11/08/15         1              101     23000        750.00
                                        Bank Account FRB 2332352  11/08/15         1              101     10001       -750.00
                                                                
@@ -82,7 +82,7 @@
                                            Gross Scheduled Rent  11/20/15         0            CP002     40001        -23.33
                                                         Vacancy  11/20/15         0            CP002     41001         23.33
    J00000022  Payment - Krabappel  294.66                      
-   	Rent                                                       
+   	Gross Scheduled Rent                                       
                                     General Accounts Receivable  11/21/15         1              101     11001       -266.67
                                        Bank Account FRB 2332352  11/21/15         1              101     10001        266.67
    	Lake View                                                  
@@ -91,15 +91,15 @@
    	Fireplace                                                  
                                     General Accounts Receivable  11/21/15         1              101     11001         -5.33
                                        Bank Account FRB 2332352  11/21/15         1              101     10001          5.33
-   	Carport Fees                                               
+   	Carport                                                    
                                     General Accounts Receivable  11/21/15         1            CP001     11001         -9.33
                                        Bank Account FRB 2332352  11/21/15         1            CP001     10001          9.33
                                                                
    J00000023  Payment - Simpson  1946.68                       
-   	Security Deposit                                           
+   	General Accounts Receivable                                
                                        Bank Account FRB 2332352  11/15/15         8              101     10001       1500.00
                                     Security Deposit Receivable  11/15/15         8              101     11002      -1500.00
-   	Rent                                                       
+   	Gross Scheduled Rent                                       
                                     General Accounts Receivable  11/15/15         8              101     11001       -400.00
                                        Bank Account FRB 2332352  11/15/15         8              101     10001        400.00
    	Lake View                                                  
@@ -108,10 +108,10 @@
    	Fireplace                                                  
                                     General Accounts Receivable  11/15/15         8              101     11001         -6.67
                                        Bank Account FRB 2332352  11/15/15         8              101     10001          6.67
-   	Carport Fees                                               
+   	Carport                                                    
                                     General Accounts Receivable  11/15/15         8            CP001     11001        -11.67
                                        Bank Account FRB 2332352  11/15/15         8            CP001     10001         11.67
-   	Carport Fees                                               
+   	Carport                                                    
                                     General Accounts Receivable  11/15/15         8            CP002     11001        -11.67
                                        Bank Account FRB 2332352  11/15/15         8            CP002     10001         11.67
                                                                

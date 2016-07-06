@@ -12,7 +12,7 @@ func UpdateLedgerMarker(lm *LedgerMarker) error {
 
 // UpdateLedger updates a LedgerMarker record
 func UpdateLedger(l *GLAccount) error {
-	_, err := RRdb.Prepstmt.UpdateLedger.Exec(l.PLID, l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.LastModBy, l.LID)
+	_, err := RRdb.Prepstmt.UpdateLedger.Exec(l.PLID, l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.RARequired, l.ManageToBudget, l.Description, l.LastModBy, l.LID)
 	if nil != err {
 		Ulog("UpdateLedger: error updating GLAccount:  %v\n", err)
 		Ulog("GLAccount = %#v\n", *l)

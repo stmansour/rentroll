@@ -176,7 +176,7 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 
 		// With the opening balance now set, we now need to add up the activity that has happened over the current period.
 		// This means we total up all the activity in the GeneralReceivables account during this period.
-		lid := rlib.RRdb.BizTypes[bid].DefaultAccts[rlib.DFLTGENRCV].LID
+		lid := rlib.RRdb.BizTypes[bid].DefaultAccts[rlib.GLGENRCV].LID
 		delta, err := GetAccountBalanceForRA(bid, lid, ra.RAID, d1, d2)
 		if err != nil {
 			fmt.Printf("error returned from GetAccountBalanceForRA:  err = %s\n", err.Error()) // ****** PURGE ME *******

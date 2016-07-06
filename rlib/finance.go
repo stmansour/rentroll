@@ -144,14 +144,8 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 
 // IsManageToBudget returns true if the supplied assessment type is managed to budget.
 // Otherwise, it returns false.
-func IsManageToBudget(a *Assessment) bool {
-	for _, v := range RRdb.AsmtTypes {
-		if a.ASMTID == v.ASMTID {
-			// return strings.ToLower(strings.TrimSpace(t)) == strings.ToLower(v.Name)
-			return v.ManageToBudget == YES
-		}
-	}
-	return false
+func IsManageToBudget(xbiz *XBusiness, a *Assessment) bool {
+	return RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].ManageToBudget == 1
 }
 
 // SelectRentableStatusForPeriod returns a subset of Rentable states that overlap the supplied range.

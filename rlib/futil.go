@@ -135,6 +135,18 @@ func YesNoToInt(si string) (int64, error) {
 	}
 }
 
+// YesNoToString returns an appropriate string representation of the value i assummed to be YES or NO
+func YesNoToString(i int64) string {
+	switch i {
+	case YES:
+		return "Yes"
+	case NO:
+		return "No"
+	default:
+		return fmt.Sprintf("??? %d", i)
+	}
+}
+
 // IsValidAccrual returns true if a is a valid accrual value, false otherwise
 func IsValidAccrual(a int64) bool {
 	return !(a < ACCRUALNORECUR || a > ACCRUALYEARLY)

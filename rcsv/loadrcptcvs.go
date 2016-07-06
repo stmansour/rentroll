@@ -20,7 +20,7 @@ import (
 // 0    1           2      3             4        5         6
 // BID, RAID,       PMTID, Dt,           Amount,  AcctRule, Comment
 // REH, RA00000001, 2,     "2004-01-01", 1000.00, "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _"
-// REH, RA00000001, 1,     "2015-11-21",  294.66, "ASM(1) c ${DFLTGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${DFLTGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${DFLTGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${DFLTGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
+// REH, RA00000001, 1,     "2015-11-21",  294.66, "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
 
 // GenerateReceiptAllocations processes the AcctRule for the supplied rlib.Receipt and generates rlib.ReceiptAllocation records
 func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error {

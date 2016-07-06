@@ -13,7 +13,7 @@ fi
 echo "CSV IMPORT TEST" > ${LOGFILE}
 echo -n "Date/Time: " >>${LOGFILE}
 date >> ${LOGFILE}
-echo >>${LOGFILE}
+echo >> ${LOGFILE}
 
 echo "CREATE NEW DATABASE" >> ${LOGFILE} 2>&1
 ${RRBIN}/rrnewdb
@@ -21,11 +21,6 @@ ${RRBIN}/rrnewdb
 echo "import Business"
 echo "DEFINE BUSINESS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -b business.csv -L 3 >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import assessment types"
-echo "DEFINE ASSESSMENT TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -a asmtypes.csv -L 4 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
 echo "import Rentable types"

@@ -7,9 +7,15 @@ import "database/sql"
 
 // ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessment(rows *sql.Rows, a *Assessment) {
-	Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID, &a.RAID, &a.Amount,
+	Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
 		&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.AcctRule, &a.Comment,
 		&a.LastModTime, &a.LastModBy))
+}
+
+// ReadGLAccount reads a full GLAccount structure of data from the database based on the supplied Rows pointer.
+func ReadGLAccount(rows *sql.Rows, a *GLAccount) {
+	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber, &a.Status, &a.Type, &a.Name, &a.AcctType,
+		&a.RAAssociated, &a.AllowPost, &a.RARequired, &a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Rows pointer.

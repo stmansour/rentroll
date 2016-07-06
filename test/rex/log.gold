@@ -1,74 +1,9 @@
 CSV IMPORT TEST
-Date/Time: Wed Jun 29 10:16:14 PDT 2016
+Date/Time: Wed Jul  6 12:11:05 CDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
    1    REX    JGM First, LLC
-
-
-DEFINE ASSESSMENT TYPES
-Name  RARqd    ManageToBudget  Description
-   1       0                1  Rent
-   2       0                0  Security Deposit
-   3       2                0  Security Deposit Forfeiture
-   4       3                0  Application Fees
-   5       0                0  Landlord Lien Sales
-   6       0                0  Pet Fees
-   7       2                0  Eviction Fees
-   8       0                0  Electric Reimbursement
-   9       0                0  Electric Overage
-  10       0                0  Water Reimbursement
-  11       2                0  Water Overage
-  12       2                0  Trash Fee
-  13       2                0  Utility Fine
-  14       2                0  NSF Fee
-  15       2                0  Maintenance Fee
-  16       2                0  Fines
-  17       0                0  Month to Month Fee
-  18       0                0  Cancelation Fees
-  19       0                0  Housekeeping Fee
-  20       0                0  Extra Person Charge
-  21       0                0  Furniture Rental
-  22       0                0  Platinum Service Fee
-  23       0                0  Gold Service Fee
-  24       0                0  Silver Service Fee
-  25       0                0  Sales Tax
-  26       0                0  TOT Tax
-  27       0                0  Reletting Fees
-  28       0                1  Carport Fees
-  29       0                0  Garage Fees
-  30       0                0  Reserved Parking Fees
-  31       0                0  Transfer fees
-  32       0                0  Washer/Dryer Fee
-  33       0                0  Association Dues Assessment
-  34       0                0  Insurance Reimbursement
-  35       0                0  Tax Reimbursement
-  36       0                0  Special Event Fees
-  37       0                0  Convenience Store Sales
-  38       0                0  Courtesy Car Rental
-  39       0                0  Vending Income
-  40       0                0  Transportation
-  41       0                0  Food Sales
-  42       0                0  Liquor Sales
-  43       0                0  WashNFold Income
-  44       0                0  Spa Sales
-  45       0                0  Fitness Center
-  46       0                0  CashOverShort
-  47       2                0  Late Payment Fee
-  48       0                0  Other Income
-  49       0                0  Bad Debt Write-Off
-  50       0                0  Off Line
-  51       0                0  Concession
-  52       0                0  Employee
-  53       2                0  Damages
-  54       0                0  Pest Control Reimbursement
-  55       2                0  Security Deposit Return
-  56       2                0  Returned Payments
-  57       0                0  Security Deposit Assessment
-  58       0                0  Lake View
-  59       0                0  Courtyard View
-  60       0                0  Top Floor
-  61       0                0  Fireplace
 
 
 DEFINE RENTABLE TYPES
@@ -117,31 +52,31 @@ PET00000001  RA00000001  T-Bone                     Dog              Chihuahua  
 
 
 DEFINE CHART OF ACCOUNTS
-CreateLedgerMarkers: line 21 - You must suppy a GL Number for this entry
- LMID  Type      GLNumber   Parent LMID       Balance  Name
-   12                   1             0          0.00  Basement Storage
-    2    11         11001             0          0.00  General Accounts Receivable
-    7    16         11002             0     -13300.00  Security Deposits Assessed
-   13                   2             0          0.00  Change In Delinquency
-    6    15         33000             0          0.00  Security Deposit Receivable
-    8    17         33333             0      13300.00  OwnerEquity
-   17               41008             0          0.00  Administrative Unit
-    3    12         50201             0          0.00  Gross Schedule Rent
-    9               50211             0          0.00  Late Fees
-   10               50212             0          0.00  NSF Fees
-   18               50213             0          0.00  Forfeited Security Deposit
-   11               50216             0          0.00  Maintenance Reimbursement
-    5    14         50251             0          0.00  Vacancy
-   15               50252             0          0.00  Rent Concession
-   16               50253             0          0.00  Offline Units
-   14               50254             0          0.00  Bad Debt Write-Off
-    4    13         50255             0          0.00  Loss to Lease
-   19               59997             0          0.00  AP Cash Dispersements
-    1    10         59998             0          0.00  Cash Deposits
+CreateLedgerMarkers: line 22 - You must suppy a GL Number for this entry
+ LMID  Type      GLNumber  Name                                                          Parent LMID   Balance       RAAssoc       RARqd
+   12                   1  Basement Storage                                                         0          0.00  Unassociated      0
+    2    11         11001  General Accounts Receivable                                              0          0.00  Unassociated      0
+    7    16         11002  Security Deposits Assessed                                               0     -13300.00  Unassociated      2
+   13                   2  Change In Delinquency                                                    0          0.00  Unassociated      0
+    6    15         33000  Security Deposit Receivable                                              0          0.00  Unassociated      2
+    8    17         33333  OwnerEquity                                                              0      13300.00  Unassociated      3
+   17               41008  Administrative Unit                                                      0          0.00    Associated      0
+   20               49094  Damages                                                                  0          0.00  Unassociated      3
+    3    12         50201  Gross Schedule Rent                                                      0          0.00    Associated      0
+    9               50211  Late Fees                                                                0          0.00  Unassociated      2
+   10               50212  NSF Fees                                                                 0          0.00  Unassociated      2
+   18               50213  Forfeited Security Deposit                                               0          0.00  Unassociated      2
+   11               50216  Maintenance Reimbursement                                                0          0.00  Unassociated      2
+    5    14         50251  Vacancy                                                                  0          0.00    Associated      0
+   15               50252  Rent Concession                                                          0          0.00  Unassociated      0
+   16               50253  Offline Units                                                            0          0.00  Unassociated      0
+   14               50254  Bad Debt Write-Off                                                       0          0.00  Unassociated      2
+    4    13         50255  Loss to Lease                                                            0          0.00  Unassociated      0
+   19               59997  AP Cash Dispersements                                                    0          0.00  Unassociated      0
+    1    10         59998  Cash Deposits                                                            0          0.00  Unassociated      0
 
 
 DEFINE ASSESSMENTS
-CreateAssessmentsFromCSV: line 7 - rlib.Assessment type is invalid: 62
       ASMID          RAID        RID   Freq     Amount
 ASM00000001    RA00000001  R00000001      6    3750.00
 ASM00000002    RA00000002  R00000002      6    3550.00
@@ -160,8 +95,8 @@ PT00000004     B00000001   AMEX
 
 DEFINE RECEIPTS
       RCPTID     Amount  AcctRule
-RCPT00000001    3750.00  ASM(1) c ${DFLTGENRCV} _, ASM(1) d ${DFLTCASH} _
-RCPT00000002    3550.00  ASM(2) c ${DFLTGENRCV} _, ASM(2) d ${DFLTCASH} _
+RCPT00000001    3750.00  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _
+RCPT00000002    3550.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _
 
 
 DEFINE CUSTOM ATTRIBUTES
@@ -187,21 +122,21 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
    -------------------------------------------------------------------------------------------------------------------------
    Description                                                       Date    RntAgr         Rentable     GL No        Amount
    -------------------------------------------------------------------------------------------------------------------------
-   J00000001  Rent  309 Rexford [Rex1, monthly]                
+   J00000001  Gross Schedule Rent  309 Rexford [Rex1, monthly] 
                                     General Accounts Receivable  03/01/16         1      309 Rexford     11001       3750.00
                                             Gross Schedule Rent  03/01/16         1      309 Rexford     50201      -3750.00
                                                   Loss to Lease  03/01/16         1      309 Rexford     50255          0.00
                                                                
-   J00000002  Rent  309 1/2 Rexford [Rex2, monthly]            
+   J00000002  Gross Schedule Rent  309 1/2 Rexford [Rex2, monthly] 
                                     General Accounts Receivable  03/01/16         2  309 1/2 Rexford     11001       3550.00
                                             Gross Schedule Rent  03/01/16         2  309 1/2 Rexford     50201      -3550.00
                                                   Loss to Lease  03/01/16         2  309 1/2 Rexford     50255          0.00
                                                                
-   J00000003  Damages  311 Rexford [Rex3]                      
+   J00000003  Forfeited Security Deposit  311 Rexford [Rex3]   
                                      Security Deposits Assessed  03/01/16         3      311 Rexford     11002       2434.71
                                      Forfeited Security Deposit  03/01/16         3      311 Rexford     50213      -2434.71
                                                                
-   J00000004  Security Deposit Return  311 Rexford [Rex3]      
+   J00000004  Security Deposit Receivable  311 Rexford [Rex3]  
                                      Security Deposits Assessed  03/01/16         3      311 Rexford     11002        865.29
                                           AP Cash Dispersements  03/01/16         3      311 Rexford     59997       -865.29
                                                                
@@ -212,12 +147,12 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
                                             Gross Schedule Rent  03/31/16         0  311 1/2 Rexford     50201      -2500.00
                                                         Vacancy  03/31/16         0  311 1/2 Rexford     50251       2500.00
    J00000007  Payment - Read,Read  3750.00                     
-   	Rent                                                       
+   	Gross Schedule Rent                                        
                                     General Accounts Receivable  03/01/16         1      309 Rexford     11001      -3750.00
                                                   Cash Deposits  03/01/16         1      309 Rexford     59998       3750.00
                                                                
    J00000008  Payment - Costea,Costea  3550.00                 
-   	Rent                                                       
+   	Gross Schedule Rent                                        
                                     General Accounts Receivable  03/02/16         2  309 1/2 Rexford     11001      -3550.00
                                                   Cash Deposits  03/02/16         2  309 1/2 Rexford     59998       3550.00
                                                                
@@ -241,10 +176,10 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
-                               Assessment - Rent  03/01/16          1           1      309 Rexford       3750.00       3750.00
-                               Assessment - Rent  03/01/16          2           2  309 1/2 Rexford       3550.00       7300.00
-                                  Payment - Rent  03/01/16          7           1      309 Rexford      -3750.00       3550.00
-                                  Payment - Rent  03/02/16          8           2  309 1/2 Rexford      -3550.00          0.00
+                Assessment - Gross Schedule Rent  03/01/16          1           1      309 Rexford       3750.00       3750.00
+                Assessment - Gross Schedule Rent  03/01/16          2           2  309 1/2 Rexford       3550.00       7300.00
+                   Payment - Gross Schedule Rent  03/01/16          7           1      309 Rexford      -3750.00       3550.00
+                   Payment - Gross Schedule Rent  03/02/16          8           2  309 1/2 Rexford      -3550.00          0.00
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                                0.00
 
@@ -257,8 +192,8 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                           -13300.00
-                            Assessment - Damages  03/01/16          3           3      311 Rexford       2434.71     -10865.29
-            Assessment - Security Deposit Return  03/01/16          4           3      311 Rexford        865.29     -10000.00
+         Assessment - Forfeited Security Deposit  03/01/16          3           3      311 Rexford       2434.71     -10865.29
+        Assessment - Security Deposit Receivable  03/01/16          4           3      311 Rexford        865.29     -10000.00
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                           -10000.00
 
@@ -313,14 +248,26 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
 
    ===========================================================================================================================
    Business:  JGM First, LLC
+   49094 - Damages                              
+   03/01/16 - 03/31/16
+   ---------------------------------------------------------------------------------------------------------------------------
+   Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
+   ---------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                03/01/16                                                                0.00
+   ---------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                03/31/16                                                                0.00
+
+
+   ===========================================================================================================================
+   Business:  JGM First, LLC
    50201 - Gross Schedule Rent                  
    03/01/16 - 03/31/16
    ---------------------------------------------------------------------------------------------------------------------------
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
-                               Assessment - Rent  03/01/16          1           1      309 Rexford      -3750.00      -3750.00
-                               Assessment - Rent  03/01/16          2           2  309 1/2 Rexford      -3550.00      -7300.00
+                Assessment - Gross Schedule Rent  03/01/16          1           1      309 Rexford      -3750.00      -3750.00
+                Assessment - Gross Schedule Rent  03/01/16          2           2  309 1/2 Rexford      -3550.00      -7300.00
                                     Unassociated  03/31/16          5           0      311 Rexford      -4400.00     -11700.00
                                     Unassociated  03/31/16          6           0  311 1/2 Rexford      -2500.00     -14200.00
    ---------------------------------------------------------------------------------------------------------------------------
@@ -359,7 +306,7 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
-                            Assessment - Damages  03/01/16          3           3      311 Rexford      -2434.71      -2434.71
+         Assessment - Forfeited Security Deposit  03/01/16          3           3      311 Rexford      -2434.71      -2434.71
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                            -2434.71
 
@@ -434,8 +381,8 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
-                               Assessment - Rent  03/01/16          1           1      309 Rexford          0.00          0.00
-                               Assessment - Rent  03/01/16          2           2  309 1/2 Rexford          0.00          0.00
+                Assessment - Gross Schedule Rent  03/01/16          1           1      309 Rexford          0.00          0.00
+                Assessment - Gross Schedule Rent  03/01/16          2           2  309 1/2 Rexford          0.00          0.00
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                                0.00
 
@@ -448,7 +395,7 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
-            Assessment - Security Deposit Return  03/01/16          4           3      311 Rexford       -865.29       -865.29
+        Assessment - Security Deposit Receivable  03/01/16          4           3      311 Rexford       -865.29       -865.29
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                             -865.29
 
@@ -461,8 +408,8 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
    Description                                        Date  JournalID      RntAgr         Rentable        Amount       Balance
    ---------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                03/01/16                                                                0.00
-                                  Payment - Rent  03/01/16          7           1      309 Rexford       3750.00       3750.00
-                                  Payment - Rent  03/02/16          8           2  309 1/2 Rexford       3550.00       7300.00
+                   Payment - Gross Schedule Rent  03/01/16          7           1      309 Rexford       3750.00       3750.00
+                   Payment - Gross Schedule Rent  03/02/16          8           2  309 1/2 Rexford       3550.00       7300.00
    ---------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                03/31/16                                                             7300.00
 
@@ -473,7 +420,7 @@ Period  Mar 1, 2016 - Mar 31, 2016
 Date        ID           Description                           Charge       Payment       Balance
 -------------------------------------------------------------------------------------------------
 2016-03-01               Opening Balance                                                     0.00
-2016-03-01  ASM00000001  Rent                                3,750.00                    3,750.00
+2016-03-01  ASM00000001  Gross Schedule Rent                 3,750.00                    3,750.00
 2016-03-01  R0000000001  Payment received                                  3,750.00          0.00
 -------------------------------------------------------------------------------------------------
 Totals                                                       3,750.00      3,750.00          0.00
@@ -484,7 +431,7 @@ Period  Mar 1, 2016 - Mar 31, 2016
 Date        ID           Description                           Charge       Payment       Balance
 -------------------------------------------------------------------------------------------------
 2016-03-01               Opening Balance                                                     0.00
-2016-03-01  ASM00000002  Rent                                3,550.00                    3,550.00
+2016-03-01  ASM00000002  Gross Schedule Rent                 3,550.00                    3,550.00
 2016-03-02  R0000000002  Payment received                                  3,550.00          0.00
 -------------------------------------------------------------------------------------------------
 Totals                                                       3,550.00      3,550.00          0.00

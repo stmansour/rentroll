@@ -8,10 +8,10 @@ import (
 	"time"
 )
 
-//   0   1                             2          3,                4                    5          6                  7             8         9          10
-// BUD,  Name,                         GLNumber,  Parent GLNumber   Account TYpe,        Balance,   GL Account Status, Associated,  Type,     Date,      AllowPost
-// REH,  Bank Account FRB 2332352,     10001,     10000             bank,                0,         active,            Yes,         10,  "2016-03-01",  Yes
-// REH,  General Accounts Receivable,  11001,     11000             Accounts Receivable, 0,         active,            Yes,         11,  "2016-03-01",  Yes
+//   0   1                             2          3,                4                    5          6                  7             8         9        10         11          12              13
+// BUD,  Name,                         GLNumber,  Parent GLNumber   Account TYpe,        Balance,   GL Account Status, Associated,  Type,     Date,     AllowPost, RARequired, ManageToBudget, Description
+// REH,  Bank Account FRB 2332352,     10001,     10000             bank,                0,         active,            Yes,         10,  "2016-03-01",  Yes,       0,          0,              Bla bla bla
+// REH,  General Accounts Receivable,  11001,     11000             Accounts Receivable, 0,         active,            Yes,         11,  "2016-03-01",  Yes,       0,          0,              Bla bla bla
 // REH,  Friday Lunch Fund,            11099,     11000             Accounts Receivable, 0.00,      active,            No,
 
 // StringToDate tries to convert the supplied string to a time.Time value. It will use the two
@@ -43,7 +43,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		return // this is just the column heading
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 11
+	required := 14
 	if len(sa) < required {
 		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
@@ -72,9 +72,9 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	s := strings.TrimSpace(sa[8])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
-		if err != nil || !(i == 0 || (rlib.DFLTCASH <= i && i <= rlib.DFLTLAST)) {
+		if err != nil || !(i == 0 || (rlib.GLCASH <= i && i <= rlib.GLLAST)) {
 			fmt.Printf("%s: line %d - Invalid Default value for account %s: %s.  Value must blank, 0, or between %d and %d\n",
-				funcname, lineno, sa[2], s, rlib.DFLTCASH, rlib.DFLTLAST)
+				funcname, lineno, sa[2], s, rlib.GLCASH, rlib.GLLAST)
 			return
 		}
 		l1, err := rlib.GetLedgerByType(l.BID, int64(i))
@@ -197,7 +197,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 			fmt.Printf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
 			return
 		}
-		if i < 0 || (2 <= i && i <= 9) || i > rlib.DFLTLAST {
+		if i < 0 || (2 <= i && i <= 9) || i > rlib.GLLAST {
 			fmt.Printf("%s: line %d - Type value is invalid: %s\n", funcname, lineno, s)
 			return
 		}
@@ -223,6 +223,39 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		fmt.Printf("%s: line %d - invalid value for AllowPost:  %s\n", funcname, lineno, sa[10])
 		return
 	}
+
+	//----------------------------------------------------------------------
+	// RAREQUIRED
+	//----------------------------------------------------------------------
+	RARequired, ok := rlib.IntFromString(sa[11], fmt.Sprintf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST))
+	if !ok {
+		return
+	}
+	if RARequired < rlib.RARQDINRANGE || RARequired > rlib.RARQDLAST {
+		fmt.Printf("Invalid number for RARequired. Must be a number between %d and %d\n", rlib.RARQDINRANGE, rlib.RARQDLAST)
+	}
+	l.RARequired = RARequired
+
+	//----------------------------------------------------------------------
+	// MANAGE TO BUDGET
+	//----------------------------------------------------------------------
+	l.ManageToBudget, err = rlib.YesNoToInt(sa[12])
+	if err != nil {
+		fmt.Printf("%s: line %d - invalid yes/no value: %s\n", funcname, lineno, sa[12])
+		return
+	}
+
+	//----------------------------------------------------------------------
+	// DESCRIPTION
+	//----------------------------------------------------------------------
+	if len(sa[13]) > 1024 {
+		b := []byte(sa[13])
+		l.Description = string(b[:1024])
+	} else {
+		l.Description = sa[13]
+	}
+
+	//=======================================================================================
 
 	// Insert / Update the rlib.GLAccount first, we may need the LID
 	if inserting {

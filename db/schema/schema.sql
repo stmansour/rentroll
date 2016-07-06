@@ -7,7 +7,7 @@
 -- *********  UNIQUE IDS  *********
 -- ********************************
 -- ASMID = Assessment id
--- ASMTID = assessment type id
+-- ATypeLID = assessment type id
 -- AVAILID = availability id
 -- BID = Business id
 -- BLDGID = Building id
@@ -158,7 +158,7 @@ CREATE TABLE RentableTypes (
     Name VARCHAR(256) NOT NULL DEFAULT '',                  -- must be unique
     RentCycle BIGINT NOT NULL DEFAULT 0,                    -- rent accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    -- prorate frequency
-    GSPRC BIGINT NOT NULL DEFAULT 0,                        -- Increments in which GSR is calculated to account for rate changes
+    GSRPC BIGINT NOT NULL DEFAULT 0,                        -- Increments in which GSR is calculated to account for rate changes
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
@@ -195,16 +195,16 @@ CREATE TABLE RentableSpecialtyType (
 -- ===========================================
 -- this table list all the pre-defined Assessments
 -- this will include offsets and disbursements
-CREATE TABLE AssessmentTypes (
-    ASMTID BIGINT NOT NULL AUTO_INCREMENT,                      -- what type of assessment
-    RARequired SMALLINT NOT NULL DEFAULT 0,                     -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-    ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
-    Name VARCHAR(100) NOT NULL DEFAULT '',                      -- name for the assessment
-    Description VARCHAR(1024) NOT NULL DEFAULT '',              -- describe the assessment
-    LastModTime TIMESTAMP,                                      -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (ASMTID)    
-);
+-- CREATE TABLE AssessmentTypes (
+--     ASMTID BIGINT NOT NULL AUTO_INCREMENT,                      -- what type of assessment
+--     RARequired SMALLINT NOT NULL DEFAULT 0,                     -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+--     ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
+--     Name VARCHAR(100) NOT NULL DEFAULT '',                      -- name for the assessment
+--     Description VARCHAR(1024) NOT NULL DEFAULT '',              -- describe the assessment
+--     LastModTime TIMESTAMP,                                      -- when was this record last written
+--     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
+--     PRIMARY KEY (ASMTID)    
+-- );
 
 -- ===========================================
 --   PAYMENT TYPES
@@ -243,7 +243,7 @@ CREATE TABLE AvailabilityTypes (
 -- applicable Assessments for a specific Business
 CREATE TABLE BusinessAssessments (
     BID BIGINT NOT NULL DEFAULT 0,
-    ASMTID BIGINT NOT NULL DEFAULT 0
+    ATypeLID BIGINT NOT NULL DEFAULT 0
 );
 
 -- applicable Assessments for a specific Business
@@ -329,7 +329,7 @@ CREATE TABLE Assessments (
     ASMID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     RID BIGINT NOT NULL DEFAULT 0,                          -- rental id
-    ASMTID BIGINT NOT NULL DEFAULT 0,                       -- what type of assessment (ex: Rent, SecurityDeposit, ...)
+    ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
     RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
@@ -563,22 +563,25 @@ CREATE TABLE LedgerMarker (
 
 -- GL Account
 CREATE TABLE GLAccount (
-    LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this GLAccount
-    PLID BIGINT NOT NULL DEFAULT 0,                           -- Parent ID for this GLAccount.  0 if no parent.
-    BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
-    RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
-    GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
-    Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
-    Type SMALLINT NOT NULL DEFAULT 0,                         -- flag: 0 = not a special account of any kind, 1 = RentalAgreement Balance, 
-    --                                                                 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
+    LID BIGINT NOT NULL AUTO_INCREMENT,             -- unique id for this GLAccount
+    PLID BIGINT NOT NULL DEFAULT 0,                 -- Parent ID for this GLAccount.  0 if no parent.
+    BID BIGINT NOT NULL DEFAULT 0,                  -- Business id
+    RAID BIGINT NOT NULL DEFAULT 0,                 -- rental agreement account, only valid if TYPE is 1
+    GLNumber VARCHAR(100) NOT NULL DEFAULT '',      -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    Status SMALLINT NOT NULL DEFAULT 0,             -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
+    Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind, 1 = RentalAgreement Balance, 
+    --                                                       10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 
-                                                              --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, 
-                                                              --    Cost of Goods Sold, Other Income, Other Expense
-    RAAssociated SMALLINT NOT NULL DEFAULT 0,                 -- 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
-    AllowPost SMALLINT NOT NULL DEFAULT 0,                    -- 0 - do not allow posts to this ledger. 1 = allow posts
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    AcctType VARCHAR(100) NOT NULL DEFAULT '',      -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 
+                                                    --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, 
+                                                    --    Cost of Goods Sold, Other Income, Other Expense
+    RAAssociated SMALLINT NOT NULL DEFAULT 0,       -- 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
+    AllowPost SMALLINT NOT NULL DEFAULT 0,          -- 0 - do not allow posts to this ledger. 1 = allow posts
+    RARequired SMALLINT NOT NULL DEFAULT 0,         -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+    ManageToBudget SMALLINT NOT NULL DEFAULT 0,     -- 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
+    Description VARCHAR(1024) NOT NULL DEFAULT '',  -- describe the assessment
+    LastModTime TIMESTAMP,                          -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,         -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LID)
 );
 

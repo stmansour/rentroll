@@ -63,7 +63,7 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	var t []Assessment
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
-		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ASMTID,
+		Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID,
 			&a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle,
 			&a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		t = append(t, a)
@@ -75,41 +75,12 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
 	err := RRdb.Prepstmt.GetAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.BID, &a.RID,
-		&a.ASMTID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle,
+		&a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle,
 		&a.ProrationCycle, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
 	if nil != err {
 		Ulog("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
 	}
 	return a, err
-}
-
-//=======================================================
-//  A S S E S S M E N T   T Y P E S
-//=======================================================
-
-// GetAssessmentTypeByName returns the record for the assessment type with the supplied name. If no such record exists or a database error occurred,
-// the return structure will be empty
-func GetAssessmentTypeByName(name string) (AssessmentType, error) {
-	var t AssessmentType
-	err := RRdb.Prepstmt.GetAssessmentTypeByName.QueryRow(name).Scan(&t.ASMTID, &t.RARequired, &t.ManageToBudget, &t.Name, &t.Description, &t.LastModTime, &t.LastModBy)
-	return t, err
-}
-
-// GetAssessmentTypes returns a slice of assessment types indexed by the ASMTID
-func GetAssessmentTypes() map[int64]AssessmentType {
-	var t map[int64]AssessmentType
-	t = make(map[int64]AssessmentType, 0)
-	rows, err := RRdb.Dbrr.Query("SELECT " + ASMTflds + " FROM AssessmentTypes")
-	Errcheck(err)
-	defer rows.Close()
-
-	for rows.Next() {
-		var a AssessmentType
-		Errcheck(rows.Scan(&a.ASMTID, &a.RARequired, &a.ManageToBudget, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
-		t[a.ASMTID] = a
-	}
-	Errcheck(rows.Err())
-	return t
 }
 
 //=======================================================
@@ -530,7 +501,7 @@ func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 // GetRentableType returns characteristics of the Rentable
 func GetRentableType(rtid int64, rt *RentableType) error {
 	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle,
-		&rt.Proration, &rt.GSPRC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+		&rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	if nil == err {
 		var cerr error
 		rt.CA, cerr = GetAllCustomAttributes(ELEMRENTABLETYPE, rtid)
@@ -544,7 +515,7 @@ func GetRentableType(rtid int64, rt *RentableType) error {
 // GetRentableTypeByStyle returns characteristics of the Rentable
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle, &rt.Proration, &rt.GSPRC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle, &rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
 	return rt, err
 }
 
@@ -557,7 +528,7 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSPRC, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
 		a.MR = make([]RentableMarketRate, 0)
 		GetRentableMarketRates(&a)
 		t[a.RTID] = a
@@ -912,7 +883,7 @@ func GetLedgerList(bid int64) []GLAccount {
 	var t []GLAccount
 	for rows.Next() {
 		var r GLAccount
-		Errcheck(rows.Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy))
+		ReadGLAccount(rows, &r)
 		t = append(t, r)
 	}
 	return t
@@ -924,9 +895,10 @@ func GetGLAccountMap(bid int64) map[int64]GLAccount {
 	Errcheck(err)
 	defer rows.Close()
 	var t map[int64]GLAccount
+	t = make(map[int64]GLAccount)
 	for rows.Next() {
 		var r GLAccount
-		Errcheck(rows.Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy))
+		ReadGLAccount(rows, &r)
 		t[r.LID] = r
 	}
 	return t
@@ -934,30 +906,38 @@ func GetGLAccountMap(bid int64) map[int64]GLAccount {
 
 // GetLedger returns the GLAccount struct for the supplied LID
 func GetLedger(lid int64) (GLAccount, error) {
-	var r GLAccount
-	err := RRdb.Prepstmt.GetLedger.QueryRow(lid).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
-	return r, err
+	var a GLAccount
+	err := RRdb.Prepstmt.GetLedger.QueryRow(lid).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
+		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
+		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
+	return a, err
 }
 
 // GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
 func GetLedgerByGLNo(bid int64, s string) (GLAccount, error) {
-	var r GLAccount
-	err := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
-	return r, err
+	var a GLAccount
+	err := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
+		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
+		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
+	return a, err
 }
 
 // GetLedgerByType returns the GLAccount struct for the supplied Type
 func GetLedgerByType(bid, t int64) (GLAccount, error) {
-	var r GLAccount
-	err := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
-	return r, err
+	var a GLAccount
+	err := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
+		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
+		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
+	return a, err
 }
 
 // GetRABalanceLedger returns the GLAccount struct for the supplied Type
 func GetRABalanceLedger(bid, RAID int64) (GLAccount, error) {
-	var r GLAccount
-	err := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid, RAID).Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy)
-	return r, err
+	var a GLAccount
+	err := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid, RAID).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
+		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
+		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
+	return a, err
 }
 
 // GetDefaultLedgers loads the default GLAccount for the supplied Business bid
@@ -967,7 +947,7 @@ func GetDefaultLedgers(bid int64) {
 	defer rows.Close()
 	for rows.Next() {
 		var r GLAccount
-		Errcheck(rows.Scan(&r.LID, &r.PLID, &r.BID, &r.RAID, &r.GLNumber, &r.Status, &r.Type, &r.Name, &r.AcctType, &r.RAAssociated, &r.AllowPost, &r.LastModTime, &r.LastModBy))
+		ReadGLAccount(rows, &r)
 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
 	}
 }

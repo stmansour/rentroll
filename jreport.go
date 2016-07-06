@@ -121,7 +121,7 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 }
 
 func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
-	s := fmt.Sprintf("J%08d  %s", j.JID, rlib.RRdb.AsmtTypes[a.ASMTID].Name)
+	s := fmt.Sprintf("J%08d  %s", j.JID, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 
 	//-------------------------------------------------------------------------------------
 	// For reporting, we want to show any proration that needs to take place. To determine
@@ -224,7 +224,7 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Jour
 		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
 		r := rlib.GetRentable(a.RID)
 		m := rlib.ParseAcctRule(xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
-		printJournalSubtitle("\t" + rlib.RRdb.AsmtTypes[a.ASMTID].Name)
+		printJournalSubtitle("\t" + rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		for k := 0; k < len(m); k++ {
 			l, err := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if err != nil {
@@ -260,7 +260,7 @@ func textPrintJournalEntry(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journa
 		textPrintJournalUnassociated(xbiz, jctx, j)
 	case rlib.JNLTYPERCPT:
 		rcpt := rlib.GetReceipt(j.ID)
-		textPrintJournalReceipt(xbiz, jctx, j, &rcpt, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.DFLTCASH].GLNumber /*"10001"*/)
+		textPrintJournalReceipt(xbiz, jctx, j, &rcpt, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLCASH].GLNumber /*"10001"*/)
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)

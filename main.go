@@ -51,8 +51,6 @@ var App struct {
 	BatchMode bool     // if true, then don't start http, the command line request is for a batch process
 	sStart    string   //start time
 	sStop     string   //stop time
-	// AsmtTypes map[int64]rlib.AssessmentType
-	// PmtTypes  map[int64]rlib.PaymentType
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
@@ -93,7 +91,7 @@ func readCommandLineArgs() {
 
 func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	fmt.Printf("INTERNAL TEST\n")
-	m := rlib.ParseAcctRule(xbiz, 1, d1, d2, "d ${DFLTGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${DFLTGENRCV})} -", float64(1000), float64(8)/float64(30))
+	m := rlib.ParseAcctRule(xbiz, 1, d1, d2, "d ${GLGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${GLGENRCV})} -", float64(1000), float64(8)/float64(30))
 
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("m[%d] = %#v\n", i, m[i])

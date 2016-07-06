@@ -93,10 +93,10 @@ func CreateRentableType(sa []string, lineno int) {
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[5])) // Proration
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
-		rlib.Ulog("%s: line %d - Invalid rental GSPRC: %s\n", funcname, lineno, sa[5])
+		rlib.Ulog("%s: line %d - Invalid rental GSRPC: %s\n", funcname, lineno, sa[5])
 		return
 	}
-	a.GSPRC = int64(n)
+	a.GSRPC = int64(n)
 
 	n64, err := rlib.YesNoToInt(strings.TrimSpace(sa[6])) // manage to budget
 	if err != nil {

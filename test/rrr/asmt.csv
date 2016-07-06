@@ -1,6 +1,6 @@
-BUD,RentableName,ASMTID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule
-DHR,6303-231,1,76.00,7/1/16,7/4/16,1,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-DHR,6303-231,1,92.00,7/5/16,7/7/16,2,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-DHR,6303-231,1,56.87,7/10/16,7/31/16,3,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-DHR,6323-301,1,730.00,12/1/14,11/30/16,4,6,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
-DHR,6392-930,1,125.00,11/1/13,10/31/16,5,4,4,"d ${DFLTGENRCV} _, c ${DFLTGSRENT} ${UMR}, d ${DFLTLTL} ${UMR} _ -"
+BUD,RentableName,ATypeLID,Amount,Start,Stop,Frequency,ProrationMethod,AcctRule
+DHR,6303-231,1,76.00,7/1/16,7/4/16,1,4,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+DHR,6303-231,1,92.00,7/5/16,7/7/16,2,4,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+DHR,6303-231,1,56.87,7/10/16,7/31/16,3,4,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+DHR,6323-301,1,730.00,12/1/14,11/30/16,4,6,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+DHR,6392-930,1,125.00,11/1/13,10/31/16,5,4,4,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"

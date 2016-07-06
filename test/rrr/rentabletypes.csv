@@ -1,4 +1,4 @@
-Designation,Style,Name,Frequency,Proration,GSPRC,ManageToBudget,MarketRate,Dt1,Dt2
+Designation,Style,Name,Frequency,Proration,GSRPC,ManageToBudget,MarketRate,Dt1,Dt2
 DHR,"A1","1BR1BA",6,4,4,1,755.00,"2014-01-01","9999-07-04"
 DHR,"A2","2BR2BA",4,4,4,1,76.00,"2014-01-01","2016-07-05",92.00,"2016-07-05","2016-07-10",56.87,"2016-07-10","9999-01-01"
 DHR,"B5","3BR3BA",4,4,4,1,125.00,"2013-11-01","9999-01-01"
