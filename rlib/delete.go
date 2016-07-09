@@ -53,6 +53,24 @@ func DeleteLedgerMarker(lmid int64) error {
 	return err
 }
 
+// DeleteNote deletes the Note record with the supplied nid
+func DeleteNote(nid int64) error {
+	_, err := RRdb.Prepstmt.DeleteNote.Exec(nid)
+	if err != nil {
+		Ulog("Error deleting Note for NID = %d, error: %v\n", nid, err)
+	}
+	return err
+}
+
+// DeleteNoteType deletes the NoteType record with the supplied nid
+func DeleteNoteType(nid int64) error {
+	_, err := RRdb.Prepstmt.DeleteNoteType.Exec(nid)
+	if err != nil {
+		Ulog("Error deleting NoteType for NID = %d, error: %v\n", nid, err)
+	}
+	return err
+}
+
 // DeleteReceipt deletes the Receipt record with the supplied rcptid
 func DeleteReceipt(rcptid int64) error {
 	_, err := RRdb.Prepstmt.DeleteReceipt.Exec(rcptid)

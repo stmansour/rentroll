@@ -140,6 +140,25 @@ const RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 // TCID = Transactant id
 //==========================================
 
+// NoteType describes the type of note this is
+type NoteType struct {
+	NTID        int64     // note type id
+	BID         int64     // business associated with this note type
+	Name        string    // the actual note
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+}
+
+// Note is dated comment from a user
+type Note struct {
+	NID         int64     // unique ID for this note
+	PNID        int64     // NID of parent note
+	NTID        int64     // note type id
+	Comment     string    // the actual note
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+}
+
 // CustomAttribute is a struct containing user-defined custom attributes for objects
 type CustomAttribute struct {
 	CID         int64     // unique id
@@ -174,6 +193,7 @@ type RentalAgreement struct {
 	RAID              int64       // internal unique id
 	RATID             int64       // reference to Occupancy Master Agreement
 	BID               int64       // Business (so that we can process by Business)
+	NID               int64       // Note ID
 	RentalStart       time.Time   // start date for rental
 	RentalStop        time.Time   // stop date for rental
 	PossessionStart   time.Time   // start date for Occupancy
@@ -380,6 +400,7 @@ type Receipt struct {
 	RAID        int64
 	PMTID       int64
 	Dt          time.Time
+	DocNo       string // check number, money order number, etc.; documents the payment
 	Amount      float64
 	AcctRule    string
 	Comment     string
@@ -709,6 +730,17 @@ type RRprepSQL struct {
 	UpdateRentableTypeRef                    *sql.Stmt
 	UpdateRentalAgreementPet                 *sql.Stmt
 	UpdateTransactant                        *sql.Stmt
+	GetNote                                  *sql.Stmt
+	GetNoteList                              *sql.Stmt
+	GetAllNotes                              *sql.Stmt
+	InsertNote                               *sql.Stmt
+	DeleteNote                               *sql.Stmt
+	UpdateNote                               *sql.Stmt
+	GetNoteType                              *sql.Stmt
+	GetAllNoteTypes                          *sql.Stmt
+	InsertNoteType                           *sql.Stmt
+	DeleteNoteType                           *sql.Stmt
+	UpdateNoteType                           *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
@@ -724,6 +756,7 @@ type BusinessTypeLists struct {
 	PmtTypes     map[int64]*PaymentType // payment types accepted
 	DefaultAccts map[int64]*GLAccount   // index by the predifined contants DFAC*, value = GL No of that account
 	GLAccounts   map[int64]GLAccount    // all the accounts for this business
+	NoteTypes    []NoteType             // all defined note types for this business
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure

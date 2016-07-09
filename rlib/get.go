@@ -653,7 +653,7 @@ func GetRentableUsers(raid int64, d1, d2 *time.Time) []RentableUser {
 // GetRentalAgreement returns the RentalAgreement struct for the supplied rental agreement id
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
-	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID,
+	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID, &r.NID,
 		&r.RentalStart, &r.RentalStop, &r.PossessionStart, &r.PossessionStop,
 		&r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
 	if nil != err && !IsSQLNoResultsError(err) {
@@ -803,7 +803,7 @@ func GetReceiptsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []Receipt {
 func GetReceipt(rcptid int64) Receipt {
 	var r Receipt
 	Errcheck(RRdb.Prepstmt.GetReceipt.QueryRow(rcptid).Scan(
-		&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.Amount, &r.AcctRule, &r.Comment, &r.LastModTime, &r.LastModBy))
+		&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.DocNo, &r.Amount, &r.AcctRule, &r.Comment, &r.LastModTime, &r.LastModBy))
 	GetReceiptAllocations(rcptid, &r)
 	return r
 }
@@ -951,7 +951,7 @@ func GetDefaultLedgers(bid int64) {
 }
 
 //=======================================================
-//  LEDGER ENTRUY
+//  LEDGER ENTRY
 //=======================================================
 
 // GetLedgerEntriesForRAID returns a list of CustomAttributes for the supplied elementid and instanceid
@@ -968,6 +968,56 @@ func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry,
 	}
 	Errcheck(rows.Err())
 	return m, err
+}
+
+//=======================================================
+//  NOTES
+//=======================================================
+
+// GetNote reads a Note structure based on the supplied Note id
+func GetNote(tid int64, t *Note) {
+	Errcheck(RRdb.Prepstmt.GetNote.QueryRow(tid).Scan(&t.NID, &t.PNID, &t.NTID, &t.Comment, &t.LastModTime, &t.LastModBy))
+}
+
+// GetNoteList reads a Note structure based on the supplied Note id, then it reads all its child notes, organizes them by Date
+// and returns them in an array
+func GetNoteList(tid int64) []Note {
+	var m []Note
+	var n Note
+	GetNote(tid, &n)
+	m = append(m, n)
+	rows, err := RRdb.Prepstmt.GetNoteList.Query(tid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var p Note
+		Errcheck(rows.Scan(&p.NID, &p.PNID, &p.NTID, &p.Comment, &p.LastModTime, &p.LastModBy))
+		m = append(m, p)
+	}
+	return m
+}
+
+//=======================================================
+//  NOTE TYPE
+//=======================================================
+
+// GetNoteType reads a NoteType structure based on the supplied NoteType id
+func GetNoteType(ntid int64, t *NoteType) {
+	Errcheck(RRdb.Prepstmt.GetNoteType.QueryRow(ntid).Scan(&t.NTID, &t.BID, &t.Name, &t.LastModTime, &t.LastModBy))
+}
+
+// GetAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
+func GetAllNoteTypes(bid int64) []NoteType {
+	var m []NoteType
+	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var p NoteType
+		Errcheck(rows.Scan(&p.NTID, &p.BID, &p.Name, &p.LastModTime, &p.LastModBy))
+		m = append(m, p)
+	}
+	return m
 }
 
 //=======================================================

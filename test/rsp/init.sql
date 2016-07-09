@@ -315,21 +315,21 @@ INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,Pror
 -- =======================================================================
 --  RECEIPTS
 -- =======================================================================
-INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
-	(1,1,2,"2004-01-01", 1000.00, "d ${GLCASH} _, c 11002 _");			-- 1  Krabappel's initial security deposit
+INSERT INTO Receipt (BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule) VALUES
+	(1,1,2,"2004-01-01","4326", 1000.00, "d ${GLCASH} _, c 11002 _");			-- 1  Krabappel's initial security deposit
 INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(1,1000.00,7, "d ${GLCASH} 1000.00, c 11002 1000.00");		
 
-INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
-	(1,1,1,"2015-11-21",  294.66, "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${GLCASH} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${GLCASH} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${GLCASH} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${GLCASH} 9.33"); 			-- 2   Krabappel pays her fees in full
+INSERT INTO Receipt (BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule) VALUES
+	(1,1,1,"2015-11-21", "2232", 294.66, "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${GLCASH} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${GLCASH} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${GLCASH} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${GLCASH} 9.33"); 			-- 2   Krabappel pays her fees in full
 INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(2,266.67,1,"c ${GLGENRCV} _, d ${GLCASH} _"),	-- rent
 	(2, 13.33,3,"c ${GLGENRCV} _, d ${GLCASH} _"),	-- Lake View
 	(2,  5.33,4,"c ${GLGENRCV} _, d ${GLCASH} _"),	-- Fireplace
 	(2,  9.33,9,"c ${GLGENRCV} _, d ${GLCASH} _");	-- CP001
 
-INSERT INTO Receipt (BID,RAID,PMTID,Dt,Amount,AcctRule) VALUES
-	(1,8,1,"2015-11-15",1946.68, "d ${GLCASH} 1500.00, c 11002 1500.00, c ${GLGENRCV} 400.00, d ${GLCASH} 400.00, c ${GLGENRCV} 16.67, d ${GLCASH} 16.67, c ${GLGENRCV} 6.67, d ${GLCASH} 6.67, c ${GLGENRCV} 11.67,d ${GLCASH} 11.67, c ${GLGENRCV} 11.67,d ${GLCASH} 11.67");  			-- 3   Simpson pays his fees in full
+INSERT INTO Receipt (BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule) VALUES
+	(1,8,1,"2015-11-15","10383",1946.68, "d ${GLCASH} 1500.00, c 11002 1500.00, c ${GLGENRCV} 400.00, d ${GLCASH} 400.00, c ${GLGENRCV} 16.67, d ${GLCASH} 16.67, c ${GLGENRCV} 6.67, d ${GLCASH} 6.67, c ${GLGENRCV} 11.67,d ${GLCASH} 11.67, c ${GLGENRCV} 11.67,d ${GLCASH} 11.67");  			-- 3   Simpson pays his fees in full
 INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 	(3,1500.00, 8,"d ${GLCASH}   _,c ${GLSECDEPRCV} _"),	--  security deposit
 	(3, 400.00, 2,"c ${GLGENRCV} _,d ${GLCASH}      _"),	--  rent

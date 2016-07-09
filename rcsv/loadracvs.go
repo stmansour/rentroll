@@ -8,11 +8,11 @@ import (
 )
 
 //  CSV file format:
-//  0                     1      2             3             4                                            5        6                  7
-//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   rlib.Payor,                                  Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...""
-// 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                “U101,2500.00;U102,2350.00”
-// 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                107
-// 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                101,102
+//  0                     1      2             3             4                                            5        6                  7                                                              8
+//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   rlib.Payor,                                  Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
+// 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                “U101,2500.00;U102,2350.00”,
+// 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                “U101,2500.00;U102,2350.00”,
+// 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                “U101,2500.00;U102,2350.00”,
 
 // BuildPeopleList takes a semi-colon separated list of email addresses and phone numbers
 // and returns an array of rlib.RentalAgreementPayor records for each.  If any of the addresses in the list
@@ -78,7 +78,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		return // this is just the column heading
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 8
+	required := 9
 	if len(sa) < required {
 		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
@@ -190,6 +190,21 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		rar.ContractRent = x
 		m = append(m, rar)
 	}
+
+	//-------------------------------------------------------------------
+	// Note
+	//-------------------------------------------------------------------
+	nid := int64(0)
+	note := strings.TrimSpace(sa[8])
+	if len(note) > 0 {
+		var n rlib.Note
+		n.Comment = note
+		nid, err = rlib.InsertNote(&n)
+		if err != nil {
+			rlib.Ulog("%s: line %d - Error saving note:  %s\n", funcname, lineno, err.Error())
+		}
+	}
+	ra.NID = nid
 
 	//------------------------------------
 	// Write the rental agreement record

@@ -1,12 +1,12 @@
-RentalTemplateNumber,BUD,RentalStart,RentalStop,Payor,Renewal,SpecialProvisions,RentableName,
-RAT001,REX,1/1/04,11/8/15,"816-123-4561,,",1,Some Special Provisions,"101,1000;CP001,35",CP001
+RentalTemplateNumber,BUD,RentalStart,RentalStop,Payor,Renewal,SpecialProvisions,Rentables,Note
+RAT001,REX,1/1/04,11/8/15,"816-123-4561,,",1,Some Special Provisions,"101,1000;CP001,35","I am a rental agreement note"
 RAT001,REX,1/1/04,7/4/17,"816-123-4562,,",1,I am a special provision,"102,1500",
-RAT001,REX,1/1/04,7/4/17,"816-123-4563,,",1,,"103,1750",
+RAT001,REX,1/1/04,7/4/17,"816-123-4563,,",1,,"103,1750","I am another note"
 RAT001,REX,1/1/04,7/4/17,"816-123-4564,,",1,,"104,2000",
-RAT001,REX,1/1/04,7/4/17,"816-123-4565,,",1,,"105,1000",
+RAT001,REX,1/1/04,7/4/17,"816-123-4565,,",1,,"105,1000",I am yet another note!
 RAT001,REX,1/1/04,7/4/17,"816-123-4566,,",1,,"106,1500",
 RAT001,REX,1/1/04,7/4/17,"816-123-4567,,",1,,"107,1750",
 RAT001,REX,11/21/15,11/21/16,"816-123-4568,,",1,,"101,1200;CP001,35;CP002,35",
-RATQQQ,REX,11/21/15,11/21/16,"816-123-4568,,",1,,101,102
-RAT001,QWQ,11/21/15,11/21/16,"816-123-4568,,",1,,101,102
-RAT001,REX,11/21/15,11/21/16,"billybob@springfield.com,,",1,,101,102
+RATQQQ,REX,11/21/15,11/21/16,"816-123-4568,,",1,,"101,102",
+RAT001,QWQ,11/21/15,11/21/16,"816-123-4568,,",1,,"101,102",
+RAT001,REX,11/21/15,11/21/16,"billybob@springfield.com,,",1,,"101,102",

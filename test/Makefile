@@ -1,4 +1,4 @@
-DIRS = engine newbiz rex rsp gsr gsr1
+DIRS = engine newbiz rex rsp gsr gsr1 notes
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done

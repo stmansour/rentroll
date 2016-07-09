@@ -66,7 +66,7 @@ doCSVtest () {
 	else
 		echo "FAILED..."
 		echo "    if correct:    mv $1.txt $1.gold"
-		echo "    to reproduce:  ${APP} $2"
+		echo "    to reproduce:  ${CSVLOAD} $2"
 		echo "Differences are as follows:"
 		diff $1.gold $1.txt
 		exit 1

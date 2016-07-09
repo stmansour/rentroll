@@ -22,6 +22,7 @@ func RunBooks(ctx *DispatchCtx) {
 		rlib.InitBusinessFields(xbiz.P.BID)
 		rlib.GetDefaultLedgers(xbiz.P.BID) // Gather its chart of accounts
 		rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts = rlib.GetGLAccountMap(xbiz.P.BID)
+		rlib.GetAllNoteTypes(xbiz.P.BID)
 
 		// and generate the requested report...
 		switch ctx.Report {

@@ -24,29 +24,30 @@ import _ "github.com/go-sql-driver/mysql"
 
 // App is the global application structure
 var App struct {
-	dbdir       *sql.DB                    // phonebook db
-	dbrr        *sql.DB                    //rentroll db
-	DBDir       string                     // phonebook database
-	DBRR        string                     //rentroll database
-	DBUser      string                     // user for all databases
-	PmtTypes    map[int64]rlib.PaymentType // all payment types in this db
-	Report      string                     // Report: 1 = Journal, 2 = Ledger, 3 = Businesses, 4 = Rentable types
-	BizFile     string                     // name of csv file with new biz info
-	RTFile      string                     // Rentable types csv file
-	RFile       string                     // rentables csv file
-	RSpFile     string                     // Rentable specialties
-	BldgFile    string                     // Buildings for this Business
-	PplFile     string                     // people for this Business
-	RatFile     string                     // rentalAgreementTemplates
-	RaFile      string                     //rental agreement cvs file
-	CoaFile     string                     //chart of accounts
-	AsmtFile    string                     // Assessments
-	PmtTypeFile string                     // payment types
-	RcptFile    string                     // receipts of payments
-	CustomFile  string                     // custom attributes
-	AssignFile  string                     // assign custom attributes
-	PetFile     string                     // assign pets
-	RspRefsFile string                     // assign specialties to rentables
+	dbdir        *sql.DB                    // phonebook db
+	dbrr         *sql.DB                    //rentroll db
+	DBDir        string                     // phonebook database
+	DBRR         string                     //rentroll database
+	DBUser       string                     // user for all databases
+	PmtTypes     map[int64]rlib.PaymentType // all payment types in this db
+	Report       string                     // Report: 1 = Journal, 2 = Ledger, 3 = Businesses, 4 = Rentable types
+	BizFile      string                     // name of csv file with new biz info
+	RTFile       string                     // Rentable types csv file
+	RFile        string                     // rentables csv file
+	RSpFile      string                     // Rentable specialties
+	BldgFile     string                     // Buildings for this Business
+	PplFile      string                     // people for this Business
+	RatFile      string                     // rentalAgreementTemplates
+	RaFile       string                     //rental agreement cvs file
+	CoaFile      string                     //chart of accounts
+	AsmtFile     string                     // Assessments
+	PmtTypeFile  string                     // payment types
+	RcptFile     string                     // receipts of payments
+	CustomFile   string                     // custom attributes
+	AssignFile   string                     // assign custom attributes
+	PetFile      string                     // assign pets
+	RspRefsFile  string                     // assign specialties to rentables
+	NoteTypeFile string                     // note types
 }
 
 func readCommandLineArgs() {
@@ -70,6 +71,7 @@ func readCommandLineArgs() {
 	asgnPtr := flag.String("U", "", "assign custom attributes via csv file")
 	petPtr := flag.String("E", "", "assign pets to a Rental Agreement via csv file")
 	rsrefsPtr := flag.String("F", "", "assign rentable specialties to rentables via csv file")
+	ntPtr := flag.String("O", "", "add NoteTypes via csv file")
 	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets")
 
 	flag.Parse()
@@ -97,6 +99,7 @@ func readCommandLineArgs() {
 	App.AssignFile = *asgnPtr
 	App.PetFile = *petPtr
 	App.RspRefsFile = *rsrefsPtr
+	App.NoteTypeFile = *ntPtr
 }
 
 func bizErrCheck(sa []string) {
@@ -205,6 +208,9 @@ func main() {
 	if len(App.AssignFile) > 0 {
 		rcsv.LoadCustomAttributeRefsCSV(App.AssignFile)
 	}
+	if len(App.NoteTypeFile) > 0 {
+		rcsv.LoadNoteTypesCSV(App.NoteTypeFile)
+	}
 
 	if len(App.Report) > 0 {
 		sa := strings.Split(App.Report, ",")
@@ -258,6 +264,10 @@ func main() {
 		case 16:
 			raid := rcsv.CSVLoaderGetRAID(sa[1])
 			fmt.Printf("%s\n", rcsv.RRreportRentalAgreementPets(rlib.RPTTEXT, raid))
+		case 17:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportNoteTypes(rlib.RPTTEXT, bid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

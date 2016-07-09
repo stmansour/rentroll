@@ -42,9 +42,27 @@ GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 --   ID COUNTERS
 -- ===========================================
 CREATE TABLE IDCounters (
-    InvoiceNo BIGINT NOT NULL DEFAULT 0                       -- unique number for invoices
+    InvoiceNo BIGINT NOT NULL DEFAULT 0                     -- unique number for invoices
 );
 
+CREATE TABLE NoteType (
+    NTID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this note type
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
+    Name VARCHAR(128) NOT NULL DEFAULT '',                  -- General, Payment, Receipt, ...
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (NTID)     
+);
+
+CREATE TABLE Notes (
+    NID BIGINT NOT NULL AUTO_INCREMENT,                     -- ID for this note
+    PNID BIGINT NOT NULL DEFAULT 0,                         -- NID of parent not
+    NTID BIGINT NOT NULL DEFAULT 0,                         -- What type of note is this
+    Comment VARCHAR(1024) NOT NULL DEFAULT '',              -- the actual note
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (NID)     
+);
 
 -- ===========================================
 --   RENTAL AGREEMENT TEMPLATE
@@ -65,6 +83,7 @@ CREATE TABLE RentalAgreement (
     RAID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
     RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
+    NID BIGINT NOT NULL DEFAULT 0,                            -- Note ID
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
     PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- date when Occupancy starts
@@ -318,9 +337,9 @@ CREATE TABLE RentableSpecialtyRef (
 -- **************************************
 -- charges associated with a Rentable
 CREATE TABLE Assessments (
-    ASMID BIGINT NOT NULL AUTO_INCREMENT,
+    ASMID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for assessment
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
-    RID BIGINT NOT NULL DEFAULT 0,                          -- rental id
+    RID BIGINT NOT NULL DEFAULT 0,                          -- rentable id
     ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
     RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
@@ -328,7 +347,7 @@ CREATE TABLE Assessments (
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the User moves out or when the charge is no longer applicable
     RecurCycle SMALLINT NOT NULL DEFAULT 0,                 -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
     ProrationCycle SMALLINT NOT NULL DEFAULT 0,             -- 
-    InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- Which invoice
+    InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- Which invoice, unique number associated with one or more assessments
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP,                                  -- when was this record last written
@@ -444,11 +463,12 @@ CREATE TABLE Payor  (
 -- ****                              ****
 -- **************************************
 CREATE TABLE Receipt (
-    RCPTID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this Receipt
+    RCPTID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this Receipt
     BID BIGINT NOT NULL DEFAULT 0,
-    RAID BIGINT NOT NULL DEFAULT 0,  -- THIS IS AN ISSUE... It can go away -- ReceiptAllocation has an associated Assessment, which has the RAID
+    RAID BIGINT NOT NULL DEFAULT 0,                             -- THIS IS AN ISSUE... It can go away -- ReceiptAllocation has an associated Assessment, which has the RAID
     PMTID BIGINT NOT NULL DEFAULT 0,
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+    DocNo VARCHAR(50) NOT NULL DEFAULT '',                      -- Check Number, MoneyOrder number, etc., the traceback for the payment
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
@@ -465,6 +485,34 @@ CREATE TABLE ReceiptAllocation (
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- the id of the assessment that caused this payment
     AcctRule VARCHAR(150)
 );  
+
+-- **************************************
+-- ****                              ****
+-- ****          DEPOSIT             ****
+-- ****                              ****
+-- **************************************
+CREATE TABLE Depository (
+    DEPID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for a depository
+    Name VARCHAR(256),                                          -- Name of Depository: First Data, Nyax, CCI, Oklahoma Fidelity
+    AccountNo VARCHAR(256),                                     -- account number at this Depository
+    LastModTime TIMESTAMP,                                      -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (DEPID)
+);
+
+CREATE TABLE Deposit (
+    DID BIGINT NOT NULL AUTO_INCREMENT,                         -- 
+    DEPID BIGINT NOT NULL DEFAULT 0,                            --
+    LastModTime TIMESTAMP,                                      -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (DID)
+);
+
+CREATE TABLE DepositPart (
+    DIP BIGINT NOT NULL DEFAULT 0,
+    RCPTID BIGINT NOT NULL DEFAULT 0
+);
+
 
 -- **************************************
 -- ****                              ****

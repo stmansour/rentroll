@@ -1,0 +1,9 @@
+2016-07-09 11:00:00 UTC  UID = 211  Type General
+I am the parent note
+
+2016-07-09 11:00:00 UTC  UID = 198  Type Payment
+I am a note that was added to the parent note
+
+2016-07-09 11:00:00 UTC  UID = 207  Type Assessment
+I am also a note that was added to the parent note. I'm the last note
+

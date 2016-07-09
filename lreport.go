@@ -11,7 +11,7 @@ import (
 const (
 	TFMTSPACE   = 2  // space between cols
 	TFMTINDENT  = 3  // left indent
-	TFMTDESCR   = 45 // description width
+	TFMTDESCR   = 55 // description width
 	TFMTDATE    = 8  // date width
 	TFMTRA      = 10 // rental agreement
 	TFMTJID     = 9  // Journal id
@@ -123,7 +123,9 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 		ja, _ := rlib.GetJournalAllocation(l.JAID)
 		a, _ := rlib.GetAssessment(ja.ASMID)
 		r := rlib.GetRentable(a.RID)
-		return "Payment - " + rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name, r.Name, sra
+		rcpt := rlib.GetReceipt(j.ID) // ID is the receipt id
+		p := fmt.Sprintf("Payment #%s - ", rcpt.DocNo)
+		return p + rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name, r.Name, sra
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)

@@ -2,6 +2,44 @@ package rlib
 
 import "fmt"
 
+// InsertAssessment writes a new assessmenttype record to the database
+func InsertAssessment(a *Assessment) error {
+	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy)
+	return err
+}
+
+// InsertBuilding writes a new Building record to the database
+func InsertBuilding(a *Building) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertBuilding.Exec(a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting Building:  %v\n", err)
+	}
+	return rid, err
+}
+
+// InsertBuildingWithID writes a new Building record to the database with the supplied bldgid
+// the Building ID must be set in the supplied Building struct ptr (a.BLDGID).
+func InsertBuildingWithID(a *Building) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertBuildingWithID.Exec(a.BLDGID, a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("InsertBuildingWithID: error inserting Building:  %v\n", err)
+		Ulog("Bldg = %#v\n", *a)
+	}
+	return rid, err
+}
+
 // InsertBusiness writes a new Business record.
 // returns the new Business ID and any associated error
 func InsertBusiness(b *Business) (int64, error) {
@@ -84,10 +122,42 @@ func InsertLedger(l *GLAccount) (int64, error) {
 	return rid, err
 }
 
-// InsertAssessment writes a new assessmenttype record to the database
-func InsertAssessment(a *Assessment) error {
-	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy)
-	return err
+//======================================
+// NOTE
+//======================================
+
+// InsertNote writes a new Note to the database
+func InsertNote(a *Note) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertNote.Exec(a.PNID, a.NTID, a.Comment, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting Note:  %v\n", err)
+	}
+	return rid, err
+}
+
+//======================================
+// NOTE TYPE
+//======================================
+
+// InsertNoteType writes a new NoteType to the database
+func InsertNoteType(a *NoteType) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertNoteType.Exec(a.BID, a.Name, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting NoteType:  %v\n", err)
+	}
+	return rid, err
 }
 
 // InsertRentableSpecialty writes a new RentableSpecialtyType record to the database
@@ -113,38 +183,6 @@ func InsertRentableType(a *RentableType) (int64, error) {
 		}
 	} else {
 		Ulog("Error inserting RentableType:  %v\n", err)
-	}
-	return rid, err
-}
-
-// InsertBuilding writes a new Building record to the database
-func InsertBuilding(a *Building) (int64, error) {
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertBuilding.Exec(a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(id)
-		}
-	} else {
-		Ulog("Error inserting Building:  %v\n", err)
-	}
-	return rid, err
-}
-
-// InsertBuildingWithID writes a new Building record to the database with the supplied bldgid
-// the Building ID must be set in the supplied Building struct ptr (a.BLDGID).
-func InsertBuildingWithID(a *Building) (int64, error) {
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertBuildingWithID.Exec(a.BLDGID, a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.LastModBy)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(id)
-		}
-	} else {
-		Ulog("InsertBuildingWithID: error inserting Building:  %v\n", err)
-		Ulog("Bldg = %#v\n", *a)
 	}
 	return rid, err
 }
@@ -237,7 +275,7 @@ func InsertProspect(a *Prospect) (int64, error) {
 // InsertReceipt writes a new Receipt record to the database
 func InsertReceipt(r *Receipt) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.RCPTID, r.BID, r.RAID, r.PMTID, r.Dt, r.Amount, r.AcctRule, r.Comment, r.LastModBy)
+	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.BID, r.RAID, r.PMTID, r.Dt, r.DocNo, r.Amount, r.AcctRule, r.Comment, r.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -277,7 +315,7 @@ func InsertReceiptAllocation(r *ReceiptAllocation) (int64, error) {
 // InsertRentalAgreement writes a new User record to the database
 func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreement.Exec(a.RATID, a.BID, a.RentalStart, a.RentalStop, a.PossessionStart, a.PossessionStop, a.Renewal, a.SpecialProvisions, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentalAgreement.Exec(a.RATID, a.BID, a.NID, a.RentalStart, a.RentalStop, a.PossessionStart, a.PossessionStop, a.Renewal, a.SpecialProvisions, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

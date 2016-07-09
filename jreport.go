@@ -216,7 +216,7 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Jour
 	sa := getPayorLastNames(&rntagr, &jctx.ReportStart, &jctx.ReportStop)
 	ps := strings.Join(sa, ",")
 
-	s := fmt.Sprintf("J%08d  Payment - %s  %.2f", j.JID, ps, rcpt.Amount)
+	s := fmt.Sprintf("J%08d  Payment - %s   #%s  %.2f", j.JID, ps, rcpt.DocNo, rcpt.Amount)
 	printJournalSubtitle(s)
 
 	// PROCESS EVERY RECEIPT ALLOCATION

@@ -81,7 +81,7 @@
    J00000021  Unassociated: CP002 (Nov 1 - Nov 21)             
                                            Gross Scheduled Rent  11/20/15         0            CP002     40001        -24.33
                                                         Vacancy  11/20/15         0            CP002     41001         24.33
-   J00000022  Payment - Krabappel  294.66                      
+   J00000022  Payment - Krabappel   #5794  294.66              
    	Gross Scheduled Rent                                       
                                     General Accounts Receivable  11/21/15         1              101     11001       -266.67
                                        Bank Account FRB 2332352  11/21/15         1              101     10001        266.67
@@ -95,7 +95,7 @@
                                     General Accounts Receivable  11/21/15         1            CP001     11001         -9.33
                                        Bank Account FRB 2332352  11/21/15         1            CP001     10001          9.33
                                                                
-   J00000023  Payment - Simpson  1946.68                       
+   J00000023  Payment - Simpson   #8330  1946.68               
    	Security Deposit                                           
                                        Bank Account FRB 2332352  11/30/15         8              101     10001       1500.00
                                     Security Deposit Receivable  11/30/15         8              101     11002      -1500.00

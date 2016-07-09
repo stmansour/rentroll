@@ -261,6 +261,40 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// NOTES
+	//==========================================
+	NoteFields := "NID,PNID,NTID,Comment,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetNote, err = RRdb.Dbrr.Prepare("SELECT " + NoteFields + " FROM Notes WHERE NID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetNoteList, err = RRdb.Dbrr.Prepare("SELECT " + NoteFields + " FROM Notes WHERE PNID=? ORDER BY LastModTime ASC")
+	Errcheck(err)
+
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(NoteFields)
+	RRdb.Prepstmt.InsertNote, err = RRdb.Dbrr.Prepare("INSERT INTO Notes (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateNote, err = RRdb.Dbrr.Prepare("UPDATE Notes SET " + s3 + " WHERE NID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteNote, err = RRdb.Dbrr.Prepare("DELETE FROM Notes WHERE NID=?")
+	Errcheck(err)
+
+	//==========================================
+	// NOTETYPE
+	//==========================================
+	NoteTypeFields := "NTID,BID,Name,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetNoteType, err = RRdb.Dbrr.Prepare("SELECT " + NoteTypeFields + " FROM NoteType WHERE NTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllNoteTypes, err = RRdb.Dbrr.Prepare("SELECT " + NoteTypeFields + " FROM NoteType WHERE BID=?")
+	Errcheck(err)
+
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(NoteTypeFields)
+	RRdb.Prepstmt.InsertNoteType, err = RRdb.Dbrr.Prepare("INSERT INTO NoteType (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateNoteType, err = RRdb.Dbrr.Prepare("UPDATE NoteType SET " + s3 + " WHERE NTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteNoteType, err = RRdb.Dbrr.Prepare("DELETE FROM NoteType WHERE NTID=?")
+	Errcheck(err)
+
+	//==========================================
 	// PAYMENT TYPES
 	//==========================================
 	RRdb.Prepstmt.InsertPaymentType, err = RRdb.Dbrr.Prepare("INSERT INTO PaymentTypes (BID,Name,Description,LastModBy) VALUES(?,?,?,?)")
@@ -291,13 +325,15 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT
 	//==========================================
-	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy FROM Receipt WHERE RCPTID=?")
+	RcptFlds := "RCPTID,BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + RcptFlds + " FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy from Receipt WHERE BID=? and Dt >= ? and DT < ?")
+	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT " + RcptFlds + " from Receipt WHERE BID=? and Dt >= ? and DT < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModTime,LastModBy from Receipt WHERE BID=? and RAID=? and Dt >= ? and DT < ?")
+	RRdb.Prepstmt.GetReceiptsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + RcptFlds + " from Receipt WHERE BID=? and RAID=? and Dt >= ? and DT < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertReceipt, err = RRdb.Dbrr.Prepare("INSERT INTO Receipt (RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?,?)")
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(RcptFlds)
+	RRdb.Prepstmt.InsertReceipt, err = RRdb.Dbrr.Prepare("INSERT INTO Receipt (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteReceipt, err = RRdb.Dbrr.Prepare("DELETE FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
@@ -329,7 +365,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rental Agreement
 	//===============================
-	RAfields := "RAID,RATID,BID,RentalStart,RentalStop,PossessionStart,PossessionStop,Renewal,SpecialProvisions,LastModTime,LastModBy"
+	RAfields := "RAID,RATID,BID,NID,RentalStart,RentalStop,PossessionStart,PossessionStop,Renewal,SpecialProvisions,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + RAfields + " from RentalAgreement where BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.Dbrr.Prepare("SELECT " + RAfields + " FROM RentalAgreement WHERE RAID=?")

@@ -501,3 +501,27 @@ func RRreportRentalAgreementPets(t int, raid int64) string {
 	}
 	return s
 }
+
+// ReportNoteTypeToText returns a string representation of the chart of accts
+func ReportNoteTypeToText(p *rlib.NoteType) string {
+	return fmt.Sprintf("NT%08d  B%08d  %-50s\n",
+		p.NTID, p.BID, p.Name)
+}
+
+// RRreportNoteTypes generates a report of all rlib.GLAccount accounts
+func RRreportNoteTypes(t int, bid int64) string {
+	m := rlib.GetAllNoteTypes(bid)
+	s := fmt.Sprintf("%-10s  %-9s  %-50s\n", "NTID", "BID", "Name")
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case rlib.RPTTEXT:
+			s += ReportNoteTypeToText(&m[i])
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
