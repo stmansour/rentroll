@@ -338,6 +338,8 @@ CREATE TABLE RentableSpecialtyRef (
 -- charges associated with a Rentable
 CREATE TABLE Assessments (
     ASMID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for assessment
+    PASMID BIGINT NOT NULL DEFAULT 0,                       -- parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID.
+                                                            --     When non-zero DO NOT process as a recurring assessment, it is an instance
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     RID BIGINT NOT NULL DEFAULT 0,                          -- rentable id
     ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
@@ -345,7 +347,7 @@ CREATE TABLE Assessments (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
     Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the User moves out or when the charge is no longer applicable
-    RecurCycle SMALLINT NOT NULL DEFAULT 0,                 -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
+    RentCycle SMALLINT NOT NULL DEFAULT 0,                 -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
     ProrationCycle SMALLINT NOT NULL DEFAULT 0,             -- 
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- Which invoice, unique number associated with one or more assessments
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited

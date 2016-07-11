@@ -1,4 +1,4 @@
-ASMID	BID	RID	ATypeLID	RAID	Amount	Start	Stop	RecurCycle	ProrationCycle	AcctRule	Comment	LastModBy
+ASMID	BID	RID	ATypeLID	RAID	Amount	Start	Stop	RentCycle	ProrationCycle	AcctRule	Comment	LastModBy
 1	1	1	1	1	1000.0000	2014-07-01 00:00:00	2015-11-08 00:00:00	6	4	d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -		0
 2	1	1	1	8	1200.0000	2015-11-21 00:00:00	2016-11-21 00:00:00	6	4	d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} ${aval(${GLGENRCV})} -		0
 3	1	1	26	1	50.0000	2014-07-01 00:00:00	2015-11-08 00:00:00	6	4	d ${GLGENRCV} _, c ${GLGSRENT} _		0

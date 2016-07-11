@@ -22,43 +22,44 @@ type CheckIssue struct {
 func AssessmentChecker(xbiz *rlib.XBusiness, d1, d2 *time.Time) []CheckIssue {
 	funcname := "AssessmentChecker"
 	var m []CheckIssue
-	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1)
+	rows, err := rlib.RRdb.Prepstmt.GetAllSingleInstanceAssessments.Query(xbiz.P.BID, d2, d1) // we only process the instances here
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a rlib.Assessment
-		ap := &a
+		//ap := &a
 		rlib.ReadAssessment(rows, &a)
-		// rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
+		// rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		if rlib.IsManageToBudget(xbiz, &a) { // process it only if it is managed to budget
-			dl := ap.GetRecurrences(d1, d2) // get the recurrences that fall in the specified range
-			for i := 0; i < len(dl); i++ {  // process each occurrence
-				var c CheckIssue // open an issue to use, but don't store it unless there's actually an issue
-				c.dt = dl[i]
-				rar, err := rlib.FindAgreementByRentable(a.RID, &c.dt, d2) // what is the ContractRent on dl[i]?
-				if err != nil {                                            // if we encounter a db error...
-					if !rlib.IsSQLNoResultsError(err) { // and it's something other "couldn't find anything..."
-						c.msg = fmt.Sprintf("%s: could not load Contract rent for rentable %d between %s and %s, err = %s\n",
-							funcname, a.RID, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT), err.Error())
-						rlib.Ulog(c.msg) // log the error
-						c.err = 3        // ... that indicates we cannot find the contract rent...
-						c.a = a
-						m = append(m, c) // add it to the list
-						continue         // and keep moving
-					}
-					// we could not find a contract rent
-					c.err = 2        // ... that indicates we cannot find the contract rent...
-					c.a = a          // ... as called out in this assessment
+			// dl := ap.GetRecurrences(d1, d2) // get the recurrences that fall in the specified range
+			// for i := 0; i < len(dl); i++ {  // process each occurrence
+			var c CheckIssue // open an issue to use, but don't store it unless there's actually an issue
+			// c.dt = dl[i]
+			c.dt = a.Start                                             // SingleInstances Start == Stop == date/time of assessment
+			rar, err := rlib.FindAgreementByRentable(a.RID, &c.dt, d2) // what is the ContractRent on dl[i]?
+			if err != nil {                                            // if we encounter a db error...
+				if !rlib.IsSQLNoResultsError(err) { // and it's something other "couldn't find anything..."
+					c.msg = fmt.Sprintf("%s: could not load Contract rent for rentable %d between %s and %s, err = %s\n",
+						funcname, a.RID, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT), err.Error())
+					rlib.Ulog(c.msg) // log the error
+					c.err = 3        // ... that indicates we cannot find the contract rent...
+					c.a = a
 					m = append(m, c) // add it to the list
 					continue         // and keep moving
 				}
-				if a.Amount != rar.ContractRent {
-					c.err = 1        // ... rent amount mismatch ...
-					c.a = a          // what's called out in this assessment
-					c.rar = rar      // the contract rent
-					m = append(m, c) // add it to the list
-				}
+				// we could not find a contract rent
+				c.err = 2        // ... that indicates we cannot find the contract rent...
+				c.a = a          // ... as called out in this assessment
+				m = append(m, c) // add it to the list
+				continue         // and keep moving
 			}
+			if a.Amount != rar.ContractRent {
+				c.err = 1        // ... rent amount mismatch ...
+				c.a = a          // what's called out in this assessment
+				c.rar = rar      // the contract rent
+				m = append(m, c) // add it to the list
+			}
+			// }
 		}
 	}
 	rlib.Errcheck(rows.Err())

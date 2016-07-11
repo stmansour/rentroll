@@ -1,5 +1,15 @@
 package rlib
 
+// UpdateAssessment updates an Assessment record
+func UpdateAssessment(a *Assessment) error {
+	_, err := RRdb.Prepstmt.UpdateAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy, a.ASMID)
+	if nil != err {
+		Ulog("UpdateAssessment: error updating Assessment:  %v\n", err)
+		Ulog("Assessment = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateLedgerMarker updates a LedgerMarker record
 func UpdateLedgerMarker(lm *LedgerMarker) error {
 	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LMID, lm.LID, lm.BID, lm.DtStart, lm.DtStop, lm.Balance, lm.State, lm.LastModBy, lm.LMID)

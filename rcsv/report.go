@@ -300,7 +300,7 @@ func ReportAssessmentToText(p *rlib.Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("ASM%08d  %12s  R%08d     %2d  %9.2f\n",
-		p.ASMID, ra, p.RID, p.RecurCycle, p.Amount)
+		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
 }
 
 // ReportAssessmentToHTML returns a string representation of the chart of accts
@@ -310,7 +310,7 @@ func ReportAssessmentToHTML(p *rlib.Assessment) string {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
 	return fmt.Sprintf("<tr><td>ASM%08d</td><td>%12s</td><td>RA%08d</td><td%d</td><td>%8.2f</d></tr\n",
-		p.ASMID, ra, p.RID, p.RecurCycle, p.Amount)
+		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
 }
 
 // RRreportAssessments generates a report of all rlib.GLAccount accounts
@@ -324,9 +324,6 @@ func RRreportAssessments(t int, bid int64) string {
 	for rows.Next() {
 		var a rlib.Assessment
 		rlib.ReadAssessment(rows, &a)
-		// rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
-		// 	&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment,
-		// 	&a.LastModTime, &a.LastModBy))
 		switch t {
 		case rlib.RPTTEXT:
 			s += ReportAssessmentToText(&a)

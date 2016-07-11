@@ -342,6 +342,7 @@ type XPerson struct {
 // Assessment is a charge associated with a Rentable
 type Assessment struct {
 	ASMID          int64     // unique id for this assessment
+	PASMID         int64     // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
 	BID            int64     // what Business
 	RID            int64     // the Rentable
 	ATypeLID       int64     // what type of assessment
@@ -349,7 +350,7 @@ type Assessment struct {
 	Amount         float64   // how much
 	Start          time.Time // start time
 	Stop           time.Time // stop time, may be the same as start time or later
-	RecurCycle     int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	InvoiceNo      int64     // A uniqueID for the invoice number
 	AcctRule       string    // expression showing how to account for the amount
@@ -606,6 +607,8 @@ type RRprepSQL struct {
 	DeleteLedger                             *sql.Stmt
 	DeleteLedgerEntry                        *sql.Stmt
 	DeleteLedgerMarker                       *sql.Stmt
+	DeleteNote                               *sql.Stmt
+	DeleteNoteType                           *sql.Stmt
 	DeleteReceipt                            *sql.Stmt
 	DeleteReceiptAllocations                 *sql.Stmt
 	DeleteRentableSpecialtyRef               *sql.Stmt
@@ -616,6 +619,7 @@ type RRprepSQL struct {
 	FindTransactantByPhoneOrEmail            *sql.Stmt
 	GetAgreementsForRentable                 *sql.Stmt
 	GetAllAssessmentsByBusiness              *sql.Stmt
+	GetAllSingleInstanceAssessments          *sql.Stmt
 	GetAllAssessmentsByRAID                  *sql.Stmt
 	GetAllBusinesses                         *sql.Stmt
 	GetAllBusinessRentableTypes              *sql.Stmt
@@ -623,6 +627,8 @@ type RRprepSQL struct {
 	GetAllJournalsInRange                    *sql.Stmt
 	GetAllLedgerEntriesInRange               *sql.Stmt
 	GetAllLedgerMarkersInRange               *sql.Stmt
+	GetAllNotes                              *sql.Stmt
+	GetAllNoteTypes                          *sql.Stmt
 	GetAllRentableAssessments                *sql.Stmt
 	GetAllRentablesByBusiness                *sql.Stmt
 	GetAllRentalAgreementPets                *sql.Stmt
@@ -658,6 +664,9 @@ type RRprepSQL struct {
 	GetLedgerMarkerByLIDDateRange            *sql.Stmt
 	GetLedgerMarkerByRAID                    *sql.Stmt
 	GetLedgerMarkers                         *sql.Stmt
+	GetNote                                  *sql.Stmt
+	GetNoteList                              *sql.Stmt
+	GetNoteType                              *sql.Stmt
 	GetPaymentTypesByBusiness                *sql.Stmt
 	GetPayor                                 *sql.Stmt
 	GetProspect                              *sql.Stmt
@@ -703,6 +712,8 @@ type RRprepSQL struct {
 	InsertLedgerAllocation                   *sql.Stmt
 	InsertLedgerEntry                        *sql.Stmt
 	InsertLedgerMarker                       *sql.Stmt
+	InsertNote                               *sql.Stmt
+	InsertNoteType                           *sql.Stmt
 	InsertPaymentType                        *sql.Stmt
 	InsertPayor                              *sql.Stmt
 	InsertProspect                           *sql.Stmt
@@ -723,24 +734,16 @@ type RRprepSQL struct {
 	InsertRentalAgreementTemplate            *sql.Stmt
 	InsertTransactant                        *sql.Stmt
 	InsertUser                               *sql.Stmt
+	UpdateAssessment                         *sql.Stmt
 	UpdateLedger                             *sql.Stmt
 	UpdateLedgerMarker                       *sql.Stmt
+	UpdateNote                               *sql.Stmt
+	UpdateNoteType                           *sql.Stmt
 	UpdateRentableSpecialtyRef               *sql.Stmt
 	UpdateRentableStatus                     *sql.Stmt
 	UpdateRentableTypeRef                    *sql.Stmt
 	UpdateRentalAgreementPet                 *sql.Stmt
 	UpdateTransactant                        *sql.Stmt
-	GetNote                                  *sql.Stmt
-	GetNoteList                              *sql.Stmt
-	GetAllNotes                              *sql.Stmt
-	InsertNote                               *sql.Stmt
-	DeleteNote                               *sql.Stmt
-	UpdateNote                               *sql.Stmt
-	GetNoteType                              *sql.Stmt
-	GetAllNoteTypes                          *sql.Stmt
-	InsertNoteType                           *sql.Stmt
-	DeleteNoteType                           *sql.Stmt
-	UpdateNoteType                           *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

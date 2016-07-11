@@ -272,14 +272,14 @@ INSERT INTO RentalAgreementPayors (RAID,PID,DtStart,DtStop) VALUES
 --    These are initially generated when the rentor changes from
 --    an applicant to a User (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 3, 1,1000.00,"2014-07-01","2015-11-09", 6, 4, "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"),		-- #1  Krabappel - Rent
 	(1, 1, 3, 8,1200.00,"2015-11-21","2016-11-21", 6, 4, "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} ${aval(${GLGENRCV})} -");		-- #2  Simpson rent
 
 -- =======================================================================
 --  UNIT SPECIALTY ASSESSMENTS
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 35, 1,50.00,"2014-07-01","2015-11-09", 6, 4, "d ${GLGENRCV} _, c ${GLGSRENT} _"),		-- #3 Lake view  Krabappel
 	(1, 1, 36, 1,20.00,"2014-07-01","2015-11-09", 6, 4, "d ${GLGENRCV} _, c ${GLGSRENT} _"),		-- #4 Fireplace  Krabappel
 	(1, 1, 35, 8,50.00,"2015-11-21","2016-11-21", 6, 4, "d ${GLGENRCV} _, c ${GLGSRENT} _"),		-- #5 Lake view  Simpson
@@ -290,7 +290,7 @@ INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,Pror
 --    These are initially generated when the rentor changes from
 --    an applicant to a User (or Payor as the case may be)
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${GLSECDEPRCV} _, c ${GLSECDEPASMT} _"),		-- #7 Krabappel deposit
 	(1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${GLSECDEPRCV} _, c ${GLSECDEPASMT} _");		-- #8 Simpson deposit
 
@@ -299,7 +299,7 @@ INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,Pror
 --    These can be generated at any time. Typically they will be
 --    created along with the rental agreement
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 8, 37, 1,35.00,"2014-07-01","2015-11-09", 6, 4, "d ${GLGENRCV} _, c 42007 _"),		-- #9  Krabappel, ends Nov 10
 	(1, 8, 37, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${GLGENRCV} _, c 42007 _"),		-- #10 Simpson, starts Nov 21
 	(1, 9, 37, 8,35.00,"2015-11-21","2016-11-10", 6, 4, "d ${GLGENRCV} _, c 42007 _");		-- #11 Simpson, starts Nov 21
@@ -307,7 +307,7 @@ INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,Pror
 -- =======================================================================
 --  DAMAGE ASSESSMENTS
 -- =======================================================================
-INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle, AcctRule) VALUES
+INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
 	(1, 1, 32, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${GLSECDEPASMT} _, c 42006 _"),	-- #12  Krabappel, $250 damages
 	(1, 1,  6, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${GLSECDEPASMT} _, c 10001 _");
 

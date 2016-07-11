@@ -76,15 +76,15 @@ func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time
 	switch status {
 	case rlib.RENTABLESTATUSONLINE:
 		ra, _ := rlib.GetRentalAgreement(a.RAID)
-		switch a.RecurCycle {
+		switch a.RentCycle {
 		case rlib.ACCRUALDAILY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d, d, a.RecurCycle, a.ProrationCycle)
+			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d, d, a.RentCycle, a.ProrationCycle)
 		case rlib.ACCRUALNORECUR:
 			fallthrough
 		case rlib.ACCRUALMONTHLY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RecurCycle, a.ProrationCycle)
+			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RentCycle, a.ProrationCycle)
 		default:
-			fmt.Printf("Accrual rate %d not implemented\n", a.RecurCycle)
+			fmt.Printf("Accrual rate %d not implemented\n", a.RentCycle)
 		}
 		// fmt.Printf("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
 
@@ -128,7 +128,6 @@ func journalAssessment(xbiz *rlib.XBusiness, d time.Time, a *rlib.Assessment, d1
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
 	// fmt.Printf("calling ParseAcctRule:\n  asmt = %#v\n  rid = %d\n", a, rid)
-	// m := rlib.ParseAcctRule(xbiz, rid, &d, &d, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	m := rlib.ParseAcctRule(xbiz, a.RID, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
@@ -141,37 +140,6 @@ func journalAssessment(xbiz *rlib.XBusiness, d time.Time, a *rlib.Assessment, d1
 	// handle this is to apply the extra cent to the largest number
 	//-------------------------------------------------------------------------------------------
 	if pf < 1.0 {
-		// sum := float64(0.0)
-		// debits := float64(0)
-		// k := 0 // index of the largest number
-		// for i := 0; i < len(m); i++ {
-		// 	m[i].Amount = rlib.RoundToCent(m[i].Amount)
-		// 	if m[i].Amount > m[k].Amount {
-		// 		k = i
-		// 	}
-		// 	if m[i].Action == "c" {
-		// 		sum -= m[i].Amount
-		// 	} else {
-		// 		sum += m[i].Amount
-		// 		debits += m[i].Amount
-		// 	}
-		// }
-		// if sum != float64(0) {
-		// 	m[k].Amount += sum // first try adding the penny
-		// 	x, xd := sumAllocations(&m)
-		// 	j.Amount = rlib.RoundToCent(xd)
-		// 	if x != float64(0) { // if that doesn't work...
-		// 		m[k].Amount -= sum + sum // subtract the penny:  remove the one we added above, then remove another, i.e.: sum + sum
-		// 		y, yd := sumAllocations(&m)
-		// 		j.Amount = rlib.RoundToCent(yd)
-		// 		// if there's some strange number that causes issues, use the one closest to 0
-		// 		if math.Abs(float64(y)) > math.Abs(float64(x)) { // if y is farther from 0 than x, go back to the value for x
-		// 			m[k].Amount += sum + sum
-		// 			j.Amount = xd
-		// 		}
-		// 	}
-		// }
-
 		// new method using ProcessSum
 		var asum []rlib.SumFloat
 		for i := 0; i < len(m); i++ {
@@ -249,6 +217,26 @@ func RemoveJournalEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	return err
 }
 
+// ProcessNewAssessmentInstance creates a Journal entry for the supplied non-recurring assesment
+//=================================================================================================
+func ProcessNewAssessmentInstance(xbiz *rlib.XBusiness, d1, d2 *time.Time, a *rlib.Assessment) error {
+	funcname := "ProcessNewAssessmentInstance"
+	var noerr error
+	if a.PASMID == 0 && a.RentCycle != rlib.RECURNONE { // if this assessment is not a single instance recurrence
+		return fmt.Errorf("%s: Function only accepts non-recurring instances", funcname)
+	}
+	if a.ASMID != 0 { // if this assessment has already been written to db, then return error
+		return fmt.Errorf("%s: Function only accepts unsaved instances. Found ASMID = %d", funcname, a.ASMID)
+	}
+	ASMID, err := rlib.InsertAssessment(a)
+	if nil != err {
+		return err
+	}
+	a.ASMID = ASMID
+	journalAssessment(xbiz, a.Start, a, d1, d2)
+	return noerr
+}
+
 // GenerateJournalRecords creates Journal records for Assessments and receipts over the supplied time range.
 //=================================================================================================
 func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
@@ -262,25 +250,28 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	//  PROCESS ASSESSMSENTS
 	//-----------------------------------------------------------
 	// fmt.Printf("GetAllAssessmentsByBusiness - d2 = %s   d1 = %s\n", d2.Format(rlib.RRDATEINPFMT), d1.Format(rlib.RRDATEINPFMT))
-	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1)
+	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1) // only get instances without a parent
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a rlib.Assessment
 		ap := &a
 		rlib.ReadAssessment(rows, &a)
-		// rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
-		// 	&a.Start, &a.Stop, &a.RecurCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment,
-		// 	&a.LastModTime, &a.LastModBy))
-		// fmt.Printf("Assessment: ASMID = %d, Amount = %8.2f\n", a.ASMID, a.Amount)
-		if a.RecurCycle >= rlib.RECURSECONDLY && a.RecurCycle <= rlib.RECURHOURLY {
+		if a.RentCycle == rlib.RECURNONE {
+			journalAssessment(xbiz, a.Start, &a, d1, d2)
+		} else if a.RentCycle >= rlib.RECURSECONDLY && a.RentCycle <= rlib.RECURHOURLY {
 			// TBD
-			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RecurCycle)
+			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RentCycle)
 		} else {
 			dl := ap.GetRecurrences(d1, d2)
 			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ATypeLID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
 			for i := 0; i < len(dl); i++ {
-				journalAssessment(xbiz, dl[i], &a, d1, d2)
+				a1 := a
+				a1.Start = dl[i]    // use the instance date
+				a1.Stop = a.Start   // start and stop are the same
+				a1.ASMID = 0        // ensure this is a new assessment
+				a1.PASMID = a.ASMID // parent assessment
+				ProcessNewAssessmentInstance(xbiz, d1, d2, &a1)
 			}
 		}
 	}

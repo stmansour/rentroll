@@ -148,8 +148,8 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Accrual
 	//-------------------------------------------------------------------
-	a.RecurCycle, _ = rlib.IntFromString(sa[7], "Accrual value is invalid")
-	if !rlib.IsValidAccrual(a.RecurCycle) {
+	a.RentCycle, _ = rlib.IntFromString(sa[7], "Accrual value is invalid")
+	if !rlib.IsValidAccrual(a.RentCycle) {
 		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %s\n", funcname, lineno, rlib.ACCRUALSECONDLY, rlib.ACCRUALYEARLY, sa[7])
 		return
 	}
@@ -162,8 +162,8 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, rlib.ACCRUALSECONDLY, rlib.ACCRUALYEARLY, a.ProrationCycle)
 		return
 	}
-	if a.ProrationCycle > a.RecurCycle {
-		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationCycle, a.RecurCycle)
+	if a.ProrationCycle > a.RentCycle {
+		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationCycle, a.RentCycle)
 		return
 	}
 
@@ -205,7 +205,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 		return
 	}
 
-	err = rlib.InsertAssessment(&a)
+	_, err = rlib.InsertAssessment(&a)
 	if err != nil {
 		fmt.Printf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
 	}

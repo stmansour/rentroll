@@ -3,9 +3,19 @@ package rlib
 import "fmt"
 
 // InsertAssessment writes a new assessmenttype record to the database
-func InsertAssessment(a *Assessment) error {
-	_, err := RRdb.Prepstmt.InsertAssessment.Exec(a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RecurCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy)
-	return err
+func InsertAssessment(a *Assessment) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("InsertAssessment: error inserting Assessment:  %v\n", err)
+		Ulog("Assessment = %#v\n", *a)
+	}
+	return rid, err
 }
 
 // InsertBuilding writes a new Building record to the database

@@ -105,10 +105,12 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	AsmFlds := "ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,InvoiceNo,AcctRule,Comment,LastModTime,LastModBy"
+	AsmFlds := "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,Comment,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and (PASMID=0 or RentCycle=0) and Start<? and Stop>=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and (PASMID!=0 or RentCycle=0) and Start<? and Stop>=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE RAID=? and Start<? and Stop>=?")
 	Errcheck(err)
@@ -116,6 +118,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	s1, s2, s3 = GenSQLInsertAndUpdateStrings(AsmFlds)
 	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateAssessment, err = RRdb.Dbrr.Prepare("UPDATE Assessments SET " + s3 + " WHERE ASMID=?")
 	Errcheck(err)
 
 	//===============================

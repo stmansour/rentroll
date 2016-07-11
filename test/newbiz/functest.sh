@@ -72,7 +72,7 @@ dotest "m"  "-C ra.csv"           "AgreementRentables...  " "select * from Renta
 dotest "l"  "-C ra.csv"           "AgreementPayors...  " "select * from RentalAgreementPayors;"
 dotest "k"  "-c coa.csv"          "ChartOfAccounts...  " "select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
 dotest "k1" "-c coa.csv"          "LedgerMarkers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from LedgerMarker;"
-dotest "j"  "-A asmt.csv"         "Assessments...  " "select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RecurCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
+dotest "j"  "-A asmt.csv"         "Assessments...  " "select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
 dotest "i"  "-P pmt.csv"          "PaymentTypes...  " "select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
 dotest "h"  "-e rcpt.csv"         "PaymentAllocations...  " "select * from ReceiptAllocation order by Amount ASC;"
 dotest "g"  "-e rcpt.csv"         "Receipts... " "select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"

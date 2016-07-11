@@ -143,7 +143,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		return
 	}
 	// fmt.Printf("A0  pro = %d\n", pro)
-	if a.RecurCycle > pro && pro != 0 && a.ProrationCycle != 0 { // if accrual > proration then we *may* need to show prorate info
+	if a.RentCycle > pro && pro != 0 && a.ProrationCycle != 0 { // if accrual > proration then we *may* need to show prorate info
 		d1 := jctx.ReportStart // start with the report range
 		d2 := jctx.ReportStop  // start with the report range
 
@@ -152,8 +152,8 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		if j.Dt.After(d1) { // if this assessment is later move the start time
 			d1 = j.Dt
 		}
-		tmp := d1.Add(rlib.CycleDuration(a.RecurCycle, d1)) // start + accrual duration
-		if tmp.Before(d2) {                                 // if this occurs prior to the range end...
+		tmp := d1.Add(rlib.CycleDuration(a.RentCycle, d1)) // start + accrual duration
+		if tmp.Before(d2) {                                // if this occurs prior to the range end...
 			d2 = tmp // snap the range end
 		}
 
@@ -174,7 +174,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 
 		units := rlib.CycleDuration(pro, d1) // duration of the unit for proration
 		numerator := d2.Sub(d1)
-		denominator := rlib.GetProrationRange(d1, d2, a.RecurCycle, pro)
+		denominator := rlib.GetProrationRange(d1, d2, a.RentCycle, pro)
 
 		// fmt.Printf("   units = %v,  numerator = %v, denominator = %v\n", units, numerator, denominator)
 
@@ -185,8 +185,8 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	}
 
 	s += fmt.Sprintf("  %s", r.Name) + " [" + xbiz.RT[rtid].Style
-	if a.RecurCycle > rlib.ACCRUALNORECUR {
-		s += ", " + rlib.RentalPeriodToString(a.RecurCycle)
+	if a.RentCycle > rlib.ACCRUALNORECUR {
+		s += ", " + rlib.RentalPeriodToString(a.RentCycle)
 	}
 	s += "] " + j.Comment
 
