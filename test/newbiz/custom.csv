@@ -1,8 +1,8 @@
-Name,Type,Value
-"Square Feet",1,"1215"
-"Square Feet",1,"1239"
-"Square Feet",1,"1638"
-"Square Feet",1,"827"
-"Square Feet",99,"827"
-"I'm an error",1,"ab827"
-"I'm an error",2,"ab827"
+Name,Type,Value,Units
+"Square Feet",1,"1215","sqft"
+"Square Feet",1,"1239","sqft"
+"Square Feet",1,"1638","sqft"
+"Square Feet",1,"827","sqft"
+"Square Feet",99,"827","sqft"
+"I'm an error",1,"ab827","sqft"
+"I'm an error",2,"ab827","sqft"

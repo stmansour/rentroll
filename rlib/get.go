@@ -155,7 +155,7 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 // GetCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
 func GetCustomAttribute(cid int64) (CustomAttribute, error) {
 	var a CustomAttribute
-	err := RRdb.Prepstmt.GetCustomAttribute.QueryRow(cid).Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.LastModTime, &a.LastModBy)
+	err := RRdb.Prepstmt.GetCustomAttribute.QueryRow(cid).Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy)
 	return a, err
 }
 

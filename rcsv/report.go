@@ -412,20 +412,20 @@ func RRreportReceipts(t int, bid int64) string {
 
 // ReportCustomAttributeToText returns a string representation of the chart of accts
 func ReportCustomAttributeToText(p *rlib.CustomAttribute) string {
-	return fmt.Sprintf("%8d  %9d  %-25s  %-25s\n",
-		p.CID, p.Type, p.Name, p.Value)
+	return fmt.Sprintf("%8d  %9d  %-25s  %25s %-10s\n",
+		p.CID, p.Type, p.Name, p.Value, p.Units)
 }
 
 // RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
 func RRreportCustomAttributes(t int) string {
-	rows, err := rlib.RRdb.Dbrr.Query("SELECT CID,Type,Name,Value FROM CustomAttr")
+	rows, err := rlib.RRdb.Dbrr.Query("SELECT CID,Type,Name,Value,Units FROM CustomAttr")
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("%-8s  %-9s  %-25s  %-25s\n", "CID", "VALUETYPE", "Name", "Value")
+	s := fmt.Sprintf("%-8s  %-9s  %-25s  %25s %-10s\n", "CID", "VALUETYPE", "Name", "Value", "Units")
 
 	for rows.Next() {
 		var a rlib.CustomAttribute
-		rlib.Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value))
+		rlib.Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units))
 
 		switch t {
 		case rlib.RPTTEXT:

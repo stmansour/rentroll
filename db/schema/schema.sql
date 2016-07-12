@@ -142,6 +142,7 @@ CREATE TABLE CustomAttr (
     Type SMALLINT NOT NULL DEFAULT 0,          -- 0 = string, 1 = int64, 2 = float64
     Name VARCHAR (100) NOT NULL DEFAULT '',    -- a name
     Value VARCHAR (256) NOT NULL DEFAULT '',   -- its value in string form
+    Units VARCHAR (256) NOT NULL DEFAULT '',   -- optional units value
     LastModTime TIMESTAMP,                     -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,    -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (CID)

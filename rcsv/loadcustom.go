@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-// 0              1       	   2
-// Name 	      ValueType    Value
-// "Square Feet", 0-2 , 	   "1638"
+// 0              1       	   2		3
+// Name, 	      ValueType,    Value,	Units
+// "Square Feet", 0-2 , 	   "1638",  "sqft"
 
 // CreateCustomAttributes reads a CustomAttributes string array and creates a database record
 func CreateCustomAttributes(sa []string, lineno int) {
@@ -20,7 +20,7 @@ func CreateCustomAttributes(sa []string, lineno int) {
 		return // it's the header line
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 3
+	required := 4
 	if len(sa) < required {
 		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
@@ -35,8 +35,9 @@ func CreateCustomAttributes(sa []string, lineno int) {
 		return
 	}
 
-	c.Name = sa[0]
-	c.Value = sa[2]
+	c.Name = strings.TrimSpace(sa[0])
+	c.Value = strings.TrimSpace(sa[2])
+	c.Units = strings.TrimSpace(sa[3])
 	switch c.Type {
 	case rlib.CUSTINT:
 		_, ok = rlib.IntFromString(c.Value, "Value cannot be converted to an integer")

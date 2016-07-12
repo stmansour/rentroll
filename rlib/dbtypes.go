@@ -165,6 +165,7 @@ type CustomAttribute struct {
 	Type        int64     // what type of value: 0 = string, 1 = int64, 2 = float64
 	Name        string    // what its called
 	Value       string    // string value -- will be xlated on load / store
+	Units       string    // optional units value.  Ex:  "feet", "gallons", "cubic feet", ...
 	LastModTime time.Time // timestamp of last changed
 	LastModBy   int64     // who changed it last
 	fval        float64   // the float value once converted

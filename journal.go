@@ -217,24 +217,58 @@ func RemoveJournalEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	return err
 }
 
-// ProcessNewAssessmentInstance creates a Journal entry for the supplied non-recurring assesment
+// ProcessNewAssessmentInstance creates a Journal entry for the supplied non-recurring assessment
 //=================================================================================================
 func ProcessNewAssessmentInstance(xbiz *rlib.XBusiness, d1, d2 *time.Time, a *rlib.Assessment) error {
 	funcname := "ProcessNewAssessmentInstance"
 	var noerr error
-	if a.PASMID == 0 && a.RentCycle != rlib.RECURNONE { // if this assessment is not a single instance recurrence
+	if a.PASMID == 0 && a.RentCycle != rlib.RECURNONE { // if this assessment is not a single instance recurrence, then return an error
 		return fmt.Errorf("%s: Function only accepts non-recurring instances", funcname)
 	}
-	if a.ASMID != 0 { // if this assessment has already been written to db, then return error
-		return fmt.Errorf("%s: Function only accepts unsaved instances. Found ASMID = %d", funcname, a.ASMID)
+	// if a.ASMID != 0 && a.RentCycle { // if this assessment has already been written to db, then return error
+	// 	return fmt.Errorf("%s: Function only accepts unsaved instances. Found ASMID = %d", funcname, a.ASMID)
+	// }
+	if a.ASMID == 0 {
+		ASMID, err := rlib.InsertAssessment(a)
+		if nil != err {
+			return err
+		}
+		a.ASMID = ASMID
 	}
-	ASMID, err := rlib.InsertAssessment(a)
-	if nil != err {
-		return err
-	}
-	a.ASMID = ASMID
 	journalAssessment(xbiz, a.Start, a, d1, d2)
 	return noerr
+}
+
+// ProcessNewReceipt creates a Journal entry for the supplied receipt
+//=================================================================================================
+func ProcessNewReceipt(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Receipt) error {
+	rntagr, _ := rlib.GetRentalAgreement(r.RAID)
+	var j rlib.Journal
+	j.BID = rntagr.BID
+	j.Amount = rlib.RoundToCent(r.Amount)
+	j.Dt = r.Dt
+	j.Type = rlib.JNLTYPERCPT
+	j.ID = r.RCPTID
+	j.RAID = r.RAID
+	jid, err := rlib.InsertJournalEntry(&j)
+	if err != nil {
+		rlib.Ulog("Error inserting Journal entry: %v\n", err)
+		return err
+	}
+	if jid > 0 {
+		// now add the Journal allocation records...
+		for j := 0; j < len(r.RA); j++ {
+			var ja rlib.JournalAllocation
+			ja.JID = jid
+			ja.Amount = rlib.RoundToCent(r.RA[j].Amount)
+			ja.ASMID = r.RA[j].ASMID
+			ja.AcctRule = r.RA[j].AcctRule
+			a, _ := rlib.GetAssessment(ja.ASMID)
+			ja.RID = a.RID
+			rlib.InsertJournalAllocationEntry(&ja)
+		}
+	}
+	return err
 }
 
 // GenerateJournalRecords creates Journal records for Assessments and receipts over the supplied time range.
@@ -258,7 +292,8 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		ap := &a
 		rlib.ReadAssessment(rows, &a)
 		if a.RentCycle == rlib.RECURNONE {
-			journalAssessment(xbiz, a.Start, &a, d1, d2)
+			// journalAssessment(xbiz, a.Start, &a, d1, d2)
+			ProcessNewAssessmentInstance(xbiz, d1, d2, &a)
 		} else if a.RentCycle >= rlib.RECURSECONDLY && a.RentCycle <= rlib.RECURHOURLY {
 			// TBD
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RentCycle)
@@ -287,31 +322,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	//-----------------------------------------------------------
 	r := rlib.GetReceipts(xbiz.P.BID, d1, d2)
 	for i := 0; i < len(r); i++ {
-		rntagr, _ := rlib.GetRentalAgreement(r[i].RAID)
-		var j rlib.Journal
-		j.BID = rntagr.BID
-		j.Amount = rlib.RoundToCent(r[i].Amount)
-		j.Dt = r[i].Dt
-		j.Type = rlib.JNLTYPERCPT
-		j.ID = r[i].RCPTID
-		j.RAID = r[i].RAID
-		jid, err := rlib.InsertJournalEntry(&j)
-		if err != nil {
-			rlib.Ulog("Error inserting Journal entry: %v\n", err)
-		}
-		if jid > 0 {
-			// now add the Journal allocation records...
-			for j := 0; j < len(r[i].RA); j++ {
-				var ja rlib.JournalAllocation
-				ja.JID = jid
-				ja.Amount = rlib.RoundToCent(r[i].RA[j].Amount)
-				ja.ASMID = r[i].RA[j].ASMID
-				ja.AcctRule = r[i].RA[j].AcctRule
-				a, _ := rlib.GetAssessment(ja.ASMID)
-				ja.RID = a.RID
-				rlib.InsertJournalAllocationEntry(&ja)
-			}
-		}
+		ProcessNewReceipt(xbiz, d1, d2, &r[i])
 	}
 
 	//-----------------------------------------------------------

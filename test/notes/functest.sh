@@ -11,7 +11,7 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
 fi
 
-echo "CREATE NEW DATABASE" >> ${LOGFILE} 2>&1
+echo "CREATE NEW DATABASE"
 ${RRBIN}/rrnewdb
 ${RRBIN}/rrloadcsv -b nb.csv -O nt.csv
 ./notes > log

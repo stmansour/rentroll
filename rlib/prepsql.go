@@ -149,9 +149,9 @@ func buildPreparedStatements() {
 	//==========================================
 	// Custom Attribute
 	//==========================================
-	RRdb.Prepstmt.InsertCustomAttribute, err = RRdb.Dbrr.Prepare("INSERT INTO CustomAttr (Type,Name,Value,LastModBy) VALUES(?,?,?,?)")
+	RRdb.Prepstmt.InsertCustomAttribute, err = RRdb.Dbrr.Prepare("INSERT INTO CustomAttr (Type,Name,Value,Units,LastModBy) VALUES(?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.GetCustomAttribute, err = RRdb.Dbrr.Prepare("SELECT CID,Type,Name,Value,LastModTime,LastModBy FROM CustomAttr where CID=?")
+	RRdb.Prepstmt.GetCustomAttribute, err = RRdb.Dbrr.Prepare("SELECT CID,Type,Name,Value,Units,LastModTime,LastModBy FROM CustomAttr where CID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteCustomAttribute, err = RRdb.Dbrr.Prepare("DELETE FROM CustomAttr where CID=?")
 	Errcheck(err)

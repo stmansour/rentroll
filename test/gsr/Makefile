@@ -1,13 +1,13 @@
 all:
-	@echo "*** Completed in rex ***"
+	@echo "*** Completed in gsr ***"
 
 clean:
 	rm -f rentroll.log log ll.g llog
-	@echo "*** CLEAN completed in rex ***"
+	@echo "*** CLEAN completed in gsr ***"
 
 test:
 	./functest.sh
-	@echo "*** TEST completed in rex ***"
+	@echo "*** TEST completed in gsr ***"
 
 package:
-	@echo "*** PACKAGE completed in rex ***"
+	@echo "*** PACKAGE completed in gsr ***"

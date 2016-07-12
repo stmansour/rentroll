@@ -11,7 +11,7 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 fi
 
 echo "CSV IMPORT TEST" > ${LOGFILE}
-echo -n "Date/Time: " >>${LOGFILE}
+echo -n "Date/Time: " >> ${LOGFILE}
 date >> ${LOGFILE}
 echo >> ${LOGFILE}
 

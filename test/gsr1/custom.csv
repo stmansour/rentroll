@@ -1,2 +1,2 @@
-Name,ValueType,Value
-"Square Feet",1,"1215"
+Name,ValueType,Value,Units
+"Square Feet",1,"1215","sqft"

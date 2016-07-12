@@ -431,7 +431,7 @@ func InsertPaymentType(a *PaymentType) error {
 // InsertCustomAttribute writes a new User record to the database
 func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertCustomAttribute.Exec(a.Type, a.Name, a.Value, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertCustomAttribute.Exec(a.Type, a.Name, a.Value, a.Units, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

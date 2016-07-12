@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Sat Jul  9 11:36:03 PDT 2016
+Date/Time: Mon Jul 11 20:10:02 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -100,11 +100,11 @@ RCPT00000002    3550.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _
 
 
 DEFINE CUSTOM ATTRIBUTES
-CID       VALUETYPE  Name                       Value                    
-       1          1  Square Feet                1215                     
-       2          1  Square Feet                1239                     
-       3          1  Square Feet                1638                     
-       4          1  Square Feet                827                      
+CID       VALUETYPE  Name                                           Value Units     
+       1          1  Square Feet                                     1215 sqft      
+       2          1  Square Feet                                     1239 sqft      
+       3          1  Square Feet                                     1638 sqft      
+       4          1  Square Feet                                      827 sqft      
 
 
 DEFINE ASSIGN CUSTOM ATTRIBUTES
