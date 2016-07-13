@@ -98,6 +98,7 @@ dotest "lb" "-r 6" "Ledger Balances"
 
 doCSVtest "ca" "-u custom.csv -L 14" "Custom Attributes" 
 doCSVtest "ac" "-U assigncustom.csv -L 15" "Assign Custom Attributes"
+doCSVtest "dp" "-d depository.csv -y deposit.csv -L 19,SRC" "Deposits"
 
 dotest "k" "-r 7" "Count of Rentables by Type"
 dotest "s" "-r 8" "Statements"

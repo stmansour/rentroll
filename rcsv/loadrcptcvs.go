@@ -67,8 +67,8 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	var xbiz rlib.XBusiness
 	var r rlib.Receipt
 	var err error
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "designation" {
+	bud := strings.ToLower(strings.TrimSpace(sa[0]))
+	if bud == "bud" {
 		return // this is just the column heading
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
@@ -81,8 +81,8 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
-	if len(des) > 0 {
-		b1, _ := rlib.GetBusinessByDesignation(des)
+	if len(bud) > 0 {
+		b1, _ := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
 			rlib.Ulog("CreateLedgerMarkers: rlib.Business with designation %s does net exist\n", sa[0])
 			return
@@ -103,7 +103,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	r.RAID, _ = rlib.IntFromString(s, "Rental Agreement number is invalid")
 	_, err = rlib.GetRentalAgreement(r.RAID)
 	if nil != err {
-		fmt.Printf("CreateReceiptsFromCSV: error loading Rental Agreement %s, err = %v\n", sa[1], err)
+		fmt.Printf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[1], err)
 		return
 	}
 
@@ -113,7 +113,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	r.PMTID, _ = rlib.IntFromString(sa[2], "Payment type is invalid")
 	_, ok := (*PmtTypes)[r.PMTID]
 	if !ok {
-		fmt.Printf("CreateReceiptsFromCSV: Payment type is invalid: %s\n", sa[2])
+		fmt.Printf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[2])
 		return
 	}
 
@@ -122,7 +122,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	Dt, err := StringToDate(sa[3])
 	if err != nil {
-		fmt.Printf("CreateReceiptsFromCSV: invalid rlib.Receipt date:  %s\n", sa[3])
+		fmt.Printf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[3])
 		return
 	}
 	r.Dt = Dt
@@ -156,7 +156,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 
 	rcptid, err := rlib.InsertReceipt(&r)
 	if err != nil {
-		fmt.Printf("CreateReceiptsFromCSV: error inserting assessment: %v\n", err)
+		fmt.Printf("%s: line %d -  error inserting assessment: %v\n", funcname, lineno, err)
 	}
 	r.RCPTID = rcptid
 
@@ -165,7 +165,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	err = GenerateReceiptAllocations(&r, &xbiz)
 	if err != nil {
-		fmt.Printf("CreateReceiptsFromCSV: error processing payments: %s\n", err.Error())
+		fmt.Printf("%s: line %d -  error processing payments: %s\n", funcname, lineno, err.Error())
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)
 	}

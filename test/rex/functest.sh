@@ -23,6 +23,11 @@ echo "DEFINE BUSINESS" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -b business.csv -L 3 >> ${LOGFILE} 2>&1
 echo >>${LOGFILE}
 
+echo "import Depositories"
+echo "DEFINE DEPOSITORIES" >> ${LOGFILE} 2>&1
+${CVSLOAD} -d depository.csv -L 18,REX >> ${LOGFILE} 2>&1
+echo >>${LOGFILE}
+
 echo "import Rentable types"
 echo "DEFINE RENTABLE TYPES" >> ${LOGFILE} 2>&1
 ${CVSLOAD} -R rentabletypes.csv -L 5,REX >> ${LOGFILE} 2>&1

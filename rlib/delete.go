@@ -2,6 +2,32 @@ package rlib
 
 import "time"
 
+// DeleteDeposit deletes the Deposit associated with the supplied id
+// For convenience, this routine calls DeleteDepositParts. The DepositParts are
+// tightly bound to the Deposit. If a Deposit is deleted, the parts should be deleted as well.
+func DeleteDeposit(id int64) {
+	_, err := RRdb.Prepstmt.DeleteDeposit.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Deposit for ID = %d, error: %v\n", id, err)
+	}
+}
+
+// DeleteDepository deletes the Depository associated with the supplied id
+func DeleteDepository(id int64) {
+	_, err := RRdb.Prepstmt.DeleteDepository.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Depository where ID = %d, error: %v\n", id, err)
+	}
+}
+
+// DeleteDepositParts deletes ALL the DepositParts associated with the supplied id
+func DeleteDepositParts(id int64) {
+	_, err := RRdb.Prepstmt.DeleteDepositParts.Exec(id)
+	if err != nil {
+		Ulog("Error deleting DepositParts where ID = %d, error: %v\n", id, err)
+	}
+}
+
 // DeleteJournalAllocations deletes the allocation records associated with the supplied jid
 func DeleteJournalAllocations(jid int64) {
 	_, err := RRdb.Prepstmt.DeleteJournalAllocations.Exec(jid)

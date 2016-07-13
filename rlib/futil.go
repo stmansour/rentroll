@@ -193,7 +193,7 @@ func IntFromString(sa string, errmsg string) (int64, bool) {
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			fmt.Printf("CreateAssessmentsFromCSV: %s: %s\n", errmsg, s)
+			fmt.Printf("IntFromString: %s: %s\n", errmsg, s)
 			return n, false
 		}
 		n = int64(i)

@@ -52,15 +52,12 @@ func ReportRentableTypeToHTML(p rlib.RentableType) string {
 
 // RRreportRentableTypes generates a report of all assessment types defined in the database.
 func RRreportRentableTypes(t int, bid int64) string {
-
 	m := rlib.GetBusinessRentableTypes(bid)
-
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
-
 	s := fmt.Sprintf("RTID   Style      Name\n")
 
 	// To perform the opertion you want
@@ -513,6 +510,54 @@ func RRreportNoteTypes(t int, bid int64) string {
 		switch t {
 		case rlib.RPTTEXT:
 			s += ReportNoteTypeToText(&m[i])
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// RRreportDepository generates a report of all rlib.GLAccount accounts
+func RRreportDepository(t int, bid int64) string {
+	m := rlib.GetAllDepositories(bid)
+	s := fmt.Sprintf("%-11s  %-9s  %-12s %-50s\n", "DEPID", "BID", "AccountNo", "Name")
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("DEP%08d  B%08d  %-12s %-50s\n", m[i].DEPID, m[i].BID, m[i].AccountNo, m[i].Name)
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// RRreportDeposits generates a report of all rlib.GLAccount accounts
+func RRreportDeposits(t int, bid int64) string {
+	d1, _ := rlib.StringToDate("1/1/1970")
+	d2, _ := rlib.StringToDate("12/31/9999")
+	m := rlib.GetAllDepositsInRange(bid, &d1, &d2)
+	s := fmt.Sprintf("%-10s  %-11s  %-9s  %-8s %s\n", "Date", "DEPID", "BID", "Amount", "Receipts")
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case rlib.RPTTEXT:
+			var err error
+			m[i].DP, err = rlib.GetDepositParts(m[i].DID)
+			if err != nil {
+				return fmt.Sprintf("Error fetching deposits: %s\n", err.Error())
+			}
+			s += fmt.Sprintf("%10s  DEP%08d  B%08d  %8.2f  ",
+				m[i].Dt.Format(rlib.RRDATEINPFMT), m[i].DEPID, m[i].BID, m[i].Amount)
+			for j := 0; j < len(m[i].DP); j++ {
+				s += fmt.Sprintf("RCPT%08d ", m[i].DP[j].RCPTID)
+			}
+			s += "\n"
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:

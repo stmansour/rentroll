@@ -153,9 +153,9 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 //=======================================================
 
 // GetCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
-func GetCustomAttribute(cid int64) (CustomAttribute, error) {
+func GetCustomAttribute(id int64) (CustomAttribute, error) {
 	var a CustomAttribute
-	err := RRdb.Prepstmt.GetCustomAttribute.QueryRow(cid).Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy)
+	err := RRdb.Prepstmt.GetCustomAttribute.QueryRow(id).Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy)
 	return a, err
 }
 
@@ -181,6 +181,71 @@ func GetAllCustomAttributes(elemid, id int64) ([]CustomAttribute, error) {
 		m = append(m, c)
 	}
 
+	return m, err
+}
+
+//=======================================================
+//  DEPOSIT
+//  Deposit, Depository, DepositPart
+//=======================================================
+
+// GetDeposit reads a Deposit structure based on the supplied Deposit id
+func GetDeposit(id int64) (Deposit, error) {
+	var a Deposit
+	err := RRdb.Prepstmt.GetDeposit.QueryRow(id).Scan(&a.DID, &a.BID, &a.DEPID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy)
+	return a, err
+}
+
+// GetAllDepositsInRange returns an array of all Deposits for bid between the supplied dates
+func GetAllDepositsInRange(bid int64, d1, d2 *time.Time) []Deposit {
+	var t []Deposit
+	rows, err := RRdb.Prepstmt.GetAllDepositsInRange.Query(bid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a Deposit
+		Errcheck(rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy))
+		t = append(t, a)
+	}
+	Errcheck(rows.Err())
+	return t
+}
+
+// GetDepository reads a Depository structure based on the supplied Depository id
+func GetDepository(id int64) (Depository, error) {
+	var a Depository
+	err := RRdb.Prepstmt.GetDepository.QueryRow(id).Scan(&a.DEPID, &a.BID, &a.Name, &a.AccountNo, &a.LastModTime, &a.LastModBy)
+	return a, err
+}
+
+// GetAllDepositories returns an array of all Depositories for the supplied business
+func GetAllDepositories(bid int64) []Depository {
+	var t []Depository
+	rows, err := RRdb.Prepstmt.GetAllDepositories.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var r Depository
+		Errcheck(rows.Scan(&r.DEPID, &r.BID, &r.Name, &r.AccountNo, &r.LastModTime, &r.LastModBy))
+		t = append(t, r)
+	}
+	Errcheck(rows.Err())
+	return t
+}
+
+// GetDepositParts reads a DepositPart structure based on the supplied DepositPart DID
+func GetDepositParts(id int64) ([]DepositPart, error) {
+	var m []DepositPart
+	rows, err := RRdb.Prepstmt.GetDepositParts.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		var a DepositPart
+		Errcheck(rows.Scan(&a.DID, &a.RCPTID))
+		m = append(m, a)
+	}
+	Errcheck(rows.Err())
 	return m, err
 }
 
@@ -262,22 +327,6 @@ func GetAllLedgerMarkersInRange(bid int64, DtStart, DtStop *time.Time) map[int64
 	Errcheck(rows.Err())
 	return t
 }
-
-// // GetAllLedgerMarkersInRange returns a map of all ledgermarkers for the supplied business and dat
-// func GetLedgerMarkersInRange(bid, lid int64, DtStart, DtStop *time.Time) map[int64]LedgerMarker {
-// 	var t map[int64]LedgerMarker
-// 	t = make(map[int64]LedgerMarker, 0) // this line is absolutely necessary
-// 	rows, err := RRdb.Prepstmt.GetLedgerMarkersInRange.Query(bid, lid, DtStart, DtStop)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var r LedgerMarker
-// 		Errcheck(rows.Scan(&r.LMID, &r.LID, &r.BID, &r.DtStart, &r.DtStop, &r.Balance, &r.State, &r.LastModTime, &r.LastModBy))
-// 		t[r.LID] = r
-// 	}
-// 	Errcheck(rows.Err())
-// 	return t
-// }
 
 //=======================================================
 //  P A Y M E N T   T Y P E S

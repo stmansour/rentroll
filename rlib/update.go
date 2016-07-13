@@ -10,6 +10,26 @@ func UpdateAssessment(a *Assessment) error {
 	return err
 }
 
+// UpdateDeposit updates a Deposit record
+func UpdateDeposit(a *Deposit) error {
+	_, err := RRdb.Prepstmt.UpdateDeposit.Exec(a.BID, a.DEPID, a.Dt, a.Amount, a.LastModBy, a.DID)
+	if nil != err {
+		Ulog("UpdateDeposit: error updating Deposit:  %v\n", err)
+		Ulog("Deposit = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateDepository updates a Depository record
+func UpdateDepository(a *Depository) error {
+	_, err := RRdb.Prepstmt.UpdateDepository.Exec(a.BID, a.Name, a.AccountNo, a.LastModBy, a.DEPID)
+	if nil != err {
+		Ulog("UpdateDepository: error updating Depository:  %v\n", err)
+		Ulog("Depository = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateLedgerMarker updates a LedgerMarker record
 func UpdateLedgerMarker(lm *LedgerMarker) error {
 	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LMID, lm.LID, lm.BID, lm.DtStart, lm.DtStop, lm.Balance, lm.State, lm.LastModBy, lm.LMID)
@@ -20,7 +40,7 @@ func UpdateLedgerMarker(lm *LedgerMarker) error {
 	return err
 }
 
-// UpdateLedger updates a LedgerMarker record
+// UpdateLedger updates a Ledger record
 func UpdateLedger(l *GLAccount) error {
 	_, err := RRdb.Prepstmt.UpdateLedger.Exec(l.PLID, l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.RARequired, l.ManageToBudget, l.Description, l.LastModBy, l.LID)
 	if nil != err {

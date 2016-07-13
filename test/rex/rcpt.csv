@@ -1,3 +1,3 @@
-Designation,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment
+BUD,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment
 REX,RA00000001,1,"2016-03-01",8832,3750.00,"ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _",
 REX,RA00000002,1,"2016-03-02",2773,3550.00,"ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _",

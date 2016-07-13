@@ -496,6 +496,7 @@ CREATE TABLE ReceiptAllocation (
 -- **************************************
 CREATE TABLE Depository (
     DEPID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for a depository
+    BID BIGINT NOT NULL DEFAULT 0,                              -- business id
     Name VARCHAR(256),                                          -- Name of Depository: First Data, Nyax, CCI, Oklahoma Fidelity
     AccountNo VARCHAR(256),                                     -- account number at this Depository
     LastModTime TIMESTAMP,                                      -- when was this record last written
@@ -504,15 +505,18 @@ CREATE TABLE Depository (
 );
 
 CREATE TABLE Deposit (
-    DID BIGINT NOT NULL AUTO_INCREMENT,                         -- 
-    DEPID BIGINT NOT NULL DEFAULT 0,                            --
+    DID BIGINT NOT NULL AUTO_INCREMENT,                         -- UniqueID for this deposit
+    BID BIGINT NOT NULL DEFAULT 0,                              -- business id
+    DEPID BIGINT NOT NULL DEFAULT 0,                            -- DepositoryID where the Deposit was made
+    Dt DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- Date of deposit
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- total amount of all Receipts in this deposit
     LastModTime TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (DID)
 );
 
 CREATE TABLE DepositPart (
-    DIP BIGINT NOT NULL DEFAULT 0,
+    DID BIGINT NOT NULL DEFAULT 0,
     RCPTID BIGINT NOT NULL DEFAULT 0
 );
 

@@ -167,6 +167,52 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// DEPOSIT
+	//==========================================
+	DepositFlds := "DID,BID,DEPID,Dt,Amount,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetDeposit, err = RRdb.Dbrr.Prepare("SELECT " + DepositFlds + " FROM Deposit WHERE DID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllDepositsInRange, err = RRdb.Dbrr.Prepare("SELECT " + DepositFlds + " FROM Deposit WHERE BID=? AND ?<=Dt AND Dt<?")
+	Errcheck(err)
+
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(DepositFlds)
+
+	RRdb.Prepstmt.InsertDeposit, err = RRdb.Dbrr.Prepare("INSERT INTO Deposit (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteDeposit, err = RRdb.Dbrr.Prepare("DELETE FROM Deposit WHERE DID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateDeposit, err = RRdb.Dbrr.Prepare("UPDATE Deposit SET " + s3 + " WHERE DID=?")
+	Errcheck(err)
+
+	//==========================================
+	// DEPOSIT PART
+	//==========================================
+	RRdb.Prepstmt.GetDepositParts, err = RRdb.Dbrr.Prepare("SELECT DID,RCPTID FROM DepositPart WHERE DID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertDepositPart, err = RRdb.Dbrr.Prepare("INSERT INTO DepositPart (DID,RCPTID) VALUES (?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteDepositParts, err = RRdb.Dbrr.Prepare("DELETE FROM DepositPart WHERE DID=?")
+	Errcheck(err)
+
+	//==========================================
+	// DEPOSITORY
+	//==========================================
+	DepositoryFlds := "DEPID,BID,Name,AccountNo,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetDepository, err = RRdb.Dbrr.Prepare("SELECT " + DepositoryFlds + " FROM Depository WHERE DEPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllDepositories, err = RRdb.Dbrr.Prepare("SELECT " + DepositoryFlds + " FROM Depository WHERE BID=?")
+	Errcheck(err)
+
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(DepositoryFlds)
+
+	RRdb.Prepstmt.InsertDepository, err = RRdb.Dbrr.Prepare("INSERT INTO Depository (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteDepository, err = RRdb.Dbrr.Prepare("DELETE FROM Depository WHERE DEPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateDepository, err = RRdb.Dbrr.Prepare("UPDATE Depository SET " + s3 + " WHERE DEPID=?")
+	Errcheck(err)
+
+	//==========================================
 	// JOURNAL
 	//==========================================
 	RRdb.Prepstmt.GetJournal, err = RRdb.Dbrr.Prepare("select JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from Journal WHERE JID=?")

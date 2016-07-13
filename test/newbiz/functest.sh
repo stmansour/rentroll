@@ -17,7 +17,7 @@ fi
 ########################################
 ${RRBIN}/rrnewdb
 
-./newbiz -b nb.csv -R rt.csv -u custom.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv >log 2>&1
+./newbiz -b nb.csv -R rt.csv -u custom.csv -d depository.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv -y deposit.csv >log 2>&1
 
 ########################################
 # dotest()
@@ -57,6 +57,7 @@ dotest "z"  "-R rt.csv"           "RentableTypes...  " "select RTID,BID,Style,Na
 dotest "w"  "-R rt.csv"           "RentableMarketRates...  " "select * from RentableMarketrate;"
 dotest "v"  "-s specialties.csv"  "RentableSpecialtyTypes...  " "select * from RentableSpecialtyType;"
 dotest "u"  "-D bldg.csv"         "Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
+dotest "c"  "-d depository.csv"   "Depositories...  " "select DEPID,BID,Name,AccountNo,LastModBy from Depository;"
 dotest "t"  "-r rentable.csv"     "Rentables...  " "select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
 dotest "t1" "-r rentable.csv"     "RentableTypeRef...  " "select RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 dotest "t2" "-r rentable.csv"     "RentableStatus...  " "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
@@ -79,6 +80,7 @@ dotest "g"  "-e rcpt.csv"         "Receipts... " "select RCPTID,BID,RAID,PMTID,D
 dotest "f"  "-u custom.csv"       "CustomAttributes... " "select CID,Type,Name,Value,LastModBy from CustomAttr;"
 dotest "e"  "-U assigncustom.csv" "CustomAttributesAssignment... " "select * from CustomAttrRef;"
 dotest "d"  "-O nt.csv"           "NoteTypes... " "select NTID,BID,Name,LastModBy from NoteType;"
+dotest "b"  "-y deposit.csv"      "Deposits... " "select DID,BID,Dt,DEPID,Amount,LastModBy from Deposit;"
 
 echo -n "PHASE FINAL: Log file check...  "
 if [ ! -f log.gold -o ! -f log ]; then

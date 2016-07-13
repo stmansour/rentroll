@@ -1,9 +1,15 @@
 CSV IMPORT TEST
-Date/Time: Mon Jul 11 20:10:02 PDT 2016
+Date/Time: Tue Jul 12 20:01:40 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
    1    REX    JGM First, LLC
+
+
+DEFINE DEPOSITORIES
+DEPID        BID        AccountNo    Name                                              
+DEP00000001  B00000001  987654321    Wells Fargo                                       
+DEP00000002  B00000001  012345678    Bank Of America                                   
 
 
 DEFINE RENTABLE TYPES

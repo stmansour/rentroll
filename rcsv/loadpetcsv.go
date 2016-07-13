@@ -14,7 +14,6 @@ import (
 // CSVLoaderGetRAID parses a string of the for RA000000321 and returns the RAID , in this case 321.
 func CSVLoaderGetRAID(sa string) int64 {
 	s := strings.TrimSpace(sa)
-
 	re, _ := regexp.Compile("^RA0*(.*)")
 	m := re.FindStringSubmatch(s) // returns this pattern:  ["RA0000001" "1"]
 	if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element

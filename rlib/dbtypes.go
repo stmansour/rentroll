@@ -419,6 +419,37 @@ type ReceiptAllocation struct {
 	AcctRule string
 }
 
+// Depository is a bank account or other account where deposits are made
+type Depository struct {
+	DEPID       int64     // unique id for a depository
+	BID         int64     // which business
+	Name        string    // Name of Depository: First Data, Nyax, CCI, Oklahoma Fidelity
+	AccountNo   string    // account number at this Depository
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+}
+
+// Deposit is simply a list of receipts that form a deposit to a Depository. This struct contains
+// the static attributes of the list
+type Deposit struct {
+	DID         int64         // Unique id of this deposit
+	BID         int64         // business id
+	DEPID       int64         // Depository id where the deposit was made
+	Dt          time.Time     // Date of deposit
+	Amount      float64       // the total amount of the deposit
+	LastModTime time.Time     // when was this record last written
+	LastModBy   int64         // employee UID (from phonebook) that modified it
+	DP          []DepositPart // array of DepositParts for this deposit
+}
+
+// DepositPart is a reference to a Receipt that is part of this deposit.  Another way of
+// thinking about it is that this query produces the list of all receipts in a Deposit:
+//		SELECT RCPTID WHERE DIP=someDID
+type DepositPart struct {
+	DID    int64 // deposit id
+	RCPTID int64 // receipt id
+}
+
 // RentableSpecialtyType is the structure for attributes of a Rentable specialty
 type RentableSpecialtyType struct {
 	RSPID       int64
@@ -646,6 +677,10 @@ type RRprepSQL struct {
 	GetCustomAttribute                       *sql.Stmt
 	GetCustomAttributeRefs                   *sql.Stmt
 	GetDefaultLedgers                        *sql.Stmt
+	GetDeposit                               *sql.Stmt
+	InsertDeposit                            *sql.Stmt
+	UpdateDeposit                            *sql.Stmt
+	DeleteDeposit                            *sql.Stmt
 	GetJournal                               *sql.Stmt
 	GetJournalAllocation                     *sql.Stmt
 	GetJournalAllocations                    *sql.Stmt
@@ -745,6 +780,15 @@ type RRprepSQL struct {
 	UpdateRentableTypeRef                    *sql.Stmt
 	UpdateRentalAgreementPet                 *sql.Stmt
 	UpdateTransactant                        *sql.Stmt
+	GetDepositParts                          *sql.Stmt
+	InsertDepositPart                        *sql.Stmt
+	DeleteDepositParts                       *sql.Stmt
+	GetDepository                            *sql.Stmt
+	InsertDepository                         *sql.Stmt
+	DeleteDepository                         *sql.Stmt
+	UpdateDepository                         *sql.Stmt
+	GetAllDepositories                       *sql.Stmt
+	GetAllDepositsInRange                    *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

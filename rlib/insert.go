@@ -29,6 +29,7 @@ func InsertBuilding(a *Building) (int64, error) {
 		}
 	} else {
 		Ulog("Error inserting Building:  %v\n", err)
+		Ulog("Bldg = %#v\n", *a)
 	}
 	return rid, err
 }
@@ -62,6 +63,60 @@ func InsertBusiness(b *Business) (int64, error) {
 		}
 	}
 	return bid, err
+}
+
+//======================================
+//  DEPOSIT
+//======================================
+
+// InsertDeposit writes a new Deposit record to the database
+func InsertDeposit(a *Deposit) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertDeposit.Exec(a.BID, a.DEPID, a.Dt, a.Amount, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting Deposit:  %v\n", err)
+		Ulog("Deposit = %#v\n", *a)
+	}
+	return rid, err
+}
+
+//======================================
+//  DEPOSIT PART
+//======================================
+
+// InsertDepositPart writes a new DepositPart record to the database
+func InsertDepositPart(a *DepositPart) error {
+	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.RCPTID)
+	if nil != err {
+		Ulog("Error inserting DepositPart:  %v\n", err)
+		Ulog("DepositPart = %#v\n", *a)
+	}
+	return err
+}
+
+//======================================
+//  DEPOSITORY
+//======================================
+
+// InsertDepository writes a new Depository record to the database
+func InsertDepository(a *Depository) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertDepository.Exec(a.BID, a.Name, a.AccountNo, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting Depository:  %v\n", err)
+		Ulog("Depository = %#v\n", *a)
+	}
+	return rid, err
 }
 
 // InsertJournalEntry writes a new Journal entry to the database
