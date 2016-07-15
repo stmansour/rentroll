@@ -1,4 +1,5 @@
 #!/bin/bash
+ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
 APP="${RRBIN}/rentroll -A"
@@ -44,14 +45,16 @@ EOF
 	if [ ${UDIFFS} -eq 0 ]; then
 		echo "PASSED"
 	else
-		echo "FAILED...   if correct:  mv ${1} ${1}.gold"
-		echo "Command to reproduce:  ./newbiz ${2}"
-		echo "Differences in ${1} are as follows:"
-		diff ${1}.gold ${1}
+		echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+		echo "Command to reproduce:  ./newbiz ${2}" >> ${ERRFILE}
+		echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+		diff ${1}.gold ${1} >> ${ERRFILE}
+		cat ${ERRFILE}
 		exit 1
 	fi
 }
 
+rm -f ${ERRFILE}
 dotest "x"  "-b nb.csv"           "NewBusinesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
 dotest "z"  "-R rt.csv"           "RentableTypes...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModBy from RentableTypes;"
 dotest "w"  "-R rt.csv"           "RentableMarketRates...  " "select * from RentableMarketrate;"
@@ -102,9 +105,10 @@ if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
 	rm -f ll.g llog
 else
-	echo "FAILED...   if correct:   mv log log.gold"
-	echo "Differences are as follows:"
-	diff ll.g llog
+	echo "FAILED...   if correct:   mv log log.gold" >> ${ERRFILE}
+	echo "Differences are as follows:" >> ${ERRFILE}
+	diff ll.g llog >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi
 

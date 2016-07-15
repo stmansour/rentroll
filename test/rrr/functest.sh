@@ -1,4 +1,5 @@
 #!/bin/bash
+ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
 MYSQLOPTS=""
 UNAME=$(uname)
@@ -10,6 +11,7 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
 fi
 
+rm -f ${ERRFILE}
 echo "CSV IMPORT TEST" > ${LOGFILE}
 echo -n "Date/Time: " >>${LOGFILE}
 date >> ${LOGFILE}
@@ -112,7 +114,8 @@ if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
 	rm -f ll.g llog
 else
-	echo "FAILED:  differences are as follows:"
-	diff ll.g llog
+	echo "FAILED:  differences are as follows:" >> ${ERRFILE}
+	diff ll.g llog >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi

@@ -3,6 +3,7 @@
 # It is essentially a copy of test/engine/*  but the init.sql code that initialized rentable specialties
 # was replaced by csv files, which invokes the routines in loadrsrefcsv 
 
+ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
 APP="${RRBIN}/rentroll -A -j 2015-11-01 -k 2015-12-01"
@@ -19,7 +20,7 @@ date >>log
 #---------------------------------------------------------------------
 #  Initialize the db, run the app, generate the reports
 #---------------------------------------------------------------------
-# pushd ../ledger1 ; make ; popd
+rm -f ${ERRFILE}
 ${RRBIN}/rrnewdb
 mysql ${MYSQLOPTS} <init.sql
 if [ $? -eq 0 ]; then
@@ -55,9 +56,10 @@ UDIFFS=$(diff w x | wc -l)
 if [ ${UDIFFS} -eq 0 ]; then
 	echo "PHASE 1: PASSED"
 else
-	echo "PHASE 1: FAILED...  if correct:   mv j.txt j.gold"
-	echo "Differences are as follows:"
-	diff w x
+	echo "PHASE 1: FAILED...  if correct:   mv j.txt j.gold" >> ${ERRFILE}
+	echo "Differences are as follows:" >> ${ERRFILE}
+	diff w x >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi
 
@@ -68,9 +70,10 @@ UDIFFS=$(diff y z | wc -l)
 if [ ${UDIFFS} -eq 0 ]; then
 	echo "PHASE 2: PASSED"
 else
-	echo "PHASE 2: FAILED...  if correct:   mv l.txt l.gold"
-	echo "Differences are as follows:"
-	diff y z
+	echo "PHASE 2: FAILED...  if correct:   mv l.txt l.gold" >> ${ERRFILE}
+	echo "Differences are as follows:" >> ${ERRFILE}
+	diff y z >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi
 
@@ -81,9 +84,10 @@ UDIFFS=$(diff c1 c2 | wc -l)
 if [ ${UDIFFS} -eq 0 ]; then
 	echo "PHASE 3: PASSED"
 else
-	echo "PHASE 3: FAILED...  if correct:   mv c.txt c.gold"
-	echo "Differences are as follows:"
-	diff c1 c2
+	echo "PHASE 3: FAILED...  if correct:   mv c.txt c.gold" >> ${ERRFILE}
+	echo "Differences are as follows:" >> ${ERRFILE}
+	diff c1 c2 >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi
 

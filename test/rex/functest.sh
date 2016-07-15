@@ -1,4 +1,5 @@
 #!/bin/bash
+ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
 MYSQLOPTS=""
 UNAME=$(uname)
@@ -49,12 +50,13 @@ doCSVtest () {
 	UDIFFS=$(diff $1.gold $1.txt | wc -l)
 	if [ ${UDIFFS} -eq 0 ]; then
 		echo "PASSED"
-	else
-		echo "FAILED..."
-		echo "    if correct:    mv $1.txt $1.gold"
-		echo "    to reproduce:  ${CSVLOAD} $2"
-		echo "Differences are as follows:"
-		diff $1.gold $1.txt
+	else >> ${ERRFILE}
+		echo "FAILED..." >> ${ERRFILE}
+		echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
+		echo "    to reproduce:  ${CSVLOAD} $2" >> ${ERRFILE}
+		echo "Differences are as follows:" >> ${ERRFILE}
+		diff $1.gold $1.txt >> ${ERRFILE}
+		cat ${ERRFILE}
 		exit 1
 	fi
 }
@@ -81,15 +83,17 @@ dotest () {
 	if [ ${UDIFFS} -eq 0 ]; then
 		echo "PASSED"
 	else
-		echo "FAILED..."
-		echo "    if correct:    mv $1.txt $1.gold"
-		echo "    to reproduce:  ${RENTROLL} $2"
-		echo "Differences are as follows:"
-		diff $1.gold $1.txt
+		echo "FAILED..." >> ${ERRFILE}
+		echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
+		echo "    to reproduce:  ${RENTROLL} $2" >> ${ERRFILE}
+		echo "Differences are as follows:" >> ${ERRFILE}
+		diff $1.gold $1.txt >> ${ERRFILE}
+		cat ${ERRFILE}
 		exit 1
 	fi
 }
 
+rm -f ${ERRFILE}
 echo "CSV IMPORT TEST" > ${LOGFILE}
 echo -n "Date/Time: " >> ${LOGFILE}
 date >> ${LOGFILE}
@@ -146,8 +150,9 @@ if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
 	rm -f ll.g llog
 else
-	echo "FAILED...  if correct:   mv log log.gold"
-	echo "Differences are as follows:"
-	diff ll.g llog
+	echo "FAILED...  if correct:   mv log log.gold" >> ${ERRFILE}
+	echo "Differences are as follows:" >> ${ERRFILE}
+	diff ll.g llog >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi

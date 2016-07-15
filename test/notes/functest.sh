@@ -1,4 +1,5 @@
 #!/bin/bash
+ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
 APP="${RRBIN}/rentroll -A"
@@ -11,6 +12,7 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
 fi
 
+rm -f ${ERRFILE}
 echo "CREATE NEW DATABASE"
 ${RRBIN}/rrnewdb
 ${RRBIN}/rrloadcsv -b nb.csv -O nt.csv
@@ -37,9 +39,10 @@ if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
 	rm -f ll.g llog
 else
-	echo "FAILED...   if correct:   mv log log.gold"
-	echo "Differences are as follows:"
-	diff ll.g llog
+	echo "FAILED...   if correct:   mv log log.gold" >> ${ERRFILE}
+	echo "Differences are as follows:" >> ${ERRFILE}
+	diff ll.g llog >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi
 

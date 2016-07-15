@@ -8,6 +8,7 @@ SCRIPTLOG="f.log"
 APP="${RRBIN}/rentroll -A -j 2015-11-01 -k 2015-12-01"
 MYSQLOPTS=""
 UNAME=$(uname)
+ERRFILE="err.txt"
 CSVLOAD="${RRBIN}/rrloadcsv"
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
@@ -28,15 +29,22 @@ fi
 dotest () {
 	echo -n "${3}... "
 	${APP} $2 >$1.txt 2>&1
+	if [ ! -f $1.gold ]; then
+		echo "file $1.gold not found. Please create $1.gold then rerun test." >> ${ERRFILE}
+		cat ${ERRFILE}
+		exit 1
+	fi
 	UDIFFS=$(diff $1.gold $1.txt | wc -l)
 	if [ ${UDIFFS} -eq 0 ]; then
 		echo "PASSED"
 	else
 		echo "FAILED..."
-		echo "    if correct:    mv $1.txt $1.gold"
-		echo "    to reproduce:  ${APP} $2"
-		echo "Differences are as follows:"
-		diff $1.gold $1.txt
+		echo "${3} FAILED"  > ${ERRFILE}
+		echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
+		echo "    to reproduce:  ${APP} $2" >> ${ERRFILE}
+		echo "Differences are as follows:" >> ${ERRFILE}
+		diff $1.gold $1.txt >> ${ERRFILE}
+		cat ${ERRFILE}
 		exit 1
 	fi
 }
@@ -57,7 +65,8 @@ doCSVtest () {
 	${CSVLOAD} $2 >> ${1}.txt 2>&1
 
 	if [ ! -f $1.gold ]; then
-		echo "file $1.gold not found. Please create $1.gold then rerun test."
+		echo "file $1.gold not found. Please create $1.gold then rerun test." >> ${ERRFILE}
+		cat ${ERRFILE}
 		exit 1
 	fi
 	UDIFFS=$(diff $1.gold $1.txt | wc -l)
@@ -65,10 +74,13 @@ doCSVtest () {
 		echo "PASSED"
 	else
 		echo "FAILED..."
-		echo "    if correct:    mv $1.txt $1.gold"
-		echo "    to reproduce:  ${CSVLOAD} $2"
-		echo "Differences are as follows:"
-		diff $1.gold $1.txt
+		echo "${3} FAILED" > ${ERRFILE}
+	cat ${ERRFILE}
+		echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
+		echo "    to reproduce:  ${CSVLOAD} $2" >> ${ERRFILE}
+		echo "Differences are as follows:" >> ${ERRFILE}
+		diff $1.gold $1.txt >> ${ERRFILE}
+		cat ${ERRFILE}
 		exit 1
 	fi
 }
@@ -77,6 +89,7 @@ doCSVtest () {
 #--------------------------------------------------------------------------
 #  On with the test! Initialize the db, run the app, generate the reports
 #--------------------------------------------------------------------------
+rm -f ${ERRFILE}
 echo -n "Test Run " >log 2>&1
 date >>log
 

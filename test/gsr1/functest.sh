@@ -1,4 +1,5 @@
 #!/bin/bash
+ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
 CVSLOAD="${RRBIN}/rrloadcsv"
 UNAME=$(uname)
@@ -27,6 +28,7 @@ dotest () {
 	echo >>${LOGFILE}
 }
 
+rm -f ${ERRFILE}
 echo "CSV IMPORT TEST" > ${LOGFILE}
 echo -n "Date/Time: " >>${LOGFILE}
 date >> ${LOGFILE}
@@ -86,8 +88,11 @@ if [ ${UDIFFS} -eq 0 ]; then
 	echo "PASSED"
 	rm -f ll.g llog
 else
-	echo "FAILED...  if correct:   mv log log.gold"
-	echo "Differences are as follows:"
-	diff ll.g llog
+	echo "FAILED"
+	echo "FAILED" >> ${ERRFILE}
+	echo "    if correct:   mv log log.gold" >> ${ERRFILE}
+	echo "Differences are as follows:" >> ${ERRFILE}
+	diff ll.g llog >> ${ERRFILE}
+	cat ${ERRFILE}
 	exit 1
 fi
