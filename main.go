@@ -33,6 +33,7 @@ type DispatchCtx struct {
 	DtStop       time.Time           // period end
 	OutputFormat int                 // how shall the output be formatted
 	Report       int64               // which report to generate - this is used in batch mode operation
+	Args         string              // full command line report string
 	w            http.ResponseWriter // for web responses
 	r            *http.Request       // for web request introspection
 }
@@ -45,7 +46,7 @@ var App struct {
 	DBRR      string   // rentroll database
 	PortRR    int      // port on which rentroll listens
 	DBUser    string   // user for all databases
-	Report    int64    // if testing engine, which report/action to perform
+	Report    string   // if testing engine, which report/action to perform
 	bizfile   string   // TEMPORARY - tests loading bizcsv
 	LogFile   *os.File // where to log messages
 	BatchMode bool     // if true, then don't start http, the command line request is for a batch process
@@ -69,7 +70,7 @@ func readCommandLineArgs() {
 	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	bizPtr := flag.String("b", "b.csv", "add Business via csv file")
-	rptPtr := flag.Int64("r", 0, "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable")
+	rptPtr := flag.String("r", "0", "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 

@@ -6,6 +6,8 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"github.com/dustin/go-humanize"
 )
 
 // RECURNONE - RECURLAST are the allowed recurrence types
@@ -21,6 +23,12 @@ const (
 	RECURYEARLY    = 8
 	RECURLAST      = RECURYEARLY
 )
+
+// RRCommaf returns a floating point number formated with commas for every 3 orders of magnitude
+// and 2 points after the decimal
+func RRCommaf(x float64) string {
+	return humanize.FormatFloat("#,###.##", x)
+}
 
 // Ulog is Phonebooks's standard logger
 func Ulog(format string, a ...interface{}) {

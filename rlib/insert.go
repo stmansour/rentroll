@@ -119,6 +119,58 @@ func InsertDepository(a *Depository) (int64, error) {
 	return rid, err
 }
 
+//======================================
+//  INVOICE
+//======================================
+
+// InsertInvoice writes a new Invoice record to the database
+func InsertInvoice(a *Invoice) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertInvoice.Exec(a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+		}
+	} else {
+		Ulog("Error inserting Invoice:  %v\n", err)
+		Ulog("Invoice = %#v\n", *a)
+	}
+	return rid, err
+}
+
+//======================================
+//  INVOICE PART
+//======================================
+
+// InsertInvoiceAssessment writes a new InvoiceAssessment record to the database
+func InsertInvoiceAssessment(a *InvoiceAssessment) error {
+	_, err := RRdb.Prepstmt.InsertInvoiceAssessment.Exec(a.InvoiceNo, a.ASMID)
+	if nil != err {
+		Ulog("Error inserting InvoiceAssessment:  %v\n", err)
+		Ulog("DepositPart = %#v\n", *a)
+	}
+	return err
+}
+
+//======================================
+//  INVOICE PAYOR
+//======================================
+
+// InsertInvoicePayor writes a new InvoicePayor record to the database
+func InsertInvoicePayor(a *InvoicePayor) error {
+	_, err := RRdb.Prepstmt.InsertInvoicePayor.Exec(a.InvoiceNo, a.PID)
+	if nil != err {
+		Ulog("Error inserting InvoicePayor:  %v\n", err)
+		Ulog("DepositPayor = %#v\n", *a)
+	}
+	return err
+}
+
+//======================================
+//  JOURNAL ENTRY
+//======================================
+
 // InsertJournalEntry writes a new Journal entry to the database
 func InsertJournalEntry(j *Journal) (int64, error) {
 	var rid = int64(0)

@@ -547,17 +547,34 @@ func RRreportDeposits(t int, bid int64) string {
 	for i := 0; i < len(m); i++ {
 		switch t {
 		case rlib.RPTTEXT:
-			var err error
-			m[i].DP, err = rlib.GetDepositParts(m[i].DID)
-			if err != nil {
-				return fmt.Sprintf("Error fetching deposits: %s\n", err.Error())
-			}
 			s += fmt.Sprintf("%10s  DEP%08d  B%08d  %8.2f  ",
 				m[i].Dt.Format(rlib.RRDATEINPFMT), m[i].DEPID, m[i].BID, m[i].Amount)
 			for j := 0; j < len(m[i].DP); j++ {
 				s += fmt.Sprintf("RCPT%08d ", m[i].DP[j].RCPTID)
 			}
 			s += "\n"
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// RRreportInvoices generates a report of all rlib.GLAccount accounts
+func RRreportInvoices(t int, bid int64) string {
+	d1, _ := rlib.StringToDate("1/1/1970")
+	d2, _ := rlib.StringToDate("12/31/9999")
+	m := rlib.GetAllInvoicesInRange(bid, &d1, &d2)
+
+	s := fmt.Sprintf("%-10s  %10s  %-9s  %-10s  %-8s  %-15s\n", "Date", "InvoiceNo", "BID", "Due Date", "Amount", "DeliveredBy")
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("%10s  IN%08d  B%08d  %10s  %8.2f  %-15s\n",
+				m[i].Dt.Format(rlib.RRDATEINPFMT), m[i].InvoiceNo, m[i].BID, m[i].DtDue.Format(rlib.RRDATEINPFMT), m[i].Amount, m[i].DeliveredBy)
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:

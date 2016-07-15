@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"rentroll/rlib"
+	"strings"
 	"text/template"
 )
 
@@ -16,7 +17,7 @@ func initRentRoll() {
 		"DateToString": rlib.DateToString,
 		"getVersionNo": getVersionNo,
 		"getBuildTime": getBuildTime,
-		"RRCommaf":     RRCommaf,
+		"RRCommaf":     rlib.RRCommaf,
 		"LMSum":        LMSum,
 	}
 }
@@ -34,7 +35,19 @@ func createStartupCtx() DispatchCtx {
 		fmt.Printf("Invalid start date:  %s\n", App.sStop)
 		os.Exit(1)
 	}
-	ctx.Report = App.Report
+
+	// App.Report is a string, of the format:
+	//   n[,s1[,s2[...]]]
+	// Example:
+	//   1           -- this would be for a Journal text report
+	//   9,IN0001    -- this would be for a text report of Invoice 1
+	//
+	// The only required value is n, the report number
+	sa := strings.Split(App.Report, ",") // comma separated list
+	if len(App.Report) > 0 {
+		ctx.Report, _ = rlib.IntFromString(sa[0], "invalid report number")
+	}
+	ctx.Args = App.Report
 	ctx.Cmd = CmdRUNBOOKS
 	ctx.OutputFormat = FMTTEXT
 	return ctx

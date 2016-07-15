@@ -2,7 +2,6 @@ package rcsv
 
 import (
 	"fmt"
-	"regexp"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -94,13 +93,15 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	// Find Rental Agreement
 	//-------------------------------------------------------------------
-	s := strings.TrimSpace(sa[1])
-	re, _ := regexp.Compile("^RA0*(.*)")
-	m := re.FindStringSubmatch(s) // returns this pattern:  ["RA0000001" "1"]
-	if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element
-		s = m[1]
-	}
-	r.RAID, _ = rlib.IntFromString(s, "Rental Agreement number is invalid")
+	r.RAID = CSVLoaderGetRAID(sa[1]) // this should probably go away, we should select it from an Assessment in the AcctRule
+	// s := strings.TrimSpace(sa[1])
+	// re, _ := regexp.Compile("^RA0*(.*)")
+	// m := re.FindStringSubmatch(s) // returns this pattern:  ["RA0000001" "1"]
+	// if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element
+	// 	s = m[1]
+	// }
+	// r.RAID, _ = rlib.IntFromString(s, "Rental Agreement number is invalid")
+
 	_, err = rlib.GetRentalAgreement(r.RAID)
 	if nil != err {
 		fmt.Printf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[1], err)

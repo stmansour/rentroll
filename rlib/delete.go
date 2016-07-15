@@ -8,7 +8,7 @@ import "time"
 func DeleteDeposit(id int64) {
 	_, err := RRdb.Prepstmt.DeleteDeposit.Exec(id)
 	if err != nil {
-		Ulog("Error deleting Deposit for ID = %d, error: %v\n", id, err)
+		Ulog("Error deleting Deposit for DID = %d, error: %v\n", id, err)
 	}
 }
 
@@ -16,7 +16,7 @@ func DeleteDeposit(id int64) {
 func DeleteDepository(id int64) {
 	_, err := RRdb.Prepstmt.DeleteDepository.Exec(id)
 	if err != nil {
-		Ulog("Error deleting Depository where ID = %d, error: %v\n", id, err)
+		Ulog("Error deleting Depository where DEPID = %d, error: %v\n", id, err)
 	}
 }
 
@@ -24,8 +24,30 @@ func DeleteDepository(id int64) {
 func DeleteDepositParts(id int64) {
 	_, err := RRdb.Prepstmt.DeleteDepositParts.Exec(id)
 	if err != nil {
-		Ulog("Error deleting DepositParts where ID = %d, error: %v\n", id, err)
+		Ulog("Error deleting DepositParts where DID = %d, error: %v\n", id, err)
 	}
+}
+
+// DeleteInvoice deletes the Invoice associated with the supplied id
+// For convenience, this routine calls DeleteInvoiceAssessments. The InvoiceAssessments are
+// tightly bound to the Invoice. If a Invoice is deleted, the parts should be deleted as well.
+// It also updates
+func DeleteInvoice(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteInvoice.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Invoice for InvoiceNo = %d, error: %v\n", id, err)
+		return err
+	}
+	return DeleteInvoiceAssessments(id)
+}
+
+// DeleteInvoiceAssessments deletes ALL the InvoiceAssessments associated with the supplied InvoiceNo
+func DeleteInvoiceAssessments(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteInvoiceAssessments.Exec(id)
+	if err != nil {
+		Ulog("Error deleting InvoiceAssessments where InvoiceNo = %d, error: %v\n", id, err)
+	}
+	return err
 }
 
 // DeleteJournalAllocations deletes the allocation records associated with the supplied jid

@@ -2,7 +2,6 @@ package rcsv
 
 import (
 	"fmt"
-	"regexp"
 	"rentroll/rlib"
 	"strings"
 )
@@ -11,30 +10,6 @@ import (
 // 0    1         2     3      4
 // BUD, Date,    DEPID, Amount,Receipts
 // REX, 5/21/16, DEP001,2000,  "RCPT00001,2"
-
-// CSVLoaderGetDEPID parses a string of the for DEP000000321 and returns the DEPID , in this case 321.
-func CSVLoaderGetDEPID(sa string) int64 {
-	s := strings.TrimSpace(sa)
-	re, _ := regexp.Compile("^DEP0*(.*)")
-	m := re.FindStringSubmatch(s) // returns this pattern:  ["DEP0000001" "2"]
-	if len(m) > 0 {               // if the prefix was "DEP", m will have 2 elements, our number should be the second element
-		s = m[1]
-	}
-	id, _ := rlib.IntFromString(s, "DEPID number is invalid")
-	return id
-}
-
-// CSVLoaderGetRCPTID parses a string of the for RCPT000000321 and returns the RCPTID , in this case 321.
-func CSVLoaderGetRCPTID(sa string) int64 {
-	s := strings.TrimSpace(sa)
-	re, _ := regexp.Compile("^RCPT0*(.*)")
-	m := re.FindStringSubmatch(s) // returns this pattern:  ["RCPT0000001" "2"]
-	if len(m) > 0 {               // if the prefix was "DEP", m will have 2 elements, our number should be the second element
-		s = m[1]
-	}
-	id, _ := rlib.IntFromString(s, "RCPTID number is invalid")
-	return id
-}
 
 // CreateDepositsFromCSV reads an assessment type string array and creates a database record for the assessment type
 func CreateDepositsFromCSV(sa []string, lineno int) {
@@ -93,6 +68,9 @@ func CreateDepositsFromCSV(sa []string, lineno int) {
 	// RCPT00001 or simply 1.
 	//-------------------------------------------------------------------
 	var rcpts []int64
+	var mm []rlib.Receipt
+	var tot = float64(0)
+
 	s := strings.TrimSpace(sa[4])
 	ssa := strings.Split(s, ",")
 	if len(ssa) == 0 {
@@ -106,6 +84,15 @@ func CreateDepositsFromCSV(sa []string, lineno int) {
 			return
 		}
 		rcpts = append(rcpts, id)
+
+		// load each receipt so that we can total the amount and see if it matches Amount
+		rc := rlib.GetReceipt(id)
+		tot += rc.Amount
+		mm = append(mm, rc) // may need this later
+	}
+	if tot != d.Amount {
+		rlib.Ulog("%s: line %d - Total of all receipts found to be %8.2f, but Amount was specified as %8.2f. Please correct.\n", funcname, lineno, tot, d.Amount)
+		return
 	}
 
 	//-------------------------------------------------------------------

@@ -1,0 +1,33 @@
+SPRINGFIELD RETIREMENT CASTLE
+INVOICE
+
+Date:           11/1/2015
+Invoice Number: IN00000001
+
+Remit To:       JGM First, LLC
+                11719 Bee Cave Road
+                Suite 301
+                Austin, TX 78738 USA
+
+Due From:       Homer Simpson 
+                744 Evergreen Terrace
+                Springfield, MO 64055 USA
+
+                Marge Simpson 
+                744 Evergreen Terrace
+                Springfield, MO 64055 USA
+
+Delivered By:   US Mail
+
+Amount Due:     1,340.00
+Date Due:       11/30/2015
+
+Date        AssessmentID  Rentable         Description                                     Amount  Comment             
+-----------------------------------------------------------------------------------------------------------------------
+11/21/2015  ASM00000015   101              Gross Scheduled Rent                          1,200.00                      
+11/21/2015  ASM00000018   101              Lake View                                        50.00                      
+11/21/2015  ASM00000019   101              Fireplace                                        20.00                      
+11/21/2015  ASM00000021   CP001            Carport                                          35.00                      
+11/21/2015  ASM00000022   CP002            Carport                                          35.00                      
+-----------------------------------------------------------------------------------------------------------------------
+Total                                                                                    1,340.00

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"rentroll/rlib"
 	"time"
-
-	"github.com/dustin/go-humanize"
 )
 
 // XLedger has ledger fields plus LedgerMarker fields for supplied time range
@@ -48,12 +46,6 @@ type RRuiSupport struct {
 }
 
 //========================================================================================================
-
-// RRCommaf returns a floating point number formated with commas for every 3 orders of magnitude
-// and 2 points after the decimal
-func RRCommaf(x float64) string {
-	return humanize.FormatFloat("#,###.##", x)
-}
 
 // LMSum takes an array of LedgerMarkers, sums the Balance value of each, and returns the sum
 func LMSum(m *[]XLedger) float64 {

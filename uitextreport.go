@@ -101,20 +101,20 @@ func UIStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalAg
 				c += amt
 				b += amt
 				fmt.Printf("%10s  ASM%08d  %-30s  %12s  %12s  %12s\n",
-					dl[0].Format(rlib.RRDATEINPFMT), m[i].a.ASMID, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[m[i].a.ATypeLID].Name, RRCommaf(amt), " ", RRCommaf(b))
+					dl[0].Format(rlib.RRDATEINPFMT), m[i].a.ASMID, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[m[i].a.ATypeLID].Name, rlib.RRCommaf(amt), " ", rlib.RRCommaf(b))
 			}
 		case 2: // receipts
 			amt := rlib.RoundToCent(m[i].r.Amount)
 			d += amt
 			b -= amt
-			fmt.Printf("%10s  R%010d  %-30s  %12s  %12s  %12s\n", m[i].r.Dt.Format(rlib.RRDATEINPFMT), m[i].r.RCPTID, "Payment received", " ", RRCommaf(m[i].r.Amount), RRCommaf(b))
+			fmt.Printf("%10s  R%010d  %-30s  %12s  %12s  %12s\n", m[i].r.Dt.Format(rlib.RRDATEINPFMT), m[i].r.RCPTID, "Payment received", " ", rlib.RRCommaf(m[i].r.Amount), rlib.RRCommaf(b))
 		case 3: // opening balance
-			fmt.Printf("%10s  %-11s  %-30s  %12s  %12s  %12s\n", d1.Format(rlib.RRDATEINPFMT), " ", "Opening Balance", " ", " ", RRCommaf(b))
+			fmt.Printf("%10s  %-11s  %-30s  %12s  %12s  %12s\n", d1.Format(rlib.RRDATEINPFMT), " ", "Opening Balance", " ", " ", rlib.RRCommaf(b))
 		}
 
 	}
 	fmt.Println(s)
-	fmt.Printf("%-10s  %-11s  %-30s  %12s  %12s  %12s\n", "Totals", " ", " ", RRCommaf(c), RRCommaf(d), RRCommaf(c-d+m[0].bal))
+	fmt.Printf("%-10s  %-11s  %-30s  %12s  %12s  %12s\n", "Totals", " ", " ", rlib.RRCommaf(c), rlib.RRCommaf(d), rlib.RRCommaf(c-d+m[0].bal))
 	fmt.Printf("\n")
 }
 

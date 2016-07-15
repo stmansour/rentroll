@@ -213,6 +213,44 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// INVOICE
+	//==========================================
+	InvoiceFlds := "InvoiceNo,BID,Dt,DtDue,Amount,DeliveredBy,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetInvoice, err = RRdb.Dbrr.Prepare("SELECT " + InvoiceFlds + " FROM Invoice WHERE InvoiceNo=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllInvoicesInRange, err = RRdb.Dbrr.Prepare("SELECT " + InvoiceFlds + " FROM Invoice WHERE BID=? AND ?<=Dt AND Dt<?")
+	Errcheck(err)
+
+	s1, s2, s3 = GenSQLInsertAndUpdateStrings(InvoiceFlds)
+
+	RRdb.Prepstmt.InsertInvoice, err = RRdb.Dbrr.Prepare("INSERT INTO Invoice (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteInvoice, err = RRdb.Dbrr.Prepare("DELETE FROM Invoice WHERE InvoiceNo=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateInvoice, err = RRdb.Dbrr.Prepare("UPDATE Invoice SET " + s3 + " WHERE InvoiceNo=?")
+	Errcheck(err)
+
+	//==========================================
+	// INVOICE PART
+	//==========================================
+	RRdb.Prepstmt.GetInvoiceAssessments, err = RRdb.Dbrr.Prepare("SELECT InvoiceNo,ASMID FROM InvoiceAssessment WHERE InvoiceNo=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertInvoiceAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO InvoiceAssessment (InvoiceNo,ASMID) VALUES (?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteInvoiceAssessments, err = RRdb.Dbrr.Prepare("DELETE FROM InvoiceAssessment WHERE InvoiceNo=?")
+	Errcheck(err)
+
+	//==========================================
+	// INVOICE PAYOR
+	//==========================================
+	RRdb.Prepstmt.GetInvoicePayors, err = RRdb.Dbrr.Prepare("SELECT InvoiceNo,PID FROM InvoicePayor WHERE InvoiceNo=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertInvoicePayor, err = RRdb.Dbrr.Prepare("INSERT INTO InvoicePayor (InvoiceNo,PID) VALUES (?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteInvoicePayors, err = RRdb.Dbrr.Prepare("DELETE FROM InvoicePayor WHERE InvoiceNo=?")
+	Errcheck(err)
+
+	//==========================================
 	// JOURNAL
 	//==========================================
 	RRdb.Prepstmt.GetJournal, err = RRdb.Dbrr.Prepare("select JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from Journal WHERE JID=?")

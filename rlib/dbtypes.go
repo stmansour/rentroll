@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -450,6 +451,36 @@ type DepositPart struct {
 	RCPTID int64 // receipt id
 }
 
+// Invoice is a structure that defines an invoice - a collection of assessments
+type Invoice struct {
+	InvoiceNo   int64               // Unique id for this invoice
+	BID         int64               // bid (remit to)
+	Dt          time.Time           // Date of invoice
+	DtDue       time.Time           // Date when the invoice is due
+	Amount      float64             // total amount of all assessments in this invoice
+	DeliveredBy string              // mail, FedEx, UPS, email, fax, hand delivered, carrier pigeon :-) ...
+	LastModTime time.Time           // when was this record last written
+	LastModBy   int64               // employee UID (from phonebook) that modified it
+	A           []InvoiceAssessment // list of assessments in this invoice
+	P           []InvoicePayor      // list of payors
+}
+
+// InvoiceAssessment is a reference to an Assessment that is part of this invoice.  Another way of
+// thinking about it is that this query produces the list of all assessments in an invoice:
+//		SELECT ASMID WHERE InvoiceNo=somenumber
+type InvoiceAssessment struct {
+	InvoiceNo int64 // the invoice number
+	ASMID     int64 // assessment
+}
+
+// InvoicePayor is a reference to a Payor for this invoice.  Another way of
+// thinking about it is that this query produces the list of all payors for an invoice:
+//		SELECT PID WHERE InvoiceNo=somenumber
+type InvoicePayor struct {
+	InvoiceNo int64 // the invoice number
+	PID       int64 // Payor ID
+}
+
 // RentableSpecialtyType is the structure for attributes of a Rentable specialty
 type RentableSpecialtyType struct {
 	RSPID       int64
@@ -789,6 +820,17 @@ type RRprepSQL struct {
 	UpdateDepository                         *sql.Stmt
 	GetAllDepositories                       *sql.Stmt
 	GetAllDepositsInRange                    *sql.Stmt
+	GetInvoice                               *sql.Stmt
+	InsertInvoice                            *sql.Stmt
+	DeleteInvoice                            *sql.Stmt
+	UpdateInvoice                            *sql.Stmt
+	GetAllInvoicesInRange                    *sql.Stmt
+	GetInvoiceAssessments                    *sql.Stmt
+	InsertInvoiceAssessment                  *sql.Stmt
+	DeleteInvoiceAssessments                 *sql.Stmt
+	GetInvoicePayors                         *sql.Stmt
+	InsertInvoicePayor                       *sql.Stmt
+	DeleteInvoicePayors                      *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
@@ -837,4 +879,14 @@ func InitBusinessFields(bid int64) {
 		}
 		RRdb.BizTypes[bid] = &bt
 	}
+}
+
+// IDtoString is the method to produce a consistent printable id string
+func (a Assessment) IDtoString() string {
+	return fmt.Sprintf("ASM%08d", a.ASMID)
+}
+
+// IDtoString is the method to produce a consistent printable id string
+func (a Invoice) IDtoString() string {
+	return fmt.Sprintf("IN%08d", a.InvoiceNo)
 }

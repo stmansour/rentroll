@@ -98,7 +98,7 @@ INSERT INTO AvailabilityTypes (Name) VALUES
 --  BUSINESS
 -- =======================================================================
 INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
-	("SRC", "Springfield Retirement Castle",4,0);
+	("REX", "Springfield Retirement Castle",4,0);
 
 -- =======================================================================
 --  RENTABLE TYPES
@@ -220,23 +220,25 @@ INSERT INTO RentableSpecialtyRef (BID,RID,RSPID) VALUES
 --  TRANSACTANTS
 -- =======================================================================
 -- define the renters.  First as transactants, second as renters, 3rd as payors
-INSERT INTO Transactant (FirstName,LastName) VALUES
-	("Edna", "Krabappel"),			-- 1
-	("Ned", "Flanders"),			-- 2
-	("Moe", "Szyslak"),				-- 3
-	("Montgomery", "Burns"),		-- 4
-	("Nelson", "Muntz"),			-- 5
-	("Milhouse", "Van Houten"),		-- 6
-	("Clancey", "Wiggum"),			-- 7
-	("Homer", "Simpson");			-- 8
+INSERT INTO Transactant (PID,FirstName,LastName,PrimaryEmail,Address,City,State,PostalCode,Country) VALUES
+	("1","Edna", "Krabappel","edna@springfield.com","","Springfield","MO","64055","USA"),			-- 1
+	("2","Ned", "Flanders","flanman@springfield.com","","Springfield","MO","64055","USA"),			-- 2
+	("3","Moe", "Szyslak","moe@springfield.com","","Springfield","MO","64055","USA"),				-- 3
+	("4","Montgomery", "Burns","burnsie@springfield.com","","Springfield","MO","64055","USA"),		-- 4
+	("5","Nelson", "Muntz","nelson@springfield.com","","Springfield","MO","64055","USA"),			-- 5
+	("6","Milhouse", "Van Houten","milhouse@springfield.com","","Springfield","MO","64055","USA"),	-- 6
+	("7","Clancey", "Wiggum","wiggum@springfield.com","","Springfield","MO","64055","USA"),			-- 7
+	("8","Homer", "Simpson","homer@springfield.com","744 Evergreen Terrace","Springfield","MO","64055","USA"),			-- 8
+	("9","Marge", "Simpson","marge@springfield.com","744 Evergreen Terrace","Springfield","MO","64055","USA");			-- 9
+
 
 -- define the renters.
 INSERT INTO User (TCID) VALUES
-	  (1),  (2),  (3),  (4),  (5),  (6),  (7),  (8);
+	  (1),  (2),  (3),  (4),  (5),  (6),  (7),  (8), (9);
 
 -- define the payors.
 INSERT INTO Payor (TCID) VALUES
-	  (1),  (2),  (3),  (4),  (5),  (6),  (7),  (8);
+	  (1),  (2),  (3),  (4),  (5),  (6),  (7),  (8), (9);
 
 -- =======================================================================
 --  RENTAL AGREEMENTS

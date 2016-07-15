@@ -3,7 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"rentroll/rcsv"
 	"rentroll/rlib"
+	"rentroll/rrpt"
+	"strings"
 	"text/template"
 )
 
@@ -32,8 +36,8 @@ func RunBooks(ctx *DispatchCtx) {
 			LedgerReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 3: // INTERNAL ACCT RULE TEST
 			intTest(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 4: // ??? available ???
-			fmt.Printf("biz csv = %s\n", App.bizfile)
+		case 4: // ??? delete this ???
+			// fmt.Printf("biz csv = %s\n", App.bizfile)
 		case 5: // ASSESSMENT CHECK REPORT
 			AssessmentCheckReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 6: // LEDGER BALANCE REPORT
@@ -47,6 +51,17 @@ func RunBooks(ctx *DispatchCtx) {
 			UIRentableCountByRentableTypeReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 8: // STATEMENT
 			UIStatementTextReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
+		case 9: // Invoice
+			// ctx.Report format:  9,IN0001
+			//                     9,1
+			// both say that we want Invoice 1 to be printed
+			sa := strings.Split(ctx.Args, ",")
+			if len(sa) < 2 {
+				fmt.Printf("Missing InvoiceNo on report option.  Example:  -r 9,IN000001\n")
+				os.Exit(1)
+			}
+			invoiceno := rcsv.CSVLoaderGetInvoiceNo(sa[1])
+			rrpt.InvoiceTextReport(invoiceno)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

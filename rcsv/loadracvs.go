@@ -14,14 +14,14 @@ import (
 // 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                “U101,2500.00;U102,2350.00”,
 // 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                “U101,2500.00;U102,2350.00”,
 
-// BuildPeopleList takes a semi-colon separated list of email addresses and phone numbers
+// BuildPayorList takes a semi-colon separated list of email addresses and phone numbers
 // and returns an array of rlib.RentalAgreementPayor records for each.  If any of the addresses in the list
 // cannot be resolved to a rlib.Transactant, then processing stops immediately and an error is returned.
 // Each value is time sensitive (has an associated time range). If the dates are not specified, then the
 // default values of dfltStart and dfltStop -- which are the start/stop time of the rental agreement --
 // are used instead. This is common because the payors will usually be the same for the entire rental
 // agreement lifetime.
-func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, error) {
+func BuildPayorList(s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, error) {
 	var m []rlib.RentalAgreementPayor
 	var noerr error
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
@@ -33,8 +33,6 @@ func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, line
 				funcname, lineno, len(ss), ss)
 			return m, err
 		}
-		var payor rlib.RentalAgreementPayor
-
 		// PAYOR (rlib.Transactant)
 		s = strings.TrimSpace(ss[0]) // either the email address or the phone number
 		t, err := rlib.GetTransactantByPhoneOrEmail(s)
@@ -48,6 +46,8 @@ func BuildPeopleList(s string, dfltStart, dfltStop string, funcname string, line
 			rlib.Ulog("%s", rerr.Error())
 			return m, rerr
 		}
+
+		var payor rlib.RentalAgreementPayor
 		payor.PID = t.PID
 
 		// Now grab the dates
@@ -138,7 +138,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	//  The Payors
 	//-------------------------------------------------------------------
-	payors, err := BuildPeopleList(sa[4], dfltStart, dfltStop, funcname, lineno)
+	payors, err := BuildPayorList(sa[4], dfltStart, dfltStop, funcname, lineno)
 	if err != nil { // save the full list
 		fmt.Printf("%s", err.Error())
 		return

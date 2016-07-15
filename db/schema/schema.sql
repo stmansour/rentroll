@@ -350,7 +350,7 @@ CREATE TABLE Assessments (
     Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the User moves out or when the charge is no longer applicable
     RentCycle SMALLINT NOT NULL DEFAULT 0,                 -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
     ProrationCycle SMALLINT NOT NULL DEFAULT 0,             -- 
-    InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- Which invoice, unique number associated with one or more assessments
+    InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- DELETE THIS -- DON'T KEEP THE INVOICE REFERENCE IN THE ASSESSMENT... !!!! <<<<TODO
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP,                                  -- when was this record last written
@@ -518,6 +518,34 @@ CREATE TABLE Deposit (
 CREATE TABLE DepositPart (
     DID BIGINT NOT NULL DEFAULT 0,
     RCPTID BIGINT NOT NULL DEFAULT 0
+);
+
+-- **************************************
+-- ****                              ****
+-- ****          INVOICE             ****
+-- ****                              ****
+-- **************************************
+
+CREATE TABLE Invoice (
+    InvoiceNo BIGINT NOT NULL AUTO_INCREMENT,                   -- Unique id for this invoice
+    BID BIGINT NOT NULL DEFAULT 0,                              -- bid (remit to)
+    Dt DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- Date of invoice
+    DtDue DATE NOT NULL DEFAULT '1970-01-01 00:00:00',          -- Date when the invoice is due
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- total amount of all assessments in this invoice
+    DeliveredBy VARCHAR(256) NOT NULL DEFAULT '',               -- mail, FedEx, UPS, ...
+    LastModTime TIMESTAMP,                                      -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (InvoiceNo)
+);
+
+CREATE TABLE InvoiceAssessment (
+    InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
+    ASMID BIGINT NOT NULL DEFAULT 0                             -- assessment id
+);
+
+CREATE TABLE InvoicePayor (
+    InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
+    PID BIGINT NOT NULL DEFAULT 0                               -- Payor id
 );
 
 

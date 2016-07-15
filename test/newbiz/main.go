@@ -50,6 +50,7 @@ var App struct {
 	NoteTypeFile   string                     // note types
 	DepositoryFile string                     // Depository
 	DepositFile    string                     // Deposits
+	InvoiceFile    string                     // Invoice
 }
 
 func readCommandLineArgs() {
@@ -76,7 +77,8 @@ func readCommandLineArgs() {
 	petPtr := flag.String("E", "", "assign pets to a Rental Agreement via csv file")
 	rsrefsPtr := flag.String("F", "", "assign rentable specialties to rentables via csv file")
 	ntPtr := flag.String("O", "", "add NoteTypes via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits")
+	invPtr := flag.String("i", "", "add Invoices via csv file")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices")
 
 	flag.Parse()
 	if *verPtr {
@@ -106,6 +108,7 @@ func readCommandLineArgs() {
 	App.NoteTypeFile = *ntPtr
 	App.DepositoryFile = *depositoryPtr
 	App.DepositFile = *depositPtr
+	App.InvoiceFile = *invPtr
 }
 
 func bizErrCheck(sa []string) {
@@ -223,6 +226,9 @@ func main() {
 	if len(App.NoteTypeFile) > 0 {
 		rcsv.LoadNoteTypesCSV(App.NoteTypeFile)
 	}
+	if len(App.InvoiceFile) > 0 {
+		rcsv.LoadInvoicesCSV(App.InvoiceFile)
+	}
 
 	if len(App.Report) > 0 {
 		sa := strings.Split(App.Report, ",")
@@ -288,6 +294,10 @@ func main() {
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rcsv.RRreportDeposits(rlib.RPTTEXT, bid))
+		case 20:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportInvoices(rlib.RPTTEXT, bid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

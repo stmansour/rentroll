@@ -205,6 +205,8 @@ func GetAllDepositsInRange(bid int64, d1, d2 *time.Time) []Deposit {
 	for rows.Next() {
 		var a Deposit
 		Errcheck(rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy))
+		a.DP, err = GetDepositParts(a.DID)
+		Errcheck(err)
 		t = append(t, a)
 	}
 	Errcheck(rows.Err())
@@ -243,6 +245,74 @@ func GetDepositParts(id int64) ([]DepositPart, error) {
 	for rows.Next() {
 		var a DepositPart
 		Errcheck(rows.Scan(&a.DID, &a.RCPTID))
+		m = append(m, a)
+	}
+	Errcheck(rows.Err())
+	return m, err
+}
+
+//=======================================================
+//  I N V O I C E
+//=======================================================
+
+// GetInvoice reads a Invoice structure based on the supplied Invoice id
+func GetInvoice(id int64) (Invoice, error) {
+	var a Invoice
+	err := RRdb.Prepstmt.GetInvoice.QueryRow(id).Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy)
+	if err == nil {
+		a.A, err = GetInvoiceAssessments(id)
+		if err == nil {
+			a.P, err = GetInvoicePayors(id)
+		}
+	}
+	return a, err
+}
+
+// GetAllInvoicesInRange returns an array of all Invoices for bid between the supplied dates
+func GetAllInvoicesInRange(bid int64, d1, d2 *time.Time) []Invoice {
+	var t []Invoice
+	rows, err := RRdb.Prepstmt.GetAllInvoicesInRange.Query(bid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a Invoice
+		Errcheck(rows.Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy))
+		a.A, err = GetInvoiceAssessments(a.InvoiceNo)
+		Errcheck(err)
+		a.P, err = GetInvoicePayors(a.InvoiceNo)
+		t = append(t, a)
+		Errcheck(err)
+	}
+	Errcheck(rows.Err())
+	return t
+}
+
+// GetInvoiceAssessments reads a InvoiceAssessment structure based on the supplied InvoiceAssessment DID
+func GetInvoiceAssessments(id int64) ([]InvoiceAssessment, error) {
+	var m []InvoiceAssessment
+	rows, err := RRdb.Prepstmt.GetInvoiceAssessments.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		var a InvoiceAssessment
+		Errcheck(rows.Scan(&a.InvoiceNo, &a.ASMID))
+		m = append(m, a)
+	}
+	Errcheck(rows.Err())
+	return m, err
+}
+
+// GetInvoicePayors reads an InvoicePayor structure based on the supplied InvoiceNo (id)
+func GetInvoicePayors(id int64) ([]InvoicePayor, error) {
+	var m []InvoicePayor
+	rows, err := RRdb.Prepstmt.GetInvoicePayors.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		var a InvoicePayor
+		Errcheck(rows.Scan(&a.InvoiceNo, &a.PID))
 		m = append(m, a)
 	}
 	Errcheck(rows.Err())
@@ -749,30 +819,6 @@ func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error)
 	var ra RentalAgreement
 	err := LoadXRentalAgreement(raid, &ra, d1, d2)
 	return ra, err
-	// r, err := GetRentalAgreement(raid)
-
-	// t := GetRentalAgreementRentables(raid, d1, d2)
-	// r.R = make([]XRentable, 0)
-	// for i := 0; i < len(t); i++ {
-	// 	var xu XRentable
-	// 	GetXRentable(t[i].RID, &xu)
-	// 	r.R = append(r.R, xu)
-	// }
-
-	// m := GetRentalAgreementPayors(raid, d1, d2)
-	// r.P = make([]XPerson, 0)
-	// for i := 0; i < len(m); i++ {
-	// 	xp := GetXPersonByPID(m[i].PID)
-	// 	r.P = append(r.P, xp)
-	// }
-
-	// n := GetRentableUsers(raid, d1, d2)
-	// r.T = make([]XPerson, 0)
-	// for i := 0; i < len(n); i++ {
-	// 	xp := GetXPersonByTID(n[i].USERID)
-	// 	r.T = append(r.T, xp)
-	// }
-	// return r, err
 }
 
 //=======================================================

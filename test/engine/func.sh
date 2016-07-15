@@ -8,7 +8,7 @@ SCRIPTLOG="f.log"
 APP="${RRBIN}/rentroll -A -j 2015-11-01 -k 2015-12-01"
 MYSQLOPTS=""
 UNAME=$(uname)
-CVSLOAD="${RRBIN}/rrloadcsv"
+CSVLOAD="${RRBIN}/rrloadcsv"
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
  	MYSQLOPTS="--no-defaults"
@@ -54,7 +54,7 @@ dotest () {
 doCSVtest () {
 	echo -n "${3}... "
 	echo "${3}" > ${1}.txt 2>&1
-	${CVSLOAD} $2 >> ${1}.txt 2>&1
+	${CSVLOAD} $2 >> ${1}.txt 2>&1
 
 	if [ ! -f $1.gold ]; then
 		echo "file $1.gold not found. Please create $1.gold then rerun test."
@@ -98,10 +98,12 @@ dotest "lb" "-r 6" "Ledger Balances"
 
 doCSVtest "ca" "-u custom.csv -L 14" "Custom Attributes" 
 doCSVtest "ac" "-U assigncustom.csv -L 15" "Assign Custom Attributes"
-doCSVtest "dp" "-d depository.csv -y deposit.csv -L 19,SRC" "Deposits"
+doCSVtest "dp" "-d depository.csv -y deposit.csv -L 19,REX" "Deposits"
 
 dotest "k" "-r 7" "Count of Rentables by Type"
 dotest "s" "-r 8" "Statements"
+doCSVtest "i1" "-i invoice.csv -L 20,REX" "CREATE INVOICE"
+dotest "i2" "-r 9,IN00001" "INVOICE REPORT"
 
 echo "RENTROLL ENGINE TESTS PASSED"
 exit 0

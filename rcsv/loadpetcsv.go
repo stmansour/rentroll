@@ -2,7 +2,6 @@ package rcsv
 
 import (
 	"fmt"
-	"regexp"
 	"rentroll/rlib"
 	"strings"
 )
@@ -10,18 +9,6 @@ import (
 //    0  1                 2     3         4      5       6,       7
 // RAID, Name,             Type, Breed,    Color, Weight, DtStart, DtStop
 // 8,Santa's Little Helper,Dog,  Greyhound,gray,  34.5,  2014-01-01,
-
-// CSVLoaderGetRAID parses a string of the for RA000000321 and returns the RAID , in this case 321.
-func CSVLoaderGetRAID(sa string) int64 {
-	s := strings.TrimSpace(sa)
-	re, _ := regexp.Compile("^RA0*(.*)")
-	m := re.FindStringSubmatch(s) // returns this pattern:  ["RA0000001" "1"]
-	if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element
-		s = m[1]
-	}
-	raid, _ := rlib.IntFromString(s, "Rental Agreement number is invalid")
-	return raid
-}
 
 // CreateRentalAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
 func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {

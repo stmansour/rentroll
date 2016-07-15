@@ -30,6 +30,16 @@ func UpdateDepository(a *Depository) error {
 	return err
 }
 
+// UpdateInvoice updates a Invoice record
+func UpdateInvoice(a *Invoice) error {
+	_, err := RRdb.Prepstmt.UpdateInvoice.Exec(a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.LastModBy, a.InvoiceNo)
+	if nil != err {
+		Ulog("UpdateInvoice: error updating Invoice:  %v\n", err)
+		Ulog("Deposit = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateLedgerMarker updates a LedgerMarker record
 func UpdateLedgerMarker(lm *LedgerMarker) error {
 	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LMID, lm.LID, lm.BID, lm.DtStart, lm.DtStop, lm.Balance, lm.State, lm.LastModBy, lm.LMID)
