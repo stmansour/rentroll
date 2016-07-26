@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"rentroll/rlib"
+	"sort"
 	"strings"
 	"time"
 )
@@ -160,7 +161,44 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 	fmt.Printf("\n\n")
 }
 
-// LedgerReportText generates a textual Journal report for the supplied Business and time range
+type int64arr []int64
+
+func (a int64arr) Len() int           { return len(a) }
+func (a int64arr) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
+
+// LedgerActivityReport generates a Ledger report for active accounts during the supplied time range
+func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+
+	// get the ids of the distinct ledgers that have been updated during d1-d2
+	// that is, only 1 occurrence of each LID
+	var t int64arr
+	rows, err := rlib.RRdb.Dbrr.Query("SELECT DISTINCT LID FROM LedgerEntry")
+	rlib.Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var lid int64
+		rlib.Errcheck(rows.Scan(&lid))
+		t = append(t, lid)
+	}
+	rlib.Errcheck(rows.Err())
+	sort.Sort(t)
+	// fmt.Printf("Sorted t:  %v\n", t)
+
+	for i := 0; i < len(t); i++ {
+		dd2 := d1.AddDate(0, 0, -1)
+		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
+		lm, err := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, t[i], &dd1, &dd2)
+		if lm.LMID < 1 || err != nil {
+			fmt.Printf("LedgerActivityReport: GLAccount %d -- no LedgerMarker for: %s - %s\n",
+				t[i], dd1.Format(rlib.RRDATEFMT), dd2.Format(rlib.RRDATEFMT))
+		} else {
+			reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
+		}
+	}
+}
+
+// LedgerReportText generates a textual Ledger report for the supplied Business and time range
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {

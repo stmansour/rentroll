@@ -2,7 +2,6 @@ package rlib
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 )
 
@@ -42,20 +41,20 @@ const (
 	GLGSRENT     = 12
 	GLLTL        = 13
 	GLVAC        = 14
-	GLSECDEPRCV  = 15
-	GLSECDEPASMT = 16
+	GLSECDEP     = 16
 	GLOWNREQUITY = 17
 	GLLAST       = 17 // set this to the last default account index
+	// GLSECDEPRCV  = 15
 
-	ACCRUALNORECUR   = 0
-	ACCRUALSECONDLY  = 1
-	ACCRUALMINUTELY  = 2
-	ACCRUALHOURLY    = 3
-	ACCRUALDAILY     = 4
-	ACCRUALWEEKLY    = 5
-	ACCRUALMONTHLY   = 6
-	ACCRUALQUARTERLY = 7
-	ACCRUALYEARLY    = 8
+	CYCLENORECUR   = 0
+	CYCLESECONDLY  = 1
+	CYCLEMINUTELY  = 2
+	CYCLEHOURLY    = 3
+	CYCLEDAILY     = 4
+	CYCLEWEEKLY    = 5
+	CYCLEMONTHLY   = 6
+	CYCLEQUARTERLY = 7
+	CYCLEYEARLY    = 8
 
 	YEARFOREVER = 9000 // an arbitrary year, anything >= to this year is taken to mean "unbounded", or no end date.
 
@@ -94,25 +93,18 @@ const (
 
 	JOURNALTYPEASMID  = 1
 	JOURNALTYPERCPTID = 2
+
+	// RRDATEFMT is a shorthand date format used for text output
+	// Use these values:	Mon Jan 2 15:04:05 MST 2006
+	// const RRDATEFMT = "02-Jan-2006 3:04PM MST"
+	// const RRDATEFMT = "01/02/06 3:04PM MST"
+	RRDATEFMT        = "01/02/06"
+	RRDATEFMT2       = "1/2/06"
+	RRDATEFMT3       = "1/2/2006"
+	RRDATEFMT4       = "01/02/2006"
+	RRDATEINPFMT     = "2006-01-02"
+	RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 )
-
-// RRDATEFMT is a shorthand date format used for text output
-// Use these values:	Mon Jan 2 15:04:05 MST 2006
-// const RRDATEFMT = "02-Jan-2006 3:04PM MST"
-// const RRDATEFMT = "01/02/06 3:04PM MST"
-const RRDATEFMT = "01/02/06"
-
-// RRDATEFMT2 is the default date format that excel outputs.  Use this for csv imports
-const RRDATEFMT2 = "1/2/06"
-
-// RRDATEFMT3 is another date format that excel outputs.  Use this for csv imports
-const RRDATEFMT3 = "1/2/2006"
-
-// RRDATEINPFMT is the shorthand for database-style dates
-const RRDATEINPFMT = "2006-01-02"
-
-// RRDATETIMEINPFMT is the shorthand for database-style dates
-const RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 
 //==========================================
 // ASMID = Assessment id
@@ -153,11 +145,21 @@ type NoteType struct {
 // Note is dated comment from a user
 type Note struct {
 	NID         int64     // unique ID for this note
+	NLID        int64     // notelist to which this note belongs
 	PNID        int64     // NID of parent note
 	NTID        int64     // note type id
 	Comment     string    // the actual note
+	CN          []Note    // array of child notes
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
+}
+
+// NoteList is a collection of Notes (NIDs)
+type NoteList struct {
+	NLID        int64     // unique id for the notelist
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	N           []Note    // the list of notes
 }
 
 // CustomAttribute is a struct containing user-defined custom attributes for objects
@@ -195,7 +197,7 @@ type RentalAgreement struct {
 	RAID              int64       // internal unique id
 	RATID             int64       // reference to Occupancy Master Agreement
 	BID               int64       // Business (so that we can process by Business)
-	NID               int64       // Note ID
+	NLID              int64       // Note ID
 	RentalStart       time.Time   // start date for rental
 	RentalStop        time.Time   // stop date for rental
 	PossessionStart   time.Time   // start date for Occupancy
@@ -249,6 +251,15 @@ type RentalAgreementPet struct {
 	LastModBy   int64
 }
 
+// Source is a structure
+type Source struct {
+	SID         int64
+	Name        string
+	Industry    string
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+}
+
 // Transactant is the basic structure of information
 // about a person who is a Prospect, applicant, User, or Payor
 type Transactant struct {
@@ -256,6 +267,7 @@ type Transactant struct {
 	USERID         int64
 	PID            int64
 	PRSPID         int64
+	NLID           int64
 	FirstName      string
 	MiddleName     string
 	LastName       string
@@ -273,7 +285,6 @@ type Transactant struct {
 	PostalCode     string
 	Country        string
 	Website        string // person's website
-	Notes          string // general text
 	LastModTime    time.Time
 	LastModBy      int64
 }
@@ -315,7 +326,7 @@ type User struct {
 	AlternateAddress          string
 	EligibleFutureUser        int64
 	Industry                  string
-	Source                    string
+	SID                       int64
 	LastModTime               time.Time
 	LastModBy                 int64
 }
@@ -398,18 +409,20 @@ type PaymentType struct {
 
 // Receipt saves the information associated with a payment made by a User to cover one or more Assessments
 type Receipt struct {
-	RCPTID      int64
-	BID         int64
-	RAID        int64
-	PMTID       int64
-	Dt          time.Time
-	DocNo       string // check number, money order number, etc.; documents the payment
-	Amount      float64
-	AcctRule    string
-	Comment     string
-	LastModTime time.Time
-	LastModBy   int64
-	RA          []ReceiptAllocation
+	RCPTID         int64
+	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
+	BID            int64
+	RAID           int64
+	PMTID          int64
+	Dt             time.Time
+	DocNo          string // check number, money order number, etc.; documents the payment
+	Amount         float64
+	AcctRule       string
+	Comment        string
+	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
+	LastModTime    time.Time
+	LastModBy      int64
+	RA             []ReceiptAllocation
 }
 
 // ReceiptAllocation defines an allocation of a Receipt amount.
@@ -436,6 +449,7 @@ type Deposit struct {
 	DID         int64         // Unique id of this deposit
 	BID         int64         // business id
 	DEPID       int64         // Depository id where the deposit was made
+	DPMID       int64         // Deposit method
 	Dt          time.Time     // Date of deposit
 	Amount      float64       // the total amount of the deposit
 	LastModTime time.Time     // when was this record last written
@@ -449,6 +463,13 @@ type Deposit struct {
 type DepositPart struct {
 	DID    int64 // deposit id
 	RCPTID int64 // receipt id
+}
+
+// DepositMethod is a list of methods used to make deposits to a depository
+type DepositMethod struct {
+	DPMID int64  //the method id
+	BID   int64  // business id
+	Name  string // descriptive name
 }
 
 // Invoice is a structure that defines an invoice - a collection of assessments
@@ -492,17 +513,17 @@ type RentableSpecialtyType struct {
 
 // RentableType is the set of attributes describing the different types of Rentable items
 type RentableType struct {
-	RTID           int64                // unique identifier for this RentableType
-	BID            int64                // the business unit to which this RentableType belongs
-	Style          string               // a short name
-	Name           string               // longer name
-	RentCycle      int64                // frequency at which rent accrues, 0 = not set or n/a, 1 = secondly, 2=minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly...
-	Proration      int64                // frequency for prorating rent if the full rentcycle is not used
-	GSRPC          int64                // Time increments in which GSR is calculated to account for rate changes
-	ManageToBudget int64                // 0=no, 1 = yes
-	MR             []RentableMarketRate // array of time sensitive market rates
-	CA             []CustomAttribute    // associated custom attributes
-	MRCurrent      float64              // the current market rate (historical values are in MR)
+	RTID           int64                      // unique identifier for this RentableType
+	BID            int64                      // the business unit to which this RentableType belongs
+	Style          string                     // a short name
+	Name           string                     // longer name
+	RentCycle      int64                      // frequency at which rent accrues, 0 = not set or n/a, 1 = secondly, 2=minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly...
+	Proration      int64                      // frequency for prorating rent if the full rentcycle is not used
+	GSRPC          int64                      // Time increments in which GSR is calculated to account for rate changes
+	ManageToBudget int64                      // 0=no, 1 = yes
+	MR             []RentableMarketRate       // array of time sensitive market rates
+	CA             map[string]CustomAttribute // index by Name of attribute, associated custom attributes
+	MRCurrent      float64                    // the current market rate (historical values are in MR)
 	LastModTime    time.Time
 	LastModBy      int64
 }
@@ -537,6 +558,18 @@ type RentableTypeRef struct {
 	DtStop         time.Time // timerange stop
 	LastModTime    time.Time
 	LastModBy      int64
+}
+
+// RentCycleRef is a simplified struct containing a rent cycle and the
+// time duration for which it is valid. This structure of data is not
+// in the database. It is used for calculations where we don't want to worry about
+// whether the default rent cycle is being overridden, etc. All of that info will be
+// reflected in the values in this struct.
+type RentCycleRef struct {
+	DtStart        time.Time // timerange start
+	DtStop         time.Time // timerange stop
+	RentCycle      int64     // Rent Cycle during DtStart-DtStop
+	ProrationCycle int64     // Proration during DtStart-DtStop
 }
 
 // RentableSpecialtyRef is the time-based RentableSpecialtyType attribute
@@ -664,6 +697,13 @@ type RRprepSQL struct {
 	DeleteAllRentalAgreementPets             *sql.Stmt
 	DeleteCustomAttribute                    *sql.Stmt
 	DeleteCustomAttributeRef                 *sql.Stmt
+	DeleteDeposit                            *sql.Stmt
+	DeleteDepositMethod                      *sql.Stmt
+	DeleteDepositParts                       *sql.Stmt
+	DeleteDepository                         *sql.Stmt
+	DeleteInvoice                            *sql.Stmt
+	DeleteInvoiceAssessments                 *sql.Stmt
+	DeleteInvoicePayors                      *sql.Stmt
 	DeleteJournalAllocations                 *sql.Stmt
 	DeleteJournalEntry                       *sql.Stmt
 	DeleteJournalMarker                      *sql.Stmt
@@ -671,6 +711,7 @@ type RRprepSQL struct {
 	DeleteLedgerEntry                        *sql.Stmt
 	DeleteLedgerMarker                       *sql.Stmt
 	DeleteNote                               *sql.Stmt
+	DeleteNoteList                           *sql.Stmt
 	DeleteNoteType                           *sql.Stmt
 	DeleteReceipt                            *sql.Stmt
 	DeleteReceiptAllocations                 *sql.Stmt
@@ -682,22 +723,27 @@ type RRprepSQL struct {
 	FindTransactantByPhoneOrEmail            *sql.Stmt
 	GetAgreementsForRentable                 *sql.Stmt
 	GetAllAssessmentsByBusiness              *sql.Stmt
-	GetAllSingleInstanceAssessments          *sql.Stmt
 	GetAllAssessmentsByRAID                  *sql.Stmt
-	GetAllBusinesses                         *sql.Stmt
 	GetAllBusinessRentableTypes              *sql.Stmt
 	GetAllBusinessSpecialtyTypes             *sql.Stmt
+	GetAllBusinesses                         *sql.Stmt
+	GetAllDepositMethods                     *sql.Stmt
+	GetAllDepositories                       *sql.Stmt
+	GetAllDepositsInRange                    *sql.Stmt
+	GetAllInvoicesInRange                    *sql.Stmt
 	GetAllJournalsInRange                    *sql.Stmt
 	GetAllLedgerEntriesInRange               *sql.Stmt
 	GetAllLedgerMarkersInRange               *sql.Stmt
-	GetAllNotes                              *sql.Stmt
 	GetAllNoteTypes                          *sql.Stmt
+	GetAllNotes                              *sql.Stmt
 	GetAllRentableAssessments                *sql.Stmt
+	GetAllRentableSpecialtyRefs              *sql.Stmt
 	GetAllRentablesByBusiness                *sql.Stmt
 	GetAllRentalAgreementPets                *sql.Stmt
+	GetAllRentalAgreementTemplates           *sql.Stmt
 	GetAllRentalAgreements                   *sql.Stmt
 	GetAllRentalAgreementsByRange            *sql.Stmt
-	GetAllRentalAgreementTemplates           *sql.Stmt
+	GetAllSingleInstanceAssessments          *sql.Stmt
 	GetAllTransactants                       *sql.Stmt
 	GetAssessment                            *sql.Stmt
 	GetAssessmentType                        *sql.Stmt
@@ -709,9 +755,13 @@ type RRprepSQL struct {
 	GetCustomAttributeRefs                   *sql.Stmt
 	GetDefaultLedgers                        *sql.Stmt
 	GetDeposit                               *sql.Stmt
-	InsertDeposit                            *sql.Stmt
-	UpdateDeposit                            *sql.Stmt
-	DeleteDeposit                            *sql.Stmt
+	GetDepositMethod                         *sql.Stmt
+	GetDepositMethodByName                   *sql.Stmt
+	GetDepositParts                          *sql.Stmt
+	GetDepository                            *sql.Stmt
+	GetInvoice                               *sql.Stmt
+	GetInvoiceAssessments                    *sql.Stmt
+	GetInvoicePayors                         *sql.Stmt
 	GetJournal                               *sql.Stmt
 	GetJournalAllocation                     *sql.Stmt
 	GetJournalAllocations                    *sql.Stmt
@@ -732,7 +782,9 @@ type RRprepSQL struct {
 	GetLedgerMarkerByRAID                    *sql.Stmt
 	GetLedgerMarkers                         *sql.Stmt
 	GetNote                                  *sql.Stmt
+	GetNoteAndChildNotes                     *sql.Stmt
 	GetNoteList                              *sql.Stmt
+	GetNoteListMembers                       *sql.Stmt
 	GetNoteType                              *sql.Stmt
 	GetPaymentTypesByBusiness                *sql.Stmt
 	GetPayor                                 *sql.Stmt
@@ -772,6 +824,13 @@ type RRprepSQL struct {
 	InsertBusiness                           *sql.Stmt
 	InsertCustomAttribute                    *sql.Stmt
 	InsertCustomAttributeRef                 *sql.Stmt
+	InsertDeposit                            *sql.Stmt
+	InsertDepositMethod                      *sql.Stmt
+	InsertDepositPart                        *sql.Stmt
+	InsertDepository                         *sql.Stmt
+	InsertInvoice                            *sql.Stmt
+	InsertInvoiceAssessment                  *sql.Stmt
+	InsertInvoicePayor                       *sql.Stmt
 	InsertJournal                            *sql.Stmt
 	InsertJournalAllocation                  *sql.Stmt
 	InsertJournalMarker                      *sql.Stmt
@@ -780,6 +839,7 @@ type RRprepSQL struct {
 	InsertLedgerEntry                        *sql.Stmt
 	InsertLedgerMarker                       *sql.Stmt
 	InsertNote                               *sql.Stmt
+	InsertNoteList                           *sql.Stmt
 	InsertNoteType                           *sql.Stmt
 	InsertPaymentType                        *sql.Stmt
 	InsertPayor                              *sql.Stmt
@@ -802,6 +862,10 @@ type RRprepSQL struct {
 	InsertTransactant                        *sql.Stmt
 	InsertUser                               *sql.Stmt
 	UpdateAssessment                         *sql.Stmt
+	UpdateDeposit                            *sql.Stmt
+	UpdateDepositMethod                      *sql.Stmt
+	UpdateDepository                         *sql.Stmt
+	UpdateInvoice                            *sql.Stmt
 	UpdateLedger                             *sql.Stmt
 	UpdateLedgerMarker                       *sql.Stmt
 	UpdateNote                               *sql.Stmt
@@ -811,26 +875,10 @@ type RRprepSQL struct {
 	UpdateRentableTypeRef                    *sql.Stmt
 	UpdateRentalAgreementPet                 *sql.Stmt
 	UpdateTransactant                        *sql.Stmt
-	GetDepositParts                          *sql.Stmt
-	InsertDepositPart                        *sql.Stmt
-	DeleteDepositParts                       *sql.Stmt
-	GetDepository                            *sql.Stmt
-	InsertDepository                         *sql.Stmt
-	DeleteDepository                         *sql.Stmt
-	UpdateDepository                         *sql.Stmt
-	GetAllDepositories                       *sql.Stmt
-	GetAllDepositsInRange                    *sql.Stmt
-	GetInvoice                               *sql.Stmt
-	InsertInvoice                            *sql.Stmt
-	DeleteInvoice                            *sql.Stmt
-	UpdateInvoice                            *sql.Stmt
-	GetAllInvoicesInRange                    *sql.Stmt
-	GetInvoiceAssessments                    *sql.Stmt
-	InsertInvoiceAssessment                  *sql.Stmt
-	DeleteInvoiceAssessments                 *sql.Stmt
-	GetInvoicePayors                         *sql.Stmt
-	InsertInvoicePayor                       *sql.Stmt
-	DeleteInvoicePayors                      *sql.Stmt
+	GetSource                                *sql.Stmt
+	DeleteSource                             *sql.Stmt
+	InsertSource                             *sql.Stmt
+	UpdateSource                             *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
@@ -879,14 +927,4 @@ func InitBusinessFields(bid int64) {
 		}
 		RRdb.BizTypes[bid] = &bt
 	}
-}
-
-// IDtoString is the method to produce a consistent printable id string
-func (a Assessment) IDtoString() string {
-	return fmt.Sprintf("ASM%08d", a.ASMID)
-}
-
-// IDtoString is the method to produce a consistent printable id string
-func (a Invoice) IDtoString() string {
-	return fmt.Sprintf("IN%08d", a.InvoiceNo)
 }

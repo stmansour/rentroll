@@ -2,7 +2,7 @@ all:
 	@echo "*** Completed in rrr ***"
 
 clean:
-	rm -f rentroll.log log llog ll.g
+	rm -f rentroll.log log llog ll.g err.txt
 	@echo "*** CLEAN completed in rrr ***"
 
 test:

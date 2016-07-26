@@ -19,15 +19,15 @@ Due From:       Homer Simpson
 
 Delivered By:   US Mail
 
-Amount Due:     1,340.00
+Amount Due:     446.68
 Date Due:       11/30/2015
 
 Date        AssessmentID  Rentable         Description                                     Amount  Comment             
 -----------------------------------------------------------------------------------------------------------------------
-11/21/2015  ASM00000015   101              Gross Scheduled Rent                          1,200.00                      
-11/21/2015  ASM00000018   101              Lake View                                        50.00                      
-11/21/2015  ASM00000019   101              Fireplace                                        20.00                      
-11/21/2015  ASM00000021   CP001            Carport                                          35.00                      
-11/21/2015  ASM00000022   CP002            Carport                                          35.00                      
+11/21/2015  ASM00000015   101              Gross Scheduled Rent                            400.00  Prorated: 10 days out of 30
+11/21/2015  ASM00000018   101              Lake View                                        16.67  Prorated: 10 days out of 30
+11/21/2015  ASM00000019   101              Fireplace                                         6.67  Prorated: 10 days out of 30
+11/21/2015  ASM00000021   CP001            Carport                                          11.67  Prorated: 10 days out of 30
+11/21/2015  ASM00000022   CP002            Carport                                          11.67  Prorated: 10 days out of 30
 -----------------------------------------------------------------------------------------------------------------------
-Total                                                                                    1,340.00
+Total                                                                                      446.68

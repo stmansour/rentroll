@@ -114,7 +114,7 @@ doCSVtest "ac" "-U assigncustom.csv -L 15" "Assign Custom Attributes"
 doCSVtest "dp" "-d depository.csv -y deposit.csv -L 19,REX" "Deposits"
 
 dotest "k" "-r 7" "Count of Rentables by Type"
-dotest "s" "-r 8" "Statements"
+# dotest "s" "-r 8" "Statements"
 doCSVtest "i1" "-i invoice.csv -L 20,REX" "CREATE INVOICE"
 dotest "i2" "-r 9,IN00001" "INVOICE REPORT"
 

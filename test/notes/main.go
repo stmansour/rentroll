@@ -36,27 +36,40 @@ func initApp() {
 	rlib.RRdb.BizTypes[App.BID].NoteTypes = rlib.GetAllNoteTypes(App.BID) // we initialized to 1 business
 }
 
-func testNotes() {
-	// var b rlib.Business
-	// b.Designation = "REX"
-	// b.DefaultRentalPeriod = rlib.ACCRUALMONTHLY
-	// b.Name = "Rexford Apartments"
-	// b.ParkingPermitInUse = 0
-	// bid, err := rlib.InsertBusiness(&b)
-	// if err != nil {
-	// 	rlib.Ulog("testNotes: error inserting rlib.Business = %v\n", err)
-	// }
+func printNote(n *rlib.Note, indent int) {
+	ind := ""
+	for i := 0; i < indent; i++ {
+		ind += fmt.Sprintf(" ")
+	}
 
+	fmt.Printf("%sN%03d  NL%03d  PN%03d  U%04d  %s\n",
+		ind, n.NID, n.NLID, n.PNID, n.LastModBy,
+		n.LastModTime.Format(rlib.RRDATETIMEINPFMT))
+	fmt.Printf("%s%s\n\n", ind, n.Comment)
+}
+
+func testNotes() {
 	// funcname := "testNotes"
-	// Create a note with a couple of child notes
-	var n, n1, n2 rlib.Note
-	n.Comment = "I am the parent note"
+
+	// Create a notelist with a couple of child notes
+	var nl rlib.NoteList
+	var err error
+
+	nl.LastModBy = 128
+	nl.NLID, err = rlib.InsertNoteList(&nl)
+
+	// add some notes to the NoteList
+
+	var n, n1, n2, n3 rlib.Note
+	n.Comment = "I am the parent note. I have much to say. Bla bla"
 	n.LastModBy = 211
 	n.NTID = 1 // first comment type
+	n.NLID = nl.NLID
 	nid, err := rlib.InsertNote(&n)
 	rlib.Errcheck(err)
 
 	n1.PNID = nid
+	n1.NLID = nl.NLID
 	n1.Comment = "I am a note that was added to the parent note"
 	n1.LastModBy = 198
 	n1.NTID = 2 // second comment type
@@ -64,22 +77,29 @@ func testNotes() {
 	rlib.Errcheck(err)
 
 	n2.PNID = nid
+	n2.NLID = nl.NLID
 	n2.Comment = "I am also a note that was added to the parent note. I'm the last note"
 	n2.LastModBy = 207
 	n2.NTID = 3 // third comment type
 	_, err = rlib.InsertNote(&n2)
 	rlib.Errcheck(err)
 
-	// Now readback the notelist
-	m := rlib.GetNoteList(nid)
-	for i := 0; i < len(m); i++ {
-		fmt.Printf("%s  UID = %3d  Type %s\n",
-			m[i].LastModTime.Format(rlib.RRDATETIMEINPFMT),
-			m[i].LastModBy,
-			rlib.RRdb.BizTypes[App.BID].NoteTypes[i].Name)
-		fmt.Printf("%s\n\n", m[i].Comment)
-	}
+	// this one is the second not in the nlist
+	n3.NLID = nl.NLID
+	n3.Comment = "I should be the second note in the NoteList"
+	n3.LastModBy = 211
+	n3.NTID = 1 // third comment type
+	_, err = rlib.InsertNote(&n3)
 
+	// Now readback the notelist
+	d := rlib.GetNoteList(nl.NLID)
+	fmt.Printf("NoteList: %d  created by uid %d\n", d.NLID, d.LastModBy)
+	for i := 0; i < len(d.N); i++ {
+		printNote(&d.N[i], 0)
+		for j := 0; j < len(d.N[i].CN); j++ {
+			printNote(&d.N[i].CN[j], 4)
+		}
+	}
 }
 
 func main() {

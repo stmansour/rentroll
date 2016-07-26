@@ -30,10 +30,10 @@ func VarAcctResolve(bid int64, s string) string {
 		i = GLLTL
 	case s == "GLVAC":
 		i = GLVAC
-	case s == "GLSECDEPRCV":
-		i = GLSECDEPRCV
-	case s == "GLSECDEPASMT":
-		i = GLSECDEPASMT
+	// case s == "GLSECDEPRCV":
+	// 	i = GLSECDEPRCV
+	case s == "GLSECDEP":
+		i = GLSECDEP
 	case s == "GLOWNREQUITY":
 		i = GLOWNREQUITY
 	}
@@ -56,7 +56,7 @@ func DoAcctSubstitution(bid int64, s string) string {
 }
 
 // ParseAcctRule expands the supplied rule string into an array of AcctRule structs and replaces any variables/formulas
-// with the final amounts.  The rules can be of the form
+// with the final amounts.
 func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []AcctRule {
 	funcname := "ParseAcctRule"
 	var m []AcctRule

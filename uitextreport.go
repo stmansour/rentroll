@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"rentroll/rlib"
+	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -12,16 +13,16 @@ import (
 // This routine is primarily for testing
 func UILedgerTextReport(ui *RRuiSupport) {
 	fmt.Printf("LEDGER MARKERS\n%s\nOpening Balances:  %s\n\n", ui.B.Name, ui.DtStop.Format("January 2, 2006"))
-	fmt.Printf("%40s  %10s  %12s\n", "Name", "GLNumber", "Balance")
+	fmt.Printf("%50s  %10s  %12s\n", "Name", "GLNumber", "Balance")
 	for i := 0; i < len(ui.LDG.XL); i++ {
-		fmt.Printf("%40s  %10s  %12s\n", ui.LDG.XL[i].G.Name, ui.LDG.XL[i].G.GLNumber, humanize.FormatFloat("#,###.##", ui.LDG.XL[i].LM.Balance))
+		fmt.Printf("%50.50s  %10s  %12s\n", ui.LDG.XL[i].G.Name, ui.LDG.XL[i].G.GLNumber, humanize.FormatFloat("#,###.##", ui.LDG.XL[i].LM.Balance))
 	}
 	s := ""
-	for i := 0; i < 66; i++ {
+	for i := 0; i < 76; i++ {
 		s += "-"
 	}
 	fmt.Println(s)
-	fmt.Printf("%40s  %10s  %12s\n", " ", " ", humanize.FormatFloat("#,###.##", LMSum(&ui.LDG.XL)))
+	fmt.Printf("%50s  %10s  %12s\n", " ", " ", humanize.FormatFloat("#,###.##", LMSum(&ui.LDG.XL)))
 }
 
 // UIRentableCountByRentableTypeReport returns a structure containing the count of Rentables for each RentableType
@@ -62,8 +63,10 @@ func UIRentableCountByRentableTypeReport(xbiz *rlib.XBusiness, d1, d2 *time.Time
 	for i := 0; i < len(keys); i++ {
 		j := int64(keys[i])
 		fmt.Printf("%13d  %-18s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
-		for k := 0; k < len(m[j].RT.CA); k++ {
-			fmt.Printf("   %s: %s", m[j].RT.CA[k].Name, m[j].RT.CA[k].Value)
+		// for k := 0; k < len(m[j].RT.CA); k++ {
+		for k, v := range m[j].RT.CA {
+			// fmt.Printf("   %s: %s", m[j].RT.CA[k].Name, m[j].RT.CA[k].Value)
+			fmt.Printf("   %s: %s", k, v.Value)
 		}
 		fmt.Printf("\n")
 	}
@@ -72,9 +75,10 @@ func UIRentableCountByRentableTypeReport(xbiz *rlib.XBusiness, d1, d2 *time.Time
 // UIStatementForRA generates a text Statement for the supplied rental agreement ra.
 func UIStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalAgreement) {
 	rlib.LoadXRentalAgreement(ra.RAID, ra, d1, d2)
-	fmt.Printf("Statement  -  Rental Agreement %s   Payor(s): %s\n", ra.GetName(), ra.PayorsToString())
+	payors := ra.GetPayorNameList(d1, d2)
+	fmt.Printf("Statement  -  Rental Agreement %s   Payor(s): %s\n", ra.IDtoString(), strings.Join(payors, ", "))
 	fmt.Printf("Period  %s - %s\n", d1.Format("Jan 2, 2006"), d2.AddDate(0, 0, -1).Format("Jan 2, 2006"))
-	s := fmt.Sprintf("\n%-10s  %-11s  %-30s  %12s  %12s  %12s\n", "Date", "ID", "Description", "Charge", "Payment", "Balance")
+	s := fmt.Sprintf("\n%-10s  %-11s  %-40s  %12s  %12s  %12s\n", "Date", "ID", "Description", "Charge", "Payment", "Balance")
 	fmt.Print(s)
 	k := len(s) - 2
 	s = ""
@@ -96,25 +100,25 @@ func UIStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalAg
 				continue
 			}
 			for j := 0; j < len(dl); j++ {
-				pf := ProrateAssessment(xbiz, m[i].a, &dl[j], d1, d2)
-				amt := rlib.RoundToCent(pf * m[i].a.Amount)
+				// pf, _, _, _, _ := ProrateAssessment(xbiz, m[i].a, &dl[j], d1, d2) // may not need this if we used non-recurring assessment instances rather than the recurring origin
+				amt := rlib.RoundToCent(m[i].a.Amount)
 				c += amt
 				b += amt
-				fmt.Printf("%10s  ASM%08d  %-30s  %12s  %12s  %12s\n",
+				fmt.Printf("%10s  ASM%08d  %-40.40s  %12s  %12s  %12s\n",
 					dl[0].Format(rlib.RRDATEINPFMT), m[i].a.ASMID, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[m[i].a.ATypeLID].Name, rlib.RRCommaf(amt), " ", rlib.RRCommaf(b))
 			}
 		case 2: // receipts
 			amt := rlib.RoundToCent(m[i].r.Amount)
 			d += amt
 			b -= amt
-			fmt.Printf("%10s  R%010d  %-30s  %12s  %12s  %12s\n", m[i].r.Dt.Format(rlib.RRDATEINPFMT), m[i].r.RCPTID, "Payment received", " ", rlib.RRCommaf(m[i].r.Amount), rlib.RRCommaf(b))
+			fmt.Printf("%10s  R%010d  %-40.40s  %12s  %12s  %12s\n", m[i].r.Dt.Format(rlib.RRDATEINPFMT), m[i].r.RCPTID, "Payment received", " ", rlib.RRCommaf(m[i].r.Amount), rlib.RRCommaf(b))
 		case 3: // opening balance
-			fmt.Printf("%10s  %-11s  %-30s  %12s  %12s  %12s\n", d1.Format(rlib.RRDATEINPFMT), " ", "Opening Balance", " ", " ", rlib.RRCommaf(b))
+			fmt.Printf("%10s  %-11s  %-40.40s  %12s  %12s  %12s\n", d1.Format(rlib.RRDATEINPFMT), " ", "Opening Balance", " ", " ", rlib.RRCommaf(b))
 		}
 
 	}
 	fmt.Println(s)
-	fmt.Printf("%-10s  %-11s  %-30s  %12s  %12s  %12s\n", "Totals", " ", " ", rlib.RRCommaf(c), rlib.RRCommaf(d), rlib.RRCommaf(c-d+m[0].bal))
+	fmt.Printf("%-10s  %-11s  %-40s  %12s  %12s  %12s\n", "Totals", " ", " ", rlib.RRCommaf(c), rlib.RRCommaf(d), rlib.RRCommaf(c-d+m[0].bal))
 	fmt.Printf("\n")
 }
 

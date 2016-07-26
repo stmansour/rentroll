@@ -20,12 +20,17 @@ func ReadGLAccount(rows *sql.Rows, a *GLAccount) {
 
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreement(rows *sql.Rows, a *RentalAgreement) {
-	Errcheck(rows.Scan(&a.RAID, &a.RATID, &a.BID, &a.NID, &a.RentalStart, &a.RentalStop, &a.PossessionStart, &a.PossessionStop,
+	Errcheck(rows.Scan(&a.RAID, &a.RATID, &a.BID, &a.NLID, &a.RentalStart, &a.RentalStop, &a.PossessionStart, &a.PossessionStop,
 		&a.Renewal, &a.SpecialProvisions, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.
 func ReadReceipt(rows *sql.Rows, a *Receipt) {
 	Errcheck(rows.Scan(
-		&a.RCPTID, &a.BID, &a.RAID, &a.PMTID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
+		&a.RCPTID, &a.PRCPTID, &a.BID, &a.RAID, &a.PMTID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment, &a.OtherPayorName, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadSource reads a full Source structure from the database ased on the supplied row
+func ReadSource(row *sql.Row, a *Source) {
+	Errcheck(row.Scan(&a.SID, &a.Name, &a.Industry, &a.LastModTime, &a.LastModBy))
 }

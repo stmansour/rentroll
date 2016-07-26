@@ -21,43 +21,6 @@ func sumAllocations(m *[]rlib.AcctRule) (float64, float64) {
 	return sum, debits
 }
 
-// calcProrationInfo is currently designed to work for nonrecurring, daily and monthly recurring rentals.
-// Other frequencies will need to be added.
-//
-// Parameters:
-//  	AgrStart,AgrStop: define the time range of either the rentalAgreement or the Assessment
-//						  covering the Rentable
-//  	d1, d2:           the time period we're being asked to analyze
-//  	accrual:          recurring frequency of rent
-//  	prorateMethod:    the recurrence frequency to use for partial coverage
-//
-// Returns:
-//			asmtDur:  pf denominator, total number of days in period
-//         	rentDur:  pf numerator, total number of days applicable to this rental agreement
-//         	pf:       prorate factor = rentDur/asmtDur
-//=================================================================================================
-func calcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate int64) float64 {
-	//-------------------------------------------------------------------
-	// over what range of time does this rental apply between d1 & d2
-	//-------------------------------------------------------------------
-	start := *d1
-	if DtStart.After(start) {
-		start = *DtStart
-	}
-	stop := *DtStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges must be NON-INCLUSIVE
-	if stop.After(*d2) {
-		stop = *d2
-	}
-
-	pf := float64(1.0)                          // assume full period
-	cycleTime := d2.Sub(*d1)                    // denominator
-	thisPeriod := stop.Sub(start)               // numerator
-	if cycleTime != thisPeriod && prorate > 0 { // if cycle time and period differ AND it's NOT a one-time charge
-		pf = float64(thisPeriod) / float64(cycleTime)
-	}
-	return pf
-}
-
 // ProrateAssessment - determines the proration factor for this assessment
 //
 // Parameters:
@@ -66,23 +29,29 @@ func calcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate in
 //  	d1, d2:     the time period we're being asked to analyze
 //
 // Returns:
-//         	pf:       prorate factor = rentDur/asmtDur
+//         	pf:     prorate factor = rentDur/asmtDur
+//		   num:		pf numerator, amount of rentcycle actually used expressed in units of prorateCycle
+//         den:     pf denominator, the rent cycle, expressed in units of prorateCycle
+//       start:		trimmed start date (latest of RentalAgreement.PossessionStart and d1)
+//        stop:		trmmed stop date (soonest of RentalAgreement.PossessionStop and d2)
 //=================================================================================================
-func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time.Time) float64 {
+func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time.Time) (float64, int64, int64, time.Time, time.Time) {
 	funcname := "ProrateAssessment"
 	pf := float64(0)
+	var num, den int64
+	var start, stop time.Time
 	r := rlib.GetRentable(a.RID)
 	status := rlib.GetRentableStateForDate(r.RID, d)
 	switch status {
 	case rlib.RENTABLESTATUSONLINE:
 		ra, _ := rlib.GetRentalAgreement(a.RAID)
 		switch a.RentCycle {
-		case rlib.ACCRUALDAILY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d, d, a.RentCycle, a.ProrationCycle)
-		case rlib.ACCRUALNORECUR:
+		case rlib.CYCLEDAILY:
+			pf, num, den, start, stop = rlib.CalcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d, d, a.RentCycle, a.ProrationCycle)
+		case rlib.CYCLENORECUR:
 			fallthrough
-		case rlib.ACCRUALMONTHLY:
-			pf = calcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RentCycle, a.ProrationCycle)
+		case rlib.CYCLEMONTHLY:
+			pf, num, den, start, stop = rlib.CalcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RentCycle, a.ProrationCycle)
 		default:
 			fmt.Printf("Accrual rate %d not implemented\n", a.RentCycle)
 		}
@@ -101,7 +70,7 @@ func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time
 			if err != nil {
 				rlib.Ulog("%s: error getting rent cycle for rentable %d. err = %s\n", funcname, r.RID, err.Error())
 			}
-			pf = calcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
+			pf, num, den, start, stop = rlib.CalcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
 			if len(ta) > 1 {
 				rlib.Ulog("%s: %d Assessments affect Rentable %d (%s) in period %s - %s\n",
 					funcname, len(ta), r.RID, r.Name, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
@@ -111,7 +80,7 @@ func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time
 		rlib.Ulog("%s: Rentable %d is in an unknown status: %d\n", funcname, r.RID, status)
 	}
 
-	return pf
+	return pf, num, den, start, stop
 }
 
 // journalAssessment processes the assessment, creates a Journal entry, and returns its id
@@ -124,14 +93,32 @@ func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time
 //=================================================================================================
 func journalAssessment(xbiz *rlib.XBusiness, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
 	// funcname := "journalAssessment"
-	pf := ProrateAssessment(xbiz, a, &d, d1, d2)
+	pf, num, den, start, stop := ProrateAssessment(xbiz, a, &d, d1, d2)
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
 	// fmt.Printf("calling ParseAcctRule:\n  asmt = %#v\n  rid = %d\n", a, rid)
 	m := rlib.ParseAcctRule(xbiz, a.RID, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
+
 	// fmt.Printf("After ParseAcctRule - j.Amount = %8.2f\n", j.Amount)
+
+	//------------------------------------------------------------------------------------------------------
+	// for non-recurring assessments (the only kind that we should be processing here) the amount may have
+	// been prorated as it was a newly created recurring assessment for a RentalAgreement that was either
+	// just beginning or just ending. If so, we'll update the assessment amount here the calculated
+	// j.Amount != a.Amount
+	//------------------------------------------------------------------------------------------------------
+	if pf < 1.0 {
+		a.Amount = j.Amount // update to the prorated amount
+		a.Start = start     // adjust to the dates used in the proration
+		a.Stop = stop       // adjust to the dates used in the proration
+		a.Comment = fmt.Sprintf("Prorated: %d %s out of %d", num, rlib.ProrationUnits(a.ProrationCycle), den)
+		if err := rlib.UpdateAssessment(a); err != nil {
+			err = fmt.Errorf("Error updating prorated assessment amount: %s", err.Error())
+			return err
+		}
+	}
 
 	//-------------------------------------------------------------------------------------------
 	// In the event that we need to prorate, pull together the pieces and determine the

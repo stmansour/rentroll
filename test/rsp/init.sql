@@ -291,8 +291,8 @@ INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,Prora
 --    an applicant to a User (or Payor as the case may be)
 -- =======================================================================
 INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
-	(1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${GLSECDEPRCV} _, c ${GLSECDEPASMT} _"),		-- #7 Krabappel deposit
-	(1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${GLSECDEPRCV} _, c ${GLSECDEPASMT} _");		-- #8 Simpson deposit
+	(1, 1, 2, 1,1000.00,"2014-07-01", "2014-07-01", 0, 0, "d ${GLGENRCV} _, c ${GLSECDEP} _"),		-- #7 Krabappel deposit
+	(1, 1, 2, 8,1500.00,"2015-11-21", "2015-11-21", 0, 0, "d ${GLGENRCV} _, c ${GLSECDEP} _");		-- #8 Simpson deposit
 
 -- =======================================================================
 --  CARPORT ASSESSMENTS
@@ -308,8 +308,8 @@ INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,Prora
 --  DAMAGE ASSESSMENTS
 -- =======================================================================
 INSERT INTO Assessments (BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle, AcctRule) VALUES
-	(1, 1, 32, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${GLSECDEPASMT} _, c 42006 _"),	-- #12  Krabappel, $250 damages
-	(1, 1,  6, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${GLSECDEPASMT} _, c 10001 _");
+	(1, 1, 32, 1,250.00,"2015-11-08","2015-11-08", 0, 0, "d ${GLSECDEP} _, c 42006 _"),	-- #12  Krabappel, $250 damages
+	(1, 1,  6, 1,750.00,"2015-11-08","2015-11-08", 0, 0, "d ${GLSECDEP} _, c 10001 _");
 
 
 -- =======================================================================
@@ -331,7 +331,7 @@ INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
 INSERT INTO Receipt (BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule) VALUES
 	(1,8,1,"2015-11-15","10383",1946.68, "d ${GLCASH} 1500.00, c 11002 1500.00, c ${GLGENRCV} 400.00, d ${GLCASH} 400.00, c ${GLGENRCV} 16.67, d ${GLCASH} 16.67, c ${GLGENRCV} 6.67, d ${GLCASH} 6.67, c ${GLGENRCV} 11.67,d ${GLCASH} 11.67, c ${GLGENRCV} 11.67,d ${GLCASH} 11.67");  			-- 3   Simpson pays his fees in full
 INSERT INTO ReceiptAllocation (RCPTID,Amount,ASMID,AcctRule) VALUES
-	(3,1500.00, 8,"d ${GLCASH}   _,c ${GLSECDEPRCV} _"),	--  security deposit
+	(3,1500.00, 8,"d ${GLCASH}   _,c ${GLGENRCV} _"),	--  security deposit
 	(3, 400.00, 2,"c ${GLGENRCV} _,d ${GLCASH}      _"),	--  rent
 	(3,  16.67, 5,"c ${GLGENRCV} _,d ${GLCASH}      _"),	--  Lake View
 	(3,   6.67, 6,"c ${GLGENRCV} _,d ${GLCASH}      _"),	--  Fireplace

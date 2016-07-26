@@ -18,9 +18,10 @@ clean:
 	rm -f rentroll ver.go conf.json rentroll.log
 
 test: package
+	rm -f test/*/err.txt
 	for dir in $(DIRS); do make -C $$dir test;done
 	go test
-	./errcheck.sh
+	@./errcheck.sh
 
 man: rentroll.1
 	cp rentroll.1 /usr/local/share/man/man1

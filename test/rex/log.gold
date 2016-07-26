@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Tue Jul 12 20:01:40 PDT 2016
+Date/Time: Mon Jul 25 13:45:25 CDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -10,6 +10,16 @@ DEFINE DEPOSITORIES
 DEPID        BID        AccountNo    Name                                              
 DEP00000001  B00000001  987654321    Wells Fargo                                       
 DEP00000002  B00000001  012345678    Bank Of America                                   
+
+
+DEFINE DEPOSIT METHODS
+   DPMID  BID         Name
+       1  B00000001  Hand Delivery
+       2  B00000001  Scanned Batch
+       3  B00000001  CC Shift 4
+       4  B00000001  CC NAYAX
+       5  B00000001  ACH
+       6  B00000001  US Mail
 
 
 DEFINE RENTABLE TYPES
@@ -46,7 +56,7 @@ RATID  BID         RentalTemplateNumber
 
 
 DEFINE RENTAL AGREEMENTS
- RAID  rlib.Payor                                rlib.User                               
+ RAID  Payor                                     User                                    
     1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                
     2  Rita Costea, Daniel Costea                Rita Costea, Daniel Costea              
     3  Gagik Haroutunian                         Gagik Haroutunian                       
@@ -423,23 +433,21 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
 Statement  -  Rental Agreement RA00000001   Payor(s): Aaron Read, Kirsten Read
 Period  Mar 1, 2016 - Mar 31, 2016
 
-Date        ID           Description                           Charge       Payment       Balance
--------------------------------------------------------------------------------------------------
-2016-03-01               Opening Balance                                                     0.00
-2016-03-01  ASM00000001  Gross Schedule Rent                 3,750.00                    3,750.00
-2016-03-01  R0000000001  Payment received                                  3,750.00          0.00
--------------------------------------------------------------------------------------------------
-Totals                                                       3,750.00      3,750.00          0.00
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-03-01               Opening Balance                                                               0.00
+2016-03-01  R0000000001  Payment received                                            3,750.00     -3,750.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                     0.00      3,750.00     -3,750.00
 
 Statement  -  Rental Agreement RA00000002   Payor(s): Rita Costea, Daniel Costea
 Period  Mar 1, 2016 - Mar 31, 2016
 
-Date        ID           Description                           Charge       Payment       Balance
--------------------------------------------------------------------------------------------------
-2016-03-01               Opening Balance                                                     0.00
-2016-03-01  ASM00000002  Gross Schedule Rent                 3,550.00                    3,550.00
-2016-03-02  R0000000002  Payment received                                  3,550.00          0.00
--------------------------------------------------------------------------------------------------
-Totals                                                       3,550.00      3,550.00          0.00
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-03-01               Opening Balance                                                               0.00
+2016-03-02  R0000000002  Payment received                                            3,550.00     -3,550.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                     0.00      3,550.00     -3,550.00
 
 

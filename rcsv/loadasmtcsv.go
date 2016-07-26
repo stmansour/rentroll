@@ -96,14 +96,14 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Get the dates
 	//-------------------------------------------------------------------
-	DtStart, err := StringToDate(sa[4])
+	DtStart, err := rlib.StringToDate(sa[4])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[4])
 		return
 	}
 	a.Start = DtStart
 
-	DtStop, err := StringToDate(sa[5])
+	DtStop, err := rlib.StringToDate(sa[5])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[5])
 		return
@@ -127,15 +127,17 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Rental Agreement ID
 	//-------------------------------------------------------------------
-	a.RAID, _ = rlib.IntFromString(sa[6], "rlib.Assessment type is invalid")
+	a.RAID, _ = rlib.IntFromString(sa[6], "Assessment type is invalid")
 	if a.RAID > 0 {
 		ra, err := rlib.GetRentalAgreement(a.RAID) // for the call to ValidAssessmentDate, we need the entire agreement start/stop period
 		if err != nil {
 			fmt.Printf("%s: line %d - error loading Rental Agreement with RAID = %s,  error = %s\n", funcname, lineno, sa[6], err.Error())
 		}
 		if !ValidAssessmentDate(&a, &gla, &ra) {
-			fmt.Printf("%s: line %d - rlib.Assessment occurs outside the allowable time range for the rlib.Rentable Agreement Require attribute value: %d\n",
+			fmt.Printf("%s: line %d - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: %d\n",
 				funcname, lineno, gla.RARequired)
+			fmt.Printf("Rental Agreement start/stop: %s - %s \n", ra.RentalStart.Format(rlib.RRDATEFMT3), ra.RentalStop.Format(rlib.RRDATEFMT3))
+			fmt.Printf("      Assessment start/stop: %s - %s \n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
 			return
 		}
 	}
@@ -150,7 +152,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	a.RentCycle, _ = rlib.IntFromString(sa[7], "Accrual value is invalid")
 	if !rlib.IsValidAccrual(a.RentCycle) {
-		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %s\n", funcname, lineno, rlib.ACCRUALSECONDLY, rlib.ACCRUALYEARLY, sa[7])
+		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %s\n", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, sa[7])
 		return
 	}
 
@@ -159,7 +161,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	a.ProrationCycle, _ = rlib.IntFromString(sa[8], "Proration value is invalid")
 	if !rlib.IsValidAccrual(a.ProrationCycle) {
-		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, rlib.ACCRUALSECONDLY, rlib.ACCRUALYEARLY, a.ProrationCycle)
+		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, a.ProrationCycle)
 		return
 	}
 	if a.ProrationCycle > a.RentCycle {

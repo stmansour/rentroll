@@ -24,7 +24,7 @@ import (
 func readTwoDates(s1, s2 string, funcname string, lineno int) (time.Time, time.Time, error) {
 	var DtStart, DtStop time.Time
 	var err error
-	DtStart, err = StringToDate(s1) // required field
+	DtStart, err = rlib.StringToDate(s1) // required field
 	if err != nil {
 		err = fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, s1)
 		return DtStart, DtStop, err
@@ -36,7 +36,7 @@ func readTwoDates(s1, s2 string, funcname string, lineno int) (time.Time, time.T
 			end = s2
 		}
 	}
-	DtStop, err = StringToDate(end)
+	DtStop, err = rlib.StringToDate(end)
 	if err != nil {
 		err = fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, s2)
 	}
@@ -105,7 +105,9 @@ func CreateRentables(sa []string, lineno int) {
 
 	//-----------------------------------------------------------------------------------
 	// USER 3-TUPLEs
-	// "User1,Strt1,Stp1;User2,Strt2,Stp2 ..."
+	// "user1,dtstart1,dtstop1;user2,dtstart2,dtstop2;..."
+	// example:
+	// "ednak@springfield.com,1/1/2013,11/9/2015;homerj@springfield.com,11/20/2015,;marge@springfield.com,11/20/2015,"
 	//-----------------------------------------------------------------------------------
 	var rul []rlib.RentableUser // keep every rlib.RentableUser we find in an array
 	if 0 < len(strings.TrimSpace(sa[3])) {

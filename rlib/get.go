@@ -6,11 +6,6 @@ import (
 	"time"
 )
 
-// GetName for RentalAgreements returns a unique identifier string.
-func (ra RentalAgreement) GetName() string {
-	return fmt.Sprintf("RA%08d", ra.RAID)
-}
-
 //=======================================================
 //  A G R E E M E N T   P E T S
 //=======================================================
@@ -160,9 +155,10 @@ func GetCustomAttribute(id int64) (CustomAttribute, error) {
 }
 
 // GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
-func GetAllCustomAttributes(elemid, id int64) ([]CustomAttribute, error) {
+func GetAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error) {
 	var t []int64
-	var m []CustomAttribute
+	var m map[string]CustomAttribute
+	m = make(map[string]CustomAttribute, 0)
 	rows, err := RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
 	Errcheck(err)
 	defer rows.Close()
@@ -178,21 +174,34 @@ func GetAllCustomAttributes(elemid, id int64) ([]CustomAttribute, error) {
 		var c CustomAttribute
 		c, err := GetCustomAttribute(t[i])
 		Errcheck(err)
-		m = append(m, c)
+		m[c.Name] = c
 	}
 
 	return m, err
 }
 
+// LoadRentableTypeCustomaAttributes adds all the custom attributes to each RentableType
+func LoadRentableTypeCustomaAttributes(xbiz *XBusiness) {
+	var err error
+	for k, v := range xbiz.RT {
+		var tmp = xbiz.RT[k]
+		tmp.CA, err = GetAllCustomAttributes(ELEMRENTABLETYPE, v.RTID)
+		if err != nil {
+			Ulog("LoadRentableTypeCustomaAttributes: error reading custom attributes elementtype=%d, id=%d, err = %s\n", ELEMRENTABLETYPE, v.RTID, err.Error())
+		}
+		xbiz.RT[k] = tmp // this workaround (assigning to tmp) instead of just directly assigning the .CA member is a known issue in go
+	}
+}
+
 //=======================================================
 //  DEPOSIT
-//  Deposit, Depository, DepositPart
+//  Deposit, Depository, Deposit Method, DepositPart
 //=======================================================
 
 // GetDeposit reads a Deposit structure based on the supplied Deposit id
 func GetDeposit(id int64) (Deposit, error) {
 	var a Deposit
-	err := RRdb.Prepstmt.GetDeposit.QueryRow(id).Scan(&a.DID, &a.BID, &a.DEPID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy)
+	err := RRdb.Prepstmt.GetDeposit.QueryRow(id).Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy)
 	return a, err
 }
 
@@ -204,7 +213,7 @@ func GetAllDepositsInRange(bid int64, d1, d2 *time.Time) []Deposit {
 	defer rows.Close()
 	for rows.Next() {
 		var a Deposit
-		Errcheck(rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy))
 		a.DP, err = GetDepositParts(a.DID)
 		Errcheck(err)
 		t = append(t, a)
@@ -249,6 +258,35 @@ func GetDepositParts(id int64) ([]DepositPart, error) {
 	}
 	Errcheck(rows.Err())
 	return m, err
+}
+
+// GetDepositMethod reads a DepositMethod structure based on the supplied Deposit id
+func GetDepositMethod(id int64) (DepositMethod, error) {
+	var a DepositMethod
+	err := RRdb.Prepstmt.GetDepositMethod.QueryRow(id).Scan(&a.DPMID, &a.BID, &a.Name)
+	return a, err
+}
+
+// GetDepositMethodByName reads a DepositMethod structure based on the supplied BID and Name
+func GetDepositMethodByName(bid int64, name string) (DepositMethod, error) {
+	var a DepositMethod
+	err := RRdb.Prepstmt.GetDepositMethodByName.QueryRow(bid, name).Scan(&a.DPMID, &a.BID, &a.Name)
+	return a, err
+}
+
+// GetAllDepositMethods returns an array of all DepositMethods for the supplied business
+func GetAllDepositMethods(bid int64) []DepositMethod {
+	var t []DepositMethod
+	rows, err := RRdb.Prepstmt.GetAllDepositMethods.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var r DepositMethod
+		Errcheck(rows.Scan(&r.DPMID, &r.BID, &r.Name))
+		t = append(t, r)
+	}
+	Errcheck(rows.Err())
+	return t
 }
 
 //=======================================================
@@ -772,7 +810,7 @@ func GetRentableUsers(raid int64, d1, d2 *time.Time) []RentableUser {
 // GetRentalAgreement returns the RentalAgreement struct for the supplied rental agreement id
 func GetRentalAgreement(raid int64) (RentalAgreement, error) {
 	var r RentalAgreement
-	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID, &r.NID,
+	err := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid).Scan(&r.RAID, &r.RATID, &r.BID, &r.NLID,
 		&r.RentalStart, &r.RentalStop, &r.PossessionStart, &r.PossessionStop,
 		&r.Renewal, &r.SpecialProvisions, &r.LastModTime, &r.LastModBy)
 	if nil != err && !IsSQLNoResultsError(err) {
@@ -898,7 +936,7 @@ func GetReceiptsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []Receipt {
 func GetReceipt(rcptid int64) Receipt {
 	var r Receipt
 	Errcheck(RRdb.Prepstmt.GetReceipt.QueryRow(rcptid).Scan(
-		&r.RCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.DocNo, &r.Amount, &r.AcctRule, &r.Comment, &r.LastModTime, &r.LastModBy))
+		&r.RCPTID, &r.PRCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.DocNo, &r.Amount, &r.AcctRule, &r.Comment, &r.OtherPayorName, &r.LastModTime, &r.LastModBy))
 	GetReceiptAllocations(rcptid, &r)
 	return r
 }
@@ -1049,10 +1087,26 @@ func GetDefaultLedgers(bid int64) {
 //  LEDGER ENTRY
 //=======================================================
 
-// GetLedgerEntriesForRAID returns a list of CustomAttributes for the supplied elementid and instanceid
+// GetLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
 func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
 	var m []LedgerEntry
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		var le LedgerEntry
+		Errcheck(rows.Scan(&le.LEID, &le.BID, &le.JID, &le.JAID, &le.LID, &le.RAID, &le.Dt, &le.Amount, &le.Comment, &le.LastModTime, &le.LastModBy))
+		m = append(m, le)
+	}
+	Errcheck(rows.Err())
+	return m, err
+}
+
+// GetAllLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
+func GetAllLedgerEntriesInRange(bid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
+	var m []LedgerEntry
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 
@@ -1071,23 +1125,41 @@ func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry,
 
 // GetNote reads a Note structure based on the supplied Note id
 func GetNote(tid int64, t *Note) {
-	Errcheck(RRdb.Prepstmt.GetNote.QueryRow(tid).Scan(&t.NID, &t.PNID, &t.NTID, &t.Comment, &t.LastModTime, &t.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetNote.QueryRow(tid).Scan(&t.NID, &t.NLID, &t.PNID, &t.NTID, &t.Comment, &t.LastModTime, &t.LastModBy))
 }
 
-// GetNoteList reads a Note structure based on the supplied Note id, then it reads all its child notes, organizes them by Date
+// GetNoteAndChildNotes reads a Note structure based on the supplied Note id, then it reads all its child notes, organizes them by Date
 // and returns them in an array
-func GetNoteList(tid int64) []Note {
-	var m []Note
+func GetNoteAndChildNotes(nid int64) Note {
 	var n Note
-	GetNote(tid, &n)
-	m = append(m, n)
-	rows, err := RRdb.Prepstmt.GetNoteList.Query(tid)
+	GetNote(nid, &n)
+	rows, err := RRdb.Prepstmt.GetNoteAndChildNotes.Query(nid)
 	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var p Note
-		Errcheck(rows.Scan(&p.NID, &p.PNID, &p.NTID, &p.Comment, &p.LastModTime, &p.LastModBy))
-		m = append(m, p)
+		Errcheck(rows.Scan(&p.NID, &p.NLID, &p.PNID, &p.NTID, &p.Comment, &p.LastModTime, &p.LastModBy))
+		n.CN = append(n.CN, p)
+	}
+	return n
+}
+
+//=======================================================
+//  NOTELIST
+//=======================================================
+
+// GetNoteList reads a NoteList structure based on the supplied NoteList id
+func GetNoteList(nlid int64) NoteList {
+	var m NoteList
+	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.LastModTime, &m.LastModBy))
+	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var nid int64
+		Errcheck(rows.Scan(&nid))
+		p := GetNoteAndChildNotes(nid)
+		m.N = append(m.N, p)
 	}
 	return m
 }
@@ -1116,6 +1188,16 @@ func GetAllNoteTypes(bid int64) []NoteType {
 }
 
 //=======================================================
+//  SOURCE
+//=======================================================
+
+// GetSource reads a Source structure based on the supplied Source id
+func GetSource(id int64, t *Source) {
+	row := RRdb.Prepstmt.GetSource.QueryRow(id)
+	ReadSource(row, t)
+}
+
+//=======================================================
 //  TRANSACTANT
 //  Transactant, Prospect, User, Payor, XPerson
 //=======================================================
@@ -1124,15 +1206,15 @@ func GetAllNoteTypes(bid int64) []NoteType {
 func GetTransactantByPhoneOrEmail(s string) (Transactant, error) {
 	var t Transactant
 	p := fmt.Sprintf("SELECT "+TRNSfields+" FROM Transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
-	err := RRdb.Dbrr.QueryRow(p).Scan(&t.TCID, &t.USERID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName,
+	err := RRdb.Dbrr.QueryRow(p).Scan(&t.TCID, &t.USERID, &t.PID, &t.PRSPID, &t.NLID, &t.FirstName, &t.MiddleName, &t.LastName,
 		&t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone,
-		&t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.Notes, &t.LastModTime, &t.LastModBy)
+		&t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.LastModTime, &t.LastModBy)
 	return t, err
 }
 
 // GetTransactant reads a Transactant structure based on the supplied Transactant id
 func GetTransactant(tid int64, t *Transactant) {
-	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tid).Scan(&t.TCID, &t.USERID, &t.PID, &t.PRSPID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.Notes, &t.LastModTime, &t.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetTransactant.QueryRow(tid).Scan(&t.TCID, &t.USERID, &t.PID, &t.PRSPID, &t.NLID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.LastModTime, &t.LastModBy))
 }
 
 // GetProspect reads a Prospect structure based on the supplied Transactant id
@@ -1144,7 +1226,7 @@ func GetProspect(prspid int64, p *Prospect) {
 
 // GetUser reads a User structure based on the supplied User id
 func GetUser(tcid int64, t *User) {
-	Errcheck(RRdb.Prepstmt.GetUser.QueryRow(tcid).Scan(&t.USERID, &t.TCID, &t.Points, &t.CarMake, &t.CarModel, &t.CarColor, &t.CarYear, &t.LicensePlateState, &t.LicensePlateNumber, &t.ParkingPermitNumber, &t.DateofBirth, &t.EmergencyContactName, &t.EmergencyContactAddress, &t.EmergencyContactTelephone, &t.EmergencyEmail, &t.AlternateAddress, &t.EligibleFutureUser, &t.Industry, &t.Source, &t.LastModTime, &t.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetUser.QueryRow(tcid).Scan(&t.USERID, &t.TCID, &t.Points, &t.CarMake, &t.CarModel, &t.CarColor, &t.CarYear, &t.LicensePlateState, &t.LicensePlateNumber, &t.ParkingPermitNumber, &t.DateofBirth, &t.EmergencyContactName, &t.EmergencyContactAddress, &t.EmergencyContactTelephone, &t.EmergencyEmail, &t.AlternateAddress, &t.EligibleFutureUser, &t.Industry, &t.SID, &t.LastModTime, &t.LastModBy))
 }
 
 // GetPayor reads a Payor structure based on the supplied Transactant id

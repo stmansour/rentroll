@@ -9,7 +9,7 @@ import (
 
 //  CSV file format:
 //  0                     1      2             3             4                                            5        6                  7                                                              8
-//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   rlib.Payor,                                  Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
+//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   Payor,                                       Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
 // 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                “U101,2500.00;U102,2350.00”,
 // 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                “U101,2500.00;U102,2350.00”,
 // 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                “U101,2500.00;U102,2350.00”,
@@ -113,7 +113,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	// RentalStartDate
 	//-------------------------------------------------------------------
 	dfltStart := sa[2]
-	DtStart, err := StringToDate(dfltStart)
+	DtStart, err := rlib.StringToDate(dfltStart)
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[2])
 		return
@@ -124,7 +124,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	// RentalStopDate
 	//-------------------------------------------------------------------
 	dfltStop := sa[3]
-	DtStop, err := StringToDate(dfltStop)
+	DtStop, err := rlib.StringToDate(dfltStop)
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[3])
 		return
@@ -194,17 +194,25 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Note
 	//-------------------------------------------------------------------
-	nid := int64(0)
 	note := strings.TrimSpace(sa[8])
 	if len(note) > 0 {
+		var nl rlib.NoteList
+		nl.NLID, err = rlib.InsertNoteList(&nl)
+		if err != nil {
+			fmt.Printf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
+			return
+		}
 		var n rlib.Note
 		n.Comment = note
-		nid, err = rlib.InsertNote(&n)
+		n.NTID = 1 // first comment type
+		n.NLID = nl.NLID
+		_, err = rlib.InsertNote(&n)
 		if err != nil {
-			rlib.Ulog("%s: line %d - Error saving note:  %s\n", funcname, lineno, err.Error())
+			fmt.Printf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
+			return
 		}
+		ra.NLID = nl.NLID
 	}
-	ra.NID = nid
 
 	//------------------------------------
 	// Write the rental agreement record

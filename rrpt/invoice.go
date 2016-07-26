@@ -75,7 +75,7 @@ func InvoiceTextReport(id int64) error {
 	//---------------------------------------
 	//  Assessments
 	//---------------------------------------
-	fmt.Printf("%-10s  %12s  %-15s  %-40s  %12s  %-20s\n", "Date", "AssessmentID", "Rentable", "Description", "Amount", "Comment")
+	fmt.Printf("%-10s  %12s  %-15s  %-40.40s  %12s  %-20s\n", "Date", "AssessmentID", "Rentable", "Description", "Amount", "Comment")
 	width := 10 + 12 + 15 + 40 + 12 + 20 + 2*5
 	sep := ""
 	for i := 0; i < width; i++ {
@@ -89,7 +89,7 @@ func InvoiceTextReport(id int64) error {
 			fmt.Printf("Error getting Assessment %d:  %s\n", inv.A[i].ASMID, err.Error())
 		}
 		r := rlib.GetRentable(a.RID)
-		fmt.Printf("%-10s  %-12s  %-15s  %-40s  %12s  %20s\n", a.Start.Format(rlib.RRDATEFMT3), a.IDtoString(),
+		fmt.Printf("%-10s  %-12s  %-15s  %-40.40s  %12s  %20s\n", a.Start.Format(rlib.RRDATEFMT3), a.IDtoString(),
 			r.Name, rlib.RRdb.BizTypes[biz.BID].GLAccounts[a.ATypeLID].Name, rlib.RRCommaf(a.Amount), a.Comment)
 		tot += a.Amount
 	}

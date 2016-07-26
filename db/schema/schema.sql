@@ -56,12 +56,20 @@ CREATE TABLE NoteType (
 
 CREATE TABLE Notes (
     NID BIGINT NOT NULL AUTO_INCREMENT,                     -- ID for this note
+    NLID BIGINT NOT NULL DEFAULT 0,                         -- note list containing this note
     PNID BIGINT NOT NULL DEFAULT 0,                         -- NID of parent not
     NTID BIGINT NOT NULL DEFAULT 0,                         -- What type of note is this
     Comment VARCHAR(1024) NOT NULL DEFAULT '',              -- the actual note
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (NID)     
+);
+
+CREATE TABLE NoteList (
+    NLID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id for this notelist
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (NLID)     
 );
 
 -- ===========================================
@@ -83,11 +91,11 @@ CREATE TABLE RentalAgreement (
     RAID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
     RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
-    NID BIGINT NOT NULL DEFAULT 0,                            -- Note ID
+    NLID BIGINT NOT NULL DEFAULT 0,                            -- NoteList ID
     RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
     RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
-    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- date when Occupancy starts
-    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when Occupancy stops
+    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when Occupancy starts
+    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when Occupancy stops
     Renewal SMALLINT NOT NULL DEFAULT 0,                      -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',      -- free-form text
     LastModTime TIMESTAMP,                                    -- when was this record last written
@@ -296,15 +304,15 @@ CREATE TABLE Rentable (
     LastModTime TIMESTAMP,                                         -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RID)
-    -- RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,               -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-    -- RentCycle SMALLINT NOT NULL DEFAULT 0,                         -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+    -- RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,            -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+    -- RentCycle SMALLINT NOT NULL DEFAULT 0,                      -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 );
 
 CREATE TABLE RentableTypeRef (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- the Rentable this record belongs to
     RTID BIGINT NOT NULL DEFAULT 0,                                 -- the Rentable type for this period
     RentCycle BIGINT NOT NULL DEFAULT 0,                            -- RentCycle override. 0 = unset, > 0 means the frequency
-    ProrationCycle BIGINT NOT NULL DEFAULT 0,                      -- Proration override. 0 = unset, > 0 means the override proration
+    ProrationCycle BIGINT NOT NULL DEFAULT 0,                       -- Proration override. 0 = unset, > 0 means the override proration
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     LastModTime TIMESTAMP,                                          -- when was this record last written
@@ -313,7 +321,7 @@ CREATE TABLE RentableTypeRef (
 
 CREATE TABLE RentableStatus (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
-    Status SMALLINT NOT NULL DEFAULT 0,                             -- 0 = UNKNOWN -- 1 = ONLINE, 2 = ADMIN, 3 = EMPLOYEE, 4 = OWNEROCC, 5 = OFFLINE
+    Status SMALLINT NOT NULL DEFAULT 0,                             -- 0 = UNKNOWN -- 1 = ONLINE, 2 = ADMIN, 3 = EMPLOYEE, 4 = OWNEROCC, 5 = OFFLINE, 
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     LastModTime TIMESTAMP,                                          -- when was this record last written
@@ -365,6 +373,15 @@ CREATE TABLE Assessments (
 -- ****                              ****
 -- **************************************
 
+CREATE TABLE Source (
+    SID BIGINT NOT NULL AUTO_INCREMENT,
+    Name VARCHAR(100),
+    Industry VARCHAR(100),
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (SID)
+);
+
 -- ===========================================
 --   TRANSACTANT
 -- ===========================================
@@ -374,6 +391,7 @@ CREATE TABLE Transactant (
     USERID BIGINT NOT NULL DEFAULT 0,                         -- associated User id
     PID BIGINT NOT NULL DEFAULT 0,                         -- associated Payor id
     PRSPID BIGINT NOT NULL DEFAULT 0,                      -- associated Prospect id
+    NLID BIGINT NOT NULL DEFAULT 0,                        -- notes associated with this transactant
     FirstName VARCHAR(100) NOT NULL DEFAULT '',
     MiddleName VARCHAR(100) NOT NULL DEFAULT '',
     LastName VARCHAR(100) NOT NULL DEFAULT '',
@@ -391,7 +409,6 @@ CREATE TABLE Transactant (
     PostalCode VARCHAR(100) NOT NULL DEFAULT '',
     Country VARCHAR(100) NOT NULL DEFAULT '',
     Website VARCHAR(100) NOT NULL DEFAULT '',
-    Notes VARCHAR(256) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (TCID)
@@ -418,12 +435,12 @@ CREATE TABLE Prospect (
 );
 
 -- ===========================================
---   TENANT
+--   USER
 -- ===========================================
 CREATE TABLE User (
-    USERID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this User
-    TCID BIGINT NOT NULL,                                  -- associated Transactant
-    Points BIGINT NOT NULL DEFAULT 0,                      -- bonus points for this User
+    USERID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id of this User
+    TCID BIGINT NOT NULL,                                       -- associated Transactant
+    Points BIGINT NOT NULL DEFAULT 0,                           -- bonus points for this User
     CarMake VARCHAR(100) NOT NULL DEFAULT '',
     CarModel VARCHAR(100) NOT NULL DEFAULT '',
     CarColor VARCHAR(100) NOT NULL DEFAULT '',
@@ -437,11 +454,11 @@ CREATE TABLE User (
     EmergencyContactTelephone VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyEmail VARCHAR(100) NOT NULL DEFAULT '',
     AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
-    EligibleFutureUser SMALLINT NOT NULL DEFAULT 1,               -- yes/no
-    Industry VARCHAR(100) NOT NULL DEFAULT '',                      -- (e.g., construction, retail, banking etc.)
-    Source  VARCHAR(100) NOT NULL DEFAULT '',                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
-    LastModTime TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it 
+    EligibleFutureUser SMALLINT NOT NULL DEFAULT 1,              -- yes/no
+    Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
+    SID BIGINT NOT NULL DEFAULT 0,                               -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
+    LastModTime TIMESTAMP,                                       -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (USERID)
 );
 
@@ -467,6 +484,7 @@ CREATE TABLE Payor  (
 -- **************************************
 CREATE TABLE Receipt (
     RCPTID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this Receipt
+    PRCPTID BIGINT NOT NULL DEFAULT 0,                          -- Parent RCPT, if non-zero then it is the RCPTID of a receipt with an error that we're correcting in this receipt
     BID BIGINT NOT NULL DEFAULT 0,
     RAID BIGINT NOT NULL DEFAULT 0,                             -- THIS IS AN ISSUE... It can go away -- ReceiptAllocation has an associated Assessment, which has the RAID
     PMTID BIGINT NOT NULL DEFAULT 0,
@@ -475,6 +493,7 @@ CREATE TABLE Receipt (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
+    OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
     -- ApplyToGeneralReceivable DECIMAL(19,4),                  -- Breakdown is in ReceiptAllocation table
     -- ApplyToSecurityDeposit DECIMAL(19,4),                    -- Can we just handle this as part of Receipt allocation
     LastModTime TIMESTAMP,                                      -- when was this record last written
@@ -494,10 +513,17 @@ CREATE TABLE ReceiptAllocation (
 -- ****          DEPOSIT             ****
 -- ****                              ****
 -- **************************************
+CREATE TABLE DepositMethod (
+    DPMID BIGINT NOT NULL AUTO_INCREMENT, 
+    BID BIGINT NOT NULL DEFAULT 0,                              -- which busines
+    Name VARCHAR(50) NOT NULL DEFAULT '',                       -- 0 = not specified, 1 = Hand Delivery, Scanned Batch, CC Shift 4, CC NAYAX, ACH, US Mail
+    PRIMARY KEY (DPMID)
+);
+
 CREATE TABLE Depository (
     DEPID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for a depository
     BID BIGINT NOT NULL DEFAULT 0,                              -- business id
-    Name VARCHAR(256),                                          -- Name of Depository: First Data, Nyax, CCI, Oklahoma Fidelity
+    Name VARCHAR(256),                                          -- Name of Depository: First Data, Nyax, Oklahoma Fidelity
     AccountNo VARCHAR(256),                                     -- account number at this Depository
     LastModTime TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
@@ -508,6 +534,7 @@ CREATE TABLE Deposit (
     DID BIGINT NOT NULL AUTO_INCREMENT,                         -- UniqueID for this deposit
     BID BIGINT NOT NULL DEFAULT 0,                              -- business id
     DEPID BIGINT NOT NULL DEFAULT 0,                            -- DepositoryID where the Deposit was made
+    DPMID BIGINT NOT NULL DEFAULT 0,                            -- Deposit Method
     Dt DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- Date of deposit
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- total amount of all Receipts in this deposit
     LastModTime TIMESTAMP,                                      -- when was this record last written

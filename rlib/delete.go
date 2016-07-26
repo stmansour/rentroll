@@ -20,6 +20,14 @@ func DeleteDepository(id int64) {
 	}
 }
 
+// DeleteDepositMethod deletes ALL the DepositMethod associated with the supplied id
+func DeleteDepositMethod(id int64) {
+	_, err := RRdb.Prepstmt.DeleteDepositMethod.Exec(id)
+	if err != nil {
+		Ulog("Error deleting DepositMethod where DPMID = %d, error: %v\n", id, err)
+	}
+}
+
 // DeleteDepositParts deletes ALL the DepositParts associated with the supplied id
 func DeleteDepositParts(id int64) {
 	_, err := RRdb.Prepstmt.DeleteDepositParts.Exec(id)
@@ -101,11 +109,46 @@ func DeleteLedgerMarker(lmid int64) error {
 	return err
 }
 
-// DeleteNote deletes the Note record with the supplied nid
+// DeleteNote deletes the Note with the supplied id and all its children
+// PLEASE USE DeleteNoteAndChildNotes IF POSSIBLE
 func DeleteNote(nid int64) error {
+	var n Note
+	GetNote(nid, &n)
+	return DeleteNoteAndChildNotes(&n)
+}
+
+// DeleteNoteAndChildNotes deletes supplied Note and all its child notes
+func DeleteNoteAndChildNotes(p *Note) error {
+	for i := 0; i < len(p.CN); i++ {
+		err := DeleteNoteAndChildNotes(&p.CN[i])
+		if err != nil {
+			Ulog("Error deleting Note for NID = %d, error: %v\n", p.CN[i].NID, err)
+		}
+	}
+	err := DeleteNoteInternal(p.NID)
+	return err
+}
+
+// DeleteNoteInternal deletes the Note record with the supplied nid. Does not look at child notes.
+func DeleteNoteInternal(nid int64) error {
 	_, err := RRdb.Prepstmt.DeleteNote.Exec(nid)
 	if err != nil {
 		Ulog("Error deleting Note for NID = %d, error: %v\n", nid, err)
+	}
+	return err
+}
+
+// DeleteNoteList deletes the Note record with the supplied nid
+func DeleteNoteList(nl *NoteList) error {
+	for i := 0; i < len(nl.N); i++ {
+		err := DeleteNoteAndChildNotes(&nl.N[i])
+		if err != nil {
+			Ulog("Error deleting Note for NID = %d, error: %v\n", nl.N[i].NID, err)
+		}
+	}
+	_, err := RRdb.Prepstmt.DeleteNoteList.Exec(nl.NLID)
+	if err != nil {
+		Ulog("Error deleting Note for NID = %d, error: %v\n", nl.NLID, err)
 	}
 	return err
 }
@@ -194,11 +237,20 @@ func DeleteRentalAgreementPet(petid int64) error {
 	return err
 }
 
-// DeleteAllRentalAgreementPets deletes the pet with the specified petid from the database
-func DeleteAllRentalAgreementPets(raid int64) error {
-	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementPets.Exec(raid)
+// DeleteAllRentalAgreementPets deletes all pets associated with the specified raid
+func DeleteAllRentalAgreementPets(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementPets.Exec(id)
 	if err != nil {
-		Ulog("Error deleting pets for rental agreement=%d error: %v\n", raid, err)
+		Ulog("Error deleting pets for rental agreement=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteSource deletes the Source with the specified id from the database
+func DeleteSource(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteSource.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Source for SID=%d error: %v\n", id, err)
 	}
 	return err
 }

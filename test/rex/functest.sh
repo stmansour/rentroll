@@ -6,6 +6,7 @@ UNAME=$(uname)
 CSVLOAD="${RRBIN}/rrloadcsv"
 RENTROLL="${RRBIN}/rentroll -A"
 LOGFILE="log"
+BUD="REX"
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
@@ -93,6 +94,128 @@ dotest () {
 	fi
 }
 
+pause() {
+	read -p "Press [Enter] to continue,  Q or X to quit..." x
+	x=$(echo "${x}" | tr "[:upper:]" "[:lower:]")
+	if [ ${x} == "q" -o ${x} == "x" ]; then
+		exit 0
+	fi
+}
+
+csvload() {
+	echo "command is:  ${CSVLOAD} ${1}"
+	${CSVLOAD} ${1}
+}
+
+app() {
+	echo "command is:  ${RENTROLL} -j 2016-03-01 -k 2016-04-01 ${1}"
+	${RENTROLL} -j "2016-03-01" -k "2016-04-01" ${1}
+}
+
+#############################################################################
+# doReport()
+#   Description:
+#		Run database reports based on user selection
+#############################################################################
+doReport () {
+while :
+do
+	clear
+	cat <<EOF
+-----------------------------------------
+   R E N T R O L L  --  R E P O R T S
+-----------------------------------------
+A)  Assessments
+B)  Business
+C)  Chart of Accounts
+CA) Custom Attributes
+DY) Depositories 
+I)  Invoice
+IR) Invoice Report
+J)  Journal
+L)  Ledger
+LA) Ledger Activity
+LB) Ledger Balance
+NT) Note Types
+P)  People
+PE) Pets
+PT) Payment Types
+R)  Receipts
+RA) Rental Agreements
+RE) Rentables
+RS) Rentable Specialty Assignments
+RT) Rentable Types
+S)  Rentable Specialties
+T)  Rental Agreement Templates
+U)  Custom Attribute Assignments
+
+
+X) Exit
+
+input is case insensitive
+EOF
+
+	read -p "Enter choice: " choice
+	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
+	case ${choice} in
+		ir)	app "-r 9,IN00001" ;;
+		 j)	app "-r 1" ;;
+		 l)	app "-r 2" ;;
+		la)	app "-r 10" ;;
+		lb)	app "-r 6" ;;
+		 a)	csvload "-L 11,${BUD}" ;;
+		 b)	csvload "-L 3" ;;
+		 c)	csvload "-L 10,${BUD}" ;;
+		ca)	csvload "-L 14" ;;
+		dy)	csvload "-L 18,${BUD}" ;;
+		 i)	csvload "-L 20,${BUD}" ;;
+		nt)	csvload "-L 17,${BUD}" ;;
+		 p)	csvload "-L 7,${BUD}" ;;
+		pe)	csvload "-L 16,RA0002" ;;
+		pt)	csvload "-L 12,${BUD}" ;;
+		 r) csvload "-L 13,${BUD}" ;;
+		ra) csvload "-L 9,${BUD}" ;;
+		re) csvload "-L 6,${BUD}" ;;
+		rs) csvload "-L 22,${BUD}" ;;
+		rt) csvload "-L 5,${BUD}" ;;
+		 s) csvload "-L 21,${BUD}" ;;
+		 t) csvload "-L 8" ;;
+		 u) csvload "-L 15" ;;
+		 x)	exit 0 ;;
+		*)	echo "Unknown report: ${choice}"
+	esac
+	pause
+done
+}
+
+
+usage() {
+	cat <<EOF
+func.sh - test script and report utility
+	run this command with no options to perform the test
+	run this command with -r or -R to bring up the report interface
+EOF
+}
+
+#--------------------------------------------------------------------------
+#  Look at the command line options first
+#--------------------------------------------------------------------------
+while getopts "rR:" o; do
+	case "${o}" in
+		r | R)
+			doReport
+			exit 0
+			;;
+		*) 	usage
+			exit 1
+			;;
+	esac
+done
+shift $((OPTIND-1))
+
+#--------------------------------------------------------------------------
+#  On with the test! Initialize the db, run the app, generate the reports
+#--------------------------------------------------------------------------
 rm -f ${ERRFILE}
 echo "CSV IMPORT TEST" > ${LOGFILE}
 echo -n "Date/Time: " >> ${LOGFILE}
@@ -104,6 +227,7 @@ ${RRBIN}/rrnewdb
 
 doLogTest ${LOGFILE} "-b business.csv -L 3" "DEFINE BUSINESS"
 doLogTest ${LOGFILE} "-d depository.csv -L 18,REX" "DEFINE DEPOSITORIES"
+doLogTest ${LOGFILE} "-m dm.csv -L 23,REX" "DEFINE DEPOSIT METHODS"
 doLogTest ${LOGFILE} "-R rentabletypes.csv -L 5,REX" "DEFINE RENTABLE TYPES"
 doLogTest ${LOGFILE} "-p people.csv  -L 7" "DEFINE PEOPLE"
 doLogTest ${LOGFILE} "-r rentable.csv -L 6,REX" "DEFINE RENTABLES"

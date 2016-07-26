@@ -2,6 +2,7 @@ package rcsv
 
 import (
 	"fmt"
+	"math"
 	"rentroll/rlib"
 	"strings"
 )
@@ -44,7 +45,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Date
 	//-------------------------------------------------------------------
-	inv.Dt, err = StringToDate(sa[1])
+	inv.Dt, err = rlib.StringToDate(sa[1])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[1])
 		return
@@ -62,7 +63,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Date Due
 	//-------------------------------------------------------------------
-	inv.DtDue, err = StringToDate(sa[3])
+	inv.DtDue, err = rlib.StringToDate(sa[3])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid due date:  %s\n", funcname, lineno, sa[3])
 		return
@@ -111,7 +112,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 		tot += a.Amount
 		mm = append(mm, a) // may need this later
 	}
-	if tot != inv.Amount {
+	if math.Abs(tot-inv.Amount) > 0.005 {
 		rlib.Ulog("%s: line %d - Total of all assessments found to be %8.2f, but Amount was specified as %8.2f. Please correct.\n", funcname, lineno, tot, inv.Amount)
 		return
 	}

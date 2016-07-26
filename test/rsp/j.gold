@@ -31,7 +31,7 @@
                                            Gross Scheduled Rent  11/21/15         8              101     40001         -6.67
                                                                
    J00000007  General Accounts Receivable  101 [GM]            
-                                    Security Deposit Receivable  11/21/15         8              101     11002       1500.00
+                                    General Accounts Receivable  11/21/15         8              101     11001       1500.00
                                     Security Deposit Assessment  11/21/15         8              101     23000      -1500.00
                                                                
    J00000008  Carport (8/30 days)  CP001 [CPT, monthly]        
@@ -88,30 +88,30 @@
    	Lake View                                                  
                                     General Accounts Receivable  11/21/15         1              101     11001        -13.33
                                        Bank Account FRB 2332352  11/21/15         1              101     10001         13.33
-   	Fireplace                                                  
-                                    General Accounts Receivable  11/21/15         1              101     11001         -5.33
-                                       Bank Account FRB 2332352  11/21/15         1              101     10001          5.33
    	Carport                                                    
                                     General Accounts Receivable  11/21/15         1            CP001     11001         -9.33
                                        Bank Account FRB 2332352  11/21/15         1            CP001     10001          9.33
+   	Fireplace                                                  
+                                    General Accounts Receivable  11/21/15         1              101     11001         -5.33
+                                       Bank Account FRB 2332352  11/21/15         1              101     10001          5.33
                                                                
    J00000023  Payment - Simpson   #10383  1946.68              
    	General Accounts Receivable                                
                                        Bank Account FRB 2332352  11/15/15         8              101     10001       1500.00
-                                    Security Deposit Receivable  11/15/15         8              101     11002      -1500.00
+                                    General Accounts Receivable  11/15/15         8              101     11001      -1500.00
    	Gross Scheduled Rent                                       
                                     General Accounts Receivable  11/15/15         8              101     11001       -400.00
                                        Bank Account FRB 2332352  11/15/15         8              101     10001        400.00
    	Lake View                                                  
                                     General Accounts Receivable  11/15/15         8              101     11001        -16.67
                                        Bank Account FRB 2332352  11/15/15         8              101     10001         16.67
-   	Fireplace                                                  
-                                    General Accounts Receivable  11/15/15         8              101     11001         -6.67
-                                       Bank Account FRB 2332352  11/15/15         8              101     10001          6.67
    	Carport                                                    
                                     General Accounts Receivable  11/15/15         8            CP001     11001        -11.67
                                        Bank Account FRB 2332352  11/15/15         8            CP001     10001         11.67
    	Carport                                                    
                                     General Accounts Receivable  11/15/15         8            CP002     11001        -11.67
                                        Bank Account FRB 2332352  11/15/15         8            CP002     10001         11.67
+   	Fireplace                                                  
+                                    General Accounts Receivable  11/15/15         8              101     11001         -6.67
+                                       Bank Account FRB 2332352  11/15/15         8              101     10001          6.67
                                                                

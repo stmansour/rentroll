@@ -51,6 +51,7 @@ var App struct {
 	DepositoryFile string                     // Depository
 	DepositFile    string                     // Deposits
 	InvoiceFile    string                     // Invoice
+	DMFile         string                     // Deposit Methods
 }
 
 func readCommandLineArgs() {
@@ -78,7 +79,8 @@ func readCommandLineArgs() {
 	rsrefsPtr := flag.String("F", "", "assign rentable specialties to rentables via csv file")
 	ntPtr := flag.String("O", "", "add NoteTypes via csv file")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments")
+	dmPtr := flag.String("m", "", "add DepositMethods via csv file")
 
 	flag.Parse()
 	if *verPtr {
@@ -109,6 +111,7 @@ func readCommandLineArgs() {
 	App.DepositoryFile = *depositoryPtr
 	App.DepositFile = *depositPtr
 	App.InvoiceFile = *invPtr
+	App.DMFile = *dmPtr
 }
 
 func bizErrCheck(sa []string) {
@@ -173,6 +176,9 @@ func main() {
 	}
 	if len(App.PmtTypeFile) > 0 {
 		rcsv.LoadPaymentTypesCSV(App.PmtTypeFile)
+	}
+	if len(App.DMFile) > 0 {
+		rcsv.LoadDepositMethodsCSV(App.DMFile)
 	}
 	if len(App.RTFile) > 0 {
 		rcsv.LoadRentableTypesCSV(App.RTFile)
@@ -298,6 +304,18 @@ func main() {
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rcsv.RRreportInvoices(rlib.RPTTEXT, bid))
+		case 21:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportSpecialties(rlib.RPTTEXT, bid))
+		case 22:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportSpecialtyAssigns(rlib.RPTTEXT, bid))
+		case 23:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportDepositMethods(rlib.RPTTEXT, bid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

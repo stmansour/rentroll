@@ -7,9 +7,9 @@ import (
 )
 
 // CVS record format:
-// 0    1         2     3      4
-// BUD, Date,    DEPID, Amount,Receipts
-// REX, 5/21/16, DEP001,2000,  "RCPT00001,2"
+// 0    1         2     3      4             5
+// BUD, Date,    DEPID, Amount,Receipts,     DPMID
+// REX, 5/21/16, DEP001,2000,  "RCPT00001,2",DPM01
 
 // CreateDepositsFromCSV reads an assessment type string array and creates a database record for the assessment type
 func CreateDepositsFromCSV(sa []string, lineno int) {
@@ -22,7 +22,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) {
 		return // this is just the column heading
 	}
 	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 5
+	required := 6
 	if len(sa) < required {
 		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
 		return
@@ -43,7 +43,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Date
 	//-------------------------------------------------------------------
-	d.Dt, err = StringToDate(sa[1])
+	d.Dt, err = rlib.StringToDate(sa[1])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[1])
 		return
@@ -54,7 +54,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	d.DEPID = CSVLoaderGetDEPID(sa[2])
 	if d.DEPID == 0 {
-		rlib.Ulog("%s: line %d - Depository %s was not found. Skipping this item.\n", funcname, lineno, sa[1])
+		rlib.Ulog("%s: line %d - Depository %s was not found. Skipping this item.\n", funcname, lineno, sa[2])
 		return
 	}
 
@@ -92,6 +92,15 @@ func CreateDepositsFromCSV(sa []string, lineno int) {
 	}
 	if tot != d.Amount {
 		rlib.Ulog("%s: line %d - Total of all receipts found to be %8.2f, but Amount was specified as %8.2f. Please correct.\n", funcname, lineno, tot, d.Amount)
+		return
+	}
+
+	//-------------------------------------------------------------------
+	// Deposit Method
+	//-------------------------------------------------------------------
+	d.DPMID = CSVLoaderGetDPMID(sa[5])
+	if d.DEPID == 0 {
+		rlib.Ulog("%s: line %d - Deposit Method %s was not found. Skipping this item.\n", funcname, lineno, sa[5])
 		return
 	}
 

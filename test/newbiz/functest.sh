@@ -18,7 +18,7 @@ fi
 ########################################
 ${RRBIN}/rrnewdb
 
-./newbiz -b nb.csv -R rt.csv -u custom.csv -d depository.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv -y deposit.csv >log 2>&1
+./newbiz -b nb.csv -R rt.csv -u custom.csv -d depository.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv -m depmeth.csv -y deposit.csv  >log 2>&1
 
 ########################################
 # dotest()
@@ -58,6 +58,7 @@ rm -f ${ERRFILE}
 dotest "x"  "-b nb.csv"           "NewBusinesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
 dotest "z"  "-R rt.csv"           "RentableTypes...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModBy from RentableTypes;"
 dotest "w"  "-R rt.csv"           "RentableMarketRates...  " "select * from RentableMarketrate;"
+dotest "b1" "-m depmeth.csv"      "Deposit Methods...  " "select * from DepositMethod;"
 dotest "v"  "-s specialties.csv"  "RentableSpecialtyTypes...  " "select * from RentableSpecialtyType;"
 dotest "u"  "-D bldg.csv"         "Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
 dotest "c"  "-d depository.csv"   "Depositories...  " "select DEPID,BID,Name,AccountNo,LastModBy from Depository;"
@@ -65,7 +66,7 @@ dotest "t"  "-r rentable.csv"     "Rentables...  " "select RID,BID,Name,Assignme
 dotest "t1" "-r rentable.csv"     "RentableTypeRef...  " "select RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 dotest "t2" "-r rentable.csv"     "RentableStatus...  " "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
 dotest "s"  "-p people.csv"       "Transactants...  " "select TCID,USERID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
-dotest "r"  "-p people.csv"       "Users...  " "select USERID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,Source from User;"
+dotest "r"  "-p people.csv"       "Users...  " "select USERID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SID from User;"
 dotest "q"  "-p people.csv"       "Payors...  " "select PID,TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
 dotest "p"  "-p people.csv"       "Prospects...  " "select PRSPID,TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
 dotest "o"  "-T rat.csv"          "RentalAgreementTemplates...  " "select RATID,BID,RentalTemplateNumber,LastModBy from RentalAgreementTemplate;"

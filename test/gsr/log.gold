@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Mon Jul 11 20:09:07 PDT 2016
+Date/Time: Fri Jul 22 08:49:57 CDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -34,7 +34,7 @@ RATID  BID         RentalTemplateNumber
 
 
 DEFINE RENTAL AGREEMENTS
- RAID  rlib.Payor                                rlib.User                               
+ RAID  Payor                                     User                                    
     1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                
 
 
@@ -602,12 +602,11 @@ PROCESS PAYMENTS AND RECEIPTS
 Statement  -  Rental Agreement RA00000001   Payor(s): Aaron Read, Kirsten Read
 Period  May 1, 2016 - May 31, 2016
 
-Date        ID           Description                           Charge       Payment       Balance
--------------------------------------------------------------------------------------------------
-2016-05-01               Opening Balance                                                  -500.00
-2016-05-01  ASM00000001  Gross Schedule Rent                 3,750.00                    3,250.00
-2016-05-02  R0000000003  Payment received                                  4,000.00       -750.00
--------------------------------------------------------------------------------------------------
-Totals                                                       3,750.00      4,000.00       -750.00
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-05-01               Opening Balance                                                            -500.00
+2016-05-02  R0000000003  Payment received                                            4,000.00     -4,500.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                     0.00      4,000.00     -4,500.00
 
 

@@ -149,29 +149,29 @@ func YesNoToString(i int64) string {
 
 // IsValidAccrual returns true if a is a valid accrual value, false otherwise
 func IsValidAccrual(a int64) bool {
-	return !(a < ACCRUALNORECUR || a > ACCRUALYEARLY)
+	return !(a < CYCLENORECUR || a > CYCLEYEARLY)
 }
 
 // AccrualDuration converts an accrual frequency into the time duration it represents
 func AccrualDuration(a int64) time.Duration {
 	var d = time.Duration(0)
 	switch a {
-	case ACCRUALNORECUR:
-	case ACCRUALSECONDLY:
+	case CYCLENORECUR:
+	case CYCLESECONDLY:
 		d = time.Second
-	case ACCRUALMINUTELY:
+	case CYCLEMINUTELY:
 		d = time.Minute
-	case ACCRUALHOURLY:
+	case CYCLEHOURLY:
 		d = time.Hour
-	case ACCRUALDAILY:
+	case CYCLEDAILY:
 		d = time.Hour * 24
-	case ACCRUALWEEKLY:
+	case CYCLEWEEKLY:
 		d = time.Hour * 24 * 7
-	case ACCRUALMONTHLY:
+	case CYCLEMONTHLY:
 		d = time.Hour * 24 * 30 // yea, I know this isn't exactly right
-	case ACCRUALQUARTERLY:
+	case CYCLEQUARTERLY:
 		d = time.Hour * 24 * 90 // yea, I know this isn't exactly right
-	case ACCRUALYEARLY:
+	case CYCLEYEARLY:
 		d = time.Hour * 24 * 365 // yea, I know this isn't exactly right
 	default:
 		Ulog("AccrualDuration: invalid accrual value: %d\n", a)

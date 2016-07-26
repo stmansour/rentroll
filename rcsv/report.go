@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"rentroll/rlib"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -135,9 +136,9 @@ func RRreportPeople(t int) string {
 	s := fmt.Sprintf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "USERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
 	for rows.Next() {
 		var p rlib.XPerson
-		rlib.Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.USERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
+		rlib.Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.USERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.NLID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
 			&p.Trn.CompanyName, &p.Trn.IsCompany, &p.Trn.PrimaryEmail, &p.Trn.SecondaryEmail, &p.Trn.WorkPhone, &p.Trn.CellPhone, &p.Trn.Address, &p.Trn.Address2,
-			&p.Trn.City, &p.Trn.State, &p.Trn.PostalCode, &p.Trn.Country, &p.Trn.Website, &p.Trn.Notes, &p.Trn.LastModTime, &p.Trn.LastModBy))
+			&p.Trn.City, &p.Trn.State, &p.Trn.PostalCode, &p.Trn.Country, &p.Trn.Website, &p.Trn.LastModTime, &p.Trn.LastModBy))
 		rlib.GetXPerson(p.Trn.TCID, &p)
 		switch t {
 		case rlib.RPTTEXT:
@@ -187,9 +188,10 @@ func RRreportRentalAgreementTemplates(t int) string {
 }
 
 // ReportRentalAgreementToText returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementToText(p *rlib.RentalAgreement) string {
-	return fmt.Sprintf("%5d  %-40s  %-40s\n",
-		p.RAID, (*p).PayorsToString(), (*p).UsersToString())
+func ReportRentalAgreementToText(p *rlib.RentalAgreement, d1, d2 *time.Time) string {
+	payors := strings.Join(p.GetPayorNameList(d1, d2), ", ")
+	users := strings.Join(p.GetUserNameList(d1, d2), ", ")
+	return fmt.Sprintf("%5d  %-40s  %-40s\n", p.RAID, payors, users)
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
@@ -197,7 +199,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("%5s  %-40s  %-40s\n", "RAID", "rlib.Payor", "rlib.User")
+	s := fmt.Sprintf("%5s  %-40s  %-40s\n", "RAID", "Payor", "User")
 	var raid int64
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -212,7 +214,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 		}
 		switch t {
 		case rlib.RPTTEXT:
-			s += ReportRentalAgreementToText(&p)
+			s += ReportRentalAgreementToText(&p, &d1, &d2)
 		case rlib.RPTHTML:
 			fallthrough
 		default:
@@ -268,9 +270,7 @@ func RRreportChartOfAccounts(t int, bid int64) string {
 	for i := 0; i < len(a); i++ {
 		for j := i + 1; j < len(a); j++ {
 			if m[a[i]].GLNumber > m[a[j]].GLNumber {
-				tmp := a[i]
-				a[i] = a[j]
-				a[j] = tmp
+				a[i], a[j] = a[j], a[i]
 			}
 		}
 	}
@@ -489,7 +489,7 @@ func RRreportRentalAgreementPets(t int, raid int64) string {
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportrlib.RentalAgreementPets: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportRentalAgreementPets: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
@@ -513,7 +513,7 @@ func RRreportNoteTypes(t int, bid int64) string {
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
@@ -531,7 +531,7 @@ func RRreportDepository(t int, bid int64) string {
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
@@ -556,7 +556,7 @@ func RRreportDeposits(t int, bid int64) string {
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
@@ -578,7 +578,92 @@ func RRreportInvoices(t int, bid int64) string {
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportrlib.NoteTypes: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// RRreportSpecialties generates a report of all RentalSpecialties
+func RRreportSpecialties(t int, bid int64) string {
+	s := fmt.Sprintf("%-11s  %-9s  %-30s  %10s  %-15s\n", "RSPID", "BID", "Name", "Fee", "Description")
+	var xbiz rlib.XBusiness
+	rlib.GetXBusiness(bid, &xbiz) // get its info
+
+	// Order the rentableSpecialtyTypes into a known order.
+	m := make([]int64, len(xbiz.US))
+	i := 0
+	for k := range xbiz.US {
+		m[i] = k
+		i++
+	}
+	for i := 0; i < len(m)-1; i++ {
+		for j := i + 1; j < len(m); j++ {
+			if xbiz.US[m[i]].Name > xbiz.US[m[j]].Name {
+				m[i], m[j] = m[j], m[i]
+			}
+		}
+	}
+
+	// now print
+	for i := 0; i < len(m); i++ {
+		v := xbiz.US[m[i]]
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("%11s  B%08d  %-30s  %10s  %s\n",
+				v.IDtoString(), v.BID, v.Name, rlib.RRCommaf(v.Fee), v.Description)
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportSpecialties: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// RRreportSpecialtyAssigns generates a report of all RentalSpecialty Assignments accounts
+func RRreportSpecialtyAssigns(t int, bid int64) string {
+	var xbiz rlib.XBusiness
+	rlib.GetXBusiness(bid, &xbiz) // get its info
+
+	s := fmt.Sprintf("%9s  %9s  %-30s  %10s  %10s\n", "BID", "RID", "Specialty Name", "DtStart", "DtStop")
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentableSpecialtyRefs.Query(bid)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a rlib.RentableSpecialtyRef
+		rlib.Errcheck(rows.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("B%08d  R%08d  %-30s  %10s  %10s\n",
+				a.BID, a.RID, xbiz.US[a.RSPID].Name, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportSpecialtyAssigns: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	rlib.Errcheck(rows.Err())
+	return s
+}
+
+// RRreportDepositMethods generates a report of all rlib.GLAccount accounts
+func RRreportDepositMethods(t int, bid int64) string {
+	m := rlib.GetAllDepositMethods(bid)
+
+	s := fmt.Sprintf("%8s  %-10s  %s\n", "DPMID", "BID", "Name")
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("%8d  B%08d  %s\n", m[i].DPMID, m[i].BID, m[i].Name)
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportDepositMethods: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}

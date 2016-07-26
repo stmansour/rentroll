@@ -121,7 +121,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	// Get the date
 	//-------------------------------------------------------------------
-	Dt, err := StringToDate(sa[3])
+	Dt, err := rlib.StringToDate(sa[3])
 	if err != nil {
 		fmt.Printf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[3])
 		return

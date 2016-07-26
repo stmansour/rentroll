@@ -24,6 +24,11 @@ func CSVLoaderGetDEPID(sa string) int64 {
 	return readNumFromExpr(sa, "^DEP0*(.*)", "DEPID")
 }
 
+// CSVLoaderGetDPMID parses a string of the form DPM000000321 and returns the DPMID , in this case 321.
+func CSVLoaderGetDPMID(sa string) int64 {
+	return readNumFromExpr(sa, "^DPM0*(.*)", "DPMID")
+}
+
 // CSVLoaderGetRCPTID parses a string of the form RCPT000000321 and returns the RCPTID , in this case 321.
 func CSVLoaderGetRCPTID(sa string) int64 {
 	return readNumFromExpr(sa, "^RCPT0*(.*)", "RCPTID")

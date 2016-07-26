@@ -119,13 +119,13 @@ func CreateRentableType(sa []string, lineno int) {
 				return
 			}
 			m.MarketRate = x
-			DtStart, err := StringToDate(sa[i+1])
+			DtStart, err := rlib.StringToDate(sa[i+1])
 			if err != nil {
 				fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[i+1])
 				return
 			}
 			m.DtStart = DtStart
-			DtStop, err := StringToDate(sa[i+2])
+			DtStop, err := rlib.StringToDate(sa[i+2])
 			if err != nil {
 				fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[i+2])
 				return

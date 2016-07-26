@@ -27,16 +27,11 @@ func AssessmentChecker(xbiz *rlib.XBusiness, d1, d2 *time.Time) []CheckIssue {
 	defer rows.Close()
 	for rows.Next() {
 		var a rlib.Assessment
-		//ap := &a
 		rlib.ReadAssessment(rows, &a)
-		// rlib.Errcheck(rows.Scan(&a.ASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy))
 		if rlib.IsManageToBudget(xbiz, &a) { // process it only if it is managed to budget
-			// dl := ap.GetRecurrences(d1, d2) // get the recurrences that fall in the specified range
-			// for i := 0; i < len(dl); i++ {  // process each occurrence
-			var c CheckIssue // open an issue to use, but don't store it unless there's actually an issue
-			// c.dt = dl[i]
+			var c CheckIssue                                           // open an issue to use, but don't store it unless there's actually an issue
 			c.dt = a.Start                                             // SingleInstances Start == Stop == date/time of assessment
-			rar, err := rlib.FindAgreementByRentable(a.RID, &c.dt, d2) // what is the ContractRent on dl[i]?
+			rar, err := rlib.FindAgreementByRentable(a.RID, &c.dt, d2) // what is the ContractRent on a.Start?
 			if err != nil {                                            // if we encounter a db error...
 				if !rlib.IsSQLNoResultsError(err) { // and it's something other "couldn't find anything..."
 					c.msg = fmt.Sprintf("%s: could not load Contract rent for rentable %d between %s and %s, err = %s\n",
@@ -54,12 +49,14 @@ func AssessmentChecker(xbiz *rlib.XBusiness, d1, d2 *time.Time) []CheckIssue {
 				continue         // and keep moving
 			}
 			if a.Amount != rar.ContractRent {
+				// Check to see if this is a proration...
+				// rentCycle := rlib.CycleDuration(a.RentCycle, a.Start)
+
 				c.err = 1        // ... rent amount mismatch ...
 				c.a = a          // what's called out in this assessment
 				c.rar = rar      // the contract rent
 				m = append(m, c) // add it to the list
 			}
-			// }
 		}
 	}
 	rlib.Errcheck(rows.Err())
@@ -110,7 +107,8 @@ func AssessmentCheckReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		fmt.Printf("%s - %s\n", m[i].dt.Format(rlib.RRDATEINPFMT), s)
 		switch m[i].err {
 		case 1:
-			fmt.Printf("%13sAssessment A%08d amount = %6.2f, contract rent = %6.2f\n", " ", m[i].a.ASMID, m[i].a.Amount, m[i].rar.ContractRent)
+			fmt.Printf("%13sAssessment A%08d amount = %6.2f, contract rent = %6.2f,  Assessment comment: %s\n",
+				" ", m[i].a.ASMID, m[i].a.Amount, m[i].rar.ContractRent, m[i].a.Comment)
 		}
 	}
 }

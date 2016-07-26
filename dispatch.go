@@ -27,6 +27,7 @@ func RunBooks(ctx *DispatchCtx) {
 		rlib.GetDefaultLedgers(xbiz.P.BID) // Gather its chart of accounts
 		rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts = rlib.GetGLAccountMap(xbiz.P.BID)
 		rlib.GetAllNoteTypes(xbiz.P.BID)
+		rlib.LoadRentableTypeCustomaAttributes(&xbiz)
 
 		// and generate the requested report...
 		switch ctx.Report {
@@ -36,8 +37,11 @@ func RunBooks(ctx *DispatchCtx) {
 			LedgerReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 3: // INTERNAL ACCT RULE TEST
 			intTest(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 4: // ??? delete this ???
-			// fmt.Printf("biz csv = %s\n", App.bizfile)
+		case 4: // RentRoll report
+			err = rrpt.RentRollTextReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
+			if err != nil {
+				fmt.Printf("RentRoll text report error: %s\n", err.Error())
+			}
 		case 5: // ASSESSMENT CHECK REPORT
 			AssessmentCheckReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 6: // LEDGER BALANCE REPORT
@@ -52,9 +56,7 @@ func RunBooks(ctx *DispatchCtx) {
 		case 8: // STATEMENT
 			UIStatementTextReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 9: // Invoice
-			// ctx.Report format:  9,IN0001
-			//                     9,1
-			// both say that we want Invoice 1 to be printed
+			// ctx.Report format:  9,IN0001  or  9,1   -- both say that we want Invoice 1 to be printed
 			sa := strings.Split(ctx.Args, ",")
 			if len(sa) < 2 {
 				fmt.Printf("Missing InvoiceNo on report option.  Example:  -r 9,IN000001\n")
@@ -62,6 +64,8 @@ func RunBooks(ctx *DispatchCtx) {
 			}
 			invoiceno := rcsv.CSVLoaderGetInvoiceNo(sa[1])
 			rrpt.InvoiceTextReport(invoiceno)
+		case 10: // LEDGER ACTIVITY
+			LedgerActivityReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

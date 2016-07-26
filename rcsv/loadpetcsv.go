@@ -52,7 +52,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Get the dates
 	//-------------------------------------------------------------------
-	DtStart, err := StringToDate(sa[6])
+	DtStart, err := rlib.StringToDate(sa[6])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[6])
 		return
@@ -65,7 +65,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) {
 			end = sa[7]
 		}
 	}
-	DtStop, err := StringToDate(end)
+	DtStop, err := rlib.StringToDate(end)
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[7])
 		return

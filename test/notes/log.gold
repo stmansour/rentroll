@@ -1,9 +1,13 @@
-2016-07-09 11:00:00 UTC  UID = 211  Type General
-I am the parent note
+NoteList: 1  created by uid 128
+N001  NL001  PN000  U0211  2016-07-25 19:48:00 UTC
+I am the parent note. I have much to say. Bla bla
 
-2016-07-09 11:00:00 UTC  UID = 198  Type Payment
-I am a note that was added to the parent note
+    N002  NL001  PN001  U0198  2016-07-25 19:48:00 UTC
+    I am a note that was added to the parent note
 
-2016-07-09 11:00:00 UTC  UID = 207  Type Assessment
-I am also a note that was added to the parent note. I'm the last note
+    N003  NL001  PN001  U0207  2016-07-25 19:48:00 UTC
+    I am also a note that was added to the parent note. I'm the last note
+
+N004  NL001  PN000  U0211  2016-07-25 19:48:00 UTC
+I should be the second note in the NoteList
 

@@ -93,47 +93,47 @@ func StringToDate(s string) (time.Time, error) {
 	return Dt, err
 }
 
-// UsersToString is a convenience call to get all the on a rental agreement into a single comma separated string
-func (ra RentalAgreement) UsersToString() string {
-	s := ""
-	l := len(ra.T)
-	for i := 0; i < l; i++ {
-		if ra.T[i].Trn.IsCompany > 0 {
-			s += ra.T[i].Trn.CompanyName
-		} else {
-			s += ra.T[i].Trn.FirstName + " "
-			if len(ra.T[i].Trn.MiddleName) > 0 {
-				s += ra.T[i].Trn.MiddleName + " "
-			}
-			s += ra.T[i].Trn.LastName
-		}
-		if i+1 < l {
-			s += ", "
-		}
-	}
-	return s
-}
+// // UsersToString is a convenience call to get all the on a rental agreement into a single comma separated string
+// func (ra RentalAgreement) UsersToString() string {
+// 	s := ""
+// 	l := len(ra.T)
+// 	for i := 0; i < l; i++ {
+// 		if ra.T[i].Trn.IsCompany > 0 {
+// 			s += ra.T[i].Trn.CompanyName
+// 		} else {
+// 			s += ra.T[i].Trn.FirstName + " "
+// 			if len(ra.T[i].Trn.MiddleName) > 0 {
+// 				s += ra.T[i].Trn.MiddleName + " "
+// 			}
+// 			s += ra.T[i].Trn.LastName
+// 		}
+// 		if i+1 < l {
+// 			s += ", "
+// 		}
+// 	}
+// 	return s
+// }
 
-// PayorsToString is a convenience call to get all the on a rental agreement into a single comma separated string
-func (ra RentalAgreement) PayorsToString() string {
-	s := ""
-	l := len(ra.P)
-	for i := 0; i < l; i++ {
-		if ra.P[i].Trn.IsCompany > 0 {
-			s += ra.P[i].Trn.CompanyName
-		} else {
-			s += ra.P[i].Trn.FirstName + " "
-			if len(ra.P[i].Trn.MiddleName) > 0 {
-				s += ra.P[i].Trn.MiddleName + " "
-			}
-			s += ra.P[i].Trn.LastName
-		}
-		if i+1 < l {
-			s += ", "
-		}
-	}
-	return s
-}
+// // PayorsToString is a convenience call to get all the on a rental agreement into a single comma separated string
+// func (ra RentalAgreement) PayorsToString() string {
+// 	s := ""
+// 	l := len(ra.P)
+// 	for i := 0; i < l; i++ {
+// 		if ra.P[i].Trn.IsCompany > 0 {
+// 			s += ra.P[i].Trn.CompanyName
+// 		} else {
+// 			s += ra.P[i].Trn.FirstName + " "
+// 			if len(ra.P[i].Trn.MiddleName) > 0 {
+// 				s += ra.P[i].Trn.MiddleName + " "
+// 			}
+// 			s += ra.P[i].Trn.LastName
+// 		}
+// 		if i+1 < l {
+// 			s += ", "
+// 		}
+// 	}
+// 	return s
+// }
 
 // RecurStringToInt supply a recurrence string and the int64  representation is returned
 func RecurStringToInt(s string) int64 {

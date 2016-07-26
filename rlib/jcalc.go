@@ -37,6 +37,64 @@ import (
 // The functions below implement this method of rent calculation.
 //========================================================================================================
 
+// DateTrim returns the later of 2 start dates and the earlier of two stop dates
+//
+// Parameters:
+//  	DtStart,DtStop: time range 1
+//  	d1, d2:         time range 2
+//
+// Returns:
+//			dtrim1:  later of the two start dates
+//         	dtrim2:  earlier of the two end dates
+//=================================================================================================
+func DateTrim(DtStart, DtStop, d1, d2 *time.Time) (time.Time, time.Time) {
+	start := *d1
+	if DtStart.After(start) {
+		start = *DtStart
+	}
+	stop := *DtStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges must be NON-INCLUSIVE
+	if stop.After(*d2) {
+		stop = *d2
+	}
+	return start, stop
+}
+
+// CalcProrationInfo is currently designed to work for nonrecurring, daily and monthly recurring rentals.
+// Other frequencies will need to be added.
+//
+// Parameters:
+//  	DtStart,DtStop: defines the time range of either the rentalAgreement or the Assessment
+//						covering the Rentable
+//  	d1, d2:         the time period we're being asked to analyze
+//  	accrual:        recurring frequency of rent
+//  	prorateMethod:  the recurrence frequency to use for partial coverage
+//
+// Returns:
+//			asmtDur:  pf denominator, total number of days in period
+//         	rentDur:  pf numerator, total number of days applicable to this rental agreement
+//         	pf:       prorate factor = rentDur/asmtDur
+//=================================================================================================
+func CalcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate int64) (float64, int64, int64, time.Time, time.Time) {
+	//-------------------------------------------------------------------
+	// over what range of time does this rental apply between d1 & d2
+	//-------------------------------------------------------------------
+	start, stop := DateTrim(DtStart, DtStop, d1, d2)
+	pf := float64(1.0)                          // assume full period
+	cycleTime := d2.Sub(*d1)                    // denominator
+	thisPeriod := stop.Sub(start)               // numerator
+	if cycleTime != thisPeriod && prorate > 0 { // if cycle time and period differ AND it's NOT a one-time charge
+		pf = float64(thisPeriod) / float64(cycleTime)
+	}
+	num := int64(0)
+	den := int64(0)
+	if thisPeriod > 0 && prorate > 0 {
+		div := CycleDuration(prorate, *d1)
+		num = int64(thisPeriod / div)
+		den = int64(cycleTime / div)
+	}
+	return pf, num, den, start, stop
+}
+
 // FindApplicableMarketRate returns the market rate in effect at the datetime provided
 // Params:
 //   dt = the datetime for which we want the rate
@@ -76,10 +134,10 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 	// fmt.Printf("GetProrationCycle: rt = (%s - %s) rentcycle=%d, prorate=%d, rtid=%d\n",
 	// 	rt.DtStart.Format("1/2/06"), rt.DtStop.Format("1/2/06"), rt.RentCycle, rt.ProrationCycle, rt.RTID)
 
-	if rt.ProrationCycle > ACCRUALNORECUR { // if there's an override
+	if rt.ProrationCycle > CYCLENORECUR { // if there's an override
 		prorationCycle = rt.ProrationCycle //use the override
 	}
-	if rt.RentCycle > ACCRUALNORECUR { // if there's an override...
+	if rt.RentCycle > CYCLENORECUR { // if there's an override...
 		rentCycle = rt.RentCycle // ...use it
 	}
 
@@ -101,7 +159,7 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 // Params:
 //   d1 = start datetime of the period
 //   d2 = stop datetime of the period
-//   rt = array of RentableMarketRate structures that covers all rental rates during the period d1 - d2.
+//  rta = array of RentableMarketRate structures that covers all rental rates during the period d1 - d2.
 //        This array is the MR attribute in the RentableMarketRate struct
 //  rsa = array of rentable specialties that apply to the rentable we're calculating
 //========================================================================================================
@@ -135,6 +193,77 @@ func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []R
 		}
 	}
 	return total
+}
+
+// CalculateNumberOfCycles calculates the number of rent cycles for the supplied period d1-d2 and cycle time.
+// It always returns an integral number of cycles -- even if the date range implies some
+// fractional level.
+//
+//
+// Params:
+//   d1 = start datetime of the period
+//   d2 = stop datetime of the period
+//   c  = cycle time {}
+//========================================================================================================
+func CalculateNumberOfCycles(d1, d2 *time.Time, c int64) int64 {
+	dur := d2.Sub(*d1)                // duration of the period
+	cycleDur := CycleDuration(c, *d1) // duration of the cycle-time
+	// fmt.Printf("period = %s - %s,  dur = %d, cycleDur = %d\n", d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3), dur, cycleDur)
+	n := int64(float64(dur)/float64(cycleDur) + 0.5) // number of cycles
+	return n
+}
+
+// GetRentCycleRefList returns an array of RentCycleRefs indicating the RentCycle & ProrationCycle
+// for the period d1-d2.  Most often there is a single entyr in the array. However, if the
+// rent cycle changed during d1-d2, the returned array will have entries for any changes.
+// Params:
+//   r    = the rentable of interest
+//   d1   = start datetime of the period
+//   d2   = stop datetime of the period
+//   xbiz = biz struct containing all the RentableTypes for the business
+//========================================================================================================
+func GetRentCycleRefList(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) []RentCycleRef {
+	var m []RentCycleRef
+	r.RT = GetRentableTypeRefsByRange(r.RID, d1, d2)
+	for i := 0; i < len(r.RT); i++ {
+		var rcr RentCycleRef
+		rcr.DtStart = r.RT[i].DtStart
+		rcr.DtStop = r.RT[i].DtStop
+		rcr.RentCycle = r.RT[i].RentCycle
+		rcr.ProrationCycle = r.RT[i].ProrationCycle
+		if rcr.RentCycle == 0 {
+			rcr.RentCycle = xbiz.RT[r.RT[i].RTID].RentCycle
+			rcr.ProrationCycle = xbiz.RT[r.RT[i].RTID].Proration
+		}
+		m = append(m, rcr)
+	}
+	return m
+}
+
+// GetRentableCycles calculates the number of rent cycles for the supplied rentable given the
+// period d1-d2. It always returns an integral number of cycles -- even if the date range implies some
+// fractional level.
+// Params:
+//   d1 = start datetime of the period
+//   d2 = stop datetime of the period
+//   r  = The rentable we're interested in
+//========================================================================================================
+func GetRentableCycles(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) int64 {
+	var n int64
+	rcl := GetRentCycleRefList(r, d1, d2, xbiz)
+	for i := 0; i < len(rcl); i++ {
+		// note that DtStart may be long befor d1 and DtStop period may be set to "infinity". We need to clip it at d1,d2
+		start := rcl[i].DtStart
+		if d1.After(start) {
+			start = *d1
+		}
+		stop := rcl[i].DtStop
+		if d2.Before(stop) {
+			stop = *d2
+		}
+		n += CalculateNumberOfCycles(&start, &stop, rcl[i].RentCycle)
+	}
+	return n
 }
 
 // CalculateLoadedGSR calculates the gross scheduled rent including any Specialties associated with the rentable.

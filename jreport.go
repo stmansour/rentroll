@@ -185,7 +185,7 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 	}
 
 	s += fmt.Sprintf("  %s", r.Name) + " [" + xbiz.RT[rtid].Style
-	if a.RentCycle > rlib.ACCRUALNORECUR {
+	if a.RentCycle > rlib.CYCLENORECUR {
 		s += ", " + rlib.RentalPeriodToString(a.RentCycle)
 	}
 	s += "] " + j.Comment
@@ -271,7 +271,6 @@ func textPrintJournalEntry(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journa
 }
 
 func textReportJournalEntry(xbiz *rlib.XBusiness, j *rlib.Journal, jctx *jprintctx) {
-
 	//-------------------------------------------------------------------------------------
 	// over what range of time does this rental apply between jctx.ReportStart & jctx.ReportStop?
 	// the rental possession dates may be different than the report range...

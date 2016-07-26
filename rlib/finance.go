@@ -19,23 +19,23 @@ var RDateFmt = []string{
 func RentalPeriodToString(a int64) string {
 	s := ""
 	switch a {
-	case ACCRUALNORECUR:
+	case CYCLENORECUR:
 		s = "non-recurring"
-	case ACCRUALSECONDLY:
+	case CYCLESECONDLY:
 		s = "secondly"
-	case ACCRUALMINUTELY:
+	case CYCLEMINUTELY:
 		s = "minutely"
-	case ACCRUALHOURLY:
+	case CYCLEHOURLY:
 		s = "hourly"
-	case ACCRUALDAILY:
+	case CYCLEDAILY:
 		s = "daily"
-	case ACCRUALWEEKLY:
+	case CYCLEWEEKLY:
 		s = "weekly"
-	case ACCRUALMONTHLY:
+	case CYCLEMONTHLY:
 		s = "monthly"
-	case ACCRUALQUARTERLY:
+	case CYCLEQUARTERLY:
 		s = "quarterly"
-	case ACCRUALYEARLY:
+	case CYCLEYEARLY:
 		s = "yearly"
 	}
 	return s
@@ -45,23 +45,23 @@ func RentalPeriodToString(a int64) string {
 func ProrationUnits(a int64) string {
 	s := ""
 	switch a {
-	case ACCRUALNORECUR:
+	case CYCLENORECUR:
 		s = "!!nonrecur!!"
-	case ACCRUALSECONDLY:
+	case CYCLESECONDLY:
 		s = "seconds"
-	case ACCRUALMINUTELY:
+	case CYCLEMINUTELY:
 		s = "minutes"
-	case ACCRUALHOURLY:
+	case CYCLEHOURLY:
 		s = "hours"
-	case ACCRUALDAILY:
+	case CYCLEDAILY:
 		s = "days"
-	case ACCRUALWEEKLY:
+	case CYCLEWEEKLY:
 		s = "weeks"
-	case ACCRUALMONTHLY:
+	case CYCLEMONTHLY:
 		s = "months"
-	case ACCRUALQUARTERLY:
+	case CYCLEQUARTERLY:
 		s = "quarters"
-	case ACCRUALYEARLY:
+	case CYCLEYEARLY:
 		s = "years"
 	}
 	return s
@@ -84,34 +84,34 @@ func s2d(s string) time.Time {
 }
 
 // CycleDuration returns the prorateDuration in microseconds and the units as a string
-func CycleDuration(prorateMethod int64, dt time.Time) time.Duration {
-	var prorateDur time.Duration
-	month := dt.Month()
-	year := dt.Year()
-	day := dt.Day()
+func CycleDuration(cycle int64, epoch time.Time) time.Duration {
+	var cycleDur time.Duration
+	month := epoch.Month()
+	year := epoch.Year()
+	day := epoch.Day()
 	base := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	switch prorateMethod { // if the prorate method is less than a day, select a different duration
-	case ACCRUALSECONDLY:
-		prorateDur = time.Second // use seconds
-	case ACCRUALMINUTELY:
-		prorateDur = time.Minute //use minutes
-	case ACCRUALHOURLY:
-		prorateDur = time.Hour //use hours
-	case ACCRUALDAILY:
-		prorateDur = time.Hour * 24 // assume that proration will be by day -- even if the accrual is by weeks, months, quarters, or years
-	case ACCRUALWEEKLY:
-		prorateDur = time.Hour * 24 * 7 // weeks
-	case ACCRUALMONTHLY:
+	switch cycle { // if the prorate method is less than a day, select a different duration
+	case CYCLESECONDLY:
+		cycleDur = time.Second // use seconds
+	case CYCLEMINUTELY:
+		cycleDur = time.Minute //use minutes
+	case CYCLEHOURLY:
+		cycleDur = time.Hour //use hours
+	case CYCLEDAILY:
+		cycleDur = time.Hour * 24 // assume that proration will be by day -- even if the accrual is by weeks, months, quarters, or years
+	case CYCLEWEEKLY:
+		cycleDur = time.Hour * 24 * 7 // weeks
+	case CYCLEMONTHLY:
 		target := base.AddDate(0, 1, 0)
-		prorateDur = target.Sub(base) // months
-	case ACCRUALQUARTERLY:
+		cycleDur = target.Sub(base) // months
+	case CYCLEQUARTERLY:
 		target := base.AddDate(0, 3, 0)
-		prorateDur = target.Sub(base) // months
-	case ACCRUALYEARLY:
+		cycleDur = target.Sub(base) // months
+	case CYCLEYEARLY:
 		target := base.AddDate(1, 0, 0)
-		prorateDur = target.Sub(base) // months
+		cycleDur = target.Sub(base) // months
 	}
-	return prorateDur
+	return cycleDur
 }
 
 // GetProrationRange returns the duration appropriate for the provided anchor dates, Accrual Rate, and Proration Rate
@@ -121,21 +121,21 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 
 	// we use d1 as the anchor point
 	switch RentCycle {
-	case ACCRUALSECONDLY:
+	case CYCLESECONDLY:
 		fallthrough
-	case ACCRUALMINUTELY:
+	case CYCLEMINUTELY:
 		fallthrough
-	case ACCRUALHOURLY:
+	case CYCLEHOURLY:
 		fallthrough
-	case ACCRUALDAILY:
+	case CYCLEDAILY:
 		fallthrough
-	case ACCRUALWEEKLY:
+	case CYCLEWEEKLY:
 		timerange = accrueDur
-	case ACCRUALMONTHLY:
+	case CYCLEMONTHLY:
 		timerange = d1.AddDate(0, 1, 0).Sub(d1)
-	case ACCRUALQUARTERLY:
+	case CYCLEQUARTERLY:
 		timerange = d1.AddDate(0, 3, 0).Sub(d1)
-	case ACCRUALYEARLY:
+	case CYCLEYEARLY:
 		timerange = d1.AddDate(1, 0, 0).Sub(d1)
 	}
 
@@ -189,12 +189,12 @@ func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int6
 		return rc, pro, rtid, fmt.Errorf("No RentableTypeRef for %s", dt.Format(RRDATEINPFMT))
 	}
 	rtid = GetRTIDForDate(r.RID, dt)
-	if rrt.RentCycle > ACCRUALNORECUR { // if there's an override for RentCycle...
+	if rrt.RentCycle > CYCLENORECUR { // if there's an override for RentCycle...
 		rc = rrt.RentCycle // ...set it
 	} else {
 		rc = xbiz.RT[rtid].RentCycle
 	}
-	if rrt.ProrationCycle > ACCRUALNORECUR { // if there's an override for Propration...
+	if rrt.ProrationCycle > CYCLENORECUR { // if there's an override for Propration...
 		pro = rrt.ProrationCycle // ...set it
 	} else {
 		pro = xbiz.RT[rtid].Proration
@@ -206,7 +206,7 @@ func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int6
 
 // Prorate computes basic info to perform rent proration:
 // examples:
-//   DTSTART      DTSTOP       D1           D2         ACCRUAL  PRORATION   ASMTDUR  RENTDUR    PF      ANALYZE: START - STOP
+//   DTSTART      DTSTOP       D1           D2         CYCLE  PRORATION   ASMTDUR  RENTDUR    PF      ANALYZE: START - STOP
 //   2004-01-01   2015-11-08   2015-11-01   2015-12-01    6          4        30        8      0.2667   2015-11-01 - 2015-11-09
 //   2015-11-21   2016-11-21   2015-11-01   2015-12-01    6          4        30        10     0.3333   2015-11-21 - 2015-12-01
 //   2015-11-21   2016-11-21   2015-11-01   2015-12-01    0          0        30        30     1.0000   2015-11-21 - 2015-12-01
@@ -249,7 +249,7 @@ func Prorate(RAStart, RAStop, asmtStart, asmtStop time.Time, accrual, prorateMet
 	// fmt.Printf("rentDur = %d %s\n", rentDur, units)
 	// fmt.Printf("asmtDur = %d %s\n", asmtDur, units)
 
-	if ACCRUALNORECUR == prorateMethod {
+	if CYCLENORECUR == prorateMethod {
 		pf = 1.0
 	} else {
 		pf = float64(rentDur) / float64(asmtDur)

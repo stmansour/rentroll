@@ -2,45 +2,45 @@ LEDGER MARKERS
 Springfield Retirement Castle
 Opening Balances:  December 1, 2015
 
-                                    Name    GLNumber       Balance
-                      RA00000001 Balance                      0.00
-                      RA00000002 Balance                      0.00
-                      RA00000003 Balance                      0.00
-                      RA00000004 Balance                      0.00
-                      RA00000005 Balance                      0.00
-                      RA00000006 Balance                      0.00
-                      RA00000007 Balance                      0.00
-                      RA00000008 Balance                      0.00
-                Bank Account FRB 2332352       10001      1,491.34
-     MasterCard/VISA 38992355 in Process       10004          0.00
-           Discover 883523553 In Process       10005          0.00
-             General Accounts Receivable       11001          0.00
-             Security Deposit Receivable       11002          0.00
-    American Express 93892335 In Process       11003          0.00
-                            Owner Equity       20001          0.00
-             Security Deposit Assessment       23000       -500.00
-                    Gross Scheduled Rent       40001    -10,981.33
-                          Carport Rental       40002          0.00
-                                 Vacancy       41001     10,219.33
-               Administrative Concession       41002          0.00
-                           Off Line Unit       41003          0.00
-                           Loss to Lease       41004         53.33
-                     Employee Concession       41005          0.00
-                        Payor Concession       41006          0.00
-                      Bad Debt Write-Off       41007          0.00
-                           Other Offsets       41999          0.00
-                                Pet Fees       42001          0.00
-                   Utility Reimbursement       42002          0.00
-                               Late Fees       42003          0.00
-                                 Damages       42004          0.00
-             Pest Control Reimbursements       42005          0.00
-             Security Deposit Forfeiture       42006       -250.00
-                                Carports       42007        -32.67
-                         Utility overage       42008          0.00
-                            Other Income       42999          0.00
-                               Lake View       43001          0.00
-                               Fireplace       43002          0.00
-                                 Carport       43003          0.00
-                        Security Deposit       43004          0.00
-------------------------------------------------------------------
-                                                              0.00
+                                              Name    GLNumber       Balance
+                                RA00000001 Balance                      0.00
+                                RA00000002 Balance                      0.00
+                                RA00000003 Balance                      0.00
+                                RA00000004 Balance                      0.00
+                                RA00000005 Balance                      0.00
+                                RA00000006 Balance                      0.00
+                                RA00000007 Balance                      0.00
+                                RA00000008 Balance                      0.00
+                          Bank Account FRB 2332352       10001      1,491.34
+               MasterCard/VISA 38992355 in Process       10004          0.00
+                     Discover 883523553 In Process       10005          0.00
+                       General Accounts Receivable       11001          0.00
+                       Security Deposit Receivable       11002          0.00
+              American Express 93892335 In Process       11003          0.00
+                                      Owner Equity       20001          0.00
+                       Security Deposit Assessment       23000       -500.00
+                              Gross Scheduled Rent       40001    -10,981.33
+                                    Carport Rental       40002          0.00
+                                           Vacancy       41001     10,219.33
+                         Administrative Concession       41002          0.00
+                                     Off Line Unit       41003          0.00
+                                     Loss to Lease       41004         53.33
+                               Employee Concession       41005          0.00
+                                  Payor Concession       41006          0.00
+                                Bad Debt Write-Off       41007          0.00
+                                     Other Offsets       41999          0.00
+                                          Pet Fees       42001          0.00
+                             Utility Reimbursement       42002          0.00
+                                         Late Fees       42003          0.00
+                                           Damages       42004          0.00
+                       Pest Control Reimbursements       42005          0.00
+                       Security Deposit Forfeiture       42006       -250.00
+                                          Carports       42007        -32.67
+                                   Utility overage       42008          0.00
+                                      Other Income       42999          0.00
+                                         Lake View       43001          0.00
+                                         Fireplace       43002          0.00
+                                           Carport       43003          0.00
+                                  Security Deposit       43004          0.00
+----------------------------------------------------------------------------
+                                                                        0.00
