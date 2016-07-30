@@ -41,6 +41,9 @@ func Ulog(format string, a ...interface{}) {
 //            and provides a traceback as well
 func Errcheck(err error) {
 	if err != nil {
+		if IsSQLNoResultsError(err) {
+			return
+		}
 		fmt.Printf("error = %v\n", err)
 		debug.PrintStack()
 		log.Fatal(err)

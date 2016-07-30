@@ -40,10 +40,26 @@ GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 
 -- ===========================================
 --   ID COUNTERS
+--  may not need this
 -- ===========================================
 CREATE TABLE IDCounters (
     InvoiceNo BIGINT NOT NULL DEFAULT 0                     -- unique number for invoices
 );
+
+CREATE TABLE StringList (
+    SLID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id for this stringlist
+    BID BIGINT NOT NULL DEFAULT 0,                          -- the business to which this stringlist belongs
+    Name VARCHAR(50) NOT NULL DEFAULT '',                   -- stringlist name
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY(SLID)
+);
+
+CREATE TABLE SLString (
+    SLID BIGINT NOT NULL DEFAULT 0,                         -- to which stringlist does this string belong?
+    Value VARCHAR(256) NOT NULL DEFAULT ''                  -- value of this string
+);
+
 
 CREATE TABLE NoteType (
     NTID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this note type
@@ -59,6 +75,9 @@ CREATE TABLE Notes (
     NLID BIGINT NOT NULL DEFAULT 0,                         -- note list containing this note
     PNID BIGINT NOT NULL DEFAULT 0,                         -- NID of parent not
     NTID BIGINT NOT NULL DEFAULT 0,                         -- What type of note is this
+    RID BIGINT NOT NULL DEFAULT 0,                          -- Meta-tag - this note is related to Rentable RID
+    RAID BIGINT NOT NULL DEFAULT 0,                         -- Meta-tag - this note is related to Rentable Agreement RAID
+    TCID BIGINT NOT NULL DEFAULT 0,                         -- Meta-tag - this note is related to Transactant TCID
     Comment VARCHAR(1024) NOT NULL DEFAULT '',              -- the actual note
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
@@ -70,74 +89,6 @@ CREATE TABLE NoteList (
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (NLID)     
-);
-
--- ===========================================
---   RENTAL AGREEMENT TEMPLATE
--- ===========================================
-CREATE TABLE RentalAgreementTemplate (
-    RATID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
-    BID BIGINT NOT NULL DEFAULT 0,                            -- BizUnit Reference
-    RentalTemplateNumber VARCHAR(100) DEFAULT '',             -- Occupancy Agreement Reference Number
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (RATID)     
-);      
-        
--- ===========================================
---   RENTAL AGREEMENT
--- ===========================================
-CREATE TABLE RentalAgreement (        
-    RAID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
-    RATID BIGINT NOT NULL DEFAULT 0,                          -- reference to Rental Template (Occupancy Master Agreement)
-    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
-    NLID BIGINT NOT NULL DEFAULT 0,                            -- NoteList ID
-    RentalStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
-    RentalStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
-    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when Occupancy starts
-    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when Occupancy stops
-    Renewal SMALLINT NOT NULL DEFAULT 0,                      -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
-    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',      -- free-form text
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (RAID)
-);
-
-CREATE TABLE RentalAgreementRentables (
-    RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
-    RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
-    ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Rentable was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Rentable was no longer being billed to this agreement
-);
-
-CREATE TABLE RentalAgreementPayors (
-    RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
-    PID BIGINT NOT NULL DEFAULT 0,                            -- who is the Payor for this agreement
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Payor was no longer being billed to this agreement
-);
-
-CREATE TABLE RentableUsers (
-    RID BIGINT NOT NULL DEFAULT 0,                            -- the associated Rentable
-    USERID BIGINT NOT NULL DEFAULT 0,                         -- the Users of the rentable
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this User was no longer being billed to this agreement
-);
-
-CREATE TABLE RentalAgreementPets (
-    PETID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal id for this pet
-    RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
-    Type VARCHAR(100) NOT NULL DEFAULT '',                    --  type of animal, ex: dog, cat, ...
-    Breed VARCHAR(100) NOT NULL DEFAULT '',                   --  breed.  example Beagle, German Shephard, Siamese, etc.
-    Color VARCHAR(100) NOT NULL DEFAULT '',                   --
-    Weight DECIMAL(19,4) NOT NULL DEFAULT 0,                  --  in pounds
-    Name VARCHAR(100) NOT NULL DEFAULT '',                    --
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this User was no longer being billed to this agreement
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (PETID)
 );
 
 -- **************************************
@@ -162,6 +113,131 @@ CREATE TABLE CustomAttrRef (
     CID         BIGINT NOT NULL    -- uid of the custom attribute
 );
 
+-- ===========================================
+--   RENTAL AGREEMENT TEMPLATE
+-- ===========================================
+CREATE TABLE RentalAgreementTemplate (
+    RATID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
+    BID BIGINT NOT NULL DEFAULT 0,                            -- BizUnit Reference
+    RentalTemplateNumber VARCHAR(100) DEFAULT '',             -- Occupancy Agreement Reference Number
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (RATID)     
+);      
+        
+-- ===========================================
+--   RENTAL AGREEMENT
+-- ===========================================
+CREATE TABLE RentalAgreement (        
+    RAID BIGINT NOT NULL AUTO_INCREMENT,                         -- internal unique id
+    RATID BIGINT NOT NULL DEFAULT 0,                             -- reference to Rental Template (Occupancy Master Agreement)
+    BID BIGINT NOT NULL DEFAULT 0,                               -- Business (so that we can process by Business)
+    NLID BIGINT NOT NULL DEFAULT 0,                              -- NoteList ID
+    AgreementStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
+    AgreementStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
+    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when Occupancy starts
+    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when Occupancy stops
+    RentStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when Rent starts
+    RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when Rent stops
+    Renewal SMALLINT NOT NULL DEFAULT 0,                         -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
+    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',         -- free-form text
+    LastModTime TIMESTAMP,                                       -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (RAID)
+);
+
+CREATE TABLE RentalAgreementRentables (
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
+    RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
+    CLID BIGINT NOT NULL DEFAULT 0,                           -- Commission Ledger (for outside salespeople to get a commission)
+    ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Rentable was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Rentable was no longer being billed to this agreement
+);
+
+CREATE TABLE RentalAgreementPayors (
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
+    PID BIGINT NOT NULL DEFAULT 0,                            -- who is the Payor for this agreement
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Payor was no longer being billed to this agreement
+);
+
+CREATE TABLE RentableUsers (
+    RID BIGINT NOT NULL DEFAULT 0,                            -- the associated Rentable
+    USERID BIGINT NOT NULL DEFAULT 0,                         -- the Users of the rentable
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this User was no longer being billed to this agreement
+);
+
+CREATE TABLE RentalAgreementPets (
+    PETID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal id for this pet
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
+    Type VARCHAR(100) NOT NULL DEFAULT '',                    -- type of animal, ex: dog, cat, ...
+    Breed VARCHAR(100) NOT NULL DEFAULT '',                   -- breed.  example Beagle, German Shephard, Siamese, etc.
+    Color VARCHAR(100) NOT NULL DEFAULT '',                   -- fur or other color
+    Weight DECIMAL(19,4) NOT NULL DEFAULT 0,                  -- in pounds
+    Name VARCHAR(100) NOT NULL DEFAULT '',                    -- the pet's name
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this User was no longer being billed to this agreement
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (PETID)
+);
+
+-- Referenced by a Rentable associated with a RentalAgreement  (RentalAgreementRentables)
+CREATE TABLE CommissionLedger (
+    CLID BIGINT NOT NULL AUTO_INCREMENT,            -- unique id for this Commission Ledger
+    RAID BIGINT NOT NULL DEFAULT 0,                 -- associated with this RAID
+    RID BIGINT NOT NULL DEFAULT 0,                  -- associated with this rentable??????
+    Salesperson  VARCHAR(100) NOT NULL DEFAULT '',  -- who referred
+    Percent DECIMAL(19,4) NOT NULL DEFAULT 0,       -- what percent are we paying them. If 0 then we're paying a specific Amount
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0,        -- what amount are we paying them. If 0 then we're paying a percentage
+    PaymentDueDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- enterer will fill it out
+    PRIMARY KEY(CLID)
+);
+
+-- **************************************
+-- ****                              ****
+-- ****          RATE PLAN           ****
+-- ****                              ****
+-- ************************************** 
+CREATE TABLE RatePlan (
+    RPID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                      -- Business
+    Name VARCHAR(100) NOT NULL DEFAULT '',              -- The name of this RatePlan
+    DtStart DATE NULL DEFAULT '1970-01-01 00:00:00',    -- when does it go into effect
+    DtStop DATE NULL DEFAULT '1970-01-01 00:00:00',     -- when does it stop
+    FeeAppliesAge INT NOT NULL DEFAULT 0,               -- the age at which a user is counted when determining extra user fees or eligibility for rental
+    MaxNoFeeUsers INT NOT NULL DEFAULT 0,               -- maximum number of users for no fees. Greater than this number means fee applies
+    AdditionalUserFee DECIMAL(19,4) NOT NULL DEFAULT 0, -- extra fee per user when exceeding MaxNoFeeUsers
+    PROMOCODE VARCHAR(100),                             -- just a string
+    CancelationFee DECIMAL(19,4) NOT NULL DEFAULT 0,    -- charge for cancellation
+    PRIMARY KEY(RPID)
+);
+    -- these flags are Property-Industry-specific.  IMPLEMENT THESE
+    -- FLAGS BIGINT NOT NULL DEFAULT 0,
+            -- 1<<0   HideRate INT, if 1 then never show the rate to the customer on any screen
+            -- 1<<1   GDSAvailable, if 1 then this rate plan can be made available on GDS
+            -- 1<<2   SaberAvailable, if 1 then this rate plan canb be made available on Saber
+
+-- Rate plans can have other deliverables. These can be things like 2 tickets to SeaWorld, free meal vouchers, etc.
+-- A RatePlan can refer to multiple OtherDeliverables.  SELECT * FROM RatePlanOD WHERE RPID=MyRatePlan will return all
+-- the OtherDeliverables associated with MyRatePlan
+CREATE TABLE RatePlanOD (
+    RPID BIGINT NOT NULL DEFAULT 0,     -- with which RatePlan is this OtherDeliverable associated?
+    ODID BIGINT NOT NULL DEFAULT 0      -- points to an OtherDeliverables 
+);
+
+-- These are for promotions - like 2 Seaworld tickets, etc.  Referenced by Rate Plan
+-- Multiple rate plans can refer to the same OtherDeliverables. 
+CREATE TABLE OtherDeliverables (
+    ODID BIGINT NOT NULL AUTO_INCREMENT,    -- Unique ID for this OtherDeliverables
+    Name VARCHAR(256),                      -- Description of the other deliverables. Ex: 2 Seaworld tickets 
+    FLAGS BIGINT NOT NULL DEFAULT 0,        -- Flag: Is this list still active?  dropdown interface lists only the active ones
+    PRIMARY KEY(ODID)
+);
+
+
 -- **************************************
 -- ****                              ****
 -- ****          BUSINESS            ****
@@ -181,8 +257,6 @@ CREATE TABLE Business (
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (BID)
 );
-
-
 
 -- ===========================================
 --   RENTABLE TYPES 
@@ -372,14 +446,25 @@ CREATE TABLE Assessments (
 -- ****           PEOPLE             ****
 -- ****                              ****
 -- **************************************
-
-CREATE TABLE Source (
-    SID BIGINT NOT NULL AUTO_INCREMENT,
-    Name VARCHAR(100),
-    Industry VARCHAR(100),
+-- This is DemandSource  referenced by RentalAgreement
+CREATE TABLE DemandSource (
+    DSID BIGINT NOT NULL AUTO_INCREMENT,                     -- DemandSource ID - unique id for this source
+    BID BIGINT NOT NULL DEFAULT 0,                          -- What business is this
+    Name VARCHAR(100),                                      -- Name of the source
+    Industry VARCHAR(100),                                  -- What industry -- THIS BECOMES A REFERENCE TO "Industry" StringList
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (SID)
+    PRIMARY KEY (DSID)
+);
+
+CREATE TABLE LeadSource (
+    LSID BIGINT NOT NULL AUTO_INCREMENT,                    -- DemandSource ID - unique id for this source
+    BID BIGINT NOT NULL DEFAULT 0,                          -- What business is this
+    Name VARCHAR(100),                                      -- Name of the source
+    IndustrySLID BIGINT NOT NULL DEFAULT 0,                 -- What industry -- THIS BECOMES A REFERENCE TO "Industry" StringList
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (LSID)
 );
 
 -- ===========================================
@@ -388,7 +473,7 @@ CREATE TABLE Source (
 -- Transactant - fields common to all people and
 CREATE TABLE Transactant (
     TCID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id of unit
-    USERID BIGINT NOT NULL DEFAULT 0,                         -- associated User id
+    USERID BIGINT NOT NULL DEFAULT 0,                      -- associated User id
     PID BIGINT NOT NULL DEFAULT 0,                         -- associated Payor id
     PRSPID BIGINT NOT NULL DEFAULT 0,                      -- associated Prospect id
     NLID BIGINT NOT NULL DEFAULT 0,                        -- notes associated with this transactant
@@ -414,6 +499,12 @@ CREATE TABLE Transactant (
     PRIMARY KEY (TCID)
 );
 
+--    UseCount BIGINT NOT NULL DEFAULT 0,            -- This count is incremented each time a transactant enters into a RentalAgreement.  Count > 1 means it's a ReturnUser 
+--    Flags BIGINT NOT NULL DEFAULT 0,                -- For flags as described below:
+--        --   1<<0 OptIntoMarketingCampaign          -- Does the user want to receive mkting info
+--        --   1<<1 AcceptGeneralEmail                -- Will user accept email
+--        --   1<<2 VIP                               -- Is this person a VIP 
+
 -- ===========================================
 --   PROSPECT
 -- ===========================================
@@ -433,6 +524,28 @@ CREATE TABLE Prospect (
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (PRSPID)
 );
+
+-- --new
+--     DesiredMoveInDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',                    --
+--     RentableTypePreference INT NOT NULL DEFAULT 0,      -- This would be "model" preference for room or residence, but could apply to all rentables 
+--     Approved SMALLINT NOT NULL DEFAULT 0,               --  0 - unset, 1 - Approved, 2 - Declined
+--     Approver BIGINT NOT NULL DEFAULT 0,                 -- who approved or declined
+--     DeclineReasonSLID BIGINT NOT NULL DEFAULT 0,        -- ID to string in list of choices, Melissa will provide the list.
+--     OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '', -- Arbitrary text, anything else they might request
+--     FollowUpDate DATE NOT NULL DEFAULT,                 -- automatically fill out this date to sysdate + 24hrs
+--     CSAgent BIGINT NOT NULL DEFAULT 0,                  -- Accord Directory UserID - for the CSAgent 
+--     OutcomeSLID BIGINT NOT NULL DEFAULT '',             -- id of string from a list of outcomes. Melissa to provide reasons
+--     FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0 , --  d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement 
+--     RAID BIGINT NOT NULL DEFAULT 0,                     -- created to hold On Account amount of Floating Deposit
+-- --new
+-- 
+-- 
+-- --new
+-- NumberBedrooms -- SMALLINT NOT NULL DEFAULT 0,  This is unique to a room or residence. bedroom count
+-- NumberOfPets   -- SMALLINT NOT NULL DEFAULT 0,    This is unique to a room or residence. may just add to formal pet schema
+-- NumberOfPeople -- SMALLINT NOT NULL DEFAULT 0,  This is unique to a room or residence. count of people who will be living in the unit
+-- --new
+-- 
 
 -- ===========================================
 --   USER
@@ -456,7 +569,7 @@ CREATE TABLE User (
     AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
     EligibleFutureUser SMALLINT NOT NULL DEFAULT 1,              -- yes/no
     Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
-    SID BIGINT NOT NULL DEFAULT 0,                               -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
+    DSID BIGINT NOT NULL DEFAULT 0,                               -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP,                                       -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (USERID)
@@ -687,6 +800,7 @@ CREATE TABLE GLAccount (
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,         -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (LID)
 );
+
 
 CREATE TABLE LedgerAudit (
     LEID BIGINT NOT NULL DEFAULT 0,             -- what LEID was affected

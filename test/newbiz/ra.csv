@@ -1,4 +1,4 @@
-RentalTemplateNumber,BUD,RentalStart,RentalStop,Payor,Renewal,SpecialProvisions,Rentables,Note
+RentalTemplateNumber,BUD,AgreementStart,AgreementStop,Payor,Renewal,SpecialProvisions,Rentables,Note
 RAT001,REX,1/1/04,11/8/15,"816-123-4561,,",1,Some Special Provisions,"101,1000;CP001,35","I am a rental agreement note"
 RAT001,REX,1/1/04,7/4/17,"816-123-4562,,",1,I am a special provision,"102,1500",
 RAT001,REX,1/1/04,7/4/17,"816-123-4563,,",1,,"103,1750","I am another note"

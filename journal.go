@@ -277,7 +277,7 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	for rows.Next() {
 		var a rlib.Assessment
 		ap := &a
-		rlib.ReadAssessment(rows, &a)
+		rlib.ReadAssessments(rows, &a)
 		if a.RentCycle == rlib.RECURNONE {
 			// journalAssessment(xbiz, a.Start, &a, d1, d2)
 			ProcessNewAssessmentInstance(xbiz, d1, d2, &a)

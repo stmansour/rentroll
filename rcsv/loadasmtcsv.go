@@ -11,9 +11,9 @@ import (
 // Returns true if the assessment is valid, false otherwise
 func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.RentalAgreement) bool {
 	v := false // be pessimistic
-	inRange := (rlib.DateInRange(&a.Start, &ra.RentalStart, &ra.RentalStop) || a.Start.Equal(ra.RentalStart)) && (rlib.DateInRange(&a.Stop, &ra.RentalStart, &ra.RentalStop) || a.Stop.Equal(ra.RentalStop))
-	before := a.Start.Before(ra.RentalStart) && a.Stop.Before(ra.RentalStop)
-	after := (a.Start.After(ra.RentalStart) || a.Start.Equal(ra.RentalStart)) && (a.Stop.After(ra.RentalStop) || a.Stop.Equal(ra.RentalStop))
+	inRange := (rlib.DateInRange(&a.Start, &ra.AgreementStart, &ra.AgreementStop) || a.Start.Equal(ra.AgreementStart)) && (rlib.DateInRange(&a.Stop, &ra.AgreementStart, &ra.AgreementStop) || a.Stop.Equal(ra.AgreementStop))
+	before := a.Start.Before(ra.AgreementStart) && a.Stop.Before(ra.AgreementStop)
+	after := (a.Start.After(ra.AgreementStart) || a.Start.Equal(ra.AgreementStart)) && (a.Stop.After(ra.AgreementStop) || a.Stop.Equal(ra.AgreementStop))
 	switch asmt.RARequired {
 	case rlib.RARQDINRANGE:
 		v = inRange
@@ -136,7 +136,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 		if !ValidAssessmentDate(&a, &gla, &ra) {
 			fmt.Printf("%s: line %d - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: %d\n",
 				funcname, lineno, gla.RARequired)
-			fmt.Printf("Rental Agreement start/stop: %s - %s \n", ra.RentalStart.Format(rlib.RRDATEFMT3), ra.RentalStop.Format(rlib.RRDATEFMT3))
+			fmt.Printf("Rental Agreement start/stop: %s - %s \n", ra.AgreementStart.Format(rlib.RRDATEFMT3), ra.AgreementStop.Format(rlib.RRDATEFMT3))
 			fmt.Printf("      Assessment start/stop: %s - %s \n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
 			return
 		}

@@ -148,10 +148,7 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 	// Spin through all the RentalAgreements that are active in this timeframe
 	for rows.Next() {
 		var ra rlib.RentalAgreement
-		rlib.Errcheck(rows.Scan(&ra.RAID, &ra.RATID, &ra.BID, &ra.NLID, &ra.RentalStart, &ra.RentalStop, &ra.PossessionStart, &ra.PossessionStop,
-			&ra.Renewal, &ra.SpecialProvisions, &ra.LastModTime, &ra.LastModBy))
-
-		// get or create a ledger for this rental agreement
+		rlib.Errcheck(rlib.ReadRentalAgreements(rows, &ra))
 		l, err := LoadRABalanceLedger(&ra, d1, d2, bid)
 		if err != nil {
 			return err

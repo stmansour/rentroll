@@ -27,7 +27,7 @@ func AssessmentChecker(xbiz *rlib.XBusiness, d1, d2 *time.Time) []CheckIssue {
 	defer rows.Close()
 	for rows.Next() {
 		var a rlib.Assessment
-		rlib.ReadAssessment(rows, &a)
+		rlib.ReadAssessments(rows, &a)
 		if rlib.IsManageToBudget(xbiz, &a) { // process it only if it is managed to budget
 			var c CheckIssue                                           // open an issue to use, but don't store it unless there's actually an issue
 			c.dt = a.Start                                             // SingleInstances Start == Stop == date/time of assessment

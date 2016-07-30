@@ -199,11 +199,11 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 }
 
 // getPayorLastNames returns an array of strings that contains the last names
-// of every Payor responsible for this rental agreement
+// of every Payor responsible for this Rental Agreement during the timespan d1,d2.
 func getPayorLastNames(ra *rlib.RentalAgreement, d1, d2 *time.Time) []string {
 	var sa []string
 	for i := 0; i < len(ra.P); i++ {
-		if d1.Before(ra.RentalStop) && d2.After(ra.RentalStart) {
+		if d1.Before(ra.AgreementStop) && d2.After(ra.AgreementStart) {
 			sa = append(sa, ra.P[i].Trn.LastName)
 		}
 	}
@@ -282,7 +282,7 @@ func textReportJournalEntry(xbiz *rlib.XBusiness, j *rlib.Journal, jctx *jprintc
 		if ra.PossessionStart.After(start) {     // if posession of rental starts later...
 			start = ra.PossessionStart // ...then make an adjustment
 		}
-		stop = ra.RentalStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE
+		stop = ra.AgreementStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE
 		if stop.After(jctx.ReportStop) {
 			stop = jctx.ReportStop
 		}

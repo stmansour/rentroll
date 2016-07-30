@@ -10,6 +10,16 @@ func UpdateAssessment(a *Assessment) error {
 	return err
 }
 
+// UpdateDemandSource updates a DemandSource record in the database
+func UpdateDemandSource(a *DemandSource) error {
+	_, err := RRdb.Prepstmt.UpdateDemandSource.Exec(a.Name, a.Industry, a.LastModBy, a.DSID)
+	if nil != err {
+		Ulog("UpdateDemandSource: error updating DemandSource:  %v\n", err)
+		Ulog("DemandSource = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateDeposit updates a Deposit record
 func UpdateDeposit(a *Deposit) error {
 	_, err := RRdb.Prepstmt.UpdateDeposit.Exec(a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.LastModBy, a.DID)
@@ -70,27 +80,7 @@ func UpdateLedger(l *GLAccount) error {
 	return err
 }
 
-// UpdateSource updates a Source record in the database
-func UpdateSource(a *Source) error {
-	_, err := RRdb.Prepstmt.UpdateSource.Exec(a.Name, a.Industry, a.LastModBy, a.SID)
-	if nil != err {
-		Ulog("UpdateSource: error updating Source:  %v\n", err)
-		Ulog("Source = %#v\n", *a)
-	}
-	return err
-}
-
-// UpdateTransactant updates a Transactant record in the database
-func UpdateTransactant(a *Transactant) error {
-	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.USERID, a.PID, a.PRSPID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.LastModBy, a.TCID)
-	if nil != err {
-		Ulog("UpdateTransactant: error updating Transactant:  %v\n", err)
-		Ulog("Transactant = %#v\n", *a)
-	}
-	return err
-}
-
-// UpdateRentalAgreementPet updates a Transactant record in the database
+// UpdateRentalAgreementPet updates a RentalAgreementPet record in the database
 func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
 	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
 	if nil != err {
@@ -100,22 +90,44 @@ func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
 	return err
 }
 
-// UpdateRentableTypeRef updates a Transactant record in the database
+// UpdateRentableSpecialtyRef updates a RentableSpecialtyRef record in the database
+func UpdateRentableSpecialtyRef(a *RentableSpecialtyRef) error {
+	_, err := RRdb.Prepstmt.UpdateRentableSpecialtyRef.Exec(a.RSPID, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+	if nil != err {
+		Ulog("UpdateRentableSpecialtyRef: error updating RentableSpecialtyRef:  %v\n", err)
+		Ulog("RentableSpecialtyRef = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRentableTypeRef updates a RentableTypeRef record in the database
 func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RTID, a.RentCycle, a.ProrationCycle, a.LastModBy, a.RID, a.DtStart, a.DtStop)
 	if nil != err {
-		Ulog("UpdateRentableTypeRef: error updating pet:  %v\n", err)
+		Ulog("UpdateRentableTypeRef: error updating RentableTypeRef:  %v\n", err)
 		Ulog("RentableTypeRef = %#v\n", *a)
 	}
 	return err
 }
 
-// UpdateRentableSpecialtyRef updates a Transactant record in the database
-func UpdateRentableSpecialtyRef(a *RentableSpecialtyRef) error {
-	_, err := RRdb.Prepstmt.UpdateRentableSpecialtyRef.Exec(a.RSPID, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+// UpdateStringList updates a StringList record in the database
+func UpdateStringList(a *StringList) error {
+	_, err := RRdb.Prepstmt.UpdateStringList.Exec(a.BID, a.Name, a.LastModBy, a.SLID)
 	if nil != err {
-		Ulog("UpdateRentableSpecialtyRef: error updating pet:  %v\n", err)
-		Ulog("RentableSpecialtyRef = %#v\n", *a)
+		Ulog("UpdateStringList: error:  %v\n", err)
+		Ulog("StringList = %#v\n", *a)
+	}
+	DeleteSLStrings(a.SLID)
+	InsertSLStrings(a)
+	return err
+}
+
+// UpdateTransactant updates a Transactant record in the database
+func UpdateTransactant(a *Transactant) error {
+	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.USERID, a.PID, a.PRSPID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.LastModBy, a.TCID)
+	if nil != err {
+		Ulog("UpdateTransactant: error updating Transactant:  %v\n", err)
+		Ulog("Transactant = %#v\n", *a)
 	}
 	return err
 }

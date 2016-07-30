@@ -246,7 +246,7 @@ INSERT INTO Payor (TCID) VALUES
 --    an applicant to a User (or Payor as the case may be)
 --    RATID - rental agreement template
 -- =======================================================================
-INSERT INTO RentalAgreement (RATID,BID,RentalStart,RentalStop,PossessionStart,PossessionStop,Renewal) VALUES
+INSERT INTO RentalAgreement (RATID,BID,AgreementStart,AgreementStop,PossessionStart,PossessionStop,Renewal) VALUES
 	(6,1, "2004-01-01","2015-11-09","2004-01-01","2015-11-09",1),	--  1 Krabappel
 	(6,1, "2004-01-01","2017-07-04","2004-01-01","2017-07-04",1),	--  2 Flanders
 	(6,1, "2004-01-01","2017-07-04","2004-01-01","2017-07-04",1),	--  3 Szyslak

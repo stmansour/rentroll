@@ -98,8 +98,8 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			usernames = strings.Join(na, ",")                      // concatenate with a comma separator
 			pa := ra.GetPayorNameList(d1, d2)                      // get the payors for this time period
 			payornames = strings.Join(pa, ", ")                    // concatenate with comma
-			rentStart = ra.RentalStart.Format(rlib.RRDATEFMT4)     // rental start
-			rentStop = ra.RentalStop.Format(rlib.RRDATEFMT4)       // rental stop
+			rentStart = ra.AgreementStart.Format(rlib.RRDATEFMT4)  // rental start
+			rentStop = ra.AgreementStop.Format(rlib.RRDATEFMT4)    // rental stop
 			possStart = ra.PossessionStart.Format(rlib.RRDATEFMT4) // possession start
 			possStop = ra.PossessionStop.Format(rlib.RRDATEFMT4)   // possession stop
 
@@ -138,12 +138,12 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			// adjust the start or stop if the rental agreement started after d1 or ended before d2.
 			//-------------------------------------------------------------------------------------------------------
 			dtstart := *d1
-			if ra.RentalStart.After(dtstart) {
-				dtstart = ra.RentalStart
+			if ra.AgreementStart.After(dtstart) {
+				dtstart = ra.AgreementStart
 			}
 			dtstop := *d2
-			if ra.RentalStop.Before(dtstop) {
-				dtstop = ra.RentalStop
+			if ra.AgreementStop.Before(dtstop) {
+				dtstop = ra.AgreementStop
 			}
 			rar, err := rlib.FindAgreementByRentable(p.RID, &dtstart, &dtstop)
 			if err != nil {

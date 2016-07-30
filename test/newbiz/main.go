@@ -52,6 +52,8 @@ var App struct {
 	DepositFile    string                     // Deposits
 	InvoiceFile    string                     // Invoice
 	DMFile         string                     // Deposit Methods
+	SrcFile        string                     // Sources
+	SLFile         string                     // StringLists
 }
 
 func readCommandLineArgs() {
@@ -66,6 +68,7 @@ func readCommandLineArgs() {
 	rtPtr := flag.String("R", "", "add Rentable types via csv file")
 	rPtr := flag.String("r", "", "add rentables via csv file")
 	rspPtr := flag.String("s", "", "add Rentable specialties via csv file")
+	src := flag.String("S", "", "add Rentable specialties via csv file")
 	pPtr := flag.String("p", "", "add people via csv file")
 	ratPtr := flag.String("T", "", "add rental agreement templates via csv file")
 	raPtr := flag.String("C", "", "add rental agreements via csv file")
@@ -79,7 +82,8 @@ func readCommandLineArgs() {
 	rsrefsPtr := flag.String("F", "", "assign rentable specialties to rentables via csv file")
 	ntPtr := flag.String("O", "", "add NoteTypes via csv file")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments")
+	slPtr := flag.String("l", "", "add StringLists via csv file")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList")
 	dmPtr := flag.String("m", "", "add DepositMethods via csv file")
 
 	flag.Parse()
@@ -112,6 +116,8 @@ func readCommandLineArgs() {
 	App.DepositFile = *depositPtr
 	App.InvoiceFile = *invPtr
 	App.DMFile = *dmPtr
+	App.SrcFile = *src
+	App.SLFile = *slPtr
 }
 
 func bizErrCheck(sa []string) {
@@ -174,11 +180,17 @@ func main() {
 	if len(App.BizFile) > 0 {
 		rcsv.LoadBusinessCSV(App.BizFile)
 	}
+	if len(App.SLFile) > 0 {
+		rcsv.LoadStringTablesCSV(App.SLFile)
+	}
 	if len(App.PmtTypeFile) > 0 {
 		rcsv.LoadPaymentTypesCSV(App.PmtTypeFile)
 	}
 	if len(App.DMFile) > 0 {
 		rcsv.LoadDepositMethodsCSV(App.DMFile)
+	}
+	if len(App.SrcFile) > 0 {
+		rcsv.LoadSourcesCSV(App.SrcFile)
 	}
 	if len(App.RTFile) > 0 {
 		rcsv.LoadRentableTypesCSV(App.RTFile)
@@ -316,6 +328,14 @@ func main() {
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rcsv.RRreportDepositMethods(rlib.RPTTEXT, bid))
+		case 24:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportSources(rlib.RPTTEXT, bid))
+		case 25:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportStringLists(rlib.RPTTEXT, bid))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

@@ -18,7 +18,9 @@ const (
 	ELEMCLASS        = 3 // classes
 	ELEMSVC          = 4 // the executable service
 	ELEMRENTABLETYPE = 5 // RentableType element
-	ELEMLAST         = 5 // keep in sync with last one added
+	ELEMRATEPLAN     = 6 // Rate Plan
+	ELEMPROSPECT     = 7 // Transactant, Prospect, Applicant, Payor, User
+	ELEMLAST         = 7 // keep in sync with last one added
 
 	CUSTSTRING = 0
 	CUSTINT    = 1
@@ -133,6 +135,24 @@ const (
 // TCID = Transactant id
 //==========================================
 
+// StringList is a generic list structure for lists of strings. These could be used to implement things like
+// the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
+// moving out, etc.
+type StringList struct {
+	SLID        int64     // unique id for this stringlist
+	BID         int64     // the business to which this stringlist belongs
+	Name        string    // stringlist name
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	S           []string  // the actual string values from the SLStrings table associated with this SLID
+}
+
+// SLStrings defines an individual string member of a StringList
+type SLStrings struct {
+	SLID  int64  // to which stringlist does this string belong?
+	Value string // value of this string
+}
+
 // NoteType describes the type of note this is
 type NoteType struct {
 	NTID        int64     // note type id
@@ -148,6 +168,9 @@ type Note struct {
 	NLID        int64     // notelist to which this note belongs
 	PNID        int64     // NID of parent note
 	NTID        int64     // note type id
+	RID         int64     // Meta Tag - this note is related to Rentable RID
+	RAID        int64     // Meta Tag - this note is related to Rental Agreement RAID
+	TCID        int64     // Meta Tag - this note is related to Transactant TCID
 	Comment     string    // the actual note
 	CN          []Note    // array of child notes
 	LastModTime time.Time // when was this record last written
@@ -198,10 +221,12 @@ type RentalAgreement struct {
 	RATID             int64       // reference to Occupancy Master Agreement
 	BID               int64       // Business (so that we can process by Business)
 	NLID              int64       // Note ID
-	RentalStart       time.Time   // start date for rental
-	RentalStop        time.Time   // stop date for rental
+	AgreementStart    time.Time   // start date for rental agreement contract
+	AgreementStop     time.Time   // stop date for rental agreement contract
 	PossessionStart   time.Time   // start date for Occupancy
 	PossessionStop    time.Time   // stop date for Occupancy
+	RentStart         time.Time   // start date for Rent
+	RentStop          time.Time   // stop date for Rent
 	Renewal           int64       // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 	SpecialProvisions string      // free-form text
 	LastModTime       time.Time   //	-- when was this record last written
@@ -215,6 +240,7 @@ type RentalAgreement struct {
 type RentalAgreementRentable struct {
 	RAID         int64     // associated rental agreement
 	RID          int64     // the Rentable
+	CLID         int64     // commission ledger -- applies if outside sales rented this rentable
 	ContractRent float64   // the rent
 	DtStart      time.Time // start date/time for this Rentable
 	DtStop       time.Time // stop date/time
@@ -251,11 +277,12 @@ type RentalAgreementPet struct {
 	LastModBy   int64
 }
 
-// Source is a structure
-type Source struct {
-	SID         int64
-	Name        string
-	Industry    string
+// DemandSource is a structure
+type DemandSource struct {
+	DSID        int64     // DemandSource ID
+	BID         int64     // Business unit
+	Name        string    // name of source
+	Industry    string    // what industry is this source in
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 }
@@ -326,7 +353,7 @@ type User struct {
 	AlternateAddress          string
 	EligibleFutureUser        int64
 	Industry                  string
-	SID                       int64
+	DSID                      int64
 	LastModTime               time.Time
 	LastModBy                 int64
 }
@@ -697,6 +724,7 @@ type RRprepSQL struct {
 	DeleteAllRentalAgreementPets             *sql.Stmt
 	DeleteCustomAttribute                    *sql.Stmt
 	DeleteCustomAttributeRef                 *sql.Stmt
+	DeleteDemandSource                       *sql.Stmt
 	DeleteDeposit                            *sql.Stmt
 	DeleteDepositMethod                      *sql.Stmt
 	DeleteDepositParts                       *sql.Stmt
@@ -727,6 +755,7 @@ type RRprepSQL struct {
 	GetAllBusinessRentableTypes              *sql.Stmt
 	GetAllBusinessSpecialtyTypes             *sql.Stmt
 	GetAllBusinesses                         *sql.Stmt
+	GetAllDemandSources                      *sql.Stmt
 	GetAllDepositMethods                     *sql.Stmt
 	GetAllDepositories                       *sql.Stmt
 	GetAllDepositsInRange                    *sql.Stmt
@@ -754,6 +783,8 @@ type RRprepSQL struct {
 	GetCustomAttribute                       *sql.Stmt
 	GetCustomAttributeRefs                   *sql.Stmt
 	GetDefaultLedgers                        *sql.Stmt
+	GetDemandSource                          *sql.Stmt
+	GetDemandSourceByName                    *sql.Stmt
 	GetDeposit                               *sql.Stmt
 	GetDepositMethod                         *sql.Stmt
 	GetDepositMethodByName                   *sql.Stmt
@@ -824,6 +855,7 @@ type RRprepSQL struct {
 	InsertBusiness                           *sql.Stmt
 	InsertCustomAttribute                    *sql.Stmt
 	InsertCustomAttributeRef                 *sql.Stmt
+	InsertDemandSource                       *sql.Stmt
 	InsertDeposit                            *sql.Stmt
 	InsertDepositMethod                      *sql.Stmt
 	InsertDepositPart                        *sql.Stmt
@@ -862,6 +894,7 @@ type RRprepSQL struct {
 	InsertTransactant                        *sql.Stmt
 	InsertUser                               *sql.Stmt
 	UpdateAssessment                         *sql.Stmt
+	UpdateDemandSource                       *sql.Stmt
 	UpdateDeposit                            *sql.Stmt
 	UpdateDepositMethod                      *sql.Stmt
 	UpdateDepository                         *sql.Stmt
@@ -875,10 +908,15 @@ type RRprepSQL struct {
 	UpdateRentableTypeRef                    *sql.Stmt
 	UpdateRentalAgreementPet                 *sql.Stmt
 	UpdateTransactant                        *sql.Stmt
-	GetSource                                *sql.Stmt
-	DeleteSource                             *sql.Stmt
-	InsertSource                             *sql.Stmt
-	UpdateSource                             *sql.Stmt
+	DeleteStringList                         *sql.Stmt
+	InsertStringList                         *sql.Stmt
+	UpdateStringList                         *sql.Stmt
+	GetStringList                            *sql.Stmt
+	GetAllStringLists                        *sql.Stmt
+	GetStringListByName                      *sql.Stmt
+	DeleteSLStrings                          *sql.Stmt
+	InsertSLString                           *sql.Stmt
+	GetSLStrings                             *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

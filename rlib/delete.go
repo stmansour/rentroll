@@ -2,6 +2,15 @@ package rlib
 
 import "time"
 
+// DeleteDemandSource deletes the DemandSource with the specified id from the database
+func DeleteDemandSource(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteDemandSource.Exec(id)
+	if err != nil {
+		Ulog("Error deleting DemandSource for DSID=%d error: %v\n", id, err)
+	}
+	return err
+}
+
 // DeleteDeposit deletes the Deposit associated with the supplied id
 // For convenience, this routine calls DeleteDepositParts. The DepositParts are
 // tightly bound to the Deposit. If a Deposit is deleted, the parts should be deleted as well.
@@ -246,11 +255,31 @@ func DeleteAllRentalAgreementPets(id int64) error {
 	return err
 }
 
-// DeleteSource deletes the Source with the specified id from the database
-func DeleteSource(id int64) error {
-	_, err := RRdb.Prepstmt.DeleteSource.Exec(id)
+// DeleteStringList deletes the StringList with the specified id from the database
+func DeleteStringList(id int64) error {
+	err := DeleteSLStrings(id)
 	if err != nil {
-		Ulog("Error deleting Source for SID=%d error: %v\n", id, err)
+		if !IsSQLNoResultsError(err) {
+			return err
+		}
+	}
+	_, err = RRdb.Prepstmt.DeleteStringList.Exec(id)
+	if err != nil {
+		Ulog("Error deleting id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteSLStrings deletes all SLString with the specified SLID from the database
+func DeleteSLStrings(id int64) error {
+	var err error
+	if id > 0 {
+		_, err = RRdb.Prepstmt.DeleteSLStrings.Exec(id)
+		if err != nil {
+			if !IsSQLNoResultsError(err) {
+				Ulog("Error deleting id=%d error: %v\n", id, err)
+			}
+		}
 	}
 	return err
 }

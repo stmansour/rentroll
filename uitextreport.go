@@ -131,7 +131,7 @@ func UIStatementTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	// Spin through all the RentalAgreements that are active in this timeframe
 	for rows.Next() {
 		var ra rlib.RentalAgreement
-		rlib.ReadRentalAgreement(rows, &ra)
+		rlib.ReadRentalAgreements(rows, &ra)
 		UIStatementForRA(xbiz, d1, d2, &ra)
 	}
 }

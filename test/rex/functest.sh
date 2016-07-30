@@ -45,8 +45,8 @@ doCSVtest () {
 	${CSVLOAD} $2 >> ${1}.txt 2>&1
 
 	if [ ! -f $1.gold ]; then
-		echo "file $1.gold not found. Please create $1.gold then rerun test."
-		exit 1
+		echo "file $1.gold not found. Creating an empty $1.gold file for you"
+		touch $1.gold
 	fi
 	UDIFFS=$(diff $1.gold $1.txt | wc -l)
 	if [ ${UDIFFS} -eq 0 ]; then
@@ -77,8 +77,8 @@ dotest () {
 	${RENTROLL} $2 >> ${1}.txt 2>&1
 
 	if [ ! -f $1.gold ]; then
-		echo "file $1.gold not found. Please create $1.gold then rerun test."
-		exit 1
+		echo "file $1.gold not found. Creating an empty $1.gold file for you"
+		touch $1.gold
 	fi
 	UDIFFS=$(diff $1.gold $1.txt | wc -l)
 	if [ ${UDIFFS} -eq 0 ]; then
@@ -228,6 +228,7 @@ ${RRBIN}/rrnewdb
 doLogTest ${LOGFILE} "-b business.csv -L 3" "DEFINE BUSINESS"
 doLogTest ${LOGFILE} "-d depository.csv -L 18,REX" "DEFINE DEPOSITORIES"
 doLogTest ${LOGFILE} "-m dm.csv -L 23,REX" "DEFINE DEPOSIT METHODS"
+doLogTest ${LOGFILE} "-S sources.csv -L 24,REX" "DEFINE SOURCES"
 doLogTest ${LOGFILE} "-R rentabletypes.csv -L 5,REX" "DEFINE RENTABLE TYPES"
 doLogTest ${LOGFILE} "-p people.csv  -L 7" "DEFINE PEOPLE"
 doLogTest ${LOGFILE} "-r rentable.csv -L 6,REX" "DEFINE RENTABLES"

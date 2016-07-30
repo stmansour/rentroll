@@ -205,7 +205,6 @@ func RRreportRentalAgreements(t int, bid int64) string {
 	d2 := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.UTC)
 	for rows.Next() {
 		var p rlib.RentalAgreement
-
 		rlib.Errcheck(rows.Scan(&raid))
 		p, err = rlib.GetXRentalAgreement(raid, &d1, &d2)
 		if err != nil {
@@ -320,7 +319,7 @@ func RRreportAssessments(t int, bid int64) string {
 	s := fmt.Sprintf("      ASMID          RAID        RID   Freq     Amount\n")
 	for rows.Next() {
 		var a rlib.Assessment
-		rlib.ReadAssessment(rows, &a)
+		rlib.ReadAssessments(rows, &a)
 		switch t {
 		case rlib.RPTTEXT:
 			s += ReportAssessmentToText(&a)
@@ -666,6 +665,69 @@ func RRreportDepositMethods(t int, bid int64) string {
 			fmt.Printf("RRreportDepositMethods: unrecognized print format: %d\n", t)
 			return ""
 		}
+	}
+	return s
+}
+
+// RRreportSources generates a report of all rlib.GLAccount accounts
+func RRreportSources(t int, bid int64) string {
+	m, _ := rlib.GetAllDemandSources(bid)
+
+	s := fmt.Sprintf("%-9s  %-9s  %-35s  %-35s\n", "DSID", "BID", "Name", "Industry")
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("S%08d  B%08d  %-35s  %-35s\n", m[i].DSID, m[i].BID, m[i].Name, m[i].Industry)
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportSources: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+func getCategory(s string) (string, string) {
+	cat := ""
+	val := ""
+	loc := strings.Index(s, "^")
+	if loc > 0 {
+		cat = strings.TrimSpace(s[:loc])
+		if len(s) > loc+1 {
+			val = strings.TrimSpace(s[loc+1:])
+		}
+	} else {
+		val = s
+	}
+	return cat, val
+}
+
+// RRreportStringLists generates a report of all StringLists for the supplied business (bid)
+func RRreportStringLists(t int, bid int64) string {
+	var (
+		s        string
+		cat, val string
+	)
+	m := rlib.GetAllStringLists(bid)
+
+	for i := 0; i < len(m); i++ {
+		s += fmt.Sprintf("String List Name:  %s\n", m[i].Name)
+		s += fmt.Sprintf("%-25s  %-50s\n", "Category", "Value")
+		s += fmt.Sprintf("%-25s  %-50s\n", "--------", "-----")
+		for j := 0; j < len(m[i].S); j++ {
+			cat, val = getCategory(m[i].S[j])
+			switch t {
+			case rlib.RPTTEXT:
+				s += fmt.Sprintf("%-25s  %-50s\n", cat, val)
+			case rlib.RPTHTML:
+				fmt.Printf("UNIMPLEMENTED\n")
+			default:
+				fmt.Printf("RRreportSources: unrecognized print format: %d\n", t)
+				return ""
+			}
+		}
+		s += "\n"
 	}
 	return s
 }

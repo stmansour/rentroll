@@ -1,4 +1,4 @@
-USERID	TCID	Points	CarMake	CarModel	CarColor	CarYear	LicensePlateState	LicensePlateNumber	ParkingPermitNumber	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyEmail	AlternateAddress	EligibleFutureUser	Industry	SID
+USERID	TCID	Points	CarMake	CarModel	CarColor	CarYear	LicensePlateState	LicensePlateNumber	ParkingPermitNumber	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyEmail	AlternateAddress	EligibleFutureUser	Industry	DSID
 1	1	0				0				0000-00-00						0		0
 2	2	0				0				0000-00-00						0		0
 3	3	0				0				0000-00-00						0		0

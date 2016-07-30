@@ -1,4 +1,4 @@
-RentalTemplateNumber,BUD,RentalStart,RentalStop,Payor,Renewal,SpecialProvisions,RentableName,Notes
+RentalTemplateNumber,BUD,AgreementStart,AgreementStop,Payor,Renewal,SpecialProvisions,RentableName,Notes
 RAT001,REX,1/1/04,6/1/18,"aaron@rexford.com,,;kirsten@rexford.com,,",1,,"309 Rexford,3750",
 RAT001,REX,1/1/04,6/1/18,"123-456-7892,,;123-456-7893,,",1,,"309 1/2 Rexford,3550",
 RAT001,REX,1/1/04,2/8/16,"123-456-7894,,",1,,"311 Rexford,4400",

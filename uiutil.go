@@ -144,7 +144,7 @@ func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []Sta
 	defer rows.Close()
 	for rows.Next() {
 		var a rlib.Assessment
-		rlib.ReadAssessment(rows, &a)
+		rlib.ReadAssessments(rows, &a)
 		dl := a.GetRecurrences(d1, d2)
 		if len(dl) > 0 {
 			var se StatementEntry

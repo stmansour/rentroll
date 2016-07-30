@@ -9,7 +9,7 @@ import (
 
 //  CSV file format:
 //  0                     1      2             3             4                                            5        6                  7                                                              8
-//  RentalTemplateNumber, BUD,   RentalStart,  RentalStop,   Payor,                                       Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
+//  RentalTemplateNumber, BUD,   AgreementStart,  AgreementStop,   Payor,                                       Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
 // 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                “U101,2500.00;U102,2350.00”,
 // 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                “U101,2500.00;U102,2350.00”,
 // 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                “U101,2500.00;U102,2350.00”,
@@ -110,7 +110,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	}
 
 	//-------------------------------------------------------------------
-	// RentalStartDate
+	// AgreementStartDate
 	//-------------------------------------------------------------------
 	dfltStart := sa[2]
 	DtStart, err := rlib.StringToDate(dfltStart)
@@ -118,10 +118,10 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[2])
 		return
 	}
-	ra.RentalStart = DtStart
+	ra.AgreementStart = DtStart
 
 	//-------------------------------------------------------------------
-	// RentalStopDate
+	// AgreementStopDate
 	//-------------------------------------------------------------------
 	dfltStop := sa[3]
 	DtStop, err := rlib.StringToDate(dfltStop)
@@ -129,11 +129,11 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[3])
 		return
 	}
-	ra.RentalStop = DtStop
+	ra.AgreementStop = DtStop
 
 	// Until we update with new params...
-	ra.PossessionStart = ra.RentalStart
-	ra.PossessionStop = ra.RentalStop
+	ra.PossessionStart = ra.AgreementStart
+	ra.PossessionStop = ra.AgreementStop
 
 	//-------------------------------------------------------------------
 	//  The Payors

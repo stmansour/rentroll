@@ -1,0 +1,171 @@
+SLID	Value
+1	Criminal background
+1	No credit history
+1	No employment history
+1	No rental history
+1	No rental history
+1	No poor credit history
+1	No poor employment history
+1	No poor rental history
+1	Other
+2	Abandoned Apartment
+2	Acquired a pet
+2	Added a roommate
+2	Amenities lacking
+2	Bought condominium
+2	Bought home
+2	Bought townhome
+2	Changed jobs
+2	Closer to airport
+2	Closer to town/city
+2	Closer to work
+2	Corporate or short term lease only
+2	Death or illness
+2	Dissatisfied for another reason
+2	Divorce
+2	Employment transfer
+2	Evicted for another reason
+2	Evicted for criminal reasons
+2	Evicted for non-compliance with community policies
+2	Evicted for non-payment of rent
+2	Generally unhappy with property
+2	Getting married
+2	High utility costs
+2	Leaving/graduating school
+2	Lifestyle change for another reason
+2	Loss of employment from the PMC
+2	Lost a job
+2	Lost a roommate
+2	Marital status change
+2	Military transfer
+2	Money problems
+2	Moving closer to home
+2	Moving home
+2	No reason given
+2	Noise problem
+2	Non-renewal of lease
+2	Other
+2	Parking problems
+2	Personal reasons/concerns
+2	Property disaster
+2	Rental increase
+2	Rentin home
+2	Returning/going to school
+2	Road construction
+2	Selling/old house
+2	Skipped during eviction process
+2	Skipped without notice
+3	ADA accessible
+3	Amenities lacking
+3	Color palette
+3	Drive up appeal
+3	Furniture
+3	Lease term
+3	Location to employment
+3	Location to family
+3	Location to shopping and entertainment
+3	Meets square footage needs
+3	Personnel
+3	Pet allowances
+3	Point of lease e-commerce offers
+3	Priing
+3	Public transportation
+3	School district
+3	Special
+4	Apartment Finder Blue Book
+4	Apartment Guide
+4	Apartment Locator
+4	Apartment Map
+4	ApartmentFinder.com
+4	ApartmentGuide.com
+4	ApartmentLints.com
+4	ApartmentMatching.com
+4	ApartmentRatings.com
+4	Apartments.com
+4	ApartmentsNationwide.com
+4	ApartmentsPlus.com
+4	Brochure/Flyer
+4	CitySearch.com
+4	CraigsList.com
+4	Current resident
+4	Direct Mail - Conventional
+4	Direct Mail - FullService
+4	Drive by
+4	EasyRent.com
+4	El Nacional
+4	For Rent Magazine
+4	ForRent.com
+4	Google Internet Program
+4	Google.com
+4	LivingChoices.com
+4	Local Line Rolloer
+4	Locator Service
+4	Move.com
+4	MoveForFree.com
+4	MyNewPlace.com
+4	Oklahoma Gazette
+4	Other
+4	Other OneSite property
+4	Other property
+4	Other publication
+4	Other site
+4	Preferred employer program
+4	Prior resident
+4	Property website
+4	Radio Advertising
+4	Referral companies/merchants
+4	Rent.com
+4	Rentals.com
+4	RentAndMove.com
+4	RentClicks.com
+4	RentNet.com
+4	Senior Living Magazine
+4	Site-owned website
+4	Tinker Take Off
+4	TV Advertising
+4	UMoveFree.com
+4	Unknown/Would not give
+4	Yahoo.com
+4	4Walls
+4	ApartmentGuyze.com
+4	ApartmentHomeLiving.com
+4	ApartmentMag.com
+4	ApartmentMarketer.com
+4	Apartments24-7.com
+4	ApartmentSearch.com
+4	ApartmentShowcase.com
+4	CollegeRentals.com
+4	EliteRenting.com
+4	HotPads.com
+4	Oodle.com
+4	Other
+4	PeopleWithPets.com
+4	PMC-owned Website
+4	RentJungle.com
+4	Rentping.com
+4	RentWiki.com
+4	Roomster.net
+4	Yellow pages
+5	Amenities ^ Amenities lacking
+5	Amenities ^ Bedroom size
+5	Amenities ^ Color scheme
+5	Amenities ^ Competition has better amenities
+5	Amenities ^ Objection to floor plan
+5	Cost ^ Competition is less expensive
+5	Cost ^ No specials/concessions
+5	Cost ^ Too expensive
+5	Inactive ^ Inactive
+5	Location ^ Location
+5	Location ^ Road construction
+5	Location ^ Too close to highway
+5	Not available ^ Unit/floor plan not available
+5	Not interested ^ Bought/rented house instead
+5	Not interested ^ Changed their mind
+5	Not interested ^ Not interested
+5	Not qualified ^ Credit rating below standard
+5	Not qualified ^ Criminal history not allowed
+5	Not qualified ^ Does not meet property criteria
+5	Not qualified ^ Oversized/unallowable pet
+5	Not qualified ^ Rental history not allowed
+5	Not qualified ^ Roommate/spouse unqualified
+5	Not qualified ^ Too many occupants

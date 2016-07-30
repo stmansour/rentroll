@@ -1,2 +1,2 @@
-RentalTemplateNumber,BUD,RentalStart,RentalStop,Payor,Renewal,SpecialProvisions,RentableName-ContractRent,Notes
+RentalTemplateNumber,BUD,AgreementStart,AgreementStop,Payor,Renewal,SpecialProvisions,RentableName-ContractRent,Notes
 "RAT001","DHR","2004-01-01","2018-06-01","aaron@rexford.com,,;kirsten@rexford.com,,",1,,"309 Rexford,3750",
