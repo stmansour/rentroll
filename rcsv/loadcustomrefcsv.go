@@ -57,7 +57,7 @@ func CreateCustomAttributeRefs(sa []string, lineno int) {
 
 	err := rlib.InsertCustomAttributeRef(&c)
 	if err != nil {
-		fmt.Printf("%s: line %d - Could not insert rlib.CustomAttributeRef. err = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - Could not insert CustomAttributeRef. err = %v\n", funcname, lineno, err)
 	}
 }
 

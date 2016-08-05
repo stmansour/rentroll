@@ -56,10 +56,13 @@ CREATE TABLE StringList (
 );
 
 CREATE TABLE SLString (
+    SLSID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for this string
     SLID BIGINT NOT NULL DEFAULT 0,                         -- to which stringlist does this string belong?
-    Value VARCHAR(256) NOT NULL DEFAULT ''                  -- value of this string
+    Value VARCHAR(256) NOT NULL DEFAULT '',                 -- value of this string
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY(SLSID)
 );
-
 
 CREATE TABLE NoteType (
     NTID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this note type
@@ -157,14 +160,15 @@ CREATE TABLE RentalAgreementRentables (
 
 CREATE TABLE RentalAgreementPayors (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
-    PID BIGINT NOT NULL DEFAULT 0,                            -- who is the Payor for this agreement
+    TCID BIGINT NOT NULL DEFAULT 0,                            -- who is the Payor for this agreement
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Payor was no longer being billed to this agreement
 );
 
 CREATE TABLE RentableUsers (
     RID BIGINT NOT NULL DEFAULT 0,                            -- the associated Rentable
-    USERID BIGINT NOT NULL DEFAULT 0,                         -- the Users of the rentable
+    -- USERID BIGINT NOT NULL DEFAULT 0,                      -- the Users of the rentable
+    TCID BIGINT NOT NULL DEFAULT 0,                           -- the Users of the rentable
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this User was no longer being billed to this agreement
 );
@@ -205,35 +209,62 @@ CREATE TABLE RatePlan (
     RPID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                      -- Business
     Name VARCHAR(100) NOT NULL DEFAULT '',              -- The name of this RatePlan
-    DtStart DATE NULL DEFAULT '1970-01-01 00:00:00',    -- when does it go into effect
-    DtStop DATE NULL DEFAULT '1970-01-01 00:00:00',     -- when does it stop
-    FeeAppliesAge INT NOT NULL DEFAULT 0,               -- the age at which a user is counted when determining extra user fees or eligibility for rental
-    MaxNoFeeUsers INT NOT NULL DEFAULT 0,               -- maximum number of users for no fees. Greater than this number means fee applies
-    AdditionalUserFee DECIMAL(19,4) NOT NULL DEFAULT 0, -- extra fee per user when exceeding MaxNoFeeUsers
-    PROMOCODE VARCHAR(100),                             -- just a string
-    CancelationFee DECIMAL(19,4) NOT NULL DEFAULT 0,    -- charge for cancellation
+    LastModTime TIMESTAMP,                                    -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY(RPID)
 );
     -- these flags are Property-Industry-specific.  IMPLEMENT THESE
     -- FLAGS BIGINT NOT NULL DEFAULT 0,
-            -- 1<<0   HideRate INT, if 1 then never show the rate to the customer on any screen
             -- 1<<1   GDSAvailable, if 1 then this rate plan can be made available on GDS
             -- 1<<2   SaberAvailable, if 1 then this rate plan canb be made available on Saber
+
+-- RatePlanRef contains the time sensitive attributes of a RatePlan
+CREATE TABLE RatePlanRef (
+    RPRID BIGINT NOT NULL AUTO_INCREMENT,               -- unique id for this rate plan
+    RPID BIGINT NOT NULL DEFAULT 0,                     -- which rateplan
+    DtStart DATE NULL DEFAULT '1970-01-01 00:00:00',    -- when does it go into effect
+    DtStop DATE NULL DEFAULT '1970-01-01 00:00:00',     -- when does it stop
+    FeeAppliesAge SMALLINT NOT NULL DEFAULT 0,          -- the age at which a user is counted when determining extra user fees or eligibility for rental
+    MaxNoFeeUsers SMALLINT NOT NULL DEFAULT 0,          -- maximum number of users for no fees. Greater than this number means fee applies
+    AdditionalUserFee DECIMAL(19,4) NOT NULL DEFAULT 0, -- extra fee per user when exceeding MaxNoFeeUsers
+    PromoCode VARCHAR(100),                             -- just a string
+    CancellationFee DECIMAL(19,4) NOT NULL DEFAULT 0,    -- charge for cancellation
+    FLAGS BIGINT NOT NULL DEFAULT 0,                    -- 1<<0 -- HideRate
+    LastModTime TIMESTAMP,                              -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY(RPRID)
+);
+
+-- RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
+CREATE TABLE RatePlanRefRTRate (
+    RPRID BIGINT NOT NULL DEFAULT 0,        -- which RatePlanRef is this
+    RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
+    FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate, 
+    Val DECIMAL(19,4) NOT NULL DEFAULT 0    -- Val 
+);
+-- RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
+CREATE TABLE RatePlanRefSPRate (
+    RPRID BIGINT NOT NULL DEFAULT 0,        -- which RatePlanRef is this
+    RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
+    RSPID BIGINT NOT NULL DEFAULT 0,        -- which Specialty
+    FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate, 
+    Val DECIMAL(19,4) NOT NULL DEFAULT 0    -- Val 
+);
 
 -- Rate plans can have other deliverables. These can be things like 2 tickets to SeaWorld, free meal vouchers, etc.
 -- A RatePlan can refer to multiple OtherDeliverables.  SELECT * FROM RatePlanOD WHERE RPID=MyRatePlan will return all
 -- the OtherDeliverables associated with MyRatePlan
 CREATE TABLE RatePlanOD (
-    RPID BIGINT NOT NULL DEFAULT 0,     -- with which RatePlan is this OtherDeliverable associated?
-    ODID BIGINT NOT NULL DEFAULT 0      -- points to an OtherDeliverables 
+    RPRID BIGINT NOT NULL DEFAULT 0,        -- with which RatePlanRef is this OtherDeliverable associated?
+    ODID BIGINT NOT NULL DEFAULT 0          -- points to an OtherDeliverables 
 );
 
--- These are for promotions - like 2 Seaworld tickets, etc.  Referenced by Rate Plan
+-- These are for promotions - like 2 Seaworld tickets, etc.  Referenced by Rate Plan Refs
 -- Multiple rate plans can refer to the same OtherDeliverables. 
 CREATE TABLE OtherDeliverables (
     ODID BIGINT NOT NULL AUTO_INCREMENT,    -- Unique ID for this OtherDeliverables
     Name VARCHAR(256),                      -- Description of the other deliverables. Ex: 2 Seaworld tickets 
-    FLAGS BIGINT NOT NULL DEFAULT 0,        -- Flag: Is this list still active?  dropdown interface lists only the active ones
+    Active SMALLINT NOT NULL DEFAULT 0,     -- Flag: Is this list still active?  0 = not active, 1 = active
     PRIMARY KEY(ODID)
 );
 
@@ -291,7 +322,7 @@ CREATE TABLE RentableMarketrate (
 -- of the unit, such as Lake View, Courtyard View, Washer Dryer Connections, 
 -- Washer Dryer provided, close to parking, better views, fireplaces, special 
 -- remodeling or finishes, etc.  This is where those special characteristics are defined
-CREATE TABLE RentableSpecialtyType (
+CREATE TABLE RentableSpecialty (
     RSPID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
@@ -448,7 +479,7 @@ CREATE TABLE Assessments (
 -- **************************************
 -- This is DemandSource  referenced by RentalAgreement
 CREATE TABLE DemandSource (
-    DSID BIGINT NOT NULL AUTO_INCREMENT,                     -- DemandSource ID - unique id for this source
+    DSID BIGINT NOT NULL AUTO_INCREMENT,                    -- DemandSource ID - unique id for this source
     BID BIGINT NOT NULL DEFAULT 0,                          -- What business is this
     Name VARCHAR(100),                                      -- Name of the source
     Industry VARCHAR(100),                                  -- What industry -- THIS BECOMES A REFERENCE TO "Industry" StringList
@@ -472,11 +503,9 @@ CREATE TABLE LeadSource (
 -- ===========================================
 -- Transactant - fields common to all people and
 CREATE TABLE Transactant (
-    TCID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id of unit
-    USERID BIGINT NOT NULL DEFAULT 0,                      -- associated User id
-    PID BIGINT NOT NULL DEFAULT 0,                         -- associated Payor id
-    PRSPID BIGINT NOT NULL DEFAULT 0,                      -- associated Prospect id
-    NLID BIGINT NOT NULL DEFAULT 0,                        -- notes associated with this transactant
+    TCID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of unit
+    BID BIGINT NOT NULL DEFAULT 0,                          -- which business
+    NLID BIGINT NOT NULL DEFAULT 0,                         -- notes associated with this transactant
     FirstName VARCHAR(100) NOT NULL DEFAULT '',
     MiddleName VARCHAR(100) NOT NULL DEFAULT '',
     LastName VARCHAR(100) NOT NULL DEFAULT '',
@@ -487,7 +516,7 @@ CREATE TABLE Transactant (
     SecondaryEmail VARCHAR(100) NOT NULL DEFAULT '',
     WorkPhone VARCHAR(100) NOT NULL DEFAULT '',
     CellPhone VARCHAR(100) NOT NULL DEFAULT '',
-    Address VARCHAR(100) NOT NULL DEFAULT '',            -- person address
+    Address VARCHAR(100) NOT NULL DEFAULT '',               -- person address
     Address2 VARCHAR(100) NOT NULL DEFAULT '',       
     City VARCHAR(100) NOT NULL DEFAULT '',
     State CHAR(25) NOT NULL DEFAULT '',
@@ -509,7 +538,7 @@ CREATE TABLE Transactant (
 --   PROSPECT
 -- ===========================================
 CREATE TABLE Prospect (
-    PRSPID BIGINT NOT NULL AUTO_INCREMENT,                 -- unique id of this Prospect
+    -- PRSPID BIGINT NOT NULL DEFAULT 0,                 -- unique id of this Prospect
     TCID BIGINT NOT NULL DEFAULT 0,                        -- associated Transactant (has Name and all contact info)
     EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
     EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
@@ -519,28 +548,24 @@ CREATE TABLE Prospect (
     EmployerEmail VARCHAR(100) NOT NULL DEFAULT '',
     EmployerPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
-    ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,  -- if non-zero this Prospect is an applicant
-    LastModTime TIMESTAMP,                              -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (PRSPID)
+    ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,      -- if non-zero this Prospect is an applicant
+    DesiredMoveInDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
+    RentableTypePreference BIGINT NOT NULL DEFAULT 0,          -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables 
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 0 - approved/not approved
+    Approver BIGINT NOT NULL DEFAULT 0,                     -- who approved or declined
+    DeclineReasonSLSID BIGINT NOT NULL DEFAULT 0,           -- ID to string in list of choices, Melissa will provide the list.
+    OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '',     -- Arbitrary text, anything else they might request
+    FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- automatically fill out this date to sysdate + 24hrs
+    CSAgent BIGINT NOT NULL DEFAULT 0,                      -- Accord Directory UserID - for the CSAgent 
+    OutcomeSLSID BIGINT NOT NULL DEFAULT 0,                 -- id of string from a list of outcomes. Melissa to provide reasons
+    FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,    --  d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement 
+    RAID BIGINT NOT NULL DEFAULT 0,                         -- created to hold On Account amount of Floating Deposit
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (TCID)
 );
 
--- --new
---     DesiredMoveInDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',                    --
---     RentableTypePreference INT NOT NULL DEFAULT 0,      -- This would be "model" preference for room or residence, but could apply to all rentables 
---     Approved SMALLINT NOT NULL DEFAULT 0,               --  0 - unset, 1 - Approved, 2 - Declined
---     Approver BIGINT NOT NULL DEFAULT 0,                 -- who approved or declined
---     DeclineReasonSLID BIGINT NOT NULL DEFAULT 0,        -- ID to string in list of choices, Melissa will provide the list.
---     OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '', -- Arbitrary text, anything else they might request
---     FollowUpDate DATE NOT NULL DEFAULT,                 -- automatically fill out this date to sysdate + 24hrs
---     CSAgent BIGINT NOT NULL DEFAULT 0,                  -- Accord Directory UserID - for the CSAgent 
---     OutcomeSLID BIGINT NOT NULL DEFAULT '',             -- id of string from a list of outcomes. Melissa to provide reasons
---     FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0 , --  d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement 
---     RAID BIGINT NOT NULL DEFAULT 0,                     -- created to hold On Account amount of Floating Deposit
--- --new
--- 
--- 
--- --new
+-- --new  Custom Fields
 -- NumberBedrooms -- SMALLINT NOT NULL DEFAULT 0,  This is unique to a room or residence. bedroom count
 -- NumberOfPets   -- SMALLINT NOT NULL DEFAULT 0,    This is unique to a room or residence. may just add to formal pet schema
 -- NumberOfPeople -- SMALLINT NOT NULL DEFAULT 0,  This is unique to a room or residence. count of people who will be living in the unit
@@ -551,8 +576,7 @@ CREATE TABLE Prospect (
 --   USER
 -- ===========================================
 CREATE TABLE User (
-    USERID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id of this User
-    TCID BIGINT NOT NULL,                                       -- associated Transactant
+    TCID BIGINT NOT NULL DEFAULT 0,                                       -- associated Transactant
     Points BIGINT NOT NULL DEFAULT 0,                           -- bonus points for this User
     CarMake VARCHAR(100) NOT NULL DEFAULT '',
     CarModel VARCHAR(100) NOT NULL DEFAULT '',
@@ -572,22 +596,22 @@ CREATE TABLE User (
     DSID BIGINT NOT NULL DEFAULT 0,                               -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP,                                       -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (USERID)
+    PRIMARY KEY (TCID)
 );
 
 -- ===========================================
 --   PAYOR
 -- ===========================================
 CREATE TABLE Payor  (
-    PID BIGINT NOT NULL AUTO_INCREMENT,                         -- unique id of this Payor
-    TCID BIGINT NOT NULL,                                       -- associated Transactant
+    -- PID BIGINT NOT NULL DEFAULT 0,                         -- unique id of this Payor 
+    TCID BIGINT NOT NULL DEFAULT 0,                                       -- associated Transactant
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AccountRep BIGINT NOT NULL DEFAULT 0,                       -- Phonebook UID of account rep
     EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,            -- yes/no
     LastModTime TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (PID)
+    PRIMARY KEY (TCID)
 );
 
 -- **************************************
@@ -628,7 +652,7 @@ CREATE TABLE ReceiptAllocation (
 -- **************************************
 CREATE TABLE DepositMethod (
     DPMID BIGINT NOT NULL AUTO_INCREMENT, 
-    BID BIGINT NOT NULL DEFAULT 0,                              -- which busines
+    BID BIGINT NOT NULL DEFAULT 0,                              -- which business
     Name VARCHAR(50) NOT NULL DEFAULT '',                       -- 0 = not specified, 1 = Hand Delivery, Scanned Batch, CC Shift 4, CC NAYAX, ACH, US Mail
     PRIMARY KEY (DPMID)
 );

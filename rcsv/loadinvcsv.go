@@ -141,7 +141,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 	for i := 0; i < len(t); i++ {
 		var a rlib.InvoicePayor
 		a.InvoiceNo = id
-		a.PID = t[i].PID
+		a.PID = t[i].TCID
 		err = rlib.InsertInvoicePayor(&a)
 		if nil != err {
 			fmt.Printf("%s: line %d -  error inserting invoice payor: %v\n", funcname, lineno, err)

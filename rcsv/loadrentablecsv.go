@@ -66,7 +66,7 @@ func CreateRentables(sa []string, lineno int) {
 	if len(des) > 0 {
 		b1, _ := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d - rlib.Business with bud %s does not exist\n", funcname, lineno, des)
+			rlib.Ulog("%s: line %d - Business with bud %s does not exist\n", funcname, lineno, des)
 			return
 		}
 		r.BID = b1.BID
@@ -86,7 +86,7 @@ func CreateRentables(sa []string, lineno int) {
 		}
 	}
 	if r1.RID > 0 {
-		fmt.Printf("%s: lineno %d - rlib.Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, r.Name)
+		fmt.Printf("%s: lineno %d - Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, r.Name)
 		return
 	}
 
@@ -122,18 +122,18 @@ func CreateRentables(sa []string, lineno int) {
 
 			var ru rlib.RentableUser // struct for the data in this 3-tuple
 			name := strings.TrimSpace(ss[0])
-			t, err := rlib.GetTransactantByPhoneOrEmail(name)
-			if err != nil && !rlib.IsSQLNoResultsError(err) {
-				rerr := fmt.Sprintf("%s: line %d - error retrieving rlib.Transactant by phone or email: %v", funcname, lineno, err)
+			t := rlib.GetTransactantByPhoneOrEmail(name)
+			// if err != nil && !rlib.IsSQLNoResultsError(err) {
+			// 	rerr := fmt.Sprintf("%s: line %d - error retrieving rlib.Transactant by phone or email: %v", funcname, lineno, err)
+			// 	fmt.Printf("%s", rerr)
+			// 	return
+			// }
+			if t.TCID == 0 {
+				rerr := fmt.Sprintf("%s: line %d - could not find Transactant with contact information %s\n", funcname, lineno, name)
 				fmt.Printf("%s", rerr)
 				return
 			}
-			if t.PID == 0 {
-				rerr := fmt.Sprintf("%s: line %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, name)
-				fmt.Printf("%s", rerr)
-				return
-			}
-			ru.USERID = t.USERID
+			ru.TCID = t.TCID
 
 			ru.DtStart, ru.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 			if err != nil {

@@ -5,6 +5,9 @@ SCRIPTLOG="f.log"
 APP="${RRBIN}/rentroll -A"
 MYSQLOPTS=""
 UNAME=$(uname)
+BUD="REX"
+RENTROLL="${APP}"
+CSVLOAD="${RRBIN}/rrloadcsv"
 
 TESTCOUNT=0
 
@@ -18,7 +21,7 @@ fi
 ########################################
 ${RRBIN}/rrnewdb
 
-./newbiz -b nb.csv -l strlists.csv -R rt.csv -u custom.csv -d depository.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv -m depmeth.csv -y deposit.csv -S sources.csv >log 2>&1
+./newbiz -b nb.csv -f rprefs.csv -n rprtrate.csv -t rpsprate.csv -l strlists.csv -R rt.csv -u custom.csv -d depository.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -a rp.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv -m depmeth.csv -y deposit.csv -S sources.csv >log 2>&1
 
 ########################################
 # dotest()
@@ -54,24 +57,155 @@ EOF
 	fi
 }
 
+
+#############################################################################
+# pause()
+#   Description:
+#		Wait for user to press a key before continuing
+#############################################################################
+pause() {
+	read -p "Press [Enter] to continue,  Q or X to quit..." x
+	x=$(echo "${x}" | tr "[:upper:]" "[:lower:]")
+	if [ ${x} == "q" -o ${x} == "x" ]; then
+		exit 0
+	fi
+}
+
+csvload() {
+	echo "command is:  ${CSVLOAD} ${1}"
+	${CSVLOAD} ${1}
+}
+
+app() {
+	echo "command is:  ${RENTROLL} -j 2016-03-01 -k 2016-04-01 ${1}"
+	${RENTROLL} -j "2016-03-01" -k "2016-04-01" ${1}
+}
+#############################################################################
+# doReport()
+#   Description:
+#		Run database reports based on user selection
+#############################################################################
+doReport () {
+while :
+do
+	clear
+	cat <<EOF
+-----------------------------------------
+   R E N T R O L L  --  R E P O R T S
+-----------------------------------------
+A)   Assessments
+B)   Business
+C)   Chart of Accounts
+CA)  Custom Attributes
+DY)  Depositories 
+I)   Invoice
+IR)  Invoice Report
+J)   Journal
+L)   Ledger
+LA)  Ledger Activity
+LB)  Ledger Balance
+NT)  Note Types
+P)   People
+PE)  Pets
+PT)  Payment Types
+R)   Receipts
+RA)  Rental Agreements
+RC)  Rentable Count by Rentable Type
+RE)  Rentables
+RP)  RatePlans
+RPR) RatePlanRef
+RS)  Rentable Specialty Assignments
+RT)  Rentable Types
+S)   Rentable Specialties
+T)   Rental Agreement Templates
+U)   Custom Attribute Assignments
+
+
+X) Exit
+
+input is case insensitive
+EOF
+
+	read -p "Enter choice: " choice
+	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
+	case ${choice} in
+		 ir) app "-r 9,IN00001" ;;
+		  j) app "-r 1" ;;
+		  l) app "-r 2" ;;
+		 la) app "-r 10" ;;
+		 lb) app "-r 6" ;;
+		  a) csvload "-L 11,${BUD}" ;;
+		  b) csvload "-L 3" ;;
+		  c) csvload "-L 10,${BUD}" ;;
+		 ca) csvload "-L 14" ;;
+		 dy) csvload "-L 18,${BUD}" ;;
+		  i) csvload "-L 20,${BUD}" ;;
+		 nt) csvload "-L 17,${BUD}" ;;
+		  p) csvload "-L 7,${BUD}" ;;
+		 pe) csvload "-L 16,RA0002" ;;
+		 pt) csvload "-L 12,${BUD}" ;;
+		  r) csvload "-L 13,${BUD}" ;;
+		 ra) csvload "-L 9,${BUD}" ;;
+		 rc) app "-r 7" ;;
+		 re) csvload "-L 6,${BUD}" ;;
+		 rp) csvload "-L 26,REX" ;;
+		rpr) csvload "-L 27,REX" ;;
+		 rs) csvload "-L 22,${BUD}" ;;
+		 rt) csvload "-L 5,${BUD}" ;;
+		  s) csvload "-L 21,${BUD}" ;;
+		  t) csvload "-L 8" ;;
+		  u) csvload "-L 15" ;;
+		  x)	exit 0 ;;
+		  *)	echo "Unknown report: ${choice}"
+	esac
+	pause
+done
+}
+
+
+usage() {
+	cat <<EOF
+functest.sh - test script and report utility
+	run this command with no options to perform the test
+	run this command with -r or -R to bring up the report interface
+EOF
+}
+
+#--------------------------------------------------------------------------
+#  Look at the command line options first
+#--------------------------------------------------------------------------
+while getopts "rR:" o; do
+	case "${o}" in
+		r | R)
+			doReport
+			exit 0
+			;;
+		*) 	usage
+			exit 1
+			;;
+	esac
+done
+shift $((OPTIND-1))
+
+
 rm -f ${ERRFILE}
 dotest "x"  "-b nb.csv"           "NewBusinesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
 dotest "x1" "-l strlists.csv"     "StringLists...  " "select SLID,BID,Name,LastModBy from StringList;"
-dotest "x2" "-l strlists.csv"     "SLString...  " "select * from SLString;"
+dotest "x2" "-l strlists.csv"     "SLString...  " "select SLSID,SLID,Value,LastModBy from SLString;"
 dotest "z"  "-R rt.csv"           "RentableTypes...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModBy from RentableTypes;"
 dotest "w"  "-R rt.csv"           "RentableMarketRates...  " "select * from RentableMarketrate;"
 dotest "b1" "-m depmeth.csv"      "Deposit Methods...  " "select * from DepositMethod;"
 dotest "s1" "-S sources.csv"      "Sources...  " "select DSID,BID,Name,Industry from DemandSource;"
-dotest "v"  "-s specialties.csv"  "RentableSpecialtyTypes...  " "select * from RentableSpecialtyType;"
+dotest "v"  "-s specialties.csv"  "RentableSpecialtyTypes...  " "select * from RentableSpecialty;"
 dotest "u"  "-D bldg.csv"         "Buildings...  " "select BLDGID,BID,Address,Address2,City,State,PostalCode,Country,LastModBy from Building;"
 dotest "c"  "-d depository.csv"   "Depositories...  " "select DEPID,BID,Name,AccountNo,LastModBy from Depository;"
 dotest "t"  "-r rentable.csv"     "Rentables...  " "select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
 dotest "t1" "-r rentable.csv"     "RentableTypeRef...  " "select RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 dotest "t2" "-r rentable.csv"     "RentableStatus...  " "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
-dotest "s"  "-p people.csv"       "Transactants...  " "select TCID,USERID,PID,PRSPID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
-dotest "r"  "-p people.csv"       "Users...  " "select USERID,TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,DSID from User;"
-dotest "q"  "-p people.csv"       "Payors...  " "select PID,TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
-dotest "p"  "-p people.csv"       "Prospects...  " "select PRSPID,TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
+dotest "s"  "-p people.csv"       "Transactants...  " "select TCID,BID,FirstName,MiddleName,LastName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,LastModBy from Transactant;"
+dotest "r"  "-p people.csv"       "Users...  " "select TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,DSID from User;"
+dotest "q"  "-p people.csv"       "Payors...  " "select TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
+dotest "p"  "-p people.csv"       "Prospects...  " "select TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
 dotest "o"  "-T rat.csv"          "RentalAgreementTemplates...  " "select RATID,BID,RentalTemplateNumber,LastModBy from RentalAgreementTemplate;"
 dotest "n"  "-C ra.csv"           "RentalAgreements...  " "select RAID,RATID,BID,AgreementStart,AgreementStop,Renewal,SpecialProvisions,LastModBy from RentalAgreement;"
 dotest "n1" "-E pet.csv"          "Pets...  " "select PETID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from RentalAgreementPets;"
@@ -80,6 +214,10 @@ dotest "m"  "-C ra.csv"           "AgreementRentables...  " "select * from Renta
 dotest "l"  "-C ra.csv"           "AgreementPayors...  " "select * from RentalAgreementPayors;"
 dotest "k"  "-c coa.csv"          "ChartOfAccounts...  " "select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
 dotest "k1" "-c coa.csv"          "LedgerMarkers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from LedgerMarker;"
+dotest "a"  "-c rp.csv"           "RatePlan...  " "select RPID,BID,Name,LastModBy from RatePlan;"
+dotest "a1" "-c rprefs.csv"       "RatePlanRef...  " "select RPRID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"
+dotest "a2" "-n rprtrate.csv"     "RatePlanRefRTRate...  " "select * from RatePlanRefRTRate;"
+dotest "a3" "-t rpsprate.csv"     "RatePlanRefSPRate...  " "select * from RatePlanRefSPRate;"
 dotest "j"  "-A asmt.csv"         "Assessments...  " "select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
 dotest "i"  "-P pmt.csv"          "PaymentTypes...  " "select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
 dotest "h"  "-e rcpt.csv"         "PaymentAllocations...  " "select * from ReceiptAllocation order by Amount ASC;"

@@ -22,10 +22,12 @@ const (
 	ELEMPROSPECT     = 7 // Transactant, Prospect, Applicant, Payor, User
 	ELEMLAST         = 7 // keep in sync with last one added
 
+	// CUSTSTRING et al are Custom Attribute types
 	CUSTSTRING = 0
 	CUSTINT    = 1
-	CUSTFLOAT  = 2
-	CUSTLAST   = 2 // this should be maintained as matching the highest index value in the group
+	CUSTUINT   = 2
+	CUSTFLOAT  = 3
+	CUSTLAST   = 3 // this should be maintained as matching the highest index value in the group
 
 	RENT                      = 1
 	SECURITYDEPOSIT           = 2
@@ -132,25 +134,28 @@ const (
 // RID = Rentable id
 // RSPID = unit specialty id
 // RTID = Rentable type id
-// TCID = Transactant id
+// TCID = Transactant id == PayorID == UserID == ProspectID
 //==========================================
 
 // StringList is a generic list structure for lists of strings. These could be used to implement things like
 // the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
 // moving out, etc.
 type StringList struct {
-	SLID        int64     // unique id for this stringlist
-	BID         int64     // the business to which this stringlist belongs
-	Name        string    // stringlist name
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
-	S           []string  // the actual string values from the SLStrings table associated with this SLID
+	SLID        int64      // unique id for this stringlist
+	BID         int64      // the business to which this stringlist belongs
+	Name        string     // stringlist name
+	LastModTime time.Time  // when was this record last written
+	LastModBy   int64      // employee UID (from phonebook) that modified it
+	S           []SLString // array of SLStrings associated with this SLID
 }
 
-// SLStrings defines an individual string member of a StringList
-type SLStrings struct {
-	SLID  int64  // to which stringlist does this string belong?
-	Value string // value of this string
+// SLString defines an individual string member of a StringList
+type SLString struct {
+	SLSID       int64     // unique id of this string
+	SLID        int64     // to which stringlist does this string belong?
+	Value       string    // value of this string
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
 }
 
 // NoteType describes the type of note this is
@@ -208,11 +213,95 @@ type CustomAttributeRef struct {
 
 // RentalAgreementTemplate is a template used to set up new rental agreements
 type RentalAgreementTemplate struct {
-	RATID                int64
-	BID                  int64
-	RentalTemplateNumber string // RentalTemplateNumber a string associated with each rental type agreement (essentially, the doc name)
-	LastModTime          time.Time
-	LastModBy            int64
+	RATID                int64     // unique id for this rate plan
+	BID                  int64     // which business
+	RentalTemplateNumber string    // RentalTemplateNumber a string associated with each rental type agreement (essentially, the doc name)
+	LastModTime          time.Time // when was this record last written
+	LastModBy            int64     // employee UID (from phonebook) that modified it
+}
+
+// RatePlan is a structure of static attributes of a rate plan, which describes charges for rentable types, varying by customer
+type RatePlan struct {
+	RPID        int64               // unique id for this rate plan
+	BID         int64               // Business
+	Name        string              // The name of this RatePlan
+	LastModTime time.Time           // when was this record last written
+	LastModBy   int64               // employee UID (from phonebook) that modified it
+	OD          []OtherDeliverables // other Deliverables associated with the rate plan
+}
+
+// FlRatePlanGDS and the others are bit flags for the RatePlan custom attribute: FLAGS
+const (
+	FlRatePlanGDS   = 1 << 0 // RatePlan - bit 00 export to GDS
+	FlRatePlanSabre = 1 << 1 // RatePlan - bit 01 export to Sabre
+)
+
+// RatePlanRef contains the time sensitive attributes of a RatePlan
+type RatePlanRef struct {
+	RPRID             int64               // unique id for this ref
+	RPID              int64               // which rate plan
+	DtStart           time.Time           // when does it go into effect
+	DtStop            time.Time           // when does it stop
+	FeeAppliesAge     int64               // the age at which a user is counted when determining extra user fees or eligibility for rental
+	MaxNoFeeUsers     int64               // maximum number of users for no fees. Greater than this number means fee applies
+	AdditionalUserFee float64             // extra fee per user when exceeding MaxNoFeeUsers
+	PromoCode         string              // just a string
+	CancellationFee   float64             // charge for cancellation
+	FLAGS             uint64              // 1<<0 -- HideRate
+	LastModTime       time.Time           // when was this record last written
+	LastModBy         int64               // employee UID (from phonebook) that modified it
+	RT                []RatePlanRefRTRate // all associated RentableType Rates
+	SP                []RatePlanRefSPRate // all associated RentableSpecialtyType Rates
+}
+
+// FlRTRRefHide and the others are bit flags for the RatePlanRef
+const (
+	FlRTRRefHide = 1 << 0 // do not show this rate plan to users
+)
+
+// RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
+type RatePlanRefRTRate struct {
+	RPRID int64   // which RatePlanRef is this
+	RTID  int64   // which RentableType
+	FLAGS uint64  // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+	Val   float64 // Val
+}
+
+// FlRTRpct and the others are bit flags for the RatePlanRefRTRate
+const (
+	FlRTRpct = 1 << 0 // bit 0 = percent flag. 0 means it's an absolute amount, 1 means it's a % of Market Rate
+	FlRTRna  = 1 << 1 // bit 1 = n/a flag, 0 means that this RTID is affected, 1 means it is not affected
+)
+
+// RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
+type RatePlanRefSPRate struct {
+	RPRID int64   // which RatePlanRef is this
+	RTID  int64   // which RentableType
+	RSPID int64   // which Specialty
+	FLAGS uint64  // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+	Val   float64 // Val
+}
+
+// FlSPRpct and the others are bit flags for the RatePlanRefSPRate
+const (
+	FlSPRpct = 1 << 0 // bit 0 = percent flag. 0 means it's an absolute amount, 1 means it's a % of Market Rate
+	FlSPRna  = 1 << 1 // bit 1 = n/a flag, 0 means that this RTID is affected, 1 means it is not affected
+)
+
+// RatePlanOD defines which other deliverables are associated with a RatePlan.
+// A RatePlan can refer to multiple OtherDeliverables.
+type RatePlanOD struct {
+	RPRID int64 // with which RatePlan is this OtherDeliverable associated?
+	ODID  int64 // points to an OtherDeliverables
+}
+
+// OtherDeliverables defines special offers associated with RatePlanRefs. These are for promotions. Examples of OtherDeliverables
+// would include things like 2 Seaworld tickets, etc.  Referenced by RatePlanRef
+// Multiple RatePlanRefs can refer to the same OtherDeliverables.
+type OtherDeliverables struct {
+	ODID   int64  // Unique ID for this OtherDeliverables
+	Name   string // Description of the other deliverables. Ex: 2 Seaworld tickets
+	Active int64  // Flag: Is this list still active?  dropdown interface lists only the active ones
 }
 
 // RentalAgreement binds one or more payors to one or more rentables
@@ -249,7 +338,7 @@ type RentalAgreementRentable struct {
 // RentalAgreementPayor describes a Payor associated with a rental agreement
 type RentalAgreementPayor struct {
 	RAID    int64
-	PID     int64
+	TCID    int64
 	DtStart time.Time // start date/time for this Payor
 	DtStop  time.Time // stop date/time
 }
@@ -257,7 +346,7 @@ type RentalAgreementPayor struct {
 // RentableUser describes a User associated with a rental agreement
 type RentableUser struct {
 	RID     int64     // associated Rentable
-	USERID  int64     // pointer to Transactant
+	TCID    int64     // pointer to Transactant
 	DtStart time.Time // start date/time for this User
 	DtStop  time.Time // stop date/time (when this person stopped being a User)
 }
@@ -291,9 +380,7 @@ type DemandSource struct {
 // about a person who is a Prospect, applicant, User, or Payor
 type Transactant struct {
 	TCID           int64
-	USERID         int64
-	PID            int64
-	PRSPID         int64
+	BID            int64
 	NLID           int64
 	FirstName      string
 	MiddleName     string
@@ -318,24 +405,35 @@ type Transactant struct {
 
 // Prospect contains info over and above
 type Prospect struct {
-	PRSPID                int64
-	TCID                  int64
-	EmployerName          string
-	EmployerStreetAddress string
-	EmployerCity          string
-	EmployerState         string
-	EmployerPostalCode    string
-	EmployerEmail         string
-	EmployerPhone         string
-	Occupation            string
-	ApplicationFee        float64 // if non-zero this Prospect is an applicant
-	LastModTime           time.Time
-	LastModBy             int64
+	// PRSPID                 int64
+	TCID                   int64
+	EmployerName           string
+	EmployerStreetAddress  string
+	EmployerCity           string
+	EmployerState          string
+	EmployerPostalCode     string
+	EmployerEmail          string
+	EmployerPhone          string
+	Occupation             string
+	ApplicationFee         float64   // if non-zero this Prospect is an applicant
+	DesiredMoveInDate      time.Time // predicted rent start date
+	RentableTypePreference int64     // RentableType
+	FLAGS                  uint64    // 0 = Approved/NotApproved,
+	Approver               int64     // UID from Directory
+	DeclineReasonSLSID     int64     // SLSid of reason
+	OtherPreferences       string    // arbitrary text
+	FollowUpDate           time.Time // automatically fill out this date to sysdate + 24hrs
+	CSAgent                int64     // Accord Directory UserID - for the CSAgent
+	OutcomeSLSID           int64     // id of string from a list of outcomes. Melissa to provide reasons
+	FloatingDeposit        float64   // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
+	RAID                   int64     // created to hold On Account amount of Floating Deposit
+	LastModTime            time.Time
+	LastModBy              int64
 }
 
 // User contains all info common to a person
 type User struct {
-	USERID                    int64
+	// USERID                    int64
 	TCID                      int64
 	Points                    int64
 	CarMake                   string
@@ -361,7 +459,7 @@ type User struct {
 // Payor is attributes of the person financially responsible
 // for the rent.
 type Payor struct {
-	PID                 int64
+	// PID                 int64
 	TCID                int64
 	CreditLimit         float64
 	TaxpayorID          string
@@ -529,8 +627,8 @@ type InvoicePayor struct {
 	PID       int64 // Payor ID
 }
 
-// RentableSpecialtyType is the structure for attributes of a Rentable specialty
-type RentableSpecialtyType struct {
+// RentableSpecialty is the structure for attributes of a Rentable specialty
+type RentableSpecialty struct {
 	RSPID       int64
 	BID         int64
 	Name        string
@@ -599,7 +697,7 @@ type RentCycleRef struct {
 	ProrationCycle int64     // Proration during DtStart-DtStop
 }
 
-// RentableSpecialtyRef is the time-based RentableSpecialtyType attribute
+// RentableSpecialtyRef is the time-based RentableSpecialty attribute
 type RentableSpecialtyRef struct {
 	BID         int64     // associated business
 	RID         int64     // the Rentable to which this record belongs
@@ -623,8 +721,8 @@ type RentableStatus struct {
 // XBusiness combines the Business struct and a map of the Business's Rentable types
 type XBusiness struct {
 	P  Business
-	RT map[int64]RentableType          // what types of things are rented here
-	US map[int64]RentableSpecialtyType // index = RSPID, val = RentableSpecialtyType
+	RT map[int64]RentableType      // what types of things are rented here
+	US map[int64]RentableSpecialty // index = RSPID, val = RentableSpecialty
 }
 
 // XRentable is the structure that includes both the Rentable and Unit attributes
@@ -727,8 +825,8 @@ type RRprepSQL struct {
 	DeleteDemandSource                       *sql.Stmt
 	DeleteDeposit                            *sql.Stmt
 	DeleteDepositMethod                      *sql.Stmt
-	DeleteDepositParts                       *sql.Stmt
 	DeleteDepository                         *sql.Stmt
+	DeleteDepositParts                       *sql.Stmt
 	DeleteInvoice                            *sql.Stmt
 	DeleteInvoiceAssessments                 *sql.Stmt
 	DeleteInvoicePayors                      *sql.Stmt
@@ -747,14 +845,17 @@ type RRprepSQL struct {
 	DeleteRentableStatus                     *sql.Stmt
 	DeleteRentableTypeRef                    *sql.Stmt
 	DeleteRentalAgreementPet                 *sql.Stmt
+	DeleteSLString                           *sql.Stmt
+	DeleteSLStrings                          *sql.Stmt
+	DeleteStringList                         *sql.Stmt
 	FindAgreementByRentable                  *sql.Stmt
 	FindTransactantByPhoneOrEmail            *sql.Stmt
 	GetAgreementsForRentable                 *sql.Stmt
 	GetAllAssessmentsByBusiness              *sql.Stmt
 	GetAllAssessmentsByRAID                  *sql.Stmt
+	GetAllBusinesses                         *sql.Stmt
 	GetAllBusinessRentableTypes              *sql.Stmt
 	GetAllBusinessSpecialtyTypes             *sql.Stmt
-	GetAllBusinesses                         *sql.Stmt
 	GetAllDemandSources                      *sql.Stmt
 	GetAllDepositMethods                     *sql.Stmt
 	GetAllDepositories                       *sql.Stmt
@@ -763,16 +864,17 @@ type RRprepSQL struct {
 	GetAllJournalsInRange                    *sql.Stmt
 	GetAllLedgerEntriesInRange               *sql.Stmt
 	GetAllLedgerMarkersInRange               *sql.Stmt
-	GetAllNoteTypes                          *sql.Stmt
 	GetAllNotes                              *sql.Stmt
+	GetAllNoteTypes                          *sql.Stmt
 	GetAllRentableAssessments                *sql.Stmt
-	GetAllRentableSpecialtyRefs              *sql.Stmt
 	GetAllRentablesByBusiness                *sql.Stmt
+	GetAllRentableSpecialtyRefs              *sql.Stmt
 	GetAllRentalAgreementPets                *sql.Stmt
-	GetAllRentalAgreementTemplates           *sql.Stmt
 	GetAllRentalAgreements                   *sql.Stmt
 	GetAllRentalAgreementsByRange            *sql.Stmt
+	GetAllRentalAgreementTemplates           *sql.Stmt
 	GetAllSingleInstanceAssessments          *sql.Stmt
+	GetAllStringLists                        *sql.Stmt
 	GetAllTransactants                       *sql.Stmt
 	GetAssessment                            *sql.Stmt
 	GetAssessmentType                        *sql.Stmt
@@ -788,8 +890,8 @@ type RRprepSQL struct {
 	GetDeposit                               *sql.Stmt
 	GetDepositMethod                         *sql.Stmt
 	GetDepositMethodByName                   *sql.Stmt
-	GetDepositParts                          *sql.Stmt
 	GetDepository                            *sql.Stmt
+	GetDepositParts                          *sql.Stmt
 	GetInvoice                               *sql.Stmt
 	GetInvoiceAssessments                    *sql.Stmt
 	GetInvoicePayors                         *sql.Stmt
@@ -845,6 +947,10 @@ type RRprepSQL struct {
 	GetRentalAgreementRentables              *sql.Stmt
 	GetRentalAgreementTemplate               *sql.Stmt
 	GetSecurityDepositAssessment             *sql.Stmt
+	GetSLString                              *sql.Stmt
+	GetSLStrings                             *sql.Stmt
+	GetStringList                            *sql.Stmt
+	GetStringListByName                      *sql.Stmt
 	GetTransactant                           *sql.Stmt
 	GetUnitAssessments                       *sql.Stmt
 	GetUser                                  *sql.Stmt
@@ -858,8 +964,8 @@ type RRprepSQL struct {
 	InsertDemandSource                       *sql.Stmt
 	InsertDeposit                            *sql.Stmt
 	InsertDepositMethod                      *sql.Stmt
-	InsertDepositPart                        *sql.Stmt
 	InsertDepository                         *sql.Stmt
+	InsertDepositPart                        *sql.Stmt
 	InsertInvoice                            *sql.Stmt
 	InsertInvoiceAssessment                  *sql.Stmt
 	InsertInvoicePayor                       *sql.Stmt
@@ -891,6 +997,8 @@ type RRprepSQL struct {
 	InsertRentalAgreementPet                 *sql.Stmt
 	InsertRentalAgreementRentable            *sql.Stmt
 	InsertRentalAgreementTemplate            *sql.Stmt
+	InsertSLString                           *sql.Stmt
+	InsertStringList                         *sql.Stmt
 	InsertTransactant                        *sql.Stmt
 	InsertUser                               *sql.Stmt
 	UpdateAssessment                         *sql.Stmt
@@ -903,20 +1011,38 @@ type RRprepSQL struct {
 	UpdateLedgerMarker                       *sql.Stmt
 	UpdateNote                               *sql.Stmt
 	UpdateNoteType                           *sql.Stmt
+	UpdateProspect                           *sql.Stmt
 	UpdateRentableSpecialtyRef               *sql.Stmt
 	UpdateRentableStatus                     *sql.Stmt
 	UpdateRentableTypeRef                    *sql.Stmt
 	UpdateRentalAgreementPet                 *sql.Stmt
-	UpdateTransactant                        *sql.Stmt
-	DeleteStringList                         *sql.Stmt
-	InsertStringList                         *sql.Stmt
+	UpdateSLString                           *sql.Stmt
 	UpdateStringList                         *sql.Stmt
-	GetStringList                            *sql.Stmt
-	GetAllStringLists                        *sql.Stmt
-	GetStringListByName                      *sql.Stmt
-	DeleteSLStrings                          *sql.Stmt
-	InsertSLString                           *sql.Stmt
-	GetSLStrings                             *sql.Stmt
+	UpdateTransactant                        *sql.Stmt
+	GetRatePlan                              *sql.Stmt
+	GetAllRatePlans                          *sql.Stmt
+	GetRatePlanByName                        *sql.Stmt
+	DeleteRatePlan                           *sql.Stmt
+	InsertRatePlan                           *sql.Stmt
+	ReadRatePlan                             *sql.Stmt
+	UpdateRatePlan                           *sql.Stmt
+	GetRatePlanRef                           *sql.Stmt
+	DeleteRatePlanRef                        *sql.Stmt
+	InsertRatePlanRef                        *sql.Stmt
+	ReadRatePlanRef                          *sql.Stmt
+	UpdateRatePlanRef                        *sql.Stmt
+	GetAllRatePlanRefsInRange                *sql.Stmt
+	GetRatePlanRefsInRange                   *sql.Stmt
+	GetRatePlanRefRTRate                     *sql.Stmt
+	GetAllRatePlanRefRTRates                 *sql.Stmt
+	InsertRatePlanRefRTRate                  *sql.Stmt
+	UpdateRatePlanRefRTRate                  *sql.Stmt
+	DeleteRatePlanRefRTRate                  *sql.Stmt
+	GetRatePlanRefSPRate                     *sql.Stmt
+	GetAllRatePlanRefSPRates                 *sql.Stmt
+	InsertRatePlanRefSPRate                  *sql.Stmt
+	UpdateRatePlanRefSPRate                  *sql.Stmt
+	DeleteRatePlanRefSPRate                  *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

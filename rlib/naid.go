@@ -42,6 +42,20 @@ func (a *Receipt) IDtoString() string {
 }
 
 //-------------------------------------------------
+//  RATE PLAN
+//-------------------------------------------------
+
+// IDtoString for RatePlans returns a unique identifier string.
+func (t *RatePlan) IDtoString() string {
+	return fmt.Sprintf("RP%08d", t.RPID)
+}
+
+// IDtoString for RatePlanRefs returns a unique identifier string.
+func (t *RatePlanRef) IDtoString() string {
+	return fmt.Sprintf("RPR%08d", t.RPRID)
+}
+
+//-------------------------------------------------
 //  RENTAL AGREEMENT
 //-------------------------------------------------
 
@@ -54,9 +68,14 @@ func (t *RentalAgreement) IDtoString() string {
 //  RENTABLE SPECIALTY
 //-------------------------------------------------
 
-// IDtoString for RentalAgreements returns a unique identifier string.
-func (t *RentableSpecialtyType) IDtoString() string {
+// IDtoString for RentableSpecialty returns a unique identifier string.
+func (t *RentableSpecialty) IDtoString() string {
 	return fmt.Sprintf("RSP%08d", t.RSPID)
+}
+
+// IDtoString for RentableType returns a unique identifier string.
+func (t *RentableType) IDtoString() string {
+	return fmt.Sprintf("RT%08d", t.RTID)
 }
 
 // GetUserNameList returns an array of strings with all the User names associated with the Rentable
@@ -65,7 +84,7 @@ func (t *RentalAgreement) GetUserNameList(d1, d2 *time.Time) []string {
 	users := GetRentableUsers(t.RAID, d1, d2) // get all defined renters for this period
 	for i := 0; i < len(users); i++ {
 		var tr Transactant
-		GetTransactant(users[i].USERID, &tr)
+		GetTransactant(users[i].TCID, &tr)
 		m = append(m, tr.GetUserName())
 	}
 	return m
@@ -77,7 +96,7 @@ func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
 	payors := GetRentalAgreementPayors(t.RAID, d1, d2) // get all defined renters for this period
 	for i := 0; i < len(payors); i++ {
 		var tr Transactant
-		GetTransactant(payors[i].PID, &tr)
+		GetTransactant(payors[i].TCID, &tr)
 		m = append(m, tr.GetUserName())
 	}
 	return m

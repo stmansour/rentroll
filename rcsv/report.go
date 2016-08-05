@@ -42,8 +42,13 @@ func RRreportBusiness(t int) string {
 }
 
 // ReportRentableTypeToText returns a string representation of the supplied rlib.RentableType suitable for a text report
-func ReportRentableTypeToText(p rlib.RentableType) string {
-	return fmt.Sprintf("%4d - %s  -  %s\n", p.RTID, p.Style, p.Name)
+func ReportRentableTypeToText(p *rlib.RentableType) string {
+	s := fmt.Sprintf("%-10s  %-20s  %-25s", p.IDtoString(), p.Style, p.Name)
+	for i := 0; i < len(p.MR); i++ {
+		s += fmt.Sprintf("  |  %10s - %10s $ %8.2f", p.MR[i].DtStart.Format(rlib.RRDATEFMT4), p.MR[i].DtStop.Format(rlib.RRDATEFMT4), p.MR[i].MarketRate)
+	}
+	s += "\n"
+	return s
 }
 
 // ReportRentableTypeToHTML returns a string representation of the supplied rlib.RentableType suitable for HTML display
@@ -59,18 +64,16 @@ func RRreportRentableTypes(t int, bid int64) string {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
-	s := fmt.Sprintf("RTID   Style      Name\n")
+	s := fmt.Sprintf("%-10s  %-20s  %-25s  %s\n", "RTID", "Style", "Name", "Dt1 - Dt2 : Rate")
+	s += fmt.Sprintf("%-10s  %-20s  %-25s  %s\n", "----", "-----", "----", "----------------")
 
 	// To perform the opertion you want
 	for _, k := range keys {
 		i := int64(k)
-		// 	fmt.Println("Key:", k, "Value:", m[k])
-		// }
-
-		// for _, v := range m {
+		p := m[i]
 		switch t {
 		case rlib.RPTTEXT:
-			s += ReportRentableTypeToText(m[i])
+			s += ReportRentableTypeToText(&p)
 		case rlib.RPTHTML:
 			s += ReportRentableTypeToHTML(m[i])
 		default:
@@ -118,14 +121,14 @@ func RRreportRentables(t int, bid int64) string {
 
 // ReportXPersonToText returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToText(p *rlib.XPerson) string {
-	return fmt.Sprintf("%5d  %5d  %5d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
-		p.Trn.TCID, p.Tnt.USERID, p.Pay.PID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
+	return fmt.Sprintf("TC%08d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
+		p.Trn.TCID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
 }
 
 // ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
 func ReportXPersonToHTML(p *rlib.XPerson) string {
-	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%5d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
-		p.Trn.TCID, p.Tnt.USERID, p.Pay.PID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
+	return fmt.Sprintf("<tr><td>TC%08d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
+		p.Trn.TCID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
@@ -133,12 +136,10 @@ func RRreportPeople(t int) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllTransactants.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("%5s  %5s  %5s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "USERID", "PID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
+	s := fmt.Sprintf("%10s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
 	for rows.Next() {
 		var p rlib.XPerson
-		rlib.Errcheck(rows.Scan(&p.Trn.TCID, &p.Trn.USERID, &p.Trn.PID, &p.Trn.PRSPID, &p.Trn.NLID, &p.Trn.FirstName, &p.Trn.MiddleName, &p.Trn.LastName, &p.Trn.PreferredName,
-			&p.Trn.CompanyName, &p.Trn.IsCompany, &p.Trn.PrimaryEmail, &p.Trn.SecondaryEmail, &p.Trn.WorkPhone, &p.Trn.CellPhone, &p.Trn.Address, &p.Trn.Address2,
-			&p.Trn.City, &p.Trn.State, &p.Trn.PostalCode, &p.Trn.Country, &p.Trn.Website, &p.Trn.LastModTime, &p.Trn.LastModBy))
+		rlib.ReadTransactants(rows, &p.Trn)
 		rlib.GetXPerson(p.Trn.TCID, &p)
 		switch t {
 		case rlib.RPTTEXT:
@@ -713,19 +714,134 @@ func RRreportStringLists(t int, bid int64) string {
 
 	for i := 0; i < len(m); i++ {
 		s += fmt.Sprintf("String List Name:  %s\n", m[i].Name)
-		s += fmt.Sprintf("%-25s  %-50s\n", "Category", "Value")
-		s += fmt.Sprintf("%-25s  %-50s\n", "--------", "-----")
+		s += fmt.Sprintf("%-11s  %-25s  %-50s\n", "SLSID", "Category", "Value")
+		s += fmt.Sprintf("%-11s  %-25s  %-50s\n", "-----", "--------", "-----")
 		for j := 0; j < len(m[i].S); j++ {
-			cat, val = getCategory(m[i].S[j])
+			cat, val = getCategory(m[i].S[j].Value)
 			switch t {
 			case rlib.RPTTEXT:
-				s += fmt.Sprintf("%-25s  %-50s\n", cat, val)
+				s += fmt.Sprintf("SLS%08d  %-25s  %-50s\n", m[i].S[j].SLSID, cat, val)
 			case rlib.RPTHTML:
 				fmt.Printf("UNIMPLEMENTED\n")
 			default:
 				fmt.Printf("RRreportSources: unrecognized print format: %d\n", t)
 				return ""
 			}
+		}
+		s += "\n"
+	}
+	return s
+}
+
+// RRreportRatePlans generates a report of all RateLists for the supplied business (bid)
+func RRreportRatePlans(t int, bid int64) string {
+	m := rlib.GetAllRatePlans(bid)
+
+	s := fmt.Sprintf("%-10s  %-9s  %-50s\n", "RPID", "BID", "Name")
+	s += fmt.Sprintf("%-10s  %-9s  %-50s\n", "----", "---", "----")
+
+	for i := 0; i < len(m); i++ {
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("RP%08d  B%08d  %-50s\n", m[i].RPID, m[i].BID, m[i].Name)
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// RRreportRatePlanRefs generates a report for RatePlans in business bid and valid on today's date
+func RRreportRatePlanRefs(t int, bid int64, d1, d2 *time.Time) string {
+	funcname := "RRreportRatePlanRefs"
+	var rp rlib.RatePlan
+	var xbiz rlib.XBusiness
+	rlib.GetXBusiness(bid, &xbiz)
+
+	m := rlib.GetAllRatePlanRefsInRange(d1, d2)
+	if len(m) == 0 {
+		fmt.Printf("%s: could not load RatePlanRefs for timerange %s - %s\n", funcname, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
+		return ""
+	}
+
+	s := fmt.Sprintf("%-15s  %-11s  %-10s  %-10s  %-8s  %-6s  %-9s  %-9s  %-20s\n", "RatePlan", "RPRID", "DtStart", "DtStop", "MaxNoFee", "FeeAge", "Fee", "CancelFee", "PromoCode")
+	s += fmt.Sprintf("%-15s  %-11s  %-10s  %-10s  %-8s  %-6s  %-9s  %-9s  %-20s\n", "--------", "-----", "----------", "----------", "--------", "------", "---------", "---------", "---------")
+
+	for i := 0; i < len(m); i++ {
+		p := m[i]
+		rlib.GetRatePlan(p.RPID, &rp)
+		rlib.GetRatePlanRefFull(p.RPRID, &p)
+		switch t {
+		case rlib.RPTTEXT:
+			s += fmt.Sprintf("%-15.15s  RPR%08d  %10s  %10s  %8d  %6d  %9.2f  %9.2f  %s\n",
+				rp.Name, p.RPRID, p.DtStart.Format(rlib.RRDATEFMT4), p.DtStop.Format(rlib.RRDATEFMT4),
+				p.MaxNoFeeUsers, p.FeeAppliesAge, p.AdditionalUserFee, p.CancellationFee, p.PromoCode)
+			s += RRreportRatePlanRefRTRates(t, &p, &xbiz)
+			s += "\n"
+		case rlib.RPTHTML:
+			fmt.Printf("UNIMPLEMENTED\n")
+		default:
+			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", t)
+			return ""
+		}
+	}
+	return s
+}
+
+// RRreportRatePlanRefRTRates generates a report of rates for all RentableTypes using RatePlanRef rpr.RPRID
+func RRreportRatePlanRefRTRates(t int, rpr *rlib.RatePlanRef, xbiz *rlib.XBusiness) string {
+	var sporder []int64
+	s := fmt.Sprintf("\n\t%-10s  %-10s  %-20s  %-8s    ", "RTID", "Style", "Name", "Rate")
+	for _, v := range xbiz.US {
+		s += fmt.Sprintf("  %-10.10s", v.Name)
+		sporder = append(sporder, v.RSPID)
+	}
+	s += fmt.Sprintf("\n\t%-10s  %-10s  %-20s  %-8s  ", "----------", "----------", "--------------------", "----------")
+	for range xbiz.US {
+		s += fmt.Sprintf("  ----------")
+	}
+	s += "\n"
+
+	// To perform the opertion you want
+	for i := 0; i < len(rpr.RT); i++ {
+		p := rpr.RT[i]
+		s += fmt.Sprintf("\tRT%08d  %-10s  %-20s  ", p.RTID, xbiz.RT[p.RTID].Style, xbiz.RT[p.RTID].Name)
+		if (p.FLAGS & rlib.FlRTRna) != 0 { // ...make sure it's not telling us to ignore this rentable type
+			s += "n/a"
+			continue // this RentableType is not affected
+		}
+		s1 := " "                           // assume p.Val is absolute
+		if (p.FLAGS & rlib.FlRTRpct) != 0 { // if it's actually a percentage then...
+			p.Val *= 100 // make the percentage more presentable
+			s1 = "%"     // and add a % character
+		}
+		s += fmt.Sprintf("%8.2f %s  ", p.Val, s1)
+		// Now add the Specialties
+		m := rlib.GetAllRatePlanRefSPRates(p.RPRID, p.RTID) // almost certainly not in the order we want them
+		for j := 0; j < len(m)-1; j++ {                     // we order them just to be sure
+			if m[j].RSPID == sporder[j] { // if it's already in the right index for the column heading
+				continue // then just continue
+			}
+			for k := j + 1; k < len(m); k++ { // need to find sporder[j] and put it in m[j]
+				if m[k].RSPID == sporder[j] { // is this the one we're after?
+					m[j], m[k] = m[k], m[j] // yes: swap m[j] and m[k]
+					break                   // we're done with position j; break out of this loop and continue the j loop
+				}
+			}
+		}
+		// now m is ordered just like the column headings. Print out each amount
+		for j := 0; j < len(m); j++ {
+			s1 = " "
+			fmt.Printf("m[%d]: RPRID=%d, RTID=%d, RSPID=%d, Val=%f\n", j, m[j].RPRID, m[j].RTID, m[j].RSPID, m[j].Val)
+			v := m[j].Val
+			if (m[j].FLAGS & rlib.FlSPRpct) != 0 { // if it's actually a percentage then...
+				v *= 100 // make the percentage more presentable
+				s1 = "%" // and add a % character
+			}
+			s += fmt.Sprintf("%8.2f %s  ", v, s1)
 		}
 		s += "\n"
 	}

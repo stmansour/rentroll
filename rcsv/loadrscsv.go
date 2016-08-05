@@ -37,18 +37,18 @@ func CreateRentalSpecialty(sa []string, lineno int) {
 	if len(des) > 0 {
 		b, _ = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			rlib.Ulog("CreateRentalSpecialtyType: rlib.Business named %s not found\n", des)
+			rlib.Ulog("%s: lineno %d  - rlib.Business named %s not found\n", funcname, lineno, des)
 			return
 		}
 	}
 
-	var a rlib.RentableSpecialtyType
+	var a rlib.RentableSpecialty
 	var x float64
 	var err error
 
 	a.Name = strings.TrimSpace(sa[1])
 	if x, err = strconv.ParseFloat(strings.TrimSpace(sa[2]), 64); err != nil {
-		rlib.Ulog("CreateRentalSpecialty: Invalid floating point number: %s\n", sa[2])
+		rlib.Ulog("%s: lineno %d  - Invalid floating point number: %s\n", funcname, lineno, sa[2])
 		return
 	}
 	a.Fee = x
@@ -60,7 +60,7 @@ func CreateRentalSpecialty(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	rsp := rlib.GetRentableSpecialtyTypeByName(a.BID, a.Name)
 	if rsp.RSPID > 0 {
-		fmt.Printf("CreateRentalSpecialty: rlib.Business %s already has a rlib.RentableSpecialtyType named %s\n", des, a.Name)
+		fmt.Printf("%s: lineno %d  - rlib.Business %s already has a rlib.RentableSpecialty named %s\n", funcname, lineno, des, a.Name)
 		return
 	}
 
@@ -69,7 +69,7 @@ func CreateRentalSpecialty(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	err = rlib.InsertRentableSpecialty(&a)
 	if nil != err {
-		fmt.Printf("CreateRentalSpecialty: error inserting RentalSpecialty = %v\n", err)
+		fmt.Printf("%s: lineno %d  - error inserting RentalSpecialty = %v\n", funcname, lineno, err)
 	}
 
 }

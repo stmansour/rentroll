@@ -80,6 +80,59 @@ func UpdateLedger(l *GLAccount) error {
 	return err
 }
 
+// UpdateProspect updates a Prospect record in the database
+func UpdateProspect(a *Prospect) error {
+	_, err := RRdb.Prepstmt.UpdateProspect.Exec(a.TCID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
+		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
+		a.DesiredMoveInDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
+		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy, a.TCID)
+	if nil != err {
+		Ulog("UpdateProspect: error updating pet:  %v\n", err)
+		Ulog("Prospect = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRatePlan updates a RatePlan record in the database
+func UpdateRatePlan(a *RatePlan) error {
+	_, err := RRdb.Prepstmt.UpdateRatePlan.Exec(a.BID, a.Name, a.LastModBy, a.RPID)
+	if nil != err {
+		Ulog("UpdateRatePlan: error:  %v\n", err)
+		Ulog("RatePlan = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRatePlanRef updates a RatePlanRef record in the database
+func UpdateRatePlanRef(a *RatePlanRef) error {
+	_, err := RRdb.Prepstmt.UpdateRatePlanRef.Exec(a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.LastModBy, a.RPRID)
+	if nil != err {
+		Ulog("UpdateRatePlanRef: error:  %v\n", err)
+		Ulog("RatePlanRef = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRatePlanRefRTRate updates a RatePlanRefRTRate record in the database
+func UpdateRatePlanRefRTRate(a *RatePlanRefRTRate) error {
+	_, err := RRdb.Prepstmt.UpdateRatePlanRefRTRate.Exec(a.FLAGS, a.Val, a.RPRID, a.RTID)
+	if nil != err {
+		Ulog("UpdateRatePlanRefRTRate: error:  %v\n", err)
+		Ulog("RatePlanRefRTRate = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRatePlanRefSPRate updates a RatePlanRefSPRate record in the database
+func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
+	_, err := RRdb.Prepstmt.UpdateRatePlanRefSPRate.Exec(a.FLAGS, a.Val, a.RPRID, a.RTID, a.RSPID)
+	if nil != err {
+		Ulog("UpdateRatePlanRefSPRate: error:  %v\n", err)
+		Ulog("RatePlanRefSPRate = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateRentalAgreementPet updates a RentalAgreementPet record in the database
 func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
 	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
@@ -110,7 +163,8 @@ func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	return err
 }
 
-// UpdateStringList updates a StringList record in the database
+// UpdateStringList updates a StringList record in the database. It also updates the string list. It does this by
+// deleting all the strings first, then inserting the ones it has.
 func UpdateStringList(a *StringList) error {
 	_, err := RRdb.Prepstmt.UpdateStringList.Exec(a.BID, a.Name, a.LastModBy, a.SLID)
 	if nil != err {
@@ -122,9 +176,19 @@ func UpdateStringList(a *StringList) error {
 	return err
 }
 
+// UpdateSLString updates a SLString record in the database
+func UpdateSLString(a *SLString) error {
+	_, err := RRdb.Prepstmt.UpdateSLString.Exec(a.SLID, a.Value, a.LastModBy, a.SLSID)
+	if nil != err {
+		Ulog("UpdateSLString: error:  %v\n", err)
+		Ulog("SLString = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateTransactant updates a Transactant record in the database
 func UpdateTransactant(a *Transactant) error {
-	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.USERID, a.PID, a.PRSPID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.LastModBy, a.TCID)
+	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.LastModBy, a.TCID)
 	if nil != err {
 		Ulog("UpdateTransactant: error updating Transactant:  %v\n", err)
 		Ulog("Transactant = %#v\n", *a)

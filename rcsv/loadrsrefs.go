@@ -69,7 +69,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 	name := strings.TrimSpace(sa[2])
 	rsp := rlib.GetRentableSpecialtyTypeByName(r.BID, name)
 	if rsp.RSPID == 0 {
-		fmt.Printf("%s: line %d - could not find a rlib.RentableSpecialtyType named %s in rlib.Business %d\n", funcname, lineno, name, r.BID)
+		fmt.Printf("%s: line %d - could not find a rlib.RentableSpecialty named %s in rlib.Business %d\n", funcname, lineno, name, r.BID)
 		return
 	}
 	a.RSPID = rsp.RSPID

@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Fri Jul 22 08:49:57 CDT 2016
+Date/Time: Thu Aug  4 13:37:26 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -7,17 +7,18 @@ DEFINE BUSINESS
 
 
 DEFINE RENTABLE TYPES
-RTID   Style      Name
-   1 - Rex1  -  309 Rexford
+RTID        Style                 Name                       Dt1 - Dt2 : Rate
+----        -----                 ----                       ----------------
+RT00000001  Rex1                  309 Rexford                |  01/01/2014 - 01/01/2017 $  3750.00
 
 
 DEFINE PEOPLE
- TCID  USERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
-    1      1      1     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
-    2      2      2     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
-    3      3      3     0  123-456-7892  rita@rexford.com           Costea       , Rita                                      
-    4      4      4     0  123-456-7893  daniel@rexford.com         Costea       , Daniel                                    
-    5      5      5     0  123-456-7894  gagik@rexford.com          Haroutunian  , Gagik                                     
+      TCID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
+TC00000001     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
+TC00000002     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
+TC00000003     0  123-456-7892  rita@rexford.com           Costea       , Rita                                      
+TC00000004     0  123-456-7893  daniel@rexford.com         Costea       , Daniel                                    
+TC00000005     0  123-456-7894  gagik@rexford.com          Haroutunian  , Gagik                                     
 
 
 DEFINE RENTABLES

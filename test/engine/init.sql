@@ -125,7 +125,7 @@ INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 -- define unit specialties
 
 -- rentablespecialtytype
-INSERT INTO RentableSpecialtyType (BID,Name,Fee,Description) VALUES
+INSERT INTO RentableSpecialty (BID,Name,Fee,Description) VALUES
 	(1,"Lake View",50.0,"Overlooks the lake"),						-- assmt 59
 	(1,"Courtyard View",50.0,"Rear windows view the courtyard"),	-- assmt 60
 	(1,"Top Floor",100.0,"Penthouse"),								-- assmt 61
@@ -220,16 +220,16 @@ INSERT INTO RentableSpecialtyRef (BID,RID,RSPID) VALUES
 --  TRANSACTANTS
 -- =======================================================================
 -- define the renters.  First as transactants, second as renters, 3rd as payors
-INSERT INTO Transactant (PID,FirstName,LastName,PrimaryEmail,Address,City,State,PostalCode,Country) VALUES
-	("1","Edna", "Krabappel","edna@springfield.com","","Springfield","MO","64055","USA"),			-- 1
-	("2","Ned", "Flanders","flanman@springfield.com","","Springfield","MO","64055","USA"),			-- 2
-	("3","Moe", "Szyslak","moe@springfield.com","","Springfield","MO","64055","USA"),				-- 3
-	("4","Montgomery", "Burns","burnsie@springfield.com","","Springfield","MO","64055","USA"),		-- 4
-	("5","Nelson", "Muntz","nelson@springfield.com","","Springfield","MO","64055","USA"),			-- 5
-	("6","Milhouse", "Van Houten","milhouse@springfield.com","","Springfield","MO","64055","USA"),	-- 6
-	("7","Clancey", "Wiggum","wiggum@springfield.com","","Springfield","MO","64055","USA"),			-- 7
-	("8","Homer", "Simpson","homer@springfield.com","744 Evergreen Terrace","Springfield","MO","64055","USA"),			-- 8
-	("9","Marge", "Simpson","marge@springfield.com","744 Evergreen Terrace","Springfield","MO","64055","USA");			-- 9
+INSERT INTO Transactant (BID,FirstName,LastName,PrimaryEmail,Address,City,State,PostalCode,Country) VALUES
+	(1,"Edna", "Krabappel","edna@springfield.com","","Springfield","MO","64055","USA"),			-- 1
+	(1,"Ned", "Flanders","flanman@springfield.com","","Springfield","MO","64055","USA"),			-- 2
+	(1,"Moe", "Szyslak","moe@springfield.com","","Springfield","MO","64055","USA"),				-- 3
+	(1,"Montgomery", "Burns","burnsie@springfield.com","","Springfield","MO","64055","USA"),		-- 4
+	(1,"Nelson", "Muntz","nelson@springfield.com","","Springfield","MO","64055","USA"),			-- 5
+	(1,"Milhouse", "Van Houten","milhouse@springfield.com","","Springfield","MO","64055","USA"),	-- 6
+	(1,"Clancey", "Wiggum","wiggum@springfield.com","","Springfield","MO","64055","USA"),			-- 7
+	(1,"Homer", "Simpson","homer@springfield.com","744 Evergreen Terrace","Springfield","MO","64055","USA"),			-- 8
+	(1,"Marge", "Simpson","marge@springfield.com","744 Evergreen Terrace","Springfield","MO","64055","USA");			-- 9
 
 
 -- define the renters.
@@ -263,11 +263,11 @@ INSERT INTO RentalAgreementRentables (RAID,RID,ContractRent,DtStart,DtStop) VALU
 	(8,8,  40,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
 	(8,9,  40,"2015-11-21","2016-11-21");		-- Simpson - carport 2
 
-INSERT INTO RentalAgreementPayors (RAID,PID,DtStart,DtStop) VALUES
+INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop) VALUES
 	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel is Payor for rental agreement 1
 	(8,8,"2015-11-21","2016-11-21");		-- Homer is Payor for rental agreements 8
 
-INSERT INTO RentableUsers (RID,USERID,DtStart,DtStop) VALUES
+INSERT INTO RentableUsers (RID,TCID,DtStart,DtStop) VALUES
 	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel is User for rentable 1
 	(8,8,"2015-11-21","2016-11-21"),		-- Homer is a User for Rentable 1
 	(8,9,"2015-11-21","2016-11-21");		-- Marge is a User for Rentable 1

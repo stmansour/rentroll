@@ -117,7 +117,7 @@ INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
 -- define unit specialties
 
 -- rentablespecialtytype
-INSERT INTO RentableSpecialtyType (BID,Name,Fee,Description) VALUES
+INSERT INTO RentableSpecialty (BID,Name,Fee,Description) VALUES
 	(1,"Lake View",50.0,"Overlooks the lake"),						-- assmt 59
 	(1,"Courtyard View",50.0,"Rear windows view the courtyard"),	-- assmt 60
 	(1,"Top Floor",100.0,"Penthouse"),								-- assmt 61
@@ -222,15 +222,15 @@ INSERT INTO RentableSpecialtyRef (BID,RID,RSPID) VALUES
 --  TRANSACTANTS
 -- =======================================================================
 -- define the renters.  First as transactants, second as renters, 3rd as payors
-INSERT INTO Transactant (FirstName,LastName) VALUES
-	("Edna", "Krabappel"),			-- 1
-	("Ned", "Flanders"),			-- 2
-	("Moe", "Szyslak"),				-- 3
-	("Montgomery", "Burns"),		-- 4
-	("Nelson", "Muntz"),			-- 5
-	("Milhouse", "Van Houten"),		-- 6
-	("Clancey", "Wiggum"),			-- 7
-	("Homer", "Simpson");			-- 8
+INSERT INTO Transactant (BID,FirstName,LastName) VALUES
+	(1,"Edna", "Krabappel"),			-- 1
+	(1,"Ned", "Flanders"),			-- 2
+	(1,"Moe", "Szyslak"),				-- 3
+	(1,"Montgomery", "Burns"),		-- 4
+	(1,"Nelson", "Muntz"),			-- 5
+	(1,"Milhouse", "Van Houten"),		-- 6
+	(1,"Clancey", "Wiggum"),			-- 7
+	(1,"Homer", "Simpson");			-- 8
 
 -- define the renters.
 INSERT INTO User (TCID) VALUES
@@ -263,7 +263,7 @@ INSERT INTO RentalAgreementRentables (RAID,RID,ContractRent,DtStart,DtStop) VALU
 	(8,8,35.0,"2015-11-21","2016-11-21"),		-- Simpson - carport 1
 	(8,9,35.0,"2015-11-21","2016-11-21");		-- Simpson - carport 2
 
-INSERT INTO RentalAgreementPayors (RAID,PID,DtStart,DtStop) VALUES
+INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop) VALUES
 	(1,1,"2004-01-01","2015-11-09"),		-- Krabappel is Payor for rental agreement 1
 	(8,8,"2015-11-21","2016-11-21");		-- Simpson is Payor for rental agreements 8
 

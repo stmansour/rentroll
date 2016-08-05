@@ -163,7 +163,7 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 //        This array is the MR attribute in the RentableMarketRate struct
 //  rsa = array of rentable specialties that apply to the rentable we're calculating
 //========================================================================================================
-func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []RentableSpecialtyType, xbiz *XBusiness) float64 {
+func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []RentableSpecialty, xbiz *XBusiness) float64 {
 	var total = float64(0) // init total
 
 	// rentCycle, prorateCycle, gsrpc, err := GetProrationCycle(&d1, r, rta, xbiz)

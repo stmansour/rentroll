@@ -110,12 +110,15 @@ func CreateRentableType(sa []string, lineno int) {
 	// rlib.Rentable Market Rates are provided in 3-tuples starting at index 7 - Amount,startdata,enddate
 	if rtid > 0 {
 		for i := 7; i < len(sa); i += 3 {
+			if len(sa[i]) == 0 { // this will happen when programs like excel save the csv file
+				continue
+			}
 			var x float64
 			var err error
 			var m rlib.RentableMarketRate
 			m.RTID = rtid
 			if x, err = strconv.ParseFloat(strings.TrimSpace(sa[i]), 64); err != nil {
-				rlib.Ulog("%s: line %d - Invalid floating point number: %s\n", funcname, lineno, sa[7])
+				rlib.Ulog("%s: line %d - Invalid floating point number: %s   err = %s\n", funcname, lineno, sa[i], err.Error())
 				return
 			}
 			m.MarketRate = x

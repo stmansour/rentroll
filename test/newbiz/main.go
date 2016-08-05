@@ -19,8 +19,10 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
-import _ "github.com/go-sql-driver/mysql"
 
 // App is the global application structure
 var App struct {
@@ -38,8 +40,8 @@ var App struct {
 	BldgFile       string                     // Buildings for this Business
 	PplFile        string                     // people for this Business
 	RatFile        string                     // rentalAgreementTemplates
-	RaFile         string                     //rental agreement cvs file
-	CoaFile        string                     //chart of accounts
+	RaFile         string                     // rental agreement cvs file
+	CoaFile        string                     // chart of accounts
 	AsmtFile       string                     // Assessments
 	PmtTypeFile    string                     // payment types
 	RcptFile       string                     // receipts of payments
@@ -54,37 +56,45 @@ var App struct {
 	DMFile         string                     // Deposit Methods
 	SrcFile        string                     // Sources
 	SLFile         string                     // StringLists
+	RPFile         string                     // RatePlans
+	RPRefFile      string                     // RatePlanRef
+	RPRRTRateFile  string                     // RatePlanRefRTRate
+	RPRSPRateFile  string                     // RatePlanRefSPRate
 }
 
 func readCommandLineArgs() {
+	asmtPtr := flag.String("A", "", "add Assessments via csv file")
+	rpptr := flag.String("a", "", "add RatePlans via csv file")
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
-	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
-	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
-	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	bizPtr := flag.String("b", "", "add Business via csv file")
-	bldgPtr := flag.String("D", "", "add Buildings to a Business via csv file")
-	depositoryPtr := flag.String("d", "", "add Depositories to a Business via csv file")
-	depositPtr := flag.String("y", "", "add Deposits via csv file")
-	rtPtr := flag.String("R", "", "add Rentable types via csv file")
-	rPtr := flag.String("r", "", "add rentables via csv file")
-	rspPtr := flag.String("s", "", "add Rentable specialties via csv file")
-	src := flag.String("S", "", "add Rentable specialties via csv file")
-	pPtr := flag.String("p", "", "add people via csv file")
-	ratPtr := flag.String("T", "", "add rental agreement templates via csv file")
 	raPtr := flag.String("C", "", "add rental agreements via csv file")
 	coaPtr := flag.String("c", "", "add chart of accounts via csv file")
-	asmtPtr := flag.String("A", "", "add Assessments via csv file")
-	pmtPtr := flag.String("P", "", "add payment types via csv file")
-	rcptPtr := flag.String("e", "", "add receipts via csv file")
-	custPtr := flag.String("u", "", "add custom attributes via csv file")
-	asgnPtr := flag.String("U", "", "assign custom attributes via csv file")
+	bldgPtr := flag.String("D", "", "add Buildings to a Business via csv file")
+	depositoryPtr := flag.String("d", "", "add Depositories to a Business via csv file")
 	petPtr := flag.String("E", "", "assign pets to a Rental Agreement via csv file")
+	rcptPtr := flag.String("e", "", "add receipts via csv file")
 	rsrefsPtr := flag.String("F", "", "assign rentable specialties to rentables via csv file")
-	ntPtr := flag.String("O", "", "add NoteTypes via csv file")
+	rprptr := flag.String("f", "", "add RatePlanRefs via csv file")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName")
 	slPtr := flag.String("l", "", "add StringLists via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList")
+	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	dmPtr := flag.String("m", "", "add DepositMethods via csv file")
+	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
+	rprrt := flag.String("n", "", "add RatePlanRefRTRate via csv file")
+	ntPtr := flag.String("O", "", "add NoteTypes via csv file")
+	pmtPtr := flag.String("P", "", "add payment types via csv file")
+	pPtr := flag.String("p", "", "add people via csv file")
+	rtPtr := flag.String("R", "", "add Rentable types via csv file")
+	rPtr := flag.String("r", "", "add rentables via csv file")
+	src := flag.String("S", "", "add Rentable specialties via csv file")
+	rspPtr := flag.String("s", "", "add Rentable specialties via csv file")
+	ratPtr := flag.String("T", "", "add rental agreement templates via csv file")
+	rprsp := flag.String("t", "", "add RatePlanRef Specialty Rates via csv file")
+	asgnPtr := flag.String("U", "", "assign custom attributes via csv file")
+	custPtr := flag.String("u", "", "add custom attributes via csv file")
+	verPtr := flag.Bool("v", false, "prints the version to stdout")
+	depositPtr := flag.String("y", "", "add Deposits via csv file")
 
 	flag.Parse()
 	if *verPtr {
@@ -118,6 +128,10 @@ func readCommandLineArgs() {
 	App.DMFile = *dmPtr
 	App.SrcFile = *src
 	App.SLFile = *slPtr
+	App.RPFile = *rpptr
+	App.RPRefFile = *rprptr
+	App.RPRRTRateFile = *rprrt
+	App.RPRSPRateFile = *rprsp
 }
 
 func bizErrCheck(sa []string) {
@@ -228,6 +242,18 @@ func main() {
 	if len(App.CoaFile) > 0 {
 		rcsv.LoadChartOfAccountsCSV(App.CoaFile)
 	}
+	if len(App.RPFile) > 0 {
+		rcsv.LoadRatePlansCSV(App.RPFile)
+	}
+	if len(App.RPRefFile) > 0 {
+		rcsv.LoadRatePlanRefsCSV(App.RPRefFile)
+	}
+	if len(App.RPRRTRateFile) > 0 {
+		rcsv.LoadRatePlanRefRTRatesCSV(App.RPRRTRateFile)
+	}
+	if len(App.RPRSPRateFile) > 0 {
+		rcsv.LoadRatePlanRefSPRatesCSV(App.RPRSPRateFile)
+	}
 	if len(App.AsmtFile) > 0 {
 		rcsv.LoadAssessmentsCSV(App.AsmtFile)
 	}
@@ -336,6 +362,15 @@ func main() {
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rcsv.RRreportStringLists(rlib.RPTTEXT, bid))
+		case 26:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportRatePlans(rlib.RPTTEXT, bid))
+		case 27:
+			bizErrCheck(sa)
+			dt := time.Now()
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportRatePlanRefs(rlib.RPTTEXT, bid, &dt, &dt))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

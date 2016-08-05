@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Fri Jul 29 15:29:31 PDT 2016
+Date/Time: Thu Aug  4 13:36:58 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -31,20 +31,22 @@ S00000004  B00000001  Expedia                              Travel
 
 
 DEFINE RENTABLE TYPES
-RTID   Style      Name
-   1 - Rex1  -  309 Rexford
-   2 - Rex2  -  309 1/2 Rexford
-   3 - Rex3  -  311 Rexford
-   4 - Rex4  -  311 1/2 Rexford
+RTID        Style                 Name                       Dt1 - Dt2 : Rate
+----        -----                 ----                       ----------------
+RT00000001  Rex1                  309 Rexford                |  01/01/2014 - 01/01/2017 $  3750.00
+RT00000002  Rex2                  309 1/2 Rexford            |  01/01/2014 - 01/01/2017 $  3550.00
+RT00000003  Rex3                  311 Rexford                |  01/01/2014 - 01/01/2017 $  4400.00
+RT00000004  Rex4                  311 1/2 Rexford            |  01/01/2014 - 01/01/2017 $  2500.00
 
 
 DEFINE PEOPLE
- TCID  USERID    PID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
-    1      1      1     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
-    2      2      2     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
-    3      3      3     0  123-456-7892  rita@rexford.com           Costea       , Rita                                      
-    4      4      4     0  123-456-7893  daniel@rexford.com         Costea       , Daniel                                    
-    5      5      5     0  123-456-7894  gagik@rexford.com          Haroutunian  , Gagik                                     
+CreatePeopleFromCSV: line 2 - IsCompany value is invalid: IsCompany
+      TCID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
+TC00000001     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
+TC00000002     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
+TC00000003     0  123-456-7892  rita@rexford.com           Costea       , Rita                                      
+TC00000004     0  123-456-7893  daniel@rexford.com         Costea       , Daniel                                    
+TC00000005     0  123-456-7894  gagik@rexford.com          Haroutunian  , Gagik                                     
 
 
 DEFINE RENTABLES

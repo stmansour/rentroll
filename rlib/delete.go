@@ -2,6 +2,24 @@ package rlib
 
 import "time"
 
+// DeleteCustomAttribute deletes CustomAttribute records with the supplied cid
+func DeleteCustomAttribute(cid int64) error {
+	_, err := RRdb.Prepstmt.DeleteCustomAttribute.Exec(cid)
+	if err != nil {
+		Ulog("Error deleting CustomAttribute for cid = %d, error: %v\n", cid, err)
+	}
+	return err
+}
+
+// DeleteCustomAttributeRef deletes CustomAttributeRef records with the supplied cid
+func DeleteCustomAttributeRef(elemid, id, cid int64) error {
+	_, err := RRdb.Prepstmt.DeleteCustomAttributeRef.Exec(elemid, id, cid)
+	if err != nil {
+		Ulog("Error deleting elemid=%d, id=%d, cid=%d, error: %v\n", elemid, id, cid, err)
+	}
+	return err
+}
+
 // DeleteDemandSource deletes the DemandSource with the specified id from the database
 func DeleteDemandSource(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteDemandSource.Exec(id)
@@ -171,6 +189,42 @@ func DeleteNoteType(nid int64) error {
 	return err
 }
 
+// DeleteRatePlan deletes RatePlan records with the supplied id
+func DeleteRatePlan(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteRatePlan.Exec(id)
+	if err != nil {
+		Ulog("Error deleting RatePlan for id = %d, error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteRatePlanRef deletes RatePlanRef records with the supplied cid
+func DeleteRatePlanRef(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteRatePlanRef.Exec(id)
+	if err != nil {
+		Ulog("Error deleting id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteRatePlanRefRTRate deletes RatePlanRefRTRate records with the supplied cid
+func DeleteRatePlanRefRTRate(rtrid, rtid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRatePlanRefRTRate.Exec(rtrid, rtid)
+	if err != nil {
+		Ulog("Error deleting rtrid=%d rtid=%d error: %v\n", rtrid, rtid, err)
+	}
+	return err
+}
+
+// DeleteRatePlanRefSPRate deletes RatePlanRefSPRate records with the supplied cid
+func DeleteRatePlanRefSPRate(rtrid, rspid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRatePlanRefSPRate.Exec(rtrid, rspid)
+	if err != nil {
+		Ulog("Error deleting rtrid=%d rspid=%d error: %v\n", rtrid, rspid, err)
+	}
+	return err
+}
+
 // DeleteReceipt deletes the Receipt record with the supplied rcptid
 func DeleteReceipt(rcptid int64) error {
 	_, err := RRdb.Prepstmt.DeleteReceipt.Exec(rcptid)
@@ -185,24 +239,6 @@ func DeleteReceiptAllocations(rcptid int64) error {
 	_, err := RRdb.Prepstmt.DeleteReceiptAllocations.Exec(rcptid)
 	if err != nil {
 		Ulog("Error deleting ReceiptAllocation for RCPTID = %d, error: %v\n", rcptid, err)
-	}
-	return err
-}
-
-// DeleteCustomAttribute deletes CustomAttribute records with the supplied cid
-func DeleteCustomAttribute(cid int64) error {
-	_, err := RRdb.Prepstmt.DeleteCustomAttribute.Exec(cid)
-	if err != nil {
-		Ulog("Error deleting CustomAttribute for cid = %d, error: %v\n", cid, err)
-	}
-	return err
-}
-
-// DeleteCustomAttributeRef deletes CustomAttributeRef records with the supplied cid
-func DeleteCustomAttributeRef(elemid, id, cid int64) error {
-	_, err := RRdb.Prepstmt.DeleteCustomAttributeRef.Exec(elemid, id, cid)
-	if err != nil {
-		Ulog("Error deleting elemid=%d, id=%d, cid=%d, error: %v\n", elemid, id, cid, err)
 	}
 	return err
 }
@@ -266,6 +302,15 @@ func DeleteStringList(id int64) error {
 	_, err = RRdb.Prepstmt.DeleteStringList.Exec(id)
 	if err != nil {
 		Ulog("Error deleting id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteSLString deletes the SLString with the specified id from the database
+func DeleteSLString(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteSLString.Exec(id)
+	if err != nil {
+		Ulog("Error deleting SLString id=%d error: %v\n", id, err)
 	}
 	return err
 }

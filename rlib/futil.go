@@ -202,17 +202,25 @@ func IntFromString(sa string, errmsg string) (int64, bool) {
 }
 
 // FloatFromString converts the supplied string to an int64 value. If there
-// is a problem in the conversion, it generates an error message.
+// is a problem in the conversion, it generates an error message.  If the string
+// contains a '%' at the end, it treats the number as a percentage (divides by 100)
 func FloatFromString(sa string, errmsg string) (float64, bool) {
 	var f = float64(0)
 	s := strings.TrimSpace(sa)
+	i := strings.Index(s, "%")
+	if i > 0 {
+		s = s[:i]
+	}
 	if len(s) > 0 {
 		x, err := strconv.ParseFloat(s, 64)
 		if err != nil {
-			Ulog("CreateAssessmentsFromCSV: I%s: %s\n", errmsg, sa)
+			fmt.Printf("FloatFromString: %s: %s\n", errmsg, sa)
 			return f, false
 		}
 		f = x
+	}
+	if i > 0 {
+		f /= 100.0
 	}
 	return f, true
 }

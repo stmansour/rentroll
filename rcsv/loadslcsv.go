@@ -87,8 +87,9 @@ func CreateStringList(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Value
 	//-------------------------------------------------------------------
-	value := strings.TrimSpace(sa[2])
-	a.S = append(a.S, value)
+	var sls rlib.SLString
+	sls.Value = strings.TrimSpace(sa[2])
+	a.S = append(a.S, sls)
 }
 
 // LoadStringTablesCSV loads a csv file with assessment types and processes each one

@@ -44,6 +44,11 @@ func CreateCustomAttributes(sa []string, lineno int) {
 		if !ok {
 			return
 		}
+	case rlib.CUSTUINT:
+		_, ok = rlib.IntFromString(c.Value, "Value cannot be converted to an unsigned integer")
+		if !ok {
+			return
+		}
 	case rlib.CUSTFLOAT:
 		_, ok = rlib.FloatFromString(c.Value, "Value cannot be converted to an float")
 		if !ok {
@@ -53,7 +58,7 @@ func CreateCustomAttributes(sa []string, lineno int) {
 
 	_, err := rlib.InsertCustomAttribute(&c)
 	if err != nil {
-		fmt.Printf("%s: line %d - Could not insert rlib.CustomAttribute. err = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - Could not insert CustomAttribute. err = %v\n", funcname, lineno, err)
 	}
 }
 

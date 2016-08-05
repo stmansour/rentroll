@@ -35,20 +35,20 @@ func BuildPayorList(s string, dfltStart, dfltStop string, funcname string, linen
 		}
 		// PAYOR (rlib.Transactant)
 		s = strings.TrimSpace(ss[0]) // either the email address or the phone number
-		t, err := rlib.GetTransactantByPhoneOrEmail(s)
-		if err != nil && !rlib.IsSQLNoResultsError(err) {
-			rerr := fmt.Errorf("%s:  lineno %d - error retrieving rlib.Transactant by phone or email: %v", funcname, lineno, err)
-			rlib.Ulog("%s", rerr.Error())
-			return m, rerr
-		}
-		if t.PID == 0 {
+		t := rlib.GetTransactantByPhoneOrEmail(s)
+		// if err != nil && !rlib.IsSQLNoResultsError(err) {
+		// 	rerr := fmt.Errorf("%s:  lineno %d - error retrieving rlib.Transactant by phone or email: %v", funcname, lineno, err)
+		// 	rlib.Ulog("%s", rerr.Error())
+		// 	return m, rerr
+		// }
+		if t.TCID == 0 {
 			rerr := fmt.Errorf("%s:  lineno %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, s)
 			rlib.Ulog("%s", rerr.Error())
 			return m, rerr
 		}
 
 		var payor rlib.RentalAgreementPayor
-		payor.PID = t.PID
+		payor.TCID = t.TCID
 
 		// Now grab the dates
 		if len(strings.TrimSpace(ss[1])) == 0 {
@@ -57,7 +57,7 @@ func BuildPayorList(s string, dfltStart, dfltStop string, funcname string, linen
 		if len(strings.TrimSpace(ss[2])) == 0 {
 			ss[2] = dfltStop
 		}
-		payor.DtStart, payor.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
+		payor.DtStart, payor.DtStop, _ = readTwoDates(ss[1], ss[2], funcname, lineno)
 
 		m = append(m, payor)
 	}
