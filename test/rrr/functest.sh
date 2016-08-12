@@ -3,9 +3,199 @@ ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
 MYSQLOPTS=""
 UNAME=$(uname)
-CVSLOAD="${RRBIN}/rrloadcsv"
-RENTROLL="${RRBIN}/rentroll -A"
+CSVLOAD="${RRBIN}/rrloadcsv"
+RENTROLL="${RRBIN}/rentroll -A -j 2016-07-01 -k 2016-08-01"
 LOGFILE="log"
+TESTCOUNT=0
+BUD="REX"
+
+###   BEGIN ---  MENU DRIVEN REPORTS   
+#############################################################################
+# pause()
+#   Description:
+#		Wait for user to press a key before continuing
+#############################################################################
+pause() {
+	read -p "Press [Enter] to continue, X to quit..." x
+}
+
+csvload() {
+	echo "command is:  ${CSVLOAD} ${1}"
+	${CSVLOAD} ${1}
+}
+
+app() {
+	echo "command is:  ${RENTROLL} ${1}"
+	${RENTROLL} ${1}
+}
+#############################################################################
+# doReport()
+#   Description:
+#		Run database reports based on user selection
+#############################################################################
+doReport () {
+while :
+do
+	clear
+	cat <<EOF
+-----------------------------------------
+   R E N T R O L L  --  R E P O R T S
+-----------------------------------------
+A)   Assessments
+B)   Business
+C)   Chart of Accounts
+CA)  Custom Attributes
+DY)  Depositories 
+I)   Invoice
+IR)  Invoice Report
+J)   Journal
+L)   Ledger
+LA)  Ledger Activity
+LB)  Ledger Balance
+NT)  Note Types
+P)   People
+PE)  Pets
+PT)  Payment Types
+R)   Receipts
+RA)  Rental Agreements
+RC)  Rentable Count by Rentable Type
+RE)  Rentables
+RP)  RatePlans
+RR)  RentRoll
+RPR) RatePlanRef
+RS)  Rentable Specialty Assignments
+RT)  Rentable Types
+S)   Rentable Specialties
+T)   Rental Agreement Templates
+U)   Custom Attribute Assignments
+
+
+X) Exit
+
+input is case insensitive
+EOF
+
+	read -p "Enter choice: " choice
+	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
+	case ${choice} in
+		 ir) app "-r 9,IN00001" ;;
+		  j) app "-r 1" ;;
+		  l) app "-r 2" ;;
+		 la) app "-r 10" ;;
+		 lb) app "-r 6" ;;
+		  a) csvload "-L 11,${BUD}" ;;
+		  b) csvload "-L 3" ;;
+		  c) csvload "-L 10,${BUD}" ;;
+		 ca) csvload "-L 14" ;;
+		 dy) csvload "-L 18,${BUD}" ;;
+		  i) csvload "-L 20,${BUD}" ;;
+		 nt) csvload "-L 17,${BUD}" ;;
+		  p) csvload "-L 7,${BUD}" ;;
+		 pe) csvload "-L 16,RA0002" ;;
+		 pt) csvload "-L 12,${BUD}" ;;
+		  r) csvload "-L 13,${BUD}" ;;
+		 ra) csvload "-L 9,${BUD}" ;;
+		 rc) app "-r 7" ;;
+		 re) csvload "-L 6,${BUD}" ;;
+		 rp) csvload "-L 26,REX" ;;
+		rpr) csvload "-L 27,REX" ;;
+		 rr) app "-r 4" ;;
+		 rs) csvload "-L 22,${BUD}" ;;
+		 rt) csvload "-L 5,${BUD}" ;;
+		  s) csvload "-L 21,${BUD}" ;;
+		  t) csvload "-L 8" ;;
+		  u) csvload "-L 15" ;;
+		  x)	exit 0 ;;
+		  *)	echo "Unknown report: ${choice}"
+	esac
+	pause
+done
+}
+
+
+usage() {
+	cat <<EOF
+functest.sh - test script and report utility
+	run this command with no options to perform the test
+	run this command with -r or -R to bring up the report interface
+EOF
+}
+
+#--------------------------------------------------------------------------
+#  Look at the command line options first
+#--------------------------------------------------------------------------
+while getopts "rR:" o; do
+	case "${o}" in
+		r | R)
+			doReport
+			exit 0
+			;;
+		*) 	usage
+			exit 1
+			;;
+	esac
+done
+shift $((OPTIND-1))
+###  END --- MENU DRIVEN REPORTS
+
+########################################
+# docsvtest()
+#	Parameters:
+# 		$1 = base file name
+#		$2 = app options to reproduce
+# 		$3 = title
+########################################
+docsvtest () {
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %s... " ${TESTCOUNT} $3
+	${CSVLOAD} $2 >${1} 2>&1
+
+	if [ ! -f ${1}.gold ]; then
+		echo "UNSET CONTENT" > ${1}.gold
+		echo "Created a default $1.gold for you. Update this file with known-good output."
+	fi
+	UDIFFS=$(diff ${1} ${1}.gold | wc -l)
+	if [ ${UDIFFS} -eq 0 ]; then
+		echo "PASSED"
+	else
+		echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+		echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
+		echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+		diff ${1}.gold ${1} >> ${ERRFILE}
+		cat ${ERRFILE}
+		exit 1
+	fi
+}
+
+########################################
+# dorrtest()
+#	Parameters:
+# 		$1 = base file name
+#		$2 = app options to reproduce
+# 		$3 = title
+########################################
+dorrtest () {
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %s... " ${TESTCOUNT} $3
+	${RENTROLL} $2 >${1} 2>&1
+
+	if [ ! -f ${1}.gold ]; then
+		echo "UNSET CONTENT" > ${1}.gold
+		echo "Created a default $1.gold for you. Update this file with known-good output."
+	fi
+	UDIFFS=$(diff ${1} ${1}.gold | wc -l)
+	if [ ${UDIFFS} -eq 0 ]; then
+		echo "PASSED"
+	else
+		echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+		echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
+		echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+		diff ${1}.gold ${1} >> ${ERRFILE}
+		cat ${ERRFILE}
+		exit 1
+	fi
+}
+
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
@@ -20,76 +210,26 @@ echo >>${LOGFILE}
 echo "CREATE NEW DATABASE" >> ${LOGFILE} 2>&1
 ${RRBIN}/rrnewdb
 
-echo "import Business"
-echo "DEFINE BUSINESS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -b business.csv -L 3 >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
+docsvtest "a" "-b business.csv -L 3" "Business"
+docsvtest "b" "-u custom.csv -L 14" "CustomAttributes"
+docsvtest "c" "-c coa.csv -L 10,REX" "ChartOfAccounts"
+docsvtest "d" "-R rentabletypes.csv -L 5,REX" "RentableTypes"
+docsvtest "e" "-p people.csv  -L 7" "People"
+docsvtest "f" "-r rentable.csv -L 6,REX" "Rentables"
+docsvtest "g" "-T ratemplates.csv  -L 8" "RentalAgreementTemplates"
+docsvtest "h" "-C ra.csv -L 9,REX" "RentalAgreements"
+docsvtest "i" "-P pmt.csv -L 12,REX" "PaymentTypes"
+docsvtest "j" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
+docsvtest "k" "-A asmt.csv -L 11,REX" "Assessments"
+docsvtest "l" "-e rcpt.csv -L 13,REX" "Receipts"
 
-echo "import assessment types"
-echo "DEFINE ASSESSMENT TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -a asmtypes.csv -L 4 >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
+# force the deposits to post
+${RRBIN}/rentroll -A -j 2014-12-01 -k 2015-01-01
 
-echo "import Rentable types"
-echo "DEFINE RENTABLE TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -R rentabletypes.csv -L 5,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import people"
-echo "DEFINE PEOPLE" >> ${LOGFILE} 2>&1
-${CVSLOAD} -p people.csv  -L 7 >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import rentables"
-echo "DEFINE RENTABLES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -r rentable.csv -L 6,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import rental agreement templates"
-echo "DEFINE RENTAL AGREEMENT TEMPLATES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -T ratemplates.csv  -L 8 >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import rental agreements"
-echo "DEFINE RENTAL AGREEMENTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -C ra.csv -L 9,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import custom attributes"
-echo "DEFINE CUSTOM ATTRIBUTES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -u custom.csv -L 14 >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import chart of accounts"
-echo "DEFINE CHART OF ACCOUNTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -c coa.csv -L 10,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import Assessments"
-echo "DEFINE ASSESSMENTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -A asmt.csv -L 11,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import payment types"
-echo "DEFINE PAYMENT TYPES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -P pmt.csv -L 12,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import receipts"
-echo "DEFINE RECEIPTS" >> ${LOGFILE} 2>&1
-${CVSLOAD} -e rcpt.csv -L 13,DHR >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "import assign custom attributes"
-echo "DEFINE ASSIGN CUSTOM ATTRIBUTES" >> ${LOGFILE} 2>&1
-${CVSLOAD} -U assigncustom.csv -L 15 >> ${LOGFILE} 2>&1
-echo >>${LOGFILE}
-
-echo "process payments and receipts"
-echo "PROCESS PAYMENTS AND RECEIPTS" >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-07-01" -k "2016-08-01" >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-07-01" -k "2016-08-01" -r 1 >> ${LOGFILE} 2>&1
-${RENTROLL} -j "2016-07-01" -k "2016-08-01" -r 2  >> ${LOGFILE} 2>&1
+# process payments and receipts
+dorrtest "m" "" "Process"
+dorrtest "n" "-r 1" "Journal"
+dorrtest "o" "-r 2" "Ledgers"
 
 echo >>${LOGFILE}
 

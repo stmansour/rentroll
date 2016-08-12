@@ -162,11 +162,11 @@ func textPrintJournalAssessment(jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.J
 		ra, err := rlib.GetRentalAgreement(a.RAID) // need rental agreement to find Possession time
 		rlib.Errlog(err)
 		if ra.RAID > 0 { // if we found the rental agreement
-			if ra.PossessionStart.After(d1) { // if possession started after d1
-				d1 = ra.PossessionStart // snap the begin time
+			if ra.RentStart.After(d1) { // if possession started after d1
+				d1 = ra.RentStart // snap the begin time
 			}
-			if ra.PossessionStop.Before(d2) { // if possession ended prior to d2
-				d2 = ra.PossessionStop // snap the end time
+			if ra.RentStop.Before(d2) { // if possession ended prior to d2
+				d2 = ra.RentStop // snap the end time
 			}
 		}
 
@@ -279,8 +279,8 @@ func textReportJournalEntry(xbiz *rlib.XBusiness, j *rlib.Journal, jctx *jprintc
 	stop := jctx.ReportStop   // start with the report range
 	if j.RAID > 0 {           // is there an associated rental agreement?
 		ra, _ := rlib.GetRentalAgreement(j.RAID) // if so, get it
-		if ra.PossessionStart.After(start) {     // if posession of rental starts later...
-			start = ra.PossessionStart // ...then make an adjustment
+		if ra.RentStart.After(start) {           // if posession of rental starts later...
+			start = ra.RentStart // ...then make an adjustment
 		}
 		stop = ra.AgreementStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE
 		if stop.After(jctx.ReportStop) {

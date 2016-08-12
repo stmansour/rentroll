@@ -37,7 +37,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) {
 	funcname := "CreatePaymentTypeFromCSV"
 	var pt rlib.PaymentType
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "designation" {
+	if des == "bud" {
 		return // this is just the column heading
 	}
 
@@ -54,7 +54,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) {
 	if len(des) > 0 {
 		b, _ := rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			rlib.Ulog("%s: line %d - rlib.Business named %s not found\n", funcname, lineno, des)
+			rlib.Ulog("%s: line %d - Business named %s not found\n", funcname, lineno, des)
 			return
 		}
 		pt.BID = b.BID
@@ -68,7 +68,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	err := rlib.InsertPaymentType(&pt)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting rlib.PaymentType = %v\n", funcname, lineno, err)
+		fmt.Printf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
 	}
 }
 

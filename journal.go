@@ -47,11 +47,11 @@ func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time
 		ra, _ := rlib.GetRentalAgreement(a.RAID)
 		switch a.RentCycle {
 		case rlib.CYCLEDAILY:
-			pf, num, den, start, stop = rlib.CalcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d, d, a.RentCycle, a.ProrationCycle)
+			pf, num, den, start, stop = rlib.CalcProrationInfo(&ra.RentStart, &ra.RentStop, d, d, a.RentCycle, a.ProrationCycle)
 		case rlib.CYCLENORECUR:
 			fallthrough
 		case rlib.CYCLEMONTHLY:
-			pf, num, den, start, stop = rlib.CalcProrationInfo(&ra.PossessionStart, &ra.PossessionStop, d1, d2, a.RentCycle, a.ProrationCycle)
+			pf, num, den, start, stop = rlib.CalcProrationInfo(&ra.RentStart, &ra.RentStop, d1, d2, a.RentCycle, a.ProrationCycle)
 		default:
 			fmt.Printf("Accrual rate %d not implemented\n", a.RentCycle)
 		}
@@ -156,7 +156,6 @@ func journalAssessment(xbiz *rlib.XBusiness, d time.Time, a *rlib.Assessment, d1
 	if err != nil {
 		rlib.Ulog("error inserting Journal entry: %v\n", err)
 	} else {
-		//now build up the AcctRule...
 		s := ""
 		for i := 0; i < len(m); i++ {
 			s += fmt.Sprintf("%s %s %.2f", m[i].Action, m[i].Account, rlib.RoundToCent(m[i].Amount))
@@ -276,7 +275,6 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	defer rows.Close()
 	for rows.Next() {
 		var a rlib.Assessment
-		ap := &a
 		rlib.ReadAssessments(rows, &a)
 		if a.RentCycle == rlib.RECURNONE {
 			// journalAssessment(xbiz, a.Start, &a, d1, d2)
@@ -285,8 +283,8 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 			// TBD
 			fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RentCycle)
 		} else {
-			dl := ap.GetRecurrences(d1, d2)
-			// fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ATypeLID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
+			dl := a.GetRecurrences(d1, d2)
+			// /*DEBUG*/ fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ATypeLID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
 			for i := 0; i < len(dl); i++ {
 				a1 := a
 				a1.Start = dl[i]    // use the instance date

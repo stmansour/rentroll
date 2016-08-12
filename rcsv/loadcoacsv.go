@@ -67,12 +67,10 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		}
 		l = l1            // update existing
 		inserting = false // looks like this is an update
-		lm1, err := rlib.GetLatestLedgerMarkerByType(l.BID, l.Type)
-		if nil != err {
-			if rlib.IsSQLNoResultsError(err) {
-				rlib.Ulog("%s: line %d - No default rlib.LedgerMarker %d exists\n", funcname, lineno, i)
-				return
-			}
+		lm1 := rlib.GetLatestLedgerMarkerByType(l.BID, l.Type)
+		if lm1.LMID == 0 {
+			rlib.Ulog("%s: line %d - No default rlib.LedgerMarker %d exists\n", funcname, lineno, i)
+			return
 		}
 		lm = lm1 // we're just going to update the existing information
 	}
@@ -197,8 +195,7 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[10])
 		return
 	}
-	lm.DtStop = DtStop
-	lm.DtStart = DtStop.AddDate(0, -1, 0)
+	lm.Dt = DtStop
 
 	//----------------------------------------------------------------------
 	// ALLOW POST

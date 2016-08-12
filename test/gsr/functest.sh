@@ -1,12 +1,12 @@
 #!/bin/bash
 ERRFILE="err.txt"
 RRBIN="../../tmp/rentroll"
-CVSLOAD="${RRBIN}/rrloadcsv"
+CSVLOAD="${RRBIN}/rrloadcsv"
 UNAME=$(uname)
 RENTROLL="${RRBIN}/rentroll -A"
 LOGFILE="log"
 MYSQLOPTS=""
-BUD="REX"
+BUD="DHR"
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
@@ -25,7 +25,7 @@ fi
 dotest () {
 	echo "${1}"
 	echo "${1}" >> ${LOGFILE} 2>&1
-	${CVSLOAD} $2 >> ${LOGFILE} 2>&1
+	${CSVLOAD} $2 >> ${LOGFILE} 2>&1
 	echo >>${LOGFILE}
 }
 

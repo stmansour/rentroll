@@ -186,12 +186,9 @@ func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	// fmt.Printf("Sorted t:  %v\n", t)
 
 	for i := 0; i < len(t); i++ {
-		dd2 := d1.AddDate(0, 0, -1)
-		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
-		lm, err := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, t[i], &dd1, &dd2)
-		if lm.LMID < 1 || err != nil {
-			fmt.Printf("LedgerActivityReport: GLAccount %d -- no LedgerMarker for: %s - %s\n",
-				t[i], dd1.Format(rlib.RRDATEFMT), dd2.Format(rlib.RRDATEFMT))
+		lm := rlib.GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i], d1)
+		if lm.LMID < 1 {
+			fmt.Printf("LedgerActivityReport: GLAccount %d -- no LedgerMarker on or before: %s\n", t[i], d1.Format(rlib.RRDATEFMT))
 		} else {
 			reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
 		}
@@ -202,15 +199,15 @@ func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {
-		if t[i].Type == rlib.RABALANCEACCOUNT {
+		if t[i].Type == rlib.RABALANCEACCOUNT || t[i].Type == rlib.RASECDEPACCOUNT {
 			continue
 		}
-		dd2 := d1.AddDate(0, 0, -1)
-		dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
-		lm, err := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, t[i].LID, &dd1, &dd2)
-		if lm.LMID < 1 || err != nil {
-			fmt.Printf("LedgerReportText: GLNumber %s -- no LedgerMarker for: %s - %s\n",
-				t[i].GLNumber, dd1.Format(rlib.RRDATEFMT), dd2.Format(rlib.RRDATEFMT))
+		// dd2 := d1.AddDate(0, 0, -1)
+		// dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
+		// lm := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, t[i].LID, &dd1, &dd2)
+		lm := rlib.GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i].LID, d1)
+		if lm.LMID < 1 {
+			fmt.Printf("LedgerReportText: GLNumber %s -- no LedgerMarker on or before: %s\n", t[i].GLNumber, d1.Format(rlib.RRDATEFMT))
 		} else {
 			reportTextProcessLedgerMarker(xbiz, &lm, d1, d2)
 		}

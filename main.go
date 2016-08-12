@@ -70,7 +70,7 @@ func readCommandLineArgs() {
 	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	bizPtr := flag.String("b", "b.csv", "add Business via csv file")
-	rptPtr := flag.String("r", "0", "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable")
+	rptPtr := flag.String("r", "0", "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable, 4=Rentroll, 5=AssessmentCheck, 6=LedgerBalance, 7=RentableCountByType, 8=Statement, 9=Invoice, 10=LedgerActivity")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 

@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Thu Aug  4 13:36:58 PDT 2016
+Date/Time: Thu Aug 11 13:44:19 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -31,16 +31,15 @@ S00000004  B00000001  Expedia                              Travel
 
 
 DEFINE RENTABLE TYPES
-RTID        Style                 Name                       Dt1 - Dt2 : Rate
-----        -----                 ----                       ----------------
-RT00000001  Rex1                  309 Rexford                |  01/01/2014 - 01/01/2017 $  3750.00
-RT00000002  Rex2                  309 1/2 Rexford            |  01/01/2014 - 01/01/2017 $  3550.00
-RT00000003  Rex3                  311 Rexford                |  01/01/2014 - 01/01/2017 $  4400.00
-RT00000004  Rex4                  311 1/2 Rexford            |  01/01/2014 - 01/01/2017 $  2500.00
+RTID        Style                 Name                       RentCycle  ProrateCycle  Dt1 - Dt2 : Rate
+----        -----                 ----                       ---------  ------------  ----------------
+RT00000001  Rex1                  309 Rexford                monthly    daily         |  01/01/2014 - 01/01/2017 $  3750.00
+RT00000002  Rex2                  309 1/2 Rexford            monthly    daily         |  01/01/2014 - 01/01/2017 $  3550.00
+RT00000003  Rex3                  311 Rexford                monthly    daily         |  01/01/2014 - 01/01/2017 $  4400.00
+RT00000004  Rex4                  311 1/2 Rexford            monthly    daily         |  01/01/2014 - 01/01/2017 $  2500.00
 
 
 DEFINE PEOPLE
-CreatePeopleFromCSV: line 2 - IsCompany value is invalid: IsCompany
       TCID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
 TC00000001     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
 TC00000002     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
@@ -79,36 +78,36 @@ PET00000001  RA00000001  T-Bone                     Dog              Chihuahua  
 
 DEFINE CHART OF ACCOUNTS
 CreateLedgerMarkers: line 22 - You must suppy a GL Number for this entry
- LMID  Type      GLNumber  Name                                                          Parent LMID   Balance       RAAssoc       RARqd
-   12                   1  Basement Storage                                                         0          0.00  Unassociated      0
-    2    11         11001  General Accounts Receivable                                              0          0.00  Unassociated      0
-    7    16         11002  Security Deposits Assessed                                               0     -13300.00  Unassociated      2
-   13                   2  Change In Delinquency                                                    0          0.00  Unassociated      0
-    6    15         33000  Security Deposit Receivable                                              0          0.00  Unassociated      2
-    8    17         33333  OwnerEquity                                                              0      13300.00  Unassociated      3
-   17               41008  Administrative Unit                                                      0          0.00    Associated      0
-   20               49094  Damages                                                                  0          0.00  Unassociated      3
-    3    12         50201  Gross Schedule Rent                                                      0          0.00    Associated      0
-    9               50211  Late Fees                                                                0          0.00  Unassociated      2
-   10               50212  NSF Fees                                                                 0          0.00  Unassociated      2
-   18               50213  Forfeited Security Deposit                                               0          0.00  Unassociated      2
-   11               50216  Maintenance Reimbursement                                                0          0.00  Unassociated      2
-    5    14         50251  Vacancy                                                                  0          0.00    Associated      0
-   15               50252  Rent Concession                                                          0          0.00  Unassociated      0
-   16               50253  Offline Units                                                            0          0.00  Unassociated      0
-   14               50254  Bad Debt Write-Off                                                       0          0.00  Unassociated      2
-    4    13         50255  Loss to Lease                                                            0          0.00  Unassociated      0
-   19               59997  AP Cash Dispersements                                                    0          0.00  Unassociated      0
-    1    10         59998  Cash Deposits                                                            0          0.00  Unassociated      0
+ LMID  Type          GLNumber  Name                                                          Parent LMID   Balance       RAAssoc       RARqd
+   12                       1  Basement Storage                                                         0          0.00  Unassociated      0
+    2  11               11001  General Accounts Receivable                                              0          0.00  Unassociated      0
+    7  16               11002  Security Deposits Assessed                                               0     -13300.00  Unassociated      2
+   13                       2  Change In Delinquency                                                    0          0.00  Unassociated      0
+    6  15               33000  Security Deposit Receivable                                              0          0.00  Unassociated      2
+    8  17               33333  OwnerEquity                                                              0      13300.00  Unassociated      3
+   17                   41008  Administrative Unit                                                      0          0.00    Associated      0
+   20                   49094  Damages                                                                  0          0.00  Unassociated      3
+    3  12               50201  Gross Schedule Rent                                                      0          0.00    Associated      0
+    9                   50211  Late Fees                                                                0          0.00  Unassociated      2
+   10                   50212  NSF Fees                                                                 0          0.00  Unassociated      2
+   18                   50213  Forfeited Security Deposit                                               0          0.00  Unassociated      2
+   11                   50216  Maintenance Reimbursement                                                0          0.00  Unassociated      2
+    5  14               50251  Vacancy                                                                  0          0.00    Associated      0
+   15                   50252  Rent Concession                                                          0          0.00  Unassociated      0
+   16                   50253  Offline Units                                                            0          0.00  Unassociated      0
+   14                   50254  Bad Debt Write-Off                                                       0          0.00  Unassociated      2
+    4  13               50255  Loss to Lease                                                            0          0.00  Unassociated      0
+   19                   59997  AP Cash Dispersements                                                    0          0.00  Unassociated      0
+    1  10               59998  Cash Deposits                                                            0          0.00  Unassociated      0
 
 
 DEFINE ASSESSMENTS
-      ASMID          RAID        RID   Freq     Amount
-ASM00000001    RA00000001  R00000001      6    3750.00
-ASM00000002    RA00000002  R00000002      6    3550.00
-ASM00000003    RA00000003  R00000003      6    4400.00
-ASM00000004    RA00000003  R00000003      0    2434.71
-ASM00000005    RA00000003  R00000003      0     865.29
+      ASMID       PASMID        RAID        RID  RCYC  PCYC     AMOUNT  TYPE                                 ACCOUNT RULE
+ASM00000001  ASM00000000  RA00000001  R00000001     6     4    3750.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000002  ASM00000000  RA00000002  R00000002     6     4    3550.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
+ASM00000003  ASM00000000  RA00000003  R00000003     6     4    4400.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
+ASM00000004  ASM00000000  RA00000003  R00000003     0     0    2434.71  Forfeited Security Deposit           d ${GLSECDEP} _, c 50213 _
+ASM00000005  ASM00000000  RA00000003  R00000003     0     0     865.29  Security Deposit Receivable          d ${GLSECDEP} _, c 59997 _
 
 
 DEFINE PAYMENT TYPES

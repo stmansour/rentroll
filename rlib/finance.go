@@ -172,6 +172,72 @@ func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
 	return status
 }
 
+// GetLIDFromGLAccountName returns the LID based on the supplied GLAccount name. It returns
+// 0 if no account matched the supplied name
+func GetLIDFromGLAccountName(bid int64, s string) int64 {
+	for k, v := range RRdb.BizTypes[bid].GLAccounts {
+		if v.Name == s {
+			return k
+		}
+	}
+	return int64(0)
+}
+
+// GetGLAccountChildAccts returns an array of LIDs whose parent are the suppliedbased on the supplied GLAccount name. If
+// there are no child accounts, the list will be empty
+func GetGLAccountChildAccts(bid, lid int64) []int64 {
+	var m []int64
+	for _, v := range RRdb.BizTypes[bid].GLAccounts {
+		if v.PLID == lid {
+			m = append(m, v.LID)
+		}
+	}
+	return m
+}
+
+// GetAccountBalanceForDate returns the balance of the account with LID lid on date dt. If raid is 0 then all
+// transactions are considered. Otherwise, only transactions involving this RAID are considered.
+func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
+	bal := float64(0)
+	//--------------------------------------------------------------------------------
+	// First, check and see if this is a Parent to any other GLAccounts. If so, then
+	// compute their totals
+	//--------------------------------------------------------------------------------
+	m := GetGLAccountChildAccts(bid, lid)
+	for i := 0; i < len(m); i++ {
+		// fmt.Printf("LID%d[%d] = %d\n", lid, i, m[i])
+		bal += GetAccountBalanceForDate(bid, m[i], raid, dt)
+	}
+
+	//--------------------------------------------------------------------------------
+	// Compute the total for this account
+	//--------------------------------------------------------------------------------
+	lm := GetLedgerMarkerOnOrBefore(bid, lid, dt) // find nearest ledgermarker, use it as a basis
+	if lm.LMID == 0 {
+		Ulog("GetAccountBalanceForDate: unable to find LedgerMarker for bid=%d, lid=%d, before %s\n", bid, lid, dt.Format(RRDATEFMT4))
+		return bal
+	}
+	bal += lm.Balance // we initialize the balance to this amount
+
+	//--------------------------------------------------------------------------------
+	// read all other ledger transactions for this account between lm date and dt
+	//--------------------------------------------------------------------------------
+	lea, err := GetLedgerEntriesInRange(bid, lm.LID, raid, &lm.Dt, dt)
+	if err != nil {
+		Ulog("GetAccountBalanceForDate: unable to find LedgerMarker for bid=%d, lid=%d, before %s\n", bid, lid, dt.Format(RRDATEFMT4))
+		return bal
+	}
+
+	// update balance based on each of these transactions
+	for i := 0; i < len(lea); i++ {
+		bal += lea[i].Amount
+		// fmt.Printf("lea[%d].Amount = %6.2f,  bal = %6.2f\n", i, lea[i].Amount, bal)
+	}
+
+	// fmt.Printf("Returning bal = %6.2f\n", bal)
+	return bal
+}
+
 // GetRentCycleAndProration returns the RentCycle (and Proration) to use for the supplied rentable and date.
 // If the override RentCycle is set for this time period, it is returned. Otherwise, the RentCycle for this
 // Rentable's RentableType is returned

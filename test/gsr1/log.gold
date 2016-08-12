@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Thu Aug  4 13:37:38 PDT 2016
+Date/Time: Thu Aug 11 20:48:41 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -7,9 +7,9 @@ DEFINE BUSINESS
 
 
 DEFINE RENTABLE TYPES
-RTID        Style                 Name                       Dt1 - Dt2 : Rate
-----        -----                 ----                       ----------------
-RT00000001  Rex1                  309 Rexford                |  01/01/2014 - 01/01/2017 $  3750.00
+RTID        Style                 Name                       RentCycle  ProrateCycle  Dt1 - Dt2 : Rate
+----        -----                 ----                       ---------  ------------  ----------------
+RT00000001  Rex1                  309 Rexford                monthly    daily         |  01/01/2014 - 01/01/2017 $  3750.00
 
 
 DEFINE PEOPLE
@@ -45,103 +45,103 @@ PET00000001  RA00000001  T-Bone                     Dog              Chihuahua  
 
 
 DEFINE CHART OF ACCOUNTS
- LMID  Type      GLNumber  Name                                                          Parent LMID   Balance       RAAssoc       RARqd
-    6    15                Security Deposit Receivable                                              0          0.00       unknown      0
-    1    10         10000  Cash                                                                     0          0.00    Associated      0
-    9               11000  Credit Card Clearing                                                     0          0.00    Associated      0
-    2    11         12000  Accounts Receivable                                                      0          0.00    Associated      0
-    7    16         30000  Security Deposits                                                        0          0.00  Unassociated      0
-   10               30100  Accued Taxes                                                             0          0.00  Unassociated      0
-   11               30101  Sales Taxes                                                             10          0.00  Unassociated      0
-   12               30102  Transient Occupancy Taxes                                               10          0.00  Unassociated      0
-   13               30199  Other Accrued Taxes                                                     10          0.00  Unassociated      0
-    8    17         39000  Owners' Equity                                                           0          0.00    Associated      0
-    3    12         41000  Unit Gross Scheduled Rent-Taxable                                        0          0.00    Associated      0
-   14               41001  Unit Gross Scheduled Rent-Not Taxable                                    0          0.00    Associated      0
-   15               41100  Unit Income Offsets                                                      0          0.00  Unassociated      0
-    5    14         41101  Vacancy                                                                 15          0.00    Associated      0
-    4    13         41102  Loss (Gain) to Lease                                                    15          0.00  Unassociated      0
-   16               41103  Employee Concessions                                                    15          0.00  Unassociated      0
-   17               41104  Resident Concessions                                                    15          0.00  Unassociated      0
-   18               41105  Owner Occupied                                                          15          0.00    Associated      0
-   19               41106  Administrative Concession                                               15          0.00    Associated      0
-   20               41107  Off Line Renovations                                                    15          0.00    Associated      0
-   21               41108  Off Line Maintenance                                                    15          0.00    Associated      0
-   22               41199  Othe Income Offsets                                                     15          0.00  Unassociated      0
-   23               41200  Serviced Unit Fees                                                       0          0.00  Unassociated      0
-   24               41201  Broadcast and IT Services                                               23          0.00  Unassociated      0
-   25               41202  Food Services                                                           23          0.00  Unassociated      0
-   26               41203  Linen Services                                                          23          0.00  Unassociated      0
-   27               41204  Wash N Fold Services                                                    23          0.00  Unassociated      0
-   28               41299  Other Serviced Apartment Fees                                           23          0.00  Unassociated      0
-   29               41300  Utility Fees                                                             0          0.00  Unassociated      0
-   30               41301  Electric Base Fee                                                       29          0.00  Unassociated      0
-   31               41302  Electric Overage                                                        29          0.00  Unassociated      0
-   32               41303  Water and Sewer Base Fee                                                29          0.00  Unassociated      2
-   33               41304  Water and Sewer Overage                                                 29          0.00  Unassociated      2
-   34               41305  Gas Base Fee                                                            29          0.00  Unassociated      2
-   35               41306  Gas Overage                                                             29          0.00  Unassociated      2
-   36               41307  Trash Collection Base Fee                                               29          0.00  Unassociated      2
-   37               41308  Trash Collection Overage                                                29          0.00  Unassociated      2
-   38               41399  Other Utility Fee                                                       29          0.00  Unassociated      2
-   39               41400  Miscellaneous Income                                                     0          0.00  Unassociated      0
-   40               41401  Application Fees                                                        39          0.00    Associated      3
-   41               41402  Late Fees                                                               39          0.00  Unassociated      2
-   42               41403  Insufficient Funds Fee                                                  39          0.00  Unassociated      0
-   43               41404  Month to Month Fee                                                      39          0.00  Unassociated      0
-   44               41405  Premium Upgrades                                                        39          0.00  Unassociated      0
-   45               41406  No Show or Termination Fee                                              39          0.00  Unassociated      0
-   46               41407  Pet Fees                                                                39          0.00  Unassociated      0
-   47               41408  Pet Rent                                                                39          0.00  Unassociated      0
-   48               41409  Expense Reimbursement                                                   39          0.00  Unassociated      0
-   49               41410  Special Cleaning Fee                                                    39          0.00  Unassociated      0
-   50               41411  Eviction Fee Reimbursement                                              39          0.00  Unassociated      2
-   51               41412  Extra Person Charge                                                     39          0.00  Unassociated      0
-   52               41413  Forfeited Security Deposit                                              39          0.00  Unassociated      2
-   53               41499  Other Miscellaneous Income                                              39          0.00  Unassociated      0
-   54               42000  Garage and Carport Gross Scheduled Rents - Taxable                       0          0.00    Associated      0
-   55               42001  Garage and Carport Gross Scheduled Rents - Non Taxable                   0          0.00    Associated      0
-   56               42100  Garage and Carport Income Offset                                         0          0.00  Unassociated      0
-   57               42103  Employee Concessions                                                    56          0.00  Unassociated      0
-   58               42104  Resident Concessions                                                    56          0.00  Unassociated      0
-   59               42105  Owner Occupied                                                          56          0.00    Associated      0
-   60               42106  Administrative Concession                                               56          0.00    Associated      0
-   61               42107  Off Line Renovations                                                    56          0.00    Associated      0
-   62               42108  Off Line Maintenance                                                    56          0.00    Associated      0
-   63               42199  Othe Income Offsets                                                     56          0.00  Unassociated      0
-   64               42200  Other Garage and Carport Income                                          0          0.00  Unassociated      0
-   65               43000  Appliance and Furniture Gross Schedule Rent - Taxable                    0          0.00    Associated      0
-   66               43001  Appliance and Furniture Gross Schedule Rent - Non Taxable                0          0.00    Associated      0
-   67               43100  Appliance and Furniture Income Offset                                    0          0.00  Unassociated      0
-   68               43101  Not Rented                                                              67          0.00    Associated      0
-   69               43102  Loss (Gain) to Lease                                                    67          0.00    Associated      0
-   70               43103  Employee Concessions                                                    67          0.00  Unassociated      0
-   71               43104  Resident Concessions                                                    67          0.00  Unassociated      0
-   72               43105  Owner Used                                                              67          0.00    Associated      0
-   73               43106  Administrative Concession                                               67          0.00    Associated      0
-   74               43107  Off Line Maintenance                                                    67          0.00    Associated      0
-   75               43108  Othe Income Offsets                                                     67          0.00  Unassociated      0
-   76               43200  Other Appliance and Furniture Income                                     0          0.00  Unassociated      0
-   77               44000  Vehicle Gross Scheduled Rents - Taxable                                  0          0.00    Associated      0
-   78               44001  Vehicle Gross Scheduled Rents - Non Taxable                              0          0.00    Associated      0
-   79               44100  Garage and Carport Income Offset                                         0          0.00  Unassociated      0
-   80               44103  Employee Use                                                            79          0.00  Unassociated      0
-   81               44104  Resident Concessions                                                    79          0.00  Unassociated      0
-   82               44105  Owner Use                                                               79          0.00    Associated      0
-   83               44106  Administrative Concession                                               79          0.00    Associated      0
-   84               44107  Off Line Maintenance                                                    79          0.00    Associated      0
-   85               44199  Othe Income Offsets                                                     79          0.00    Associated      0
-   86               44200  Other Garage and Carport Income                                          0          0.00    Associated      0
-   87               49000  Ancillary Business Revenue                                               0          0.00  Unassociated      0
-   88               49010  Convenience Store Vending                                               87          0.00    Associated      0
-   89               49020  Fitness Center Revenue                                                  87          0.00    Associated      0
-   90               49030  Vending Income                                                          87          0.00    Associated      0
-   91               49040  Restaurant Sales                                                        87          0.00    Associated      0
-   92               49050  Bar Sales                                                               87          0.00    Associated      0
-   93               49060  Spa Sales                                                               87          0.00    Associated      0
-   94               49091  Cash Over/Short                                                         87          0.00    Associated      0
-   95               49092  Bad Debt                                                                87          0.00    Associated      0
-   96               49099  Other Ancillary Business Income                                         87          0.00    Associated      0
+ LMID  Type          GLNumber  Name                                                          Parent LMID   Balance       RAAssoc       RARqd
+    6  15                      Security Deposit Receivable                                              0          0.00       unknown      0
+    1  10               10000  Cash                                                                     0          0.00    Associated      0
+    9                   11000  Credit Card Clearing                                                     0          0.00    Associated      0
+    2  11               12000  Accounts Receivable                                                      0          0.00    Associated      0
+    7  16               30000  Security Deposits                                                        0          0.00  Unassociated      0
+   10                   30100  Accued Taxes                                                             0          0.00  Unassociated      0
+   11                   30101  Sales Taxes                                                             10          0.00  Unassociated      0
+   12                   30102  Transient Occupancy Taxes                                               10          0.00  Unassociated      0
+   13                   30199  Other Accrued Taxes                                                     10          0.00  Unassociated      0
+    8  17               39000  Owners' Equity                                                           0          0.00    Associated      0
+    3  12               41000  Unit Gross Scheduled Rent-Taxable                                        0          0.00    Associated      0
+   14                   41001  Unit Gross Scheduled Rent-Not Taxable                                    0          0.00    Associated      0
+   15                   41100  Unit Income Offsets                                                      0          0.00  Unassociated      0
+    5  14               41101  Vacancy                                                                 15          0.00    Associated      0
+    4  13               41102  Loss (Gain) to Lease                                                    15          0.00  Unassociated      0
+   16                   41103  Employee Concessions                                                    15          0.00  Unassociated      0
+   17                   41104  Resident Concessions                                                    15          0.00  Unassociated      0
+   18                   41105  Owner Occupied                                                          15          0.00    Associated      0
+   19                   41106  Administrative Concession                                               15          0.00    Associated      0
+   20                   41107  Off Line Renovations                                                    15          0.00    Associated      0
+   21                   41108  Off Line Maintenance                                                    15          0.00    Associated      0
+   22                   41199  Othe Income Offsets                                                     15          0.00  Unassociated      0
+   23                   41200  Serviced Unit Fees                                                       0          0.00  Unassociated      0
+   24                   41201  Broadcast and IT Services                                               23          0.00  Unassociated      0
+   25                   41202  Food Services                                                           23          0.00  Unassociated      0
+   26                   41203  Linen Services                                                          23          0.00  Unassociated      0
+   27                   41204  Wash N Fold Services                                                    23          0.00  Unassociated      0
+   28                   41299  Other Serviced Apartment Fees                                           23          0.00  Unassociated      0
+   29                   41300  Utility Fees                                                             0          0.00  Unassociated      0
+   30                   41301  Electric Base Fee                                                       29          0.00  Unassociated      0
+   31                   41302  Electric Overage                                                        29          0.00  Unassociated      0
+   32                   41303  Water and Sewer Base Fee                                                29          0.00  Unassociated      2
+   33                   41304  Water and Sewer Overage                                                 29          0.00  Unassociated      2
+   34                   41305  Gas Base Fee                                                            29          0.00  Unassociated      2
+   35                   41306  Gas Overage                                                             29          0.00  Unassociated      2
+   36                   41307  Trash Collection Base Fee                                               29          0.00  Unassociated      2
+   37                   41308  Trash Collection Overage                                                29          0.00  Unassociated      2
+   38                   41399  Other Utility Fee                                                       29          0.00  Unassociated      2
+   39                   41400  Miscellaneous Income                                                     0          0.00  Unassociated      0
+   40                   41401  Application Fees                                                        39          0.00    Associated      3
+   41                   41402  Late Fees                                                               39          0.00  Unassociated      2
+   42                   41403  Insufficient Funds Fee                                                  39          0.00  Unassociated      0
+   43                   41404  Month to Month Fee                                                      39          0.00  Unassociated      0
+   44                   41405  Premium Upgrades                                                        39          0.00  Unassociated      0
+   45                   41406  No Show or Termination Fee                                              39          0.00  Unassociated      0
+   46                   41407  Pet Fees                                                                39          0.00  Unassociated      0
+   47                   41408  Pet Rent                                                                39          0.00  Unassociated      0
+   48                   41409  Expense Reimbursement                                                   39          0.00  Unassociated      0
+   49                   41410  Special Cleaning Fee                                                    39          0.00  Unassociated      0
+   50                   41411  Eviction Fee Reimbursement                                              39          0.00  Unassociated      2
+   51                   41412  Extra Person Charge                                                     39          0.00  Unassociated      0
+   52                   41413  Forfeited Security Deposit                                              39          0.00  Unassociated      2
+   53                   41499  Other Miscellaneous Income                                              39          0.00  Unassociated      0
+   54                   42000  Garage and Carport Gross Scheduled Rents - Taxable                       0          0.00    Associated      0
+   55                   42001  Garage and Carport Gross Scheduled Rents - Non Taxable                   0          0.00    Associated      0
+   56                   42100  Garage and Carport Income Offset                                         0          0.00  Unassociated      0
+   57                   42103  Employee Concessions                                                    56          0.00  Unassociated      0
+   58                   42104  Resident Concessions                                                    56          0.00  Unassociated      0
+   59                   42105  Owner Occupied                                                          56          0.00    Associated      0
+   60                   42106  Administrative Concession                                               56          0.00    Associated      0
+   61                   42107  Off Line Renovations                                                    56          0.00    Associated      0
+   62                   42108  Off Line Maintenance                                                    56          0.00    Associated      0
+   63                   42199  Othe Income Offsets                                                     56          0.00  Unassociated      0
+   64                   42200  Other Garage and Carport Income                                          0          0.00  Unassociated      0
+   65                   43000  Appliance and Furniture Gross Schedule Rent - Taxable                    0          0.00    Associated      0
+   66                   43001  Appliance and Furniture Gross Schedule Rent - Non Taxable                0          0.00    Associated      0
+   67                   43100  Appliance and Furniture Income Offset                                    0          0.00  Unassociated      0
+   68                   43101  Not Rented                                                              67          0.00    Associated      0
+   69                   43102  Loss (Gain) to Lease                                                    67          0.00    Associated      0
+   70                   43103  Employee Concessions                                                    67          0.00  Unassociated      0
+   71                   43104  Resident Concessions                                                    67          0.00  Unassociated      0
+   72                   43105  Owner Used                                                              67          0.00    Associated      0
+   73                   43106  Administrative Concession                                               67          0.00    Associated      0
+   74                   43107  Off Line Maintenance                                                    67          0.00    Associated      0
+   75                   43108  Othe Income Offsets                                                     67          0.00  Unassociated      0
+   76                   43200  Other Appliance and Furniture Income                                     0          0.00  Unassociated      0
+   77                   44000  Vehicle Gross Scheduled Rents - Taxable                                  0          0.00    Associated      0
+   78                   44001  Vehicle Gross Scheduled Rents - Non Taxable                              0          0.00    Associated      0
+   79                   44100  Garage and Carport Income Offset                                         0          0.00  Unassociated      0
+   80                   44103  Employee Use                                                            79          0.00  Unassociated      0
+   81                   44104  Resident Concessions                                                    79          0.00  Unassociated      0
+   82                   44105  Owner Use                                                               79          0.00    Associated      0
+   83                   44106  Administrative Concession                                               79          0.00    Associated      0
+   84                   44107  Off Line Maintenance                                                    79          0.00    Associated      0
+   85                   44199  Othe Income Offsets                                                     79          0.00    Associated      0
+   86                   44200  Other Garage and Carport Income                                          0          0.00    Associated      0
+   87                   49000  Ancillary Business Revenue                                               0          0.00  Unassociated      0
+   88                   49010  Convenience Store Vending                                               87          0.00    Associated      0
+   89                   49020  Fitness Center Revenue                                                  87          0.00    Associated      0
+   90                   49030  Vending Income                                                          87          0.00    Associated      0
+   91                   49040  Restaurant Sales                                                        87          0.00    Associated      0
+   92                   49050  Bar Sales                                                               87          0.00    Associated      0
+   93                   49060  Spa Sales                                                               87          0.00    Associated      0
+   94                   49091  Cash Over/Short                                                         87          0.00    Associated      0
+   95                   49092  Bad Debt                                                                87          0.00    Associated      0
+   96                   49099  Other Ancillary Business Income                                         87          0.00    Associated      0
 
 
 DEFINE SPECIALTIES
@@ -149,8 +149,8 @@ DEFINE SPECIALTIES
 DEFINE RENTABLE SPECIALTY REFERENCES
 
 DEFINE ASSESSMENTS
-      ASMID          RAID        RID   Freq     Amount
-ASM00000001    RA00000001  R00000001      6    3750.00
+      ASMID       PASMID        RAID        RID  RCYC  PCYC     AMOUNT  TYPE                                 ACCOUNT RULE
+ASM00000001  ASM00000000  RA00000001  R00000001     6     4    3750.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
 
 
 DEFINE PAYMENT TYPES
@@ -195,7 +195,18 @@ PROCESS PAYMENTS AND RECEIPTS
                                             Accounts Receivable  03/01/16         1      309 Rexford     12000      -4000.00
                                                            Cash  03/01/16         1      309 Rexford     10000       4000.00
                                                                
-LedgerReportText: GLNumber  -- no LedgerMarker for: 02/01/16 - 02/29/16
+   =====================================================================================================================================
+   Business:  Daisy Hills Properties
+    - Security Deposit Receivable                         
+   03/01/16 - 03/31/16
+   -------------------------------------------------------------------------------------------------------------------------------------
+   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
+   -------------------------------------------------------------------------------------------------------------------------------------
+   Opening Balance                                          03/01/16                                                                0.00
+   -------------------------------------------------------------------------------------------------------------------------------------
+   Closing Balance                                          03/31/16                                                                0.00
+
+
    =====================================================================================================================================
    Business:  Daisy Hills Properties
    10000 - Cash                                           

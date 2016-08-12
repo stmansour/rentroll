@@ -134,6 +134,8 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	// Until we update with new params...
 	ra.PossessionStart = ra.AgreementStart
 	ra.PossessionStop = ra.AgreementStop
+	ra.RentStart = ra.AgreementStart
+	ra.RentStop = ra.AgreementStop
 
 	//-------------------------------------------------------------------
 	//  The Payors

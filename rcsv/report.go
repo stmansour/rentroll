@@ -43,7 +43,8 @@ func RRreportBusiness(t int) string {
 
 // ReportRentableTypeToText returns a string representation of the supplied rlib.RentableType suitable for a text report
 func ReportRentableTypeToText(p *rlib.RentableType) string {
-	s := fmt.Sprintf("%-10s  %-20s  %-25s", p.IDtoString(), p.Style, p.Name)
+	s := fmt.Sprintf("%-10s  %-20s  %-25s  %-9s  %-12s", p.IDtoString(), p.Style, p.Name,
+		rlib.RentalPeriodToString(p.RentCycle), rlib.RentalPeriodToString(p.Proration))
 	for i := 0; i < len(p.MR); i++ {
 		s += fmt.Sprintf("  |  %10s - %10s $ %8.2f", p.MR[i].DtStart.Format(rlib.RRDATEFMT4), p.MR[i].DtStop.Format(rlib.RRDATEFMT4), p.MR[i].MarketRate)
 	}
@@ -64,8 +65,8 @@ func RRreportRentableTypes(t int, bid int64) string {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
-	s := fmt.Sprintf("%-10s  %-20s  %-25s  %s\n", "RTID", "Style", "Name", "Dt1 - Dt2 : Rate")
-	s += fmt.Sprintf("%-10s  %-20s  %-25s  %s\n", "----", "-----", "----", "----------------")
+	s := fmt.Sprintf("%-10s  %-20s  %-25s  %-9s  %-12s  %s\n", "RTID", "Style", "Name", "RentCycle", "ProrateCycle", "Dt1 - Dt2 : Rate")
+	s += fmt.Sprintf("%-10s  %-20s  %-25s  %-9s  %-12s  %s\n", "----", "-----", "----", "---------", "------------", "----------------")
 
 	// To perform the opertion you want
 	for _, k := range keys {
@@ -192,7 +193,7 @@ func RRreportRentalAgreementTemplates(t int) string {
 func ReportRentalAgreementToText(p *rlib.RentalAgreement, d1, d2 *time.Time) string {
 	payors := strings.Join(p.GetPayorNameList(d1, d2), ", ")
 	users := strings.Join(p.GetUserNameList(d1, d2), ", ")
-	return fmt.Sprintf("%5d  %-40s  %-40s\n", p.RAID, payors, users)
+	return fmt.Sprintf("%5d  %-40.40s  %-40.40s\n", p.RAID, payors, users)
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
@@ -229,13 +230,21 @@ func RRreportRentalAgreements(t int, bid int64) string {
 // ReportChartOfAcctsToText returns a string representation of the chart of accts
 func ReportChartOfAcctsToText(p rlib.GLAccount) string {
 	s := ""
-	lm, err := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
-	if err != nil {
-		fmt.Printf("ReportChartOfAcctsToText: error getting latest rlib.LedgerMarker: %s\n", err.Error())
+	lm := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
+	if lm.LMID == 0 {
+		fmt.Printf("ReportChartOfAcctsToText: error getting latest LedgerMarker\n")
 		return s
 	}
+
 	if rlib.GLCASH <= p.Type && p.Type <= rlib.GLLAST {
-		s = fmt.Sprintf("%4d", p.Type)
+		s = fmt.Sprintf("%d", p.Type)
+	} else {
+		switch p.Type {
+		case 1:
+			s = "RArcv   "
+		case 2:
+			s = "RAsecdep"
+		}
 	}
 
 	sp := ""
@@ -250,7 +259,7 @@ func ReportChartOfAcctsToText(p rlib.GLAccount) string {
 		sp = fmt.Sprintf("??? invalid: %d", p.RAAssociated)
 	}
 
-	return fmt.Sprintf("%5d  %4s  %12s  %-60s  %12d  %12.2f  %12s  %5d\n",
+	return fmt.Sprintf("%5d  %-8s  %12s  %-60s  %12d  %12.2f  %12s  %5d\n",
 		lm.LMID, s, p.GLNumber, p.Name, p.PLID, lm.Balance, sp, p.RARequired)
 }
 
@@ -275,7 +284,7 @@ func RRreportChartOfAccounts(t int, bid int64) string {
 		}
 	}
 
-	s := fmt.Sprintf("%5s  %4s  %12s  %-60s  %-12s  %-12s  %-12s  %-5s\n", "LMID", "Type", "GLNumber", "Name", "Parent LMID", "Balance", "RAAssoc", "RARqd")
+	s := fmt.Sprintf("%5s  %-8s  %12s  %-60s  %-12s  %-12s  %-12s  %-5s\n", "LMID", "Type", "GLNumber", "Name", "Parent LMID", "Balance", "RAAssoc", "RARqd")
 	for i := 0; i < len(a); i++ {
 		switch t {
 		case rlib.RPTTEXT:
@@ -296,8 +305,9 @@ func ReportAssessmentToText(p *rlib.Assessment) string {
 	if p.RAID > 0 {
 		ra = fmt.Sprintf("RA%08d", p.RAID)
 	}
-	return fmt.Sprintf("ASM%08d  %12s  R%08d     %2d  %9.2f\n",
-		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
+	return fmt.Sprintf("%s  ASM%08d  %10s  R%08d  %4d  %4d  %9.2f  %-35s  %s\n",
+		p.IDtoString(), p.PASMID, ra, p.RID, p.RentCycle, p.ProrationCycle,
+		p.Amount, rlib.RRdb.BizTypes[p.BID].GLAccounts[p.ATypeLID].Name, p.AcctRule)
 }
 
 // ReportAssessmentToHTML returns a string representation of the chart of accts
@@ -314,10 +324,12 @@ func ReportAssessmentToHTML(p *rlib.Assessment) string {
 func RRreportAssessments(t int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	rlib.InitBusinessFields(bid)
+	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("      ASMID          RAID        RID   Freq     Amount\n")
+	s := fmt.Sprintf("%11s  %11s  %10s  %9s  %4s  %4s  %9s  %-35s  %s\n", "ASMID", "PASMID", "RAID", "RID", "RCYC", "PCYC", "AMOUNT", "TYPE", "ACCOUNT RULE")
 	for rows.Next() {
 		var a rlib.Assessment
 		rlib.ReadAssessments(rows, &a)

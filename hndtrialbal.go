@@ -44,7 +44,7 @@ func hndTrialBalance(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	BuildXLedgerList(&ui, biz.BID, ui.DtStart, ui.DtStop)
+	BuildXLedgerList(&ui, biz.BID, ui.DtStop)
 	ui.B = biz
 
 	w.Header().Set("Content-Type", "text/html")

@@ -58,6 +58,7 @@ EOF
 }
 
 
+###   BEGIN ---  MENU DRIVEN REPORTS   
 #############################################################################
 # pause()
 #   Description:
@@ -186,7 +187,7 @@ while getopts "rR:" o; do
 	esac
 done
 shift $((OPTIND-1))
-
+###  END --- MENU DRIVEN REPORTS
 
 rm -f ${ERRFILE}
 dotest "x"  "-b nb.csv"           "NewBusinesses...  " "select BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy from Business;"
@@ -213,7 +214,7 @@ dotest "n2" "-C ra.csv"           "Notes...  " "select NID,PNID,Comment,LastModB
 dotest "m"  "-C ra.csv"           "AgreementRentables...  " "select * from RentalAgreementRentables;"
 dotest "l"  "-C ra.csv"           "AgreementPayors...  " "select * from RentalAgreementPayors;"
 dotest "k"  "-c coa.csv"          "ChartOfAccounts...  " "select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
-dotest "k1" "-c coa.csv"          "LedgerMarkers...  " "select LMID,LID,BID,DtStart,DtStop,Balance,State,LastModBy from LedgerMarker;"
+dotest "k1" "-c coa.csv"          "LedgerMarkers...  " "select LMID,LID,BID,Dt,Balance,State,LastModBy from LedgerMarker;"
 dotest "a"  "-c rp.csv"           "RatePlan...  " "select RPID,BID,Name,LastModBy from RatePlan;"
 dotest "a1" "-c rprefs.csv"       "RatePlanRef...  " "select RPRID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"
 dotest "a2" "-n rprtrate.csv"     "RatePlanRefRTRate...  " "select * from RatePlanRefRTRate;"

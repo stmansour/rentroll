@@ -67,9 +67,9 @@ func UIInitBizList(ui *RRuiSupport) {
 
 // BuildXLedgerList initializes all ledger information for use in the UI. It loads all defined GLAccounts
 // and the LedgerMarkers for a specific period
-func BuildXLedgerList(ui *RRuiSupport, bid int64, d1, d2 time.Time) {
-	m := rlib.GetAllLedgerMarkersInRange(bid, &d1, &d2) // map of ledger markers indexed by LID
-	n := rlib.GetLedgerList(bid)                        // list of all ledgers
+func BuildXLedgerList(ui *RRuiSupport, bid int64, dt time.Time) {
+	m := rlib.GetAllLedgerMarkersOnOrBefore(bid, &dt) // map of ledger markers indexed by LID
+	n := rlib.GetLedgerList(bid)                      // list of all ledgers
 	k := 0
 	for i := 0; i < len(n); i++ {
 		var x XLedger
@@ -127,9 +127,11 @@ func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []Sta
 		return m
 	}
 
-	dtStop := d1
-	dtStart := dtStop.AddDate(0, 0, -1)
-	lm, err := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, l.LID, &dtStart, dtStop)
+	// dtStop := d1
+	// dtStart := dtStop.AddDate(0, 0, -1)
+	// lm := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, l.LID, &dtStart, dtStop)
+	lm := rlib.GetLedgerMarkerOnOrBefore(xbiz.P.BID, l.LID, d1)
+
 	var se StatementEntry
 	se.bal = float64(0)
 	if nil == err {

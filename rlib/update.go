@@ -62,7 +62,7 @@ func UpdateInvoice(a *Invoice) error {
 
 // UpdateLedgerMarker updates a LedgerMarker record
 func UpdateLedgerMarker(lm *LedgerMarker) error {
-	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LMID, lm.LID, lm.BID, lm.DtStart, lm.DtStop, lm.Balance, lm.State, lm.LastModBy, lm.LMID)
+	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LID, lm.BID, lm.Dt, lm.Balance, lm.State, lm.LastModBy, lm.LMID)
 	if nil != err {
 		Ulog("UpdateLedgerMarker: error updating LedgerMarker:  %v\n", err)
 		Ulog("LedgerMarker = %#v\n", *lm)

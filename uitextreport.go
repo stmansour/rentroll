@@ -12,17 +12,18 @@ import (
 // UILedgerTextReport prints a report of data that will be used to format a ledger UI.
 // This routine is primarily for testing
 func UILedgerTextReport(ui *RRuiSupport) {
-	fmt.Printf("LEDGER MARKERS\n%s\nOpening Balances:  %s\n\n", ui.B.Name, ui.DtStop.Format("January 2, 2006"))
-	fmt.Printf("%50s  %10s  %12s\n", "Name", "GLNumber", "Balance")
+	fmt.Printf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ui.B.Name, ui.DtStop.Format("January 2, 2006"))
+	fmt.Printf("%-9s  %50s  %10s  %12s\n", "LID", "Name", "GLNumber", "Balance")
+	lineLen := 9 + 50 + 10 + 12 + (2 * 3)
 	for i := 0; i < len(ui.LDG.XL); i++ {
-		fmt.Printf("%50.50s  %10s  %12s\n", ui.LDG.XL[i].G.Name, ui.LDG.XL[i].G.GLNumber, humanize.FormatFloat("#,###.##", ui.LDG.XL[i].LM.Balance))
+		fmt.Printf("L%08d  %50.50s  %10s  %12s\n", ui.LDG.XL[i].G.LID, ui.LDG.XL[i].G.Name, ui.LDG.XL[i].G.GLNumber, humanize.FormatFloat("#,###.##", ui.LDG.XL[i].LM.Balance))
 	}
 	s := ""
-	for i := 0; i < 76; i++ {
+	for i := 0; i < lineLen; i++ {
 		s += "-"
 	}
 	fmt.Println(s)
-	fmt.Printf("%50s  %10s  %12s\n", " ", " ", humanize.FormatFloat("#,###.##", LMSum(&ui.LDG.XL)))
+	fmt.Printf("%9s  %50s  %10s  %12s\n", " ", " ", " ", humanize.FormatFloat("#,###.##", LMSum(&ui.LDG.XL)))
 }
 
 // UIRentableCountByRentableTypeReport returns a structure containing the count of Rentables for each RentableType
@@ -34,7 +35,7 @@ func UIRentableCountByRentableTypeReport(xbiz *rlib.XBusiness, d1, d2 *time.Time
 	if err != nil {
 		fmt.Printf("UIRentableCountByRentableTypeReport: GetRentableCountByRentableType returned error: %s\n", err.Error())
 	}
-	s := fmt.Sprintf("%13s  %-18s  %-6s  %s\n", "No. Rentables", "Name", "Style", "Custom Attributes")
+	s := fmt.Sprintf("%13s  %-20s  %-6s  %s\n", "No. Rentables", "RentableType Name", "Style", "Custom Attributes")
 	fmt.Print(s)
 	w := len(s) - 1 // subtract 1 for the newline character
 	s = ""
@@ -62,7 +63,7 @@ func UIRentableCountByRentableTypeReport(xbiz *rlib.XBusiness, d1, d2 *time.Time
 
 	for i := 0; i < len(keys); i++ {
 		j := int64(keys[i])
-		fmt.Printf("%13d  %-18s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
+		fmt.Printf("%13d  %-20.20s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
 		// for k := 0; k < len(m[j].RT.CA); k++ {
 		for k, v := range m[j].RT.CA {
 			// fmt.Printf("   %s: %s", m[j].RT.CA[k].Name, m[j].RT.CA[k].Value)
@@ -70,6 +71,7 @@ func UIRentableCountByRentableTypeReport(xbiz *rlib.XBusiness, d1, d2 *time.Time
 		}
 		fmt.Printf("\n")
 	}
+	fmt.Printf("\n")
 }
 
 // UIStatementForRA generates a text Statement for the supplied rental agreement ra.

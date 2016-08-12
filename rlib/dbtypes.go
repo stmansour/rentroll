@@ -34,6 +34,7 @@ const (
 	SECURITYDEPOSITASSESSMENT = 58
 
 	RABALANCEACCOUNT = 1 // GLAccount set up for a RentalAgreement balance
+	RASECDEPACCOUNT  = 2 // GLAccount set up for a SecurityDeposit balance
 
 	ACCTSTATUSINACTIVE = 1
 	ACCTSTATUSACTIVE   = 2
@@ -710,12 +711,13 @@ type RentableSpecialtyRef struct {
 
 // RentableStatus archives the state of a Rentable during the specified period of time
 type RentableStatus struct {
-	RID         int64     // associated Rentable
-	DtStart     time.Time // start of period
-	DtStop      time.Time // end of period
-	Status      int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
-	LastModTime time.Time // time of last update to the db record
-	LastModBy   int64     // who made the update (Phonebook UID)
+	RID              int64     // associated Rentable
+	DtStart          time.Time // start of period
+	DtStop           time.Time // end of period
+	DtNoticeToVacate time.Time // user has indicated they will vacate on this date
+	Status           int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
+	LastModTime      time.Time // time of last update to the db record
+	LastModBy        int64     // who made the update (Phonebook UID)
 }
 
 // XBusiness combines the Business struct and a map of the Business's Rentable types
@@ -789,8 +791,7 @@ type LedgerMarker struct {
 	LMID        int64     // unique id for this LM
 	LID         int64     // associated GLAccount
 	BID         int64     // only valid if Type == 1
-	DtStart     time.Time // valid period start
-	DtStop      time.Time // valid period end
+	Dt          time.Time // Balance is valid as of this time
 	Balance     float64   // GLAccount balance at the end of the period
 	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
 	LastModTime time.Time // auto updated
@@ -863,7 +864,7 @@ type RRprepSQL struct {
 	GetAllInvoicesInRange                    *sql.Stmt
 	GetAllJournalsInRange                    *sql.Stmt
 	GetAllLedgerEntriesInRange               *sql.Stmt
-	GetAllLedgerMarkersInRange               *sql.Stmt
+	GetAllLedgerMarkersOnOrBefore            *sql.Stmt
 	GetAllNotes                              *sql.Stmt
 	GetAllNoteTypes                          *sql.Stmt
 	GetAllRentableAssessments                *sql.Stmt
@@ -1043,6 +1044,9 @@ type RRprepSQL struct {
 	InsertRatePlanRefSPRate                  *sql.Stmt
 	UpdateRatePlanRefSPRate                  *sql.Stmt
 	DeleteRatePlanRefSPRate                  *sql.Stmt
+	GetLedgerMarkerOnOrBefore                *sql.Stmt
+	GetLedgerEntriesInRange                  *sql.Stmt
+	GetSecDepBalanceLedger                   *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

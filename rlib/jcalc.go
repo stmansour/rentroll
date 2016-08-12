@@ -79,15 +79,18 @@ func CalcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate in
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------
 	start, stop := DateTrim(DtStart, DtStop, d1, d2)
-	pf := float64(1.0)                          // assume full period
-	cycleTime := d2.Sub(*d1)                    // denominator
-	thisPeriod := stop.Sub(start)               // numerator
-	if cycleTime != thisPeriod && prorate > 0 { // if cycle time and period differ AND it's NOT a one-time charge
+	pf := float64(1.0)            // assume full period
+	cycleTime := d2.Sub(*d1)      // denominator
+	thisPeriod := stop.Sub(start) // numerator
+	if cycleTime != thisPeriod && // if cycle time and period differ
+		prorate > 0 && // AND it's NOT a one-time charge
+		rentCycle > prorate { // AND the rentcycle is larger than the proratecycle
 		pf = float64(thisPeriod) / float64(cycleTime)
 	}
 	num := int64(0)
 	den := int64(0)
-	if thisPeriod > 0 && prorate > 0 {
+	// if thisPeriod > 0 && prorate > 0 && rentCycle > prorate {
+	if prorate > 0 {
 		div := CycleDuration(prorate, *d1)
 		num = int64(thisPeriod / div)
 		den = int64(cycleTime / div)

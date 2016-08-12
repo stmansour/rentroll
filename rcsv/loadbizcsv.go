@@ -33,7 +33,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) {
 	found := true
 	var err error
 
-	if strings.ToLower(des) == "designation" {
+	if strings.ToLower(des) == "bud" {
 		return // this is just the header line
 	}
 

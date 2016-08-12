@@ -226,7 +226,7 @@ func InsertJournalMarker(jm *JournalMarker) error {
 
 // InsertLedgerMarker writes a new LedgerMarker record to the database
 func InsertLedgerMarker(l *LedgerMarker) error {
-	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.DtStart, l.DtStop, l.Balance, l.State, l.LastModBy)
+	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.Dt, l.Balance, l.State, l.LastModBy)
 	if err != nil {
 		fmt.Printf("InsertLedgerMarker: err = %#v\n", err)
 	}
@@ -594,7 +594,7 @@ func InsertRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 
 // InsertRentableStatus writes a new RentableStatus record to the database
 func InsertRentableStatus(a *RentableStatus) error {
-	_, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.DtStart, a.DtStop, a.Status, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy)
 	return err
 }
 

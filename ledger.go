@@ -59,6 +59,9 @@ func GetCachedLedgerByGL(bid int64, s string) rlib.GLAccount {
 func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1, d2 *time.Time) {
 	for i := 0; i < len(j.JA); i++ {
 		m := rlib.ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
+		fGenRcv := false
+		fSecDep := false
+		idx := 0
 		for k := 0; k < len(m); k++ {
 			var l rlib.LedgerEntry
 			l.BID = xbiz.P.BID
@@ -71,9 +74,38 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 			}
 			ledger := GetCachedLedgerByGL(l.BID, m[k].Account)
 			l.LID = ledger.LID
-			// l.GLNo = ledger.GLNumber
 			l.RAID = j.RAID
 			rlib.InsertLedgerEntry(&l)
+
+			// look for security deposits...
+			if m[k].Account == rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].GLNumber {
+				fGenRcv = true
+			}
+			if m[k].Account == rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].GLNumber {
+				fSecDep = true
+				idx = k
+			}
+		}
+
+		// If this was a security deposit, store a subledger for this account
+		if len(m) == 2 && fGenRcv && fSecDep {
+			sdldg, err := LoadRASecurityDepositLedger(j.RAID, xbiz.P.BID)
+			if err != nil {
+				rlib.Ulog("GenerateLedgerEntriesFromJournal: error loading Security Deposit Ledger: %s\n", err.Error())
+			} else {
+				var l rlib.LedgerEntry
+				l.BID = xbiz.P.BID
+				l.JID = j.JID
+				l.JAID = j.JA[i].JAID
+				l.Dt = j.Dt
+				l.Amount = rlib.RoundToCent(m[idx].Amount)
+				// if m[idx].Action == "c" {
+				// 	l.Amount = -l.Amount
+				// }
+				l.LID = sdldg.LID
+				l.RAID = j.RAID
+				rlib.InsertLedgerEntry(&l)
+			}
 		}
 	}
 }
@@ -95,16 +127,16 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.GLAccount, lm *rlib.Ledger
 	var nlm rlib.LedgerMarker
 	nlm = *lm
 	nlm.Balance = bal
-	nlm.DtStart = *d1
-	nlm.DtStop = d2.AddDate(0, 0, -1) // TODO: subtracting 1 day may not be correct
+	// nlm.Dt = d2.AddDate(0, 0, -1) // TODO: subtracting 1 day may not be correct
+	nlm.Dt = *d2
 	nlm.State = state
 	// fmt.Printf("nlm - %s - %s   GLNo: %s, Balance: %6.2f\n",
-	// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.DtStop.Format(rlib.RRDATEFMT), nlm.GLNumber, nlm.Balance)
+	// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.Dt.Format(rlib.RRDATEFMT), nlm.GLNumber, nlm.Balance)
 	rlib.InsertLedgerMarker(&nlm)
 }
 
 // LoadRABalanceLedger returns a balance ledger for the supplied RentalAgreement, creating it if necessary.
-func LoadRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64) (rlib.GLAccount, error) {
+func LoadRABalanceLedger(ra *rlib.RentalAgreement, bid int64) (rlib.GLAccount, error) {
 	l, err := rlib.GetRABalanceLedger(bid, ra.RAID)
 	if err != nil {
 		if rlib.IsSQLNoResultsError(err) {
@@ -120,6 +152,28 @@ func LoadRABalanceLedger(ra *rlib.RentalAgreement, d1, d2 *time.Time, bid int64)
 			return l, err
 		}
 		rlib.Ulog("LoadRABalanceLedger: error getting RABalanceLedger for BID=%d, RAID=%d, err = %s\n", bid, ra.RAID, err.Error())
+	}
+	return l, err
+}
+
+// LoadRASecurityDepositLedger returns a security deposit ledger for the supplied RentalAgreement, creating it if necessary.
+func LoadRASecurityDepositLedger(raid, bid int64) (rlib.GLAccount, error) {
+	funcname := "LoadRASecurityDepositLedger"
+	l, err := rlib.GetSecDepBalanceLedger(bid, raid)
+	if err != nil {
+		if rlib.IsSQLNoResultsError(err) {
+			var l rlib.GLAccount
+			l.BID = bid
+			l.Type = rlib.RASECDEPACCOUNT
+			l.RAAssociated = 2
+			l.RAID = raid
+			l.Status = 2
+			l.Name = fmt.Sprintf("RA%08d SecurityDeposit", raid)
+			l.LID, err = rlib.InsertLedger(&l)
+			// fmt.Printf("LoadRASecurityDepositLedger: CREATING LedgerSecurityDeposit account: for RAID = %d;  LID = %d\n", raid, l.LID)
+			return l, err
+		}
+		rlib.Ulog("%s: error getting Security Deposit Ledger for BID=%d, RAID=%d, err = %s\n", funcname, bid, raid, err.Error())
 	}
 	return l, err
 }
@@ -149,24 +203,21 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 	for rows.Next() {
 		var ra rlib.RentalAgreement
 		rlib.Errcheck(rlib.ReadRentalAgreements(rows, &ra))
-		l, err := LoadRABalanceLedger(&ra, d1, d2, bid)
+		l, err := LoadRABalanceLedger(&ra, bid)
 		if err != nil {
 			return err
 		}
 
 		// initialize balance from the last marker if it exists
 		openingBal := float64(0)
-		lm, err := rlib.GetLatestLedgerMarkerByLID(bid, l.LID)
-		if err != nil {
-			if !rlib.IsSQLNoResultsError(err) {
-				return err
-			}
+		lm := rlib.GetLatestLedgerMarkerByLID(bid, l.LID)
+		if lm.LMID == 0 {
 			state = int64(rlib.MARKERSTATEORIGIN)
 		} else {
 			// if the stop date of this marker is past our startdate, then we have big problems.
-			if d1.Before(lm.DtStop) {
+			if d1.Before(lm.Dt) {
 				return fmt.Errorf("GenerateRABalances: existing LedgerMarker for RAID %d has stop date %s, past current period start date %s\n",
-					ra.RAID, lm.DtStop.Format(rlib.RRDATEINPFMT), d1.Format(rlib.RRDATEINPFMT))
+					ra.RAID, lm.Dt.Format(rlib.RRDATEINPFMT), d1.Format(rlib.RRDATEINPFMT))
 			}
 			openingBal = lm.Balance
 		}
@@ -184,12 +235,11 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 		var nlm rlib.LedgerMarker
 		nlm.LID = l.LID
 		nlm.BID = bid
-		nlm.DtStart = *d1
-		nlm.DtStop = *d2
+		nlm.Dt = *d2
 		nlm.Balance = openingBal + delta
 		nlm.State = state
 		// fmt.Printf("INSERTING LEDGER MARKER:  %s - %s   LID: %d, Balance: %6.2f\n",
-		// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.DtStop.Format(rlib.RRDATEFMT), nlm.LID, nlm.Balance)
+		// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.Dt.Format(rlib.RRDATEFMT), nlm.LID, nlm.Balance)
 		err = rlib.InsertLedgerMarker(&nlm)
 		rlib.Errlog(err)
 	}
@@ -229,11 +279,10 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	// fmt.Printf("len(t) =  %d\n", len(t))
 	for i := 0; i < len(t); i++ {
-		if t[i].Type != rlib.RABALANCEACCOUNT {
-			lm, err := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
-			if err != nil {
+		if t[i].Type != rlib.RABALANCEACCOUNT && t[i].Type != rlib.RASECDEPACCOUNT {
+			lm := rlib.GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
+			if lm.LMID == 0 {
 				fmt.Printf("%s: Could not get GLAccount %d (%s) in busines %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
-				fmt.Printf("%s: Error = %v\n", funcname, err)
 				continue
 			}
 			// fmt.Printf("lm = %#v\n", lm)

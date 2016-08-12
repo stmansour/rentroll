@@ -49,7 +49,7 @@ func RunBooks(ctx *DispatchCtx) {
 			ui.B = xbiz.P
 			ui.DtStart = ctx.DtStart
 			ui.DtStop = ctx.DtStop
-			BuildXLedgerList(&ui, xbiz.P.BID, ctx.DtStart, ctx.DtStop)
+			BuildXLedgerList(&ui, xbiz.P.BID, ctx.DtStop)
 			UILedgerTextReport(&ui)
 		case 7: // RENTABLE COUNT BY TYPE
 			UIRentableCountByRentableTypeReport(&xbiz, &ctx.DtStart, &ctx.DtStop)

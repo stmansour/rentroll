@@ -46,6 +46,36 @@ CREATE TABLE IDCounters (
     InvoiceNo BIGINT NOT NULL DEFAULT 0                     -- unique number for invoices
 );
 
+-- ===========================================
+--   TAXES
+-- ===========================================
+CREATE TABLE Tax (
+    TAXID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique identifier for this tax
+    BID BIGINT NOT NULL DEFAULT 0,                          -- what business is this tax associated with
+    Name VARCHAR(50),                                       -- a name for this tax
+    TaxingAuthority VARCHAR(100),                           -- name of the Taxing Authority
+    TaxingAuthorityAddress VARCHAR(256),                    -- where these taxes are sent
+    FilingDate DATE NOT NULL DEFAULT '1970-01-01',          -- date on which taxes need to be filed
+    FilingCycle BIGINT NOT NULL DEFAULT 0,                  -- epoch date for recurrence calculation
+    Instructions VARCHAR(1024) NOT NULL DEFAULT '',         -- filing instructions
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY(TAXID)
+);
+
+CREATE TABLE TaxRate (
+    TAXID BIGINT NOT NULL DEFAULT 0,                        -- reference to which tax this table represents
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- date when this tax rate goes into effect
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- date when this tax rate is no longer applicable
+    Rate DECIMAL(19,4) NOT NULL DEFAULT 0,                  -- floating point number representing the rate. Set to 0 if not applicable.
+    Fee DECIMAL(19,4) NOT NULL DEFAULT 0,                   -- floating point number.  Set to 0 if not applicable.
+    Formula VARCHAR(256) NOT NULL DEFAULT '',               -- RPN calculator notation of formula, Set to '' if not needed
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0                  -- employee UID (from phonebook) that modified it 
+);
+
+
+
 CREATE TABLE StringList (
     SLID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id for this stringlist
     BID BIGINT NOT NULL DEFAULT 0,                          -- the business to which this stringlist belongs
@@ -313,6 +343,12 @@ CREATE TABLE RentableMarketrate (
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
 );
 
+-- RentableType RTID needs to have tax TAXID applied to rental assessments.
+-- There can be as many of these records as needed per rentable type.
+CREATE TABLE RentableTaxes (
+    RTID BIGINT NOT NULL DEFAULT 0,                             -- associated Rentable type
+    TAXID BIGINT NOT NULL DEFAULT 0                             -- which tax
+);
 
 -- ===========================================
 --   RENTABLE SPECIALTY TYPES
@@ -429,6 +465,7 @@ CREATE TABLE RentableStatus (
     Status SMALLINT NOT NULL DEFAULT 0,                             -- 0 = UNKNOWN -- 1 = ONLINE, 2 = ADMIN, 3 = EMPLOYEE, 4 = OWNEROCC, 5 = OFFLINE, 
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
+    DtNoticeToVacate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- user has indicated they will vacate on this date
     LastModTime TIMESTAMP,                                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that modified it 
 );
@@ -459,9 +496,9 @@ CREATE TABLE Assessments (
     ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
     RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
-    Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for the assessment - recurrences are based on this date
-    Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date - when the User moves out or when the charge is no longer applicable
-    RentCycle SMALLINT NOT NULL DEFAULT 0,                 -- 0 = one time only, 1 = daily, 2 = weekly, 3 = monthly,   4 = yearly
+    Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for recurring assessments; the date/time of the assessment for instances
+    Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date for recurrent assessments; the date/time of the assessment for instances
+    RentCycle SMALLINT NOT NULL DEFAULT 0,                  -- 0 = non-recurring, 1 = secondly, 2 = minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly, 7=quarterly, 8=yearly
     ProrationCycle SMALLINT NOT NULL DEFAULT 0,             -- 
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- DELETE THIS -- DON'T KEEP THE INVOICE REFERENCE IN THE ASSESSMENT... !!!! <<<<TODO
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule - which acct debited, which credited
@@ -471,6 +508,16 @@ CREATE TABLE Assessments (
     PRIMARY KEY (ASMID)
 );
 
+-- the actual tax rate or fee will be read from the TaxRate table based on the instance date of the assessment
+CREATE TABLE AssessmentTax (
+    ASMID BIGINT NOT NULL DEFAULT 0,                        -- the assessment to which this tax is bound
+    TAXID BIGINT NOT NULL DEFAULT 0,                        -- what type of tax.
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 0 = override this tax -- do not apply, bit 1 - override and use OverrideAmount
+    OverrideTaxApprover MEDIUMINT NOT NULL DEFAULT 0,       -- if tax is overridden, who approved it
+    OverrideAmount DECIMAL(19,4) NOT NULL DEFAULT 0,        -- Don't calculate. Use this amount. OverrideApprover required.  0 if not applicable.
+    LastModTime TIMESTAMP,                                  -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0                  -- employee UID (from phonebook) that modified it 
+);
 
 -- **************************************
 -- ****                              ****
@@ -792,8 +839,7 @@ CREATE TABLE LedgerMarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
     LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- period start
-    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- period end
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- Balance is valid as of this time
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
     LastModTime TIMESTAMP,                                    -- when was this record last written
@@ -809,7 +855,10 @@ CREATE TABLE GLAccount (
     RAID BIGINT NOT NULL DEFAULT 0,                 -- rental agreement account, only valid if TYPE is 1
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',      -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,             -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
-    Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind, 1 = RentalAgreement Balance, 
+    Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind, 
+    --                                                       1 = RentalAgreement Receivable Balance, 
+    --                                                       2 = RentalAgreement Security Deposit Balance,
+    --                                                       3 - 9 Reserved
     --                                                       10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',      -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 
@@ -859,12 +908,12 @@ INSERT INTO GLAccount (BID,RAID,GLNumber,Status,Type,Name) VALUES
 -- ----------------------------------------------------------------------------------------
 --    LEDGERs MARKERS - These define the required ledgers
 -- ----------------------------------------------------------------------------------------
-INSERT INTO LedgerMarker (BID,LID,State,DtStart,DtStop,Balance) VALUES
-    (1,1,3,"2015-10-01","2015-10-31",0.0),
-    (1,2,3,"2015-10-01","2015-10-31",0.0),
-    (1,3,3,"2015-10-01","2015-10-31",0.0),
-    (1,4,3,"2015-10-01","2015-10-31",0.0),
-    (1,5,3,"2015-10-01","2015-10-31",0.0),
-    (1,6,3,"2015-10-01","2015-10-31",0.0),
-    (1,7,3,"2015-10-01","2015-10-31",0.0),
-    (1,8,3,"2015-10-01","2015-10-31",0.0);
+INSERT INTO LedgerMarker (BID,LID,State,Dt,Balance) VALUES
+    (1,1,3,"2015-10-31",0.0),
+    (1,2,3,"2015-10-31",0.0),
+    (1,3,3,"2015-10-31",0.0),
+    (1,4,3,"2015-10-31",0.0),
+    (1,5,3,"2015-10-31",0.0),
+    (1,6,3,"2015-10-31",0.0),
+    (1,7,3,"2015-10-31",0.0),
+    (1,8,3,"2015-10-31",0.0);

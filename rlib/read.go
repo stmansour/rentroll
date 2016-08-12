@@ -28,6 +28,26 @@ func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
 		&a.RAAssociated, &a.AllowPost, &a.RARequired, &a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
+func ReadLedgerEntry(row *sql.Row, a *LedgerEntry) {
+	Errcheck(row.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadLedgerEntries reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
+func ReadLedgerEntries(rows *sql.Rows, a *LedgerEntry) {
+	Errcheck(rows.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadLedgerMarker reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.
+func ReadLedgerMarker(row *sql.Row, a *LedgerMarker) {
+	Errcheck(row.Scan(&a.LMID, &a.LID, &a.BID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadLedgerMarkers reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.
+func ReadLedgerMarkers(rows *sql.Rows, a *LedgerMarker) {
+	Errcheck(rows.Scan(&a.LMID, &a.LID, &a.BID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
+}
+
 // ReadNote reads a full Note structure from the database based on the supplied row object
 func ReadNote(row *sql.Row, a *Note) {
 	Errcheck(row.Scan(&a.NID, &a.NLID, &a.PNID, &a.NTID, &a.RID, &a.RAID, &a.TCID, &a.Comment, &a.LastModTime, &a.LastModBy))
