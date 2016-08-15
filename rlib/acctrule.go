@@ -60,6 +60,7 @@ func DoAcctSubstitution(bid int64, s string) string {
 func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []AcctRule {
 	funcname := "ParseAcctRule"
 	var m []AcctRule
+	// fmt.Printf("%s:  rid = %d, d1 = %s, d2 = %s, rule = %s, amount = %f, pf = %f\n", funcname, rid, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), rule, amount, pf)
 	ctx := RpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
 	// fmt.Printf("ctx.Amount = %f\n", ctx.amount)
 	if len(rule) > 0 {

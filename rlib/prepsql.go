@@ -668,9 +668,9 @@ func buildPreparedStatements() {
 	//===============================
 	//  RentableMarketRates
 	//===============================
-	RRdb.Prepstmt.GetRentableMarketRates, err = RRdb.Dbrr.Prepare("SELECT RTID,MarketRate,DtStart,DtStop from RentableMarketrate WHERE RTID=?")
+	RRdb.Prepstmt.GetRentableMarketRates, err = RRdb.Dbrr.Prepare("SELECT RTID,MarketRate,DtStart,DtStop from RentableMarketRate WHERE RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.Dbrr.Prepare("INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES(?,?,?,?)")
+	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.Dbrr.Prepare("INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(?,?,?,?)")
 	Errcheck(err)
 
 	//==========================================

@@ -39,6 +39,8 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	tbl.AddColumn("Use Stop", "s", 10, 0)                   // the possession start date
 	tbl.AddColumn("Rental Start", "s", 10, 0)               // the rental start date
 	tbl.AddColumn("Rental Stop", "s", 10, 0)                // the rental start date
+	tbl.AddColumn("Rental Agreement Start", "s", 10, 0)     // the possession start date
+	tbl.AddColumn("Rental Agreement Stop", "s", 10, 0)      // the possession start date
 	tbl.AddColumn("Rent Cycle", "s", 12, 0)                 // the rent cycle
 	tbl.AddColumn("GSR Rate", "s", 10, 1)                   // gross scheduled rent
 	tbl.AddColumn("GSR This Period", "s", 10, 1)            // gross scheduled rent
@@ -46,12 +48,12 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	tbl.AddColumn("Contract Rent", "s", 10, 1)              // contract rent amounts
 	tbl.AddColumn("Other Income", "s", 10, 1)               // GL Account
 	tbl.AddColumn("Payments Received", "s", 10, 1)          // contract rent amounts
-	tbl.AddColumn("Beginning Receivable", "s", 10, 0)       // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Receivable", "s", 10, 0)       // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Receivable", "s", 10, 0)          // account for the associated RentalAgreement
-	tbl.AddColumn("Beginning Security Deposit", "s", 10, 0) // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Security Deposit", "s", 10, 0) // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Security Deposit", "s", 10, 0)    // account for the associated RentalAgreement
+	tbl.AddColumn("Beginning Receivable", "s", 10, 1)       // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Receivable", "s", 10, 1)       // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Receivable", "s", 10, 1)          // account for the associated RentalAgreement
+	tbl.AddColumn("Beginning Security Deposit", "s", 10, 1) // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Security Deposit", "s", 10, 1) // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Security Deposit", "s", 10, 1)    // account for the associated RentalAgreement
 
 	tbl.PrintColHdr()
 	tbl.PrintLine()
@@ -73,6 +75,8 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		possStop := ""       // possession stop date
 		rentStart := ""      // rental start date
 		rentStop := ""       // rental stop date
+		agreementStart := "" // rental start date
+		agreementStop := ""  // rental stop date
 		rentCycle := ""      // how rent accrues
 		gsrstr := ""         // Gross Scheduled Rent
 		gsrRateStr := ""     // GSR Rate this period
@@ -102,7 +106,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		if len(rra) == 0 {                                  // if there are none...
 			usernames = "vacant"
 			tbl.Printf(p.Name, xbiz.RT[rtid].Style, sqft, usernames, payornames, raid, possStart, possStop,
-				rentStart, rentStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets, contractRent, otherIncome, pmtRcvd,
+				rentStart, rentStop, agreementStart, agreementStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets, contractRent, otherIncome, pmtRcvd,
 				beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
 		}
 
@@ -112,15 +116,17 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				fmt.Printf("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
 				continue
 			}
-			na := ra.GetUserNameList(d1, d2)                       // get the list of user names for this time period
-			raid = ra.IDtoString()                                 // standard id format
-			usernames = strings.Join(na, ",")                      // concatenate with a comma separator
-			pa := ra.GetPayorNameList(d1, d2)                      // get the payors for this time period
-			payornames = strings.Join(pa, ", ")                    // concatenate with comma
-			rentStart = ra.RentStart.Format(rlib.RRDATEFMT4)       // rental start
-			rentStop = ra.RentStop.Format(rlib.RRDATEFMT4)         // rental stop
-			possStart = ra.PossessionStart.Format(rlib.RRDATEFMT4) // possession start
-			possStop = ra.PossessionStop.Format(rlib.RRDATEFMT4)   // possession stop
+			na := ra.GetUserNameList(d1, d2)                           // get the list of user names for this time period
+			raid = ra.IDtoString()                                     // standard id format
+			usernames = strings.Join(na, ",")                          // concatenate with a comma separator
+			pa := ra.GetPayorNameList(d1, d2)                          // get the payors for this time period
+			payornames = strings.Join(pa, ", ")                        // concatenate with comma
+			rentStart = ra.RentStart.Format(rlib.RRDATEFMT4)           // rental start
+			rentStop = ra.RentStop.Format(rlib.RRDATEFMT4)             // rental stop
+			possStart = ra.PossessionStart.Format(rlib.RRDATEFMT4)     // possession start
+			possStop = ra.PossessionStop.Format(rlib.RRDATEFMT4)       // possession stop
+			agreementStart = ra.AgreementStart.Format(rlib.RRDATEFMT4) // agreement start
+			agreementStop = ra.AgreementStop.Format(rlib.RRDATEFMT4)   // agreement stop
 
 			//-------------------------------------------------------------------------------------------------------
 			// Get the rent cycle.  If there's an override in the RentableTypeRef, use the override. Otherwise the
@@ -234,9 +240,28 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				}
 			}
 			pmtRcvd = rlib.RRCommaf(totpmt)
+
+			//-------------------------------------------------------------------------------------------------------
+			// Compute account balances...   begin, delta, and end for  RAbalance and Security Deposit
+			//-------------------------------------------------------------------------------------------------------
+			raLdg, err := rlib.GetRABalanceLedger(xbiz.P.BID, ra.RAID)
+			rlib.Errcheck(err)
+			secdepLdg, err := rlib.GetSecDepBalanceLedger(xbiz.P.BID, ra.RAID)
+			rlib.Errcheck(err)
+			raStartBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, raLdg.LID, ra.RAID, &dtstart)
+			raEndBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, raLdg.LID, ra.RAID, &dtstop)
+			secdepStartBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, secdepLdg.LID, ra.RAID, &dtstart)
+			secdepEndBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, secdepLdg.LID, ra.RAID, &dtstop)
+			beginRcv = rlib.RRCommaf(raStartBal)
+			endRcv = rlib.RRCommaf(raEndBal)
+			chgRcv = rlib.RRCommaf(raEndBal - raStartBal)
+			beginSecDep = rlib.RRCommaf(secdepStartBal)
+			endSecDep = rlib.RRCommaf(secdepEndBal)
+			chgSecDep = rlib.RRCommaf(secdepEndBal - secdepStartBal)
+
 			tbl.Printf(p.Name, xbiz.RT[rtid].Style, sqft, usernames, payornames, raid, possStart, possStop,
-				rentStart, rentStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets, contractRent, otherIncome, pmtRcvd,
-				beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
+				rentStart, rentStop, agreementStart, agreementStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets,
+				contractRent, otherIncome, pmtRcvd, beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
 		}
 		fmt.Printf("\n")
 	}

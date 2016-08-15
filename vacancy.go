@@ -125,7 +125,7 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 				// m[k-1].Amount += umr * pf // add another increment to the amount
 				m[k-1].DtStop = dtNext          // then we'll just adjust the end of that range to include this range too.
 				m[k-1].Amount += rentThisPeriod // add the rent for this time increment
-				m[k-1].comment = fmt.Sprintf("(%s - %s)", m[k-1].DtStart.Format("Jan 2"), m[k-1].DtStop.Format("Jan 2"))
+				m[k-1].comment = fmt.Sprintf("vacant %s - %s", m[k-1].DtStart.Format("Jan 2"), m[k-1].DtStop.Format("Jan 2"))
 				continue // Range extended.  Next!
 			}
 		}
@@ -136,7 +136,7 @@ func VacancyDetect(xbiz *rlib.XBusiness, d1, d2 *time.Time, r *rlib.Rentable) []
 		v.state = state           // note the cause of the vacancy
 		v.Amount = rentThisPeriod // save the rate so we don't need to look it up later
 		// v.Amount = umr * pf // save the rate so we don't need to look it up later
-		v.comment = fmt.Sprintf("(%s - %s)", v.DtStart.Format("Jan 2"), v.DtStop.Format("Jan 2"))
+		v.comment = fmt.Sprintf("vacant %s - %s", v.DtStart.Format("Jan 2"), v.DtStop.Format("Jan 2"))
 		m = append(m, v) // add the new VacancyMarker to the list
 		k++
 	}

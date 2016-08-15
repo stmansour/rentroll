@@ -4,13 +4,20 @@ Balances as of:  December 1, 2015
 
 LID                                                      Name    GLNumber       Balance
 L00000033                                  RA00000001 Balance                      0.00
-L00000034                                  RA00000002 Balance                      0.00
-L00000035                                  RA00000003 Balance                      0.00
-L00000036                                  RA00000004 Balance                      0.00
-L00000037                                  RA00000005 Balance                      0.00
-L00000038                                  RA00000006 Balance                      0.00
-L00000039                                  RA00000007 Balance                      0.00
-L00000040                                  RA00000008 Balance                      0.00
+L00000034                          RA00000001 SecurityDeposit                  1,000.00
+L00000035                                  RA00000002 Balance                      0.00
+L00000036                          RA00000002 SecurityDeposit                      0.00
+L00000037                                  RA00000003 Balance                      0.00
+L00000038                          RA00000003 SecurityDeposit                      0.00
+L00000039                                  RA00000004 Balance                      0.00
+L00000040                          RA00000004 SecurityDeposit                      0.00
+L00000041                                  RA00000005 Balance                      0.00
+L00000042                          RA00000005 SecurityDeposit                      0.00
+L00000043                                  RA00000006 Balance                      0.00
+L00000044                          RA00000006 SecurityDeposit                      0.00
+L00000045                                  RA00000007 Balance                      0.00
+L00000046                          RA00000007 SecurityDeposit                      0.00
+L00000047                                  RA00000008 Balance                      0.00
 L00000032                          RA00000008 SecurityDeposit                      0.00
 L00000001                            Bank Account FRB 2332352       10001         -8.66
 L00000010                 MasterCard/VISA 38992355 in Process       10004          0.00

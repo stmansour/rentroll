@@ -1,11 +1,10 @@
       ASMID       PASMID        RAID        RID  RCYC  PCYC     AMOUNT  TYPE                                 ACCOUNT RULE
-ASM00000001  ASM00000000  RA00000001  R00000001     4     4      76.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
+ASM00000001  ASM00000000  RA00000001  R00000001     4     4      76.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
 ASM00000002  ASM00000000  RA00000001  R00000001     4     4      24.00  Unit Income Offsets                  c ${GLGENRCV} _, d 41104 _
-ASM00000003  ASM00000000  RA00000001  R00000001     0     0      12.35  Food Services                        d ${GLGENRCV} _, c 41202 _
-ASM00000004  ASM00000000  RA00000002  R00000001     4     4      92.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
-ASM00000005  ASM00000000  RA00000003  R00000001     4     4      56.87  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
-ASM00000006  ASM00000000  RA00000004  R00000002     6     4     730.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
-ASM00000007  ASM00000000  RA00000005  R00000003     4     4     125.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
-ASM00000008  ASM00000000  RA00000004  R00000002     0     0    1500.00  Security Deposits                    d ${GLGENRCV} _, c ${GLSECDEP} _
-ASM00000009  ASM00000000  RA00000004  R00000002     0     0    1000.00  Security Deposits                    d ${GLGENRCV} _, c ${GLSECDEP} _
+ASM00000003  ASM00000000  RA00000001  R00000001     0     0      12.35  Gas Overage                          d ${GLGENRCV} _, c 41306 _
+ASM00000004  ASM00000000  RA00000002  R00000001     4     4      92.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000005  ASM00000000  RA00000003  R00000001     4     4      56.87  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000006  ASM00000000  RA00000004  R00000002     6     4     730.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000007  ASM00000000  RA00000005  R00000003     4     4     125.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000008  ASM00000000  RA00000004  R00000002     0     0    2500.00  Security Deposits                    d ${GLGENRCV} _, c ${GLSECDEP} _
 

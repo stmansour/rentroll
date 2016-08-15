@@ -1,7 +1,7 @@
- RAID  Payor                                     User                                    
-    1                                            Joshua Jones, Amanda Smith, Christoph Jo
-    2  Amanda Smith                              Cindy Jones, Edith Jones                
-    3                                            Ed Jones, Amanda Curry, Jeb Night       
-    4  Cindy Jones, Edith Jones                  Betty Diddit, Betty Diddent, Leeloo Kaix
-    5                                                                                    
+ RAID  Payor                                     User                                       RentStart    RentStop  AgrmtStart   AgrmtStop
+    1                                            Joshua Jones, Amanda Smith, Christoph Jo  07/01/2016  07/04/2016  07/01/2016  07/04/2016
+    2  Amanda Smith                              Cindy Jones, Edith Jones                  07/05/2016  07/07/2016  07/05/2016  07/07/2016
+    3                                            Ed Jones, Amanda Curry, Jeb Night         07/10/2016  07/31/2016  07/10/2016  07/31/2016
+    4  Cindy Jones, Edith Jones                  Betty Diddit, Betty Diddent, Leeloo Kaix  12/01/2014  11/30/2016  12/01/2014  11/30/2016
+    5                                                                                      11/01/2013  10/31/2016  11/01/2013  10/31/2016
 

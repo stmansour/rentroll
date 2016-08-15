@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Thu Aug 11 13:44:19 PDT 2016
+Date/Time: Mon Aug 15 11:38:56 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -65,10 +65,10 @@ RATID  BID         RentalTemplateNumber
 
 
 DEFINE RENTAL AGREEMENTS
- RAID  Payor                                     User                                    
-    1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                
-    2  Rita Costea, Daniel Costea                Rita Costea, Daniel Costea              
-    3  Gagik Haroutunian                         Gagik Haroutunian                       
+ RAID  Payor                                     User                                       RentStart    RentStop  AgrmtStart   AgrmtStop
+    1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                  01/01/2004  06/01/2018  01/01/2004  06/01/2018
+    2  Rita Costea, Daniel Costea                Rita Costea, Daniel Costea                01/01/2004  06/01/2018  01/01/2004  06/01/2018
+    3  Gagik Haroutunian                         Gagik Haroutunian                         01/01/2004  02/08/2016  01/01/2004  02/08/2016
 
 
 DEFINE PETS
@@ -78,27 +78,27 @@ PET00000001  RA00000001  T-Bone                     Dog              Chihuahua  
 
 DEFINE CHART OF ACCOUNTS
 CreateLedgerMarkers: line 22 - You must suppy a GL Number for this entry
- LMID  Type          GLNumber  Name                                                          Parent LMID   Balance       RAAssoc       RARqd
-   12                       1  Basement Storage                                                         0          0.00  Unassociated      0
-    2  11               11001  General Accounts Receivable                                              0          0.00  Unassociated      0
-    7  16               11002  Security Deposits Assessed                                               0     -13300.00  Unassociated      2
-   13                       2  Change In Delinquency                                                    0          0.00  Unassociated      0
-    6  15               33000  Security Deposit Receivable                                              0          0.00  Unassociated      2
-    8  17               33333  OwnerEquity                                                              0      13300.00  Unassociated      3
-   17                   41008  Administrative Unit                                                      0          0.00    Associated      0
-   20                   49094  Damages                                                                  0          0.00  Unassociated      3
-    3  12               50201  Gross Schedule Rent                                                      0          0.00    Associated      0
-    9                   50211  Late Fees                                                                0          0.00  Unassociated      2
-   10                   50212  NSF Fees                                                                 0          0.00  Unassociated      2
-   18                   50213  Forfeited Security Deposit                                               0          0.00  Unassociated      2
-   11                   50216  Maintenance Reimbursement                                                0          0.00  Unassociated      2
-    5  14               50251  Vacancy                                                                  0          0.00    Associated      0
-   15                   50252  Rent Concession                                                          0          0.00  Unassociated      0
-   16                   50253  Offline Units                                                            0          0.00  Unassociated      0
-   14                   50254  Bad Debt Write-Off                                                       0          0.00  Unassociated      2
-    4  13               50255  Loss to Lease                                                            0          0.00  Unassociated      0
-   19                   59997  AP Cash Dispersements                                                    0          0.00  Unassociated      0
-    1  10               59998  Cash Deposits                                                            0          0.00  Unassociated      0
+  LID   LMID  Type          GLNumber  Name                                                          Parent LMID   Balance       RAAssoc       RARqd
+   12     12                       1  Basement Storage                                                         0          0.00  Unassociated      0
+    2      2  11               11001  General Accounts Receivable                                              0          0.00  Unassociated      0
+    7      7  16               11002  Security Deposits Assessed                                               0     -13300.00  Unassociated      2
+   13     13                       2  Change In Delinquency                                                    0          0.00  Unassociated      0
+    6      6  15               33000  Security Deposit Receivable                                              0          0.00  Unassociated      2
+    8      8  17               33333  OwnerEquity                                                              0      13300.00  Unassociated      3
+   17     17                   41008  Administrative Unit                                                      0          0.00    Associated      0
+   20     20                   49094  Damages                                                                  0          0.00  Unassociated      3
+    3      3  12               50201  Gross Schedule Rent                                                      0          0.00    Associated      0
+    9      9                   50211  Late Fees                                                                0          0.00  Unassociated      2
+   10     10                   50212  NSF Fees                                                                 0          0.00  Unassociated      2
+   18     18                   50213  Forfeited Security Deposit                                               0          0.00  Unassociated      2
+   11     11                   50216  Maintenance Reimbursement                                                0          0.00  Unassociated      2
+    5      5  14               50251  Vacancy                                                                  0          0.00    Associated      0
+   15     15                   50252  Rent Concession                                                          0          0.00  Unassociated      0
+   16     16                   50253  Offline Units                                                            0          0.00  Unassociated      0
+   14     14                   50254  Bad Debt Write-Off                                                       0          0.00  Unassociated      2
+    4      4  13               50255  Loss to Lease                                                            0          0.00  Unassociated      0
+   19     19                   59997  AP Cash Dispersements                                                    0          0.00  Unassociated      0
+    1      1  10               59998  Cash Deposits                                                            0          0.00  Unassociated      0
 
 
 DEFINE ASSESSMENTS
@@ -165,10 +165,10 @@ PROCESS STATEMENTS, ASSESSMENTS, AND PAYMENTS
                                      Security Deposits Assessed  03/01/16         3      311 Rexford     11002        865.29
                                           AP Cash Dispersements  03/01/16         3      311 Rexford     59997       -865.29
                                                                
-   J00000005  Unassociated: 311 Rexford (Mar 1 - Apr 1)        
+   J00000005  Unassociated: 311 Rexford vacant Mar 1 - Apr 1   
                                             Gross Schedule Rent  03/31/16         0      311 Rexford     50201      -4400.00
                                                         Vacancy  03/31/16         0      311 Rexford     50251       4400.00
-   J00000006  Unassociated: 311 1/2 Rexford (Mar 1 - Apr 1)    
+   J00000006  Unassociated: 311 1/2 Rexford vacant Mar 1 - Apr 1
                                             Gross Schedule Rent  03/31/16         0  311 1/2 Rexford     50201      -2500.00
                                                         Vacancy  03/31/16         0  311 1/2 Rexford     50251       2500.00
    J00000007  Payment - Read,Read   #8832  3750.00             

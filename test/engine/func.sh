@@ -3,14 +3,17 @@
 # It uses the values initialized in directory ../ledger1, generates
 # Journal and Ledger records, generates the reports, and validates that
 # the reports are what we expect
-RRBIN="../../tmp/rentroll"
 SCRIPTLOG="f.log"
-APP="${RRBIN}/rentroll -A -j 2015-11-01 -k 2015-12-01"
 MYSQLOPTS=""
 UNAME=$(uname)
 ERRFILE="err.txt"
-CSVLOAD="${RRBIN}/rrloadcsv"
+SKIPCOMPARE=0
 BUD="REX"
+
+RRBIN="../../tmp/rentroll"
+CSVLOAD="${RRBIN}/rrloadcsv"
+APP="${RRBIN}/rentroll -A -j 2015-11-01 -k 2015-12-01"
+
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
  	MYSQLOPTS="--no-defaults"
@@ -30,23 +33,27 @@ fi
 dotest () {
 	echo -n "${3}... "
 	${APP} $2 >$1.txt 2>&1
-	if [ ! -f $1.gold ]; then
-		echo "file $1.gold not found. Please create $1.gold then rerun test." >> ${ERRFILE}
-		cat ${ERRFILE}
-		exit 1
-	fi
-	UDIFFS=$(diff $1.gold $1.txt | wc -l)
-	if [ ${UDIFFS} -eq 0 ]; then
-		echo "PASSED"
+	if [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f $1.gold ]; then
+			echo "file $1.gold not found. Please create $1.gold then rerun test." >> ${ERRFILE}
+			cat ${ERRFILE}
+			exit 1
+		fi
+		UDIFFS=$(diff $1.gold $1.txt | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			echo "PASSED"
+		else
+			echo "FAILED..."
+			echo "${3} FAILED"  > ${ERRFILE}
+			echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
+			echo "    to reproduce:  ${APP} $2" >> ${ERRFILE}
+			echo "Differences are as follows:" >> ${ERRFILE}
+			diff $1.gold $1.txt >> ${ERRFILE}
+			cat ${ERRFILE}
+			exit 1
+		fi
 	else
-		echo "FAILED..."
-		echo "${3} FAILED"  > ${ERRFILE}
-		echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
-		echo "    to reproduce:  ${APP} $2" >> ${ERRFILE}
-		echo "Differences are as follows:" >> ${ERRFILE}
-		diff $1.gold $1.txt >> ${ERRFILE}
-		cat ${ERRFILE}
-		exit 1
+		echo 
 	fi
 }
 
@@ -64,25 +71,29 @@ doCSVtest () {
 	echo -n "${3}... "
 	echo "${3}" > ${1}.txt 2>&1
 	${CSVLOAD} $2 >> ${1}.txt 2>&1
+	if [ "${SKIPCOMPARE}" = "0" ]; then
 
-	if [ ! -f $1.gold ]; then
-		echo "file $1.gold not found. Please create $1.gold then rerun test." >> ${ERRFILE}
+		if [ ! -f $1.gold ]; then
+			echo "file $1.gold not found. Please create $1.gold then rerun test." >> ${ERRFILE}
+			cat ${ERRFILE}
+			exit 1
+		fi
+		UDIFFS=$(diff $1.gold $1.txt | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			echo "PASSED"
+		else
+			echo "FAILED..."
+			echo "${3} FAILED" > ${ERRFILE}
 		cat ${ERRFILE}
-		exit 1
-	fi
-	UDIFFS=$(diff $1.gold $1.txt | wc -l)
-	if [ ${UDIFFS} -eq 0 ]; then
-		echo "PASSED"
+			echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
+			echo "    to reproduce:  ${CSVLOAD} $2" >> ${ERRFILE}
+			echo "Differences are as follows:" >> ${ERRFILE}
+			diff $1.gold $1.txt >> ${ERRFILE}
+			cat ${ERRFILE}
+			exit 1
+		fi
 	else
-		echo "FAILED..."
-		echo "${3} FAILED" > ${ERRFILE}
-	cat ${ERRFILE}
-		echo "    if correct:    mv $1.txt $1.gold" >> ${ERRFILE}
-		echo "    to reproduce:  ${CSVLOAD} $2" >> ${ERRFILE}
-		echo "Differences are as follows:" >> ${ERRFILE}
-		diff $1.gold $1.txt >> ${ERRFILE}
-		cat ${ERRFILE}
-		exit 1
+		echo 
 	fi
 }
 
@@ -128,6 +139,7 @@ B)   Business
 C)   Chart of Accounts
 CA)  Custom Attributes
 DY)  Depositories 
+G)   GSR
 I)   Invoice
 IR)  Invoice Report
 J)   Journal
@@ -170,6 +182,7 @@ EOF
 		  c) csvload "-L 10,${BUD}" ;;
 		 ca) csvload "-L 14" ;;
 		 dy) csvload "-L 18,${BUD}" ;;
+		  g) app "-r 11" ;;
 		  i) csvload "-L 20,${BUD}" ;;
 		 nt) csvload "-L 17,${BUD}" ;;
 		  p) csvload "-L 7,${BUD}" ;;
@@ -206,11 +219,15 @@ EOF
 #--------------------------------------------------------------------------
 #  Look at the command line options first
 #--------------------------------------------------------------------------
-while getopts "rR:" o; do
+while getopts "frR:" o; do
 	case "${o}" in
 		r | R)
 			doReport
 			exit 0
+			;;
+		f)
+			SKIPCOMPARE=1
+			echo "SKIPPING COMPARES..."
 			;;
 		*) 	usage
 			exit 1
@@ -253,5 +270,10 @@ dotest "k" "-r 7" "Count of Rentables by Type"
 doCSVtest "i1" "-i invoice.csv -L 20,REX" "CREATE INVOICE"
 dotest "i2" "-r 9,IN00001" "INVOICE REPORT"
 
-echo "RENTROLL ENGINE TESTS PASSED"
+if [ "${SKIPCOMPARE}" = "0" ]; then
+	echo "RENTROLL ENGINE TESTS PASSED"
+else
+	echo "FINISHED...  but did not check output"
+fi
+
 exit 0

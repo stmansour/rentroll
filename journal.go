@@ -94,14 +94,15 @@ func ProrateAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, d, d1, d2 *time
 func journalAssessment(xbiz *rlib.XBusiness, d time.Time, a *rlib.Assessment, d1, d2 *time.Time) error {
 	// funcname := "journalAssessment"
 	pf, num, den, start, stop := ProrateAssessment(xbiz, a, &d, d1, d2)
+	// fmt.Printf("ProrateAssessment: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", a.ASMID, d.Format(rlib.RRDATEFMT4), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
+	// fmt.Printf("pf = %f, num = %d, den = %d, start = %s, stop = %s\n", pf, num, den, start.Format(rlib.RRDATEFMT4), stop.Format(rlib.RRDATEFMT4))
 	var j = rlib.Journal{BID: a.BID, Dt: d, Type: rlib.JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
-	// fmt.Printf("calling ParseAcctRule:\n  asmt = %#v\n  rid = %d\n", a, rid)
+	// fmt.Printf("calling ParseAcctRule:\n  asmt = %d\n  rid = %d, d1 = %s, d2 = %s\n", a.ASMID, a.RID, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
 	m := rlib.ParseAcctRule(xbiz, a.RID, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = rlib.RoundToCent(j.Amount)
-
-	// fmt.Printf("After ParseAcctRule - j.Amount = %8.2f\n", j.Amount)
+	// fmt.Printf("j.Amount = %f\n", j.Amount)
 
 	//------------------------------------------------------------------------------------------------------
 	// for non-recurring assessments (the only kind that we should be processing here) the amount may have
@@ -285,13 +286,32 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		} else {
 			dl := a.GetRecurrences(d1, d2)
 			// /*DEBUG*/ fmt.Printf("type = %d, %s - %s    len(dl) = %d\n", a.ATypeLID, a.Start.Format(rlib.RRDATEFMT), a.Stop.Format(rlib.RRDATEFMT), len(dl))
+
+			rangeDuration := d2.Sub(*d1)
 			for i := 0; i < len(dl); i++ {
 				a1 := a
 				a1.Start = dl[i]    // use the instance date
 				a1.Stop = a.Start   // start and stop are the same
 				a1.ASMID = 0        // ensure this is a new assessment
 				a1.PASMID = a.ASMID // parent assessment
-				ProcessNewAssessmentInstance(xbiz, d1, d2, &a1)
+
+				// Rent is assessed on the following cycle: a.RentCycle
+				// and prorated on the following cycle: a.ProrationCycle
+				rentCycleDur := rlib.CycleDuration(a.RentCycle, dl[i])
+				diff := rangeDuration - rentCycleDur
+				if diff < 0 {
+					diff = -diff
+				}
+				// fmt.Printf("rentCycleDur = %v, diff = %v\n", rentCycleDur, diff)
+				dtb := *d1
+				dte := *d2
+				if diff > rentCycleDur/9 { // if this is true then
+					dtb = dl[i]
+					dte = dtb.Add(rlib.CycleDuration(a.RentCycle, dtb))
+				}
+				// fmt.Printf("dtb = %s, dte = %s\n", dtb.Format(rlib.RRDATEFMT4), dte.Format(rlib.RRDATEFMT4))
+				ProcessNewAssessmentInstance(xbiz, &dtb, &dte, &a1)
+				// ProcessNewAssessmentInstance(xbiz, d1, d2, &a1)
 			}
 		}
 	}

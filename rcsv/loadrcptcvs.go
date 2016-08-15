@@ -192,6 +192,9 @@ func LoadReceiptsCSV(fname string, PmtTypes *map[int64]rlib.PaymentType) {
 		}
 	}
 	for i := 0; i < len(t); i++ {
+		if t[i][0] == "#" {
+			continue
+		}
 		CreateReceiptsFromCSV(t[i], PmtTypes, i+1)
 	}
 }

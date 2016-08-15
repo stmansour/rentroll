@@ -1,13 +1,16 @@
 #!/bin/bash
 ERRFILE="err.txt"
-RRBIN="../../tmp/rentroll"
 MYSQLOPTS=""
 UNAME=$(uname)
-CSVLOAD="${RRBIN}/rrloadcsv"
-RENTROLL="${RRBIN}/rentroll -A -j 2016-07-01 -k 2016-08-01"
 LOGFILE="log"
+SKIPCOMPARE=0
 TESTCOUNT=0
 BUD="REX"
+
+RRBIN="../../tmp/rentroll"
+CSVLOAD="${RRBIN}/rrloadcsv"
+RENTROLL="${RRBIN}/rentroll -A -j 2016-07-01 -k 2016-08-01"
+
 
 ###   BEGIN ---  MENU DRIVEN REPORTS   
 #############################################################################
@@ -17,6 +20,9 @@ BUD="REX"
 #############################################################################
 pause() {
 	read -p "Press [Enter] to continue, X to quit..." x
+	if [ "$x" = "x" -o "$x" = "X" ]; then
+		exit 0
+	fi
 }
 
 csvload() {
@@ -46,6 +52,7 @@ B)   Business
 C)   Chart of Accounts
 CA)  Custom Attributes
 DY)  Depositories 
+G)   GSR
 I)   Invoice
 IR)  Invoice Report
 J)   Journal
@@ -88,6 +95,7 @@ EOF
 		  c) csvload "-L 10,${BUD}" ;;
 		 ca) csvload "-L 14" ;;
 		 dy) csvload "-L 18,${BUD}" ;;
+		  g) app "-r 11" ;;
 		  i) csvload "-L 20,${BUD}" ;;
 		 nt) csvload "-L 17,${BUD}" ;;
 		  p) csvload "-L 7,${BUD}" ;;
@@ -124,11 +132,15 @@ EOF
 #--------------------------------------------------------------------------
 #  Look at the command line options first
 #--------------------------------------------------------------------------
-while getopts "rR:" o; do
+while getopts "frR:" o; do
 	case "${o}" in
 		r | R)
 			doReport
 			exit 0
+			;;
+		f)
+			SKIPCOMPARE=1
+			echo "SKIPPING COMPARES..."
 			;;
 		*) 	usage
 			exit 1
@@ -150,20 +162,24 @@ docsvtest () {
 	printf "PHASE %2s  %s... " ${TESTCOUNT} $3
 	${CSVLOAD} $2 >${1} 2>&1
 
-	if [ ! -f ${1}.gold ]; then
-		echo "UNSET CONTENT" > ${1}.gold
-		echo "Created a default $1.gold for you. Update this file with known-good output."
-	fi
-	UDIFFS=$(diff ${1} ${1}.gold | wc -l)
-	if [ ${UDIFFS} -eq 0 ]; then
-		echo "PASSED"
+	if [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f ${1}.gold ]; then
+			echo "UNSET CONTENT" > ${1}.gold
+			echo "Created a default $1.gold for you. Update this file with known-good output."
+		fi
+		UDIFFS=$(diff ${1} ${1}.gold | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			echo "PASSED"
+		else
+			echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
+			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+			diff ${1}.gold ${1} >> ${ERRFILE}
+			cat ${ERRFILE}
+			exit 1
+		fi
 	else
-		echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
-		echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
-		echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-		diff ${1}.gold ${1} >> ${ERRFILE}
-		cat ${ERRFILE}
-		exit 1
+		echo 
 	fi
 }
 
@@ -179,20 +195,24 @@ dorrtest () {
 	printf "PHASE %2s  %s... " ${TESTCOUNT} $3
 	${RENTROLL} $2 >${1} 2>&1
 
-	if [ ! -f ${1}.gold ]; then
-		echo "UNSET CONTENT" > ${1}.gold
-		echo "Created a default $1.gold for you. Update this file with known-good output."
-	fi
-	UDIFFS=$(diff ${1} ${1}.gold | wc -l)
-	if [ ${UDIFFS} -eq 0 ]; then
-		echo "PASSED"
+	if [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f ${1}.gold ]; then
+			echo "UNSET CONTENT" > ${1}.gold
+			echo "Created a default $1.gold for you. Update this file with known-good output."
+		fi
+		UDIFFS=$(diff ${1} ${1}.gold | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			echo "PASSED"
+		else
+			echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
+			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+			diff ${1}.gold ${1} >> ${ERRFILE}
+			cat ${ERRFILE}
+			exit 1
+		fi
 	else
-		echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
-		echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
-		echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-		diff ${1}.gold ${1} >> ${ERRFILE}
-		cat ${ERRFILE}
-		exit 1
+		echo 
 	fi
 }
 
@@ -227,35 +247,41 @@ docsvtest "l" "-e rcpt.csv -L 13,REX" "Receipts"
 ${RRBIN}/rentroll -A -j 2014-12-01 -k 2015-01-01
 
 # process payments and receipts
+dorrtest "p" "-r 11" "GSR"
 dorrtest "m" "" "Process"
+
 dorrtest "n" "-r 1" "Journal"
 dorrtest "o" "-r 2" "Ledgers"
 
 echo >>${LOGFILE}
 
-echo -n "PHASE x: Log file check...  "
-if [ ! -f log.gold -o ! -f log ]; then
-	echo "Missing file -- Required files for this check: log.gold and log"
-	exit 1
-fi
-declare -a out_filters=(
-	's/^Date\/Time:.*/current time/'
-	's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
-)
-cp log.gold ll.g
-cp log llog
-for f in "${out_filters[@]}"
-do
-	perl -pe "$f" ll.g > x1; mv x1 ll.g
-	perl -pe "$f" llog > y1; mv y1 llog
-done
-UDIFFS=$(diff llog ll.g | wc -l)
-if [ ${UDIFFS} -eq 0 ]; then
-	echo "PASSED"
-	rm -f ll.g llog
+if [ "${SKIPCOMPARE}" = "0" ]; then
+	echo -n "PHASE x: Log file check...  "
+	if [ ! -f log.gold -o ! -f log ]; then
+		echo "Missing file -- Required files for this check: log.gold and log"
+		exit 1
+	fi
+	declare -a out_filters=(
+		's/^Date\/Time:.*/current time/'
+		's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
+	)
+	cp log.gold ll.g
+	cp log llog
+	for f in "${out_filters[@]}"
+	do
+		perl -pe "$f" ll.g > x1; mv x1 ll.g
+		perl -pe "$f" llog > y1; mv y1 llog
+	done
+	UDIFFS=$(diff llog ll.g | wc -l)
+	if [ ${UDIFFS} -eq 0 ]; then
+		echo "PASSED"
+		rm -f ll.g llog
+	else
+		echo "FAILED:  differences are as follows:" >> ${ERRFILE}
+		diff ll.g llog >> ${ERRFILE}
+		cat ${ERRFILE}
+		exit 1
+	fi
 else
-	echo "FAILED:  differences are as follows:" >> ${ERRFILE}
-	diff ll.g llog >> ${ERRFILE}
-	cat ${ERRFILE}
-	exit 1
+	echo "FINISHED...  but did not check output"
 fi

@@ -179,6 +179,7 @@ func LoadRASecurityDepositLedger(raid, bid int64) (rlib.GLAccount, error) {
 }
 
 // GetAccountBalanceForRA returns the summed Amount balance for activity
+// GetAccountBalanceForRA returns the summed Amount balance for activity
 // in GLAccount lid associated with RentalAgreement raid
 func GetAccountBalanceForRA(bid, lid, raid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
@@ -192,8 +193,8 @@ func GetAccountBalanceForRA(bid, lid, raid int64, d1, d2 *time.Time) (float64, e
 	return bal, err
 }
 
-// GenerateRABalances creates the ledgerMarkers for the Type 1 RentalAgreement accounts
-func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
+// GenerateSpecialAccountBalances creates the ledgerMarkers for the Type 1 (RA Balance) & Type 2 (Security Deposit) RentalAgreement accounts
+func GenerateSpecialAccountBalances(bid int64, d1, d2 *time.Time) error {
 	var state = int64(rlib.MARKERSTATEOPEN)
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementsByRange.Query(bid, d1, d2)
 	rlib.Errcheck(err)
@@ -202,46 +203,61 @@ func GenerateRABalances(bid int64, d1, d2 *time.Time) error {
 	// Spin through all the RentalAgreements that are active in this timeframe
 	for rows.Next() {
 		var ra rlib.RentalAgreement
+		var l rlib.GLAccount
+
 		rlib.Errcheck(rlib.ReadRentalAgreements(rows, &ra))
-		l, err := LoadRABalanceLedger(&ra, bid)
-		if err != nil {
-			return err
-		}
-
-		// initialize balance from the last marker if it exists
-		openingBal := float64(0)
-		lm := rlib.GetLatestLedgerMarkerByLID(bid, l.LID)
-		if lm.LMID == 0 {
-			state = int64(rlib.MARKERSTATEORIGIN)
-		} else {
-			// if the stop date of this marker is past our startdate, then we have big problems.
-			if d1.Before(lm.Dt) {
-				return fmt.Errorf("GenerateRABalances: existing LedgerMarker for RAID %d has stop date %s, past current period start date %s\n",
-					ra.RAID, lm.Dt.Format(rlib.RRDATEINPFMT), d1.Format(rlib.RRDATEINPFMT))
+		for j := rlib.RABALANCEACCOUNT; j <= rlib.RASECDEPACCOUNT; j++ {
+			switch j {
+			case rlib.RABALANCEACCOUNT:
+				l, err = LoadRABalanceLedger(&ra, bid)
+			case rlib.RASECDEPACCOUNT:
+				l, err = LoadRASecurityDepositLedger(ra.RAID, bid)
 			}
-			openingBal = lm.Balance
-		}
+			if err != nil {
+				return err
+			}
 
-		// With the opening balance now set, we now need to add up the activity that has happened over the current period.
-		// This means we total up all the activity in the GeneralReceivables account during this period.
-		lid := rlib.RRdb.BizTypes[bid].DefaultAccts[rlib.GLGENRCV].LID
-		delta, err := GetAccountBalanceForRA(bid, lid, ra.RAID, d1, d2)
-		if err != nil {
-			fmt.Printf("error returned from GetAccountBalanceForRA:  err = %s\n", err.Error()) // ****** PURGE ME *******
-			return err
-		}
+			// initialize balance from the last marker if it exists
+			openingBal := float64(0)
+			lm := rlib.GetLatestLedgerMarkerByLID(bid, l.LID)
+			if lm.LMID == 0 {
+				state = int64(rlib.MARKERSTATEORIGIN)
+			} else {
+				// if the stop date of this marker is past our startdate, then we have big problems.
+				if d1.Before(lm.Dt) {
+					return fmt.Errorf("GenerateSpecialAccountBalances: existing LedgerMarker for RAID %d has stop date %s, past current period start date %s\n",
+						ra.RAID, lm.Dt.Format(rlib.RRDATEINPFMT), d1.Format(rlib.RRDATEINPFMT))
+				}
+				openingBal = lm.Balance
+			}
 
-		// Create a new LedgerMarker for GLAccount l with the updated balance:
-		var nlm rlib.LedgerMarker
-		nlm.LID = l.LID
-		nlm.BID = bid
-		nlm.Dt = *d2
-		nlm.Balance = openingBal + delta
-		nlm.State = state
-		// fmt.Printf("INSERTING LEDGER MARKER:  %s - %s   LID: %d, Balance: %6.2f\n",
-		// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.Dt.Format(rlib.RRDATEFMT), nlm.LID, nlm.Balance)
-		err = rlib.InsertLedgerMarker(&nlm)
-		rlib.Errlog(err)
+			// With the opening balance now set, we now need to add up the activity that has happened over the current period.
+			// This means we total up all the activity in the GeneralReceivables account during this period.
+			var lid int64
+			switch j {
+			case rlib.RABALANCEACCOUNT:
+				lid = rlib.RRdb.BizTypes[bid].DefaultAccts[rlib.GLGENRCV].LID // pull activity from GeneralReceivables
+			case rlib.RASECDEPACCOUNT:
+				lid = rlib.RRdb.BizTypes[bid].DefaultAccts[rlib.GLSECDEP].LID // pull activity from Security Deposit
+			}
+			delta, err := GetAccountBalanceForRA(bid, lid, ra.RAID, d1, d2)
+			if err != nil {
+				fmt.Printf("error returned from GetAccountBalanceForRA:  err = %s\n", err.Error()) // ****** PURGE ME *******
+				return err
+			}
+
+			// Create a new LedgerMarker for GLAccount l with the updated balance:
+			var nlm rlib.LedgerMarker
+			nlm.LID = l.LID
+			nlm.BID = bid
+			nlm.Dt = *d2
+			nlm.Balance = openingBal + delta
+			nlm.State = state
+			// fmt.Printf("INSERTING LEDGER MARKER:  %s - %s   LID: %d, Balance: %6.2f\n",
+			// 	nlm.DtStart.Format(rlib.RRDATEFMT), nlm.Dt.Format(rlib.RRDATEFMT), nlm.LID, nlm.Balance)
+			err = rlib.InsertLedgerMarker(&nlm)
+			rlib.Errlog(err)
+		}
 	}
 	rlib.Errcheck(rows.Err())
 	return err
@@ -290,5 +306,5 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		}
 	}
 	rlib.Errcheck(rows.Err())
-	rlib.Errlog(GenerateRABalances(xbiz.P.BID, d1, d2))
+	rlib.Errlog(GenerateSpecialAccountBalances(xbiz.P.BID, d1, d2))
 }

@@ -66,6 +66,8 @@ func RunBooks(ctx *DispatchCtx) {
 			rrpt.InvoiceTextReport(invoiceno)
 		case 10: // LEDGER ACTIVITY
 			LedgerActivityReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
+		case 11: // Rentable GSR
+			rrpt.GSRTextReport(&xbiz, &ctx.DtStart)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

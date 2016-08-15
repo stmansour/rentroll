@@ -218,6 +218,9 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 func LoadAssessmentsCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
+		if t[i][0] == "#" {
+			continue
+		}
 		CreateAssessmentsFromCSV(t[i], i+1)
 	}
 }

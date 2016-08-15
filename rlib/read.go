@@ -128,6 +128,16 @@ func ReadRatePlanRefSPRates(rows *sql.Rows, a *RatePlanRefSPRate) {
 	Errcheck(rows.Scan(&a.RPRID, &a.RTID, &a.RSPID, &a.FLAGS, &a.Val))
 }
 
+// ReadRentable reads a full Rentable structure of data from the database based on the supplied Row pointer.
+func ReadRentable(row *sql.Row, a *Rentable) error {
+	return row.Scan(&a.RID, &a.BID, &a.Name, &a.AssignmentTime, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentables reads a full Rentable structure of data from the database based on the supplied Rows pointer.
+func ReadRentables(rows *sql.Rows, a *Rentable) error {
+	return rows.Scan(&a.RID, &a.BID, &a.Name, &a.AssignmentTime, &a.LastModTime, &a.LastModBy)
+}
+
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Row pointer.
 func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 	return row.Scan(&a.RAID, &a.RATID, &a.BID, &a.NLID, &a.AgreementStart, &a.AgreementStop, &a.PossessionStart, &a.PossessionStop,

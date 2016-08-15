@@ -55,6 +55,11 @@ func (t *RatePlanRef) IDtoString() string {
 	return fmt.Sprintf("RPR%08d", t.RPRID)
 }
 
+// IDtoString for Rentables returns a unique identifier string.
+func (t *Rentable) IDtoString() string {
+	return fmt.Sprintf("R%08d", t.RID)
+}
+
 //-------------------------------------------------
 //  RENTAL AGREEMENT
 //-------------------------------------------------

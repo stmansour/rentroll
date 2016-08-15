@@ -47,10 +47,14 @@ type RRuiSupport struct {
 
 //========================================================================================================
 
-// LMSum takes an array of LedgerMarkers, sums the Balance value of each, and returns the sum
+// LMSum takes an array of LedgerMarkers, sums the Balance value of each, and returns the sum.
+// The summing skips shadow RA balance accounts
 func LMSum(m *[]XLedger) float64 {
 	bal := float64(0)
 	for _, v := range *m {
+		if v.G.Type == rlib.RABALANCEACCOUNT || v.G.Type == rlib.RASECDEPACCOUNT {
+			continue
+		}
 		bal += v.LM.Balance
 	}
 	return bal
