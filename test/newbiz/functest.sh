@@ -194,7 +194,7 @@ dotest "x"  "-b nb.csv"           "NewBusinesses...  " "select BID,BUD,Name,Defa
 dotest "x1" "-l strlists.csv"     "StringLists...  " "select SLID,BID,Name,LastModBy from StringList;"
 dotest "x2" "-l strlists.csv"     "SLString...  " "select SLSID,SLID,Value,LastModBy from SLString;"
 dotest "z"  "-R rt.csv"           "RentableTypes...  " "select RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModBy from RentableTypes;"
-dotest "w"  "-R rt.csv"           "RentableMarketRates...  " "select * from RentableMarketrate;"
+dotest "w"  "-R rt.csv"           "RentableMarketRates...  " "select * from RentableMarketRate;"
 dotest "b1" "-m depmeth.csv"      "Deposit Methods...  " "select * from DepositMethod;"
 dotest "s1" "-S sources.csv"      "Sources...  " "select DSID,BID,Name,Industry from DemandSource;"
 dotest "v"  "-s specialties.csv"  "RentableSpecialtyTypes...  " "select * from RentableSpecialty;"
