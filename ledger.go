@@ -78,6 +78,11 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 			rlib.InsertLedgerEntry(&l)
 
 			// look for security deposits...
+			// smFound := false
+			// if l.Amount == float64(1000.00) || l.Amount == float64(-1000) {
+			// 	fmt.Printf("FOUND $1000 entry!!\n")
+			// 	smFound = true
+			// }
 			if m[k].Account == rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].GLNumber {
 				fGenRcv = true
 			}
@@ -85,6 +90,9 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 				fSecDep = true
 				idx = k
 			}
+			// if smFound {
+			// 	fmt.Printf("After processing: fGenRcv=%v, fSecDep=%v\n", fGenRcv, fSecDep)
+			// }
 		}
 
 		// If this was a security deposit, store a subledger for this account

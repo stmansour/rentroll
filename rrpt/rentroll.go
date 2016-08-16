@@ -122,17 +122,17 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				fmt.Printf("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
 				continue
 			}
-			na := p.GetUserNameList(d1, d2)                            // get the list of user names for this time period
-			raid = ra.IDtoString()                                     // standard id format
-			usernames = strings.Join(na, ",")                          // concatenate with a comma separator
-			pa := ra.GetPayorNameList(d1, d2)                          // get the payors for this time period
-			payornames = strings.Join(pa, ", ")                        // concatenate with comma
-			rentStart = ra.RentStart.Format(rlib.RRDATEFMT4)           // rental start
-			rentStop = ra.RentStop.Format(rlib.RRDATEFMT4)             // rental stop
-			possStart = ra.PossessionStart.Format(rlib.RRDATEFMT4)     // possession start
-			possStop = ra.PossessionStop.Format(rlib.RRDATEFMT4)       // possession stop
-			agreementStart = ra.AgreementStart.Format(rlib.RRDATEFMT4) // agreement start
-			agreementStop = ra.AgreementStop.Format(rlib.RRDATEFMT4)   // agreement stop
+			na := p.GetUserNameList(&ra.PossessionStart, &ra.PossessionStop) // get the list of user names for this time period
+			raid = ra.IDtoString()                                           // standard id format
+			usernames = strings.Join(na, ",")                                // concatenate with a comma separator
+			pa := ra.GetPayorNameList(&ra.RentStart, &ra.RentStart)          // get the payors for this time period
+			payornames = strings.Join(pa, ", ")                              // concatenate with comma
+			rentStart = ra.RentStart.Format(rlib.RRDATEFMT4)                 // rental start
+			rentStop = ra.RentStart.Format(rlib.RRDATEFMT4)                  // rental stop
+			possStart = ra.PossessionStart.Format(rlib.RRDATEFMT4)           // possession start
+			possStop = ra.PossessionStop.Format(rlib.RRDATEFMT4)             // possession stop
+			agreementStart = ra.AgreementStart.Format(rlib.RRDATEFMT4)       // agreement start
+			agreementStop = ra.AgreementStop.Format(rlib.RRDATEFMT4)         // agreement stop
 
 			//-------------------------------------------------------------------------------------------------------
 			// Get the rent cycle.  If there's an override in the RentableTypeRef, use the override. Otherwise the

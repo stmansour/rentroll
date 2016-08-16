@@ -9,7 +9,8 @@ import (
 
 //  CSV file format:
 //  0                     1      2             3             4                                            5        6                  7                                                              8
-//  RentalTemplateNumber, BUD,   AgreementStart,  AgreementStop,   Payor,                                       Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
+//  RentalTemplateNumber, BUD,   AgreementStart,  AgreementStop,   Payor,dtStart,dtStop;...               Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
+//  RentalTemplateNumber, BUD,   AgreementStart,  AgreementStop,   Payor,                                 Renewal, SpecialProvisions, "RentableName1,ContractRent2;RentableName2,ContractName2;...", Notes
 // 	"RAT001",             REH,   "2004-01-01", "2015-11-08", "866-123-4567,dtStart,dtStop;bill@x.com...", 1,       "",                “U101,2500.00;U102,2350.00”,
 // 	"RAT001",             REH,   "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",    1,       "",                “U101,2500.00;U102,2350.00”,
 // 	"RAT001",             REH,   "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",               1,       "",                “U101,2500.00;U102,2350.00”,
@@ -249,6 +250,9 @@ func CreateRentalAgreement(sa []string, lineno int) {
 func LoadRentalAgreementCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
+		if t[i][0] == "#" {
+			continue
+		}
 		CreateRentalAgreement(t[i], i+1)
 	}
 }

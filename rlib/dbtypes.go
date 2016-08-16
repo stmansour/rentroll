@@ -791,6 +791,7 @@ type LedgerMarker struct {
 	LMID        int64     // unique id for this LM
 	LID         int64     // associated GLAccount
 	BID         int64     // only valid if Type == 1
+	RAID        int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the rental agreement RAID
 	Dt          time.Time // Balance is valid as of this time
 	Balance     float64   // GLAccount balance at the end of the period
 	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
@@ -913,7 +914,6 @@ type RRprepSQL struct {
 	GetLedgerList                            *sql.Stmt
 	GetLedgerMarkerByDateRange               *sql.Stmt
 	GetLedgerMarkerByLIDDateRange            *sql.Stmt
-	GetLedgerMarkerByRAID                    *sql.Stmt
 	GetLedgerMarkers                         *sql.Stmt
 	GetNote                                  *sql.Stmt
 	GetNoteAndChildNotes                     *sql.Stmt
@@ -1047,6 +1047,7 @@ type RRprepSQL struct {
 	GetLedgerMarkerOnOrBefore                *sql.Stmt
 	GetLedgerEntriesInRange                  *sql.Stmt
 	GetSecDepBalanceLedger                   *sql.Stmt
+	//	GetLedgerMarkerByRAID                    *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db

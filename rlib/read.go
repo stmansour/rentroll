@@ -40,12 +40,12 @@ func ReadLedgerEntries(rows *sql.Rows, a *LedgerEntry) {
 
 // ReadLedgerMarker reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerMarker(row *sql.Row, a *LedgerMarker) {
-	Errcheck(row.Scan(&a.LMID, &a.LID, &a.BID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.LMID, &a.LID, &a.BID, &a.RAID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadLedgerMarkers reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerMarkers(rows *sql.Rows, a *LedgerMarker) {
-	Errcheck(rows.Scan(&a.LMID, &a.LID, &a.BID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.LMID, &a.LID, &a.BID, &a.RAID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadNote reads a full Note structure from the database based on the supplied row object

@@ -226,7 +226,12 @@ func InsertJournalMarker(jm *JournalMarker) error {
 
 // InsertLedgerMarker writes a new LedgerMarker record to the database
 func InsertLedgerMarker(l *LedgerMarker) error {
-	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.Dt, l.Balance, l.State, l.LastModBy)
+
+	// if l.RAID > 0 {
+	// 	fmt.Printf("InsertLedgerMarker: l.RAID = %d\n", l.RAID)
+	// 	debug.PrintStack()
+	// }
+	_, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.RAID, l.Dt, l.Balance, l.State, l.LastModBy)
 	if err != nil {
 		fmt.Printf("InsertLedgerMarker: err = %#v\n", err)
 	}

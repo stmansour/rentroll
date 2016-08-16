@@ -356,19 +356,18 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER MARKER
 	//==========================================
-	flds = "LMID,LID,BID,Dt,Balance,State,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? ORDER BY Dt DESC")
+	flds = "LMID,LID,BID,RAID,Dt,Balance,State,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 ORDER BY Dt DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and Dt>?  ORDER BY LID ASC")
+	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and Dt>?  ORDER BY LID ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and Dt>? ORDER BY LID ASC")
+	// RRdb.Prepstmt.GetLedgerMarkerByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and Dt>? ORDER BY LID ASC")
+	// Errcheck(err)
+	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and RAID=0 ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? ORDER BY LMID DESC LIMIT ?")
+	RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM (SELECT * FROM LedgerMarker WHERE BID=? and RAID=0 and Dt<=? ORDER BY Dt DESC) AS t1 GROUP BY LID")
 	Errcheck(err)
-	// RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and DtStop<? ORDER BY LMID")
-	RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM (SELECT * FROM LedgerMarker WHERE BID=? and Dt<=? ORDER BY Dt DESC) AS t1 GROUP BY LID")
-	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and Dt<=? ORDER BY Dt DESC LIMIT 1")
+	RRdb.Prepstmt.GetLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and Dt<=? ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.Dbrr.Prepare("DELETE FROM LedgerMarker WHERE LMID=?")
 	Errcheck(err)

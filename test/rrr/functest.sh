@@ -65,6 +65,7 @@ PE)  Pets
 PT)  Payment Types
 R)   Receipts
 RA)  Rental Agreements
+RAB) Rental Agreement Account Balance
 RC)  Rentable Count by Rentable Type
 RE)  Rentables
 RP)  RatePlans
@@ -104,6 +105,7 @@ EOF
 		  q) exit 0 ;;
 		  r) csvload "-L 13,${BUD}" ;;
 		 ra) csvload "-L 9,${BUD}" ;;
+		rab) app "-r 12,11,RA001,2016-07-04"; app "-r 12,9,RA001,2016-07-04" ;;
 		 rc) app "-r 7" ;;
 		 re) csvload "-L 6,${BUD}" ;;
 		 rp) csvload "-L 26,REX" ;;

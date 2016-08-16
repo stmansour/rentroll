@@ -839,6 +839,7 @@ CREATE TABLE LedgerMarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
     LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- 0 means it's the balance for the whole account;  > 0 means it's the amount associated with rental agreement RAID
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- Balance is valid as of this time
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)

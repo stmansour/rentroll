@@ -206,7 +206,7 @@ func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
 	//--------------------------------------------------------------------------------
 	m := GetGLAccountChildAccts(bid, lid)
 	for i := 0; i < len(m); i++ {
-		// fmt.Printf("LID%d[%d] = %d\n", lid, i, m[i])
+		// fmt.Printf("\nChild Ledger %d of LID%d  = %d.   Recurse...\n", i, lid, m[i])
 		bal += GetAccountBalanceForDate(bid, m[i], raid, dt)
 	}
 
@@ -242,8 +242,10 @@ func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
 
 	// update balance based on each of these transactions
 	for i := 0; i < len(lea); i++ {
-		bal += lea[i].Amount
-		// fmt.Printf("lea[%d].Amount = %6.2f,  bal = %6.2f\n", i, lea[i].Amount, bal)
+		if lea[i].RAID == raid {
+			bal += lea[i].Amount
+			// fmt.Printf("MATCH:  lea[%d] .LEID = %d, .Amount = %6.2f,  .RAID = %d.  ---->  bal = %6.2f\n", i, lea[i].LEID, lea[i].Amount, lea[i].RAID, bal)
+		}
 	}
 
 	// fmt.Printf("====>  balance = %.2f\n", bal)

@@ -3,6 +3,7 @@ package rcsv
 import (
 	"fmt"
 	"rentroll/rlib"
+	"runtime/debug"
 	"strconv"
 	"strings"
 )
@@ -45,6 +46,11 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 
 	lm.State = 3 // Initial marker, no prior records
 
+	if lm.RAID > 0 {
+		fmt.Printf("%s: 1.  lm.RAID = %d\n", funcname, lm.RAID)
+		debug.PrintStack()
+	}
+
 	//----------------------------------------------------------------------
 	// TYPE
 	// We'll either be updating an existing account or inserting a new one
@@ -67,7 +73,24 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 		}
 		l = l1            // update existing
 		inserting = false // looks like this is an update
+
+		// DEBUG
+		// if lm.RAID > 0 {
+		// 	fmt.Printf("%s: 2.  lm.RAID = %d\n", funcname, lm.RAID)
+		// 	debug.PrintStack()
+		// }
+
 		lm1 := rlib.GetLatestLedgerMarkerByType(l.BID, l.Type)
+
+		// DEBUG
+		// if lm1.RAID > 0 {
+		// 	fmt.Printf("%s: 3.  lm1.RAID = %d\n", funcname, lm1.RAID)
+		// 	fmt.Printf("rlib.GetLatestLedgerMarkerByType( l.BID=%d, l.Type=%d )\n", l.BID, l.Type)
+		// 	fmt.Printf("returned lm = %#v\n", lm1)
+		// 	debug.PrintStack()
+		// 	os.Exit(1)
+		// }
+
 		if lm1.LMID == 0 {
 			rlib.Ulog("%s: line %d - No default rlib.LedgerMarker %d exists\n", funcname, lineno, i)
 			return
