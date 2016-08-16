@@ -145,6 +145,10 @@ func CreateRentalAgreement(sa []string, lineno int) {
 		fmt.Printf("%s", err.Error())
 		return
 	}
+	// fmt.Printf("Payor string: %q\n", sa[4])
+	// for i := 0; i < len(payors); i++ {
+	// 	fmt.Printf("payor[%d] = %d\n", i, payors[i].TCID)
+	// }
 
 	//-------------------------------------------------------------------
 	// Renewal

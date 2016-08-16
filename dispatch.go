@@ -68,6 +68,21 @@ func RunBooks(ctx *DispatchCtx) {
 			LedgerActivityReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 11: // Rentable GSR
 			rrpt.GSRTextReport(&xbiz, &ctx.DtStart)
+		case 12: // LedgerBalance On Date
+			// ctx.Report format:  12,LID,RAID,date
+			sa := strings.Split(ctx.Args, ",")
+			if len(sa) < 4 {
+				fmt.Printf("Missing one or more parameters.  Example:  -r 12,L004,RA003,2016-07-04\n")
+				os.Exit(1)
+			}
+			lid := rcsv.CSVLoaderGetLedgerNo(sa[1])
+			raid := rcsv.CSVLoaderGetRAID(sa[2])
+			dt, err := rlib.StringToDate(sa[3])
+			if err != nil {
+				fmt.Printf("Bad date string: %s\n", sa[3])
+				os.Exit(1)
+			}
+			rrpt.LdgAcctBalOnDateTextReport(&xbiz, lid, raid, &dt)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

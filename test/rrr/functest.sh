@@ -20,7 +20,7 @@ RENTROLL="${RRBIN}/rentroll -A -j 2016-07-01 -k 2016-08-01"
 #############################################################################
 pause() {
 	read -p "Press [Enter] to continue, X to quit..." x
-	if [ "$x" = "x" -o "$x" = "X" ]; then
+	if [ "$x" = "x" -o "$x" = "X" -o "$x" = "q" ]; then
 		exit 0
 	fi
 }
@@ -101,6 +101,7 @@ EOF
 		  p) csvload "-L 7,${BUD}" ;;
 		 pe) csvload "-L 16,RA0002" ;;
 		 pt) csvload "-L 12,${BUD}" ;;
+		  q) exit 0 ;;
 		  r) csvload "-L 13,${BUD}" ;;
 		 ra) csvload "-L 9,${BUD}" ;;
 		 rc) app "-r 7" ;;
@@ -243,15 +244,18 @@ docsvtest "j" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
 docsvtest "k" "-A asmt.csv -L 11,REX" "Assessments"
 docsvtest "l" "-e rcpt.csv -L 13,REX" "Receipts"
 
-# force the deposits to post
+# force the deposits to post, and the balances to be established
 ${RRBIN}/rentroll -A -j 2014-12-01 -k 2015-01-01
 
 # process payments and receipts
 dorrtest "p" "-r 11" "GSR"
 dorrtest "m" "" "Process"
-
 dorrtest "n" "-r 1" "Journal"
 dorrtest "o" "-r 2" "Ledgers"
+
+dorrtest "q" "-r 12,11,RA001,2016-07-04"
+dorrtest "q1" "-r 12,9,RA001,2016-07-04"
+
 
 echo >>${LOGFILE}
 

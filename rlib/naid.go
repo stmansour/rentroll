@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -83,15 +84,16 @@ func (t *RentableType) IDtoString() string {
 	return fmt.Sprintf("RT%08d", t.RTID)
 }
 
-// GetUserNameList returns an array of strings with all the User names associated with the Rentable
-func (t *RentalAgreement) GetUserNameList(d1, d2 *time.Time) []string {
+// GetUserNameList returns an array of strings with all the User names associated with the Rentable. the strings are sorted alphabetically
+func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
 	var m []string
-	users := GetRentableUsers(t.RAID, d1, d2) // get all defined renters for this period
+	users := GetRentableUsers(t.RID, d1, d2) // get all defined renters for this period
 	for i := 0; i < len(users); i++ {
 		var tr Transactant
 		GetTransactant(users[i].TCID, &tr)
 		m = append(m, tr.GetUserName())
 	}
+	sort.Strings(m)
 	return m
 }
 
@@ -113,6 +115,9 @@ func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
 
 // GetUserName returns a string with the user's first, middle, and last name
 func (t *Transactant) GetUserName() string {
+	if t.IsCompany > 0 {
+		return t.CompanyName
+	}
 	s := t.FirstName + " "
 	if len(t.MiddleName) > 0 {
 		s += t.MiddleName + " "

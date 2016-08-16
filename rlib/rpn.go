@@ -21,6 +21,7 @@ type RpnCtx struct {
 	stack  []float64   // the stack used by the rpn calculator
 	GSRset bool        // initially false, set to true after GSR is calculated
 	GSR    float64     // this is a heavyweight calculation. If GSRset is true, then don't recalculate, just use current value
+	r      *AcctRule   // the account rule in the process of being constructed
 }
 
 var rpnVariable *regexp.Regexp
@@ -28,6 +29,7 @@ var rpnOperator *regexp.Regexp
 var rpnNumber *regexp.Regexp
 var rpnFunction *regexp.Regexp
 var rpnASM *regexp.Regexp
+var rpnSUM *regexp.Regexp
 
 func rpnPrintStack(ctx *RpnCtx) {
 	fmt.Printf("Stack --- size: %d\n", len(ctx.stack))
@@ -100,6 +102,7 @@ func rpnFunctionResolve(ctx *RpnCtx, cmd, val string) float64 {
 }
 
 func varResolve(ctx *RpnCtx, s string) float64 {
+
 	if s == "UMR" { // Unit MARKET RATE
 		rpnLoadRentable(ctx) // make sure it's loaded
 		return ctx.pf * GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
@@ -115,6 +118,14 @@ func varResolve(ctx *RpnCtx, s string) float64 {
 			ctx.GSRset = true
 			return ctx.pf * ctx.GSR
 		}
+	}
+	if s == "ASM.Amount" { // the amount of the associated assessment
+		a, err := GetAssessment(ctx.r.ASMID)
+		if nil != err {
+			Ulog("varResolve: could not load Assessment %d. err = %s\n", ctx.r.ASMID, err.Error())
+			return float64(0)
+		}
+		return ctx.pf * a.Amount
 	}
 	m1 := rpnFunction.FindAllStringSubmatchIndex(s, -1)
 	if m1 != nil {
@@ -138,7 +149,7 @@ func RpnCalculateEquation(ctx *RpnCtx, s string) float64 {
 		s = t[i]
 		// fmt.Printf("\n%s: for loop parsing: %s\n", funcname, s)
 		if len(s) > 0 {
-			if s[0] == '$' { // is it a variable?
+			if s[0] == '$' { // is it a special notation?
 				m := rpnVariable.FindStringSubmatchIndex(s)
 				if m != nil {
 					match := s[m[2]:m[3]]

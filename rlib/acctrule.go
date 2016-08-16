@@ -84,6 +84,7 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 			r.Account = DoAcctSubstitution(xbiz.P.BID, r.AcctExpr)  // the is the substituted acct name
 			ar := strings.Join(ta[base+2:], " ")                    // remaining fields make up the amount formula
 			r.Expr = strings.TrimSpace(ar)                          // prepare the formula for the calculator
+			ctx.r = &r                                              // the AcctRule in the process of being constructed.  Has the Assessment ID which may be needed.
 			x := RpnCalculateEquation(&ctx, r.Expr)                 // let the calculator compute the amount
 			r.Amount = x                                            // set the Amount field
 			m = append(m, r)                                        // and we're done

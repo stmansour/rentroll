@@ -767,8 +767,8 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 
 // GetRentableUsers returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
 // during the time range d1-d2
-func GetRentableUsers(raid int64, d1, d2 *time.Time) []RentableUser {
-	rows, err := RRdb.Prepstmt.GetRentableUsers.Query(raid, d1, d2)
+func GetRentableUsers(rid int64, d1, d2 *time.Time) []RentableUser {
+	rows, err := RRdb.Prepstmt.GetRentableUsers.Query(rid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	var t []RentableUser

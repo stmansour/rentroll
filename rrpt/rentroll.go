@@ -7,6 +7,12 @@ import (
 	"time"
 )
 
+// OtherIncomeGLAccountName and the rest will need to become configurable parameters for this report!!
+const (
+	OtherIncomeGLAccountName  = string("Other Income")
+	IncomeOffsetGLAccountName = string("Income Offsets")
+)
+
 // RentRollTextReport generates a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
 func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	funcname := "RentRollTextReport"
@@ -44,9 +50,9 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	tbl.AddColumn("Rent Cycle", "s", 12, 0)                 // the rent cycle
 	tbl.AddColumn("GSR Rate", "s", 10, 1)                   // gross scheduled rent
 	tbl.AddColumn("GSR This Period", "s", 10, 1)            // gross scheduled rent
-	tbl.AddColumn("Income Offsets", "s", 10, 1)             // GL Account
+	tbl.AddColumn(IncomeOffsetGLAccountName, "s", 10, 1)    // GL Account
 	tbl.AddColumn("Contract Rent", "s", 10, 1)              // contract rent amounts
-	tbl.AddColumn("Other Income", "s", 10, 1)               // GL Account
+	tbl.AddColumn(OtherIncomeGLAccountName, "s", 10, 1)     // GL Account
 	tbl.AddColumn("Payments Received", "s", 10, 1)          // contract rent amounts
 	tbl.AddColumn("Beginning Receivable", "s", 10, 1)       // account for the associated RentalAgreement
 	tbl.AddColumn("Change In Receivable", "s", 10, 1)       // account for the associated RentalAgreement
@@ -116,7 +122,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				fmt.Printf("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
 				continue
 			}
-			na := ra.GetUserNameList(d1, d2)                           // get the list of user names for this time period
+			na := p.GetUserNameList(d1, d2)                            // get the list of user names for this time period
 			raid = ra.IDtoString()                                     // standard id format
 			usernames = strings.Join(na, ",")                          // concatenate with a comma separator
 			pa := ra.GetPayorNameList(d1, d2)                          // get the payors for this time period
@@ -205,13 +211,26 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			//-------------------------------------------------------------------------------------------------------
 			// Determine the LID of "Income Offsets" and "Other Income" accounts...
 			//-------------------------------------------------------------------------------------------------------
-			incOffsetAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, "Unit Income Offsets")
-			otherIncomeAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, "Serviced Unit Fees")
+			incOffsetAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, IncomeOffsetGLAccountName)
+			otherIncomeAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, OtherIncomeGLAccountName)
+			icos := float64(0)
+			oic := float64(0)
 
 			// /*DEBUG*/ fmt.Printf("incOffsetAcct = %d, otherIncomeAcct = %d\n", incOffsetAcct, otherIncomeAcct)
+			if incOffsetAcct == 0 {
+				rlib.Ulog("RentRollTextReport: WARNING. IncomeOffsetGLAccountName = %q was not found in the GLAccounts\n", IncomeOffsetGLAccountName)
+			}
+			if otherIncomeAcct == 0 {
+				rlib.Ulog("RentRollTextReport: WARNING. OtherIncomeGLAccountName = %q was not found in the GLAccounts\n", OtherIncomeGLAccountName)
+			}
 
-			icos := rlib.GetAccountBalanceForDate(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
-			oic := rlib.GetAccountBalanceForDate(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
+			if incOffsetAcct > 0 {
+				icos = rlib.GetAccountBalanceForDate(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
+			}
+
+			if otherIncomeAcct > 0 {
+				oic = rlib.GetAccountBalanceForDate(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
+			}
 
 			incomeOffsets = rlib.RRCommaf(icos)
 			otherIncome = rlib.RRCommaf(oic)

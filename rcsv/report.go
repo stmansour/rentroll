@@ -192,7 +192,21 @@ func RRreportRentalAgreementTemplates(t int) string {
 // ReportRentalAgreementToText returns a string representation of the supplied People suitable for a text report
 func ReportRentalAgreementToText(p *rlib.RentalAgreement, d1, d2 *time.Time) string {
 	payors := strings.Join(p.GetPayorNameList(d1, d2), ", ")
-	users := strings.Join(p.GetUserNameList(d1, d2), ", ")
+
+	n := make(map[string]int, 0) // this is going to be our array of unique names
+	for i := 0; i < len(p.R); i++ {
+		m := p.R[i].R.GetUserNameList(d1, d2)
+		for j := 0; j < len(m); j++ {
+			n[m[j]] = 1 // the name is added to the list only one time, as a Key value
+		}
+	}
+
+	var sa []string
+	for k := range n {
+		sa = append(sa, k)
+	}
+	sort.Strings(sa)
+	users := strings.Join(sa, ", ")
 	return fmt.Sprintf("%5d  %-40.40s  %-40.40s  %10s  %10s  %10s  %10s\n", p.RAID, payors, users,
 		p.RentStart.Format(rlib.RRDATEFMT4), p.RentStop.Format(rlib.RRDATEFMT4),
 		p.AgreementStart.Format(rlib.RRDATEFMT4), p.AgreementStop.Format(rlib.RRDATEFMT4))
@@ -232,6 +246,7 @@ func RRreportRentalAgreements(t int, bid int64) string {
 // ReportChartOfAcctsToText returns a string representation of the chart of accts
 func ReportChartOfAcctsToText(p rlib.GLAccount) string {
 	s := ""
+	collective := ""
 	lm := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
 	if lm.LMID == 0 {
 		s = fmt.Sprintf("ReportChartOfAcctsToText: error getting latest LedgerMarker for L%08d\n", p.LID)
@@ -260,9 +275,11 @@ func ReportChartOfAcctsToText(p rlib.GLAccount) string {
 	default:
 		sp = fmt.Sprintf("??? invalid: %d", p.RAAssociated)
 	}
-
-	return fmt.Sprintf("%5d  %5d  %-8s  %12s  %-60s  %12d  %12.2f  %12s  %5d\n",
-		p.LID, lm.LMID, s, p.GLNumber, p.Name, p.PLID, lm.Balance, sp, p.RARequired)
+	if p.PLID > 0 {
+		collective = rlib.RRdb.BizTypes[p.BID].GLAccounts[p.PLID].Name
+	}
+	return fmt.Sprintf("%5d  %5d  %-8s  %12s  %-35.35s  %20.20s  %12.2f  %12s  %5d\n",
+		p.LID, lm.LMID, s, p.GLNumber, p.Name, collective, lm.Balance, sp, p.RARequired)
 }
 
 // RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
@@ -286,7 +303,7 @@ func RRreportChartOfAccounts(t int, bid int64) string {
 		}
 	}
 
-	s := fmt.Sprintf("%5s  %5s  %-8s  %12s  %-60s  %-12s  %-12s  %-12s  %-5s\n", "LID", "LMID", "Type", "GLNumber", "Name", "Parent LMID", "Balance", "RAAssoc", "RARqd")
+	s := fmt.Sprintf("%5s  %5s  %-8s  %12s  %-40s  %-35s  %-12s  %-12s  %-5s\n", "LID", "LMID", "TYPE", "GLNUMBER", "NAME", "COLLECTIVE", "BALANCE", "RAASSOC", "RARQD")
 	for i := 0; i < len(a); i++ {
 		switch t {
 		case rlib.RPTTEXT:

@@ -19,15 +19,15 @@
                               Unit Gross Scheduled Rent-Taxable  07/03/16         1         6303-231     41000        -76.00
                                            Loss (Gain) to Lease  07/03/16         1         6303-231     41102          0.00
                                                                
-   J00000008  Unit Income Offsets  6303-231 [A2, daily]        
+   J00000008  Income Offsets  6303-231 [A2, daily]             
                                             Accounts Receivable  07/01/16         1         6303-231     12000        -24.00
                                            Resident Concessions  07/01/16         1         6303-231     41104         24.00
                                                                
-   J00000009  Unit Income Offsets  6303-231 [A2, daily]        
+   J00000009  Income Offsets  6303-231 [A2, daily]             
                                             Accounts Receivable  07/02/16         1         6303-231     12000        -24.00
                                            Resident Concessions  07/02/16         1         6303-231     41104         24.00
                                                                
-   J00000010  Unit Income Offsets  6303-231 [A2, daily]        
+   J00000010  Income Offsets  6303-231 [A2, daily]             
                                             Accounts Receivable  07/03/16         1         6303-231     12000        -24.00
                                            Resident Concessions  07/03/16         1         6303-231     41104         24.00
                                                                
@@ -328,7 +328,7 @@
                                                            Cash  07/15/16         1         6303-231     10000        735.35
                                                                
    J00000072  Payment - Smith   #3999  1003.00                 
-   	Unit Income Offsets                                        
+   	Income Offsets                                             
                                             Accounts Receivable  07/16/16         1         6303-231     12000      -1003.00
                                                            Cash  07/16/16         1         6303-231     10000       1003.00
                                                                

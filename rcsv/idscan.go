@@ -39,6 +39,11 @@ func CSVLoaderGetInvoiceNo(sa string) int64 {
 	return readNumFromExpr(sa, "^IN0*(.*)", "InvoiceNo")
 }
 
+// CSVLoaderGetLedgerNo parses a string of the form L000000321 and returns the Ledger , in this case 321.
+func CSVLoaderGetLedgerNo(sa string) int64 {
+	return readNumFromExpr(sa, "^L0*(.*)", "Ledger")
+}
+
 // CSVLoaderGetRAID parses a string of the form RA000000321 and returns the RAID , in this case 321.
 func CSVLoaderGetRAID(sa string) int64 {
 	return readNumFromExpr(sa, "^RA0*(.*)", "Rental Agreement")

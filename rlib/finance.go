@@ -198,6 +198,7 @@ func GetGLAccountChildAccts(bid, lid int64) []int64 {
 // GetAccountBalanceForDate returns the balance of the account with LID lid on date dt. If raid is 0 then all
 // transactions are considered. Otherwise, only transactions involving this RAID are considered.
 func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
+	// fmt.Printf("GetAccountBalanceForDate: bid = %d, lid = %d, dt = %s ", bid, lid, dt.Format(RRDATEFMT4))
 	bal := float64(0)
 	//--------------------------------------------------------------------------------
 	// First, check and see if this is a Parent to any other GLAccounts. If so, then
@@ -213,16 +214,27 @@ func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
 	// Compute the total for this account
 	//--------------------------------------------------------------------------------
 	lm := GetLedgerMarkerOnOrBefore(bid, lid, dt) // find nearest ledgermarker, use it as a basis
-	if lm.LMID == 0 {
-		Ulog("GetAccountBalanceForDate: unable to find LedgerMarker for bid=%d, lid=%d, before %s\n", bid, lid, dt.Format(RRDATEFMT4))
-		return bal
+	if lm.LMID > 0 {
+		bal += lm.Balance // we initialize the balance to this amount
 	}
-	bal += lm.Balance // we initialize the balance to this amount
 
 	//--------------------------------------------------------------------------------
-	// read all other ledger transactions for this account between lm date and dt
+	// read all other ledger transactions for this account between lm date and dt.
+	//
+	// NOTE: there are two very special cases here: RABalance and RASecDepBalance.
+	// for these types of ledgers, the ledger entries need to be from GLGGENRCV and GLSECDEP
+	// filtered by the RAID.
 	//--------------------------------------------------------------------------------
-	lea, err := GetLedgerEntriesInRange(bid, lm.LID, raid, &lm.Dt, dt)
+	lidToCheck := lid
+
+	switch RRdb.BizTypes[bid].GLAccounts[lid].Type {
+	case RABALANCEACCOUNT:
+		lidToCheck = RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
+	case RASECDEPACCOUNT:
+		lidToCheck = RRdb.BizTypes[bid].DefaultAccts[GLSECDEP].LID
+	}
+
+	lea, err := GetLedgerEntriesInRange(bid, lidToCheck, raid, &lm.Dt, dt)
 	if err != nil {
 		Ulog("GetAccountBalanceForDate: unable to find LedgerMarker for bid=%d, lid=%d, before %s\n", bid, lid, dt.Format(RRDATEFMT4))
 		return bal
@@ -234,7 +246,7 @@ func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
 		// fmt.Printf("lea[%d].Amount = %6.2f,  bal = %6.2f\n", i, lea[i].Amount, bal)
 	}
 
-	// fmt.Printf("Returning bal = %6.2f\n", bal)
+	// fmt.Printf("====>  balance = %.2f\n", bal)
 	return bal
 }
 
