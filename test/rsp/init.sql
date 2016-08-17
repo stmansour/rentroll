@@ -104,7 +104,7 @@ INSERT INTO RentableTypes (BID,Style, Name,RentCycle,Proration,GSRPC,ManageToBud
 	(1,"CAR","Vehicle",     3,0,4,1), 				-- 5  Car
 	(1,"CPT","Carport",     6,4,4,1);		 		-- 6  Carport
 
-INSERT INTO RentableMarketrate (RTID,MarketRate,DtStart,DtStop) VALUES
+INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES
 	(1, 1000.00, "1970-01-01 00:00:00", "2015-10-01 00:00:00"),   	-- 1: GM, Geezer Miser 
 	(2, 1500.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 2: FS, Flat Studio
 	(3, 1750.00, "1970-01-01 00:00:00", "9999-12-31 00:00:00"),		-- 3: SBL, SB Loft

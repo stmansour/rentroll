@@ -857,9 +857,7 @@ CREATE TABLE GLAccount (
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',      -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,             -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
     Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind, 
-    --                                                       1 = RentalAgreement Receivable Balance, 
-    --                                                       2 = RentalAgreement Security Deposit Balance,
-    --                                                       3 - 9 Reserved
+    --                                                       1 - 9 Reserved
     --                                                       10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',      -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 

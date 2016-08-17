@@ -804,7 +804,7 @@ type GLAccount struct {
 	RAID           int64     // associated rental agreement, this field is only used when Type = 1
 	GLNumber       string    // acct system name
 	Status         int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	Type           int64     // flag: 0 = not a default account, 1 = RentalAgreement Account, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Type           int64     // flag: 0 = not a default account, 1-9 reserved, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name           string    // descriptive name for the GLAccount
 	AcctType       string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	RAAssociated   int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
