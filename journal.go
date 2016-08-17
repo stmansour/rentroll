@@ -290,10 +290,10 @@ func GenerateJournalRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 			rangeDuration := d2.Sub(*d1)
 			for i := 0; i < len(dl); i++ {
 				a1 := a
-				a1.Start = dl[i]    // use the instance date
-				a1.Stop = a.Start   // start and stop are the same
-				a1.ASMID = 0        // ensure this is a new assessment
-				a1.PASMID = a.ASMID // parent assessment
+				a1.Start = dl[i]                                                   // use the instance date
+				a1.Stop = dl[i].Add(rlib.CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
+				a1.ASMID = 0                                                       // ensure this is a new assessment
+				a1.PASMID = a.ASMID                                                // parent assessment
 
 				// Rent is assessed on the following cycle: a.RentCycle
 				// and prorated on the following cycle: a.ProrationCycle

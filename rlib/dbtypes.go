@@ -33,9 +33,6 @@ const (
 	SECURITYDEPOSIT           = 2
 	SECURITYDEPOSITASSESSMENT = 58
 
-	RABALANCEACCOUNT = 1 // GLAccount set up for a RentalAgreement balance
-	RASECDEPACCOUNT  = 2 // GLAccount set up for a SecurityDeposit balance
-
 	ACCTSTATUSINACTIVE = 1
 	ACCTSTATUSACTIVE   = 2
 	RAASSOCIATED       = 1
@@ -1047,6 +1044,8 @@ type RRprepSQL struct {
 	GetLedgerMarkerOnOrBefore                *sql.Stmt
 	GetLedgerEntriesInRange                  *sql.Stmt
 	GetSecDepBalanceLedger                   *sql.Stmt
+	GetRALedgerMarkerOnOrBefore              *sql.Stmt
+	GetAllLedgerEntriesForRAID               *sql.Stmt
 	//	GetLedgerMarkerByRAID                    *sql.Stmt
 }
 

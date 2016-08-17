@@ -83,6 +83,17 @@ func RunBooks(ctx *DispatchCtx) {
 				os.Exit(1)
 			}
 			rrpt.LdgAcctBalOnDateTextReport(&xbiz, lid, raid, &dt)
+		case 13: // RA Ledger Details over Range
+			// ctx.Report format: 13,LID,RAID
+			// date range is from -j , -k
+			sa := strings.Split(ctx.Args, ",")
+			if len(sa) < 3 {
+				fmt.Printf("Missing one or more parameters.  Example:  -r 13,L004,RA003\n")
+				os.Exit(1)
+			}
+			lid := rcsv.CSVLoaderGetLedgerNo(sa[1])
+			raid := rcsv.CSVLoaderGetRAID(sa[2])
+			rrpt.RAAccountActivityRangeDetail(&xbiz, lid, raid, &ctx.DtStart, &ctx.DtStop)
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

@@ -225,11 +225,11 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			}
 
 			if incOffsetAcct > 0 {
-				icos = rlib.GetAccountBalanceForDate(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
+				icos = rlib.GetRAAccountBalance(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
 			}
 
 			if otherIncomeAcct > 0 {
-				oic = rlib.GetAccountBalanceForDate(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
+				oic = rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
 			}
 
 			incomeOffsets = rlib.RRCommaf(icos)
@@ -237,7 +237,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 
 			//-------------------------------------------------------------------------------------------------------
 			// Payments received... or more precisely that portion of a Receipt that went to pay an Assessment on
-			// on this Rentable during this period d1 - d2
+			// on this Rentable during this period d1 - d2.  We expand the search range to the entire report range
 			//-------------------------------------------------------------------------------------------------------
 
 			// get all the receipts for ra.RAID that occurred during d1-d2
@@ -263,14 +263,10 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			//-------------------------------------------------------------------------------------------------------
 			// Compute account balances...   begin, delta, and end for  RAbalance and Security Deposit
 			//-------------------------------------------------------------------------------------------------------
-			raLdg, err := rlib.GetRABalanceLedger(xbiz.P.BID, ra.RAID)
-			rlib.Errcheck(err)
-			secdepLdg, err := rlib.GetSecDepBalanceLedger(xbiz.P.BID, ra.RAID)
-			rlib.Errcheck(err)
-			raStartBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, raLdg.LID, ra.RAID, &dtstart)
-			raEndBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, raLdg.LID, ra.RAID, &dtstop)
-			secdepStartBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, secdepLdg.LID, ra.RAID, &dtstart)
-			secdepEndBal := rlib.GetAccountBalanceForDate(xbiz.P.BID, secdepLdg.LID, ra.RAID, &dtstop)
+			raStartBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d1)
+			raEndBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d2)
+			secdepStartBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d1)
+			secdepEndBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d2)
 			beginRcv = rlib.RRCommaf(raStartBal)
 			endRcv = rlib.RRCommaf(raEndBal)
 			chgRcv = rlib.RRCommaf(raEndBal - raStartBal)

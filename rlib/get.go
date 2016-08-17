@@ -391,35 +391,6 @@ func GetInvoicePayors(id int64) ([]InvoicePayor, error) {
 //  L E D G E R   M A R K E R
 //=======================================================
 
-// GetLedgerMarkerByGLNoDateRange returns the LedgerMarker struct for the supplied time range
-// func GetLedgerMarkerByGLNoDateRange(bid int64, s string, d1, d2 *time.Time) (LedgerMarker, error) {
-// 	var r LedgerMarker
-// 	l, err := GetLedgerByGLNo(bid, s)
-// 	if err != nil {
-// 		fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not load Ledger for GLNumber: %s,  err = %s\n	", s, err.Error())
-// 		return r, err
-// 	}
-// 	row := RRdb.Prepstmt.GetLedgerMarkerByDateRange.QueryRow(bid, l.LID, d1, d2)
-// 	if nil != err {
-// 		fmt.Printf("GetLedgerMarkerByGLNoDateRange: Could not find LedgerMarker for GLNumber \"%s\".\n", s)
-// 		fmt.Printf("err = %v\n", err)
-// 	}
-// 	ReadLedgerMarker(row, &r)
-// 	return r, err
-// }
-
-// GetLedgerMarkerByLIDDateRange returns the LedgerMarker struct for the supplied time range
-// func GetLedgerMarkerByLIDDateRange(bid, lid int64, d1, d2 *time.Time) LedgerMarker {
-// 	var r LedgerMarker
-// 	row := RRdb.Prepstmt.GetLedgerMarkerByDateRange.QueryRow(bid, lid, d1, d2)
-// 	// if nil != err {
-// 	// 	fmt.Printf("GetLedgerMarkerByLIDDateRange: Could not find LedgerMarker for BID=%d, LID=%d, d1=%s, d2=%s\n", bid, lid, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
-// 	// 	fmt.Printf("err = %v\n", err)
-// 	// }
-// 	ReadLedgerMarker(row, &r)
-// 	return r
-// }
-
 // GetLatestLedgerMarkerByLID returns the LedgerMarker struct for the GLAccount with the supplied LID
 func GetLatestLedgerMarkerByLID(bid, lid int64) LedgerMarker {
 	var r LedgerMarker
@@ -434,6 +405,45 @@ func GetLedgerMarkerOnOrBefore(bid, lid int64, dt *time.Time) LedgerMarker {
 	row := RRdb.Prepstmt.GetLedgerMarkerOnOrBefore.QueryRow(bid, lid, dt)
 	ReadLedgerMarker(row, &r)
 	return r
+}
+
+// GetRALedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with the supplied LID
+func GetRALedgerMarkerOnOrBefore(bid, lid, raid int64, dt *time.Time) LedgerMarker {
+	var r LedgerMarker
+	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore.QueryRow(bid, lid, raid, dt)
+	ReadLedgerMarker(row, &r)
+	return r
+}
+
+// LoadRALedgerMarker returns the LedgerMarker for the supplied bid,lid,raid
+// values. It loads the marker on-or-before dt.  If no such LedgerMarker exists,
+// then one will be created.
+//
+// TODO:  If a subsequent LedgerMarker exists and it is marked as the epoch (3) then
+// then it will be updated to normal status as the LedgerMarker just being will
+// created will be the new epoch.
+//
+// INPUTS
+//		bid  - business id
+//		lid  - parent ledger id
+//		raid - which RentalAgreement
+//		dt   - the ledger marker on this date, or the first prior LedgerMarker
+//			   will be loaded and returned.
+//-----------------------------------------------------------------------------
+func LoadRALedgerMarker(bid, lid, raid int64, dt *time.Time) LedgerMarker {
+	lm := GetRALedgerMarkerOnOrBefore(bid, lid, raid, dt)
+	if lm.LMID == 0 {
+		lm.LID = lid
+		lm.BID = bid
+		lm.RAID = raid
+		lm.Dt = *dt
+		lm.State = MARKERSTATEORIGIN
+		err := InsertLedgerMarker(&lm)
+		if nil != err {
+			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
+		}
+	}
+	return lm
 }
 
 // GetLatestLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
@@ -1139,6 +1149,21 @@ func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry,
 	Errcheck(err)
 	defer rows.Close()
 
+	for rows.Next() {
+		var le LedgerEntry
+		ReadLedgerEntries(rows, &le)
+		m = append(m, le)
+	}
+	Errcheck(rows.Err())
+	return m, err
+}
+
+// GetAllLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
+func GetAllLedgerEntriesForRAID(d1, d2 *time.Time, raid int64) ([]LedgerEntry, error) {
+	var m []LedgerEntry
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
+	Errcheck(err)
+	defer rows.Close()
 	for rows.Next() {
 		var le LedgerEntry
 		ReadLedgerEntries(rows, &le)

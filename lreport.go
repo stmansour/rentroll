@@ -199,9 +199,6 @@ func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {
-		if t[i].Type == rlib.RABALANCEACCOUNT || t[i].Type == rlib.RASECDEPACCOUNT {
-			continue
-		}
 		// dd2 := d1.AddDate(0, 0, -1)
 		// dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
 		// lm := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, t[i].LID, &dd1, &dd2)

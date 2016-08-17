@@ -4,6 +4,7 @@ MYSQLOPTS=""
 UNAME=$(uname)
 LOGFILE="log"
 SKIPCOMPARE=0
+FORCEGOOD=0
 TESTCOUNT=0
 BUD="REX"
 
@@ -135,15 +136,17 @@ EOF
 #--------------------------------------------------------------------------
 #  Look at the command line options first
 #--------------------------------------------------------------------------
-while getopts "frR:" o; do
+while getopts "forR:" o; do
 	case "${o}" in
 		r | R)
 			doReport
 			exit 0
 			;;
-		f)
-			SKIPCOMPARE=1
+		f)  SKIPCOMPARE=1
 			echo "SKIPPING COMPARES..."
+			;;
+		o)	FORCEGOOD=1
+			echo "OUTPUT OF THIS RUN IS SAVED AS *.GOLD"
 			;;
 		*) 	usage
 			exit 1
@@ -165,7 +168,10 @@ docsvtest () {
 	printf "PHASE %2s  %s... " ${TESTCOUNT} $3
 	${CSVLOAD} $2 >${1} 2>&1
 
-	if [ "${SKIPCOMPARE}" = "0" ]; then
+	if [ "${FORCEGOOD}" = "1" ]; then
+		cp ${1} ${1}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
 		if [ ! -f ${1}.gold ]; then
 			echo "UNSET CONTENT" > ${1}.gold
 			echo "Created a default $1.gold for you. Update this file with known-good output."
@@ -198,7 +204,10 @@ dorrtest () {
 	printf "PHASE %2s  %s... " ${TESTCOUNT} $3
 	${RENTROLL} $2 >${1} 2>&1
 
-	if [ "${SKIPCOMPARE}" = "0" ]; then
+	if [ "${FORCEGOOD}" = "1" ]; then
+		cp ${1} ${1}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
 		if [ ! -f ${1}.gold ]; then
 			echo "UNSET CONTENT" > ${1}.gold
 			echo "Created a default $1.gold for you. Update this file with known-good output."
@@ -249,9 +258,14 @@ docsvtest "l" "-e rcpt.csv -L 13,REX" "Receipts"
 # force the deposits to post, and the balances to be established
 ${RRBIN}/rentroll -A -j 2014-12-01 -k 2015-01-01
 
+#pause
+
 # process payments and receipts
 dorrtest "p" "-r 11" "GSR"
 dorrtest "m" "" "Process"
+
+#pause
+
 dorrtest "n" "-r 1" "Journal"
 dorrtest "o" "-r 2" "Ledgers"
 

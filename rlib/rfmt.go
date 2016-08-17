@@ -64,6 +64,15 @@ func LogAndPrintError(funcname string, err error) {
 	fmt.Println(errmsg)
 }
 
+// Tline returns a string of dashes that is the specified length
+func Tline(n int) string {
+	p := make([]byte, n)
+	for i := 0; i < n; i++ {
+		p[i] = '-'
+	}
+	return string(p)
+}
+
 // RoundToCent rounds the supplied amount to the nearest cent.
 func RoundToCent(x float64) float64 {
 	var xtra = float64(0.5)

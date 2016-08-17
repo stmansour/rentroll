@@ -1,11 +1,11 @@
 #!/bin/bash
 ERRFILE="err.txt"
-RRBIN="../../tmp/rentroll"
-CSVLOAD="${RRBIN}/rrloadcsv"
 UNAME=$(uname)
-RENTROLL="${RRBIN}/rentroll -A"
 LOGFILE="log"
 MYSQLOPTS=""
+RRBIN="../../tmp/rentroll"
+RENTROLL="${RRBIN}/rentroll -A"
+CSVLOAD="${RRBIN}/rrloadcsv"
 BUD="DHR"
 
 if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then

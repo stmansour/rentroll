@@ -82,14 +82,10 @@ func UIStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalAg
 	fmt.Printf("Period  %s - %s\n", d1.Format("Jan 2, 2006"), d2.AddDate(0, 0, -1).Format("Jan 2, 2006"))
 	s := fmt.Sprintf("\n%-10s  %-11s  %-40s  %12s  %12s  %12s\n", "Date", "ID", "Description", "Charge", "Payment", "Balance")
 	fmt.Print(s)
-	k := len(s) - 2
-	s = ""
-	for i := 0; i < k; i++ {
-		s += "-"
-	}
-	fmt.Println(s)
-	m := GetStatementData(xbiz, ra.RAID, d1, d2)
+	s1 := rlib.Tline(len(s) - 2)
+	fmt.Println(s1)
 
+	m := GetStatementData(xbiz, ra.RAID, d1, d2)
 	var b = rlib.RoundToCent(m[0].bal) // element 0 is always the account balance
 	var c = float64(0)                 // credit
 	var d = float64(0)                 // debit
@@ -119,7 +115,7 @@ func UIStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalAg
 		}
 
 	}
-	fmt.Println(s)
+	fmt.Println(s1)
 	fmt.Printf("%-10s  %-11s  %-40s  %12s  %12s  %12s\n", "Totals", " ", " ", rlib.RRCommaf(c), rlib.RRCommaf(d), rlib.RRCommaf(c-d+m[0].bal))
 	fmt.Printf("\n")
 }

@@ -195,10 +195,24 @@ func GetGLAccountChildAccts(bid, lid int64) []int64 {
 	return m
 }
 
-// GetAccountBalanceForDate returns the balance of the account with LID lid on date dt. If raid is 0 then all
+// GetRAAccountActivity returns the summed Amount balance for activity
+// in GLAccount lid associated with RentalAgreement raid
+func GetRAAccountActivity(bid, lid, raid int64, d1, d2 *time.Time) (float64, error) {
+	var bal = float64(0)
+	m, err := GetLedgerEntriesForRAID(d1, d2, raid, lid)
+	if err != nil {
+		return bal, err
+	}
+	for i := 0; i < len(m); i++ {
+		bal += m[i].Amount
+	}
+	return bal, err
+}
+
+// GetRAAccountBalance returns the balance of the account with LID lid on date dt. If raid is 0 then all
 // transactions are considered. Otherwise, only transactions involving this RAID are considered.
-func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
-	// fmt.Printf("GetAccountBalanceForDate: bid = %d, lid = %d, dt = %s ", bid, lid, dt.Format(RRDATEFMT4))
+func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
+	// fmt.Printf("GetRAAccountBalance: bid = %d, lid = %d, dt = %s ", bid, lid, dt.Format(RRDATEFMT4))
 	bal := float64(0)
 	//--------------------------------------------------------------------------------
 	// First, check and see if this is a Parent to any other GLAccounts. If so, then
@@ -206,47 +220,22 @@ func GetAccountBalanceForDate(bid, lid, raid int64, dt *time.Time) float64 {
 	//--------------------------------------------------------------------------------
 	m := GetGLAccountChildAccts(bid, lid)
 	for i := 0; i < len(m); i++ {
-		// fmt.Printf("\nChild Ledger %d of LID%d  = %d.   Recurse...\n", i, lid, m[i])
-		bal += GetAccountBalanceForDate(bid, m[i], raid, dt)
+		bal += GetRAAccountBalance(bid, m[i], raid, dt)
+		// fmt.Printf("L%08d child %d = L%08d  ==> bal = %d\n", lid, i, m[i], bal)
 	}
 
 	//--------------------------------------------------------------------------------
 	// Compute the total for this account
 	//--------------------------------------------------------------------------------
-	lm := GetLedgerMarkerOnOrBefore(bid, lid, dt) // find nearest ledgermarker, use it as a basis
+	lm := GetRALedgerMarkerOnOrBefore(bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
 	if lm.LMID > 0 {
 		bal += lm.Balance // we initialize the balance to this amount
+		// fmt.Printf("LedgerMarker( bid=%d, lid=%d, raid=%d ) --> LM%08d,  dt = %10s, balance = %8.2f ==>  bal = %8.2f\n", bid, lid, raid, lm.LMID, lm.Dt.Format(RRDATEFMT4), lm.Balance, bal)
 	}
 
-	//--------------------------------------------------------------------------------
-	// read all other ledger transactions for this account between lm date and dt.
-	//
-	// NOTE: there are two very special cases here: RABalance and RASecDepBalance.
-	// for these types of ledgers, the ledger entries need to be from GLGGENRCV and GLSECDEP
-	// filtered by the RAID.
-	//--------------------------------------------------------------------------------
-	lidToCheck := lid
-
-	switch RRdb.BizTypes[bid].GLAccounts[lid].Type {
-	case RABALANCEACCOUNT:
-		lidToCheck = RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
-	case RASECDEPACCOUNT:
-		lidToCheck = RRdb.BizTypes[bid].DefaultAccts[GLSECDEP].LID
-	}
-
-	lea, err := GetLedgerEntriesInRange(bid, lidToCheck, raid, &lm.Dt, dt)
-	if err != nil {
-		Ulog("GetAccountBalanceForDate: unable to find LedgerMarker for bid=%d, lid=%d, before %s\n", bid, lid, dt.Format(RRDATEFMT4))
-		return bal
-	}
-
-	// update balance based on each of these transactions
-	for i := 0; i < len(lea); i++ {
-		if lea[i].RAID == raid {
-			bal += lea[i].Amount
-			// fmt.Printf("MATCH:  lea[%d] .LEID = %d, .Amount = %6.2f,  .RAID = %d.  ---->  bal = %6.2f\n", i, lea[i].LEID, lea[i].Amount, lea[i].RAID, bal)
-		}
-	}
+	// Get the sum of the activeity between requested date and LedgerMarker
+	activity, _ := GetRAAccountActivity(bid, lid, raid, &lm.Dt, dt)
+	bal += activity
 
 	// fmt.Printf("====>  balance = %.2f\n", bal)
 	return bal

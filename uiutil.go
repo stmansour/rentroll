@@ -52,9 +52,6 @@ type RRuiSupport struct {
 func LMSum(m *[]XLedger) float64 {
 	bal := float64(0)
 	for _, v := range *m {
-		if v.G.Type == rlib.RABALANCEACCOUNT || v.G.Type == rlib.RASECDEPACCOUNT {
-			continue
-		}
 		bal += v.LM.Balance
 	}
 	return bal
@@ -119,28 +116,14 @@ func GetRentableCountByRentableType(xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]
 	return m, err
 }
 
-// GetStatementData returns an array of StatementEntry structs that are part of the statement for the supplied
-// time range.
+// GetStatementData returns an array of StatementEntries for building a statement
 func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []StatementEntry {
 	var m []StatementEntry
 
-	// OPENING BALANCE - WE MUST SET THIS ONE FIRST - it must be element [0] in the array
-	l, err := rlib.GetRABalanceLedger(xbiz.P.BID, raid) // get the GLAccount for this Rental Agreement
-	if err != nil {
-		rlib.Ulog("Error getting GLAccount for BID=%d, RAID=%d,  err = %s\n", xbiz.P.BID, raid, err.Error())
-		return m
-	}
-
-	// dtStop := d1
-	// dtStart := dtStop.AddDate(0, 0, -1)
-	// lm := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, l.LID, &dtStart, dtStop)
-	lm := rlib.GetLedgerMarkerOnOrBefore(xbiz.P.BID, l.LID, d1)
+	bal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, raid, d1)
 
 	var se StatementEntry
-	se.bal = float64(0)
-	if nil == err {
-		se.bal = lm.Balance
-	}
+	se.bal = bal
 	se.t = 3
 	m = append(m, se)
 
@@ -148,10 +131,13 @@ func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []Sta
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByRAID.Query(raid, d2, d1)
 	rlib.Errcheck(err)
 	defer rows.Close()
+	fmt.Printf("GetStatementData - Assessment query:  raid=%d, d1=%s, d2=%s\n", raid, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
 	for rows.Next() {
 		var a rlib.Assessment
 		rlib.ReadAssessments(rows, &a)
+		fmt.Printf("Read assessment ASM%08d\n", a.ASMID)
 		dl := a.GetRecurrences(d1, d2)
+		fmt.Printf("# of recurrences in d1,d2 = %d\n", len(dl))
 		if len(dl) > 0 {
 			var se StatementEntry
 			se.t = 1
