@@ -86,37 +86,29 @@ func UIStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalAg
 	fmt.Println(s1)
 
 	m := GetStatementData(xbiz, ra.RAID, d1, d2)
-	var b = rlib.RoundToCent(m[0].bal) // element 0 is always the account balance
+	var b = rlib.RoundToCent(m[0].amt) // element 0 is always the account balance
 	var c = float64(0)                 // credit
 	var d = float64(0)                 // debit
 	for i := 0; i < len(m); i++ {
 		switch m[i].t {
 		case 1: // assessments
-			dl := m[i].a.GetRecurrences(d1, d2)
-			if len(dl) == 0 {
-				fmt.Printf("Recurrence date for Assessment ASM%08d not found for period %s - %s\n", m[i].a.ASMID, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
-				continue
-			}
-			for j := 0; j < len(dl); j++ {
-				// pf, _, _, _, _ := ProrateAssessment(xbiz, m[i].a, &dl[j], d1, d2) // may not need this if we used non-recurring assessment instances rather than the recurring origin
-				amt := rlib.RoundToCent(m[i].a.Amount)
-				c += amt
-				b += amt
-				fmt.Printf("%10s  ASM%08d  %-40.40s  %12s  %12s  %12s\n",
-					dl[0].Format(rlib.RRDATEINPFMT), m[i].a.ASMID, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[m[i].a.ATypeLID].Name, rlib.RRCommaf(amt), " ", rlib.RRCommaf(b))
-			}
+			amt := rlib.RoundToCent(m[i].amt)
+			c += amt
+			b += amt
+			fmt.Printf("%10s  ASM%08d  %-40.40s  %12s  %12s  %12s\n",
+				m[i].dt.Format(rlib.RRDATEINPFMT), m[i].id, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[m[i].asmtlid].Name, rlib.RRCommaf(amt), " ", rlib.RRCommaf(b))
 		case 2: // receipts
-			amt := rlib.RoundToCent(m[i].r.Amount)
+			amt := rlib.RoundToCent(m[i].amt)
 			d += amt
 			b -= amt
-			fmt.Printf("%10s  R%010d  %-40.40s  %12s  %12s  %12s\n", m[i].r.Dt.Format(rlib.RRDATEINPFMT), m[i].r.RCPTID, "Payment received", " ", rlib.RRCommaf(m[i].r.Amount), rlib.RRCommaf(b))
+			fmt.Printf("%10s  R%010d  %-40.40s  %12s  %12s  %12s\n", m[i].dt.Format(rlib.RRDATEINPFMT), m[i].id, "Payment received", " ", rlib.RRCommaf(m[i].amt), rlib.RRCommaf(b))
 		case 3: // opening balance
 			fmt.Printf("%10s  %-11s  %-40.40s  %12s  %12s  %12s\n", d1.Format(rlib.RRDATEINPFMT), " ", "Opening Balance", " ", " ", rlib.RRCommaf(b))
 		}
 
 	}
 	fmt.Println(s1)
-	fmt.Printf("%-10s  %-11s  %-40s  %12s  %12s  %12s\n", "Totals", " ", " ", rlib.RRCommaf(c), rlib.RRCommaf(d), rlib.RRCommaf(c-d+m[0].bal))
+	fmt.Printf("%-10s  %-11s  %-40s  %12s  %12s  %12s\n", "Totals", " ", " ", rlib.RRCommaf(c), rlib.RRCommaf(d), rlib.RRCommaf(c+d+m[0].amt))
 	fmt.Printf("\n")
 }
 

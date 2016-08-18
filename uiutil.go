@@ -34,6 +34,15 @@ type StatementEntry struct {
 	bal float64          // opening balance
 }
 
+// StmtEntry describes an entry on a statement
+type StmtEntry struct {
+	t       int   // 1 = assessment, 2 = Receipt, 3 = Initial Balance
+	id      int64 // ASMID if t==1, RCPTID if t==2, n/a if t==3
+	asmtlid int64 // valid only for t==1, the assessments ATypeLID
+	amt     float64
+	dt      time.Time
+}
+
 // RRuiSupport is a structure of data that will be passed to all html pages.
 // It is the responsibility of the page function to populate the data needed by
 // the page. The recommendation is to populate only the data needed.
@@ -117,42 +126,39 @@ func GetRentableCountByRentableType(xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]
 }
 
 // GetStatementData returns an array of StatementEntries for building a statement
-func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []StatementEntry {
-	var m []StatementEntry
+func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []StmtEntry {
+	var m []StmtEntry
 
 	bal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, raid, d1)
 
-	var se StatementEntry
-	se.bal = bal
-	se.t = 3
-	m = append(m, se)
+	var initBal = StmtEntry{amt: bal, t: 3, dt: *d1}
+	// initBal.amt = bal
+	// initBal.t = 3
+	// initBal.dt = *d1
+	m = append(m, initBal)
 
-	// ASSESSMENTS
-	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByRAID.Query(raid, d2, d1)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	fmt.Printf("GetStatementData - Assessment query:  raid=%d, d1=%s, d2=%s\n", raid, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
-	for rows.Next() {
-		var a rlib.Assessment
-		rlib.ReadAssessments(rows, &a)
-		fmt.Printf("Read assessment ASM%08d\n", a.ASMID)
-		dl := a.GetRecurrences(d1, d2)
-		fmt.Printf("# of recurrences in d1,d2 = %d\n", len(dl))
-		if len(dl) > 0 {
-			var se StatementEntry
-			se.t = 1
-			se.a = &a
-			m = append(m, se)
-		}
+	n, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID)
+	if err != nil {
+		return m
 	}
-	rlib.Errcheck(rows.Err())
-
-	// RECEIPTS
-	t := rlib.GetReceiptsInRAIDDateRange(xbiz.P.BID, raid, d1, d2)
-	for i := 0; i < len(t); i++ {
-		var se StatementEntry
-		se.t = 2
-		se.r = &t[i]
+	for i := 0; i < len(n); i++ {
+		var se StmtEntry
+		se.amt = n[i].Amount
+		se.dt = n[i].Dt
+		j, err := rlib.GetJournal(n[i].JID)
+		if err != nil {
+			return m
+		}
+		se.t = int(j.Type)
+		se.id = j.ID
+		if se.t == rlib.JOURNALTYPEASMID {
+			// read the assessment to find out what it was for...
+			a, err := rlib.GetAssessment(se.id)
+			if err != nil {
+				return m
+			}
+			se.asmtlid = a.ATypeLID
+		}
 		m = append(m, se)
 	}
 	return m

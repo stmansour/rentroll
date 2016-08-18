@@ -75,6 +75,7 @@ RPR) RatePlanRef
 RS)  Rentable Specialty Assignments
 RT)  Rentable Types
 S)   Rentable Specialties
+ST)	 Statements
 T)   Rental Agreement Templates
 U)   Custom Attribute Assignments
 
@@ -115,6 +116,7 @@ EOF
 		 rs) csvload "-L 22,${BUD}" ;;
 		 rt) csvload "-L 5,${BUD}" ;;
 		  s) csvload "-L 21,${BUD}" ;;
+		 st) app "-r 8" ;;
 		  t) csvload "-L 8" ;;
 		  u) csvload "-L 15" ;;
 		  x)	exit 0 ;;

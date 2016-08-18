@@ -25,16 +25,15 @@ func RAAccountActivityRangeDetail(xbiz *rlib.XBusiness, lid, raid int64, d1, d2 
 	fmt.Printf("Rental Agreement: RA%08d\n", raid)
 	fmt.Printf("Account:  %s  (L%08d)\n\n", rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[lid].Name, lid)
 
-	fmt.Printf("%10s  %8s  %10s  %9s  %20s  %9s  %10s  %s\n", "Date", "AMOUNT", "LEID", "LID", "GLACCOUNT NAME", "JID", "JAID", "Comment")
-	fmt.Printf("%10s  %8s  %10s  %9s  %20s  %9s  %10s  %s\n",
-		rlib.Tline(10), rlib.Tline(8), rlib.Tline(10), rlib.Tline(9), rlib.Tline(20), rlib.Tline(9), rlib.Tline(10), rlib.Tline(10))
+	fmt.Printf("%10s  %8s  %10s  %9s  %10s  %s\n", "Date", "AMOUNT", "LEID", "JID", "JAID", "Comment")
+	fmt.Printf("%10s  %8s  %10s  %9s  %10s  %s\n",
+		rlib.Tline(10), rlib.Tline(8), rlib.Tline(10), rlib.Tline(9), rlib.Tline(10), rlib.Tline(10))
 	for i := 0; i < len(m); i++ {
-		fmt.Printf("%10s  %8.2f  LE%08d  L%08d  %20.20s  J%08d  JA%08d  %s\n",
-			m[i].Dt.Format(rlib.RRDATEFMT4), m[i].Amount, m[i].LEID, m[i].LID,
-			rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[m[i].LID].Name, m[i].JID, m[i].JAID, m[i].Comment)
+		fmt.Printf("%10s  %8.2f  LE%08d  J%08d  JA%08d  %s\n",
+			m[i].Dt.Format(rlib.RRDATEFMT4), m[i].Amount, m[i].LEID, m[i].JID, m[i].JAID, m[i].Comment)
 		bal += m[i].Amount
 	}
-	s := rlib.Tline(10 + 8 + 10 + 9 + 20 + 9 + 10 + 10 + (2 * 7))
+	s := rlib.Tline(10 + 8 + 10 + 9 + 10 + 10 + (2 * 7))
 	fmt.Printf("%s\n", s)
 	fmt.Printf("%10s  %8.2f\n", "Total", bal)
 
