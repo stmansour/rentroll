@@ -1,5 +1,5 @@
 CSV IMPORT TEST
-Date/Time: Wed Aug 17 13:22:16 PDT 2016
+Date/Time: Wed Aug 17 17:04:36 PDT 2016
 
 CREATE NEW DATABASE
 DEFINE BUSINESS
@@ -605,13 +605,10 @@ Period  May 1, 2016 - May 31, 2016
 
 Date        ID           Description                                     Charge       Payment       Balance
 -----------------------------------------------------------------------------------------------------------
-GetStatementData - Assessment query:  raid=1, d1=05/01/2016, d2=06/01/2016
-Read assessment ASM00000004
-# of recurrences in d1,d2 = 1
 2016-05-01               Opening Balance                                                            -500.00
 2016-05-01  ASM00000004  Gross Schedule Rent                           3,750.00                    3,250.00
-2016-05-02  R0000000003  Payment received                                            4,000.00       -750.00
+2016-05-02  R0000000003  Payment received                                           -4,000.00      7,250.00
 -----------------------------------------------------------------------------------------------------------
-Totals                                                                 3,750.00      4,000.00       -750.00
+Totals                                                                 3,750.00     -4,000.00       -750.00
 
 
