@@ -826,7 +826,6 @@ CREATE TABLE LedgerEntry (
     JAID BIGINT NOT NULL DEFAULT 0,                           -- the allocation giving rise to this LedgerEntry
     LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     RAID BIGINT NOT NULL DEFAULT 0,                           -- associated Rental Agreement
-    -- GLNo VARCHAR(100) NOT NULL DEFAULT '',                    -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount since last close
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"

@@ -5,11 +5,12 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                             2500.00
-         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         74           1         6303-231        308.35       2808.35
-                            Payment #3999 - Income Offsets  07/16/16         75           2         6303-231        400.00       3208.35
-         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         76           4         6303-231        750.00       3958.35
-         Payment #6430 - Unit Gross Scheduled Rent-Taxable  07/04/16         77           5         6303-231       4200.00       8158.35
+   Opening Balance                                          07/01/16                                                                0.00
+         Payment #2111 - Unit Gross Scheduled Rent-Taxable  07/02/16         75           3         6303-231       2500.00       2500.00
+         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         76           1         6303-231        308.35       2808.35
+                            Payment #3999 - Income Offsets  07/16/16         77           2         6303-231        400.00       3208.35
+         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         78           4         6303-231        750.00       3958.35
+         Payment #6430 - Unit Gross Scheduled Rent-Taxable  07/04/16         79           5         6392-930       4200.00       8158.35
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          07/31/16                                                             8158.35
 
@@ -21,78 +22,81 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          5           1         6303-231         76.00         76.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          6           1         6303-231         76.00        152.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          7           1         6303-231         76.00        228.00
-                               Assessment - Income Offsets  07/01/16          8           1         6303-231        -24.00        204.00
-                               Assessment - Income Offsets  07/02/16          9           1         6303-231        -24.00        180.00
-                               Assessment - Income Offsets  07/03/16         10           1         6303-231        -24.00        156.00
-                                  Assessment - Gas Overage  07/01/16         11           1         6303-231         12.35        168.35
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         12           2         6303-231         92.00        260.35
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         13           2         6303-231         92.00        352.35
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         14           3         6303-231         56.87        409.22
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         15           3         6303-231         56.87        466.09
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         16           3         6303-231         56.87        522.96
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         17           3         6303-231         56.87        579.83
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         18           3         6303-231         56.87        636.70
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         19           3         6303-231         56.87        693.57
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         20           3         6303-231         56.87        750.44
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         21           3         6303-231         56.87        807.31
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         22           3         6303-231         56.87        864.18
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         23           3         6303-231         56.87        921.05
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         24           3         6303-231         56.87        977.92
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         25           3         6303-231         56.87       1034.79
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         26           3         6303-231         56.87       1091.66
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         27           3         6303-231         56.87       1148.53
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         28           3         6303-231         56.87       1205.40
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         29           3         6303-231         56.87       1262.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         30           3         6303-231         56.87       1319.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         31           3         6303-231         56.87       1376.01
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         32           3         6303-231         56.87       1432.88
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         33           3         6303-231         56.87       1489.75
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         34           3         6303-231         56.87       1546.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         35           4         6323-301        730.00       2276.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         36           5         6392-930        125.00       2401.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         37           5         6392-930        125.00       2526.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         38           5         6392-930        125.00       2651.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         39           5         6392-930        125.00       2776.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         40           5         6392-930        125.00       2901.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         41           5         6392-930        125.00       3026.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         42           5         6392-930        125.00       3151.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         43           5         6392-930        125.00       3276.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         44           5         6392-930        125.00       3401.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         45           5         6392-930        125.00       3526.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         46           5         6392-930        125.00       3651.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         47           5         6392-930        125.00       3776.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         48           5         6392-930        125.00       3901.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         49           5         6392-930        125.00       4026.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         50           5         6392-930        125.00       4151.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         51           5         6392-930        125.00       4276.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         52           5         6392-930        125.00       4401.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         53           5         6392-930        125.00       4526.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         54           5         6392-930        125.00       4651.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         55           5         6392-930        125.00       4776.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         56           5         6392-930        125.00       4901.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         57           5         6392-930        125.00       5026.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         58           5         6392-930        125.00       5151.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         59           5         6392-930        125.00       5276.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         60           5         6392-930        125.00       5401.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         61           5         6392-930        125.00       5526.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         62           5         6392-930        125.00       5651.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         63           5         6392-930        125.00       5776.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         64           5         6392-930        125.00       5901.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         65           5         6392-930        125.00       6026.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         66           5         6392-930        125.00       6151.62
-                               Assessment - Income Offsets  07/05/16         67           2         6303-231        -11.00       6140.62
-                               Assessment - Income Offsets  07/06/16         68           2         6303-231        -11.00       6129.62
-                                  Assessment - Gas Overage  07/05/16         69           2         6303-231        230.00       6359.62
-         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         74           1         6303-231       -308.35       6051.27
-                            Payment #3999 - Income Offsets  07/16/16         75           2         6303-231       -400.00       5651.27
-         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         76           4         6303-231       -750.00       4901.27
-         Payment #6430 - Unit Gross Scheduled Rent-Taxable  07/04/16         77           5         6303-231      -4200.00        701.27
+   Opening Balance                                          07/01/16                                                             2500.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          3           1         6303-231         76.00       2576.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          4           1         6303-231         76.00       2652.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          5           1         6303-231         76.00       2728.00
+                               Assessment - Income Offsets  07/01/16          6           1         6303-231        -24.00       2704.00
+                               Assessment - Income Offsets  07/02/16          7           1         6303-231        -24.00       2680.00
+                               Assessment - Income Offsets  07/03/16          8           1         6303-231        -24.00       2656.00
+                                  Assessment - Gas Overage  07/01/16          9           1         6303-231         12.35       2668.35
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         10           2         6303-231         92.00       2760.35
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         11           2         6303-231         92.00       2852.35
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         12           3         6303-231         56.87       2909.22
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         13           3         6303-231         56.87       2966.09
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         14           3         6303-231         56.87       3022.96
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         15           3         6303-231         56.87       3079.83
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         16           3         6303-231         56.87       3136.70
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         17           3         6303-231         56.87       3193.57
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         18           3         6303-231         56.87       3250.44
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         19           3         6303-231         56.87       3307.31
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         20           3         6303-231         56.87       3364.18
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         21           3         6303-231         56.87       3421.05
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         22           3         6303-231         56.87       3477.92
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         23           3         6303-231         56.87       3534.79
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         24           3         6303-231         56.87       3591.66
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         25           3         6303-231         56.87       3648.53
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         26           3         6303-231         56.87       3705.40
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         27           3         6303-231         56.87       3762.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         28           3         6303-231         56.87       3819.14
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         29           3         6303-231         56.87       3876.01
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         30           3         6303-231         56.87       3932.88
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         31           3         6303-231         56.87       3989.75
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         32           3         6303-231         56.87       4046.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         33           4         6323-301        730.00       4776.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         34           5         6392-930        125.00       4901.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         35           5         6392-930        125.00       5026.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         36           5         6392-930        125.00       5151.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         37           5         6392-930        125.00       5276.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         38           5         6392-930        125.00       5401.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         39           5         6392-930        125.00       5526.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         40           5         6392-930        125.00       5651.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         41           5         6392-930        125.00       5776.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         42           5         6392-930        125.00       5901.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         43           5         6392-930        125.00       6026.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         44           5         6392-930        125.00       6151.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         45           5         6392-930        125.00       6276.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         46           5         6392-930        125.00       6401.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         47           5         6392-930        125.00       6526.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         48           5         6392-930        125.00       6651.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         49           5         6392-930        125.00       6776.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         50           5         6392-930        125.00       6901.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         51           5         6392-930        125.00       7026.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         52           5         6392-930        125.00       7151.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         53           5         6392-930        125.00       7276.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         54           5         6392-930        125.00       7401.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         55           5         6392-930        125.00       7526.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         56           5         6392-930        125.00       7651.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         57           5         6392-930        125.00       7776.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         58           5         6392-930        125.00       7901.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         59           5         6392-930        125.00       8026.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         60           5         6392-930        125.00       8151.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         61           5         6392-930        125.00       8276.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         62           5         6392-930        125.00       8401.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         63           5         6392-930        125.00       8526.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         64           5         6392-930        125.00       8651.62
+                               Assessment - Income Offsets  07/05/16         65           2         6303-231        -11.00       8640.62
+                               Assessment - Income Offsets  07/06/16         66           2         6303-231        -11.00       8629.62
+                                  Assessment - Gas Overage  07/05/16         67           2         6303-231        230.00       8859.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         68           6         6323-302       2750.00      11609.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         69           6         6323-302       -250.00      11359.62
+         Payment #2111 - Unit Gross Scheduled Rent-Taxable  07/02/16         75           3         6303-231      -2500.00       8859.62
+         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         76           1         6303-231       -308.35       8551.27
+                            Payment #3999 - Income Offsets  07/16/16         77           2         6303-231       -400.00       8151.27
+         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         78           4         6303-231       -750.00       7401.27
+         Payment #6430 - Unit Gross Scheduled Rent-Taxable  07/04/16         79           5         6392-930      -4200.00       3201.27
    -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                              701.27
+   Closing Balance                                          07/31/16                                                             3201.27
 
 
    =====================================================================================================================================
@@ -126,71 +130,73 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                            -5356.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          5           1         6303-231        -76.00      -5432.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          6           1         6303-231        -76.00      -5508.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          7           1         6303-231        -76.00      -5584.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         12           2         6303-231        -92.00      -5676.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         13           2         6303-231        -92.00      -5768.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         14           3         6303-231        -56.87      -5824.87
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         15           3         6303-231        -56.87      -5881.74
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         16           3         6303-231        -56.87      -5938.61
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         17           3         6303-231        -56.87      -5995.48
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         18           3         6303-231        -56.87      -6052.35
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         19           3         6303-231        -56.87      -6109.22
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         20           3         6303-231        -56.87      -6166.09
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         21           3         6303-231        -56.87      -6222.96
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         22           3         6303-231        -56.87      -6279.83
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         23           3         6303-231        -56.87      -6336.70
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         24           3         6303-231        -56.87      -6393.57
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         25           3         6303-231        -56.87      -6450.44
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         26           3         6303-231        -56.87      -6507.31
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         27           3         6303-231        -56.87      -6564.18
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         28           3         6303-231        -56.87      -6621.05
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         29           3         6303-231        -56.87      -6677.92
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         30           3         6303-231        -56.87      -6734.79
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         31           3         6303-231        -56.87      -6791.66
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         32           3         6303-231        -56.87      -6848.53
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         33           3         6303-231        -56.87      -6905.40
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         34           3         6303-231        -56.87      -6962.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         35           4         6323-301       -755.00      -7717.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         36           5         6392-930       -125.00      -7842.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         37           5         6392-930       -125.00      -7967.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         38           5         6392-930       -125.00      -8092.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         39           5         6392-930       -125.00      -8217.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         40           5         6392-930       -125.00      -8342.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         41           5         6392-930       -125.00      -8467.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         42           5         6392-930       -125.00      -8592.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         43           5         6392-930       -125.00      -8717.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         44           5         6392-930       -125.00      -8842.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         45           5         6392-930       -125.00      -8967.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         46           5         6392-930       -125.00      -9092.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         47           5         6392-930       -125.00      -9217.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         48           5         6392-930       -125.00      -9342.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         49           5         6392-930       -125.00      -9467.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         50           5         6392-930       -125.00      -9592.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         51           5         6392-930       -125.00      -9717.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         52           5         6392-930       -125.00      -9842.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         53           5         6392-930       -125.00      -9967.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         54           5         6392-930       -125.00     -10092.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         55           5         6392-930       -125.00     -10217.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         56           5         6392-930       -125.00     -10342.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         57           5         6392-930       -125.00     -10467.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         58           5         6392-930       -125.00     -10592.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         59           5         6392-930       -125.00     -10717.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         60           5         6392-930       -125.00     -10842.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         61           5         6392-930       -125.00     -10967.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         62           5         6392-930       -125.00     -11092.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         63           5         6392-930       -125.00     -11217.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         64           5         6392-930       -125.00     -11342.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         65           5         6392-930       -125.00     -11467.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         66           5         6392-930       -125.00     -11592.27
-                                              Unassociated  07/04/16         70           0         6303-231        -76.00     -11668.27
-                                              Unassociated  07/09/16         71           0         6303-231       -276.00     -11944.27
-                                              Unassociated  07/31/16         72           0         6303-231        -56.87     -12001.14
-                                              Unassociated  07/31/16         73           0         6323-303      -3303.23     -15304.37
+   Opening Balance                                          07/01/16                                                            -2356.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          3           1         6303-231        -76.00      -2432.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          4           1         6303-231        -76.00      -2508.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          5           1         6303-231        -76.00      -2584.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         10           2         6303-231        -92.00      -2676.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         11           2         6303-231        -92.00      -2768.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         12           3         6303-231        -56.87      -2824.87
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         13           3         6303-231        -56.87      -2881.74
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         14           3         6303-231        -56.87      -2938.61
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         15           3         6303-231        -56.87      -2995.48
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         16           3         6303-231        -56.87      -3052.35
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         17           3         6303-231        -56.87      -3109.22
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         18           3         6303-231        -56.87      -3166.09
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         19           3         6303-231        -56.87      -3222.96
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         20           3         6303-231        -56.87      -3279.83
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         21           3         6303-231        -56.87      -3336.70
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         22           3         6303-231        -56.87      -3393.57
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         23           3         6303-231        -56.87      -3450.44
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         24           3         6303-231        -56.87      -3507.31
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         25           3         6303-231        -56.87      -3564.18
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         26           3         6303-231        -56.87      -3621.05
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         27           3         6303-231        -56.87      -3677.92
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         28           3         6303-231        -56.87      -3734.79
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         29           3         6303-231        -56.87      -3791.66
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         30           3         6303-231        -56.87      -3848.53
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         31           3         6303-231        -56.87      -3905.40
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         32           3         6303-231        -56.87      -3962.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         33           4         6323-301       -755.00      -4717.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         34           5         6392-930       -125.00      -4842.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         35           5         6392-930       -125.00      -4967.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         36           5         6392-930       -125.00      -5092.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         37           5         6392-930       -125.00      -5217.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         38           5         6392-930       -125.00      -5342.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         39           5         6392-930       -125.00      -5467.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         40           5         6392-930       -125.00      -5592.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         41           5         6392-930       -125.00      -5717.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         42           5         6392-930       -125.00      -5842.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         43           5         6392-930       -125.00      -5967.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         44           5         6392-930       -125.00      -6092.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         45           5         6392-930       -125.00      -6217.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         46           5         6392-930       -125.00      -6342.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         47           5         6392-930       -125.00      -6467.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         48           5         6392-930       -125.00      -6592.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         49           5         6392-930       -125.00      -6717.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         50           5         6392-930       -125.00      -6842.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         51           5         6392-930       -125.00      -6967.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         52           5         6392-930       -125.00      -7092.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         53           5         6392-930       -125.00      -7217.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         54           5         6392-930       -125.00      -7342.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         55           5         6392-930       -125.00      -7467.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         56           5         6392-930       -125.00      -7592.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         57           5         6392-930       -125.00      -7717.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         58           5         6392-930       -125.00      -7842.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         59           5         6392-930       -125.00      -7967.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         60           5         6392-930       -125.00      -8092.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         61           5         6392-930       -125.00      -8217.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         62           5         6392-930       -125.00      -8342.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         63           5         6392-930       -125.00      -8467.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         64           5         6392-930       -125.00      -8592.27
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         68           6         6323-302      -3319.35     -11911.62
+                                              Unassociated  07/04/16         70           0         6303-231        -76.00     -11987.62
+                                              Unassociated  07/09/16         71           0         6303-231       -276.00     -12263.62
+                                              Unassociated  07/31/16         72           0         6303-231        -56.87     -12320.49
+                                              Unassociated  07/05/16         73           0         6323-303       -258.06     -12578.55
+                                              Unassociated  07/11/16         74           0         6323-303       -309.68     -12888.23
    -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                           -15304.37
+   Closing Balance                                          07/31/16                                                           -12888.23
 
 
    =====================================================================================================================================
@@ -212,13 +218,14 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                             5356.00
-                                              Unassociated  07/04/16         70           0         6303-231         76.00       5432.00
-                                              Unassociated  07/09/16         71           0         6303-231        276.00       5708.00
-                                              Unassociated  07/31/16         72           0         6303-231         56.87       5764.87
-                                              Unassociated  07/31/16         73           0         6323-303       3303.23       9068.10
+   Opening Balance                                          07/01/16                                                             2356.00
+                                              Unassociated  07/04/16         70           0         6303-231         76.00       2432.00
+                                              Unassociated  07/09/16         71           0         6303-231        276.00       2708.00
+                                              Unassociated  07/31/16         72           0         6303-231         56.87       2764.87
+                                              Unassociated  07/05/16         73           0         6323-303        258.06       3022.93
+                                              Unassociated  07/11/16         74           0         6323-303        309.68       3332.61
    -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                             9068.10
+   Closing Balance                                          07/31/16                                                             3332.61
 
 
    =====================================================================================================================================
@@ -229,66 +236,67 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          07/01/16                                                                0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          5           1         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          6           1         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          7           1         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         12           2         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         13           2         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         14           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         15           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         16           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         17           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         18           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         19           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         20           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         21           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         22           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         23           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         24           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         25           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         26           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         27           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         28           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         29           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         30           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         31           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         32           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         33           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         34           3         6303-231          0.00          0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         35           4         6323-301         25.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         36           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         37           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         38           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         39           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         40           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         41           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         42           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         43           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         44           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         45           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         46           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         47           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         48           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         49           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         50           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         51           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         52           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         53           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         54           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         55           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         56           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         57           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         58           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         59           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         60           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         61           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         62           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         63           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         64           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         65           5         6392-930          0.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         66           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          3           1         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          4           1         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          5           1         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         10           2         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         11           2         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         12           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         13           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         14           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         15           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         16           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         17           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         18           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         19           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         20           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         21           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         22           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         23           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         24           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         25           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         26           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         27           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         28           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         29           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         30           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         31           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         32           3         6303-231          0.00          0.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         33           4         6323-301         25.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         34           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         35           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         36           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         37           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         38           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         39           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         40           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         41           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         42           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         43           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         44           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         45           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         46           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         47           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         48           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         49           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         50           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         51           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         52           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         53           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         54           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         55           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         56           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         57           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         58           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         59           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         60           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         61           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         62           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         63           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         64           5         6392-930          0.00         25.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         68           6         6323-302        569.35        594.35
    -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                               25.00
+   Closing Balance                                          07/31/16                                                              594.35
 
 
    =====================================================================================================================================
@@ -299,13 +307,14 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          07/01/16                                                                0.00
-                               Assessment - Income Offsets  07/01/16          8           1         6303-231         24.00         24.00
-                               Assessment - Income Offsets  07/02/16          9           1         6303-231         24.00         48.00
-                               Assessment - Income Offsets  07/03/16         10           1         6303-231         24.00         72.00
-                               Assessment - Income Offsets  07/05/16         67           2         6303-231         11.00         83.00
-                               Assessment - Income Offsets  07/06/16         68           2         6303-231         11.00         94.00
+                               Assessment - Income Offsets  07/01/16          6           1         6303-231         24.00         24.00
+                               Assessment - Income Offsets  07/02/16          7           1         6303-231         24.00         48.00
+                               Assessment - Income Offsets  07/03/16          8           1         6303-231         24.00         72.00
+                               Assessment - Income Offsets  07/05/16         65           2         6303-231         11.00         83.00
+                               Assessment - Income Offsets  07/06/16         66           2         6303-231         11.00         94.00
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         69           6         6323-302        250.00        344.00
    -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                               94.00
+   Closing Balance                                          07/31/16                                                              344.00
 
 
    =====================================================================================================================================
@@ -328,8 +337,8 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          07/01/16                                                                0.00
-                                  Assessment - Gas Overage  07/01/16         11           1         6303-231        -12.35        -12.35
-                                  Assessment - Gas Overage  07/05/16         69           2         6303-231       -230.00       -242.35
+                                  Assessment - Gas Overage  07/01/16          9           1         6303-231        -12.35        -12.35
+                                  Assessment - Gas Overage  07/05/16         67           2         6303-231       -230.00       -242.35
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          07/31/16                                                             -242.35
 

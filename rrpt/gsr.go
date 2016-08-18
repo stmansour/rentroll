@@ -28,8 +28,8 @@ func GSRTextReport(xbiz *rlib.XBusiness, dt *time.Time) error {
 	fmt.Printf("%s, %s %s %s\n\n", c.City, c.State, c.PostalCode, c.Country)
 
 	fmt.Printf("Gross Scheduled Rent for all rentables for one full cycle as of %s\n\n", dt.Format(rlib.RRDATEFMT4))
-	fmt.Printf("%-9s  %-15s  %-15s  %-8s  %-13s  %-13s\n", "Rentable", "Name", "Rentable Type", "GSR", "Rent Cycle", "Prorate Cycle")
-	fmt.Printf("%-9s  %-15s  %-15s  %-8s  %-13s  %-13s\n", "---------", "---------------", "---------------", "--------", "-------------", "-------------")
+	fmt.Printf("%-9s  %-15s  %-15s  %-15s  %-8s  %-13s  %-13s\n", "Rentable", "Name", "Rentable Type", "Rentable Style", "GSR", "Rent Cycle", "Prorate Cycle")
+	fmt.Printf("%-9s  %-15s  %-15s  %-15s  %-8s  %-13s  %-13s\n", "---------", "---------------", "---------------", "---------------", "--------", "-------------", "-------------")
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -51,8 +51,8 @@ func GSRTextReport(xbiz *rlib.XBusiness, dt *time.Time) error {
 		if err != nil {
 			fmt.Printf("%s: Rentable %d, error calculating GSR: %s\n", funcname, r.RID, err.Error())
 		}
-		fmt.Printf("%9s  %-15s  %-15s  %8s  %-13s  %-13s\n",
-			r.IDtoString(), r.Name, xbiz.RT[rtr.RTID].Name, rlib.RRCommaf(amt), rlib.RentalPeriodToString(rc), rlib.RentalPeriodToString(pc))
+		fmt.Printf("%9s  %-15s  %-15s  %-15s  %8s  %-13s  %-13s\n",
+			r.IDtoString(), r.Name, xbiz.RT[rtr.RTID].Name, xbiz.RT[rtr.RTID].Style, rlib.RRCommaf(amt), rlib.RentalPeriodToString(rc), rlib.RentalPeriodToString(pc))
 	}
 	rlib.Errcheck(rows.Err())
 	return err

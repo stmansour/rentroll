@@ -173,6 +173,9 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			// number of periods...
 			//-------------------------------------------------------------------------------------------------------
 			periods := rlib.GetRentableCycles(&p, &dtstart, &dtstop, xbiz)
+			if periods < 1 {
+				periods = int64(1)
+			}
 			gsrRate := gsr / float64(periods)
 			gsrRateStr = rlib.RRCommaf(gsrRate)
 

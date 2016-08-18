@@ -5,9 +5,10 @@ Austin, TX 78738 USA
 
 Gross Scheduled Rent for all rentables for one full cycle as of 07/01/2016
 
-Rentable   Name             Rentable Type    GSR       Rent Cycle     Prorate Cycle
----------  ---------------  ---------------  --------  -------------  -------------
-R00000001  6303-231         2BR2BA              76.00  daily          daily        
-R00000002  6323-301         1BR1BA             755.00  monthly        daily        
-R00000003  6392-930         3BR3BA             125.00  daily          daily        
-R00000004  6323-303         4BR3BA           3,303.23  monthly        daily        
+Rentable   Name             Rentable Type    Rentable Style   GSR       Rent Cycle     Prorate Cycle
+---------  ---------------  ---------------  ---------------  --------  -------------  -------------
+R00000001  6303-231         2BR2BA           A2                  76.00  daily          daily        
+R00000002  6323-301         1BR1BA           A1                 755.00  monthly        daily        
+R00000003  6323-302         4BR3BA           A3               3,319.35  monthly        daily        
+R00000004  6323-303         4BR3BA           A3               3,319.35  monthly        daily        
+R00000005  6392-930         3BR3BA           B5                 125.00  daily          daily        

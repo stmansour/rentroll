@@ -128,15 +128,9 @@ func GetRentableCountByRentableType(xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]
 // GetStatementData returns an array of StatementEntries for building a statement
 func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []StmtEntry {
 	var m []StmtEntry
-
 	bal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, raid, d1)
-
 	var initBal = StmtEntry{amt: bal, t: 3, dt: *d1}
-	// initBal.amt = bal
-	// initBal.t = 3
-	// initBal.dt = *d1
 	m = append(m, initBal)
-
 	n, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID)
 	if err != nil {
 		return m

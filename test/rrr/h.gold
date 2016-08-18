@@ -1,7 +1,11 @@
  RAID  Payor                                     User                                       RentStart    RentStop  AgrmtStart   AgrmtStop
     1  ABC Corporation                           Amanda Smith, Christoph Jones, Joshua Jo  07/01/2016  07/04/2016  07/01/2016  07/04/2016
     2  Amanda Smith                              Cindy Jones, Edith Jones                  07/05/2016  07/07/2016  07/05/2016  07/07/2016
-    3  ARC Energy                                Amanda Curry, Ed Jones, Jeb Night         07/10/2016  07/31/2016  07/10/2016  07/31/2016
-    4  Cindy Jones, Edith Jones                                                            11/01/2013  10/31/2016  11/01/2013  10/31/2016
-    5  School of Construction                                                              12/01/2014  10/31/2016  12/01/2014  10/31/2016
+    3  ARC Energy                                Chris P Bacon                             07/10/2016  07/31/2016  07/10/2016  07/31/2016
+    4  Cindy Jones, Edith Jones                  Betty Diddent, Betty Diddit, Leeloo Kaix  11/01/2013  10/31/2016  11/01/2013  10/31/2016
+    5  School of Construction                    Amanda Curry, Ed Jones, Jeb Night         12/01/2014  10/31/2016  12/01/2014  10/31/2016
+    6  Chris P Bacon                                                                       12/01/2014  11/30/2016  12/01/2014  11/30/2016
+    7  Betty Diddit                                                                        12/01/2013  07/04/2016  12/01/2013  07/04/2016
+    8  Betty Diddent                                                                       07/06/2016  07/09/2016  07/06/2016  07/09/2016
+    9  Leeloo Kaixin                                                                       07/12/2016  08/01/2017  07/12/2016  08/01/2017
 

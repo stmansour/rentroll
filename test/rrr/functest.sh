@@ -75,7 +75,7 @@ RPR) RatePlanRef
 RS)  Rentable Specialty Assignments
 RT)  Rentable Types
 S)   Rentable Specialties
-ST)	 Statements
+ST)  Statements
 T)   Rental Agreement Templates
 U)   Custom Attribute Assignments
 
