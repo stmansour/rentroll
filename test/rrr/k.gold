@@ -10,5 +10,5 @@ ASM00000008  ASM00000000  RA00000004  R00000002     0     0    2500.00  Security
 ASM00000009  ASM00000000  RA00000002  R00000001     4     4      11.00  Income Offsets                       c ${GLGENRCV} _, d 41104 _
 ASM00000010  ASM00000000  RA00000002  R00000001     0     0     230.00  Gas Overage                          d ${GLGENRCV} _, c 41306 _
 ASM00000011  ASM00000000  RA00000006  R00000003     6     4    2750.00  Unit Gross Scheduled Rent-Taxable    d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000012  ASM00000000  RA00000006  R00000003     6     4     250.00  Unit Gross Scheduled Rent-Taxable    c ${GLGENRCV} _, d 41104 _
+ASM00000012  ASM00000000  RA00000006  R00000003     6     4     250.00  Resident Concessions                 c ${GLGENRCV} _, d 41104 _
 

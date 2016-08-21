@@ -73,6 +73,15 @@ func Tline(n int) string {
 	return string(p)
 }
 
+// Mkstr returns a string of n of the supplied character that is the specified length
+func Mkstr(n int, c byte) string {
+	p := make([]byte, n)
+	for i := 0; i < n; i++ {
+		p[i] = c
+	}
+	return string(p)
+}
+
 // RoundToCent rounds the supplied amount to the nearest cent.
 func RoundToCent(x float64) float64 {
 	var xtra = float64(0.5)

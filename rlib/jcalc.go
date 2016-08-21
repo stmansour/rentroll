@@ -245,7 +245,7 @@ func GetRentCycleRefList(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) []Rent
 
 // GetRentableCycles calculates the number of rent cycles for the supplied rentable given the
 // period d1-d2. It always returns an integral number of cycles -- even if the date range implies some
-// fractional level.
+// fractional level ==> it may return 0
 // Params:
 //   d1 = start datetime of the period
 //   d2 = stop datetime of the period
@@ -269,15 +269,30 @@ func GetRentableCycles(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) int64 {
 	return n
 }
 
+// GSRdata is a struct with a datetime and a GSR amount that describes the GSR for that timeslice.
+// An array of these structs returned with CalculateLoadedGSR fully describes how the GSR is calculated.
+// This method is necessary to account for changes in GSR during a time period.
+type GSRdata struct {
+	Dt     time.Time // datetime - in increments of GSRPC durations
+	Amount float64   // amount for GSR during this period
+}
+
 // CalculateLoadedGSR calculates the gross scheduled rent including any Specialties associated with the rentable.
 // Params:
 //   d1 = start datetime of the period
 //   d2 = stop datetime of the period
 //   rt = array of RentableMarketRate structures that covers all rental rates during the period d1 - d2.
 //        This array is the MR attribute in the RentableMarketRate struct
+// Returns:
+//   float64 - loaded GSR for d1 to d2
+//   []GSRdata - an array of GSRdata structs, with the date/time and gsr Amount in increments of GSRPC from d1 to d2
+//   time.Duration - the GSRPC for this rentable
+//   error - any error returned by the routines looking for data values
 //========================================================================================================
-func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float64, error) {
+func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float64, []GSRdata, time.Duration, error) {
 	funcname := "CalculateLoadedGSR"
+	var period = time.Duration(0)
+	var m []GSRdata
 	var err error
 	gsr := float64(0) // total rent, to update on each pass through the loop below
 
@@ -288,15 +303,15 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		err = fmt.Errorf("%s:  No valid RTID for rentable R%08d during period %s to %s\n",
 			funcname, r.RID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 		Ulog("%s", err.Error())
-		return gsr, err // this is bad! No RTID for the supplied time range
+		return gsr, m, period, err // this is bad! No RTID for the supplied time range
 	}
 
 	// find the Gross Scheduled Rent Proration Cycle - GSRPC - the intervals over which the GSR is calculated
 	_, _, gsrpc, err := GetProrationCycle(d1, r, &rta, xbiz)
 	if err != nil {
-		return gsr, err
+		return gsr, m, period, err
 	}
-	period := CycleDuration(gsrpc, *d1)          // increment of time we'll use to determine gsr in increments between d1 & d2
+	period = CycleDuration(gsrpc, *d1)           // increment of time we'll use to determine gsr in increments between d1 & d2
 	dtNext := *d1                                // initialize so that the variable is known
 	for dt := *d1; dt.Before(*d2); dt = dtNext { // spin through time period d1 - d2 in increments of gsrpc and add up the GSR
 		dtNext = dt.Add(period) // establish the end of the period.  We'll add up the gsr for period dt to dtNext.
@@ -314,7 +329,9 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		// Finally, calculate the GSR for this increment...
 		//------------------------------------------------------------------
 		rentThisPeriod := CalculateGSR(dt, dtNext, r, &rta, rsa, xbiz)
+		var g = GSRdata{Dt: dt, Amount: rentThisPeriod}
+		m = append(m, g)
 		gsr += rentThisPeriod
 	}
-	return gsr, err
+	return gsr, m, period, err
 }

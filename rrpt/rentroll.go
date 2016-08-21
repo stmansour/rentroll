@@ -13,6 +13,25 @@ const (
 	IncomeOffsetGLAccountName = string("Income Offsets")
 )
 
+// ComputeGSRandGSRRate returns the GSR and GSR rate for Rentable over time period dtStart - dtStop
+func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rlib.XBusiness) (float64, float64) {
+	// Compute the GSR for this period.
+	x, _, _, _ := rlib.CalculateLoadedGSR(p, dtStart, dtStop, xbiz)
+
+	// Compute the GSR Rate
+	gsrRate := float64(0)                                           //initialize
+	prt := rlib.SelectRentableTypeRefForDate(&p.RT, dtStart)        // The RentableType at the start of the period
+	n2 := rlib.CycleDuration(xbiz.RT[prt.RTID].RentCycle, *dtStart) // rent cycle duration
+	n1 := dtStop.Sub(*dtStart)                                      // duration of this particular period
+	if n1 < n2 {                                                    // if < 1 rent cycle, we'll need to extrapolate
+		gsrRate = float64(n2) / float64(n1) * x //  (x: GSR this period)/(n1: this period) = (y: extrapolated GSR)/(n2: rent cycle)
+	} else {
+		dt := dtStart.Add(n2)
+		gsrRate, _, _, _ = rlib.CalculateLoadedGSR(p, dtStart, &dt, xbiz)
+	}
+	return x, gsrRate
+}
+
 // RentRollTextReport generates a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
 func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	funcname := "RentRollTextReport"
@@ -156,28 +175,10 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			if ra.RentStop.Before(dtstop) {
 				dtstop = ra.RentStop
 			}
-			//-------------------------------------------------------------------------------------------------------
-			// Calculate the Gross Scheduled Rent for this Rentable.  We have most of what we need, but we do need
-			// to fetch the RentableSpecialtyTypes
-			//-------------------------------------------------------------------------------------------------------
-			gsr, err := rlib.CalculateLoadedGSR(&p, &dtstart, &dtstop, xbiz)
-			if err != nil {
-				fmt.Printf("%s: Error calculating GSR for Rentable %d: err = %s\n", funcname, p.RID, err.Error())
-				continue
-			}
-			// /*DEBUG*/ fmt.Printf("CalculateLoadedGSR for %s (RTID: %d) RentCycle = %d,  %s - %s:  %6.2f\n", p.Name, rtid, xbiz.RT[rtid].RentCycle, ra.RentStart.Format(rlib.RRDATEFMT4), ra.RentStop.Format(rlib.RRDATEFMT4), gsr)
-			gsrstr = rlib.RRCommaf(gsr)
 
-			//-------------------------------------------------------------------------------------------------------
-			// Calculate the Gross Scheduled Rent Rate for this period. The rate will be the amount divided by the
-			// number of periods...
-			//-------------------------------------------------------------------------------------------------------
-			periods := rlib.GetRentableCycles(&p, &dtstart, &dtstop, xbiz)
-			if periods < 1 {
-				periods = int64(1)
-			}
-			gsrRate := gsr / float64(periods)
+			gsr, gsrRate := ComputeGSRandGSRRate(&p, &dtstart, &dtstop, xbiz)
 			gsrRateStr = rlib.RRCommaf(gsrRate)
+			gsrstr = rlib.RRCommaf(gsr)
 
 			//-------------------------------------------------------------------------------------------------------
 			// Get the contract rent
@@ -195,21 +196,13 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			//-------------------------------------------------------------------------------------------------------
 			// Make any proration necessary to the gsr based on the date range d1-d2
 			//-------------------------------------------------------------------------------------------------------
-			// /*DEBUG*/pf, num, den, dt1, dt2 := rlib.CalcProrationInfo(&dtstart, &dtstop, d1, d2, cycleval, prorateval)
 			pf, _, _, dt1, _ := rlib.CalcProrationInfo(&dtstart, &dtstop, d1, d2, cycleval, prorateval)
 			numCycles := dtstop.Sub(dtstart) / rlib.CycleDuration(cycleval, dt1)
 			contractRentVal := pf * rar.ContractRent
 			if numCycles > 1 {
 				contractRentVal += float64(numCycles-1) * rar.ContractRent
 			}
-			// /*DEBUG*/fmt.Printf("Rent start-stop: %s - %s,   d1-d2: %s - %s,   numCycles = %d\n",
-			// 	dtstart.Format(rlib.RRDATEFMT4), dtstop.Format(rlib.RRDATEFMT4),
-			// 	d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4), numCycles)
-			// /*DEBUG*/fmt.Printf("Num/Den = %d/%d, cycleval = %d, prorateval = %d,  rar.ContractRent = %6.2f,  pf = %1.4f, contractRentVal = %6.2f,  dt1-dt2: %s - %s\n",
-			// 	num, den, cycleval, prorateval, rar.ContractRent, pf, contractRentVal, dt1.Format(rlib.RRDATEFMT4), dt2.Format(rlib.RRDATEFMT4))
 			contractRent = rlib.RRCommaf(contractRentVal)
-
-			// ISSUE:  the following needs to be made general purpose
 
 			//-------------------------------------------------------------------------------------------------------
 			// Determine the LID of "Income Offsets" and "Other Income" accounts...
@@ -219,7 +212,6 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			icos := float64(0)
 			oic := float64(0)
 
-			// /*DEBUG*/ fmt.Printf("incOffsetAcct = %d, otherIncomeAcct = %d\n", incOffsetAcct, otherIncomeAcct)
 			if incOffsetAcct == 0 {
 				rlib.Ulog("RentRollTextReport: WARNING. IncomeOffsetGLAccountName = %q was not found in the GLAccounts\n", IncomeOffsetGLAccountName)
 			}
@@ -281,6 +273,40 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				rentStart, rentStop, agreementStart, agreementStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets,
 				contractRent, otherIncome, pmtRcvd, beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
 		}
+
+		//-------------------------------------------------------------------------------------------------------
+		// All rental agreements have been process.  Look for vacancies
+		//-------------------------------------------------------------------------------------------------------
+		v := rlib.VacancyDetect(xbiz, d1, d2, &p)
+		for i := 0; i < len(v); i++ {
+			raid = "n/a"
+			usernames = "vacant"
+			payornames = usernames
+			rentStart = v[i].DtStart.Format(rlib.RRDATEFMT4)
+			rentStop = v[i].DtStop.Format(rlib.RRDATEFMT4)
+			possStart = ""
+			possStop = ""
+			agreementStart = ""
+			agreementStop = ""
+			gsr, gsrRate := ComputeGSRandGSRRate(&p, &v[i].DtStart, &v[i].DtStop, xbiz)
+			gsrRateStr = rlib.RRCommaf(gsrRate)
+			gsrstr = rlib.RRCommaf(gsr)
+			incomeOffsets = ""
+			contractRent = ""
+			otherIncome = ""
+			pmtRcvd = ""
+			beginRcv = ""
+			chgRcv = ""
+			endRcv = ""
+			beginSecDep = ""
+			chgSecDep = ""
+			endSecDep = ""
+
+			tbl.Printf(p.Name, xbiz.RT[rtid].Style, sqft, usernames, payornames, raid, possStart, possStop,
+				rentStart, rentStop, agreementStart, agreementStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets,
+				contractRent, otherIncome, pmtRcvd, beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
+		}
+
 		fmt.Printf("\n")
 	}
 	rlib.Errcheck(rows.Err())

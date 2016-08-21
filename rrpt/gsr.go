@@ -46,8 +46,8 @@ func GSRTextReport(xbiz *rlib.XBusiness, dt *time.Time) error {
 		if rtr.ProrationCycle != 0 {
 			pc = rtr.ProrationCycle
 		}
-		dt1 := dt.Add(rlib.CycleDuration(rc, *dt))              // 1 full cycle
-		amt, err := rlib.CalculateLoadedGSR(&r, dt, &dt1, xbiz) // calculate its GSR
+		dt1 := dt.Add(rlib.CycleDuration(rc, *dt))                    // 1 full cycle
+		amt, _, _, err := rlib.CalculateLoadedGSR(&r, dt, &dt1, xbiz) // calculate its GSR
 		if err != nil {
 			fmt.Printf("%s: Rentable %d, error calculating GSR: %s\n", funcname, r.RID, err.Error())
 		}
