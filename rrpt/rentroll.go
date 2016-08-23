@@ -37,7 +37,6 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	funcname := "RentRollTextReport"
 	custom := "Square Feet"
 	var noerr error
-	fmt.Printf("xbiz.P.Designation = %s\n", xbiz.P.Designation)
 	bu, err := rlib.GetBusinessUnitByDesignation(xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
@@ -51,77 +50,87 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	fmt.Printf("%s\n", strings.ToUpper(c.LegalName))
 	fmt.Printf("Rentroll report for period beginning %s and ending %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
 
-	var table TextReport
-	tbl := &table
-	tbl.Spacing = 2
-	tbl.AddColumn("Rentable", "s", 10, 0)                   // column for the Rentable name
-	tbl.AddColumn("Rentable Type", "s", 15, 0)              // RentableType name
-	tbl.AddColumn(custom, "s", 5, 1)                        // the Custom Attribute "Square Feet"
-	tbl.AddColumn("Rentable Users", "s", 30, 0)             // Users of this rentable
-	tbl.AddColumn("Rentable Payors", "s", 30, 0)            // Users of this rentable
-	tbl.AddColumn("Rental Agreement", "s", 10, 0)           // the Rental Agreement id
-	tbl.AddColumn("Use Start", "s", 10, 0)                  // the possession start date
-	tbl.AddColumn("Use Stop", "s", 10, 0)                   // the possession start date
-	tbl.AddColumn("Rental Start", "s", 10, 0)               // the rental start date
-	tbl.AddColumn("Rental Stop", "s", 10, 0)                // the rental start date
-	tbl.AddColumn("Rental Agreement Start", "s", 10, 0)     // the possession start date
-	tbl.AddColumn("Rental Agreement Stop", "s", 10, 0)      // the possession start date
-	tbl.AddColumn("Rent Cycle", "s", 12, 0)                 // the rent cycle
-	tbl.AddColumn("GSR Rate", "s", 10, 1)                   // gross scheduled rent
-	tbl.AddColumn("GSR This Period", "s", 10, 1)            // gross scheduled rent
-	tbl.AddColumn(IncomeOffsetGLAccountName, "s", 10, 1)    // GL Account
-	tbl.AddColumn("Contract Rent", "s", 10, 1)              // contract rent amounts
-	tbl.AddColumn(OtherIncomeGLAccountName, "s", 10, 1)     // GL Account
-	tbl.AddColumn("Payments Received", "s", 10, 1)          // contract rent amounts
-	tbl.AddColumn("Beginning Receivable", "s", 10, 1)       // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Receivable", "s", 10, 1)       // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Receivable", "s", 10, 1)          // account for the associated RentalAgreement
-	tbl.AddColumn("Beginning Security Deposit", "s", 10, 1) // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Security Deposit", "s", 10, 1) // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Security Deposit", "s", 10, 1)    // account for the associated RentalAgreement
+	var tbl rlib.Table
+	tbl.Init()                                                                            //sets column spacing and date format to default
+	totalsRSet := tbl.CreateRowset()                                                      // a rowset to sum for totals
+	tbl.AddColumn("Rentable", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // column for the Rentable name
+	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)              // RentableType name
+	tbl.AddColumn(custom, 5, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)                          // the Custom Attribute "Square Feet"
+	tbl.AddColumn("Rentable Users", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)             // Users of this rentable
+	tbl.AddColumn("Rentable Payors", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)            // Users of this rentable
+	tbl.AddColumn("Rental Agreement", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)           // the Rental Agreement id
+	tbl.AddColumn("Use Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                    // the possession start date
+	tbl.AddColumn("Use Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                     // the possession start date
+	tbl.AddColumn("Rental Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                 // the rental start date
+	tbl.AddColumn("Rental Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                  // the rental start date
+	tbl.AddColumn("Rental Agreement Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)       // the possession start date
+	tbl.AddColumn("Rental Agreement Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)        // the possession start date
+	tbl.AddColumn("Rent Cycle", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                 // the rent cycle
+	tbl.AddColumn("GSR Rate", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                   // gross scheduled rent
+	tbl.AddColumn("GSR This Period", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)            // gross scheduled rent
+	tbl.AddColumn(IncomeOffsetGLAccountName, 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)    // GL Account
+	tbl.AddColumn("Contract Rent", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)              // contract rent amounts
+	tbl.AddColumn(OtherIncomeGLAccountName, 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)     // GL Account
+	tbl.AddColumn("Payments Received", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)          // contract rent amounts
+	tbl.AddColumn("Beginning Receivable", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Receivable", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Receivable", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)          // account for the associated RentalAgreement
+	tbl.AddColumn("Beginning Security Deposit", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Security Deposit", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Security Deposit", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
 
-	tbl.PrintColHdr()
-	tbl.PrintLine()
+	const (
+		RName        = 0
+		RType        = iota
+		RTSqFt       = iota
+		RUsers       = iota
+		RPayors      = iota
+		RAgr         = iota
+		UseStart     = iota
+		UseStop      = iota
+		RentStart    = iota
+		RentStop     = iota
+		RAgrStart    = iota
+		RAgrStop     = iota
+		RCycle       = iota
+		GSRRate      = iota
+		GSRAmt       = iota
+		IncOff       = iota
+		ContractRent = iota
+		OtherInc     = iota
+		PmtRcvd      = iota
+		BeginRcv     = iota
+		ChgRcv       = iota
+		EndRcv       = iota
+		BeginSecDep  = iota
+		ChgSecDep    = iota
+		EndSecDep    = iota
+	)
+
 	// loop through the Rentables...
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
 	rlib.Errcheck(err)
 	defer rows.Close()
+
 	for rows.Next() {
 		var p rlib.Rentable
 		rlib.Errcheck(rows.Scan(&p.RID, &p.BID, &p.Name, &p.AssignmentTime, &p.LastModTime, &p.LastModBy)) // read the rentable
 		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2)                                              // its RentableType is time sensitive
 
 		rtid := p.RT[0].RTID // select its value at the beginning of this period
-		sqft := ""           // assume no custom attribute
+		sqft := int64(0)     // assume no custom attribute
 		usernames := ""      // this will be the list of renters
 		payornames := ""     // this will be the list of Payors
-		raid := ""           // assume it's vacant
-		possStart := ""      // possession start date
-		possStop := ""       // possession stop date
-		rentStart := ""      // rental start date
-		rentStop := ""       // rental stop date
-		agreementStart := "" // rental start date
-		agreementStop := ""  // rental stop date
-		rentCycle := ""      // how rent accrues
-		gsrstr := ""         // Gross Scheduled Rent
-		gsrRateStr := ""     // GSR Rate this period
-		incomeOffsets := ""  // Gl Account balance
-		contractRent := ""   // contract rent
-		otherIncome := ""    // Gl Account balance
-		pmtRcvd := ""        // payment
-		beginRcv := ""
-		chgRcv := ""
-		endRcv := ""
-		beginSecDep := ""
-		chgSecDep := ""
-		endSecDep := ""
+		rentCycle := ""
 
 		if len(xbiz.RT[rtid].CA) > 0 { // if there are custom attributes
 			c, ok := xbiz.RT[rtid].CA[custom] // see if Square Feet is among them
 			if ok {                           // if it is...
-				sqft = c.Value // update the sqft value to the custom attribute
+				sqft, _ = rlib.IntFromString(c.Value, "invalid sqft of custom attribute")
 			}
 		}
+
+		rentableTblRowStart := len(tbl.Row) // starting row for this rentable
 
 		//------------------------------------------------------------------------------
 		// Get the RentalAgreement IDs for this rentable over the time range d1,d2.
@@ -129,10 +138,10 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		//------------------------------------------------------------------------------
 		rra := rlib.GetAgreementsForRentable(p.RID, d1, d2) // get all rental agreements for this period
 		if len(rra) == 0 {                                  // if there are none...
-			usernames = "vacant"
-			tbl.Printf(p.Name, xbiz.RT[rtid].Style, sqft, usernames, payornames, raid, possStart, possStop,
-				rentStart, rentStop, agreementStart, agreementStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets, contractRent, otherIncome, pmtRcvd,
-				beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
+			tbl.AddRow() // puts to row -1 will go to the newly added row
+			tbl.Puts(-1, RName, "vacant")
+			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
+			tbl.Puti(-1, RTSqFt, sqft)
 		}
 
 		for i := 0; i < len(rra); i++ { //for each rental agreement id
@@ -142,16 +151,9 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				continue
 			}
 			na := p.GetUserNameList(&ra.PossessionStart, &ra.PossessionStop) // get the list of user names for this time period
-			raid = ra.IDtoString()                                           // standard id format
 			usernames = strings.Join(na, ",")                                // concatenate with a comma separator
 			pa := ra.GetPayorNameList(&ra.RentStart, &ra.RentStart)          // get the payors for this time period
 			payornames = strings.Join(pa, ", ")                              // concatenate with comma
-			rentStart = ra.RentStart.Format(rlib.RRDATEFMT4)                 // rental start
-			rentStop = ra.RentStart.Format(rlib.RRDATEFMT4)                  // rental stop
-			possStart = ra.PossessionStart.Format(rlib.RRDATEFMT4)           // possession start
-			possStop = ra.PossessionStop.Format(rlib.RRDATEFMT4)             // possession stop
-			agreementStart = ra.AgreementStart.Format(rlib.RRDATEFMT4)       // agreement start
-			agreementStop = ra.AgreementStop.Format(rlib.RRDATEFMT4)         // agreement stop
 
 			//-------------------------------------------------------------------------------------------------------
 			// Get the rent cycle.  If there's an override in the RentableTypeRef, use the override. Otherwise the
@@ -175,10 +177,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			if ra.RentStop.Before(dtstop) {
 				dtstop = ra.RentStop
 			}
-
 			gsr, gsrRate := ComputeGSRandGSRRate(&p, &dtstart, &dtstop, xbiz)
-			gsrRateStr = rlib.RRCommaf(gsrRate)
-			gsrstr = rlib.RRCommaf(gsr)
 
 			//-------------------------------------------------------------------------------------------------------
 			// Get the contract rent
@@ -202,48 +201,36 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			if numCycles > 1 {
 				contractRentVal += float64(numCycles-1) * rar.ContractRent
 			}
-			contractRent = rlib.RRCommaf(contractRentVal)
 
 			//-------------------------------------------------------------------------------------------------------
 			// Determine the LID of "Income Offsets" and "Other Income" accounts...
 			//-------------------------------------------------------------------------------------------------------
-			incOffsetAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, IncomeOffsetGLAccountName)
-			otherIncomeAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, OtherIncomeGLAccountName)
 			icos := float64(0)
-			oic := float64(0)
-
+			incOffsetAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, IncomeOffsetGLAccountName)
 			if incOffsetAcct == 0 {
 				rlib.Ulog("RentRollTextReport: WARNING. IncomeOffsetGLAccountName = %q was not found in the GLAccounts\n", IncomeOffsetGLAccountName)
 			}
-			if otherIncomeAcct == 0 {
-				rlib.Ulog("RentRollTextReport: WARNING. OtherIncomeGLAccountName = %q was not found in the GLAccounts\n", OtherIncomeGLAccountName)
-			}
-
 			if incOffsetAcct > 0 {
 				icos = rlib.GetRAAccountBalance(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
 			}
-
+			oic := float64(0)
+			otherIncomeAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, OtherIncomeGLAccountName)
+			if otherIncomeAcct == 0 {
+				rlib.Ulog("RentRollTextReport: WARNING. OtherIncomeGLAccountName = %q was not found in the GLAccounts\n", OtherIncomeGLAccountName)
+			}
 			if otherIncomeAcct > 0 {
 				oic = rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
 			}
-
-			incomeOffsets = rlib.RRCommaf(icos)
-			otherIncome = rlib.RRCommaf(oic)
 
 			//-------------------------------------------------------------------------------------------------------
 			// Payments received... or more precisely that portion of a Receipt that went to pay an Assessment on
 			// on this Rentable during this period d1 - d2.  We expand the search range to the entire report range
 			//-------------------------------------------------------------------------------------------------------
-
-			// get all the receipts for ra.RAID that occurred during d1-d2
-			rcpts := rlib.GetReceiptsInRAIDDateRange(p.BID, ra.RAID, d1, d2) // this has the ReceiptAllocations already loaded
+			rcpts := rlib.GetReceiptsInRAIDDateRange(p.BID, ra.RAID, d1, d2) // receipts for ra.RAID during d1-d2, ReceiptAllocations are also loaded
 			totpmt := float64(0)
 			for j := 0; j < len(rcpts); j++ {
-				// /*DEBUG*/ fmt.Printf("rcpts[%d] -> %s\n", j, rcpts[j].IDtoString())
-				// for each ReceiptAllocation read the Assessment
-				for k := 0; k < len(rcpts[j].RA); k++ {
-					// if the Assessment's Rentable is p.RID then we have found the PaymentReceived value
-					a, err := rlib.GetAssessment(rcpts[j].RA[k].ASMID)
+				for k := 0; k < len(rcpts[j].RA); k++ { // for each ReceiptAllocation read the Assessment
+					a, err := rlib.GetAssessment(rcpts[j].RA[k].ASMID) // if Rentable == p.RID, we found the PaymentReceived value
 					if err != nil {
 						fmt.Printf("%s: Error calculating GSR for Rentable %d: err = %s\n", funcname, p.RID, err.Error())
 						continue
@@ -253,7 +240,6 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 					}
 				}
 			}
-			pmtRcvd = rlib.RRCommaf(totpmt)
 
 			//-------------------------------------------------------------------------------------------------------
 			// Compute account balances...   begin, delta, and end for  RAbalance and Security Deposit
@@ -262,16 +248,34 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			raEndBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d2)
 			secdepStartBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d1)
 			secdepEndBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d2)
-			beginRcv = rlib.RRCommaf(raStartBal)
-			endRcv = rlib.RRCommaf(raEndBal)
-			chgRcv = rlib.RRCommaf(raEndBal - raStartBal)
-			beginSecDep = rlib.RRCommaf(secdepStartBal)
-			endSecDep = rlib.RRCommaf(secdepEndBal)
-			chgSecDep = rlib.RRCommaf(secdepEndBal - secdepStartBal)
 
-			tbl.Printf(p.Name, xbiz.RT[rtid].Style, sqft, usernames, payornames, raid, possStart, possStop,
-				rentStart, rentStop, agreementStart, agreementStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets,
-				contractRent, otherIncome, pmtRcvd, beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
+			tbl.AddRow()
+			tbl.Puts(-1, RName, p.Name)
+			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
+			tbl.Puti(-1, RTSqFt, sqft)
+			tbl.Puts(-1, RUsers, usernames)
+			tbl.Puts(-1, RPayors, payornames)
+			tbl.Puts(-1, RAgr, ra.IDtoString())
+			tbl.Putd(-1, UseStart, ra.PossessionStart)
+			tbl.Putd(-1, UseStop, ra.PossessionStop)
+			tbl.Putd(-1, RentStart, ra.RentStart)
+			tbl.Putd(-1, RentStop, ra.RentStop)
+			tbl.Putd(-1, RAgrStart, ra.AgreementStart)
+			tbl.Putd(-1, RAgrStop, ra.AgreementStop)
+			tbl.Puts(-1, RCycle, rentCycle)
+			tbl.Putf(-1, GSRRate, gsrRate)
+			tbl.Putf(-1, GSRAmt, gsr)
+			tbl.Putf(-1, IncOff, icos)
+			tbl.Putf(-1, ContractRent, contractRentVal)
+			tbl.Putf(-1, OtherInc, oic)
+			tbl.Putf(-1, PmtRcvd, totpmt)
+			tbl.Putf(-1, BeginRcv, raStartBal)
+			tbl.Putf(-1, ChgRcv, raEndBal-raStartBal)
+			tbl.Putf(-1, EndRcv, raEndBal)
+			tbl.Putf(-1, BeginSecDep, secdepStartBal)
+			tbl.Putf(-1, ChgSecDep, secdepEndBal-raStartBal)
+			tbl.Putf(-1, EndSecDep, secdepEndBal)
+
 		}
 
 		//-------------------------------------------------------------------------------------------------------
@@ -279,38 +283,59 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		//-------------------------------------------------------------------------------------------------------
 		v := rlib.VacancyDetect(xbiz, d1, d2, &p)
 		for i := 0; i < len(v); i++ {
-			raid = "n/a"
-			usernames = "vacant"
-			payornames = usernames
-			rentStart = v[i].DtStart.Format(rlib.RRDATEFMT4)
-			rentStop = v[i].DtStop.Format(rlib.RRDATEFMT4)
-			possStart = ""
-			possStop = ""
-			agreementStart = ""
-			agreementStop = ""
 			gsr, gsrRate := ComputeGSRandGSRRate(&p, &v[i].DtStart, &v[i].DtStop, xbiz)
-			gsrRateStr = rlib.RRCommaf(gsrRate)
-			gsrstr = rlib.RRCommaf(gsr)
-			incomeOffsets = ""
-			contractRent = ""
-			otherIncome = ""
-			pmtRcvd = ""
-			beginRcv = ""
-			chgRcv = ""
-			endRcv = ""
-			beginSecDep = ""
-			chgSecDep = ""
-			endSecDep = ""
 
-			tbl.Printf(p.Name, xbiz.RT[rtid].Style, sqft, usernames, payornames, raid, possStart, possStop,
-				rentStart, rentStop, agreementStart, agreementStop, rentCycle, gsrRateStr, gsrstr, incomeOffsets,
-				contractRent, otherIncome, pmtRcvd, beginRcv, chgRcv, endRcv, beginSecDep, chgSecDep, endSecDep)
+			tbl.AddRow()
+			tbl.Puts(-1, RName, p.Name)
+			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
+			tbl.Puti(-1, RTSqFt, sqft)
+			tbl.Puts(-1, RUsers, "vacant")
+			tbl.Puts(-1, RPayors, "vacant")
+			tbl.Puts(-1, RAgr, "n/a")
+			// tbl.Putd(-1, UseStart, ra.PossessionStart)
+			// tbl.Putd(-1, UseStop, ra.PossessionStop)
+			tbl.Putd(-1, RentStart, v[i].DtStart)
+			tbl.Putd(-1, RentStop, v[i].DtStop)
+			// tbl.Putd(-1, RAgrStart, ra.AgreementStart)
+			// tbl.Putd(-1, RAgrStop, ra.AgreementStop)
+			tbl.Putf(-1, GSRRate, gsrRate)
+			tbl.Putf(-1, GSRAmt, gsr)
+			// tbl.Putf(-1, IncOff, icos)
+			// tbl.Putf(-1, OtherInc)
+			// tbl.Putf(-1, ContractRent, contractRentVal)
+			// tbl.Putf(-1, OtherInc, oic)
+			// tbl.Putf(-1, PmtRcvd, oic)
+			// tbl.Putf(-1, BeginRcv, raStartBal)
+			// tbl.Putf(-1, ChgRcv, raEndBal-raStartBal)
+			// tbl.Putf(-1, EndRcv, raEndBal)
+			// tbl.Putf(-1, BeginSecDep, secdepStartBal)
+			// tbl.Putf(-1, ChgSecDep, secdepEndBal-raStartBal)
+			// tbl.Putf(-1, EndSecDep, secdepEndBal)
 		}
 
-		fmt.Printf("\n")
+		rentableTblRowStop := len(tbl.Row) - 1                       // ending row for this rentable
+		tbl.Sort(rentableTblRowStart, rentableTblRowStop, RentStart) // chronologically sort these rows
+
+		// if there are multiple rows for this rentable, add a line and give a subtotal
+		if rentableTblRowStop-rentableTblRowStart > 0 {
+			tbl.AddLineAfter(rentableTblRowStop)
+			tbl.InsertSumRow(rentableTblRowStop+1, rentableTblRowStart, rentableTblRowStop,
+				[]int{GSRAmt, IncOff, ContractRent, OtherInc, PmtRcvd, BeginRcv, ChgRcv, EndRcv, BeginSecDep, ChgSecDep, EndSecDep})
+			tbl.AppendToRowset(totalsRSet, rentableTblRowStop+1) // in this case, add the sum row to the totalsRSet
+		} else {
+			tbl.AppendToRowset(totalsRSet, rentableTblRowStart) // add this row to the totalsRSET
+		}
+		tbl.AddRow() // Can't look ahead with rows.Next, so always add a blank line, remove the last one after loop ends.  See note on DeleteRow below.
 	}
+	tbl.DeleteRow(len(tbl.Row) - 1) // removes the last blank line. Can't check rows.Next twice, so no other way I can see to do this
 	rlib.Errcheck(rows.Err())
-	tbl.PrintLine()
+	tbl.AddLineAfter(len(tbl.Row) - 1) // a line after the last row in the table
+	tbl.InsertSumRowsetCols(totalsRSet, len(tbl.Row),
+		[]int{GSRAmt, IncOff, ContractRent, OtherInc, PmtRcvd, BeginRcv, ChgRcv, EndRcv, BeginSecDep, ChgSecDep, EndSecDep})
+
+	fmt.Print(tbl.SprintRowText(len(tbl.Row) - 1))
+	fmt.Print(tbl.SprintLineText())
+	fmt.Print(tbl)
 
 	return noerr
 }

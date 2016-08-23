@@ -55,6 +55,11 @@ type Colset struct {
 	Col []Cell // 1 row's worth of Cells, contains len(Col) number of Cells
 }
 
+// Rowset defines a set of rows to be operated on at a later time.
+type Rowset struct {
+	R []int // the row numbers of interest
+}
+
 // Table is a structure that defines a spreadsheet-like grid of cells and the
 // operations that can be performed.
 type Table struct {
@@ -64,6 +69,7 @@ type Table struct {
 	maxHdrRows   int         // maximum number of header rows across all ColDefs
 	DateFmt      string      // format for printing dates
 	LineAfter    []int       // array of row numbers that have a horizontal line after they are printed
+	RS           []Rowset    // a list of rowsets
 }
 
 // Init sets internal formatting controls to their default values
@@ -78,6 +84,45 @@ func (t *Table) AddLineAfter(row int) {
 	sort.Ints(t.LineAfter)
 }
 
+// CreateRowset creates a new rowset. You can add row indeces to it.  You can process the rows at those indeces later.
+// The return value is the Rowset identifier; rsid.  Use it to refer to this rowset.
+func (t *Table) CreateRowset() int {
+	var a Rowset
+	t.RS = append(t.RS, a)
+	return len(t.RS) - 1
+}
+
+// AppendToRowset adds a new row index to the rowset rsid
+func (t *Table) AppendToRowset(rsid, row int) {
+	t.RS[rsid].R = append(t.RS[rsid].R, row)
+}
+
+// SumRowset computes the sum of the rows in rowset[rs] at the specified column index. It returns a Cell with the sum
+func (t *Table) SumRowset(rsid, col int) Cell {
+	var c Cell
+	for i := 0; i < len(t.RS[rsid].R); i++ {
+		row := t.RS[rsid].R[i]
+		switch t.Row[row].Col[col].Type {
+		case CELLINT:
+			c.Type = CELLINT
+			c.Ival += t.Row[row].Col[col].Ival
+		case CELLFLOAT:
+			c.Type = CELLFLOAT
+			c.Fval += t.Row[row].Col[col].Fval
+		}
+	}
+	return c
+}
+
+// InsertSumRowsetCols sums the values for the specified rowset and appends it at the specified row
+func (t *Table) InsertSumRowsetCols(rsid, row int, cols []int) {
+	t.InsertRow(row)
+	for i := 0; i < len(cols); i++ {
+		c := t.SumRowset(rsid, cols[i])
+		t.Put(row, cols[i], c)
+	}
+}
+
 // AdjustFormatString can be called when the format string is null or when the column width changes
 // to set a proper formatting string
 func (t *Table) AdjustFormatString(cd *ColumnDef) {
@@ -89,15 +134,15 @@ func (t *Table) AdjustFormatString(cd *ColumnDef) {
 	case CELLINT:
 		cd.Pfmt = fmt.Sprintf("%%%s%dd", lft, cd.Width)
 	case CELLFLOAT:
-		cd.Pfmt = fmt.Sprintf("%%%d.%df", cd.Width, cd.Fdecimals)
+		cd.Pfmt = fmt.Sprintf("%%%d.%ds", cd.Width, cd.Width)
 	case CELLSTRING:
 		cd.Pfmt = fmt.Sprintf("%%%s%d.%ds", lft, cd.Width, cd.Width)
 	}
 }
 
 // AddColumn adds a new ColumnDef to the table
-func (t *Table) AddColumn(ttl string, w, j int, ct int) {
-	var cd = ColumnDef{Title: ttl, Width: w, Justify: j, CellType: ct, Fdecimals: 2}
+func (t *Table) AddColumn(title string, width, celltype int, justification int) {
+	var cd = ColumnDef{Title: title, Width: width, CellType: celltype, Justify: justification, Fdecimals: 2}
 	t.AdjustColumnHeader(&cd)
 	t.AdjustFormatString(&cd)
 	t.ColDefs = append(t.ColDefs, cd)
@@ -246,18 +291,26 @@ func (t *Table) Puti(row, col int, v int64) bool {
 	if row >= len(t.Row) || col >= len(t.ColDefs) {
 		return false
 	}
+	if row < 0 {
+		row = len(t.Row) - 1
+	}
 	t.Row[row].Col[col].Type = CELLINT
 	t.Row[row].Col[col].Ival = v
 	return true
 }
 
 // Putf updates the Cell at row,col with the float64 value v
-// and sets its type to CELLFLOAT. If row or col is out of
+// and sets its type to CELLFLOAT.
+// if row < 0 then row is set to the last row of the table.
+// If row or col is out of
 // bounds the return value is false. Otherwise, the return
-// value is true
+// value is true.
 func (t *Table) Putf(row, col int, v float64) bool {
 	if row >= len(t.Row) || col >= len(t.ColDefs) {
 		return false
+	}
+	if row < 0 {
+		row = len(t.Row) - 1
 	}
 	t.Row[row].Col[col].Type = CELLFLOAT
 	t.Row[row].Col[col].Fval = v
@@ -272,6 +325,9 @@ func (t *Table) Puts(row, col int, v string) bool {
 	if row >= len(t.Row) || col >= len(t.ColDefs) {
 		return false
 	}
+	if row < 0 {
+		row = len(t.Row) - 1
+	}
 	t.Row[row].Col[col].Type = CELLSTRING
 	t.Row[row].Col[col].Sval = v
 	return true
@@ -285,6 +341,9 @@ func (t *Table) Putd(row, col int, v time.Time) bool {
 	if row >= len(t.Row) || col >= len(t.ColDefs) {
 		return false
 	}
+	if row < 0 {
+		row = len(t.Row) - 1
+	}
 	t.Row[row].Col[col].Type = CELLDATE
 	t.Row[row].Col[col].Dval = v
 	return true
@@ -292,6 +351,9 @@ func (t *Table) Putd(row, col int, v time.Time) bool {
 
 // Put places Cell c at location row,col
 func (t *Table) Put(row, col int, c Cell) {
+	if row < 0 {
+		row = len(t.Row) - 1
+	}
 	t.Row[row].Col[col] = c
 }
 
@@ -305,15 +367,26 @@ func (t *Table) Cols() int {
 	return len(t.ColDefs)
 }
 
+// SprintLineText returns a line across all rows in the table
+func (t *Table) SprintLineText() string {
+	s := ""
+	for i := 0; i < len(t.ColDefs); i++ {
+		s += Mkstr(t.ColDefs[i].Width, '-')
+		if i < len(t.ColDefs)-1 {
+			s += Mkstr(t.TextColSpace, ' ')
+		}
+	}
+	return s + "\n"
+}
+
 // SprintRowText formats the requested row as text in a string and returns the string
 func (t *Table) SprintRowText(row int) string {
-	lai := 0
 	lalen := len(t.LineAfter)
 	s := ""
 	for i := 0; i < len(t.Row[row].Col); i++ {
 		switch t.Row[row].Col[i].Type {
 		case CELLFLOAT:
-			s += fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Fval)
+			s += fmt.Sprintf(t.ColDefs[i].Pfmt, RRCommaf(t.Row[row].Col[i].Fval))
 		case CELLINT:
 			s += fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Ival)
 		case CELLSTRING:
@@ -327,17 +400,12 @@ func (t *Table) SprintRowText(row int) string {
 			s += Mkstr(t.TextColSpace, ' ')
 		}
 	}
-
+	s += "\n"
 	if lalen > 0 {
-		if t.LineAfter[lai] == row {
-			for i := 0; i < len(t.ColDefs); i++ {
-				s += Mkstr(t.ColDefs[i].Width, '-')
-				if i < len(t.ColDefs)-1 {
-					s += Mkstr(t.TextColSpace, ' ')
-				}
-			}
-			s += "\n"
-			lai++
+		l := len(t.LineAfter)
+		j := sort.SearchInts(t.LineAfter, row)
+		if j < l && row == t.LineAfter[j] {
+			s += t.SprintLineText()
 		}
 	}
 	return s
@@ -463,11 +531,12 @@ func (t *Table) SumRows(col, from, to int) Cell {
 		to = len(t.Row) - 1
 	}
 	for i := from; i <= to; i++ {
-		c.Type = t.Row[i].Col[col].Type
-		switch c.Type {
+		switch t.Row[i].Col[col].Type {
 		case CELLINT:
+			c.Type = CELLINT
 			c.Ival += t.Row[i].Col[col].Ival
 		case CELLFLOAT:
+			c.Type = CELLFLOAT
 			c.Fval += t.Row[i].Col[col].Fval
 		}
 	}
@@ -486,6 +555,7 @@ func (t *Table) InsertSumRow(row, from, to int, cols []int) {
 
 // Sort sorts rows (from,to) by column col ascending
 func (t *Table) Sort(from, to, col int) {
+	// fmt.Printf("Table.Sort:  from = %d, to = %d, col = %d,  len(t.Row) = %d\n", from, to, col, len(t.Row))
 	var swap bool
 	for i := from; i < to; i++ {
 		for j := i + 1; j <= to; j++ {
@@ -501,6 +571,35 @@ func (t *Table) Sort(from, to, col int) {
 			}
 			if swap {
 				t.Row[i], t.Row[j] = t.Row[j], t.Row[i]
+			}
+		}
+	}
+}
+
+// DeleteRow removes the table row at the specified index. All rowsets and LineAfter sets are adjusted.
+// Cleanup on LineAfter and RowSets does not work if row == 0. I was just too lazy at the time to add this
+// code because I know how/where delete will be used and it will not affect row 0.
+func (t *Table) DeleteRow(row int) {
+	if row == 0 {
+		t.Row = t.Row[1:]
+	} else {
+		n := t.Row[0:row]
+		if len(t.Row) > row {
+			n = append(n, t.Row[row+1:]...)
+		}
+		t.Row = n
+	}
+	// Clean up LineAfter
+	for i := 0; i < len(t.LineAfter); i++ {
+		if t.LineAfter[i] >= row {
+			t.LineAfter[i]--
+		}
+	}
+	// Clean up RowSets
+	for i := 0; i < len(t.RS); i++ {
+		for j := 0; j < len(t.RS[i].R); j++ {
+			if t.RS[i].R[j] >= row {
+				t.RS[i].R[j]--
 			}
 		}
 	}
