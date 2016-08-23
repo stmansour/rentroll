@@ -333,5 +333,6 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		m = append(m, g)
 		gsr += rentThisPeriod
 	}
+	gsr = RoundToCent(gsr) // do this to ensure that we avoid the off-by-a-penny errors
 	return gsr, m, period, err
 }
