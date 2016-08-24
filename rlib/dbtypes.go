@@ -304,23 +304,40 @@ type OtherDeliverables struct {
 
 // RentalAgreement binds one or more payors to one or more rentables
 type RentalAgreement struct {
-	RAID              int64       // internal unique id
-	RATID             int64       // reference to Occupancy Master Agreement
-	BID               int64       // Business (so that we can process by Business)
-	NLID              int64       // Note ID
-	AgreementStart    time.Time   // start date for rental agreement contract
-	AgreementStop     time.Time   // stop date for rental agreement contract
-	PossessionStart   time.Time   // start date for Occupancy
-	PossessionStop    time.Time   // stop date for Occupancy
-	RentStart         time.Time   // start date for Rent
-	RentStop          time.Time   // stop date for Rent
-	Renewal           int64       // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
-	SpecialProvisions string      // free-form text
-	LastModTime       time.Time   //	-- when was this record last written
-	LastModBy         int64       // employee UID (from phonebook) that modified it
-	R                 []XRentable // all the rentables
-	P                 []XPerson   // all the payors
-	T                 []XPerson   // all the renters
+	RAID                   int64       // internal unique id
+	RATID                  int64       // reference to Occupancy Master Agreement
+	BID                    int64       // Business (so that we can process by Business)
+	NLID                   int64       // Note ID
+	AgreementStart         time.Time   // start date for rental agreement contract
+	AgreementStop          time.Time   // stop date for rental agreement contract
+	PossessionStart        time.Time   // start date for Occupancy
+	PossessionStop         time.Time   // stop date for Occupancy
+	RentStart              time.Time   // start date for Rent
+	RentStop               time.Time   // stop date for Rent
+	RentCycleEpoch         time.Time   // Date on which rent cycle recurs. Start date for the recurring rent assessment
+	Renewal                int64       // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
+	SpecialProvisions      string      // free-form text
+	LeaseType              int64       //Full Service Gross, Gross, ModifiedGross, Tripple Net
+	ExpenseAdjustmentType  int64       // Base Year, No Base Year, Pass Through
+	ExpensesStop           float64     // cap on the amount of oexpenses that can be passed through to the tenant
+	ExpenseStopCalculation string      // note on how to determine the expense stop
+	BaseYearEnd            time.Time   // last day of the base year
+	ExpenseAdjustment      time.Time   // the next date on which an expense adjustment is due
+	EstimatedCharges       float64     // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
+	RateChange             float64     // predetermined amount of rent increase, expressed as a percentage
+	NextRateChange         time.Time   //the next date on which a RateChange will occur
+	PermittedUses          string      // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
+	ExclusiveUses          string      // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
+	ExtensionOption        string      // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
+	ExtensionOptionNotice  time.Time   // the last dade by wich a Tenant can give notice of their intention to exercise the right to an extension option period
+	ExpansionOption        string      // the right to expand to certanin spaces that are typically contiguous to their primary space
+	ExpansionOptionNotice  time.Time   // the last dade by wich a Tenant can give notice of their intention to exercise the right to an Expansion Option
+	RightOfFirstRefusal    string      //Tenant may have the right to purchase their premises if LL chooses to sell
+	LastModTime            time.Time   //	-- when was this record last written
+	LastModBy              int64       // employee UID (from phonebook) that modified it
+	R                      []XRentable // all the rentables
+	P                      []XPerson   // all the payors
+	T                      []XPerson   // all the renters
 }
 
 // RentalAgreementRentable describes a Rentable associated with a rental agreement
@@ -774,6 +791,7 @@ type LedgerEntry struct {
 	JAID        int64
 	LID         int64     // the entry is part of this ledger
 	RAID        int64     // RentalAgreement associated with this entry
+	RID         int64     // Rentable associated with this entry
 	Dt          time.Time // date associated with this transaction
 	Amount      float64
 	Comment     string    // for notes like "prior period adjustment"
@@ -789,6 +807,7 @@ type LedgerMarker struct {
 	LID         int64     // associated GLAccount
 	BID         int64     // only valid if Type == 1
 	RAID        int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the rental agreement RAID
+	RID         int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the Rentable RID
 	Dt          time.Time // Balance is valid as of this time
 	Balance     float64   // GLAccount balance at the end of the period
 	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
@@ -818,6 +837,7 @@ type GLAccount struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
+	// GetRABalanceLedger                       *sql.Stmt
 	DeleteAllRentalAgreementPets             *sql.Stmt
 	DeleteCustomAttribute                    *sql.Stmt
 	DeleteCustomAttributeRef                 *sql.Stmt
@@ -838,6 +858,10 @@ type RRprepSQL struct {
 	DeleteNote                               *sql.Stmt
 	DeleteNoteList                           *sql.Stmt
 	DeleteNoteType                           *sql.Stmt
+	DeleteRatePlan                           *sql.Stmt
+	DeleteRatePlanRef                        *sql.Stmt
+	DeleteRatePlanRefRTRate                  *sql.Stmt
+	DeleteRatePlanRefSPRate                  *sql.Stmt
 	DeleteReceipt                            *sql.Stmt
 	DeleteReceiptAllocations                 *sql.Stmt
 	DeleteRentableSpecialtyRef               *sql.Stmt
@@ -861,10 +885,16 @@ type RRprepSQL struct {
 	GetAllDepositsInRange                    *sql.Stmt
 	GetAllInvoicesInRange                    *sql.Stmt
 	GetAllJournalsInRange                    *sql.Stmt
+	GetAllLedgerEntriesForRAID               *sql.Stmt
+	GetAllLedgerEntriesForRID                *sql.Stmt
 	GetAllLedgerEntriesInRange               *sql.Stmt
 	GetAllLedgerMarkersOnOrBefore            *sql.Stmt
 	GetAllNotes                              *sql.Stmt
 	GetAllNoteTypes                          *sql.Stmt
+	GetAllRatePlanRefRTRates                 *sql.Stmt
+	GetAllRatePlanRefsInRange                *sql.Stmt
+	GetAllRatePlanRefSPRates                 *sql.Stmt
+	GetAllRatePlans                          *sql.Stmt
 	GetAllRentableAssessments                *sql.Stmt
 	GetAllRentablesByBusiness                *sql.Stmt
 	GetAllRentableSpecialtyRefs              *sql.Stmt
@@ -905,12 +935,15 @@ type RRprepSQL struct {
 	GetLedgerByGLNo                          *sql.Stmt
 	GetLedgerByType                          *sql.Stmt
 	GetLedgerEntriesForRAID                  *sql.Stmt
+	GetLedgerEntriesForRentable              *sql.Stmt
+	GetLedgerEntriesInRange                  *sql.Stmt
 	GetLedgerEntriesInRangeByGLNo            *sql.Stmt
 	GetLedgerEntriesInRangeByLID             *sql.Stmt
 	GetLedgerEntry                           *sql.Stmt
 	GetLedgerList                            *sql.Stmt
 	GetLedgerMarkerByDateRange               *sql.Stmt
 	GetLedgerMarkerByLIDDateRange            *sql.Stmt
+	GetLedgerMarkerOnOrBefore                *sql.Stmt
 	GetLedgerMarkers                         *sql.Stmt
 	GetNote                                  *sql.Stmt
 	GetNoteAndChildNotes                     *sql.Stmt
@@ -920,13 +953,20 @@ type RRprepSQL struct {
 	GetPaymentTypesByBusiness                *sql.Stmt
 	GetPayor                                 *sql.Stmt
 	GetProspect                              *sql.Stmt
-	GetRABalanceLedger                       *sql.Stmt
+	GetRALedgerMarkerOnOrBefore              *sql.Stmt
+	GetRatePlan                              *sql.Stmt
+	GetRatePlanByName                        *sql.Stmt
+	GetRatePlanRef                           *sql.Stmt
+	GetRatePlanRefRTRate                     *sql.Stmt
+	GetRatePlanRefsInRange                   *sql.Stmt
+	GetRatePlanRefSPRate                     *sql.Stmt
 	GetReceipt                               *sql.Stmt
 	GetReceiptAllocations                    *sql.Stmt
 	GetReceiptsInDateRange                   *sql.Stmt
 	GetReceiptsInRAIDDateRange               *sql.Stmt
 	GetRentable                              *sql.Stmt
 	GetRentableByName                        *sql.Stmt
+	GetRentableLedgerMarkerOnOrBefore        *sql.Stmt
 	GetRentableMarketRates                   *sql.Stmt
 	GetRentableSpecialtyRefs                 *sql.Stmt
 	GetRentableSpecialtyRefsByRange          *sql.Stmt
@@ -980,6 +1020,10 @@ type RRprepSQL struct {
 	InsertPaymentType                        *sql.Stmt
 	InsertPayor                              *sql.Stmt
 	InsertProspect                           *sql.Stmt
+	InsertRatePlan                           *sql.Stmt
+	InsertRatePlanRef                        *sql.Stmt
+	InsertRatePlanRefRTRate                  *sql.Stmt
+	InsertRatePlanRefSPRate                  *sql.Stmt
 	InsertReceipt                            *sql.Stmt
 	InsertReceiptAllocation                  *sql.Stmt
 	InsertRentable                           *sql.Stmt
@@ -999,6 +1043,8 @@ type RRprepSQL struct {
 	InsertStringList                         *sql.Stmt
 	InsertTransactant                        *sql.Stmt
 	InsertUser                               *sql.Stmt
+	ReadRatePlan                             *sql.Stmt
+	ReadRatePlanRef                          *sql.Stmt
 	UpdateAssessment                         *sql.Stmt
 	UpdateDemandSource                       *sql.Stmt
 	UpdateDeposit                            *sql.Stmt
@@ -1010,42 +1056,19 @@ type RRprepSQL struct {
 	UpdateNote                               *sql.Stmt
 	UpdateNoteType                           *sql.Stmt
 	UpdateProspect                           *sql.Stmt
+	UpdateRatePlan                           *sql.Stmt
+	UpdateRatePlanRef                        *sql.Stmt
+	UpdateRatePlanRefRTRate                  *sql.Stmt
+	UpdateRatePlanRefSPRate                  *sql.Stmt
 	UpdateRentableSpecialtyRef               *sql.Stmt
 	UpdateRentableStatus                     *sql.Stmt
 	UpdateRentableTypeRef                    *sql.Stmt
+	UpdateRentalAgreement                    *sql.Stmt
 	UpdateRentalAgreementPet                 *sql.Stmt
 	UpdateSLString                           *sql.Stmt
 	UpdateStringList                         *sql.Stmt
 	UpdateTransactant                        *sql.Stmt
-	GetRatePlan                              *sql.Stmt
-	GetAllRatePlans                          *sql.Stmt
-	GetRatePlanByName                        *sql.Stmt
-	DeleteRatePlan                           *sql.Stmt
-	InsertRatePlan                           *sql.Stmt
-	ReadRatePlan                             *sql.Stmt
-	UpdateRatePlan                           *sql.Stmt
-	GetRatePlanRef                           *sql.Stmt
-	DeleteRatePlanRef                        *sql.Stmt
-	InsertRatePlanRef                        *sql.Stmt
-	ReadRatePlanRef                          *sql.Stmt
-	UpdateRatePlanRef                        *sql.Stmt
-	GetAllRatePlanRefsInRange                *sql.Stmt
-	GetRatePlanRefsInRange                   *sql.Stmt
-	GetRatePlanRefRTRate                     *sql.Stmt
-	GetAllRatePlanRefRTRates                 *sql.Stmt
-	InsertRatePlanRefRTRate                  *sql.Stmt
-	UpdateRatePlanRefRTRate                  *sql.Stmt
-	DeleteRatePlanRefRTRate                  *sql.Stmt
-	GetRatePlanRefSPRate                     *sql.Stmt
-	GetAllRatePlanRefSPRates                 *sql.Stmt
-	InsertRatePlanRefSPRate                  *sql.Stmt
-	UpdateRatePlanRefSPRate                  *sql.Stmt
-	DeleteRatePlanRefSPRate                  *sql.Stmt
-	GetLedgerMarkerOnOrBefore                *sql.Stmt
-	GetLedgerEntriesInRange                  *sql.Stmt
-	GetSecDepBalanceLedger                   *sql.Stmt
-	GetRALedgerMarkerOnOrBefore              *sql.Stmt
-	GetAllLedgerEntriesForRAID               *sql.Stmt
+	// GetSecDepBalanceLedger                   *sql.Stmt
 	//	GetLedgerMarkerByRAID                    *sql.Stmt
 }
 

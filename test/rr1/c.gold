@@ -1,0 +1,10 @@
+  LID   LMID  TYPE          GLNUMBER  NAME                                      COLLECTIVE                           BALANCE       RAASSOC       RARQD
+    1      1  10               10000  Cash                                                               0.00  Unassociated      0
+    2      2  11               12000  Accounts Receivable                                                0.00  Unassociated      0
+    7      7  16               30000  Security Deposits                                                  0.00  Unassociated      2
+    8      8  17               39000  Owners' Equity                                                     0.00  Unassociated      0
+    3      3  12               41000  Unit Gross Scheduled Rent-Taxable                                  0.00  Unassociated      0
+    5      5  14               41101  Vacancy                                                            0.00  Unassociated      0
+    4      4  13               41102  Loss (Gain) to Lease                                               0.00  Unassociated      2
+    6      6  15               41413  Forfeited Security Deposit                                         0.00  Unassociated      2
+

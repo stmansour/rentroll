@@ -16,8 +16,7 @@ func RemoveLedgerEntries(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	defer rows.Close()
 	for rows.Next() {
 		var l rlib.LedgerEntry
-		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.LID, &l.RAID,
-			&l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
+		rlib.ReadLedgerEntries(rows, &l)
 		rlib.DeleteLedgerEntry(l.LEID)
 	}
 	return err
@@ -37,7 +36,6 @@ func initLedgerCache() {
 func GetCachedLedgerByGL(bid int64, s string) rlib.GLAccount {
 	var l rlib.GLAccount
 	var ok bool
-	var err error
 
 	l, ok = ledgerCache[s]
 	if ok {
@@ -45,9 +43,9 @@ func GetCachedLedgerByGL(bid int64, s string) rlib.GLAccount {
 			return l
 		}
 	}
-	l, err = rlib.GetLedgerByGLNo(bid, s)
-	if err != nil {
-		rlib.Ulog("GetCachedLedgerByGL: error getting ledger %s from business %d, err = %s\n", s, bid, err.Error())
+	l = rlib.GetLedgerByGLNo(bid, s)
+	if 0 == l.LID {
+		rlib.Ulog("GetCachedLedgerByGL: error getting ledger %s from business %d. \n", s, bid)
 		l.LID = 0
 	} else {
 		ledgerCache[s] = l
@@ -75,6 +73,7 @@ func GenerateLedgerEntriesFromJournal(xbiz *rlib.XBusiness, j *rlib.Journal, d1,
 			ledger := GetCachedLedgerByGL(l.BID, m[k].Account)
 			l.LID = ledger.LID
 			l.RAID = j.RAID
+			l.RID = j.JA[i].RID
 			rlib.InsertLedgerEntry(&l)
 		}
 	}
@@ -115,8 +114,8 @@ func UpdateSubLedgerMarkers(bid int64, d1, d2 *time.Time) {
 			return
 		}
 
-		fmt.Printf("%s\n", rlib.Tline(80))
-		fmt.Printf("Processing Rental Agreement RA%08d\n", ra.RAID)
+		// fmt.Printf("%s\n", rlib.Tline(80))
+		// fmt.Printf("Processing Rental Agreement RA%08d\n", ra.RAID)
 
 		// get all the ledger activity between d1 and d2 involving the current RentalAgreement
 		m, err := rlib.GetAllLedgerEntriesForRAID(d1, d2, ra.RAID)
@@ -125,7 +124,7 @@ func UpdateSubLedgerMarkers(bid int64, d1, d2 *time.Time) {
 			return
 		}
 
-		fmt.Printf("LedgerEntries to process:  %d\n", len(m))
+		// fmt.Printf("LedgerEntries for RAID = %d between %s - %s:  %d\n", ra.RAID, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4), len(m))
 
 		LIDprocessed := make(map[int64]int, 0)
 
@@ -142,16 +141,16 @@ func UpdateSubLedgerMarkers(bid int64, d1, d2 *time.Time) {
 			// find the previous LedgerMarker for the GLAccount.  Create one if none exist...
 			lm := rlib.LoadRALedgerMarker(bid, m[i].LID, m[i].RAID, d1)
 
-			fmt.Printf("%s\n", rlib.Tline(20))
-			fmt.Printf("Processing L%08d\n", m[i].LID)
-			fmt.Printf("LedgerMarker: LM%08d - %10s  Balance: %8.2f\n", lm.LMID, lm.Dt.Format(rlib.RRDATEFMT4), lm.Balance)
+			// fmt.Printf("%s\n", rlib.Tline(20))
+			// fmt.Printf("Processing L%08d\n", m[i].LID)
+			// fmt.Printf("LedgerMarker: LM%08d - %10s  Balance: %8.2f\n", lm.LMID, lm.Dt.Format(rlib.RRDATEFMT4), lm.Balance)
 
 			// Spin through the rest of the transactions involving m[i].LID and compute the total
 			tot := m[i].Amount
 			for j := i + 1; j < len(m); j++ {
 				if m[j].LID == m[i].LID {
 					tot += m[j].Amount
-					fmt.Printf("\tLE%08d  -  %8.2f\n", m[j].LEID, m[j].Amount)
+					// fmt.Printf("\tLE%08d  -  %8.2f\n", m[j].LEID, m[j].Amount)
 				}
 			}
 			LIDprocessed[m[i].LID] = 1 // mark that we've processed this ledger
@@ -168,6 +167,7 @@ func UpdateSubLedgerMarkers(bid int64, d1, d2 *time.Time) {
 				rlib.Ulog("%s: InsertLedgerMarker error: %s\n", funcname, err.Error())
 				return
 			}
+			// fmt.Printf("LedgerMarker: RAID = %d, Balance = %8.2f\n", lm2.RAID, lm2.Balance)
 		}
 	}
 	rlib.Errcheck(rows.Err())
@@ -180,8 +180,7 @@ func closeLedgerPeriod(xbiz *rlib.XBusiness, li *rlib.GLAccount, lm *rlib.Ledger
 	defer rows.Close()
 	for rows.Next() {
 		var l rlib.LedgerEntry
-		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.LID, &l.RAID, &l.Dt,
-			&l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
+		rlib.ReadLedgerEntries(rows, &l)
 		bal += l.Amount
 	}
 	rlib.Errcheck(rows.Err())
@@ -237,4 +236,9 @@ func GenerateLedgerRecords(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		closeLedgerPeriod(xbiz, &t[i], &lm, d1, d2, rlib.MARKERSTATEOPEN)
 	}
 	rlib.Errcheck(rows.Err())
+
+	//==============================================================================
+	// Now we need to update the ledger markers for RAIDs and RIDs
+	//==============================================================================
+	UpdateSubLedgerMarkers(xbiz.P.BID, d1, d2)
 }

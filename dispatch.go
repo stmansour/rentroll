@@ -37,7 +37,7 @@ func RunBooks(ctx *DispatchCtx) {
 			LedgerReportText(&xbiz, &ctx.DtStart, &ctx.DtStop)
 		case 3: // INTERNAL ACCT RULE TEST
 			intTest(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 4: // RentRoll report
+		case 4: // RENTROLL REPORT
 			err = rrpt.RentRollTextReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			if err != nil {
 				fmt.Printf("RentRoll text report error: %s\n", err.Error())
@@ -66,9 +66,9 @@ func RunBooks(ctx *DispatchCtx) {
 			rrpt.InvoiceTextReport(invoiceno)
 		case 10: // LEDGER ACTIVITY
 			LedgerActivityReport(&xbiz, &ctx.DtStart, &ctx.DtStop)
-		case 11: // Rentable GSR
+		case 11: // RENTABLE GSR
 			rrpt.GSRTextReport(&xbiz, &ctx.DtStart)
-		case 12: // LedgerBalance On Date
+		case 12: // LEDGERBALANCE ON DATE
 			// ctx.Report format:  12,LID,RAID,date
 			sa := strings.Split(ctx.Args, ",")
 			if len(sa) < 4 {
@@ -83,7 +83,7 @@ func RunBooks(ctx *DispatchCtx) {
 				os.Exit(1)
 			}
 			rrpt.LdgAcctBalOnDateTextReport(&xbiz, lid, raid, &dt)
-		case 13: // RA Ledger Details over Range
+		case 13: // RA LEDGER DETAILS OVER RANGE
 			// ctx.Report format: 13,LID,RAID
 			// date range is from -j , -k
 			sa := strings.Split(ctx.Args, ",")
@@ -94,6 +94,22 @@ func RunBooks(ctx *DispatchCtx) {
 			lid := rcsv.CSVLoaderGetLedgerNo(sa[1])
 			raid := rcsv.CSVLoaderGetRAID(sa[2])
 			rrpt.RAAccountActivityRangeDetail(&xbiz, lid, raid, &ctx.DtStart, &ctx.DtStop)
+		case 14: // DELINQUENCY REPORT
+			// ctx.Report format:  14,date
+			sa := strings.Split(ctx.Args, ",")
+			if len(sa) < 2 {
+				fmt.Printf("Missing one or more parameters.  Example:  -r 14,2016-05-25\n")
+				os.Exit(1)
+			}
+			dt, err := rlib.StringToDate(sa[1])
+			if err != nil {
+				fmt.Printf("Bad date string: %s\n", sa[1])
+				os.Exit(1)
+			}
+			err = rrpt.DelinquencyTextReport(&xbiz, &dt)
+			if err != nil {
+				fmt.Printf("Delinquency text report error: %s\n", err.Error())
+			}
 		default:
 			GenerateJournalRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)
 			GenerateLedgerRecords(&xbiz, &ctx.DtStart, &ctx.DtStop)

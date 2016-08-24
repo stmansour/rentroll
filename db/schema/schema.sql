@@ -172,10 +172,27 @@ CREATE TABLE RentalAgreement (
     PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when Occupancy stops
     RentStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when Rent starts
     RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when Rent stops
+    RentCycleEpoch DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- Date on which rent cycle recurs. Start date for the recurring rent assessment
     Renewal SMALLINT NOT NULL DEFAULT 0,                         -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',         -- free-form text
-    LastModTime TIMESTAMP,                                       -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
+    LeaseType BIGINT NOT NULL DEFAULT 0,                                -- Full Service Gross, Gross, ModifiedGross, Tripple Net
+    ExpenseAdjustmentType BIGINT NOT NULL DEFAULT 0,                    -- Base Year, No Base Year, Pass Through
+    ExpensesStop DECIMAL(19,4) NOT NULL DEFAULT 0,                      -- cap on the amount of oexpenses that can be passed through to the tenant
+    ExpenseStopCalculation VARCHAR(128) NOT NULL DEFAULT '',            -- note on how to determine the expense stop
+    BaseYearEnd DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- last day of the base year
+    ExpenseAdjustment DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- the next date on which an expense adjustment is due
+    EstimatedCharges DECIMAL(19,4) NOT NULL DEFAULT 0,                  -- a periodic fee charged to the tenant to reimburse LL for anticipated expenses
+    RateChange DECIMAL(19,4) NOT NULL DEFAULT 0,                        -- predetermined amount of rent increase, expressed as a percentage
+    NextRateChange DATE NOT NULL DEFAULT '1970-01-01 00:00:00',         -- the next date on which a RateChange will occur
+    PermittedUses VARCHAR(128) NOT NULL DEFAULT '',                     -- indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
+    ExclusiveUses VARCHAR(128) NOT NULL DEFAULT '',                     -- those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
+    ExtensionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
+    ExtensionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last dade by wich a Tenant can give notice of their intention to exercise the right to an extension option period
+    ExpansionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to expand to certanin spaces that are typically contiguous to their primary space
+    ExpansionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last dade by wich a Tenant can give notice of their intention to exercise the right to an Expansion Option
+    RightOfFirstRefusal VARCHAR(128) NOT NULL DEFAULT '',               -- Tenant may have the right to purchase their premises if LL chooses to sell
+    LastModTime TIMESTAMP,                                              -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RAID)
 );
 
@@ -826,6 +843,7 @@ CREATE TABLE LedgerEntry (
     JAID BIGINT NOT NULL DEFAULT 0,                           -- the allocation giving rise to this LedgerEntry
     LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     RAID BIGINT NOT NULL DEFAULT 0,                           -- associated Rental Agreement
+    RID BIGINT NOT NULL DEFAULT 0,                            -- associated Rentable
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount since last close
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
@@ -838,7 +856,8 @@ CREATE TABLE LedgerMarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
     LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
-    RAID BIGINT NOT NULL DEFAULT 0,                           -- 0 means it's the balance for the whole account;  > 0 means it's the amount associated with rental agreement RAID
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- 0 means it's either a marker for a Rentable or the balance for the whole account;  > 0 means it's the amount associated with rental agreement RAID
+    RID BIGINT NOT NULL DEFAULT 0,                            -- 0 means it's either a marker for a RentalAgreement or the balance for a whole account; >0 means it's the amount associated with Rentable RID
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- Balance is valid as of this time
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)

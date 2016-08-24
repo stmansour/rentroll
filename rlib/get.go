@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -407,10 +408,20 @@ func GetLedgerMarkerOnOrBefore(bid, lid int64, dt *time.Time) LedgerMarker {
 	return r
 }
 
-// GetRALedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with the supplied LID
+// GetRALedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
+// the supplied LID filtered for the supplied RentalAgreement raid
 func GetRALedgerMarkerOnOrBefore(bid, lid, raid int64, dt *time.Time) LedgerMarker {
 	var r LedgerMarker
 	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore.QueryRow(bid, lid, raid, dt)
+	ReadLedgerMarker(row, &r)
+	return r
+}
+
+// GetRentableLedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
+// the supplied LID filtered for the supplied Rentable rid
+func GetRentableLedgerMarkerOnOrBefore(bid, lid, rid int64, dt *time.Time) LedgerMarker {
+	var r LedgerMarker
+	row := RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore.QueryRow(bid, lid, rid, dt)
 	ReadLedgerMarker(row, &r)
 	return r
 }
@@ -448,8 +459,8 @@ func LoadRALedgerMarker(bid, lid, raid int64, dt *time.Time) LedgerMarker {
 
 // GetLatestLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
 func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
-	l, err := GetLedgerByGLNo(bid, s)
-	if err != nil {
+	l := GetLedgerByGLNo(bid, s)
+	if l.LID == 0 {
 		var r LedgerMarker
 		return r
 	}
@@ -459,8 +470,8 @@ func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
 // GetLatestLedgerMarkerByType returns the LedgerMarker struct for the supplied type
 func GetLatestLedgerMarkerByType(bid int64, t int64) LedgerMarker {
 	var r LedgerMarker
-	l, err := GetLedgerByType(bid, t)
-	if err != nil {
+	l := GetLedgerByType(bid, t)
+	if 0 == l.LID {
 		return r
 	}
 	return GetLatestLedgerMarkerByLID(bid, l.LID)
@@ -1082,49 +1093,46 @@ func GetGLAccountMap(bid int64) map[int64]GLAccount {
 }
 
 // GetLedger returns the GLAccount struct for the supplied LID
-func GetLedger(lid int64) (GLAccount, error) {
+func GetLedger(lid int64) GLAccount {
 	var a GLAccount
-	err := RRdb.Prepstmt.GetLedger.QueryRow(lid).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
-		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
-	return a, err
+	row := RRdb.Prepstmt.GetLedger.QueryRow(lid)
+	ReadGLAccount(row, &a)
+	return a
 }
 
 // GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
-func GetLedgerByGLNo(bid int64, s string) (GLAccount, error) {
+func GetLedgerByGLNo(bid int64, s string) GLAccount {
 	var a GLAccount
-	err := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
-		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
-	return a, err
+	row := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s)
+	ReadGLAccount(row, &a)
+	return a
 }
 
 // GetLedgerByType returns the GLAccount struct for the supplied Type
-func GetLedgerByType(bid, t int64) (GLAccount, error) {
+func GetLedgerByType(bid, t int64) GLAccount {
 	var a GLAccount
-	err := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
-		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
-	return a, err
+	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
+	ReadGLAccount(row, &a)
+	return a
 }
 
-// GetRABalanceLedger returns the GLAccount struct for the supplied Type
-func GetRABalanceLedger(bid, RAID int64) (GLAccount, error) {
-	var a GLAccount
-	err := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid, RAID).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
-		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
-	return a, err
-}
+// // GetRABalanceLedger returns the GLAccount struct for the supplied Type
+// func GetRABalanceLedger(bid, RAID int64) GLAccount {
+// 	var a GLAccount
+// 	var err error
+// 	row := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid)
+// 	ReadGLAccount(row, &a)
+// 	return a
+// }
 
-// GetSecDepBalanceLedger returns the GLAccount struct for the supplied Type
-func GetSecDepBalanceLedger(bid, RAID int64) (GLAccount, error) {
-	var a GLAccount
-	err := RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(bid, RAID).Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
-		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy)
-	return a, err
-}
+// // GetSecDepBalanceLedger returns the GLAccount struct for the supplied Type
+// func GetSecDepBalanceLedger(bid, RAID int64) GLAccount {
+// 	var a GLAccount
+// 	var err error
+// 	row := RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(bid, RAID)
+// 	ReadGLAccount(row, &a)
+// 	return a
+// }
 
 // GetDefaultLedgers loads the default GLAccount for the supplied Business bid
 func GetDefaultLedgers(bid int64) {
@@ -1142,67 +1150,63 @@ func GetDefaultLedgers(bid int64) {
 //  LEDGER ENTRY
 //=======================================================
 
+// GetLedgerEntryArray returns a list of Ledger Entries for the supplied rows value
+func GetLedgerEntryArray(rows *sql.Rows) ([]LedgerEntry, error) {
+	var m []LedgerEntry
+	for rows.Next() {
+		var le LedgerEntry
+		ReadLedgerEntries(rows, &le)
+		m = append(m, le)
+	}
+	return m, rows.Err()
+}
+
 // GetLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
 func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
-	var m []LedgerEntry
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
 	Errcheck(err)
 	defer rows.Close()
-
-	for rows.Next() {
-		var le LedgerEntry
-		ReadLedgerEntries(rows, &le)
-		m = append(m, le)
-	}
-	Errcheck(rows.Err())
-	return m, err
+	return GetLedgerEntryArray(rows)
 }
 
-// GetAllLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
+// GetLedgerEntriesForRentable returns a list of Ledger Entries for the supplied Rentable (rid) and Ledger (lid)
+func GetLedgerEntriesForRentable(d1, d2 *time.Time, rid, lid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(d1, d2, rid, lid)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
+// GetAllLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement
 func GetAllLedgerEntriesForRAID(d1, d2 *time.Time, raid int64) ([]LedgerEntry, error) {
-	var m []LedgerEntry
 	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
 	Errcheck(err)
 	defer rows.Close()
-	for rows.Next() {
-		var le LedgerEntry
-		ReadLedgerEntries(rows, &le)
-		m = append(m, le)
-	}
-	Errcheck(rows.Err())
-	return m, err
+	return GetLedgerEntryArray(rows)
+}
+
+// GetAllLedgerEntriesForRID returns a list of Ledger Entries for the supplied Rentable ID
+func GetAllLedgerEntriesForRID(d1, d2 *time.Time, rid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(d1, d2, rid)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
 }
 
 // GetAllLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
 func GetAllLedgerEntriesInRange(bid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
-	var m []LedgerEntry
 	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
-
-	for rows.Next() {
-		var le LedgerEntry
-		ReadLedgerEntries(rows, &le)
-		m = append(m, le)
-	}
-	Errcheck(rows.Err())
-	return m, err
+	return GetLedgerEntryArray(rows)
 }
 
 // GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
 func GetLedgerEntriesInRange(bid, lid, raid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
-	var m []LedgerEntry
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
-
-	for rows.Next() {
-		var le LedgerEntry
-		ReadLedgerEntries(rows, &le)
-		m = append(m, le)
-	}
-	Errcheck(rows.Err())
-	return m, err
+	return GetLedgerEntryArray(rows)
 }
 
 //=======================================================

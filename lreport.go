@@ -139,8 +139,10 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 }
 
 func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time) {
-	l, err := rlib.GetLedger(lm.LID)
-	rlib.Errcheck(err)
+	l := rlib.GetLedger(lm.LID)
+	if 0 == l.LID {
+		return
+	}
 	bal := lm.Balance
 	printLedgerHeader(xbiz, &l, d1, d2)
 	printLedgerDescrAndBal("Opening Balance", *d1, lm.Balance)
@@ -150,7 +152,7 @@ func reportTextProcessLedgerMarker(xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, 
 	defer rows.Close()
 	for rows.Next() {
 		var l rlib.LedgerEntry
-		rlib.Errcheck(rows.Scan(&l.LEID, &l.BID, &l.JID, &l.JAID, &l.LID, &l.RAID, &l.Dt, &l.Amount, &l.Comment, &l.LastModTime, &l.LastModBy))
+		rlib.ReadLedgerEntries(rows, &l)
 		bal += l.Amount
 		descr, rn, sra := getLedgerEntryDescription(&l)
 		printDatedLedgerEntryRJ(descr, l.Dt, l.JID, sra, rn, l.Amount, bal)

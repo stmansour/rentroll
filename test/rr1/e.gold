@@ -1,0 +1,16 @@
+      TCID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
+TC00000001     0  123-456-7890  JJones@abc.com             Jones        , Joshua           ABC Corporation          
+TC00000002     1  123-983-2244  info@abc.com                            ,                  ABC Corporation          
+TC00000003     0  123-456-7891  asmith@gmail.com           Smith        , Amanda                                    
+TC00000004     0  123-456-7892  cjones@arcenergy.com       Jones        , Christoph        ARC Energy               
+TC00000005     1  123-945-3715  info@arcenergy.com                      ,                  ARC Energy               
+TC00000006     0  123-456-7893  CindyJ@rexford.com         Jones        , Cindy                                     
+TC00000007     0  123-456-8516  EdithJ@rexford.com         Jones        , Edith                                     
+TC00000008     0  123-456-7894  edj@rexford.com            Jones        , Ed                                        
+TC00000009     0  123-456-2337  acurry@rexford.com         Curry        , Amanda                                    
+TC00000010     0  123-456-8519  jnight@rexford.com         Night        , Jeb                                       
+TC00000011     0  123-456-6571  chris@bacon.com            Bacon        , Chris        P                            
+TC00000012     0  123-456-9435  betty@diddit.com           Diddit       , Betty                                     
+TC00000013     0  123-456-0055  betty@diddent.com          Diddent      , Betty                                     
+TC00000014     0  123-456-0066  leeloo@kaixin.com          Kaixin       , Leeloo                                    
+

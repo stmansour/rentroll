@@ -108,11 +108,10 @@ func processAcctRuleAmount(xbiz *rlib.XBusiness, rid int64, d time.Time, rule st
 		if m[i].Action == "c" {
 			amt = -amt
 		}
-		l, err := rlib.GetLedgerByGLNo(r.BID, m[i].Account)
-		if err != nil {
+		l := rlib.GetLedgerByGLNo(r.BID, m[i].Account)
+		if 0 == l.LID {
 			fmt.Printf("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
 			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
-			fmt.Printf("%s: Error = %v\n", funcname, err)
 			continue
 		}
 
@@ -226,11 +225,10 @@ func textPrintJournalReceipt(xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Jour
 		m := rlib.ParseAcctRule(xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		printJournalSubtitle("\t" + rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		for k := 0; k < len(m); k++ {
-			l, err := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
-			if err != nil {
+			l := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
+			if 0 == l.LID {
 				fmt.Printf("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
 				fmt.Printf("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
-				fmt.Printf("%s: Error = %v\n", funcname, err)
 				continue
 			}
 			amt := m[k].Amount

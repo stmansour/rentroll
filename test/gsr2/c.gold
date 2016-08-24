@@ -1,0 +1,21 @@
+  LID   LMID  TYPE          GLNUMBER  NAME                                      COLLECTIVE                           BALANCE       RAASSOC       RARQD
+   12     12                       1  Basement Storage                                                   0.00  Unassociated      0
+    2      2  11               11001  General Accounts Receivable                                        0.00  Unassociated      0
+    7      7  16               11002  Security Deposits Assessed                                    -13300.00  Unassociated      3
+   13     13                       2  Change In Delinquency                    Basement Storage          0.00  Unassociated      2
+    6      6  15               33000  Security Deposit Receivable                                        0.00  Unassociated      3
+    8      8  17               33333  OwnerEquity                                                    13300.00  Unassociated      2
+   17     17                   41008  Administrative Unit                                                0.00    Associated      0
+    3      3  12               50201  Gross Schedule Rent                                                0.00    Associated      0
+    9      9                   50211  Late Fees                                                          0.00  Unassociated      2
+   10     10                   50212  NSF Fees                                                           0.00  Unassociated      2
+   18     18                   50213  Forfeited Security Deposit                                         0.00  Unassociated      2
+   11     11                   50216  Maintenance Reimbursement                                          0.00  Unassociated      0
+    5      5  14               50251  Vacancy                                                            0.00    Associated      0
+   15     15                   50252  Rent Concession                                                    0.00  Unassociated      0
+   16     16                   50253  Offline Units                                                      0.00  Unassociated      0
+   14     14                   50254  Bad Debt Write-Off                                                 0.00  Unassociated      2
+    4      4  13               50255  Loss to Lease                                                      0.00  Unassociated      0
+   19     19                   59997  AP Cash Dispersements                                              0.00  Unassociated      0
+    1      1  10               59998  Cash Deposits                                                      0.00  Unassociated      0
+

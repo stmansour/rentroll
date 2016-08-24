@@ -327,8 +327,8 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		}
 		tbl.AddRow() // Can't look ahead with rows.Next, so always add a blank line, remove the last one after loop ends.  See note on DeleteRow below.
 	}
-	tbl.DeleteRow(len(tbl.Row) - 1) // removes the last blank line. Can't check rows.Next twice, so no other way I can see to do this
 	rlib.Errcheck(rows.Err())
+	tbl.DeleteRow(len(tbl.Row) - 1)    // removes the last blank line. Can't check rows.Next twice, so no other way I can see to do this
 	tbl.AddLineAfter(len(tbl.Row) - 1) // a line after the last row in the table
 	tbl.InsertSumRowsetCols(totalsRSet, len(tbl.Row),
 		[]int{GSRAmt, IncOff, ContractRent, OtherInc, PmtRcvd, BeginRcv, ChgRcv, EndRcv, BeginSecDep, ChgSecDep, EndSecDep})

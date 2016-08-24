@@ -264,7 +264,8 @@ ${RRBIN}/rentroll -A -j 2014-12-01 -k 2015-01-01
 
 # process payments and receipts
 dorrtest "p" "-r 11" "GSR"
-dorrtest "m" "" "Process"
+# dorrtest "m" "" "Process"
+${RENTROLL}
 
 #pause
 
@@ -273,6 +274,7 @@ dorrtest "o" "-r 2" "Ledgers"
 
 dorrtest "q" "-r 12,11,RA001,2016-07-04"
 dorrtest "q1" "-r 12,9,RA001,2016-07-04"
+dorrtest "r" "-r 4"
 
 
 echo >>${LOGFILE}

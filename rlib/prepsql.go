@@ -310,10 +310,10 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=1 AND RAID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetSecDepBalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=2 AND RAID=?")
-	Errcheck(err)
+	// RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=1 AND RAID=?")
+	// Errcheck(err)
+	// RRdb.Prepstmt.GetSecDepBalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=2 AND RAID=?")
+	// Errcheck(err)
 	RRdb.Prepstmt.GetLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE LID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? ORDER BY GLNumber ASC, Name ASC")
@@ -333,7 +333,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER ENTRY
 	//==========================================
-	LEfields := "LEID,BID,JID,JAID,LID,RAID,Dt,Amount,Comment,LastModTime,LastModBy"
+	LEfields := "LEID,BID,JID,JAID,LID,RAID,RID,Dt,Amount,Comment,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetAllLedgerEntriesInRange, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? AND ?<=Dt AND Dt<?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesInRange, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? AND LID=? AND RAID=? AND ?<=Dt AND Dt<?")
@@ -344,7 +344,11 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesForRAID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RAID=? AND LID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerEntriesForRentable, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RID=? AND LID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllLedgerEntriesForRAID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RAID=? ORDER BY Dt ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllLedgerEntriesForRID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RID=? ORDER BY Dt ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntry, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry where LEID=?")
 	Errcheck(err)
@@ -358,20 +362,22 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER MARKER
 	//==========================================
-	flds = "LMID,LID,BID,RAID,Dt,Balance,State,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 ORDER BY Dt DESC")
+	flds = "LMID,LID,BID,RAID,RID,Dt,Balance,State,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 ORDER BY Dt DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and Dt>?  ORDER BY LID ASC")
+	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and Dt>?  ORDER BY LID ASC")
 	Errcheck(err)
 	// RRdb.Prepstmt.GetLedgerMarkerByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and Dt>? ORDER BY LID ASC")
 	// Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and RAID=0 ORDER BY LMID DESC LIMIT ?")
+	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM (SELECT * FROM LedgerMarker WHERE BID=? and RAID=0 and Dt<=? ORDER BY Dt DESC) AS t1 GROUP BY LID")
+	RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM (SELECT * FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 and Dt<=? ORDER BY Dt DESC) AS t1 GROUP BY LID")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and Dt<=? ORDER BY Dt DESC LIMIT 1")
+	RRdb.Prepstmt.GetLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and Dt<=? ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=? and Dt<=?  ORDER BY Dt DESC LIMIT 1")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RID=? and Dt<=?  ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.Dbrr.Prepare("DELETE FROM LedgerMarker WHERE LMID=?")
 	Errcheck(err)
@@ -557,7 +563,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rental Agreement
 	//===============================
-	flds = "RAID,RATID,BID,NLID,AgreementStart,AgreementStop,PossessionStart,PossessionStop,RentStart,RentStop,Renewal,SpecialProvisions,LastModTime,LastModBy"
+	flds = "RAID,RATID,BID,NLID,AgreementStart,AgreementStop,PossessionStart,PossessionStop,RentStart,RentStop,RentCycleEpoch,Renewal,SpecialProvisions,LeaseType,ExpenseAdjustmentType,ExpensesStop,ExpenseStopCalculation,BaseYearEnd,ExpenseAdjustment,EstimatedCharges,RateChange,NextRateChange,PermittedUses,ExclusiveUses,ExtensionOption,ExtensionOptionNotice,ExpansionOption,ExpansionOptionNotice,RightOfFirstRefusal,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreement where BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreement, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreement WHERE RAID=?")
@@ -567,6 +573,8 @@ func buildPreparedStatements() {
 
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreement (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentalAgreement, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreement SET " + s3 + " WHERE RAID=?")
 	Errcheck(err)
 
 	RRdb.Prepstmt.GetAllRentalAgreements, err = RRdb.Dbrr.Prepare("SELECT RAID from RentalAgreement WHERE BID=?")

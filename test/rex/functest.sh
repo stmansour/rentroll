@@ -125,29 +125,36 @@ do
 -----------------------------------------
    R E N T R O L L  --  R E P O R T S
 -----------------------------------------
-A)  Assessments
-B)  Business
-C)  Chart of Accounts
-CA) Custom Attributes
-DY) Depositories 
-I)  Invoice
-IR) Invoice Report
-J)  Journal
-L)  Ledger
-LA) Ledger Activity
-LB) Ledger Balance
-NT) Note Types
-P)  People
-PE) Pets
-PT) Payment Types
-R)  Receipts
-RA) Rental Agreements
-RE) Rentables
-RS) Rentable Specialty Assignments
-RT) Rentable Types
-S)  Rentable Specialties
-T)  Rental Agreement Templates
-U)  Custom Attribute Assignments
+A)   Assessments
+B)   Business
+C)   Chart of Accounts
+CA)  Custom Attributes
+DY)  Depositories 
+G)   GSR
+I)   Invoice
+IR)  Invoice Report
+J)   Journal
+L)   Ledger
+LA)  Ledger Activity
+LB)  Ledger Balance
+NT)  Note Types
+P)   People
+PE)  Pets
+PT)  Payment Types
+R)   Receipts
+RA)  Rental Agreements
+RAB) Rental Agreement Account Balance
+RC)  Rentable Count by Rentable Type
+RE)  Rentables
+RP)  RatePlans
+RR)  RentRoll
+RPR) RatePlanRef
+RS)  Rentable Specialty Assignments
+RT)  Rentable Types
+S)   Rentable Specialties
+ST)  Statements
+T)   Rental Agreement Templates
+U)   Custom Attribute Assignments
 
 
 X) Exit
@@ -158,31 +165,39 @@ EOF
 	read -p "Enter choice: " choice
 	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
 	case ${choice} in
-		ir)	app "-r 9,IN00001" ;;
-		 j)	app "-r 1" ;;
-		 l)	app "-r 2" ;;
-		la)	app "-r 10" ;;
-		lb)	app "-r 6" ;;
-		 a)	csvload "-L 11,${BUD}" ;;
-		 b)	csvload "-L 3" ;;
-		 c)	csvload "-L 10,${BUD}" ;;
-		ca)	csvload "-L 14" ;;
-		dy)	csvload "-L 18,${BUD}" ;;
-		 i)	csvload "-L 20,${BUD}" ;;
-		nt)	csvload "-L 17,${BUD}" ;;
-		 p)	csvload "-L 7,${BUD}" ;;
-		pe)	csvload "-L 16,RA0002" ;;
-		pt)	csvload "-L 12,${BUD}" ;;
-		 r) csvload "-L 13,${BUD}" ;;
-		ra) csvload "-L 9,${BUD}" ;;
-		re) csvload "-L 6,${BUD}" ;;
-		rs) csvload "-L 22,${BUD}" ;;
-		rt) csvload "-L 5,${BUD}" ;;
-		 s) csvload "-L 21,${BUD}" ;;
-		 t) csvload "-L 8" ;;
-		 u) csvload "-L 15" ;;
-		 x)	exit 0 ;;
-		*)	echo "Unknown report: ${choice}"
+		 ir) app "-r 9,IN00001" ;;
+		  j) app "-r 1" ;;
+		  l) app "-r 2" ;;
+		 la) app "-r 10" ;;
+		 lb) app "-r 6" ;;
+		  a) csvload "-L 11,${BUD}" ;;
+		  b) csvload "-L 3" ;;
+		  c) csvload "-L 10,${BUD}" ;;
+		 ca) csvload "-L 14" ;;
+		 dy) csvload "-L 18,${BUD}" ;;
+		  g) app "-r 11" ;;
+		  i) csvload "-L 20,${BUD}" ;;
+		 nt) csvload "-L 17,${BUD}" ;;
+		  p) csvload "-L 7,${BUD}" ;;
+		 pe) csvload "-L 16,RA0002" ;;
+		 pt) csvload "-L 12,${BUD}" ;;
+		  q) exit 0 ;;
+		  r) csvload "-L 13,${BUD}" ;;
+		 ra) csvload "-L 9,${BUD}" ;;
+		rab) app "-r 12,11,RA001,2016-07-04"; app "-r 12,9,RA001,2016-07-04" ;;
+		 rc) app "-r 7" ;;
+		 re) csvload "-L 6,${BUD}" ;;
+		 rp) csvload "-L 26,REX" ;;
+		rpr) csvload "-L 27,REX" ;;
+		 rr) app "-r 4" ;;
+		 rs) csvload "-L 22,${BUD}" ;;
+		 rt) csvload "-L 5,${BUD}" ;;
+		  s) csvload "-L 21,${BUD}" ;;
+		 st) app "-r 8" ;;
+		  t) csvload "-L 8" ;;
+		  u) csvload "-L 15" ;;
+		  x)	exit 0 ;;
+		  *)	echo "Unknown report: ${choice}"
 	esac
 	pause
 done

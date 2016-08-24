@@ -66,7 +66,7 @@ func UpdateLedgerMarker(lm *LedgerMarker) error {
 	// 	fmt.Printf("UpdateLedgerMarker: lm.RAID = %d\n", lm.RAID)
 	// 	debug.PrintStack()
 	// }
-	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LID, lm.BID, lm.RAID, lm.Dt, lm.Balance, lm.State, lm.LastModBy, lm.LMID)
+	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(lm.LID, lm.BID, lm.RAID, lm.RID, lm.Dt, lm.Balance, lm.State, lm.LastModBy, lm.LMID)
 	if nil != err {
 		Ulog("UpdateLedgerMarker: error updating LedgerMarker:  %v\n", err)
 		Ulog("LedgerMarker = %#v\n", *lm)
@@ -133,6 +133,16 @@ func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 	if nil != err {
 		Ulog("UpdateRatePlanRefSPRate: error:  %v\n", err)
 		Ulog("RatePlanRefSPRate = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRentalAgreement updates a RentalAgreement record in the database
+func UpdateRentalAgreement(a *RentalAgreement) error {
+	_, err := RRdb.Prepstmt.UpdateRentalAgreement.Exec(a.RATID, a.BID, a.NLID, a.AgreementStart, a.AgreementStop, a.PossessionStart, a.PossessionStop, a.RentStart, a.RentStop, a.RentCycleEpoch, a.Renewal, a.SpecialProvisions, a.LeaseType, a.ExpenseAdjustmentType, a.ExpensesStop, a.ExpenseStopCalculation, a.BaseYearEnd, a.ExpenseAdjustment, a.EstimatedCharges, a.RateChange, a.NextRateChange, a.PermittedUses, a.ExclusiveUses, a.ExtensionOption, a.ExtensionOptionNotice, a.ExpansionOption, a.ExpansionOptionNotice, a.RightOfFirstRefusal, a.LastModBy, a.RAID)
+	if nil != err {
+		Ulog("UpdateRentalAgreement: error updating :  %v\n", err)
+		Ulog("RentalAgreement = %#v\n", *a)
 	}
 	return err
 }

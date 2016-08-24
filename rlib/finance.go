@@ -209,6 +209,20 @@ func GetRAAccountActivity(bid, lid, raid int64, d1, d2 *time.Time) (float64, err
 	return bal, err
 }
 
+// GetRentableAccountActivity returns the summed Amount balance for activity
+// in GLAccount lid associated with Rentable rid
+func GetRentableAccountActivity(bid, lid, rid int64, d1, d2 *time.Time) (float64, error) {
+	var bal = float64(0)
+	m, err := GetLedgerEntriesForRentable(d1, d2, rid, lid)
+	if err != nil {
+		return bal, err
+	}
+	for i := 0; i < len(m); i++ {
+		bal += m[i].Amount
+	}
+	return bal, err
+}
+
 // GetRAAccountBalance returns the balance of the account with LID lid on date dt. If raid is 0 then all
 // transactions are considered. Otherwise, only transactions involving this RAID are considered.
 func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
@@ -238,6 +252,25 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 	bal += activity
 
 	// fmt.Printf("====>  balance = %.2f\n", bal)
+	return bal
+}
+
+// GetRentableAccountBalance returns the balance of the account with LID lid on date dt. If rid is 0 then all
+// transactions are considered. Otherwise, only transactions involving this RID are considered.
+func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
+	bal := float64(0)
+	m := GetGLAccountChildAccts(bid, lid) // if parent acct, get info to compute aggregate balance
+	for i := 0; i < len(m); i++ {
+		bal += GetRentableAccountBalance(bid, m[i], rid, dt) // recurse
+	}
+	// Compute the total for this account. Start by getting any initial balance
+	lm := GetRentableLedgerMarkerOnOrBefore(bid, lid, rid, dt) // find nearest ledgermarker, use it as a basis
+	if lm.LMID > 0 {
+		bal += lm.Balance // we initialize the balance to this amount
+	}
+	// Get the sum of the activeity between requested date and LedgerMarker
+	activity, _ := GetRentableAccountActivity(bid, lid, rid, &lm.Dt, dt)
+	bal += activity
 	return bal
 }
 

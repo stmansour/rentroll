@@ -64,12 +64,9 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 				funcname, lineno, sa[2], s, rlib.GLCASH, rlib.GLLAST)
 			return
 		}
-		l1, err := rlib.GetLedgerByType(l.BID, int64(i))
-		if nil != err {
-			if rlib.IsSQLNoResultsError(err) {
-				rlib.Ulog("%s: line %d - No default rlib.GLAccount %d exists\n", funcname, lineno, i)
-				return
-			}
+		l1 := rlib.GetLedgerByType(l.BID, int64(i))
+		if l1.LID == 0 {
+			return
 		}
 		l = l1            // update existing
 		inserting = false // looks like this is an update
@@ -115,16 +112,16 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	if len(g) > 0 {
 		// if we're inserting a record then it must not already exist
 		if inserting {
-			_, err := rlib.GetLedgerByGLNo(lm.BID, g)
-			if nil == err {
+			ldg := rlib.GetLedgerByGLNo(lm.BID, g)
+			if ldg.LID > 0 {
 				fmt.Printf("%s: line %d - Account already exists: %s\n", funcname, lineno, g)
 				return
 			}
-			// was there an error in finding an account with this GLNo?
-			if !rlib.IsSQLNoResultsError(err) {
-				rlib.Ulog("%s: line %d, GL Account %s already exists\n", funcname, lineno, g)
-				return
-			}
+			// // was there an error in finding an account with this GLNo?
+			// if !rlib.IsSQLNoResultsError(err) {
+			// 	rlib.Ulog("%s: line %d, GL Account %s already exists\n", funcname, lineno, g)
+			// 	return
+			// }
 		}
 		l.GLNumber = g
 	}
@@ -135,9 +132,9 @@ func CreateLedgerMarkers(sa []string, lineno int) {
 	l.PLID = int64(0) // assume no parent
 	g = strings.TrimSpace(sa[3])
 	if len(g) > 0 {
-		parent, err := rlib.GetLedgerByGLNo(l.BID, g)
-		if nil != err {
-			fmt.Printf("%s: line %d - Error getting GLAccount: %s,  error = %s\n", funcname, lineno, g, err.Error())
+		parent := rlib.GetLedgerByGLNo(l.BID, g)
+		if parent.LID == 0 {
+			fmt.Printf("%s: line %d - Error getting GLAccount: %s\n", funcname, lineno, g)
 			return
 		}
 		l.PLID = parent.LID

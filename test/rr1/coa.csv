@@ -1,0 +1,9 @@
+BUD,Name,GL Number,Parent GLNumber,Collective,Account Type,Balance,GL Account Status,RAAssociated,Type,Date,AllowPost,RARequired,Manage To Budget,Description
+REX,Cash,10000,,,Bank Account,0,active,Associated,10,6/30/16,yes,0,0,
+REX,Loss (Gain) to Lease,41102,,,Income,0,active,Associated,13,6/30/16,yes,2,0,
+REX,Owners' Equity,39000,,,Equity,0,active,Associated,17,6/30/16,yes,0,0,
+REX,Vacancy,41101,,,Income,0,active,Associated,14,6/30/16,yes,0,0,
+REX,Forfeited Security Deposit,41413,,,Income,0,active,Associated,15,6/30/16,yes,2,0,
+REX,Accounts Receivable,12000,,,Current Asset,0,active,Associated,11,6/30/16,yes,0,0,
+REX,Unit Gross Scheduled Rent-Taxable,41000,,,Income,0,active,Associated,12,6/30/16,yes,0,0,
+REX,Security Deposits,30000,,,Current Liabilities,0,active,Associated,16,6/30/16,yes,2,0,
