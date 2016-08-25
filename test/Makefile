@@ -5,12 +5,23 @@ db:
 	@echo "*** MAKE completed in test ***"
 
 clean:
+	rm -f testreport.txt
 	for dir in $(DIRS); do make -C $$dir clean;done
 	@echo "*** CLEAN completed in test ***"
 	
 test:
+	@echo "Test Report" > testreport.txt
+	@echo "Report Start: \c" >> testreport.txt
+	@date >> testreport.txt
+	@echo >> testreport.txt
+	@echo "Result  Path        Test Name                                 Phases" >> testreport.txt
+	@echo "------  ----------  ----------------------------------------  ------" >> testreport.txt
 	for dir in $(DIRS); do make -C $$dir test;done
+	@echo >> testreport.txt
+	@echo "Report Complete: \c" >> testreport.txt
+	@date >> testreport.txt
 	@echo "*** TEST completed in test ***"
+	@cat testreport.txt
 
 package:
 	for dir in $(DIRS); do make -C $$dir package;done

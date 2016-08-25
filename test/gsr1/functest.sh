@@ -1,5 +1,5 @@
 #!/bin/bash
-TESTNAME="Statement Report"
+TESTNAME="3 Months Books, then Statement"
 TESTSUMMARY="Exercise csv import. Generate books for 3 months. Test Statement report."
 BUD="DHR"
 

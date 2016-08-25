@@ -20,7 +20,6 @@ clean:
 test: package
 	rm -f test/*/err.txt
 	for dir in $(DIRS); do make -C $$dir test;done
-	go test
 	@./errcheck.sh
 
 man: rentroll.1

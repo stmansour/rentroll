@@ -18,7 +18,9 @@ UNAME=$(uname)
 LOGFILE="log"
 MYSQLOPTS=""
 TESTCOUNT=0			## this is an internal counter, your external script should not touch it
-SCRIPTNAME="$0"
+TREPORT="../testreport.txt"
+SCRIPTPATH=$(pwd -P)
+
 
 RRBIN="../../tmp/rentroll"
 RENTROLL="${RRBIN}/rentroll -A"
@@ -318,7 +320,10 @@ dorrtest () {
 logcheck() {
 	echo -n "Test completed: " >> ${LOGFILE}
 	date >> ${LOGFILE}
-	if [ "${SKIPCOMPARE}" = "0" ]; then
+	if [ "${FORCEGOOD}" = "1" ]; then
+		cp ${LOGFILE} ${LOGFILE}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
 		echo -n "PHASE x: Log file check...  "
 		if [ ! -f log.gold -o ! -f log ]; then
 			echo "Missing file -- Required files for this check: log.gold and log"
@@ -341,6 +346,7 @@ logcheck() {
 		UDIFFS=$(diff llog ll.g | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
+			passmsg
 			rm -f ll.g llog
 		else
 			echo "FAILED:  differences are as follows:" >> ${ERRFILE}
@@ -348,6 +354,7 @@ logcheck() {
 			echo >> ${ERRFILE}
 			echo "If the new output is correct:  mv ${LOGFILE} ${LOGFILE}.gold" >> ${ERRFILE}
 			cat ${ERRFILE}
+			failmsg
 			exit 1
 		fi
 	else
@@ -365,11 +372,34 @@ elapsedtime() {
 	msg="ElapsedTime: $(($duration / 60)) min $(($duration % 60)) sec"
 	echo "${msg}" >>${LOGFILE}
 	echo "${msg}"
+
+}
+
+passmsg() {
+	printf "PASSED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+}
+
+failmsg() {
+	printf "FAILED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+}
+
+forcemsg() {
+	printf "FORCED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+}
+
+tdir() {
+	local IFS=/
+	local p n m
+	p=( ${SCRIPTPATH} )
+	n=${#p[@]}
+	m=$(( n-1 ))
+	TESTDIR=${p[$m]}
 }
 
 #--------------------------------------------------------------------------
 #  Handle command line options...
 #--------------------------------------------------------------------------
+tdir
 while getopts "forR:" o; do
 	case "${o}" in
 		r | R)
@@ -388,6 +418,7 @@ while getopts "forR:" o; do
 	esac
 done
 shift $((OPTIND-1))
+
 
 rm -f ${ERRFILE}
 echo    "Test Name:    ${TESTNAME}" > ${LOGFILE}

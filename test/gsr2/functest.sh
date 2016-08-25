@@ -1,5 +1,5 @@
 #!/bin/bash
-TESTNAME="Statement Report"
+TESTNAME="3 Months Books, then Delinquency Report"
 TESTSUMMARY="Verify Delinquency Reports"
 
 source ../share/base.sh

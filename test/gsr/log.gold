@@ -1,6 +1,6 @@
-Test Name:    Statement Report
+Test Name:    3 Months of Books, then Statement Report
 Test Purpose: Exercise csv import. Generate books for 3 months. Test Statement report.
-Date/Time:    Wed Aug 24 19:07:06 PDT 2016
+Date/Time:    Thu Aug 25 14:03:01 PDT 2016
 
 Create new database...  successful
-Test completed: Wed Aug 24 19:07:08 PDT 2016
+Test completed: Thu Aug 25 14:03:03 PDT 2016

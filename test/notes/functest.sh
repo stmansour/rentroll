@@ -1,10 +1,11 @@
 #!/bin/bash
-TESTNAME="Statement Report"
-TESTSUMMARY="Exercise csv import. Generate books for 3 months. Test Statement report."
+TESTNAME="Notes Tester, Note Types"
+TESTSUMMARY="Generate NoteList, Add Notes and Note Replies"
 
 source ../share/base.sh
 
-${RRBIN}/rrloadcsv -b nb.csv -O nt.csv
+docsvtest "a" "-b nb.csv -O nt.csv -L 17,${BUD}" "Notes"
+
 ./notes > ${LOGFILE}
 
 logcheck
