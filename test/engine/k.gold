@@ -1,13 +1,33 @@
-RENTABLE COUNTS BY RENTABLE TYPE
-Springfield Retirement Castle
-November 1, 2015 to December 1, 2015
+SPRINGFIELD RETIREMENT CASTLE
+INVOICE
 
-No. Rentables  RentableType Name     Style   Custom Attributes
---------------------------------------------------------------
-            2  Carport               CPT   
-            2  Flat Studio           FS       Square Feet: 726
-            2  Geezer Miser          GM       Square Feet: 385
-            1  KD Suite              KDS      Square Feet: 1123
-            2  SB Loft               SBL      Square Feet: 770
-            0  Vehicle               CAR   
+Date:           11/1/2015
+Invoice Number: IN00000001
 
+Remit To:       BH Rexford Group, Inc.
+                11719 Bee Cave Road
+                Suite 301
+                Austin, TX 78738 USA
+
+Due From:       Homer Simpson 
+                744 Evergreen Terrace
+                Springfield, MO 64055 USA
+
+                Marge Simpson 
+                744 Evergreen Terrace
+                Springfield, MO 64055 USA
+
+Delivered By:   US Mail
+
+Amount Due:     446.68
+Date Due:       11/30/2015
+
+Date        AssessmentID  Rentable         Description                                     Amount  Comment             
+-----------------------------------------------------------------------------------------------------------------------
+11/21/2015  ASM00000015   101              Gross Scheduled Rent                            400.00  Prorated: 10 days out of 30
+11/21/2015  ASM00000018   101              Lake View                                        16.67  Prorated: 10 days out of 30
+11/21/2015  ASM00000019   101              Fireplace                                         6.67  Prorated: 10 days out of 30
+11/21/2015  ASM00000021   CP001            Carport                                          11.67  Prorated: 10 days out of 30
+11/21/2015  ASM00000022   CP002            Carport                                          11.67  Prorated: 10 days out of 30
+-----------------------------------------------------------------------------------------------------------------------
+Total                                                                                      446.68

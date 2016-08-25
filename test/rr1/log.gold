@@ -1,5 +1,6 @@
-CSV IMPORT TEST
-Date/Time: Wed Aug 24 14:41:33 PDT 2016
+Test Name:    Renter Changing During RentCycle
+Test Purpose: Tests changing Rental Agreements multiple times during a rent cycle
+Date/Time:    Thu Aug 25 01:11:28 PDT 2016
 
-CREATE NEW DATABASE
-
+Create new database...  successful
+Test completed: Thu Aug 25 01:11:30 PDT 2016

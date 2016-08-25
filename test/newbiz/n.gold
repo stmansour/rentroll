@@ -1,9 +1,11 @@
-RAID	RATID	BID	AgreementStart	AgreementStop	Renewal	SpecialProvisions	LastModBy
-1	1	1	2004-01-01	2015-11-08	1	Some Special Provisions	0
-2	1	1	2004-01-01	2017-07-04	1	I am a special provision	0
-3	1	1	2004-01-01	2017-07-04	1		0
-4	1	1	2004-01-01	2017-07-04	1		0
-5	1	1	2004-01-01	2017-07-04	1		0
-6	1	1	2004-01-01	2017-07-04	1		0
-7	1	1	2004-01-01	2017-07-04	1		0
-8	1	1	2015-11-21	2016-11-21	1		0
+TCID	BID	FirstName	MiddleName	LastName	CompanyName	IsCompany	PrimaryEmail	SecondaryEmail	WorkPhone	CellPhone	Address	Address2	City	State	PostalCode	Country	LastModBy
+1	1	Edna		Krabappel	Springfield Elementary School	0			816-123-4561								0
+2	1	Ned		Flanders	The Leftorium	0			816-123-4562								0
+3	1	Moe		Szyslak	Moe's Tavern	0			816-123-4563								0
+4	1	Montgomery		Burns	Springfield Nuclear Power	0			816-123-4564								0
+5	1	Nelson		Muntz		0			816-123-4565								0
+6	1	Milhouse		Van Houten		0			816-123-4566								0
+7	1	Clancey		Wiggum	Springfield Police Department	0			816-123-4567								0
+8	1	Homer	J	Simpson		0	homerj@springfield.com		816-123-4568		744 Evergreen Terrace		Springfield	MO	64001	USA	0
+9	1	Seymour		Skinner		0	sskinner@sfelementary.com	beefcakes@hotmail.com	816-123-4569	816-321-4568	123 Elm Terrace	Apt #1	Springfield	MO	64001	USA	0
+10	1				Seven Eleven Corporation	1			816-398-4561								0

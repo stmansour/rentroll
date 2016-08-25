@@ -1,0 +1,7 @@
+CreateRentableSpecialtyRefsCSV: line 14 - could not find a rlib.RentableSpecialty named Sauna in rlib.Business 1
+RSPID        BID        Name                                   Fee  Description    
+RSP00000002  B00000001  Courtyard View                       50.00  Rear windows view the courtyard
+RSP00000004  B00000001  Fireplace                            20.00  Wood burning, gas fireplace
+RSP00000001  B00000001  Lake View                            50.00  Overlooks the lake
+RSP00000003  B00000001  Top Floor                           100.00  Penthouse
+

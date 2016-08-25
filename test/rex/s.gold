@@ -1,0 +1,40 @@
+   =========================================================================================================================
+   Business:  JGM First, LLC
+   03/01/16 - 03/31/16
+   -------------------------------------------------------------------------------------------------------------------------
+   Description                                                       Date    RntAgr         Rentable     GL No        Amount
+   -------------------------------------------------------------------------------------------------------------------------
+   J00000001  Gross Schedule Rent  309 Rexford [Rex1, monthly] 
+                                    General Accounts Receivable  03/01/16         1      309 Rexford     11001       3750.00
+                                            Gross Schedule Rent  03/01/16         1      309 Rexford     50201      -3750.00
+                                                  Loss to Lease  03/01/16         1      309 Rexford     50255          0.00
+                                                               
+   J00000002  Gross Schedule Rent  309 1/2 Rexford [Rex2, monthly] 
+                                    General Accounts Receivable  03/01/16         2  309 1/2 Rexford     11001       3550.00
+                                            Gross Schedule Rent  03/01/16         2  309 1/2 Rexford     50201      -3550.00
+                                                  Loss to Lease  03/01/16         2  309 1/2 Rexford     50255          0.00
+                                                               
+   J00000003  Forfeited Security Deposit  311 Rexford [Rex3]   
+                                     Security Deposits Assessed  03/01/16         3      311 Rexford     11002       2434.71
+                                     Forfeited Security Deposit  03/01/16         3      311 Rexford     50213      -2434.71
+                                                               
+   J00000004  Security Deposit Receivable  311 Rexford [Rex3]  
+                                     Security Deposits Assessed  03/01/16         3      311 Rexford     11002        865.29
+                                          AP Cash Dispersements  03/01/16         3      311 Rexford     59997       -865.29
+                                                               
+   J00000005  Unassociated: 311 Rexford vacant Mar 1 - Apr 1   
+                                            Gross Schedule Rent  03/31/16         0      311 Rexford     50201      -4400.00
+                                                        Vacancy  03/31/16         0      311 Rexford     50251       4400.00
+   J00000006  Unassociated: 311 1/2 Rexford vacant Mar 1 - Apr 1
+                                            Gross Schedule Rent  03/31/16         0  311 1/2 Rexford     50201      -2500.00
+                                                        Vacancy  03/31/16         0  311 1/2 Rexford     50251       2500.00
+   J00000007  Payment - Read,Read   #8832  3750.00             
+   	Gross Schedule Rent                                        
+                                    General Accounts Receivable  03/01/16         1      309 Rexford     11001      -3750.00
+                                                  Cash Deposits  03/01/16         1      309 Rexford     59998       3750.00
+                                                               
+   J00000008  Payment - Costea,Costea   #2773  3550.00         
+   	Gross Schedule Rent                                        
+                                    General Accounts Receivable  03/02/16         2  309 1/2 Rexford     11001      -3550.00
+                                                  Cash Deposits  03/02/16         2  309 1/2 Rexford     59998       3550.00
+                                                               

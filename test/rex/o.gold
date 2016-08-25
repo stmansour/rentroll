@@ -1,0 +1,4 @@
+      RCPTID     Amount  AcctRule
+RCPT00000001    3750.00  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _
+RCPT00000002    3550.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _
+

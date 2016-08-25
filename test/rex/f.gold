@@ -1,0 +1,7 @@
+RTID        Style                 Name                       RentCycle  ProrateCycle  Dt1 - Dt2 : Rate
+----        -----                 ----                       ---------  ------------  ----------------
+RT00000001  Rex1                  309 Rexford                monthly    daily         |  01/01/2014 - 01/01/2017 $  3750.00
+RT00000002  Rex2                  309 1/2 Rexford            monthly    daily         |  01/01/2014 - 01/01/2017 $  3550.00
+RT00000003  Rex3                  311 Rexford                monthly    daily         |  01/01/2014 - 01/01/2017 $  4400.00
+RT00000004  Rex4                  311 1/2 Rexford            monthly    daily         |  01/01/2014 - 01/01/2017 $  2500.00
+

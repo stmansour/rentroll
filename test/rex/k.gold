@@ -1,30 +1,3 @@
-INVOICE REPORT
-JGM FIRST, LLC
-INVOICE
+PETID        RAID        Name                       Type             Breed            Color            Weight     DtStart     DtStop    
+PET00000001  RA00000001  T-Bone                     Dog              Chihuahua        brown              7.50 lb  2004-01-01            
 
-Date:           6/1/2016
-Invoice Number: IN00000001
-
-Remit To:       BH Rexford Group, Inc.
-                11719 Bee Cave Road
-                Suite 301
-                Austin, TX 78738 USA
-
-Due From:       Aaron Read 
-                309 South Rexford
-                Beverly Hills, CA 90210 USA
-
-                Kirsten Read 
-                309 South Rexford
-                Beverly Hills, CA 90210 USA
-
-Delivered By:   US Mail
-
-Amount Due:     3,750.00
-Date Due:       7/1/2016
-
-Date        AssessmentID  Rentable         Description                                     Amount  Comment             
------------------------------------------------------------------------------------------------------------------------
-3/1/2016    ASM00000006   309 Rexford      Gross Schedule Rent                           3,750.00                      
------------------------------------------------------------------------------------------------------------------------
-Total                                                                                    3,750.00

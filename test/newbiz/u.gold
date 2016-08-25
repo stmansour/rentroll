@@ -1,4 +1,5 @@
-BLDGID	BID	Address	Address2	City	State	PostalCode	Country	LastModBy
-1	1	2001 Creaking Oak Drive		Springfield	MO	65803	USA	0
-2	1	3333 Creaking Oak Drive		Springfield	MO	65803	USA	0
-7	1	2002 Creaking Oak Drive		Springfield	MO	65803	USA	0
+NID	PNID	Comment	LastModBy
+1	0	Edna we will miss you	0
+2	0	I am a rental agreement note	0
+3	0	I am another note	0
+4	0	I am yet another note!	0

@@ -1,10 +1,2 @@
-RID	BID	Name	AssignmentTime	LastModBy
-1	1	101	1	0
-2	1	102	1	0
-3	1	103	1	0
-4	1	104	1	0
-5	1	105	1	0
-6	1	106	1	0
-7	1	107	1	0
-8	1	CP001	1	0
-9	1	CP002	1	0
+PETID	RAID	Type	Breed	Color	Weight	Name	DtStart	DtStop	LastModBy
+1	8	Dog	Greyhound	gray	34.5000	Santa's Little Helper	2015-03-21	9999-01-01	0

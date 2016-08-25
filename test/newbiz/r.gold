@@ -1,11 +1,5 @@
-TCID	Points	CarMake	CarModel	CarColor	CarYear	LicensePlateState	LicensePlateNumber	ParkingPermitNumber	DateofBirth	EmergencyContactName	EmergencyContactAddress	EmergencyContactTelephone	EmergencyEmail	AlternateAddress	EligibleFutureUser	Industry	DSID
-1	0				0				0000-00-00						0		0
-2	0				0				0000-00-00						0		0
-3	0				0				0000-00-00						0		0
-4	0				0				0000-00-00						0		0
-5	0				0				0000-00-00						0		0
-6	0				0				0000-00-00						0		0
-7	0				0				0000-00-00						0		0
-8	5987		Canyonero	red	0	MO	BR549		0000-00-00	Marge Simpson	744 Evergreen Terrace	654-183-7946	blue@springfield.com		0	Nuclean Power	0
-9	5987	Ford	Canyonero	red	2002	MO	BR549	P0001	0000-00-00	Agnes Skinner	123 Elm Terrace	654-183-7946	oldhag@springfield.com	Old Hags of Springfield Clubhouse	1	Education	1
-10	0				0				0000-00-00						0		0
+RATID	BID	RentalTemplateNumber	LastModBy
+1	1	RAT001	0
+2	1	RAT002	0
+3	1	RAT003	0
+4	1	RAT004	0

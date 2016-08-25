@@ -1,5 +1,6 @@
-CSV IMPORT TEST
-Date/Time: Wed Aug 17 22:17:19 PDT 2016
+Test Name:    RentRoll Report
+Test Purpose: Test the RentRoll Report
+Date/Time:    Thu Aug 25 10:22:23 PDT 2016
 
-CREATE NEW DATABASE
-
+Create new database...  successful
+Test completed: Thu Aug 25 10:22:25 PDT 2016

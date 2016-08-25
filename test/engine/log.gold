@@ -1,0 +1,6 @@
+Test Name:    Basic Engine Test
+Test Purpose: Generate journals and ledgers for 1 month. Tests proration, Invoice and Deposit, CustomAttributes, AssessmentChecker
+Date/Time:    Wed Aug 24 21:40:25 PDT 2016
+
+Create new database...  successful
+Test completed: Wed Aug 24 21:40:26 PDT 2016

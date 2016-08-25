@@ -1,5 +1,5 @@
 BUD,Name,Description
-DHR,"Cash","Cash"
-DHR,"Check","Personal check from payor"
-DHR,"VISA","Credit card charge"
-DHR,"AMEX","American Express credit card"
+REX,"Cash","Cash"
+REX,"Check","Personal check from payor"
+REX,"VISA","Credit card charge"
+REX,"AMEX","American Express credit card"

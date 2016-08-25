@@ -1,0 +1,22 @@
+Statement  -  Rental Agreement RA00000001   Payor(s): Aaron Read, Kirsten Read
+Period  Mar 1, 2016 - Mar 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-03-01               Opening Balance                                                               0.00
+2016-03-01  ASM00000006  Gross Schedule Rent                           3,750.00                    3,750.00
+2016-03-01  R0000000001  Payment received                                           -3,750.00      7,500.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,750.00     -3,750.00          0.00
+
+Statement  -  Rental Agreement RA00000002   Payor(s): Rita Costea, Daniel Costea
+Period  Mar 1, 2016 - Mar 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-03-01               Opening Balance                                                               0.00
+2016-03-01  ASM00000007  Gross Schedule Rent                           3,550.00                    3,550.00
+2016-03-02  R0000000002  Payment received                                           -3,550.00      7,100.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,550.00     -3,550.00          0.00
+

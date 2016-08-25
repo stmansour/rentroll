@@ -1,5 +1,6 @@
-CSV IMPORT TEST
-Date/Time: Tue Aug 23 18:45:09 PDT 2016
+Test Name:    Statement Report
+Test Purpose: Verify Delinquency Reports
+Date/Time:    Wed Aug 24 20:52:15 PDT 2016
 
-CREATE NEW DATABASE
-
+Create new database...  successful
+Test completed: Wed Aug 24 20:52:17 PDT 2016

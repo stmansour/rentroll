@@ -1,4 +1,6 @@
-CREATE INVOICE
-Date         InvoiceNo  BID        Due Date    Amount    DeliveredBy    
-2016-06-01  IN00000001  B00000001  2016-07-01   3750.00  US Mail        
+RATID  BID         RentalTemplateNumber
+    1  B00000001   RAT001
+    2  B00000001   RAT002
+    3  B00000001   RAT003
+    4  B00000001   RAT004
 
