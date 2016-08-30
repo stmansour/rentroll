@@ -24,7 +24,7 @@ func DeleteCustomAttributeRef(elemid, id, cid int64) error {
 func DeleteDemandSource(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteDemandSource.Exec(id)
 	if err != nil {
-		Ulog("Error deleting DemandSource for DSID=%d error: %v\n", id, err)
+		Ulog("Error deleting DemandSource for SourceSLSID=%d error: %v\n", id, err)
 	}
 	return err
 }

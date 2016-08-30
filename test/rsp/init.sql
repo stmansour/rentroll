@@ -88,10 +88,8 @@ INSERT INTO AvailabilityTypes (Name) VALUES
 
 
 -- define the Business
--- INSERT INTO Business (Name,Address,Address2,City,State,PostalCode,Country,Phone,DefaultRentalPeriod,ParkingPermitInUse) VALUES
--- 	("Springfield Retirement Castle","2001 Creaking Oak Drive","","Springfield","MO","65803","USA","939-555-1000",3,0);
-INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
-	("SRC", "Springfield Retirement Castle",4,0);
+INSERT INTO Business (BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC) VALUES
+	("SRC", "Springfield Retirement Castle",6,4,4);
 
 -- =======================================================================
 --  RENTABLE TYPES

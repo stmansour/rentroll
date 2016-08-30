@@ -10,9 +10,19 @@ func UpdateAssessment(a *Assessment) error {
 	return err
 }
 
+// UpdateBusiness updates an Business record
+func UpdateBusiness(a *Business) error {
+	_, err := RRdb.Prepstmt.UpdateBusiness.Exec(a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.LastModBy, a.BID)
+	if nil != err {
+		Ulog("UpdateBusiness: error updating Business:  %v\n", err)
+		Ulog("Business = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateDemandSource updates a DemandSource record in the database
 func UpdateDemandSource(a *DemandSource) error {
-	_, err := RRdb.Prepstmt.UpdateDemandSource.Exec(a.Name, a.Industry, a.LastModBy, a.DSID)
+	_, err := RRdb.Prepstmt.UpdateDemandSource.Exec(a.Name, a.Industry, a.LastModBy, a.SourceSLSID)
 	if nil != err {
 		Ulog("UpdateDemandSource: error updating DemandSource:  %v\n", err)
 		Ulog("DemandSource = %#v\n", *a)
@@ -88,7 +98,7 @@ func UpdateLedger(l *GLAccount) error {
 func UpdateProspect(a *Prospect) error {
 	_, err := RRdb.Prepstmt.UpdateProspect.Exec(a.TCID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
 		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
-		a.DesiredMoveInDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
+		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy, a.TCID)
 	if nil != err {
 		Ulog("UpdateProspect: error updating pet:  %v\n", err)

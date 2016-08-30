@@ -72,7 +72,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1, _ := rlib.GetBusinessByDesignation(des)
+		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
 			rlib.Ulog("%s: line %d - rlib.Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return

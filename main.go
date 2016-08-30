@@ -47,7 +47,6 @@ var App struct {
 	PortRR    int      // port on which rentroll listens
 	DBUser    string   // user for all databases
 	Report    string   // if testing engine, which report/action to perform
-	bizfile   string   // TEMPORARY - tests loading bizcsv
 	LogFile   *os.File // where to log messages
 	BatchMode bool     // if true, then don't start http, the command line request is for a batch process
 	sStart    string   //start time
@@ -69,21 +68,19 @@ func readCommandLineArgs() {
 	pStart := flag.String("j", "2015-11-01", "Accounting Period start time")
 	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
-	bizPtr := flag.String("b", "b.csv", "add Business via csv file")
 	rptPtr := flag.String("r", "0", "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable, 4=Rentroll, 5=AssessmentCheck, 6=LedgerBalance, 7=RentableCountByType, 8=Statement, 9=Invoice, 10=LedgerActivity, 11=RentableGSR, 12-RALedgerBalanceOnDate,LID,RAID,Date, 13-RAAcctActivity,LID,RAID, 14,Date=delinqRpt")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 
 	flag.Parse()
 	if *verPtr {
-		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
+		fmt.Printf("Version:    %s\nBuild Time: %s\nBuild Machine: %s\n", getVersionNo(), getBuildTime(), getBuildMachine())
 		os.Exit(0)
 	}
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.Report = *rptPtr
-	App.bizfile = *bizPtr
 	App.sStart = *pStart
 	App.sStop = *pStop
 	App.PortRR = *portPtr

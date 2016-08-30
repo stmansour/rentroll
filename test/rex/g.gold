@@ -1,7 +1,9 @@
-      TCID  ISCO  CELL PHONE    PRIMARY EMAIL              NAME                            COMPANY                  
-TC00000001     0  123-456-7890  aaron@rexford.com          Read         , Aaron            Mystery Co               
-TC00000002     0  123-456-7891  kirsten@rexford.com        Read         , Kirsten          Chapel Hill Golf         
-TC00000003     0  123-456-7892  rita@rexford.com           Costea       , Rita                                      
-TC00000004     0  123-456-7893  daniel@rexford.com         Costea       , Daniel                                    
-TC00000005     0  123-456-7894  gagik@rexford.com          Haroutunian  , Gagik                                     
+                             Middle                                        Is                                                   
+TCID        First Name       Name        Last Name        Company          Company  Cell Phone         Primary Email            
+----------  ---------------  ----------  ---------------  ---------------  -------  -----------------  -------------------------
+TC00000001  Aaron                        Read             Mystery Co       No       123-456-7890       aaron@rexford.com        
+TC00000002  Kirsten                      Read             Chapel Hill Gol  No       123-456-7891       kirsten@rexford.com      
+TC00000003  Rita                         Costea                            No       123-456-7892       rita@rexford.com         
+TC00000004  Daniel                       Costea                            No       123-456-7893       daniel@rexford.com       
+TC00000005  Gagik                        Haroutunian                       No       123-456-7894       gagik@rexford.com        
 

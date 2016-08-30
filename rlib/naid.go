@@ -24,6 +24,11 @@ func (t *Business) IDtoString() string {
 	return fmt.Sprintf("B%08d", t.BID)
 }
 
+// IDtoString is the method to produce a consistent printable id string
+func (t *GLAccount) IDtoString() string {
+	return fmt.Sprintf("L%08d", t.LID)
+}
+
 //-------------------------------------------------
 //  INVOICE
 //-------------------------------------------------
@@ -31,6 +36,11 @@ func (t *Business) IDtoString() string {
 // IDtoString is the method to produce a consistent printable id string
 func (a *Invoice) IDtoString() string {
 	return fmt.Sprintf("IN%08d", a.InvoiceNo)
+}
+
+// IDtoString is the method to produce a consistent printable id string
+func (a *LedgerMarker) IDtoString() string {
+	return fmt.Sprintf("LM%08d", a.LMID)
 }
 
 //-------------------------------------------------
@@ -112,6 +122,11 @@ func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
 //-------------------------------------------------
 //  TRANSACTANT
 //-------------------------------------------------
+
+// IDtoString for XPerson returns a unique identifier string.
+func (t *XPerson) IDtoString() string {
+	return fmt.Sprintf("TC%08d", t.Trn.TCID)
+}
 
 // GetUserName returns a string with the user's first, middle, and last name
 func (t *Transactant) GetUserName() string {

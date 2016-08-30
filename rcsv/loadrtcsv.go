@@ -12,8 +12,8 @@ func GetBusinessBID(des string) int64 {
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business exists...
 	//-------------------------------------------------------------------
-	b, err := rlib.GetBusinessByDesignation(des)
-	if err != nil || b.BID == 0 {
+	b := rlib.GetBusinessByDesignation(des)
+	if b.BID == 0 {
 		rlib.Ulog("GetBusinessBID: rlib.Business with designation %s does not exist or could not be loaded\n", des)
 		return 0
 	}

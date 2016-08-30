@@ -10,8 +10,8 @@ const (
 	NO  = int64(0) // std negative value
 	YES = int64(1)
 
-	RPTTEXT = 0
-	RPTHTML = 1
+	RPTTEXT = 1
+	RPTHTML = 2
 
 	ELEMPERSON       = 1 // people
 	ELEMCOMPANY      = 2 // companies
@@ -383,7 +383,7 @@ type RentalAgreementPet struct {
 
 // DemandSource is a structure
 type DemandSource struct {
-	DSID        int64     // DemandSource ID
+	SourceSLSID int64     // DemandSource ID
 	BID         int64     // Business unit
 	Name        string    // name of source
 	Industry    string    // what industry is this source in
@@ -431,7 +431,7 @@ type Prospect struct {
 	EmployerPhone          string
 	Occupation             string
 	ApplicationFee         float64   // if non-zero this Prospect is an applicant
-	DesiredMoveInDate      time.Time // predicted rent start date
+	DesiredUsageStartDate  time.Time // predicted rent start date
 	RentableTypePreference int64     // RentableType
 	FLAGS                  uint64    // 0 = Approved/NotApproved,
 	Approver               int64     // UID from Directory
@@ -466,7 +466,7 @@ type User struct {
 	AlternateAddress          string
 	EligibleFutureUser        int64
 	Industry                  string
-	DSID                      int64
+	SourceSLSID               int64
 	LastModTime               time.Time
 	LastModBy                 int64
 }
@@ -514,13 +514,15 @@ type Assessment struct {
 
 // Business is the set of attributes describing a rental or hotel Business
 type Business struct {
-	BID                 int64
-	Designation         string // reference to designation in Phonebook db
-	Name                string
-	DefaultRentalPeriod int64     // may not be default for every Rentable: 0=unset, 1=short term, 2=longterm
-	ParkingPermitInUse  int64     // yes/no  0 = no, 1 = yes
-	LastModTime         time.Time // when was this record last written
-	LastModBy           int64     // employee UID (from phonebook) that modified it
+	BID                   int64
+	Designation           string // reference to designation in Phonebook db
+	Name                  string
+	DefaultRentCycle      int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	DefaultProrationCycle int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	DefaultGSRPC          int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	LastModTime           time.Time // when was this record last written
+	LastModBy             int64     // employee UID (from phonebook) that modified it
+	// ParkingPermitInUse    int64     // yes/no  0 = no, 1 = yes
 }
 
 // Building defines the location of a Building that is part of a Business
@@ -825,11 +827,11 @@ type GLAccount struct {
 	Status         int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Type           int64     // flag: 0 = not a default account, 1-9 reserved, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name           string    // descriptive name for the GLAccount
-	AcctType       string    // Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
+	AcctType       string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	RAAssociated   int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
 	AllowPost      int64     // 0 = no posting, 1 = posting is allowed
 	RARequired     int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-	ManageToBudget int64     //  0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
+	ManageToBudget int64     // 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
 	Description    string    // description for this account
 	LastModTime    time.Time // auto updated
 	LastModBy      int64     // user making the mod
@@ -1068,6 +1070,7 @@ type RRprepSQL struct {
 	UpdateSLString                           *sql.Stmt
 	UpdateStringList                         *sql.Stmt
 	UpdateTransactant                        *sql.Stmt
+	UpdateBusiness                           *sql.Stmt
 	// GetSecDepBalanceLedger                   *sql.Stmt
 	//	GetLedgerMarkerByRAID                    *sql.Stmt
 }

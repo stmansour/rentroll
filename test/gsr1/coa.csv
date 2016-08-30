@@ -1,4 +1,4 @@
-BUD,Name,GLNumber,Parent GLNumber,Collective,AccountType,Balance,Status,RAAssociated,Type,Date,Allow Posting,RARequired,Manage To Budget,Description
+BUD,Name,GLNumber,Parent GLNumber,Collective,Account Type,Balance,Account Status,Associated,Type,Date,Allow Posting,RARequired,Manage To Budget,Description
 DHR,Cash,10000,,,Bank Account,0,active,Unassociated,10,3/1/16,yes,0,0,Main cash account
 DHR,Credit Card Clearing,11000,,,Current Asset,0,active,Unassociated,,3/1/16,yes,0,0,
 DHR,Accounts Receivable,12000,,,Current Asset,0,active,Unassociated,11,3/1/16,yes,0,0,

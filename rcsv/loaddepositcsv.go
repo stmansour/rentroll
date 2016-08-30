@@ -32,7 +32,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) {
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(bud) > 0 {
-		b1, _ := rlib.GetBusinessByDesignation(bud)
+		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
 			rlib.Ulog("%s: line %d - Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return

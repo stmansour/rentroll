@@ -158,12 +158,14 @@ func (t *Table) AdjustColumnHeader(cd *ColumnDef) {
 	maxColWidth := 0
 	for i := 0; i < len(sa); i++ { // spin through all substrings
 		if len(sa[i]) < cd.Width && i+1 < len(sa) { // if the width of this substring is less than the requested width, and we're not at the end of the list
-			if len(sa[i])+len(sa[i+1])+1 < cd.Width { // check to see: is there enough room for the next substring in the list?
-				a = append(a, sa[i]+" "+sa[i+1]) // yes: append the next string to this one
-				i++                              // skip the next element of sa since we've already added it
-			} else {
-				a = append(a, sa[i]) // no: just append the current string and keep going
+			s := sa[i]                         // we know we're adding this one
+			for k := i + 1; k < len(sa); k++ { // take as many as possible
+				if len(s)+len(sa[k])+1 < cd.Width { // if it fits...
+					s += " " + sa[k] // ...add it to the list...
+					i = k            // ...and keep loop in sync
+				}
 			}
+			a = append(a, s)
 		} else {
 			a = append(a, sa[i])
 		}

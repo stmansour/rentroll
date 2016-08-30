@@ -60,7 +60,7 @@ func CreateStringList(sa []string, lineno int) {
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 { // make sure it's not empty
-		b1, _ := rlib.GetBusinessByDesignation(des) // see if we can find the biz
+		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
 			rlib.Ulog("%s: line %d, Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return

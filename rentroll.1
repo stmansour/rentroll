@@ -3,24 +3,88 @@
 rentroll \- Accord Office RentRoll Service
 .SH SYNOPSIS
 .B rentroll
-[\fB\-B\fR 
+[\fB\-A\fR]
 [\fB\-B\fR \fIdatabase_username\fR]
-[\fB\-f\fR \fIfirstname\fR]
 [\fB\-help\fR]
-[\fB\-l\fR \fIlastname\fR]
-[\fB\-N\fR \fIdatabase_name\fR]
-[\fB\-p\fR \fIpasswd\fR]
-[\fB\-R\fR]
-[\fB\-r\fR \fIrole\fR]
-[\fB\-u\fR \fIusername\fR]
+[\fB\-j\fR \fIperiodStartDate\fR]
+[\fB\-k\fR \fIperiodStopDate\fR]
+[\fB\-M\fR \fIrentroll_database_name\fR]
+[\fB\-N\fR \fIdirectory_database_name\fR]
+[\fB\-p\fR \fIport\fR]
+[\fB\-r\fR \fIreportspec\fR]
+[\fB\-v\fR]
 
 .SH DESCRIPTION
 .B Rentroll
-provides the rentroll service in Accord Office. It consists of \fBrentroll(1)\fR, a 
-web server,  and a web-based front end.
-
+is the rentroll service in Accord Office. It can run as a server providing a multi-user web interface.
+It can also run in a command line mode suitable for scripting particular tasks or automated testing.
 
 .SH OPTIONS
+.IP "-A"
+Run rentroll in batch mode, do not start the HTTP service. Be sure to set the date range using -j and -k,
+and set the report using -R.
+.IP "-B database_username"
+Username for logging into the database server. Default name is "ec2-user"
+.IP "-j periodStartDate"
+For use with batch mode operation. Set the period to 
+.I periodStartDate
+which is in the format yyyy-mm-dd.  Example: 2016-05-01
+.IP "-k periodStopDate"
+For use with batch mode operation. Set the period to 
+.I periodStopDate
+which is in the format yyyy-mm-dd.  Example: 2016-06-01.
+.B Note:
+The stop date means "up-to-but-not-including".  Thus the range 
+.I -i 2016-05-01 -j 2016-06-01
+would include May 1, 2016 through May 31, 2016.
+.IP "-M rentroll_database_name"
+Set the name of the rentroll database to 
+.I rentroll_database_name.
+The default name is "rentroll".
+.IP "-N directory_database_name"
+Set the name of the directory database to 
+.I directory_database_name.
+The default name is "accord".
+.IP "-p port"
+Specify the TCP port number on which rentroll listens when running its HTTP service. 
+By default, the port is 8270.
+.IP "-r reportspec"
+Rentroll will generate the following text reports based on a report specification.  The date
+range for all reports is from 
+.I periodStartDate
+to 
+.I periodEndDate
+unless otherwise noted.
+
+.nf
+reportSpec          Description
+------------------- -------------------------------------------
+-r  1               Journal report
+-r  2               Ledger report
+-r  4               Rentroll report
+-r  5               Assessment check report 
+-r  6               Ledger balance report
+-r  7               Rentable count by RentableType
+-r  8               Statement
+-r  9,InvoiceNo     Example -r 9,IN00001  or   -r 9,1
+                    Both examples report Invoice 1.
+-r 10               Ledger activity
+-r 11               Rentable Gross Scheduled Rent
+-r 12,LID,RAID,date Ledger balance on date. LID=LedgerID,
+                    RAID = Rental Agreement ID
+                    date = desired date for balance, yyyy-mm-dd
+-r 13,LID,RAID      Rental Agreement Details over date range.
+                    Example: -r 13,L00004,RA00003
+                             -r 13,4,3
+                    Both examples show all the ledger details
+                    for ledger 4 involving Rental Agreement 3.
+-r 14,date          Delinquency Report for the supplied date.
+                    Example: -r 14,2016-05-25
+.fi
+
+.IP "-v"
+Prints the version number, build machine, and build time of rentroll. No other command line options will
+be executed when this option is specified.
 
 .P
 
@@ -29,9 +93,9 @@ web server,  and a web-based front end.
 .P
 
 .SH BUGS
-No known bugs.
+Please report bugs to sman@accordinterests.com
 
 .SH AUTHOR
 Steve Mansour (sman@accordinterests.com)
 .SH "SEE ALSO"
-.BR phonebook (1)
+.BR phonebook (1), rrloadcsv (1)

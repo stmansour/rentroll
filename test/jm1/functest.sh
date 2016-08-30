@@ -1,5 +1,4 @@
 #!/bin/bash
-
 TESTNAME="JM1"
 TESTSUMMARY="Setup and run JM1 company and the Rexford Properties"
 
@@ -8,10 +7,12 @@ RRDATERANGE="-j 2016-01-01 -k 2016-02-01"
 source ../share/base.sh
 
 docsvtest "a" "-b business.csv -L 3" "Business"
+docsvtest "b" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
+docsvtest "c" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "d" "-l strlists.csv -L 25,${BUD}" "StringLists"
+docsvtest "e" "-p people.csv  -L 7" "People"
+
 #docsvtest "b" "-u custom.csv -L 14" "CustomAttributes"
-#docsvtest "c" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
-#docsvtest "d" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
-#docsvtest "e" "-p people.csv  -L 7" "People"
 #docsvtest "f" "-r rentable.csv -L 6,${BUD}" "Rentables"
 #docsvtest "g" "-T ratemplates.csv  -L 8" "RentalAgreementTemplates"
 #docsvtest "h" "-C ra.csv -L 9,${BUD}" "RentalAgreements"

@@ -194,6 +194,40 @@ OPTIONS
 EOF
 }
 
+##########################################################################
+# elapsedtime()
+# Shows the number of seconds that was needed to run this script
+##########################################################################
+elapsedtime() {
+	duration=$SECONDS
+	msg="ElapsedTime: $(($duration / 60)) min $(($duration % 60)) sec"
+	echo "${msg}" >>${LOGFILE}
+	echo "${msg}"
+
+}
+
+passmsg() {
+	printf "PASSED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+}
+
+failmsg() {
+	printf "FAILED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+}
+
+forcemsg() {
+	printf "FORCED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+}
+
+tdir() {
+	local IFS=/
+	local p n m
+	p=( ${SCRIPTPATH} )
+	n=${#p[@]}
+	m=$(( n-1 ))
+	TESTDIR=${p[$m]}
+}
+
+
 ########################################
 # docsvtest()
 #	Parameters:
@@ -223,6 +257,7 @@ docsvtest () {
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
 			diff ${1}.gold ${1} >> ${ERRFILE}
 			cat ${ERRFILE}
+			failmsg
 			exit 1
 		fi
 	else
@@ -265,6 +300,7 @@ EOF
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
 			diff ${1}.gold ${1} >> ${ERRFILE}
 			cat ${ERRFILE}
+			failmsg
 			exit 1
 		fi
 	else
@@ -301,6 +337,7 @@ dorrtest () {
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
 			diff ${1}.gold ${1} >> ${ERRFILE}
 			cat ${ERRFILE}
+			failmsg
 			exit 1
 		fi
 	else
@@ -327,6 +364,7 @@ logcheck() {
 		echo -n "PHASE x: Log file check...  "
 		if [ ! -f log.gold -o ! -f log ]; then
 			echo "Missing file -- Required files for this check: log.gold and log"
+			failmsg
 			exit 1
 		fi
 		declare -a out_filters=(
@@ -361,39 +399,6 @@ logcheck() {
 		echo "FINISHED...  but did not check output"
 	fi
 	elapsedtime
-}
-
-##########################################################################
-# elapsedtime()
-# Shows the number of seconds that was needed to run this script
-##########################################################################
-elapsedtime() {
-	duration=$SECONDS
-	msg="ElapsedTime: $(($duration / 60)) min $(($duration % 60)) sec"
-	echo "${msg}" >>${LOGFILE}
-	echo "${msg}"
-
-}
-
-passmsg() {
-	printf "PASSED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
-}
-
-failmsg() {
-	printf "FAILED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
-}
-
-forcemsg() {
-	printf "FORCED  %-10s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
-}
-
-tdir() {
-	local IFS=/
-	local p n m
-	p=( ${SCRIPTPATH} )
-	n=${#p[@]}
-	m=$(( n-1 ))
-	TESTDIR=${p[$m]}
 }
 
 #--------------------------------------------------------------------------
@@ -435,6 +440,7 @@ else
 	echo " ERROR" >> ${LOGFILE} 2>&1
 	echo "Failed to create new database" > ${ERRFILE}
 	cat ${ERRFILE}
+	failmsg
 	exit 1
 fi
 

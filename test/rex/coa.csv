@@ -1,4 +1,4 @@
-BUD,Name,GLNumber,Parent GLNumber,Collective,Account Type,Balance,GL Account Status,RAAssociated,Type,Date,AllowPost,RARequired,Manage To Budget,Description
+BUD,Name,GLNumber,Parent GLNumber,Collective,Account Type,Balance,Account Status,Associated,Type,Date,Allow Posting,RARequired,Manage To Budget,Description
 REX,Gross Schedule Rent,50201,,,Income,0,active,Unassociated,12,2/29/16,yes,0,0,
 REX,Security Deposits Assessed,11002,,,liability,-13300,active,Associated,16,2/29/16,yes,2,0,
 REX,Late Fees,50211,,,Income,0,active,Associated,,2/29/16,yes,2,0,

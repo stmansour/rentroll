@@ -53,7 +53,7 @@ func InsertBuildingWithID(a *Building) (int64, error) {
 // returns the new Business ID and any associated error
 func InsertBusiness(b *Business) (int64, error) {
 	var bid = int64(0)
-	res, err := RRdb.Prepstmt.InsertBusiness.Exec(b.Designation, b.Name, b.DefaultRentalPeriod, b.ParkingPermitInUse, b.LastModBy)
+	res, err := RRdb.Prepstmt.InsertBusiness.Exec(b.Designation, b.Name, b.DefaultRentCycle, b.DefaultProrationCycle, b.DefaultGSRPC, b.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -412,7 +412,7 @@ func InsertProspect(a *Prospect) (int64, error) {
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertProspect.Exec(a.TCID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
 		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
-		a.DesiredMoveInDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
+		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
@@ -673,7 +673,7 @@ func InsertTransactant(a *Transactant) (int64, error) {
 // InsertUser writes a new User record to the database
 func InsertUser(a *User) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.Points, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.DSID, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.Points, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

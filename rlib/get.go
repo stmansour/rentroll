@@ -104,7 +104,7 @@ func GetAllBusinesses() ([]Business, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var p Business
-		Errcheck(rows.Scan(&p.BID, &p.Designation, &p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+		ReadBusinesses(rows, &p)
 		m = append(m, p)
 	}
 	Errcheck(rows.Err())
@@ -112,17 +112,17 @@ func GetAllBusinesses() ([]Business, error) {
 }
 
 // GetBusiness loads the Business struct for the supplied Business id
-func GetBusiness(bid int64, p *Business) {
-	Errcheck(RRdb.Prepstmt.GetBusiness.QueryRow(bid).Scan(&p.BID, &p.Designation,
-		&p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
+func GetBusiness(bid int64, a *Business) {
+	row := RRdb.Prepstmt.GetBusiness.QueryRow(bid)
+	ReadBusiness(row, a)
 }
 
 // GetBusinessByDesignation loads the Business struct for the supplied designation
-func GetBusinessByDesignation(des string) (Business, error) {
-	var p Business
-	err := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des).Scan(&p.BID, &p.Designation,
-		&p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy)
-	return p, err
+func GetBusinessByDesignation(des string) Business {
+	var a Business
+	row := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des)
+	ReadBusiness(row, &a)
+	return a
 }
 
 // GetXBusiness loads the XBusiness struct for the supplied Business id.

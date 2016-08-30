@@ -1,2 +1,2 @@
-BUD,Name,DefaultRentalPeriod,ParkingPermitInUse
-DHR,Daisy Hills Properties,4,no
+BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC
+DHR,Daisy Hills Properties,6,4,4

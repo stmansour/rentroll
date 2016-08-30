@@ -1,3 +1,7 @@
-   1    REX    JGM First, LLC
-   2    401    JGM First, LLC
+                                            Default     Default     Default   
+                                            Rent        Proration   GSRPC     
+BID        BUD        Name                  Cycle       Cycle       Cycle     
+---------  ---------  --------------------  ----------  ----------  ----------
+B00000001  REX        JGM First, LLC        monthly     daily       daily     
+B00000002  401        JGM First, LLC        monthly     daily       daily     
 

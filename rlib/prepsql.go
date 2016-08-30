@@ -141,15 +141,21 @@ func buildPreparedStatements() {
 	//==========================================
 	// Business
 	//==========================================
-	RRdb.Prepstmt.GetAllBusinesses, err = RRdb.Dbrr.Prepare("SELECT BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy FROM Business ORDER BY Name ASC")
+	flds = "BID,BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetAllBusinesses, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Business ORDER BY Name ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetBusiness, err = RRdb.Dbrr.Prepare("SELECT BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy FROM Business WHERE BID=?")
+	RRdb.Prepstmt.GetBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Business WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetBusinessByDesignation, err = RRdb.Dbrr.Prepare("SELECT BID,BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModTime,LastModBy FROM Business WHERE BUD=?")
+	RRdb.Prepstmt.GetBusinessByDesignation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Business WHERE BUD=?")
 	Errcheck(err)
+
+	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertBusiness, err = RRdb.Dbrr.Prepare("INSERT INTO Business (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateBusiness, err = RRdb.Dbrr.Prepare("UPDATE Business SET " + s3 + " WHERE BID=?")
+	Errcheck(err)
+
 	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.Dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM RentableSpecialty WHERE BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertBusiness, err = RRdb.Dbrr.Prepare("INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse,LastModBy) VALUES(?,?,?,?,?)")
 	Errcheck(err)
 
 	//==========================================
@@ -454,7 +460,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// PROSPECT
 	//==========================================
-	flds = "TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee, DesiredMoveInDate,RentableTypePreference,FLAGS,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,FloatingDeposit,RAID,LastModTime,LastModBy"
+	flds = "TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee, DesiredUsageStartDate,RentableTypePreference,FLAGS,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,FloatingDeposit,RAID,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetProspect, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Prospect where TCID=?")
 	Errcheck(err)
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
@@ -687,7 +693,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// RENTER
 	//==========================================
-	RENTERflds := "TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,DSID,LastModTime,LastModBy"
+	RENTERflds := "TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetUser, err = RRdb.Dbrr.Prepare("SELECT " + RENTERflds + " FROM User where TCID=?")
 	Errcheck(err)
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(RENTERflds)
@@ -697,8 +703,8 @@ func buildPreparedStatements() {
 	//==========================================
 	// SOURCE
 	//==========================================
-	SRCflds := "DSID,BID,Name,Industry,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetDemandSource, err = RRdb.Dbrr.Prepare("SELECT " + SRCflds + " FROM DemandSource WHERE DSID=?")
+	SRCflds := "SourceSLSID,BID,Name,Industry,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetDemandSource, err = RRdb.Dbrr.Prepare("SELECT " + SRCflds + " FROM DemandSource WHERE SourceSLSID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetDemandSourceByName, err = RRdb.Dbrr.Prepare("SELECT " + SRCflds + " FROM DemandSource WHERE BID=? and Name=?")
 	Errcheck(err)
@@ -707,9 +713,9 @@ func buildPreparedStatements() {
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(SRCflds)
 	RRdb.Prepstmt.InsertDemandSource, err = RRdb.Dbrr.Prepare("INSERT INTO DemandSource (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateDemandSource, err = RRdb.Dbrr.Prepare("UPDATE DemandSource SET " + s3 + " WHERE DSID=?")
+	RRdb.Prepstmt.UpdateDemandSource, err = RRdb.Dbrr.Prepare("UPDATE DemandSource SET " + s3 + " WHERE SourceSLSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteDemandSource, err = RRdb.Dbrr.Prepare("DELETE from DemandSource WHERE DSID=?")
+	RRdb.Prepstmt.DeleteDemandSource, err = RRdb.Dbrr.Prepare("DELETE from DemandSource WHERE SourceSLSID=?")
 	Errcheck(err)
 
 	//==========================================

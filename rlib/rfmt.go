@@ -37,6 +37,16 @@ func Ulog(format string, a ...interface{}) {
 	// debug.PrintStack()
 }
 
+// Stripchars returns a string with the characters from chars removed
+func Stripchars(str, chars string) string {
+	return strings.Map(func(r rune) rune {
+		if strings.IndexRune(chars, r) < 0 {
+			return r
+		}
+		return -1
+	}, str)
+}
+
 // Errcheck - saves a bunch of typing, prints error if it exists
 //            and provides a traceback as well
 func Errcheck(err error) {

@@ -329,12 +329,14 @@ CREATE TABLE Business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
     BUD VARCHAR(100) NOT NULL DEFAULT '',               -- Business Unit Designation
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    DefaultRentalPeriod SMALLINT NOT NULL DEFAULT 0,    -- default for every unit in the Building: 0=unset, 1=hourly, 2=daily, 3=weekly, 4=monthly, 5=quarterly, 6=yearly
-    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,     -- yes/no  0 = no, 1 = yes
+    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,       -- default for every rentable type - useful to initialize UI
+    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,  -- default for every rentable type - useful to initialize UI
+    DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,           -- default for every rentable type - useful to initialize UI
     LastModTime TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (BID)
 );
+--    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,     -- yes/no  0 = no, 1 = yes
 
 -- ===========================================
 --   RENTABLE TYPES 
@@ -543,13 +545,13 @@ CREATE TABLE AssessmentTax (
 -- **************************************
 -- This is DemandSource  referenced by RentalAgreement
 CREATE TABLE DemandSource (
-    DSID BIGINT NOT NULL AUTO_INCREMENT,                    -- DemandSource ID - unique id for this source
+    SourceSLSID BIGINT NOT NULL AUTO_INCREMENT,                    -- DemandSource ID - unique id for this source
     BID BIGINT NOT NULL DEFAULT 0,                          -- What business is this
     Name VARCHAR(100),                                      -- Name of the source
     Industry VARCHAR(100),                                  -- What industry -- THIS BECOMES A REFERENCE TO "Industry" StringList
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (DSID)
+    PRIMARY KEY (SourceSLSID)
 );
 
 CREATE TABLE LeadSource (
@@ -601,6 +603,8 @@ CREATE TABLE Transactant (
 -- ===========================================
 --   PROSPECT
 -- ===========================================
+
+-- website
 CREATE TABLE Prospect (
     -- PRSPID BIGINT NOT NULL DEFAULT 0,                 -- unique id of this Prospect
     TCID BIGINT NOT NULL DEFAULT 0,                        -- associated Transactant (has Name and all contact info)
@@ -613,15 +617,15 @@ CREATE TABLE Prospect (
     EmployerPhone VARCHAR(100) NOT NULL DEFAULT '',
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
     ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,      -- if non-zero this Prospect is an applicant
-    DesiredMoveInDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
+    DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
     RentableTypePreference BIGINT NOT NULL DEFAULT 0,          -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables 
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 0 - approved/not approved
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 did they fill out an appl.  1<<1 - approved/not approved
     Approver BIGINT NOT NULL DEFAULT 0,                     -- who approved or declined
     DeclineReasonSLSID BIGINT NOT NULL DEFAULT 0,           -- ID to string in list of choices, Melissa will provide the list.
     OtherPreferences VARCHAR(1024) NOT NULL DEFAULT '',     -- Arbitrary text, anything else they might request
     FollowUpDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- automatically fill out this date to sysdate + 24hrs
     CSAgent BIGINT NOT NULL DEFAULT 0,                      -- Accord Directory UserID - for the CSAgent 
-    OutcomeSLSID BIGINT NOT NULL DEFAULT 0,                 -- id of string from a list of outcomes. Melissa to provide reasons
+    OutcomeSLSID BIGINT NOT NULL DEFAULT 0,                 -- id of string from a list of outcomes.
     FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,    --  d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement 
     RAID BIGINT NOT NULL DEFAULT 0,                         -- created to hold On Account amount of Floating Deposit
     LastModTime TIMESTAMP,                                  -- when was this record last written
@@ -631,7 +635,7 @@ CREATE TABLE Prospect (
 
 -- --new  Custom Fields
 -- NumberBedrooms -- SMALLINT NOT NULL DEFAULT 0,  This is unique to a room or residence. bedroom count
--- NumberOfPets   -- SMALLINT NOT NULL DEFAULT 0,    This is unique to a room or residence. may just add to formal pet schema
+-- NumberOfPets   -- SMALLINT NOT NULL DEFAULT 0,  This is unique to a room or residence. may just add to formal pet schema
 -- NumberOfPeople -- SMALLINT NOT NULL DEFAULT 0,  This is unique to a room or residence. count of people who will be living in the unit
 -- --new
 -- 
@@ -657,7 +661,7 @@ CREATE TABLE User (
     AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
     EligibleFutureUser SMALLINT NOT NULL DEFAULT 1,              -- yes/no
     Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
-    DSID BIGINT NOT NULL DEFAULT 0,                               -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
+    SourceSLSID BIGINT NOT NULL DEFAULT 0,                              -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP,                                       -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (TCID)
@@ -671,7 +675,7 @@ CREATE TABLE Payor  (
     TCID BIGINT NOT NULL DEFAULT 0,                                       -- associated Transactant
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    AccountRep BIGINT NOT NULL DEFAULT 0,                       -- Phonebook UID of account rep
+    AccountRep BIGINT NOT NULL DEFAULT 0,                       -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,            -- yes/no
     LastModTime TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 

@@ -1,4 +1,4 @@
-BUD,Name,GL Number,Parent GLNumber,Collective,Account Type,Balance,GL Account Status,RAAssociated,Type,Date,AllowPost,RARequired,Manage To Budget,Description
+BUD,Name,GLNumber,Parent GLNumber,Collective,Account Type,Balance,Account Status,Associated,Type,Date,Allow Posting,RARequired,Manage To Budget,Description
 REX,Cash,10000,,,Bank Account,0,active,Associated,10,1/1/14,yes,0,0,
 REX,Loss (Gain) to Lease,41102,,,Income,0,active,Associated,13,1/1/14,yes,2,0,
 REX,Owners' Equity,39000,,,Equity,0,active,Associated,17,1/1/14,yes,0,0,

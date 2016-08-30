@@ -8,81 +8,226 @@ import (
 	"time"
 )
 
-// ReportBusinessToText returns a string representation of the supplied rlib.Business suitable for a text report
-func ReportBusinessToText(p *rlib.Business) string {
-	return fmt.Sprintf("%4d %6s    %s\n", p.BID, p.Designation, p.Name)
-}
-
-// ReportBusinessToHTML returns a string representation of the supplied rlib.Business suitable for HTML display
-func ReportBusinessToHTML(p *rlib.Business) string {
-	return fmt.Sprintf("<tr><td>%d</td><td%s></td><td>%s</td></tr>", p.BID, p.Designation, p.Name)
-}
-
 // RRreportBusiness generates a report of all Businesses defined in the database.
-func RRreportBusiness(t int) string {
+func RRreportBusiness(f int) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllBusinesses.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := ""
+
+	var tbl rlib.Table
+	tbl.Init()
+	tbl.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("BUD", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Name", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Default Rent Cycle", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Default Proration Cycle", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Default GSRPC Cycle", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
 	for rows.Next() {
 		var p rlib.Business
-		rlib.Errcheck(rows.Scan(&p.BID, &p.Designation, &p.Name, &p.DefaultRentalPeriod, &p.ParkingPermitInUse, &p.LastModTime, &p.LastModBy))
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportBusinessToText(&p)
-		case rlib.RPTHTML:
-			s += ReportBusinessToHTML(&p)
-		default:
-			fmt.Printf("RRreportBusiness: unrecognized print format: %d\n", t)
-			return ""
-		}
+		rlib.ReadBusinesses(rows, &p)
+		tbl.AddRow()
+		tbl.Puts(-1, 0, p.IDtoString())
+		tbl.Puts(-1, 1, p.Designation)
+		tbl.Puts(-1, 2, p.Name)
+		tbl.Puts(-1, 3, rlib.RentalPeriodToString(p.DefaultRentCycle))
+		tbl.Puts(-1, 4, rlib.RentalPeriodToString(p.DefaultProrationCycle))
+		tbl.Puts(-1, 5, rlib.RentalPeriodToString(p.DefaultGSRPC))
 	}
 	rlib.Errcheck(rows.Err())
-	return s
+	return tbl.SprintTable(f)
 }
 
-// ReportRentableTypeToText returns a string representation of the supplied rlib.RentableType suitable for a text report
-func ReportRentableTypeToText(p *rlib.RentableType) string {
-	s := fmt.Sprintf("%-10s  %-20s  %-25s  %-9s  %-12s", p.IDtoString(), p.Style, p.Name,
-		rlib.RentalPeriodToString(p.RentCycle), rlib.RentalPeriodToString(p.Proration))
-	for i := 0; i < len(p.MR); i++ {
-		s += fmt.Sprintf("  |  %10s - %10s $ %8.2f", p.MR[i].DtStart.Format(rlib.RRDATEFMT4), p.MR[i].DtStop.Format(rlib.RRDATEFMT4), p.MR[i].MarketRate)
+// ReportCOA returns a string representation of the chart of accts
+func ReportCOA(p rlib.GLAccount, t *rlib.Table) {
+	Pldgr := ""
+	lm := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
+	if lm.LMID == 0 {
+		fmt.Printf("ReportChartOfAcctsToText: error getting latest LedgerMarker for L%08d\n", p.LID)
+		return
 	}
-	s += "\n"
-	return s
+
+	s := ""
+	if rlib.GLCASH <= p.Type && p.Type <= rlib.GLLAST {
+		s = fmt.Sprintf("%d", p.Type)
+	}
+
+	sp := ""
+	switch p.RAAssociated {
+	case 0:
+		sp = "unknown"
+	case 1:
+		sp = "Unassociated"
+	case 2:
+		sp = "Associated"
+	default:
+		sp = fmt.Sprintf("??? invalid: %d", p.RAAssociated)
+	}
+	if p.PLID > 0 {
+		Pldgr = rlib.RRdb.BizTypes[p.BID].GLAccounts[p.PLID].Name
+	}
+	const (
+		BID  = 0
+		LID  = iota
+		PLID = iota
+		LMID = iota
+		Type = iota
+		GLNo = iota
+		Name = iota
+		PGL  = iota
+		QBAT = iota
+		Bal  = iota
+		RAA  = iota
+		RAR  = iota
+		Desc = iota
+	)
+
+	t.AddRow()
+	t.Puts(-1, BID, fmt.Sprintf("B%08d", p.BID))
+	t.Puts(-1, LID, p.IDtoString())
+	if p.PLID > 0 {
+		t.Puts(-1, PLID, fmt.Sprintf("L%08d", p.PLID))
+	}
+	t.Puts(-1, LMID, lm.IDtoString())
+	t.Puts(-1, Type, s)
+	t.Puts(-1, GLNo, p.GLNumber)
+	t.Puts(-1, Name, p.Name)
+	t.Puts(-1, PGL, Pldgr)
+	t.Puts(-1, QBAT, p.AcctType)
+	t.Putf(-1, Bal, lm.Balance)
+	t.Puts(-1, RAA, sp)
+	t.Puti(-1, RAR, p.RARequired)
+	t.Puts(-1, Desc, p.Description)
 }
 
-// ReportRentableTypeToHTML returns a string representation of the supplied rlib.RentableType suitable for HTML display
-func ReportRentableTypeToHTML(p rlib.RentableType) string {
-	return fmt.Sprintf("<tr><td>%d</td><td%s></td><td%s></td></tr>", p.RTID, p.Style, p.Name)
+// RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
+func RRreportChartOfAccounts(f int, bid int64) string {
+	rlib.InitBusinessFields(bid)
+	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
+
+	var a []int64                                       // Sort the map so test output will be the same every time. Sort by GLNumber.
+	for k := range rlib.RRdb.BizTypes[bid].GLAccounts { // First make an array of all the LIDs
+		a = append(a, k)
+	}
+	// now sort based on GLNumber...
+	m := rlib.RRdb.BizTypes[bid].GLAccounts // for notational convenience
+	for i := 0; i < len(a); i++ {
+		for j := i + 1; j < len(a); j++ {
+			if m[a[i]].GLNumber > m[a[j]].GLNumber {
+				a[i], a[j] = a[j], a[i]
+			}
+		}
+	}
+
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("LID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("PLID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("LMID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Type", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("GLNumber", 8, rlib.CELLSTRING, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Name", 40, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Parent", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Quick Books Account Type", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Balance", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Rental Agreement Associated", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Rental Agreement Required", 5, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Description", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	for i := 0; i < len(a); i++ {
+		ReportCOA(m[a[i]], &t)
+	}
+	return t.SprintTable(f)
 }
 
-// RRreportRentableTypes generates a report of all assessment types defined in the database.
-func RRreportRentableTypes(t int, bid int64) string {
+// RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
+func RRreportRentableTypes(f int, bid int64) string {
 	m := rlib.GetBusinessRentableTypes(bid)
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
-	s := fmt.Sprintf("%-10s  %-20s  %-25s  %-9s  %-12s  %s\n", "RTID", "Style", "Name", "RentCycle", "ProrateCycle", "Dt1 - Dt2 : Rate")
-	s += fmt.Sprintf("%-10s  %-20s  %-25s  %-9s  %-12s  %s\n", "----", "-----", "----", "---------", "------------", "----------------")
 
-	// To perform the opertion you want
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("RTID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // 0
+	t.AddColumn("Style", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // 1
+	t.AddColumn("Name", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // 2
+	t.AddColumn("Rent Cycle", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)               // 3
+	t.AddColumn("Proration Cycle", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)          // 4
+	t.AddColumn("GSRPC", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // 5
+	t.AddColumn("Manage To Budget", 3, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)         // 6
+	t.AddColumn("Dt1 - Dt2 : Market Rate", 96, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // 7
+
 	for _, k := range keys {
 		i := int64(k)
 		p := m[i]
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportRentableTypeToText(&p)
-		case rlib.RPTHTML:
-			s += ReportRentableTypeToHTML(m[i])
-		default:
-			fmt.Printf("RRreportRentableTypes: unrecognized print format: %d\n", t)
-			return ""
+		t.AddRow()
+		t.Puts(-1, 0, p.IDtoString())
+		t.Puts(-1, 1, p.Style)
+		t.Puts(-1, 2, p.Name)
+		t.Puts(-1, 3, rlib.RentalPeriodToString(p.RentCycle))
+		t.Puts(-1, 4, rlib.RentalPeriodToString(p.Proration))
+		t.Puts(-1, 5, rlib.RentalPeriodToString(p.GSRPC))
+		t.Puts(-1, 6, rlib.YesNoToString(p.ManageToBudget))
+		s := ""
+		for i := 0; i < len(p.MR); i++ {
+			s += fmt.Sprintf("|  %8s - %8s $%8.2f", p.MR[i].DtStart.Format(rlib.RRDATEFMT2),
+				p.MR[i].DtStop.Format(rlib.RRDATEFMT2), p.MR[i].MarketRate)
 		}
+		t.Puts(-1, 7, s)
 	}
-	return s
+	return t.SprintTable(f)
+}
+
+// ReportXPersonToText returns a string representation of the supplied People suitable for a text report
+func ReportXPersonToText(p *rlib.XPerson) string {
+	return fmt.Sprintf("TC%08d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
+		p.Trn.TCID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
+}
+
+// ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
+func ReportXPersonToHTML(p *rlib.XPerson) string {
+	return fmt.Sprintf("<tr><td>TC%08d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
+		p.Trn.TCID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
+}
+
+// RRreportPeople generates a report of all Businesses defined in the database.
+func RRreportPeople(f int) string {
+	rows, err := rlib.RRdb.Prepstmt.GetAllTransactants.Query()
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("TCID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("First Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Middle Name", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Last Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Company", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Is Company", 3, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Cell Phone", 17, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Primary Email", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	for rows.Next() {
+		var p rlib.XPerson
+		rlib.ReadTransactants(rows, &p.Trn)
+		rlib.GetXPerson(p.Trn.TCID, &p)
+		t.AddRow()
+		t.Puts(-1, 0, p.IDtoString())
+		t.Puts(-1, 1, p.Trn.FirstName)
+		t.Puts(-1, 2, p.Trn.MiddleName)
+		t.Puts(-1, 3, p.Trn.LastName)
+		t.Puts(-1, 4, p.Trn.CompanyName)
+		t.Puts(-1, 5, rlib.YesNoToString(int64(p.Trn.IsCompany)))
+		t.Puts(-1, 6, p.Trn.CellPhone)
+		t.Puts(-1, 7, p.Trn.PrimaryEmail)
+	}
+	rlib.Errcheck(rows.Err())
+
+	return t.SprintTable(f)
 }
 
 // ReportRentableToText returns a string representation of the supplied rlib.Rentable suitable for a text report
@@ -113,42 +258,6 @@ func RRreportRentables(t int, bid int64) string {
 			s += ReportRentableToHTML(&p)
 		default:
 			fmt.Printf("RRreportRentables: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	rlib.Errcheck(rows.Err())
-	return s
-}
-
-// ReportXPersonToText returns a string representation of the supplied People suitable for a text report
-func ReportXPersonToText(p *rlib.XPerson) string {
-	return fmt.Sprintf("TC%08d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
-		p.Trn.TCID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
-}
-
-// ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
-func ReportXPersonToHTML(p *rlib.XPerson) string {
-	return fmt.Sprintf("<tr><td>TC%08d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
-		p.Trn.TCID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
-}
-
-// RRreportPeople generates a report of all Businesses defined in the database.
-func RRreportPeople(t int) string {
-	rows, err := rlib.RRdb.Prepstmt.GetAllTransactants.Query()
-	rlib.Errcheck(err)
-	defer rows.Close()
-	s := fmt.Sprintf("%10s  %4s  %-12s  %-25s  %-30s  %-25s\n", "TCID", "ISCO", "CELL PHONE", "PRIMARY EMAIL", "NAME", "COMPANY")
-	for rows.Next() {
-		var p rlib.XPerson
-		rlib.ReadTransactants(rows, &p.Trn)
-		rlib.GetXPerson(p.Trn.TCID, &p)
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportXPersonToText(&p)
-		case rlib.RPTHTML:
-			s += ReportXPersonToHTML(&p)
-		default:
-			fmt.Printf("RRreportPeople: unrecognized print format: %d\n", t)
 			return ""
 		}
 	}
@@ -240,81 +349,6 @@ func RRreportRentalAgreements(t int, bid int64) string {
 		}
 	}
 	rlib.Errcheck(rows.Err())
-	return s
-}
-
-// ReportChartOfAcctsToText returns a string representation of the chart of accts
-func ReportChartOfAcctsToText(p rlib.GLAccount) string {
-	s := ""
-	collective := ""
-	lm := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
-	if lm.LMID == 0 {
-		s = fmt.Sprintf("ReportChartOfAcctsToText: error getting latest LedgerMarker for L%08d\n", p.LID)
-		return s
-	}
-
-	if rlib.GLCASH <= p.Type && p.Type <= rlib.GLLAST {
-		s = fmt.Sprintf("%d", p.Type)
-	} else {
-		switch p.Type {
-		case 1:
-			s = "RArcv   "
-		case 2:
-			s = "RAsecdep"
-		}
-	}
-
-	sp := ""
-	switch p.RAAssociated {
-	case 0:
-		sp = "unknown"
-	case 1:
-		sp = "Unassociated"
-	case 2:
-		sp = "Associated"
-	default:
-		sp = fmt.Sprintf("??? invalid: %d", p.RAAssociated)
-	}
-	if p.PLID > 0 {
-		collective = rlib.RRdb.BizTypes[p.BID].GLAccounts[p.PLID].Name
-	}
-	return fmt.Sprintf("%5d  %5d  %-8s  %12s  %-35.35s  %20.20s  %12.2f  %12s  %5d\n",
-		p.LID, lm.LMID, s, p.GLNumber, p.Name, collective, lm.Balance, sp, p.RARequired)
-}
-
-// RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
-func RRreportChartOfAccounts(t int, bid int64) string {
-	rlib.InitBusinessFields(bid)
-	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
-
-	// we need to sort the GLAccounts map so that our test output comparison will be the same every time
-	// We'll sort by GLNumber.  First make an array of all the LIDs
-	var a []int64
-	for k := range rlib.RRdb.BizTypes[bid].GLAccounts {
-		a = append(a, k)
-	}
-	// now sort based on GLNumber...
-	m := rlib.RRdb.BizTypes[bid].GLAccounts // for notational convenience
-	for i := 0; i < len(a); i++ {
-		for j := i + 1; j < len(a); j++ {
-			if m[a[i]].GLNumber > m[a[j]].GLNumber {
-				a[i], a[j] = a[j], a[i]
-			}
-		}
-	}
-
-	s := fmt.Sprintf("%5s  %5s  %-8s  %12s  %-40s  %-35s  %-12s  %-12s  %-5s\n", "LID", "LMID", "TYPE", "GLNUMBER", "NAME", "COLLECTIVE", "BALANCE", "RAASSOC", "RARQD")
-	for i := 0; i < len(a); i++ {
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportChartOfAcctsToText(m[a[i]])
-		case rlib.RPTHTML:
-			fmt.Printf("unimplemented\n")
-		default:
-			fmt.Printf("RRreportChartOfAccounts: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
 	return s
 }
 
@@ -705,11 +739,11 @@ func RRreportDepositMethods(t int, bid int64) string {
 func RRreportSources(t int, bid int64) string {
 	m, _ := rlib.GetAllDemandSources(bid)
 
-	s := fmt.Sprintf("%-9s  %-9s  %-35s  %-35s\n", "DSID", "BID", "Name", "Industry")
+	s := fmt.Sprintf("%-9s  %-9s  %-35s  %-35s\n", "SourceSLSID", "BID", "Name", "Industry")
 	for i := 0; i < len(m); i++ {
 		switch t {
 		case rlib.RPTTEXT:
-			s += fmt.Sprintf("S%08d  B%08d  %-35s  %-35s\n", m[i].DSID, m[i].BID, m[i].Name, m[i].Industry)
+			s += fmt.Sprintf("S%08d  B%08d  %-35s  %-35s\n", m[i].SourceSLSID, m[i].BID, m[i].Name, m[i].Industry)
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:

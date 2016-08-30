@@ -1,2 +1,2 @@
-BUD,Name,DefaultAccrual,ParkingPermitInUse
-REX,Daisy Hills Properties,4,no
+BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC
+REX,Daisy Hills Properties,6,4,4

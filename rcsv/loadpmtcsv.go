@@ -52,7 +52,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) {
 	// Check to see if this rental specialty type is already in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b, _ := rlib.GetBusinessByDesignation(des)
+		b := rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
 			rlib.Ulog("%s: line %d - Business named %s not found\n", funcname, lineno, des)
 			return

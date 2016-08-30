@@ -26,8 +26,7 @@ func DelinquencyTextReport(xbiz *rlib.XBusiness, d2 *time.Time) error {
 	fmt.Printf("DELINQUENCY REPORT\nReport Date: %s\n\n", d2.Format(rlib.RRDATEFMT3))
 
 	var tbl rlib.Table
-	tbl.Init() //sets column spacing and date format to default
-	// totalsRSet := tbl.CreateRowset()                                            // a rowset to sum for totals
+	tbl.Init()                                                                    //sets column spacing and date format to default
 	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)            // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)      // RentableType name
 	tbl.AddColumn("Rentable Agreement", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // RentableType name

@@ -35,7 +35,7 @@ func CreateSourceCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	var b rlib.Business
 	if len(des) > 0 {
-		b, _ = rlib.GetBusinessByDesignation(des)
+		b = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
 			rlib.Ulog("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[0])
 			return

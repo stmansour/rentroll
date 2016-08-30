@@ -1,14 +1,17 @@
-  LID   LMID  TYPE          GLNUMBER  NAME                                      COLLECTIVE                           BALANCE       RAASSOC       RARQD
-    1      1  10               10000  Cash                                                               0.00  Unassociated      0
-    2      2  11               12000  Accounts Receivable                                                0.00  Unassociated      0
-    7      7  16               30000  Security Deposits                                                  0.00  Unassociated      2
-    8      8  17               39000  Owners' Equity                                                     0.00  Unassociated      0
-    3      3  12               41000  Unit Gross Scheduled Rent-Taxable                                  0.00  Unassociated      0
-    9      9                   41100  Income Offsets                                                     0.00  Unassociated      0
-    5      5  14               41101  Vacancy                                                            0.00  Unassociated      0
-    4      4  13               41102  Loss (Gain) to Lease                                               0.00  Unassociated      2
-   10     10                   41104  Resident Concessions                       Income Offsets          0.00  Unassociated      0
-   11     11                   41300  Other Income                                                       0.00  Unassociated      0
-   12     12                   41306  Gas Overage                                  Other Income          0.00  Unassociated      2
-    6      6  15               41413  Forfeited Security Deposit                                         0.00  Unassociated      2
+                                                                                                                                                                                    Rental           Rental                           
+                                                                                                                                                Quick Books Account                 Agreement     Agreement                           
+BID        LID        PLID       LMID        Type      GLNumber  Name                                      Parent                               Type                       Balance  Associated     Required  Description              
+---------  ---------  ---------  ----------  --------  --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ------------  ---------  -------------------------
+B00000001  L00000001             LM00000001  10           10000  Cash                                                                           Bank Account                  0.00  Unassociated          0                           
+B00000001  L00000002             LM00000002  11           12000  Accounts Receivable                                                            Current Asset                 0.00  Unassociated          0                           
+B00000001  L00000007             LM00000007  16           30000  Security Deposits                                                              Current Liabilities           0.00  Unassociated          2                           
+B00000001  L00000008             LM00000008  17           39000  Owners' Equity                                                                 Equity                        0.00  Unassociated          0                           
+B00000001  L00000003             LM00000003  12           41000  Unit Gross Scheduled Rent-Taxable                                              Income                        0.00  Unassociated          0                           
+B00000001  L00000009             LM00000009               41100  Income Offsets                                                                 Income                        0.00  Unassociated          0                           
+B00000001  L00000005             LM00000005  14           41101  Vacancy                                                                        Income                        0.00  Unassociated          0                           
+B00000001  L00000004             LM00000004  13           41102  Loss (Gain) to Lease                                                           Income                        0.00  Unassociated          2                           
+B00000001  L00000010  L00000009  LM00000010               41104  Resident Concessions                      Income Offsets                       Income                        0.00  Unassociated          0                           
+B00000001  L00000011             LM00000011               41300  Other Income                                                                   Income                        0.00  Unassociated          0                           
+B00000001  L00000012  L00000011  LM00000012               41306  Gas Overage                               Other Income                         Income                        0.00  Unassociated          2                           
+B00000001  L00000006             LM00000006  15           41413  Forfeited Security Deposit                                                     Income                        0.00  Unassociated          2                           
 

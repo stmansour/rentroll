@@ -111,16 +111,6 @@ func ProcessSumFloats(a []SumFloat) {
 	}
 }
 
-// Stripchars returns a string with the characters from chars removed
-func Stripchars(str, chars string) string {
-	return strings.Map(func(r rune) rune {
-		if strings.IndexRune(chars, r) < 0 {
-			return r
-		}
-		return -1
-	}, str)
-}
-
 // YesNoToInt takes multiple forms of "Yes" and converts to integer 1, multiple forms of "No" to integer 0
 func YesNoToInt(si string) (int64, error) {
 	s := strings.ToUpper(strings.TrimSpace(si))

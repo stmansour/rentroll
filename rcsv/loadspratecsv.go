@@ -37,7 +37,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) {
 		return // this is just the column heading
 	}
 	if len(des) > 0 {
-		b, _ = rlib.GetBusinessByDesignation(des)
+		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
 			rlib.Ulog("%s: line %d, Business with designation %s does net exist\n", funcname, lineno, sa[0])
 			return

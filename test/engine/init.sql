@@ -97,8 +97,8 @@ INSERT INTO AvailabilityTypes (Name) VALUES
 -- =======================================================================
 --  BUSINESS
 -- =======================================================================
-INSERT INTO Business (BUD,Name,DefaultRentalPeriod,ParkingPermitInUse) VALUES
-	("REX", "Springfield Retirement Castle",4,0);
+INSERT INTO Business (BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC) VALUES
+	("REX", "Springfield Retirement Castle",6,4,4);
 
 -- =======================================================================
 --  RENTABLE TYPES

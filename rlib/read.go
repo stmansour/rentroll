@@ -12,14 +12,24 @@ func ReadAssessments(rows *sql.Rows, a *Assessment) {
 		&a.LastModTime, &a.LastModBy))
 }
 
+// ReadBusiness reads a full Business structure from the database based on the supplied row object
+func ReadBusiness(row *sql.Row, a *Business) {
+	Errcheck(row.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadBusinesses reads a full Business structure from the database based on the supplied rows object
+func ReadBusinesses(rows *sql.Rows, a *Business) {
+	Errcheck(rows.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.LastModTime, &a.LastModBy))
+}
+
 // ReadDemandSource reads a full DemandSource structure from the database based on the supplied row object
 func ReadDemandSource(row *sql.Row, a *DemandSource) {
-	Errcheck(row.Scan(&a.DSID, &a.BID, &a.Name, &a.Industry, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.SourceSLSID, &a.BID, &a.Name, &a.Industry, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadDemandSources reads a full DemandSource structure from the database based on the supplied rows object
 func ReadDemandSources(rows *sql.Rows, a *DemandSource) {
-	Errcheck(rows.Scan(&a.DSID, &a.BID, &a.Name, &a.Industry, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.SourceSLSID, &a.BID, &a.Name, &a.Industry, &a.LastModTime, &a.LastModBy))
 }
 
 // // ReadGLAccounts reads a full GLAccount structure of data from the database based on the supplied Rows pointer.
@@ -86,7 +96,7 @@ func ReadPayors(rows *sql.Rows, a *Payor) {
 func ReadProspect(row *sql.Row, a *Prospect) {
 	Errcheck(row.Scan(&a.TCID, &a.EmployerName, &a.EmployerStreetAddress,
 		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
-		&a.ApplicationFee, &a.DesiredMoveInDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
+		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
 		&a.LastModTime, &a.LastModBy))
 }
@@ -95,7 +105,7 @@ func ReadProspect(row *sql.Row, a *Prospect) {
 func ReadProspects(rows *sql.Rows, a *Prospect) {
 	Errcheck(rows.Scan(&a.TCID, &a.EmployerName, &a.EmployerStreetAddress,
 		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
-		&a.ApplicationFee, &a.DesiredMoveInDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
+		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
 		&a.LastModTime, &a.LastModBy))
 }
@@ -216,10 +226,10 @@ func ReadTransactants(rows *sql.Rows, a *Transactant) {
 
 // ReadUser reads a full User structure from the database based on the supplied row object
 func ReadUser(row *sql.Row, a *User) {
-	Errcheck(row.Scan(&a.TCID, &a.Points, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.DSID, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.TCID, &a.Points, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadUsers reads a full User structure from the database based on the supplied rows object
 func ReadUsers(rows *sql.Rows, a *User) {
-	Errcheck(rows.Scan(&a.TCID, &a.Points, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.DSID, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.TCID, &a.Points, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
 }

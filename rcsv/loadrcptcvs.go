@@ -81,7 +81,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(bud) > 0 {
-		b1, _ := rlib.GetBusinessByDesignation(bud)
+		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
 			rlib.Ulog("CreateLedgerMarkers: rlib.Business with designation %s does net exist\n", sa[0])
 			return
@@ -182,7 +182,7 @@ func LoadReceiptsCSV(fname string, PmtTypes *map[int64]rlib.PaymentType) {
 		//-------------------------------------------------------------------
 		des := strings.TrimSpace(t[1][0])
 		if len(des) > 0 {
-			b, _ := rlib.GetBusinessByDesignation(des)
+			b := rlib.GetBusinessByDesignation(des)
 			if b.BID < 1 {
 				rlib.Ulog("LoadReceiptsCSV: rlib.Business named %s not found\n", des)
 				return

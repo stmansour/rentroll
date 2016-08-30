@@ -35,7 +35,7 @@ func CreateRentalSpecialty(sa []string, lineno int) {
 	var b rlib.Business
 
 	if len(des) > 0 {
-		b, _ = rlib.GetBusinessByDesignation(des)
+		b = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
 			rlib.Ulog("%s: lineno %d  - rlib.Business named %s not found\n", funcname, lineno, des)
 			return

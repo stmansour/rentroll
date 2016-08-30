@@ -102,7 +102,7 @@ func CreateRentalAgreement(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	cmpdes := strings.TrimSpace(sa[1])
 	if len(cmpdes) > 0 {
-		b2, _ := rlib.GetBusinessByDesignation(cmpdes)
+		b2 := rlib.GetBusinessByDesignation(cmpdes)
 		if b2.BID == 0 {
 			fmt.Printf("%s: line %d - could not find rlib.Business named %s\n", funcname, lineno, cmpdes)
 			return
