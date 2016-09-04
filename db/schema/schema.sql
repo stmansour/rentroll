@@ -152,7 +152,7 @@ CREATE TABLE CustomAttrRef (
 CREATE TABLE RentalAgreementTemplate (
     RATID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
     BID BIGINT NOT NULL DEFAULT 0,                            -- BizUnit Reference
-    RentalTemplateNumber VARCHAR(100) DEFAULT '',             -- Occupancy Agreement Reference Number
+    RATemplateName VARCHAR(100) DEFAULT '',             -- Rental Agreement Template Name
     LastModTime TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RATID)     
@@ -168,11 +168,11 @@ CREATE TABLE RentalAgreement (
     NLID BIGINT NOT NULL DEFAULT 0,                              -- NoteList ID
     AgreementStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
     AgreementStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
-    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when Occupancy starts
-    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when Occupancy stops
+    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when usage starts
+    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when usage stops
     RentStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when Rent starts
     RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when Rent stops
-    RentCycleEpoch DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- Date on which rent cycle recurs. Start date for the recurring rent assessment
+    RentCycleEpoch DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Date on which rent cycle recurs. Start date for the recurring rent assessment
     Renewal SMALLINT NOT NULL DEFAULT 0,                         -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',         -- free-form text
     LeaseType BIGINT NOT NULL DEFAULT 0,                                -- Full Service Gross, Gross, ModifiedGross, Tripple Net
@@ -214,7 +214,6 @@ CREATE TABLE RentalAgreementPayors (
 
 CREATE TABLE RentableUsers (
     RID BIGINT NOT NULL DEFAULT 0,                            -- the associated Rentable
-    -- USERID BIGINT NOT NULL DEFAULT 0,                      -- the Users of the rentable
     TCID BIGINT NOT NULL DEFAULT 0,                           -- the Users of the rentable
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this User was no longer being billed to this agreement

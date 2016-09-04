@@ -1,5 +1,7 @@
- RAID  Payor                                     User                                       RentStart    RentStop  AgrmtStart   AgrmtStop
-    1  Betty Diddit                              Betty Diddent, Betty Diddit, Leeloo Kaix  07/01/2016  07/04/2016  07/01/2016  07/04/2016
-    2  Betty Diddent                                                                       07/05/2016  07/09/2016  07/05/2016  07/09/2016
-    3  Leeloo Kaixin                                                                       07/11/2016  08/01/2017  07/11/2016  08/01/2017
+                                          Agreement   Agreement   Possession  Possession                          Rent Cycle                                    
+RAID        Payor          User           Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal  Special Provisions  Notes
+----------  -------------  -------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  ------------------  -----
+RA00000001  Betty Diddit   Betty Diddit   07/01/2016  07/04/2016  07/01/2016  07/04/2016  07/01/2016  07/04/2016  07/01/2016  1                                 
+RA00000002  Betty Diddent  Betty Diddent  07/05/2016  07/09/2016  07/05/2016  07/09/2016  07/05/2016  07/09/2016  08/01/2016  1                                 
+RA00000003  Leeloo Kaixin  Leeloo Kaixin  07/11/2016  08/01/2017  07/11/2016  08/01/2017  07/11/2016  08/01/2017  08/01/2016  1                                 
 

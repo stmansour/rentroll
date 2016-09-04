@@ -22,6 +22,26 @@ func ReadBusinesses(rows *sql.Rows, a *Business) {
 	Errcheck(rows.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadCustomAttribute reads a full CustomAttribute structure from the database based on the supplied row object
+func ReadCustomAttribute(row *sql.Row, a *CustomAttribute) {
+	Errcheck(row.Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadCustomAttributes reads a full CustomAttribute structure from the database based on the supplied rows object
+func ReadCustomAttributes(rows *sql.Rows, a *CustomAttribute) {
+	Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadCustomAttributeRef reads a full CustomAttributeRef structure from the database based on the supplied row object
+func ReadCustomAttributeRef(row *sql.Row, a *CustomAttributeRef) {
+	Errcheck(row.Scan(&a.ElementType, &a.ID, &a.CID))
+}
+
+// ReadCustomAttributeRefs reads a full CustomAttributeRef structure from the database based on the supplied rows object
+func ReadCustomAttributeRefs(rows *sql.Rows, a *CustomAttributeRef) {
+	Errcheck(rows.Scan(&a.ElementType, &a.ID, &a.CID))
+}
+
 // ReadDemandSource reads a full DemandSource structure from the database based on the supplied row object
 func ReadDemandSource(row *sql.Row, a *DemandSource) {
 	Errcheck(row.Scan(&a.SourceSLSID, &a.BID, &a.Name, &a.Industry, &a.LastModTime, &a.LastModBy))
@@ -180,6 +200,16 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 		&a.ExpenseAdjustment, &a.EstimatedCharges, &a.RateChange, &a.NextRateChange, &a.PermittedUses, &a.ExclusiveUses,
 		&a.ExtensionOption, &a.ExtensionOptionNotice, &a.ExpansionOption, &a.ExpansionOptionNotice, &a.RightOfFirstRefusal,
 		&a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentalAgreementTemplate reads a full RentalAgreementTemplate structure of data from the database based on the supplied Row pointer.
+func ReadRentalAgreementTemplate(row *sql.Row, a *RentalAgreementTemplate) error {
+	return row.Scan(&a.RATID, &a.BID, &a.RATemplateName, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentalAgreementTemplates reads a full RentalAgreementTemplate structure of data from the database based on the supplied Rows pointer.
+func ReadRentalAgreementTemplates(rows *sql.Rows, a *RentalAgreementTemplate) error {
+	return rows.Scan(&a.RATID, &a.BID, &a.RATemplateName, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.

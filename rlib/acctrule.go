@@ -8,16 +8,20 @@ import (
 
 // AcctRule is a structure of the 3-tuple that makes up a whole part of an AcctRule
 type AcctRule struct {
-	Action   string  // "d" = debit, "c" = credit
-	Account  string  // GL No for the account
-	Amount   float64 // use the entire amount of the assessment or deposit, otherwise the amount to use
-	ASMID    int64   // Used only for ReceiptAllocation; the assessment that caused this payment
-	Expr     string  // the formula of the Amount
-	AcctExpr string  // the input Acct Expression -- may be the same as the GLNo or may be a ${ref}
+	Action      string  // "d" = debit, "c" = credit
+	Account     string  // GL No for the account
+	AccountOrig string  // account before substitution
+	Amount      float64 // use the entire amount of the assessment or deposit, otherwise the amount to use
+	ASMID       int64   // Used only for ReceiptAllocation; the assessment that caused this payment
+	Expr        string  // the formula of the Amount
+	AcctExpr    string  // the input Acct Expression -- may be the same as the GLNo or may be a ${ref}
 }
 
 // VarAcctResolve replaces string references with the appropriate values for variable account names
 func VarAcctResolve(bid int64, s string) string {
+
+	// fmt.Printf("VarAcctResolve( %d, %q )\n", bid, s)
+
 	i := int64(0)
 	switch {
 	case s == "GLCASH":
@@ -38,8 +42,11 @@ func VarAcctResolve(bid int64, s string) string {
 		i = GLOWNREQUITY
 	}
 	if i > 0 {
+		// fmt.Printf("VarAcctResolve:  returning %s\n", RRdb.BizTypes[bid].DefaultAccts[i].GLNumber)
+
 		return RRdb.BizTypes[bid].DefaultAccts[i].GLNumber
 	}
+	// fmt.Printf("VarAcctResolve:  returning %s\n", s)
 	return s
 }
 

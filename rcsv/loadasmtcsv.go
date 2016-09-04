@@ -29,53 +29,61 @@ func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.Rent
 
 // CSV FIELDS FOR THIS MODULE
 //    0  1             2      3       4             5             6     7             8                9          10
-// BUD   ,RentableName, ATypeLID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, InvoiceNo, AcctRule
+// BUD   ,RentableName, GLAcctID, Amount, Start,        Stop,         RAID, RentCycle, ProrationCycle, InvoiceNo, AcctRule
 // REH,  "101",       1,      1000.00,"2014-07-01", "2015-11-08", 1,    6,            4,               20122,     "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
 // REH,  "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               739928,    "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} ${aval(${GLGENRCV})} -"
 
-// type rlib.Assessment struct {
-// 	ASMID           int64     // unique id for this assessment
-// 	BID             int64     // what rlib.Business
-// 	RID             int64     // the rlib.Rentable
-// 	ATypeLID          int64     // what type of assessment
-// 	RAID            int64     // associated Rental Agreement
-// 	Amount          float64   // how much
-// 	Start           time.Time // start time
-// 	Stop            time.Time // stop time, may be the same as start time or later
-// 	Accrual         int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-// 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-// 	AcctRule        string    // expression showing how to account for the amount
-// 	Comment         string
-// 	LastModTime     time.Time
-// 	LastModBy       int64
-// }
-
 // CreateAssessmentsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateAssessmentsFromCSV(sa []string, lineno int) {
+func CreateAssessmentsFromCSV(sa []string, lineno int) int {
 	funcname := "CreateAssessmentsFromCSV"
 	var a rlib.Assessment
 	var r rlib.Rentable
 	var err error
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "bud" {
-		return // this is just the column heading
+
+	const (
+		BUD            = 0
+		RentableName   = iota
+		GLAcctID       = iota
+		Amount         = iota
+		DtStart        = iota
+		DtStop         = iota
+		RAID           = iota
+		RentCycle      = iota
+		ProrationCycle = iota
+		InvoiceNo      = iota
+		AcctRule       = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"RentableName", RentableName},
+		{"GLAcctID", GLAcctID},
+		{"Amount", Amount},
+		{"DtStart", DtStart},
+		{"DtStop", DtStop},
+		{"RAID", RAID},
+		{"RentCycle", RentCycle},
+		{"ProrationCycle", ProrationCycle},
+		{"InvoiceNo", InvoiceNo},
+		{"AcctRule", AcctRule},
 	}
 
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 11
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+		return 1
 	}
-
+	if lineno == 1 {
+		return 0
+	}
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d - rlib.Business with designation %s does net exist\n", funcname, lineno, sa[0])
-			return
+			rlib.Ulog("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity
 		}
 		a.BID = b1.BID
 	}
@@ -88,7 +96,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 		r, err = rlib.GetRentableByName(s, a.BID)
 		if err != nil {
 			fmt.Printf("%s: line %d - Error loading rlib.Rentable named: %s.  Error = %v\n", funcname, lineno, s, err)
-			return
+			return CsvErrorSensitivity
 		}
 		a.RID = r.RID
 	}
@@ -96,19 +104,19 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Get the dates
 	//-------------------------------------------------------------------
-	DtStart, err := rlib.StringToDate(sa[4])
+	d1, err := rlib.StringToDate(sa[4])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[4])
-		return
+		return CsvErrorSensitivity
 	}
-	a.Start = DtStart
+	a.Start = d1
 
-	DtStop, err := rlib.StringToDate(sa[5])
+	d2, err := rlib.StringToDate(sa[5])
 	if err != nil {
 		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[5])
-		return
+		return CsvErrorSensitivity
 	}
-	a.Stop = DtStop
+	a.Stop = d2
 
 	//-------------------------------------------------------------------
 	// rlib.Assessment Type
@@ -121,7 +129,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	gla, ok := rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
 	if !ok {
 		fmt.Printf("%s: line %d - rlib.Assessment type is invalid: %s\n", funcname, lineno, sa[2])
-		return
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
@@ -138,7 +146,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 				funcname, lineno, gla.RARequired)
 			fmt.Printf("Rental Agreement start/stop: %s - %s \n", ra.AgreementStart.Format(rlib.RRDATEFMT3), ra.AgreementStop.Format(rlib.RRDATEFMT3))
 			fmt.Printf("      Assessment start/stop: %s - %s \n", a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
-			return
+			return CsvErrorSensitivity
 		}
 	}
 
@@ -153,7 +161,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	a.RentCycle, _ = rlib.IntFromString(sa[7], "Accrual value is invalid")
 	if !rlib.IsValidAccrual(a.RentCycle) {
 		fmt.Printf("%s: line %d - Accrual must be between %d and %d.  Found %s\n", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, sa[7])
-		return
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
@@ -162,11 +170,11 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	a.ProrationCycle, _ = rlib.IntFromString(sa[8], "Proration value is invalid")
 	if !rlib.IsValidAccrual(a.ProrationCycle) {
 		fmt.Printf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, a.ProrationCycle)
-		return
+		return CsvErrorSensitivity
 	}
 	if a.ProrationCycle > a.RentCycle {
 		fmt.Printf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationCycle, a.RentCycle)
-		return
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
@@ -174,7 +182,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	a.InvoiceNo, ok = rlib.IntFromString(sa[9], "InvoiceNo is invalid")
 	if !ok {
-		return
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
@@ -187,31 +195,31 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	if len(a.AcctRule) == 0 {
 		fmt.Printf("%s: line %d - Skipping this record as there is no AcctRule\n", funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 	if a.Amount == 0 {
 		fmt.Printf("%s: line %d - Skipping this record as the Amount is 0\n", funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 	if a.RID == 0 {
 		fmt.Printf("%s: line %d - Skipping this record as the rlib.Rentable ID could not be found\n", funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 	if a.BID == 0 {
 		fmt.Printf("%s: line %d - Skipping this record as the rlib.Business could not be found\n", funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 
 	if a.RAID == 0 {
 		fmt.Printf("%s: line %d - Skipping this record as the Rental Agreement could not be found\n", funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 
 	_, err = rlib.InsertAssessment(&a)
 	if err != nil {
 		fmt.Printf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
 	}
-
+	return 0
 }
 
 // LoadAssessmentsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each

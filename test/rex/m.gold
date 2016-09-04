@@ -1,7 +1,9 @@
-      ASMID       PASMID        RAID        RID  RCYC  PCYC     AMOUNT  TYPE                                 ACCOUNT RULE
-ASM00000001  ASM00000000  RA00000001  R00000001     6     4    3750.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000002  ASM00000000  RA00000002  R00000002     6     4    3550.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
-ASM00000003  ASM00000000  RA00000003  R00000003     6     4    4400.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -
-ASM00000004  ASM00000000  RA00000003  R00000003     0     0    2434.71  Forfeited Security Deposit           d ${GLSECDEP} _, c 50213 _
-ASM00000005  ASM00000000  RA00000003  R00000003     0     0     865.29  Security Deposit Receivable          d ${GLSECDEP} _, c 59997 _
+                                                               Proration                                                                                                 
+ASMID        PASMID      RAID        RID        Rent Cycle     Cycle              Amount  AsmType                      Account Rule                                      
+-----------  ----------  ----------  ---------  -------------  -------------  ----------  ---------------------------  --------------------------------------------------
+ASM00000001  ASM0000000  RA00000001  R00000001  monthly        daily            3,750.00  Gross Schedule Rent          d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} 
+ASM00000002  ASM0000000  RA00000002  R00000002  monthly        daily            3,550.00  Gross Schedule Rent          d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} 
+ASM00000003  ASM0000000  RA00000003  R00000003  monthly        daily            4,400.00  Gross Schedule Rent          d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} 
+ASM00000004  ASM0000000  RA00000003  R00000003  non-recurring  non-recurring    2,434.71  Forfeited Security Deposit   d ${GLSECDEP} _, c 50213 _                        
+ASM00000005  ASM0000000  RA00000003  R00000003  non-recurring  non-recurring      865.29  Security Deposit Receivable  d ${GLSECDEP} _, c 59997 _                        
 

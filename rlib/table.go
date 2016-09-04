@@ -25,8 +25,8 @@ const (
 	CELLSTRING = 3
 	CELLDATE   = 4
 
-	OUTTEXT = 1
-	OUTHTML = 2
+	TABLEOUTTEXT = 1
+	TABLEOUTHTML = 2
 )
 
 // Cell is the basic data value type for the Table class.
@@ -70,6 +70,21 @@ type Table struct {
 	DateFmt      string      // format for printing dates
 	LineAfter    []int       // array of row numbers that have a horizontal line after they are printed
 	RS           []Rowset    // a list of rowsets
+}
+
+// TypeToString returns a string describing the data type of the cell.
+func (c *Cell) TypeToString() string {
+	switch c.Type {
+	case CELLSTRING:
+		return "string"
+	case CELLINT:
+		return "int"
+	case CELLFLOAT:
+		return "float"
+	case CELLDATE:
+		return "date"
+	}
+	return "unknown"
 }
 
 // Init sets internal formatting controls to their default values
@@ -157,10 +172,10 @@ func (t *Table) AdjustColumnHeader(cd *ColumnDef) {
 	j := 0
 	maxColWidth := 0
 	for i := 0; i < len(sa); i++ { // spin through all substrings
-		if len(sa[i]) < cd.Width && i+1 < len(sa) { // if the width of this substring is less than the requested width, and we're not at the end of the list
+		if len(sa[i]) <= cd.Width && i+1 < len(sa) { // if the width of this substring is less than the requested width, and we're not at the end of the list
 			s := sa[i]                         // we know we're adding this one
 			for k := i + 1; k < len(sa); k++ { // take as many as possible
-				if len(s)+len(sa[k])+1 < cd.Width { // if it fits...
+				if len(s)+len(sa[k])+1 <= cd.Width { // if it fits...
 					s += " " + sa[k] // ...add it to the list...
 					i = k            // ...and keep loop in sync
 				}
@@ -425,9 +440,9 @@ func (t *Table) SprintRow(row, f int) string {
 		return ""
 	}
 	switch f {
-	case OUTTEXT:
+	case TABLEOUTTEXT:
 		return t.SprintRowText(row)
-	case OUTHTML:
+	case TABLEOUTHTML:
 		return t.SprintRowHTML(row)
 	}
 	Ulog("SprintRow unrecognized format:  %d\n", f)
@@ -471,9 +486,9 @@ func (t *Table) SprintColHdrsHTML() string {
 // SprintColumnHeaders returns a string with the column headers formatted as type f
 func (t *Table) SprintColumnHeaders(f int) string {
 	switch f {
-	case OUTTEXT:
+	case TABLEOUTTEXT:
 		return t.SprintColHdrsText()
-	case OUTHTML:
+	case TABLEOUTHTML:
 		return t.SprintColHdrsHTML()
 	}
 	Ulog("SprintColumnHeaders unrecognized format:  %d\n", f)
@@ -484,9 +499,9 @@ func (t *Table) SprintColumnHeaders(f int) string {
 func (t *Table) SprintTable(f int) string {
 	var s string
 	switch f {
-	case OUTTEXT:
+	case TABLEOUTTEXT:
 		s = t.SprintColHdrsText()
-	case OUTHTML:
+	case TABLEOUTHTML:
 		s = t.SprintColHdrsHTML()
 	}
 	for i := 0; i < t.Rows(); i++ {
@@ -498,7 +513,7 @@ func (t *Table) SprintTable(f int) string {
 // String is the "stringer" method implementation for go so that you can simply
 // print(t)
 func (t Table) String() string {
-	return t.SprintTable(OUTTEXT)
+	return t.SprintTable(TABLEOUTTEXT)
 }
 
 // InsertRow adds a new Row at the specified index.
@@ -604,6 +619,38 @@ func (t *Table) DeleteRow(row int) {
 				t.RS[i].R[j]--
 			}
 		}
+	}
+}
+
+// TightenColumns goes through all values in STRING columnx and determines the maximum length in characters.
+// If this length is less than the column width the column width is reduced to the max.  This is
+// mostly useful for text formatting.
+func (t *Table) TightenColumns() {
+	for i := 0; i < len(t.ColDefs); i++ {
+		if t.ColDefs[i].CellType != CELLSTRING {
+			continue
+		}
+		max := 0
+		for j := 0; j < len(t.ColDefs[i].Hdr); j++ { // first, find the max len of the col hdrs
+			l := len(t.ColDefs[i].Hdr[j])
+			if max < l {
+				max = l
+			}
+		}
+		for j := 0; j < len(t.Row); j++ { // continue by find the max width of cell values in this col
+			if t.Row[j].Col[i].Type == CELLSTRING {
+				l := len(t.Row[j].Col[i].Sval)
+				if max < l {
+					max = l
+				}
+			}
+		}
+		if max < t.ColDefs[i].Width { // if the max width is less than the column width, contract the column width
+			t.ColDefs[i].Width = max
+		}
+		cd := t.ColDefs[i]
+		t.AdjustFormatString(&cd)
+		t.ColDefs[i] = cd
 	}
 }
 

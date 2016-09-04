@@ -1,14 +1,14 @@
-                             Middle                                        Is                                                   
-TCID        First Name       Name        Last Name        Company          Company  Cell Phone         Primary Email            
-----------  ---------------  ----------  ---------------  ---------------  -------  -----------------  -------------------------
-TC00000001  Aaron                        Read                              No       123-456-7890       aaron@rexford.com        
-TC00000002  Kirsten                      Read                              No       123-456-7891       kirsten@rexford.com      
-TC00000003  Rita                         Costea                            No       123-456-7892       rita@rexford.com         
-TC00000004  Daniel                       Costea                            No       123-456-7893       daniel@rexford.com       
-TC00000005  Child1                       Costea                            No       123-456-7893a                               
-TC00000006  Gagik                        Haroutunian                       No       123-456-7894       gagik@rexford.com        
-TC00000007  Lauren                       Beck                              No       123-456-7895       lauren@rexford.com       
-TC00000008  Kevin                        Mills                             No       123-456-7896       kevin@rexford.com        
-TC00000009  Child 1                      Mills                             No       123-456-7896a                               
-TC00000010  Child 2                      Mills                             No       123-456-7896b                               
+                        Middle                        Is                                         
+TCID        First Name  Name    Last Name    Company  Company  Cell Phone     Primary Email      
+----------  ----------  ------  -----------  -------  -------  -------------  -------------------
+TC00000001  Aaron               Read                  No       123-456-7890   aaron@rexford.com  
+TC00000002  Kirsten             Read                  No       123-456-7891   kirsten@rexford.com
+TC00000003  Rita                Costea                No       123-456-7892   rita@rexford.com   
+TC00000004  Daniel              Costea                No       123-456-7893   daniel@rexford.com 
+TC00000005  Child1              Costea                No       123-456-7893a                     
+TC00000006  Gagik               Haroutunian           No       123-456-7894   gagik@rexford.com  
+TC00000007  Lauren              Beck                  No       123-456-7895   lauren@rexford.com 
+TC00000008  Kevin               Mills                 No       123-456-7896   kevin@rexford.com  
+TC00000009  Child1              Mills                 No       123-456-7896a                     
+TC00000010  Child2              Mills                 No       123-456-7896b                     
 

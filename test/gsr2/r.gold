@@ -4,8 +4,6 @@
    -------------------------------------------------------------------------------------------------------------------------
    Description                                                       Date    RntAgr         Rentable     GL No        Amount
    -------------------------------------------------------------------------------------------------------------------------
-   J00000001  Gross Schedule Rent  309 Rexford [Rex1, monthly] 
-                                    General Accounts Receivable  03/01/16         1      309 Rexford     11001       3750.00
-                                            Gross Schedule Rent  03/01/16         1      309 Rexford     50201      -3970.00
-                                                  Loss to Lease  03/01/16         1      309 Rexford     50255        220.00
-                                                               
+   J00000001  Unassociated: 309 Rexford vacant Mar 1 - Apr 1   
+                                            Gross Schedule Rent  03/31/16         0      309 Rexford     50201      -3970.00
+                                                        Vacancy  03/31/16         0      309 Rexford     50251       3970.00

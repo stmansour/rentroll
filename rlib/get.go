@@ -149,10 +149,11 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 //=======================================================
 
 // GetCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
-func GetCustomAttribute(id int64) (CustomAttribute, error) {
+func GetCustomAttribute(id int64) CustomAttribute {
 	var a CustomAttribute
-	err := RRdb.Prepstmt.GetCustomAttribute.QueryRow(id).Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy)
-	return a, err
+	row := RRdb.Prepstmt.GetCustomAttribute.QueryRow(id)
+	ReadCustomAttribute(row, &a)
+	return a
 }
 
 // GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
@@ -172,9 +173,7 @@ func GetAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error
 	Errcheck(rows.Err())
 
 	for i := 0; i < len(t); i++ {
-		var c CustomAttribute
-		c, err := GetCustomAttribute(t[i])
-		Errcheck(err)
+		c := GetCustomAttribute(t[i])
 		m[c.Name] = c
 	}
 
@@ -873,7 +872,7 @@ func GetRentalAgreementsFromList(raa *[]RentalAgreementRentable) map[int64]Renta
 // GetAgreementsForRentable returns an array of RentalAgreementRentables associated with the supplied RentableID
 // during the time range d1-d2
 func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []RentalAgreementRentable {
-	rows, err := RRdb.Prepstmt.GetRentalAgreementRentables.Query(rid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsForRentable.Query(rid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	var t []RentalAgreementRentable
@@ -887,8 +886,8 @@ func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []RentalAgreementRen
 
 // GetRentalAgreementRentables returns an array of RentalAgreementRentables associated with the supplied RentalAgreement ID
 // during the time range d1-d2
-func GetRentalAgreementRentables(rid int64, d1, d2 *time.Time) []RentalAgreementRentable {
-	rows, err := RRdb.Prepstmt.GetRentalAgreementRentables.Query(rid, d1, d2)
+func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreementRentable {
+	rows, err := RRdb.Prepstmt.GetRentalAgreementRentables.Query(raid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	var t []RentalAgreementRentable
@@ -921,20 +920,19 @@ func GetRentalAgreementPayors(raid int64, d1, d2 *time.Time) []RentalAgreementPa
 //=======================================================
 
 // GetRentalAgreementTemplate returns the RentalAgreementTemplate struct for the supplied rental agreement id
-func GetRentalAgreementTemplate(ratid int64) (RentalAgreementTemplate, error) {
+func GetRentalAgreementTemplate(ratid int64) RentalAgreementTemplate {
 	var r RentalAgreementTemplate
-	err := RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(ratid).Scan(&r.RATID, &r.BID, &r.RentalTemplateNumber, &r.LastModTime, &r.LastModBy)
-	if nil != err {
-		Ulog("GetRentalAgreementTemplate: could not get rental agreement template with RATID = %d,  err = %v\n", ratid, err)
-	}
-	return r, err
+	row := RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(ratid)
+	ReadRentalAgreementTemplate(row, &r)
+	return r
 }
 
-// GetRentalAgreementByRentalTemplateNumber returns the RentalAgreementTemplate struct for the supplied rental agreement id
-func GetRentalAgreementByRentalTemplateNumber(ref string) (RentalAgreementTemplate, error) {
+// GetRentalAgreementByRATemplateName returns the RentalAgreementTemplate struct for the supplied rental agreement id
+func GetRentalAgreementByRATemplateName(ref string) RentalAgreementTemplate {
 	var r RentalAgreementTemplate
-	err := RRdb.Prepstmt.GetRentalAgreementByRentalTemplateNumber.QueryRow(ref).Scan(&r.RATID, &r.BID, &r.RentalTemplateNumber, &r.LastModTime, &r.LastModBy)
-	return r, err
+	row := RRdb.Prepstmt.GetRentalAgreementByRATemplateName.QueryRow(ref)
+	ReadRentalAgreementTemplate(row, &r)
+	return r
 }
 
 //=======================================================

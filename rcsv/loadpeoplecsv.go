@@ -14,6 +14,19 @@ type CSVColumn struct {
 	Index int
 }
 
+// CsvErrLoose et al, are constants used to control whether an error on a single line causes
+// the entire CSV process to terminate or continue.   If LOOSE, then it will skip the error line
+// and continue to process the remaining lines.  If STRICT, then the entire CSV loading process
+// will terminate if any error is encountered
+const (
+	CsvErrLoose  = 0
+	CsvErrStrict = 1
+)
+
+// CsvErrorSensitivity is the error return value used by all the loadXYZcsv.go routines. We
+// initialize to LOOSE as it is best for testing and should be OK for normal use as well.
+var CsvErrorSensitivity = int(CsvErrLoose)
+
 // ValidateCSVColumns verifies the column titles with the supplied, expected titles.
 // Returns:
 //   0 = everything is OK
@@ -201,36 +214,6 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 		return 0
 	}
 
-	// //------------------------------------
-	// // Validate the columns...
-	// //------------------------------------
-	// required := len(csvCols)
-	// if len(sa) < required {
-	// 	fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-	// 	l := len(sa)
-	// 	for i := 0; i < len(csvCols); i++ {
-	// 		if i < l {
-	// 			s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
-	// 			if s != strings.ToLower(csvCols[i].Name) {
-	// 				fmt.Printf("%s: line %d - Error at column heading %d, expected %s, found %s\n", funcname, lineno, i, csvCols[i].Name, sa[i])
-	// 				return 1
-	// 			}
-	// 		}
-	// 	}
-	// 	return 1
-	// }
-
-	// if lineno == 1 {
-	// 	for i := 0; i < len(csvCols); i++ {
-	// 		s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
-	// 		if s != strings.ToLower(csvCols[i].Name) {
-	// 			fmt.Printf("%s: line %d - Error at column heading %d, expected %s, found %s\n", funcname, lineno, i, csvCols[i].Name, sa[i])
-	// 			return 1
-	// 		}
-	// 	}
-	// 	return 0
-	// }
-
 	dateform := "2006-01-02"
 	pr.OtherPreferences = ""
 
@@ -246,8 +229,8 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 			if len(des) > 0 { // make sure it's not empty
 				b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 				if len(b1.Designation) == 0 {
-					rlib.Ulog("%s: line %d, Business with designation %s does net exist\n", funcname, lineno, sa[0])
-					return 2
+					rlib.Ulog("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
+					return CsvErrorSensitivity
 				}
 				tr.BID = b1.BID
 			}
@@ -264,11 +247,11 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
 					fmt.Printf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				if i < 0 || i > 1 {
 					fmt.Printf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				tr.IsCompany = i
 			}
@@ -297,7 +280,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
 					fmt.Printf("%s: line %d - Points value is invalid: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				t.Points = int64(i)
 			}
@@ -312,7 +295,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
 					fmt.Printf("%s: line %d - CarYear value is invalid: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				t.CarYear = int64(i)
 			}
@@ -327,7 +310,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
 					fmt.Printf("%s: line %d - AccountRep value is invalid: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				p.AccountRep = int64(i)
 			}
@@ -360,7 +343,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid SourceSLSID value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				t.SourceSLSID = y
 			}
@@ -368,7 +351,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid Credit Limit value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				p.CreditLimit = x
 			}
@@ -394,7 +377,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid ApplicationFee value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.ApplicationFee = x
 			}
@@ -407,7 +390,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				pr.DesiredUsageStartDate, err = rlib.StringToDate(s)
 				if err != nil {
 					rlib.Ulog("%s: line %d - Invalid DesiredUsageStartDate value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 			}
 		case RentableTypePreference:
@@ -415,7 +398,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				rt, err := rlib.GetRentableTypeByStyle(s, tr.BID)
 				if err != nil || rt.RTID == 0 {
 					rlib.Ulog("%s: line %d - Invalid DesiredUsageStartDate value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.RentableTypePreference = rt.RTID
 			}
@@ -424,7 +407,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid Approver UID value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.Approver = y
 			}
@@ -433,7 +416,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid DeclineReasonSLSID value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.DeclineReasonSLSID = y
 			}
@@ -450,7 +433,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid CSAgent ID value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.CSAgent = y
 			}
@@ -459,7 +442,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid OutcomeSLSID value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.OutcomeSLSID = y
 			}
@@ -468,7 +451,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid FloatingDeposit value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.FloatingDeposit = x
 			}
@@ -477,7 +460,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 				var y int64
 				if y, err = strconv.ParseInt(strings.TrimSpace(s), 10, 64); err != nil {
 					rlib.Ulog("%s: line %d - Invalid RAID value: %s\n", funcname, lineno, s)
-					return 2
+					return CsvErrorSensitivity
 				}
 				pr.RAID = y
 			}
@@ -492,14 +475,14 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.PrimaryEmail)
 		if t1.TCID > 0 {
 			rlib.Ulog("%s: line %d - rlib.Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
-			return 2
+			return CsvErrorSensitivity
 		}
 	}
 	if len(tr.CellPhone) > 0 {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.CellPhone)
 		if t1.TCID > 0 {
 			rlib.Ulog("%s: line %d - rlib.Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
-			return 2
+			return CsvErrorSensitivity
 		}
 	}
 
@@ -511,7 +494,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 		nl.NLID, err = rlib.InsertNoteList(&nl)
 		if err != nil {
 			fmt.Printf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
-			return 2
+			return CsvErrorSensitivity
 		}
 		var n rlib.Note
 		n.Comment = userNote
@@ -520,7 +503,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 		_, err = rlib.InsertNote(&n)
 		if err != nil {
 			fmt.Printf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
-			return 2
+			return CsvErrorSensitivity
 		}
 		tr.NLID = nl.NLID // start a notelist for this transactant
 	}
@@ -531,7 +514,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 	tcid, err := rlib.InsertTransactant(&tr)
 	if nil != err {
 		fmt.Printf("%s: line %d - error inserting Transactant = %v\n", funcname, lineno, err)
-		return 3
+		return CsvErrorSensitivity
 	}
 	tr.TCID = tcid
 	t.TCID = tcid
@@ -540,24 +523,24 @@ func CreatePeopleFromCSV(sa []string, lineno int) int {
 
 	if tcid == 0 {
 		fmt.Printf("%s: line %d - after InsertTransactant tcid = %d\n", funcname, lineno, tcid)
-		return 4
+		return CsvErrorSensitivity
 	}
 	_, err = rlib.InsertUser(&t)
 	if nil != err {
 		fmt.Printf("%s: line %d - error inserting rlib.User = %v\n", funcname, lineno, err)
-		return 5
+		return CsvErrorSensitivity
 	}
 
 	_, err = rlib.InsertPayor(&p)
 	if nil != err {
 		fmt.Printf("%s: line %d - error inserting rlib.Payor = %v\n", funcname, lineno, err)
-		return 6
+		return CsvErrorSensitivity
 	}
 
 	_, err = rlib.InsertProspect(&pr)
 	if nil != err {
 		fmt.Printf("%s: line %d - error inserting rlib.Prospect = %v\n", funcname, lineno, err)
-		return 7
+		return CsvErrorSensitivity
 	}
 	return 0
 }

@@ -31,26 +31,31 @@ type DispatchCtx struct {
 	Cmd          int                 // cmd to execute
 	DtStart      time.Time           // period start time
 	DtStop       time.Time           // period end
+	xbiz         rlib.XBusiness      // BUD from cmd line
 	OutputFormat int                 // how shall the output be formatted
 	Report       int64               // which report to generate - this is used in batch mode operation
 	Args         string              // full command line report string
+	CSVLoadStr   string              // if loading CSV file, this will have index,filename
 	w            http.ResponseWriter // for web responses
 	r            *http.Request       // for web request introspection
 }
 
 // App is the global data structure for this app
 var App struct {
-	dbdir     *sql.DB  // phonebook db
-	dbrr      *sql.DB  // rentroll db
-	DBDir     string   // phonebook database
-	DBRR      string   // rentroll database
-	PortRR    int      // port on which rentroll listens
-	DBUser    string   // user for all databases
-	Report    string   // if testing engine, which report/action to perform
-	LogFile   *os.File // where to log messages
-	BatchMode bool     // if true, then don't start http, the command line request is for a batch process
-	sStart    string   //start time
-	sStop     string   //stop time
+	dbdir        *sql.DB  // phonebook db
+	dbrr         *sql.DB  // rentroll db
+	DBDir        string   // phonebook database
+	DBRR         string   // rentroll database
+	PortRR       int      // port on which rentroll listens
+	DBUser       string   // user for all databases
+	Report       string   // if testing engine, which report/action to perform
+	LogFile      *os.File // where to log messages
+	BatchMode    bool     // if true, then don't start http, the command line request is for a batch process
+	SkipVacCheck bool     // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
+	CSVLoad      string   // if loading csv, this string will have index,filename
+	sStart       string   // start time
+	sStop        string   // stop time
+	Bud          string   // BUD from the command line
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
@@ -67,10 +72,13 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pStart := flag.String("j", "2015-11-01", "Accounting Period start time")
 	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
+	pBud := flag.String("b", "", "Business Unit Identifier (BUD)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	rptPtr := flag.String("r", "0", "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable, 4=Rentroll, 5=AssessmentCheck, 6=LedgerBalance, 7=RentableCountByType, 8=Statement, 9=Invoice, 10=LedgerActivity, 11=RentableGSR, 12-RALedgerBalanceOnDate,LID,RAID,Date, 13-RAAcctActivity,LID,RAID, 14,Date=delinqRpt")
+	pLoad := flag.String("L", "", "CSV Load index,filename")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
+	xPtr := flag.Bool("x", false, "if specified, inhibit vacancy checking")
 
 	flag.Parse()
 	if *verPtr {
@@ -85,6 +93,10 @@ func readCommandLineArgs() {
 	App.sStop = *pStop
 	App.PortRR = *portPtr
 	App.BatchMode = *bPtr
+	App.Bud = *pBud
+	App.SkipVacCheck = *xPtr
+	// fmt.Printf("*pLoad = %s\n", *pLoad)
+	App.CSVLoad = *pLoad
 }
 
 func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
@@ -116,6 +128,7 @@ func initHTTP() {
 
 func main() {
 	readCommandLineArgs()
+	// fmt.Printf("App.CSVLoad = %s\n", App.CSVLoad)
 	rlib.RRReadConfig()
 
 	//==============================================
@@ -131,7 +144,6 @@ func main() {
 	//----------------------------
 	// Open RentRoll database
 	//----------------------------
-	// s := fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", DBUser, DBRR)
 	s := rlib.RRGetSQLOpenString(App.DBRR)
 	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {

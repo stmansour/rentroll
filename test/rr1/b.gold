@@ -1,5 +1,7 @@
-CID       VALUETYPE  Name                                           Value Units     
-       1          1  Square Feet                                      672 sqft      
-       2          1  Square Feet                                      692 sqft      
-       3          1  Square Feet                                      952 sqft      
+           Value                           
+CID        Type   Name         Value  Units
+---------  -----  -----------  -----  -----
+C00000001  int    Square Feet    672  sqft 
+C00000002  int    Square Feet    692  sqft 
+C00000003  int    Square Feet    952  sqft 
 

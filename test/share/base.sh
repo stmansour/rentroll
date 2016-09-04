@@ -21,7 +21,6 @@ TESTCOUNT=0			## this is an internal counter, your external script should not to
 TREPORT="../testreport.txt"
 SCRIPTPATH=$(pwd -P)
 
-
 RRBIN="../../tmp/rentroll"
 RENTROLL="${RRBIN}/rentroll -A"
 CSVLOAD="${RRBIN}/rrloadcsv"
@@ -39,7 +38,6 @@ if [ "x" == "${BUD}x" ]; then
 	echo "BUD not set.  Setting to default = REX"
 	BUD="REX"
 fi
-
 
 #############################################################################
 #  This code ensures that mysql does not touch production databases.
@@ -64,8 +62,8 @@ csvload() {
 }
 
 app() {
-	echo "command is:  ${RENTROLL} ${RRDATERANGE} ${1}"
-	${RENTROLL} ${RRDATERANGE} ${1}
+	echo "command is:  ${RENTROLL} ${RRDATERANGE} -b ${BUD} ${1}"
+	${RENTROLL} ${RRDATERANGE} -b ${BUD} ${1}
 }
 
 #############################################################################
@@ -125,19 +123,19 @@ EOF
 	read -p "Enter choice: " choice
 	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
 	case ${choice} in
-		  d) app "-r 14,2015-05-25" ;;
-		 ir) app "-r 9,IN00001" ;;
-		  j) app "-r 1" ;;
-		  l) app "-r 2" ;;
-		 la) app "-r 10" ;;
-		 lb) app "-r 6" ;;
+		  d) app "-b ${BUD} -r 14,2015-05-25" ;;
+		 ir) app "-b ${BUD} -r 9,IN00001" ;;
+		  j) app "-b ${BUD} -r 1" ;;
+		  l) app "-b ${BUD} -r 2" ;;
+		 la) app "-b ${BUD} -r 10" ;;
+		 lb) app "-b ${BUD} -r 6" ;;
 		  a) csvload "-L 11,${BUD}" ;;
 		  b) csvload "-L 3" ;;
 		  c) csvload "-L 10,${BUD}" ;;
 		 ca) csvload "-L 14" ;;
 		 dm) csvload "-L 23,${BUD}" ;;
 		 dy) csvload "-L 18,${BUD}" ;;
-		  g) app "-r 11" ;;
+		  g) app "-b ${BUD} -r 11" ;;
 		  i) csvload "-L 20,${BUD}" ;;
 		 nt) csvload "-L 17,${BUD}" ;;
 		  p) csvload "-L 7,${BUD}" ;;
@@ -146,18 +144,18 @@ EOF
 		  q) exit 0 ;;
 		  r) csvload "-L 13,${BUD}" ;;
 		 ra) csvload "-L 9,${BUD}" ;;
-		rab) app "-r 12,11,RA001,2016-07-04"; app "-r 12,9,RA001,2016-07-04" ;;
-		 rc) app "-r 7" ;;
+		rab) app "-b ${BUD} -r 12,11,RA001,2016-07-04"; app "-b ${BUD} -r 12,9,RA001,2016-07-04" ;;
+		 rc) app "-b ${BUD} -r 7" ;;
 		 re) csvload "-L 6,${BUD}" ;;
 		 rp) csvload "-L 26,${BUD}" ;;
 		rpr) csvload "-L 27,${BUD}" ;;
-		 rr) app "-r 4" ;;
+		 rr) app "-b ${BUD} -r 4" ;;
 		 rs) csvload "-L 22,${BUD}" ;;
 		 rt) csvload "-L 5,${BUD}" ;;
 		  s) csvload "-L 21,${BUD}" ;;
 		 sa) csvload "-L 22,${BUD}" ;;
 		 so) csvload "-L 24,${BUD}" ;;
-		 st) app "-r 8" ;;
+		 st) app "-b ${BUD} -r 8" ;;
 		  t) csvload "-L 8" ;;
 		  u) csvload "-L 15" ;;
 		  x)	exit 0 ;;

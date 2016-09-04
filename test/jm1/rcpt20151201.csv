@@ -1,0 +1,4 @@
+BUD,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment
+REX,RA00000001,1,12/2/15,1126,7000,"ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _",Get the Security Deposit on the books
+REX,RA00000002,1,12/3/15,1597,3000,"ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _",Get the Security Deposit on the books
+REX,RA00000003,1,12/4/15,237,3300,"ASM(3) c ${GLGENRCV} _, ASM(3) d ${GLCASH} _",Get the Security Deposit on the books

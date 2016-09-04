@@ -16,9 +16,9 @@ fi
 
 docsvtest "a" "-F rspref.csv -L 21,${BUD}" "Specialties"
 
-dorrtest "b" "${RRDATERANGE} " "Process"
-dorrtest "c" "${RRDATERANGE} -r 1" "Journal"
-dorrtest "d" "${RRDATERANGE} -r 2" "Ledgers"
-dorrtest "e" "${RRDATERANGE} -r 5" "AssessmentCheck"
+dorrtest "b" "${RRDATERANGE} -b ${BUD} " "Process"
+dorrtest "c" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest "d" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest "e" "${RRDATERANGE} -b ${BUD} -r 5" "AssessmentCheck"
 
 logcheck

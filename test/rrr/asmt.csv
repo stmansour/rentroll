@@ -1,4 +1,4 @@
-BUD,RentableName,ATypeLID,Amount,Start,Stop,RAID,Frequency,ProrationMethod,Invoice No,AcctRule
+BUD,RentableName,GLAcctID,Amount,DtStart,DtStop,RAID,RentCycle,ProrationCycle,InvoiceNo,AcctRule
 REX,6303-231,3,76,7/1/16,7/4/16,1,4,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -"
 REX,6303-231,9,24,7/1/16,7/4/16,1,4,4,,"c ${GLGENRCV} _, d 41104 _"
 REX,6303-231,12,12.35,7/1/16,7/4/16,1,0,0,,"d ${GLGENRCV} _, c 41306 _"

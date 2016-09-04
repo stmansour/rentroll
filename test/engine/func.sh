@@ -18,18 +18,18 @@ else
 	exit 1
 fi
 
-dorrtest "a" "${RRDATERANGE}" "Process"
-dorrtest "b" "${RRDATERANGE} -r 1" "Journal"
-dorrtest "c" "${RRDATERANGE} -r 2" "Ledger"
-dorrtest "d" "${RRDATERANGE} -r 5" "AssessmentChecker"
-dorrtest "e" "${RRDATERANGE} -r 6" "LedgerBalance"
+dorrtest "a" "${RRDATERANGE} -b ${BUD}" "Process"
+dorrtest "b" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest "c" "${RRDATERANGE} -b ${BUD} -r 2" "Ledger"
+dorrtest "d" "${RRDATERANGE} -b ${BUD} -r 5" "AssessmentChecker"
+dorrtest "e" "${RRDATERANGE} -b ${BUD} -r 6" "LedgerBalance"
 
 docsvtest "f" "-u custom.csv -L 14" "CustomAttributes"
 docsvtest "g" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
 docsvtest "h" "-d depository.csv -y deposit.csv -L 19,${BUD}" "Deposits"
 
-dorrtest "i" "${RRDATERANGE} -r 7" "CountRentables"
+dorrtest "i" "${RRDATERANGE} -b ${BUD} -r 7" "CountRentables"
 docsvtest "j" "-i invoice.csv -L 20,${BUD}" "CreateInvoice"
-dorrtest "k" "${RRDATERANGE} -r 9,IN00001" "InvoiceReport"
+dorrtest "k" "${RRDATERANGE} -b ${BUD} -r 9,IN00001" "InvoiceReport"
 
 logcheck

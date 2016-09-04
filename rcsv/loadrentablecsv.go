@@ -11,7 +11,7 @@ import (
 // CSV file format:
 //   0  1     2               3                       4                                 5
 //                            "usr1;usr2;..usrN"      "S1,Strt1,Stp1;S2,Strt2,Stp2...", “A2,1/10/16,6/1/16;B2,6/1/16,”
-// BUD, Name, AssignmentTime, RentableUsers,          rlib.RentableStatus,                   rlib.RentableTypeRef
+// BUD, Name, AssignmentTime, RentableUsers,          RentableStatus,                   RentableTypeRef
 // REX, 101,  1,              "bill@x.com;sue@x.com"  "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
 // REX, 102,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
 // REX, 103,  1,                                      "1,1/1/14,6/15/16;2,6/15/16,",    "A2,1/1/14,6/1/16;B2,6/1/16,"
@@ -44,30 +44,46 @@ func readTwoDates(s1, s2 string, funcname string, lineno int) (time.Time, time.T
 }
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRentables(sa []string, lineno int) {
+func CreateRentables(sa []string, lineno int) int {
 	funcname := "CreateRentables"
 	var err error
 	var r rlib.Rentable
 
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "bud" {
-		return // this is just the column heading
+	const (
+		BUD             = 0
+		Name            = iota
+		AssignmentTime  = iota
+		RUserSpec       = iota
+		RentableStatus  = iota
+		RentableTypeRef = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"Name", Name},
+		{"AssignmentTime", AssignmentTime},
+		{"RUserSpec", RUserSpec},
+		{"RentableStatus", RentableStatus},
+		{"RentableTypeRef", RentableTypeRef},
 	}
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 5
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+
+	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+		return 1
+	}
+	if lineno == 1 {
+		return 0
 	}
 
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
+	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
 			rlib.Ulog("%s: line %d - Business with bud %s does not exist\n", funcname, lineno, des)
-			return
+			return CsvErrorSensitivity
 		}
 		r.BID = b1.BID
 	}
@@ -82,12 +98,12 @@ func CreateRentables(sa []string, lineno int) {
 		s := err.Error()
 		if !strings.Contains(s, "no rows") {
 			fmt.Printf("%s: lineno %d - error with rlib.GetRentableByName: %s\n", funcname, lineno, err.Error())
-			return
+			return CsvErrorSensitivity
 		}
 	}
 	if r1.RID > 0 {
 		fmt.Printf("%s: lineno %d - Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, r.Name)
-		return
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
@@ -98,7 +114,7 @@ func CreateRentables(sa []string, lineno int) {
 		i, err := strconv.Atoi(sa[2])
 		if err != nil || i < 0 || i > 2 {
 			fmt.Printf("%s: lineno %d - invalid AssignmentTime number: %s\n", funcname, lineno, sa[2])
-			return
+			return CsvErrorSensitivity
 		}
 		r.AssignmentTime = int64(i)
 	}
@@ -117,28 +133,24 @@ func CreateRentables(sa []string, lineno int) {
 			if len(ss) != 3 {
 				fmt.Printf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 					funcname, lineno, len(ss), ss)
-				return
+				return CsvErrorSensitivity
 			}
 
 			var ru rlib.RentableUser // struct for the data in this 3-tuple
 			name := strings.TrimSpace(ss[0])
-			t := rlib.GetTransactantByPhoneOrEmail(name)
-			// if err != nil && !rlib.IsSQLNoResultsError(err) {
-			// 	rerr := fmt.Sprintf("%s: line %d - error retrieving rlib.Transactant by phone or email: %v", funcname, lineno, err)
-			// 	fmt.Printf("%s", rerr)
-			// 	return
-			// }
-			if t.TCID == 0 {
+			// t := rlib.GetTransactantByPhoneOrEmail(name)
+			n, err := CSVLoaderTransactantList(name)
+			if n[0].TCID == 0 {
 				rerr := fmt.Sprintf("%s: line %d - could not find Transactant with contact information %s\n", funcname, lineno, name)
 				fmt.Printf("%s", rerr)
-				return
+				return CsvErrorSensitivity
 			}
-			ru.TCID = t.TCID
+			ru.TCID = n[0].TCID
 
 			ru.DtStart, ru.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 			if err != nil {
 				fmt.Printf("%s", err.Error())
-				return
+				return CsvErrorSensitivity
 			}
 			rul = append(rul, ru) // add this struct to the list
 		}
@@ -151,7 +163,7 @@ func CreateRentables(sa []string, lineno int) {
 	if 0 == len(strings.TrimSpace(sa[4])) {
 		fmt.Printf("%s: lineno %d - rlib.RentableStatus value is required.\n",
 			funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 	var m []rlib.RentableStatus     // keep every rlib.RentableStatus we find in an array
 	st := strings.Split(sa[4], ";") // split it on Status 3-tuple separator (;)
@@ -160,7 +172,7 @@ func CreateRentables(sa []string, lineno int) {
 		if len(ss) != 3 {
 			fmt.Printf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 				funcname, lineno, len(ss), ss)
-			return
+			return CsvErrorSensitivity
 		}
 
 		var rs rlib.RentableStatus // struct for the data in this 3-tuple
@@ -168,21 +180,21 @@ func CreateRentables(sa []string, lineno int) {
 		if err != nil || ix < rlib.RENTABLESTATUSONLINE || ix > rlib.RENTABLESTATUSLAST {
 			fmt.Printf("%s: lineno %d - invalid Status value: %s.  Must be in the range %d to %d\n",
 				funcname, lineno, ss[0], rlib.RENTABLESTATUSONLINE, rlib.RENTABLESTATUSLAST)
-			return
+			return CsvErrorSensitivity
 		}
 		rs.Status = int64(ix)
 
 		rs.DtStart, rs.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 		if err != nil {
 			fmt.Printf("%s", err.Error())
-			return
+			return CsvErrorSensitivity
 		}
 		m = append(m, rs) // add this struct to the list
 	}
 	if len(m) == 0 {
 		fmt.Printf("%s: lineno %d - rlib.RentableStatus value is required.\n",
 			funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 
 	//-----------------------------------------------------------------------------------
@@ -192,7 +204,7 @@ func CreateRentables(sa []string, lineno int) {
 	if 0 == len(strings.TrimSpace(sa[5])) {
 		fmt.Printf("%s: lineno %d - rlib.Rentable RTID Ref value is required.\n",
 			funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
 	var n []rlib.RentableTypeRef
 	st = strings.Split(sa[5], ";") // split on RTID 3-tuple seperator (;)
@@ -201,7 +213,7 @@ func CreateRentables(sa []string, lineno int) {
 		if len(ss) != 3 {
 			fmt.Printf("%s: lineno %d - invalid RTID syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 				funcname, lineno, len(ss), ss)
-			return
+			return CsvErrorSensitivity
 		}
 
 		var rt rlib.RentableTypeRef                                                  // struct for the data in this 3-tuple
@@ -209,14 +221,14 @@ func CreateRentables(sa []string, lineno int) {
 		if err != nil {
 			fmt.Printf("%s: lineno %d - Could not load rentable type with style name: %s  -- error = %s\n",
 				funcname, lineno, ss[0], err.Error())
-			return
+			return CsvErrorSensitivity
 		}
 		rt.RTID = rstruct.RTID
 
 		rt.DtStart, rt.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 		if err != nil {
 			fmt.Printf("%s", err.Error())
-			return
+			return CsvErrorSensitivity
 		}
 		n = append(n, rt) // add this struct to the list
 	}
@@ -248,12 +260,15 @@ func CreateRentables(sa []string, lineno int) {
 			}
 		}
 	}
+	return 0
 }
 
 // LoadRentablesCSV loads a csv file with rental specialty types and processes each one
 func LoadRentablesCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRentables(t[i], i+1)
+		if CreateRentables(t[i], i+1) > 0 {
+			return
+		}
 	}
 }

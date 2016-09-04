@@ -1,3 +1,8 @@
-      ASMID       PASMID        RAID        RID  RCYC  PCYC     AMOUNT  TYPE                                 ACCOUNT RULE
-ASM00000001  ASM00000000  RA00000001  R00000001     6     4    3750.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+CreateAssessmentsFromCSV: line 2 - error loading Rental Agreement with RAID = 1,  error = sql: no rows in result set
+CreateAssessmentsFromCSV: line 2 - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: 0
+Rental Agreement start/stop: 1/1/0001 - 1/1/0001 
+      Assessment start/stop: 3/1/2016 - 3/1/2018 
+                                      Proration                                   
+ASMID  PASMID  RAID  RID  Rent Cycle  Cycle          Amount  AsmType  Account Rule
+-----  ------  ----  ---  ----------  ---------  ----------  -------  ------------
 

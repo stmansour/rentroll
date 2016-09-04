@@ -21,8 +21,8 @@ docsvtest "k" "-A asmt.csv -L 11,${BUD}" "Assessments"
 docsvtest "l" "-e rcpt.csv -L 13,${BUD}" "Receipts"
 
 # process payments and receipts
-dorrtest "m" "${RRDATERANGE}" "Process"
-dorrtest "n" "${RRDATERANGE} -r 1" "Journal"
-dorrtest "o" "${RRDATERANGE} -r 2" "Ledgers"
+dorrtest "m" "${RRDATERANGE} -b ${BUD}" "Process"
+dorrtest "n" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest "o" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
 
 logcheck

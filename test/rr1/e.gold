@@ -1,18 +1,18 @@
-                             Middle                                        Is                                                   
-TCID        First Name       Name        Last Name        Company          Company  Cell Phone         Primary Email            
-----------  ---------------  ----------  ---------------  ---------------  -------  -----------------  -------------------------
-TC00000001  Joshua                       Jones            ABC Corporation  No       123-456-7890       JJones@abc.com           
-TC00000002                                                ABC Corporation  Yes      123-983-2244       info@abc.com             
-TC00000003  Amanda                       Smith                             No       123-456-7891       asmith@gmail.com         
-TC00000004  Christoph                    Jones            ARC Energy       No       123-456-7892       cjones@arcenergy.com     
-TC00000005                                                ARC Energy       Yes      123-945-3715       info@arcenergy.com       
-TC00000006  Cindy                        Jones                             No       123-456-7893       CindyJ@rexford.com       
-TC00000007  Edith                        Jones                             No       123-456-8516       EdithJ@rexford.com       
-TC00000008  Ed                           Jones                             No       123-456-7894       edj@rexford.com          
-TC00000009  Amanda                       Curry                             No       123-456-2337       acurry@rexford.com       
-TC00000010  Jeb                          Night                             No       123-456-8519       jnight@rexford.com       
-TC00000011  Chris            P           Bacon                             No       123-456-6571       chris@bacon.com          
-TC00000012  Betty                        Diddit                            No       123-456-9435       betty@diddit.com         
-TC00000013  Betty                        Diddent                           No       123-456-0055       betty@diddent.com        
-TC00000014  Leeloo                       Kaixin                            No       123-456-0066       leeloo@kaixin.com        
+                        Middle                              Is                                         
+TCID        First Name  Name    Last Name  Company          Company  Cell Phone    Primary Email       
+----------  ----------  ------  ---------  ---------------  -------  ------------  --------------------
+TC00000001  Joshua              Jones      ABC Corporation  No       123-456-7890  JJones@abc.com      
+TC00000002                                 ABC Corporation  Yes      123-983-2244  info@abc.com        
+TC00000003  Amanda              Smith                       No       123-456-7891  asmith@gmail.com    
+TC00000004  Christoph           Jones      ARC Energy       No       123-456-7892  cjones@arcenergy.com
+TC00000005                                 ARC Energy       Yes      123-945-3715  info@arcenergy.com  
+TC00000006  Cindy               Jones                       No       123-456-7893  CindyJ@rexford.com  
+TC00000007  Edith               Jones                       No       123-456-8516  EdithJ@rexford.com  
+TC00000008  Ed                  Jones                       No       123-456-7894  edj@rexford.com     
+TC00000009  Amanda              Curry                       No       123-456-2337  acurry@rexford.com  
+TC00000010  Jeb                 Night                       No       123-456-8519  jnight@rexford.com  
+TC00000011  Chris       P       Bacon                       No       123-456-6571  chris@bacon.com     
+TC00000012  Betty               Diddit                      No       123-456-9435  betty@diddit.com    
+TC00000013  Betty               Diddent                     No       123-456-0055  betty@diddent.com   
+TC00000014  Leeloo              Kaixin                      No       123-456-0066  leeloo@kaixin.com   
 

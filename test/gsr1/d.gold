@@ -1,6 +1,6 @@
-                                                                                  Manage                                                                                                  
-                                                   Rent      Proration            To                                                                                                      
-RTID        Style       Name                       Cycle     Cycle      GSRPC     Budget  Dt1 - Dt2 : Market Rate                                                                         
-----------  ----------  -------------------------  --------  ---------  --------  ------  ------------------------------------------------------------------------------------------------
-RT00000001  Rex1        309 Rexford                monthly   daily      daily     Yes     |    1/1/14 -   1/1/17 $ 3750.00                                                                
+                                                           Manage                                  
+                                Rent     Proration         To                                      
+RTID        Style  Name         Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
+----------  -----  -----------  -------  ---------  -----  ------  --------------------------------
+RT00000001  Rex1   309 Rexford  monthly  daily      daily  Yes     |    1/1/14 -   1/1/17 $ 3750.00
 

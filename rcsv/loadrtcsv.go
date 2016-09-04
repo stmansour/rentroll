@@ -32,26 +32,50 @@ func GetBusinessBID(des string) int64 {
 // REH,        "KDS",	"KD Suite",    	6,		       4,      4,     1,             2000.00,   1/1/2015, 1/1/2017
 // REH,        "VEH",	Vehicle,       	3,		       0,      4,     1,             10.0,   1/1/2015, 1/1/2017
 // REH,        "CPT",	Carport,       	6,		       4,      4,     1,             35.0,   1/1/2015, 1/1/2017
-func CreateRentableType(sa []string, lineno int) {
+func CreateRentableType(sa []string, lineno int) int {
 	funcname := "CreateRentableType"
-	des := strings.TrimSpace(sa[0])
-	if des == "Designation" {
-		return // this is just the column heading
+	const (
+		BUD            = 0
+		Style          = iota
+		Name           = iota
+		RentCycle      = iota
+		Proration      = iota
+		GSRPC          = iota
+		ManageToBudget = iota
+		MarketRate     = iota
+		DtStart        = iota
+		DtStop         = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"Style", Style},
+		{"Name", Name},
+		{"RentCycle", RentCycle},
+		{"Proration", Proration},
+		{"GSRPC", GSRPC},
+		{"ManageToBudget", ManageToBudget},
+		{"MarketRate", MarketRate},
+		{"DtStart", DtStart},
+		{"DtStop", DtStop},
 	}
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 9
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+
+	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+		return 1
+	}
+	if lineno == 1 {
+		return 0
 	}
 
 	//-------------------------------------------------------------------
 	// Check to see if this rlib.Rentable type is already in the database
 	//-------------------------------------------------------------------
+	des := strings.TrimSpace(sa[0])
 	var a rlib.RentableType
 	bid := GetBusinessBID(des)
 	if bid == 0 {
-		return
+		return CsvErrorSensitivity
 	}
 
 	a.BID = bid
@@ -60,11 +84,11 @@ func CreateRentableType(sa []string, lineno int) {
 		rt, err := rlib.GetRentableTypeByStyle(a.Style, bid)
 		if nil != err && !rlib.IsSQLNoResultsError(err) {
 			rlib.Ulog("%s: line %d - err = %v\n", funcname, lineno, err)
-			return
+			return CsvErrorSensitivity
 		}
 		if rt.RTID > 0 {
 			rlib.Ulog("%s: line %d - rlib.RentableType named %s already exists\n", funcname, lineno, a.Style)
-			return
+			return CsvErrorSensitivity
 		}
 	}
 
@@ -76,32 +100,32 @@ func CreateRentableType(sa []string, lineno int) {
 	n, err := strconv.Atoi(strings.TrimSpace(sa[3])) // frequency
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
 		rlib.Ulog("%s: line %d - Invalid rental frequency: %s\n", funcname, lineno, sa[3])
-		return
+		return CsvErrorSensitivity
 	}
 	a.RentCycle = int64(n)
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[4])) // Proration
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
 		rlib.Ulog("%s: line %d - Invalid rental proration frequency: %s\n", funcname, lineno, sa[4])
-		return
+		return CsvErrorSensitivity
 	}
 	a.Proration = int64(n)
 	if a.Proration > a.RentCycle {
 		rlib.Ulog("%s: line %d - Proration frequency (%d) must be greater than rental frequency (%d)\n", funcname, lineno, a.Proration, a.RentCycle)
-		return
+		return CsvErrorSensitivity
 	}
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[5])) // Proration
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
 		rlib.Ulog("%s: line %d - Invalid rental GSRPC: %s\n", funcname, lineno, sa[5])
-		return
+		return CsvErrorSensitivity
 	}
 	a.GSRPC = int64(n)
 
 	n64, err := rlib.YesNoToInt(strings.TrimSpace(sa[6])) // manage to budget
 	if err != nil {
 		rlib.Ulog("%s: line %d - Invalid manage to budget flag: %s\n", funcname, lineno, sa[6])
-		return
+		return CsvErrorSensitivity
 	}
 	a.ManageToBudget = int64(n64)
 
@@ -119,34 +143,37 @@ func CreateRentableType(sa []string, lineno int) {
 			m.RTID = rtid
 			if x, err = strconv.ParseFloat(strings.TrimSpace(sa[i]), 64); err != nil {
 				rlib.Ulog("%s: line %d - Invalid floating point number: %s   err = %s\n", funcname, lineno, sa[i], err.Error())
-				return
+				return CsvErrorSensitivity
 			}
 			m.MarketRate = x
 			DtStart, err := rlib.StringToDate(sa[i+1])
 			if err != nil {
 				fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[i+1])
-				return
+				return CsvErrorSensitivity
 			}
 			m.DtStart = DtStart
 			DtStop, err := rlib.StringToDate(sa[i+2])
 			if err != nil {
 				fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[i+2])
-				return
+				return CsvErrorSensitivity
 			}
 			m.DtStop = DtStop
 			if m.DtStart.After(m.DtStop) {
 				fmt.Printf("%s: line %d - Stop date (%s) must be after Start date (%s)\n", funcname, lineno, m.DtStop, m.DtStart)
-				return
+				return CsvErrorSensitivity
 			}
 			rlib.InsertRentableMarketRates(&m)
 		}
 	}
+	return 0
 }
 
 // LoadRentableTypesCSV loads a csv file with rlib.Rentable types and processes each one
 func LoadRentableTypesCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRentableType(t[i], i+1)
+		if CreateRentableType(t[i], i+1) > 0 {
+			return
+		}
 	}
 }

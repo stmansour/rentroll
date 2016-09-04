@@ -1,7 +1,6 @@
 package rcsv
 
 import (
-	"fmt"
 	"rentroll/rlib"
 	"strings"
 )
@@ -43,27 +42,37 @@ func writeStringList() error {
 }
 
 // CreateStringList creates a database record for the values supplied in sa[]
-func CreateStringList(sa []string, lineno int) {
+func CreateStringList(sa []string, lineno int) int {
 	funcname := "CreateStringList"
-	required := 3
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	const (
+		BUD   = 0
+		Name  = iota
+		Value = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"Name", Name},
+		{"Value", Value},
 	}
 
-	des := strings.ToLower(strings.TrimSpace(sa[0])) // this should be BUD
-	if strings.ToLower(des) == "bud" {
-		return // this is just the column heading
+	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+		return 1
+	}
+	if lineno == 1 {
+		return 0
 	}
 
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
-	if len(des) > 0 { // make sure it's not empty
+	des := strings.ToLower(strings.TrimSpace(sa[0])) // this should be BUD
+	if len(des) > 0 {                                // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d, Business with designation %s does net exist\n", funcname, lineno, sa[0])
-			return
+			rlib.Ulog("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity
 		}
 		// if business is changed, write the stringlist
 		if len(bud) > 0 && des != bud {
@@ -90,13 +99,16 @@ func CreateStringList(sa []string, lineno int) {
 	var sls rlib.SLString
 	sls.Value = strings.TrimSpace(sa[2])
 	a.S = append(a.S, sls)
+	return 0
 }
 
 // LoadStringTablesCSV loads a csv file with assessment types and processes each one
 func LoadStringTablesCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateStringList(t[i], i+1)
+		if CreateStringList(t[i], i+1) > 0 {
+			return
+		}
 	}
 	if len(a.S) > 0 {
 		writeStringList()

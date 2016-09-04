@@ -1,7 +1,9 @@
-RATID  BID         RentalTemplateNumber
-    1  B00000001   23jlk20951
-    2  B00000001   823988ldj
-    3  B00000001   983dslj3l2
-    4  B00000001   38235lkl
-    5  B00000001   832599
+           RA Template                  
+BID        ID           RA Template Name
+---------  -----------  ----------------
+B00000001  RAT00000001  23jlk20951      
+B00000001  RAT00000002  823988ldj       
+B00000001  RAT00000003  983dslj3l2      
+B00000001  RAT00000004  38235lkl        
+B00000001  RAT00000005  832599          
 

@@ -134,7 +134,7 @@ INSERT INTO Building (BID,Address,Address2,City,State,PostalCode,Country) VALUES
 
 
 -- Rental agreement templates
-INSERT INTO RentalAgreementTemplate (RentalTemplateNumber, BID) VALUES
+INSERT INTO RentalAgreementTemplate (RATemplateName, BID) VALUES
 	("RAT001", 1),
 	("RAT002", 1),	-- port
 	("RAT003", 1),	-- rental unit

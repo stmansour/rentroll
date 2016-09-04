@@ -1,3 +1,6 @@
- RAID  Payor                                     User                                       RentStart    RentStop  AgrmtStart   AgrmtStop
-    1  Aaron Read, Kirsten Read                  Aaron Read, Kirsten Read                  01/01/2004  06/01/2018  01/01/2004  06/01/2018
+CreateRentalAgreement: line 1 - found 9 values, there must be at least 15
+CreateRentalAgreement: line 1 - Error at column heading 0, expected BUD, found RATemplateName
+                   Agreement   Agreement   Possession  Possession                          Rent Cycle                                    
+RAID  Payor  User  Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal  Special Provisions  Notes
+----  -----  ----  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  ------------------  -----
 

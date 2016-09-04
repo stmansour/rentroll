@@ -35,14 +35,13 @@ func UIRentableCountByRentableTypeReport(xbiz *rlib.XBusiness, d1, d2 *time.Time
 	if err != nil {
 		fmt.Printf("UIRentableCountByRentableTypeReport: GetRentableCountByRentableType returned error: %s\n", err.Error())
 	}
-	s := fmt.Sprintf("%13s  %-20s  %-6s  %s\n", "No. Rentables", "RentableType Name", "Style", "Custom Attributes")
-	fmt.Print(s)
-	w := len(s) - 1 // subtract 1 for the newline character
-	s = ""
-	for i := 0; i < w; i++ {
-		s += "-"
-	}
-	fmt.Println(s)
+
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("No. Rentables", 9, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Rentable Type Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Style", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Custom Attributes", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	// need to sort these into a predictable order... they are messing up the tests as they
 	// seem to come back in random orders on different runs...
@@ -63,15 +62,22 @@ func UIRentableCountByRentableTypeReport(xbiz *rlib.XBusiness, d1, d2 *time.Time
 
 	for i := 0; i < len(keys); i++ {
 		j := int64(keys[i])
-		fmt.Printf("%13d  %-20.20s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
-		// for k := 0; k < len(m[j].RT.CA); k++ {
+		// fmt.Printf("%13d  %-20.20s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
+		t.AddRow()
+		t.Puti(-1, 0, m[j].Count)
+		t.Puts(-1, 1, m[j].RT.Name)
+		t.Puts(-1, 2, m[j].RT.Style)
+		s := ""
 		for k, v := range m[j].RT.CA {
-			// fmt.Printf("   %s: %s", m[j].RT.CA[k].Name, m[j].RT.CA[k].Value)
-			fmt.Printf("   %s: %s", k, v.Value)
+			if len(s) > 0 {
+				s += ", "
+			}
+			s += fmt.Sprintf("%s: %s %s", k, v.Value, v.Units)
 		}
-		fmt.Printf("\n")
+		t.Puts(-1, 3, s)
 	}
-	fmt.Printf("\n")
+	t.TightenColumns()
+	fmt.Print(t.SprintTable(rlib.TABLEOUTTEXT))
 }
 
 // UIStatementForRA generates a text Statement for the supplied rental agreement ra.

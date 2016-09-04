@@ -36,7 +36,7 @@ func CreateDepositMethod(sa []string, lineno int) {
 	if len(des) > 0 {        // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d, Business with designation %s does net exist\n", funcname, lineno, sa[0])
+			rlib.Ulog("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
 			return
 		}
 		a.BID = b1.BID
@@ -45,7 +45,7 @@ func CreateDepositMethod(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Check to see if this name type is already in the database
 	//-------------------------------------------------------------------
-	name := strings.TrimSpace(sa[1]) // this should be the RentalTemplateNumber
+	name := strings.TrimSpace(sa[1]) // this should be the RATemplateName
 	if len(name) > 0 {
 		a1, err := rlib.GetDepositMethodByName(a.BID, name)
 		if err != nil {

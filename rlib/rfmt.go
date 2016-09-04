@@ -101,6 +101,32 @@ func RoundToCent(x float64) float64 {
 	return float64(int64(x*float64(100)+xtra)) / float64(100)
 }
 
+// YesNoToInt takes multiple forms of "Yes" and converts to integer 1, multiple forms of "No" to integer 0
+func YesNoToInt(si string) (int64, error) {
+	s := strings.ToUpper(strings.TrimSpace(si))
+	switch {
+	case s == "Y" || s == "YES" || s == "1":
+		return YES, nil
+	case s == "N" || s == "NO" || s == "0":
+		return NO, nil
+	default:
+		err := fmt.Errorf("Unrecognized yes/no string: %s.", si)
+		return NO, err
+	}
+}
+
+// YesNoToString returns an appropriate string representation of the value i assummed to be YES or NO
+func YesNoToString(i int64) string {
+	switch i {
+	case YES:
+		return "Yes"
+	case NO:
+		return "No"
+	default:
+		return fmt.Sprintf("??? %d", i)
+	}
+}
+
 // DateToString rounds the supplied amount to the nearest cent.
 func DateToString(t time.Time) string {
 	return t.Format("01/02/2006")

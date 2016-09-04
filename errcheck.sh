@@ -7,5 +7,4 @@ if (( ERRCOUNT > 0 )); then
 	exit 1
 else
 	echo "ALL TESTS PASSED"
-	echo "Good job!"
 fi

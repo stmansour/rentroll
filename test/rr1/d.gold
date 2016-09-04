@@ -1,9 +1,9 @@
-                                                                                  Manage                                                                                                  
-                                                   Rent      Proration            To                                                                                                      
-RTID        Style       Name                       Cycle     Cycle      GSRPC     Budget  Dt1 - Dt2 : Market Rate                                                                         
-----------  ----------  -------------------------  --------  ---------  --------  ------  ------------------------------------------------------------------------------------------------
-RT00000001  A1          1BR1BA                     monthly   daily      daily     Yes     |    1/1/14 -   7/4/99 $  755.00                                                                
-RT00000002  A2          2BR2BA                     daily     daily      daily     Yes     |    1/1/14 -   7/5/16 $   76.00|    7/5/16 -  7/10/16 $   92.00|   7/10/16 -   1/1/99 $   56.87
-RT00000003  B5          3BR3BA                     daily     daily      daily     Yes     |   11/1/13 -   1/1/99 $  125.00                                                                
-RT00000004  A3          4BR3BA                     monthly   daily      daily     Yes     |   11/1/13 -   7/5/16 $ 3100.00|    7/5/16 -  7/10/16 $ 4000.00|   7/10/16 -   1/1/99 $ 3200.00
+                                                      Manage                                                                                                  
+                           Rent     Proration         To                                                                                                      
+RTID        Style  Name    Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate                                                                         
+----------  -----  ------  -------  ---------  -----  ------  ------------------------------------------------------------------------------------------------
+RT00000001  A1     1BR1BA  monthly  daily      daily  Yes     |    1/1/14 -   7/4/99 $  755.00                                                                
+RT00000002  A2     2BR2BA  daily    daily      daily  Yes     |    1/1/14 -   7/5/16 $   76.00|    7/5/16 -  7/10/16 $   92.00|   7/10/16 -   1/1/99 $   56.87
+RT00000003  B5     3BR3BA  daily    daily      daily  Yes     |   11/1/13 -   1/1/99 $  125.00                                                                
+RT00000004  A3     4BR3BA  monthly  daily      daily  Yes     |   11/1/13 -   7/5/16 $ 3100.00|    7/5/16 -  7/10/16 $ 4000.00|   7/10/16 -   1/1/99 $ 3200.00
 

@@ -161,21 +161,30 @@ func buildPreparedStatements() {
 	//==========================================
 	// Custom Attribute
 	//==========================================
-	RRdb.Prepstmt.InsertCustomAttribute, err = RRdb.Dbrr.Prepare("INSERT INTO CustomAttr (Type,Name,Value,Units,LastModBy) VALUES(?,?,?,?,?)")
+	flds = "CID,Type,Name,Value,Units,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetCustomAttribute, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttr WHERE CID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetCustomAttribute, err = RRdb.Dbrr.Prepare("SELECT CID,Type,Name,Value,Units,LastModTime,LastModBy FROM CustomAttr where CID=?")
+	RRdb.Prepstmt.GetAllCustomAttributes, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttr")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteCustomAttribute, err = RRdb.Dbrr.Prepare("DELETE FROM CustomAttr where CID=?")
+
+	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertCustomAttribute, err = RRdb.Dbrr.Prepare("INSERT INTO CustomAttr (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteCustomAttribute, err = RRdb.Dbrr.Prepare("DELETE FROM CustomAttr WHERE CID=?")
 	Errcheck(err)
 
 	//==========================================
 	// Custom Attribute Ref
 	//==========================================
+	flds = "ElementType,ID,CID"
+	RRdb.Prepstmt.GetCustomAttributeRefs, err = RRdb.Dbrr.Prepare("SELECT CID FROM CustomAttrRef WHERE ElementType=? and ID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllCustomAttributeRefs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttrRef")
+	Errcheck(err)
+
 	RRdb.Prepstmt.InsertCustomAttributeRef, err = RRdb.Dbrr.Prepare("INSERT INTO CustomAttrRef (ElementType,ID,CID) VALUES(?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.GetCustomAttributeRefs, err = RRdb.Dbrr.Prepare("SELECT CID FROM CustomAttrRef where ElementType=? and ID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteCustomAttributeRef, err = RRdb.Dbrr.Prepare("DELETE FROM CustomAttrRef where CID=? and ElementType=? and ID=?")
+	RRdb.Prepstmt.DeleteCustomAttributeRef, err = RRdb.Dbrr.Prepare("DELETE FROM CustomAttrRef WHERE CID=? and ElementType=? and ID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -589,7 +598,9 @@ func buildPreparedStatements() {
 	//====================================================
 	//  Rental Agreement { Rentable | Users | Payors }
 	//====================================================
-	RRdb.Prepstmt.GetRentalAgreementRentables, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>=DtStart")
+	RRdb.Prepstmt.GetRentalAgreementRentables, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RAID=? and ?<DtStop and ?>=DtStart")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAID,TCID,DtStart,DtStop from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
@@ -601,12 +612,12 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rental Agreement Template
 	//===============================
-	flds = "RATID,BID,RentalTemplateNumber,LastModTime,LastModBy"
+	flds = "RATID,BID,RATemplateName,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetAllRentalAgreementTemplates, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementTemplate")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementTemplate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementTemplate WHERE RATID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementByRentalTemplateNumber, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementTemplate WHERE RentalTemplateNumber=?")
+	RRdb.Prepstmt.GetRentalAgreementByRATemplateName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementTemplate WHERE RATemplateName=?")
 	Errcheck(err)
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentalAgreementTemplate, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementTemplate (" + s1 + ") VALUES(" + s2 + ")")

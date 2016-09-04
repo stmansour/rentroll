@@ -1,4 +1,4 @@
-Designation,Style,Name,Frequency,Proration,GSRPC,ManageToBudget,MarketRate,Dt1,Dt2,,,,,,
+BUD,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,MarketRate,DtStart,DtStop
 REX,A1,1BR1BA,6,4,4,1,755,1/1/2014,7/4/2100,,,,,,
 REX,A2,2BR2BA,4,4,4,1,76,1/1/2014,7/5/2016,92,7/5/2016,7/10/2016,56.87,7/10/2016,1/1/2100
 REX,B5,3BR3BA,4,4,4,1,125,11/1/2013,1/1/2100,,,,,,

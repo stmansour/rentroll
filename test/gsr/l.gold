@@ -1,3 +1,5 @@
-      ASMID       PASMID        RAID        RID  RCYC  PCYC     AMOUNT  TYPE                                 ACCOUNT RULE
-ASM00000001  ASM00000000  RA00000001  R00000001     6     4    3750.00  Gross Schedule Rent                  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+                                                            Proration                                                                                     
+ASMID        PASMID      RAID        RID        Rent Cycle  Cycle          Amount  AsmType              Account Rule                                      
+-----------  ----------  ----------  ---------  ----------  ---------  ----------  -------------------  --------------------------------------------------
+ASM00000001  ASM0000000  RA00000001  R00000001  monthly     daily        3,750.00  Gross Schedule Rent  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} 
 

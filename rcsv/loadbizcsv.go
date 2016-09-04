@@ -64,7 +64,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) int {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) > 0 {
 			rlib.Ulog("%s: line %d - rlib.Business Unit with designation %s already exists\n", funcname, lineno, des)
-			return 1
+			return CsvErrorSensitivity
 		}
 		found = false
 	}
@@ -75,9 +75,9 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) int {
 	if !found && len(des) > 0 {
 		bu, err := rlib.GetBusinessUnitByDesignation(des)
 		if nil != err {
-			if !rlib.IsSQLNoResultsError(err) { // if the error is something other than "no match" then report and return 1
+			if !rlib.IsSQLNoResultsError(err) { // if the error is something other than "no match" then report and return CsvErrorSensitivity
 				rlib.Ulog("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v\n", funcname, lineno, des, err)
-				return 1
+				return CsvErrorSensitivity
 			}
 		} else {
 			found = true
@@ -91,7 +91,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) int {
 	//-----------------------------------------
 	if b.DefaultRentCycle, ok = GetAccrual(strings.TrimSpace(sa[2])); !ok {
 		fmt.Printf("%s: line %d - Invalid Rent Cycle: %s\n", funcname, lineno, sa[2])
-		return 1
+		return CsvErrorSensitivity
 	}
 
 	//-----------------------------------------
@@ -99,7 +99,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) int {
 	//-----------------------------------------
 	if b.DefaultProrationCycle, ok = GetAccrual(strings.TrimSpace(sa[3])); !ok {
 		fmt.Printf("%s: line %d - Invalid Proration Cycle: %s\n", funcname, lineno, sa[3])
-		return 1
+		return CsvErrorSensitivity
 	}
 
 	//-----------------------------------------
@@ -107,7 +107,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) int {
 	//-----------------------------------------
 	if b.DefaultGSRPC, ok = GetAccrual(strings.TrimSpace(sa[4])); !ok {
 		fmt.Printf("%s: line %d - Invalid GSRPC: %s\n", funcname, lineno, sa[4])
-		return 1
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------

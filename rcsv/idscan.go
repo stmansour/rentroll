@@ -7,16 +7,23 @@ import (
 	"strings"
 )
 
-func readNumFromExpr(sa, expr, errmsg string) int64 {
+func readNumAndStatusFromExpr(sa, expr, errmsg string) (int64, bool) {
 	s := strings.TrimSpace(sa)
 	re, _ := regexp.Compile(expr)
 	m := re.FindStringSubmatch(s) // returns this pattern:  ["xxx0000001" "2"]
 	if len(m) > 0 {               // if the prefix was "DEP", m will have 2 elements, our number should be the second element
 		s = m[1]
 	}
-	s2 := errmsg + " is invalid"
-	id, _ := rlib.IntFromString(s, s2)
-	return id
+	s2 := ""
+	if "" != errmsg {
+		s2 = errmsg + " is invalid"
+	}
+	return rlib.IntFromString(s, s2)
+}
+
+func readNumFromExpr(sa, expr, errmsg string) int64 {
+	n, _ := readNumAndStatusFromExpr(sa, expr, errmsg)
+	return n
 }
 
 // CSVLoaderGetASMID parses a string of the form ASM000000321 and returns the ASMID , in this case 321.
@@ -64,6 +71,11 @@ func CSVLoaderGetRCPTID(sa string) int64 {
 	return readNumFromExpr(sa, "^RCPT0*(.*)", "RCPTID")
 }
 
+// CSVLoaderGetTCID parses a string of the form TC000000321 and returns the TCID , in this case 321.
+func CSVLoaderGetTCID(sa string) int64 {
+	return readNumFromExpr(sa, "^TC0*(.*)", "TCID")
+}
+
 // CSVLoaderTransactantList takes a comma separated list of email addresses and phone numbers
 // and returns an array of transactants for each.  If any of the addresses in the list
 // cannot be resolved to a rlib.Transactant, then processing stops immediately and an error is returned.
@@ -74,20 +86,20 @@ func CSVLoaderTransactantList(s string) ([]rlib.Transactant, error) {
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
 	ss := strings.Split(s2, ",")
 	for i := 0; i < len(ss); i++ {
-		s = strings.TrimSpace(ss[i]) // either the email address or the phone number
-		t := rlib.GetTransactantByPhoneOrEmail(s)
-		if 0 == t.TCID {
-			rerr := fmt.Errorf("%s:  error retrieving Transactant with phone or email: %s", funcname, s)
+		var a rlib.Transactant
+		s = strings.TrimSpace(ss[i])                          // either the email address or the phone number
+		n, ok := readNumAndStatusFromExpr(s, "^TC0*(.*)", "") // "" suppresses error messages
+		if ok {
+			rlib.GetTransactant(n, &a)
+		} else {
+			a = rlib.GetTransactantByPhoneOrEmail(s)
+		}
+		if 0 == a.TCID {
+			rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)
 			rlib.Ulog("%s", rerr.Error())
 			return m, rerr
 		}
-		// if t.PID == 0 {
-		// 	rerr := fmt.Errorf("%s:  could not find Transactant with contact information %s\n", funcname, s)
-		// 	rlib.Ulog("%s", rerr.Error())
-		// 	return m, rerr
-		// }
-
-		m = append(m, t)
+		m = append(m, a)
 	}
 	return m, noerr
 }

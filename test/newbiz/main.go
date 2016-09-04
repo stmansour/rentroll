@@ -259,7 +259,7 @@ func main() {
 	}
 	if len(App.RcptFile) > 0 {
 		App.PmtTypes = rlib.GetPaymentTypes()
-		rcsv.LoadReceiptsCSV(App.RcptFile, &App.PmtTypes)
+		rcsv.LoadReceiptsCSV(App.RcptFile)
 	}
 	if len(App.DepositFile) > 0 {
 		rcsv.LoadDepositCSV(App.DepositFile)

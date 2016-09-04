@@ -179,19 +179,8 @@ func RRreportRentableTypes(f int, bid int64) string {
 		}
 		t.Puts(-1, 7, s)
 	}
+	t.TightenColumns()
 	return t.SprintTable(f)
-}
-
-// ReportXPersonToText returns a string representation of the supplied People suitable for a text report
-func ReportXPersonToText(p *rlib.XPerson) string {
-	return fmt.Sprintf("TC%08d  %4d  %12s  %-25s  %-13s, %-12s %-2s  %-25s\n",
-		p.Trn.TCID, p.Trn.IsCompany, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName, p.Trn.CompanyName)
-}
-
-// ReportXPersonToHTML returns a string representation of the supplied People suitable for a text report
-func ReportXPersonToHTML(p *rlib.XPerson) string {
-	return fmt.Sprintf("<tr><td>TC%08d</td><td>%s</td><td>%s</td><td>%s, %s %s</td></tr>",
-		p.Trn.TCID, p.Trn.CellPhone, p.Trn.PrimaryEmail, p.Trn.LastName, p.Trn.FirstName, p.Trn.MiddleName)
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
@@ -226,107 +215,140 @@ func RRreportPeople(f int) string {
 		t.Puts(-1, 7, p.Trn.PrimaryEmail)
 	}
 	rlib.Errcheck(rows.Err())
-
+	t.TightenColumns()
 	return t.SprintTable(f)
 }
 
-// ReportRentableToText returns a string representation of the supplied rlib.Rentable suitable for a text report
-func ReportRentableToText(p *rlib.Rentable) string {
-	return fmt.Sprintf("%4d  %s\n",
-		p.RID, p.Name)
-}
-
-// ReportRentableToHTML returns a string representation of the supplied rlib.Rentable suitable for a text report
-func ReportRentableToHTML(p *rlib.Rentable) string {
-	return fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>",
-		p.RID, p.Name)
-}
-
 // RRreportRentables generates a report of all Businesses defined in the database.
-func RRreportRentables(t int, bid int64) string {
+func RRreportRentables(f int, bid int64) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf(" RID  Name\n")
+
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("RID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Assignment Time", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
 	for rows.Next() {
 		var p rlib.Rentable
-		rlib.Errcheck(rows.Scan(&p.RID, &p.BID, &p.Name, &p.AssignmentTime, &p.LastModTime, &p.LastModBy))
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportRentableToText(&p)
-		case rlib.RPTHTML:
-			s += ReportRentableToHTML(&p)
-		default:
-			fmt.Printf("RRreportRentables: unrecognized print format: %d\n", t)
-			return ""
+		var s string
+		rlib.ReadRentables(rows, &p)
+		switch p.AssignmentTime {
+		case 0:
+			s = "unknown"
+		case 1:
+			s = "pre-assign"
+		case 2:
+			s = "no pre-assign"
 		}
+		t.AddRow()
+		t.Puts(-1, 0, p.IDtoString())
+		t.Puts(-1, 1, p.Name)
+		t.Puts(-1, 2, s)
 	}
 	rlib.Errcheck(rows.Err())
-	return s
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
-// ReportRentalAgreementTemplateToText returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementTemplateToText(p *rlib.RentalAgreementTemplate) string {
-	return fmt.Sprintf("%5d  B%08d   %s\n", p.RATID, p.BID, p.RentalTemplateNumber)
+// RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
+func RRreportCustomAttributes(f int) string {
+	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributes.Query()
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("CID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Value Type", 6, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Value", 15, rlib.CELLSTRING, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Units", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	for rows.Next() {
+		var a rlib.CustomAttribute
+		rlib.ReadCustomAttributes(rows, &a)
+		t.AddRow()
+		t.Puts(-1, 0, a.IDtoString())
+		t.Puts(-1, 1, a.TypeToString())
+		t.Puts(-1, 2, a.Name)
+		t.Puts(-1, 3, a.Value)
+		t.Puts(-1, 4, a.Units)
+	}
+	rlib.Errcheck(rows.Err())
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
-// ReportRentalAgreementTemplateToHTML returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementTemplateToHTML(p *rlib.RentalAgreementTemplate) string {
-	return fmt.Sprintf("<tr><td>%5d</td><td>%5d</td><td>%s</td></tr>", p.RATID, p.BID, p.RentalTemplateNumber)
+// RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
+func RRreportCustomAttributeRefs(f int) string {
+	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributeRefs.Query()
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("Element Type", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("ID", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("CID", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	for rows.Next() {
+		var a rlib.CustomAttributeRef
+		rlib.ReadCustomAttributeRefs(rows, &a)
+		t.AddRow()
+		t.Puti(-1, 0, a.ElementType)
+		t.Puti(-1, 1, a.ID)
+		t.Puti(-1, 2, a.CID)
+	}
+	rlib.Errcheck(rows.Err())
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
 // RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
-func RRreportRentalAgreementTemplates(t int) string {
+func RRreportRentalAgreementTemplates(f int) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("RATID  BID         RentalTemplateNumber\n")
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RA Template ID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RA Template Name", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	for rows.Next() {
 		var p rlib.RentalAgreementTemplate
-		rlib.Errcheck(rows.Scan(&p.RATID, &p.BID, &p.RentalTemplateNumber, &p.LastModTime, &p.LastModBy))
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportRentalAgreementTemplateToText(&p)
-		case rlib.RPTHTML:
-			s += ReportRentalAgreementTemplateToHTML(&p)
-		default:
-			fmt.Printf("RRreportRentalAgreementTemplates: unrecognized print format: %d\n", t)
-			return ""
-		}
+		rlib.ReadRentalAgreementTemplates(rows, &p)
+		t.AddRow()
+		t.Puts(-1, 0, fmt.Sprintf("B%08d", p.BID))
+		t.Puts(-1, 1, p.IDtoString())
+		t.Puts(-1, 2, p.RATemplateName)
 	}
 	rlib.Errcheck(rows.Err())
-	return s
-}
-
-// ReportRentalAgreementToText returns a string representation of the supplied People suitable for a text report
-func ReportRentalAgreementToText(p *rlib.RentalAgreement, d1, d2 *time.Time) string {
-	payors := strings.Join(p.GetPayorNameList(d1, d2), ", ")
-
-	n := make(map[string]int, 0) // this is going to be our array of unique names
-	for i := 0; i < len(p.R); i++ {
-		m := p.R[i].R.GetUserNameList(d1, d2)
-		for j := 0; j < len(m); j++ {
-			n[m[j]] = 1 // the name is added to the list only one time, as a Key value
-		}
-	}
-
-	var sa []string
-	for k := range n {
-		sa = append(sa, k)
-	}
-	sort.Strings(sa)
-	users := strings.Join(sa, ", ")
-	return fmt.Sprintf("%5d  %-40.40s  %-40.40s  %10s  %10s  %10s  %10s\n", p.RAID, payors, users,
-		p.RentStart.Format(rlib.RRDATEFMT4), p.RentStop.Format(rlib.RRDATEFMT4),
-		p.AgreementStart.Format(rlib.RRDATEFMT4), p.AgreementStop.Format(rlib.RRDATEFMT4))
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
-func RRreportRentalAgreements(t int, bid int64) string {
+func RRreportRentalAgreements(f int, bid int64) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
-	s := fmt.Sprintf("%5s  %-40s  %-40s  %10s  %10s  %10s  %10s\n", "RAID", "Payor", "User", "RentStart", "RentStop", "AgrmtStart", "AgrmtStop")
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Payor", 60, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("User", 60, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Agreement Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Agreement Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Possession Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Possession Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Cycle Epoch", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Renewal", 2, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Special Provisions", 40, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Notes", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
 	var raid int64
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -338,66 +360,31 @@ func RRreportRentalAgreements(t int, bid int64) string {
 			rlib.Ulog("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
 			continue
 		}
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportRentalAgreementToText(&p, &d1, &d2)
-		case rlib.RPTHTML:
-			fallthrough
-		default:
-			fmt.Printf("RRreportRentalAgreements: unrecognized print format: %d\n", t)
-			return ""
+		note := ""
+		if p.NLID > 0 {
+			nl := rlib.GetNoteList(p.NLID)
+			if len(nl.N) > 0 {
+				note = nl.N[0].Comment
+			}
 		}
+		t.AddRow()
+		t.Puts(-1, 0, p.IDtoString())
+		t.Puts(-1, 1, strings.Join(p.GetPayorNameList(&p.AgreementStart, &p.AgreementStop), ", "))
+		t.Puts(-1, 2, strings.Join(p.GetUserNameList(&p.AgreementStart, &p.AgreementStop), ", "))
+		t.Putd(-1, 3, p.AgreementStart)
+		t.Putd(-1, 4, p.AgreementStop)
+		t.Putd(-1, 5, p.PossessionStart)
+		t.Putd(-1, 6, p.PossessionStop)
+		t.Putd(-1, 7, p.RentStart)
+		t.Putd(-1, 8, p.RentStop)
+		t.Putd(-1, 9, p.RentCycleEpoch)
+		t.Puti(-1, 10, p.Renewal)
+		t.Puts(-1, 11, p.SpecialProvisions)
+		t.Puts(-1, 12, note)
 	}
 	rlib.Errcheck(rows.Err())
-	return s
-}
-
-// ReportAssessmentToText returns a string representation of the chart of accts
-func ReportAssessmentToText(p *rlib.Assessment) string {
-	ra := "unassociated"
-	if p.RAID > 0 {
-		ra = fmt.Sprintf("RA%08d", p.RAID)
-	}
-	return fmt.Sprintf("%s  ASM%08d  %10s  R%08d  %4d  %4d  %9.2f  %-35s  %s\n",
-		p.IDtoString(), p.PASMID, ra, p.RID, p.RentCycle, p.ProrationCycle,
-		p.Amount, rlib.RRdb.BizTypes[p.BID].GLAccounts[p.ATypeLID].Name, p.AcctRule)
-}
-
-// ReportAssessmentToHTML returns a string representation of the chart of accts
-func ReportAssessmentToHTML(p *rlib.Assessment) string {
-	ra := "unassociated"
-	if p.RAID > 0 {
-		ra = fmt.Sprintf("RA%08d", p.RAID)
-	}
-	return fmt.Sprintf("<tr><td>ASM%08d</td><td>%12s</td><td>RA%08d</td><td%d</td><td>%8.2f</d></tr\n",
-		p.ASMID, ra, p.RID, p.RentCycle, p.Amount)
-}
-
-// RRreportAssessments generates a report of all rlib.GLAccount accounts
-func RRreportAssessments(t int, bid int64) string {
-	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
-	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	rlib.InitBusinessFields(bid)
-	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
-	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
-	rlib.Errcheck(err)
-	defer rows.Close()
-	s := fmt.Sprintf("%11s  %11s  %10s  %9s  %4s  %4s  %9s  %-35s  %s\n", "ASMID", "PASMID", "RAID", "RID", "RCYC", "PCYC", "AMOUNT", "TYPE", "ACCOUNT RULE")
-	for rows.Next() {
-		var a rlib.Assessment
-		rlib.ReadAssessments(rows, &a)
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportAssessmentToText(&a)
-		case rlib.RPTHTML:
-			s += ReportAssessmentToHTML(&a)
-		default:
-			fmt.Printf("RRreportAssessments: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	rlib.Errcheck(rows.Err())
-	return s
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
 // ReportPaymentTypesToText returns a string representation of the rlib.PaymentType struct
@@ -413,124 +400,117 @@ func ReportPaymentTypesToHTML(p *rlib.PaymentType) string {
 }
 
 // RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
-func RRreportPaymentTypes(t int, bid int64) string {
+func RRreportPaymentTypes(f int, bid int64) string {
 	m := rlib.GetPaymentTypesByBusiness(bid)
-
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
 
-	s := fmt.Sprintf("      PTID           BID   Name\n")
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("PMTID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Description", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
 	for _, k := range keys {
 		i := int64(k)
 		v := m[i]
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportPaymentTypesToText(&v)
-		case rlib.RPTHTML:
-			s += ReportPaymentTypesToHTML(&v)
-		default:
-			fmt.Printf("RRreportChartOfAccounts: unrecognized print format: %d\n", t)
-			return ""
-		}
+		t.AddRow()
+		t.Puts(-1, 0, v.IDtoString())
+		t.Puts(-1, 1, fmt.Sprintf("B%08d", v.BID))
+		t.Puts(-1, 2, v.Name)
+		t.Puts(-1, 3, v.Description)
 	}
-	return s
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
-// ReportReceiptToText returns a string representation of the chart of accts
-func ReportReceiptToText(p *rlib.Receipt) string {
-	return fmt.Sprintf("RCPT%08d   %8.2f  %s\n",
-		p.RCPTID, p.Amount, p.AcctRule)
+// RRreportAssessments generates a report of all rlib.GLAccount accounts
+func RRreportAssessments(f int, bid int64) string {
+	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	rlib.InitBusinessFields(bid)
+	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
+	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("ASMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("PASMID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Cycle", 13, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Proration Cycle", 13, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("AsmType", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Account Rule", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	for rows.Next() {
+		var a rlib.Assessment
+		rlib.ReadAssessments(rows, &a)
+		t.AddRow()
+		t.Puts(-1, 0, a.IDtoString())
+		t.Puts(-1, 1, rlib.IDtoString("ASM", a.PASMID))
+		t.Puts(-1, 2, rlib.IDtoString("RA", a.RAID))
+		t.Puts(-1, 3, rlib.IDtoString("R", a.RID))
+		t.Puts(-1, 4, rlib.RentalPeriodToString(a.RentCycle))
+		t.Puts(-1, 5, rlib.RentalPeriodToString(a.ProrationCycle))
+		t.Putf(-1, 6, a.Amount)
+		t.Puts(-1, 7, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
+		t.Puts(-1, 8, a.AcctRule)
+	}
+	rlib.Errcheck(rows.Err())
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
-// ReportReceiptToHTML returns a string representation of the chart of accts
-func ReportReceiptToHTML(p *rlib.Receipt) string {
-	return fmt.Sprintf("<tr><td>RCPT%08d</td><td>%8.2f</td><td>%s</d></tr\n",
-		p.RCPTID, p.Amount, p.AcctRule)
-}
+// // ReportReceiptToText returns a string representation of the chart of accts
+// func ReportReceiptToText(p *rlib.Receipt) string {
+// 	return fmt.Sprintf("RCPT%08d   %8.2f  %s\n",
+// 		p.RCPTID, p.Amount, p.AcctRule)
+// }
+
+// // ReportReceiptToHTML returns a string representation of the chart of accts
+// func ReportReceiptToHTML(p *rlib.Receipt) string {
+// 	return fmt.Sprintf("<tr><td>RCPT%08d</td><td>%8.2f</td><td>%s</d></tr\n",
+// 		p.RCPTID, p.Amount, p.AcctRule)
+// }
 
 // RRreportReceipts generates a report of all rlib.GLAccount accounts
-func RRreportReceipts(t int, bid int64) string {
+func RRreportReceipts(f int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
 	m := rlib.GetReceipts(bid, &d1, &d2)
-	s := fmt.Sprintf("      RCPTID     Amount  AcctRule\n")
+	//s := fmt.Sprintf("      RCPTID     Amount  AcctRule\n")
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RCPTID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Parent RCPTID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("PMTID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Doc No", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Account Rule", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Comment", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	for _, a := range m {
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportReceiptToText(&a)
-		case rlib.RPTHTML:
-			s += ReportReceiptToHTML(&a)
-		default:
-			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
-			return ""
-		}
+		t.AddRow()
+		t.Putd(-1, 0, a.Dt)
+		t.Puts(-1, 1, a.IDtoString())
+		t.Puts(-1, 2, rlib.IDtoString("RCPT", a.PRCPTID))
+		t.Puts(-1, 3, rlib.IDtoString("RA", a.RAID))
+		t.Puts(-1, 4, rlib.IDtoString("PMT", a.RAID))
+		t.Puts(-1, 5, a.DocNo)
+		t.Putf(-1, 6, a.Amount)
+		t.Puts(-1, 7, a.AcctRule)
+		t.Puts(-1, 8, a.Comment)
 	}
-	return s
-}
-
-// ReportCustomAttributeToText returns a string representation of the chart of accts
-func ReportCustomAttributeToText(p *rlib.CustomAttribute) string {
-	return fmt.Sprintf("%8d  %9d  %-25s  %25s %-10s\n",
-		p.CID, p.Type, p.Name, p.Value, p.Units)
-}
-
-// RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributes(t int) string {
-	rows, err := rlib.RRdb.Dbrr.Query("SELECT CID,Type,Name,Value,Units FROM CustomAttr")
-	rlib.Errcheck(err)
-	defer rows.Close()
-	s := fmt.Sprintf("%-8s  %-9s  %-25s  %25s %-10s\n", "CID", "VALUETYPE", "Name", "Value", "Units")
-
-	for rows.Next() {
-		var a rlib.CustomAttribute
-		rlib.Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units))
-
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportCustomAttributeToText(&a)
-		case rlib.RPTHTML:
-			fmt.Printf("UNIMPLEMENTED\n")
-		default:
-			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	rlib.Errcheck(rows.Err())
-	return s
-}
-
-// ReportCustomAttributeRefToText returns a string representation of the chart of accts
-func ReportCustomAttributeRefToText(p *rlib.CustomAttributeRef) string {
-	return fmt.Sprintf("%6d  %8d  %8d\n",
-		p.ElementType, p.ID, p.CID)
-}
-
-// RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributeRefs(t int) string {
-	rows, err := rlib.RRdb.Dbrr.Query("SELECT ElementType,ID,CID FROM CustomAttrRef")
-	rlib.Errcheck(err)
-	defer rows.Close()
-	s := fmt.Sprintf("ELEMID        ID       CID\n")
-	for rows.Next() {
-		var a rlib.CustomAttributeRef
-		rlib.Errcheck(rows.Scan(&a.ElementType, &a.ID, &a.CID))
-
-		switch t {
-		case rlib.RPTTEXT:
-			s += ReportCustomAttributeRefToText(&a)
-		case rlib.RPTHTML:
-			fmt.Printf("UNIMPLEMENTED\n")
-		default:
-			fmt.Printf("RRreportReceipts: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	rlib.Errcheck(rows.Err())
-	return s
+	t.TightenColumns()
+	return t.SprintTable(f)
 }
 
 // ReportRentalAgreementPetToText returns a string representation of the chart of accts

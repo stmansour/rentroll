@@ -22,11 +22,11 @@ docsvtest "o" "-e rcpt.csv -L 13,${BUD}" "Receipts"
 docsvtest "p" "-u custom.csv -L 14" "CustomAttributes"
 docsvtest "q" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
 
-dorrtest "r" "-j 2016-03-01 -k 2016-04-01" "Process"
-dorrtest "s" "-j 2016-03-01 -k 2016-04-01 -r 1" "March-Journal"	# Journals
-dorrtest "t" "-j 2016-03-01 -k 2016-04-01 -r 2" "March-Ledger"	# Ledgers
-dorrtest "u" "-j 2016-03-01 -k 2016-04-01 -r 8" "Statements"	# Statements
+dorrtest "r" "-j 2016-03-01 -k 2016-04-01 -b ${BUD}" "Process"
+dorrtest "s" "-j 2016-03-01 -k 2016-04-01 -b ${BUD} -r 1" "March-Journal"	# Journals
+dorrtest "t" "-j 2016-03-01 -k 2016-04-01 -b ${BUD} -r 2" "March-Ledger"	# Ledgers
+dorrtest "u" "-j 2016-03-01 -k 2016-04-01 -b ${BUD} -r 8" "Statements"	# Statements
 docsvtest "v" "-i invoice.csv -L 20,REX" "CreateInvoice"
-dorrtest  "w" "-j 2016-03-01 -k 2016-04-01 -r 9,IN0001" "Invoice"
+dorrtest  "w" "-j 2016-03-01 -k 2016-04-01 -b ${BUD} -r 9,IN0001" "Invoice"
 
 logcheck

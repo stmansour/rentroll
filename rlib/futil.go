@@ -111,32 +111,6 @@ func ProcessSumFloats(a []SumFloat) {
 	}
 }
 
-// YesNoToInt takes multiple forms of "Yes" and converts to integer 1, multiple forms of "No" to integer 0
-func YesNoToInt(si string) (int64, error) {
-	s := strings.ToUpper(strings.TrimSpace(si))
-	switch {
-	case s == "Y" || s == "YES" || s == "1":
-		return YES, nil
-	case s == "N" || s == "NO" || s == "0":
-		return NO, nil
-	default:
-		err := fmt.Errorf("Unrecognized yes/no string: %s.", si)
-		return NO, err
-	}
-}
-
-// YesNoToString returns an appropriate string representation of the value i assummed to be YES or NO
-func YesNoToString(i int64) string {
-	switch i {
-	case YES:
-		return "Yes"
-	case NO:
-		return "No"
-	default:
-		return fmt.Sprintf("??? %d", i)
-	}
-}
-
 // IsValidAccrual returns true if a is a valid accrual value, false otherwise
 func IsValidAccrual(a int64) bool {
 	return !(a < CYCLENORECUR || a > CYCLEYEARLY)
@@ -176,14 +150,17 @@ func IsSQLNoResultsError(err error) bool {
 }
 
 // IntFromString converts the supplied string to an int64 value. If there
-// is a problem in the conversion, it generates an error message.
+// is a problem in the conversion, it generates an error message. To suppress
+// the error message, pass in "" for errmsg.
 func IntFromString(sa string, errmsg string) (int64, bool) {
 	var n = int64(0)
 	s := strings.TrimSpace(sa)
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			fmt.Printf("IntFromString: %s: %s\n", errmsg, s)
+			if "" != errmsg {
+				fmt.Printf("IntFromString: %s: %s\n", errmsg, s)
+			}
 			return n, false
 		}
 		n = int64(i)

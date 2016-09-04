@@ -1,7 +1,6 @@
 package rcsv
 
 import (
-	"fmt"
 	"rentroll/rlib"
 	"strings"
 )
@@ -9,25 +8,34 @@ import (
 //  CSV file format:
 //
 //        0    1
-//        BUD, RentalTemplateNumber
+//        BUD, RATemplateName
 //        REX, RAT001.doc
 //        REX, RAT002.doc
 
 // CreateRentalAgreementTemplate creates a database record for the values supplied in sa[]
-func CreateRentalAgreementTemplate(sa []string, lineno int) {
+func CreateRentalAgreementTemplate(sa []string, lineno int) int {
 	funcname := "CreateRentalAgreementTemplate"
 
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 2
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	const (
+		BUD            = 0
+		RATemplateName = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"RATemplateName", RATemplateName},
+	}
+
+	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+		return 1
+	}
+	if lineno == 1 {
+		return 0
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[0])) // this should be BUD
-	if strings.ToLower(des) == "bud" {
-		return // this is just the column heading
-	}
+
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
@@ -35,8 +43,8 @@ func CreateRentalAgreementTemplate(sa []string, lineno int) {
 	if len(des) > 0 {                  // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d, rlib.Business with designation %s does net exist\n", funcname, lineno, sa[0])
-			return
+			rlib.Ulog("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity
 		}
 		a.BID = b1.BID
 	}
@@ -44,24 +52,18 @@ func CreateRentalAgreementTemplate(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Check to see if this assessment type is already in the database
 	//-------------------------------------------------------------------
-	des = strings.TrimSpace(sa[1]) // this should be the RentalTemplateNumber
+	des = strings.TrimSpace(sa[1]) // this should be the RATemplateName
 	if len(des) > 0 {
-		a1, err := rlib.GetRentalAgreementByRentalTemplateNumber(des)
-		if err != nil {
-			s := err.Error()
-			if !strings.Contains(s, "no rows") {
-				rlib.Ulog("%s: line %d -  rlib.GetRentalAgreementByRentalTemplateNumber returned error %v\n", funcname, lineno, err)
-			}
-		}
-		if len(a1.RentalTemplateNumber) > 0 {
-			rlib.Ulog("%s: line %d - rlib.RentalAgreementTemplate with RentalTemplateNumber %s already exists\n", funcname, lineno, des)
-			return
+		a1 := rlib.GetRentalAgreementByRATemplateName(des)
+		if len(a1.RATemplateName) > 0 {
+			rlib.Ulog("%s: line %d - RentalAgreementTemplate with RATemplateName %s already exists\n", funcname, lineno, des)
+			return CsvErrorSensitivity
 		}
 	}
 
-	a.RentalTemplateNumber = des
-
+	a.RATemplateName = des
 	rlib.InsertRentalAgreementTemplate(&a)
+	return 0
 }
 
 // LoadRentalAgreementTemplatesCSV loads a csv file with assessment types and processes each one

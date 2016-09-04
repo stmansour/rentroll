@@ -549,7 +549,7 @@ func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 // InsertRentalAgreementTemplate writes a new User record to the database
 func InsertRentalAgreementTemplate(a *RentalAgreementTemplate) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementTemplate.Exec(a.BID, a.RentalTemplateNumber, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentalAgreementTemplate.Exec(a.BID, a.RATemplateName, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

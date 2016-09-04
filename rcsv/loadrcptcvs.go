@@ -61,20 +61,41 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 }
 
 // CreateReceiptsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, lineno int) {
+func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, lineno int) int {
 	funcname := "CreateReceiptsFromCSV"
 	var xbiz rlib.XBusiness
 	var r rlib.Receipt
 	var err error
 	bud := strings.ToLower(strings.TrimSpace(sa[0]))
-	if bud == "bud" {
-		return // this is just the column heading
+
+	const (
+		BUD      = 0
+		RAID     = iota
+		PMTID    = iota
+		Dt       = iota
+		DocNo    = iota
+		Amount   = iota
+		AcctRule = iota
+		Comment  = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"RAID", RAID},
+		{"PMTID", PMTID},
+		{"Dt", Dt},
+		{"DocNo", DocNo},
+		{"Amount", Amount},
+		{"AcctRule", AcctRule},
+		{"Comment", Comment},
 	}
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 8
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+
+	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+		return 1
+	}
+	if lineno == 1 {
+		return 0
 	}
 
 	//-------------------------------------------------------------------
@@ -83,8 +104,8 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	if len(bud) > 0 {
 		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("CreateLedgerMarkers: rlib.Business with designation %s does net exist\n", sa[0])
-			return
+			rlib.Ulog("CreateLedgerMarkers: rlib.Business with designation %s does not exist\n", sa[0])
+			return CsvErrorSensitivity
 		}
 		r.BID = b1.BID
 		rlib.GetXBusiness(r.BID, &xbiz)
@@ -93,58 +114,50 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	// Find Rental Agreement
 	//-------------------------------------------------------------------
-	r.RAID = CSVLoaderGetRAID(sa[1]) // this should probably go away, we should select it from an Assessment in the AcctRule
-	// s := strings.TrimSpace(sa[1])
-	// re, _ := regexp.Compile("^RA0*(.*)")
-	// m := re.FindStringSubmatch(s) // returns this pattern:  ["RA0000001" "1"]
-	// if len(m) > 0 {               // if the prefix was "RA", m will have 2 elements, our number should be the second element
-	// 	s = m[1]
-	// }
-	// r.RAID, _ = rlib.IntFromString(s, "Rental Agreement number is invalid")
+	r.RAID = CSVLoaderGetRAID(sa[RAID]) // this should probably go away, we should select it from an Assessment in the AcctRule
 
 	_, err = rlib.GetRentalAgreement(r.RAID)
 	if nil != err {
-		fmt.Printf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[1], err)
-		return
+		fmt.Printf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[RAID], err)
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// Get the rlib.PaymentType
 	//-------------------------------------------------------------------
-	r.PMTID, _ = rlib.IntFromString(sa[2], "Payment type is invalid")
+	r.PMTID, _ = rlib.IntFromString(sa[PMTID], "Payment type is invalid")
 	_, ok := (*PmtTypes)[r.PMTID]
 	if !ok {
-		fmt.Printf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[2])
-		return
+		fmt.Printf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[PMTID])
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// Get the date
 	//-------------------------------------------------------------------
-	Dt, err := rlib.StringToDate(sa[3])
+	dt, err := rlib.StringToDate(sa[Dt])
 	if err != nil {
-		fmt.Printf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[3])
-		return
+		fmt.Printf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[Dt])
+		return CsvErrorSensitivity
 	}
-	r.Dt = Dt
+	r.Dt = dt
 
 	//-------------------------------------------------------------------
 	// Determine the DocNo
 	//-------------------------------------------------------------------
-	r.DocNo = strings.TrimSpace(sa[4])
-	//fmt.Printf("r.DocNo = %s\n", r.DocNo)
+	r.DocNo = strings.TrimSpace(sa[DocNo])
 
 	//-------------------------------------------------------------------
 	// Determine the amount
 	//-------------------------------------------------------------------
-	r.Amount, _ = rlib.FloatFromString(sa[5], "rlib.Receipt Amount is invalid")
+	r.Amount, _ = rlib.FloatFromString(sa[Amount], "rlib.Receipt Amount is invalid")
 
 	//-------------------------------------------------------------------
 	// Set the AcctRule.  No checking for now...
 	//-------------------------------------------------------------------
-	r.AcctRule = strings.TrimSpace(sa[6])
+	r.AcctRule = strings.TrimSpace(sa[AcctRule])
 
-	r.Comment = strings.TrimSpace(sa[7])
+	r.Comment = strings.TrimSpace(sa[Comment])
 
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...
@@ -152,7 +165,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	if len(r.AcctRule) == 0 || r.PMTID == 0 ||
 		r.Amount == 0 || r.RAID == 0 || r.BID == 0 {
 		fmt.Printf("Skipping this record\n")
-		return
+		return CsvErrorSensitivity
 	}
 
 	rcptid, err := rlib.InsertReceipt(&r)
@@ -170,11 +183,12 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)
 	}
-
+	return 0
 }
 
 // LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadReceiptsCSV(fname string, PmtTypes *map[int64]rlib.PaymentType) {
+func LoadReceiptsCSV(fname string) {
+	PmtTypes := rlib.GetPaymentTypes()
 	t := rlib.LoadCSV(fname)
 	if len(t) > 1 {
 		//-------------------------------------------------------------------
@@ -195,6 +209,6 @@ func LoadReceiptsCSV(fname string, PmtTypes *map[int64]rlib.PaymentType) {
 		if t[i][0] == "#" {
 			continue
 		}
-		CreateReceiptsFromCSV(t[i], PmtTypes, i+1)
+		CreateReceiptsFromCSV(t[i], &PmtTypes, i+1)
 	}
 }

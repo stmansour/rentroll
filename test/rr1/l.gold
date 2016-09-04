@@ -1,3 +1,5 @@
-      RCPTID     Amount  AcctRule
-RCPT00000001     735.35  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _
+                          Parent                                                                                                          
+Date        RCPTID        RCPTID        RAID        PMTID        Doc No      Amount  Account Rule                                  Comment
+----------  ------------  ------------  ----------  -----------  ------  ----------  --------------------------------------------  -------
+07/15/2016  RCPT00000001  RCPT00000000  RA00000001  PMT00000001  3383        735.35  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _         
 
