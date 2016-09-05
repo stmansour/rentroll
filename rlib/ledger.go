@@ -73,7 +73,9 @@ func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.
 			l.LID = ledger.LID
 			l.RAID = j.RAID
 			l.RID = j.JA[i].RID
-			InsertLedgerEntry(&l)
+			if l.Amount >= float64(0.005) || l.Amount < float64(-0.005) { // ignore rounding errors
+				InsertLedgerEntry(&l)
+			}
 		}
 	}
 }

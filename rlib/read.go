@@ -5,6 +5,13 @@ import "database/sql"
 // As the database structures change, having the calls that Read from the database into these structures located
 // in one place simplifies maintenance
 
+// ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
+func ReadAssessment(row *sql.Row, a *Assessment) {
+	Errcheck(row.Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
+		&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment,
+		&a.LastModTime, &a.LastModBy))
+}
+
 // ReadAssessments reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessments(rows *sql.Rows, a *Assessment) {
 	Errcheck(rows.Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,

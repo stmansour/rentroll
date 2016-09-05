@@ -1,4 +1,4 @@
 BUD,RentableName,GLAcctID,Amount,DtStart,DtStop,RAID,RentCycle,ProrationCycle,InvoiceNo,AcctRule
 REX,309 Rexford,3,3500,1/1/16,3/1/16,1,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -"
-REX,309 1/2 Rexford,3,3550,1/1/16,4/1/16,2,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
-REX,311 Rexford,3,4400,1/1/16,2/8/16,3,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} _ -"
+REX,309 1/2 Rexford,3,3550,1/1/16,4/1/16,2,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -"
+REX,311 Rexford,3,4400,1/1/16,2/8/16,3,6,4,,"d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -"

@@ -307,6 +307,7 @@ func JournalReportText(xbiz *rlib.XBusiness, reportDtStart, reportDtStop *time.T
 	for rows.Next() {
 		var j rlib.Journal
 		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
+		// fmt.Printf("JournalReportText: JID = %d\n", j.JID)
 		rlib.GetJournalAllocations(j.JID, &j)
 		textReportJournalEntry(xbiz, &j, &jctx)
 	}

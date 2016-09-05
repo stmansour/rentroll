@@ -9,7 +9,7 @@ clean:
 	rm -f notes.log log notes [a-z]
 	@echo "*** CLEAN completed in Notes ***"
 
-test:
+test:	notes
 	./functest.sh
 	@echo "*** TEST completed in Notes ***"
 

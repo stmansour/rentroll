@@ -219,6 +219,11 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) int {
 	if err != nil {
 		fmt.Printf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
 	}
+
+	// process this new assessment over the requested time range...
+	// fmt.Printf("Rcsv.Xbiz = %#v\n", *Rcsv.Xbiz)
+	rlib.ProcessJournalEntry(&a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop)
+
 	return 0
 }
 

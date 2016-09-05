@@ -13,6 +13,9 @@ import (
 // IDtoString is the generic ID prenter. Provide it a prefix and an id
 // and it will return the formatted id as a string.
 func IDtoString(pre string, id int64) string {
+	if 0 == id {
+		return "0"
+	}
 	return fmt.Sprintf("%s%08d", pre, id)
 }
 

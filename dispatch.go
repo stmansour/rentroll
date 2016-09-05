@@ -21,10 +21,12 @@ func RunBooks(ctx *DispatchCtx) {
 	rlib.RRdb.BizTypes[ctx.xbiz.P.BID].GLAccounts = rlib.GetGLAccountMap(ctx.xbiz.P.BID)
 	rlib.GetAllNoteTypes(ctx.xbiz.P.BID)
 	rlib.LoadRentableTypeCustomaAttributes(&ctx.xbiz)
+	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
+	// fmt.Printf("RunBooks: Rcsv.Xbiz = %#v\n", rcsv.Rcsv.Xbiz)
 
 	// first handle requests for a CSV Load...
 	if len(ctx.CSVLoadStr) > 0 {
-		fmt.Printf("CSVLoadStr = %s\n", ctx.CSVLoadStr)
+		// fmt.Printf("CSVLoadStr = %s\n", ctx.CSVLoadStr)
 		ss := strings.Split(ctx.CSVLoadStr, ",") // index,fname
 		if len(ss) < 2 {
 			fmt.Printf("Invalid CSVLoader Request:  %s.  Need index,filename\n", ctx.CSVLoadStr)
@@ -35,7 +37,7 @@ func RunBooks(ctx *DispatchCtx) {
 			fmt.Printf("Invalid CSVLoaderIndex: %s.  err: %s\n", ss[0], err.Error())
 			os.Exit(1)
 		}
-		fmt.Printf("calling LoadCSV( %d , %s )\n", i, ss[1])
+		// fmt.Printf("calling LoadCSV( %d , %s )\n", i, ss[1])
 		rcsv.LoadCSV(i, ss[1])
 		return
 	}
@@ -122,7 +124,7 @@ func RunBooks(ctx *DispatchCtx) {
 			fmt.Printf("Delinquency text report error: %s\n", err.Error())
 		}
 	default:
-		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	}
 }

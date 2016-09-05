@@ -24,6 +24,7 @@ SCRIPTPATH=$(pwd -P)
 RRBIN="../../tmp/rentroll"
 RENTROLL="${RRBIN}/rentroll -A"
 CSVLOAD="${RRBIN}/rrloadcsv"
+GOLD="./gold"
 
 SKIPCOMPARE=0
 FORCEGOOD=0
@@ -182,7 +183,8 @@ OPTIONS
 
 	-o  Regenerate the .gold files based on the output from this run. Only
 	    use this option if you're sure the output is correct. This option
-	    can be a huge time saver, but use it with caution.
+	    can be a huge time saver, but use it with caution. All .gold files
+	    are maintained in the ./${GOLD}/ directory.
 
 	-r  Run the script in interactive REPORT mode. A menu of report options
 	    is displayed. Type in the letter(s) for the the report you want and
@@ -236,24 +238,27 @@ tdir() {
 docsvtest () {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
-	${CSVLOAD} $2 >${1} 2>&1
+
+	if [ "x${2}" != "x" ]; then
+		${CSVLOAD} $2 >${1} 2>&1
+	fi
 
 	if [ "${FORCEGOOD}" = "1" ]; then
-		cp ${1} ${1}.gold
+		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
-		if [ ! -f ${1}.gold ]; then
-			echo "UNSET CONTENT" > ${1}.gold
-			echo "Created a default $1.gold for you. Update this file with known-good output."
+		if [ ! -f ${GOLD}/${1}.gold ]; then
+			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
+			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
-		UDIFFS=$(diff ${1} ${1}.gold | wc -l)
+		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
 		else
-			echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-			diff ${1}.gold ${1} >> ${ERRFILE}
+			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1
@@ -279,24 +284,25 @@ ${4}
 EOF
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
+	${CSVLOAD} $2 >>${LOGFILE} 2>&1
 	mysql --no-defaults <xxqq >${1}
 
 	if [ "${FORCEGOOD}" = "1" ]; then
-		cp ${1} ${1}.gold
+		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
-		if [ ! -f ${1}.gold ]; then
-			echo "UNSET CONTENT" > ${1}.gold
+		if [ ! -f ${GOLD}/${1}.gold ]; then
+			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
 			echo "Created a default $1.gold for you. Update this file with known-good output."
 		fi
-		UDIFFS=$(diff ${1} ${1}.gold | wc -l)
+		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
 		else
-			echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-			diff ${1}.gold ${1} >> ${ERRFILE}
+			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1
@@ -319,21 +325,21 @@ dorrtest () {
 	${RENTROLL} ${2} >${1} 2>&1
 
 	if [ "${FORCEGOOD}" = "1" ]; then
-		cp ${1} ${1}.gold
+		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
-		if [ ! -f ${1}.gold ]; then
-			echo "UNSET CONTENT" > ${1}.gold
-			echo "Created a default $1.gold for you. Update this file with known-good output."
+		if [ ! -f ${GOLD}/${1}.gold ]; then
+			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
+			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
-		UDIFFS=$(diff ${1} ${1}.gold | wc -l)
+		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
 		else
-			echo "FAILED...   if correct:  mv ${1} ${1}.gold" >> ${ERRFILE}
+			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-			diff ${1}.gold ${1} >> ${ERRFILE}
+			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1
@@ -356,11 +362,11 @@ logcheck() {
 	echo -n "Test completed: " >> ${LOGFILE}
 	date >> ${LOGFILE}
 	if [ "${FORCEGOOD}" = "1" ]; then
-		cp ${LOGFILE} ${LOGFILE}.gold
+		cp ${LOGFILE} ${GOLD}/${LOGFILE}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
 		echo -n "PHASE x: Log file check...  "
-		if [ ! -f log.gold -o ! -f log ]; then
+		if [ ! -f ${GOLD}/${LOGFILE}.gold -o ! -f ${LOGFILE} ]; then
 			echo "Missing file -- Required files for this check: log.gold and log"
 			failmsg
 			exit 1
@@ -372,7 +378,7 @@ logcheck() {
 			's/(20[1-4][0-9]\/[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
 			's/(20[1-4][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
 		)
-		cp log.gold ll.g
+		cp ${GOLD}/${LOGFILE}.gold ll.g
 		cp log llog
 		for f in "${out_filters[@]}"
 		do
@@ -388,7 +394,7 @@ logcheck() {
 			echo "FAILED:  differences are as follows:" >> ${ERRFILE}
 			diff ll.g llog >> ${ERRFILE}
 			echo >> ${ERRFILE}
-			echo "If the new output is correct:  mv ${LOGFILE} ${LOGFILE}.gold" >> ${ERRFILE}
+			echo "If the new output is correct:  mv ${LOGFILE} ${GOLD}/${LOGFILE}.gold" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1

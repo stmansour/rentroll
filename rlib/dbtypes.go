@@ -1075,6 +1075,8 @@ type RRprepSQL struct {
 	GetAllCustomAttributes             *sql.Stmt
 	GetAllCustomAttributeRefs          *sql.Stmt
 	GetRentalAgreementsForRentable     *sql.Stmt
+	GetAssessmentInstance              *sql.Stmt
+	GetRecurringAssessmentsByBusiness  *sql.Stmt
 
 	// GetSecDepBalanceLedger                   *sql.Stmt
 	//	GetLedgerMarkerByRAID                    *sql.Stmt

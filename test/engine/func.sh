@@ -18,7 +18,10 @@ else
 	exit 1
 fi
 
-dorrtest "a" "${RRDATERANGE} -b ${BUD}" "Process"
+dorrtest "a1" "-j 2015-11-01 -k 2015-11-02 -b ${BUD} -x" "Process"
+dorrtest "a2" "-j 2015-11-21 -k 2015-11-22 -b ${BUD} -x" "Process"
+docsvtest "a3" "-e rcpt201501.csv -G ${BUD} -g 11/1/15,12/1/15 -L 13,${BUD}" "Receipts-2015-NOV"
+dorrtest "a" "${RRDATERANGE} -b ${BUD} -x" "Process"
 dorrtest "b" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest "c" "${RRDATERANGE} -b ${BUD} -r 2" "Ledger"
 dorrtest "d" "${RRDATERANGE} -b ${BUD} -r 5" "AssessmentChecker"

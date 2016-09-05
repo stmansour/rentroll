@@ -215,7 +215,7 @@ func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessm
 	// if a.ASMID != 0 && a.RentCycle { // if this assessment has already been written to db, then return error
 	// 	return fmt.Errorf("%s: Function only accepts unsaved instances. Found ASMID = %d", funcname, a.ASMID)
 	// }
-	if a.ASMID == 0 {
+	if a.ASMID == 0 && a.RentCycle != RECURNONE {
 		ASMID, err := InsertAssessment(a)
 		if nil != err {
 			return err
@@ -261,14 +261,17 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
 // ProcessJournalEntry processes an assessment. It adds instances of recurring assessments for
 // the time period d1-d2 if they do not already exist. Then creates a journal entry for the assessment.
 func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
+	// fmt.Printf("ProcessJournalEntry: 1\n")
 	if a.RentCycle == RECURNONE {
 		ProcessNewAssessmentInstance(xbiz, d1, d2, a)
 	} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 		// TBD
 		fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RentCycle)
 	} else {
+		// fmt.Printf("ProcessJournalEntry: 2\n")
 		dl := a.GetRecurrences(d1, d2)
 		rangeDuration := d2.Sub(*d1)
+		// fmt.Printf("ProcessJournalEntry: 3... len(dl) = %d\n", len(dl))
 		for i := 0; i < len(dl); i++ {
 			a1 := *a
 			a1.Start = dl[i]                                              // use the instance date
@@ -276,38 +279,46 @@ func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
 			a1.ASMID = 0                                                  // ensure this is a new assessment
 			a1.PASMID = a.ASMID                                           // parent assessment
 
-			// Rent is assessed on the following cycle: a.RentCycle
-			// and prorated on the following cycle: a.ProrationCycle
-			rentCycleDur := CycleDuration(a.RentCycle, dl[i])
-			diff := rangeDuration - rentCycleDur
-			if diff < 0 {
-				diff = -diff
+			// Check to ensure that this instance does not already exist...
+			a2, _ := GetAssessmentInstance(&a1.Start, a1.PASMID) // if this returns an existing instance...
+			if a2.ASMID == 0 {                                   // .. then it's already been processed and we can skip it
+				_, err := InsertAssessment(&a1)
+				Errlog(err)
+				// fmt.Printf("ProcessJournalEntry: 4, inserted a1.ASMID = %d\n", a1.ASMID)
+
+				// Rent is assessed on the following cycle: a.RentCycle
+				// and prorated on the following cycle: a.ProrationCycle
+				rentCycleDur := CycleDuration(a.RentCycle, dl[i])
+				diff := rangeDuration - rentCycleDur
+				if diff < 0 {
+					diff = -diff
+				}
+				dtb := *d1
+				dte := *d2
+				if diff > rentCycleDur/9 { // if this is true then
+					dtb = dl[i] // add one full cycle diration
+					dte = dtb.Add(CycleDuration(a.RentCycle, dtb))
+				}
+				ProcessNewAssessmentInstance(xbiz, &dtb, &dte, &a1)
 			}
-			dtb := *d1
-			dte := *d2
-			if diff > rentCycleDur/9 { // if this is true then
-				dtb = dl[i] // add one full cycle diration
-				dte = dtb.Add(CycleDuration(a.RentCycle, dtb))
-			}
-			ProcessNewAssessmentInstance(xbiz, &dtb, &dte, &a1)
 		}
 	}
 }
 
 // GenerateJournalRecords creates Journal records for Assessments and receipts over the supplied time range.
 //=================================================================================================
-func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
-	err := RemoveJournalEntries(xbiz, d1, d2)
-	if err != nil {
-		Ulog("Could not remove existing Journal entries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
-		return
-	}
+func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time, skipVac bool) {
+	// err := RemoveJournalEntries(xbiz, d1, d2)
+	// if err != nil {
+	// 	Ulog("Could not remove existing Journal entries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
+	// 	return
+	// }
 
 	//-----------------------------------------------------------
 	//  PROCESS ASSESSMSENTS
 	//-----------------------------------------------------------
-	// fmt.Printf("GetAllAssessmentsByBusiness - d2 = %s   d1 = %s\n", d2.Format(RRDATEINPFMT), d1.Format(RRDATEINPFMT))
-	rows, err := RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1) // only get instances without a parent
+	// fmt.Printf("GetRecurringAssessmentsByBusiness - d2 = %s   d1 = %s\n", d2.Format(RRDATEINPFMT), d1.Format(RRDATEINPFMT))
+	rows, err := RRdb.Prepstmt.GetRecurringAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1) // only get recurring instances without a parent
 	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -320,15 +331,17 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 	//-----------------------------------------------------------
 	//  COMPUTE VACANCY
 	//-----------------------------------------------------------
-	GenVacancyJournals(xbiz, d1, d2)
+	if !skipVac {
+		GenVacancyJournals(xbiz, d1, d2)
+	}
 
 	//-----------------------------------------------------------
 	//  PROCESS RECEIPTS
 	//-----------------------------------------------------------
-	r := GetReceipts(xbiz.P.BID, d1, d2)
-	for i := 0; i < len(r); i++ {
-		ProcessNewReceipt(xbiz, d1, d2, &r[i])
-	}
+	// r := GetReceipts(xbiz.P.BID, d1, d2)
+	// for i := 0; i < len(r); i++ {
+	// 	ProcessNewReceipt(xbiz, d1, d2, &r[i])
+	// }
 
 	//-----------------------------------------------------------
 	//  ADD JOURNAL MARKER

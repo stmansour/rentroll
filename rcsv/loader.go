@@ -1,5 +1,10 @@
 package rcsv
 
+import (
+	"rentroll/rlib"
+	"time"
+)
+
 // CSVBusiness et. al., are indeces of the functions that load a csv file with
 // the type of information described in the constant's name.
 const (
@@ -69,6 +74,20 @@ var CSVLoaders = []CSVLoader{
 	{Name: "CustomAttributeRefs", Index: CSVCustomAttributeRefs, Loader: LoadCustomAttributeRefsCSV},
 	{Name: "NoteTypes", Index: CSVNoteTypes, Loader: LoadNoteTypesCSV},
 	{Name: "Invoices", Index: CSVInvoices, Loader: LoadInvoicesCSV},
+}
+
+// Rcsv contains the shared data used by the RCS loaders
+var Rcsv struct {
+	DtStart time.Time
+	DtStop  time.Time
+	Xbiz    *rlib.XBusiness
+}
+
+// InitRCSV initializes the shared data used by they RCS loaders.
+func InitRCSV(d1, d2 *time.Time, xbiz *rlib.XBusiness) {
+	Rcsv.DtStart = *d1
+	Rcsv.DtStop = *d2
+	Rcsv.Xbiz = xbiz
 }
 
 // LoadCSV is the generic CSV loader call. It will call a csv loader with the supplied

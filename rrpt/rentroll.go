@@ -53,7 +53,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	var tbl rlib.Table
 	tbl.Init()                                                                            //sets column spacing and date format to default
 	totalsRSet := tbl.CreateRowset()                                                      // a rowset to sum for totals
-	tbl.AddColumn("Rentable", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // column for the Rentable name
+	tbl.AddColumn("Rentable", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)              // RentableType name
 	tbl.AddColumn(custom, 5, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)                          // the Custom Attribute "Square Feet"
 	tbl.AddColumn("Rentable Users", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)             // Users of this rentable
@@ -137,12 +137,12 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		// Note that this could result in multiple rental agreements.
 		//------------------------------------------------------------------------------
 		rra := rlib.GetAgreementsForRentable(p.RID, d1, d2) // get all rental agreements for this period
-		if len(rra) == 0 {                                  // if there are none...
-			tbl.AddRow() // puts to row -1 will go to the newly added row
-			tbl.Puts(-1, RName, "vacant")
-			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
-			tbl.Puti(-1, RTSqFt, sqft)
-		}
+		// if len(rra) == 0 {                                  // if there are none...
+		// 	tbl.AddRow() // puts to row -1 will go to the newly added row
+		// 	tbl.Puts(-1, RName, "vacant")
+		// 	tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
+		// 	tbl.Puti(-1, RTSqFt, sqft)
+		// }
 
 		for i := 0; i < len(rra); i++ { //for each rental agreement id
 			ra, err := rlib.GetRentalAgreement(rra[i].RAID) // load the agreement
@@ -273,9 +273,9 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			tbl.Putf(-1, ChgRcv, raEndBal-raStartBal)
 			tbl.Putf(-1, EndRcv, raEndBal)
 			tbl.Putf(-1, BeginSecDep, secdepStartBal)
-			tbl.Putf(-1, ChgSecDep, secdepEndBal-raStartBal)
+			tbl.Putf(-1, ChgSecDep, secdepEndBal-secdepStartBal)
 			tbl.Putf(-1, EndSecDep, secdepEndBal)
-
+			// fmt.Printf("secdepEndBal = %8.2f, secdepStartBal = %8.2f,  diff = %8.2f\n", secdepEndBal, secdepStartBal, secdepEndBal-secdepStartBal)
 		}
 
 		//-------------------------------------------------------------------------------------------------------
@@ -333,6 +333,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 	tbl.InsertSumRowsetCols(totalsRSet, len(tbl.Row),
 		[]int{GSRAmt, IncOff, ContractRent, OtherInc, PmtRcvd, BeginRcv, ChgRcv, EndRcv, BeginSecDep, ChgSecDep, EndSecDep})
 
+	tbl.TightenColumns()
 	fmt.Print(tbl.SprintRowText(len(tbl.Row) - 1))
 	fmt.Print(tbl.SprintLineText())
 	fmt.Print(tbl)

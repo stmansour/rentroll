@@ -42,8 +42,7 @@ func VarAcctResolve(bid int64, s string) string {
 		i = GLOWNREQUITY
 	}
 	if i > 0 {
-		// fmt.Printf("VarAcctResolve:  returning %s\n", RRdb.BizTypes[bid].DefaultAccts[i].GLNumber)
-
+		//fmt.Printf("VarAcctResolve:  returning %s\n", RRdb.BizTypes[bid].DefaultAccts[i].GLNumber)
 		return RRdb.BizTypes[bid].DefaultAccts[i].GLNumber
 	}
 	// fmt.Printf("VarAcctResolve:  returning %s\n", s)

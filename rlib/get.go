@@ -68,13 +68,17 @@ func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 // GetAssessment returns the Assessment struct for the account with the supplied asmid
 func GetAssessment(asmid int64) (Assessment, error) {
 	var a Assessment
-	err := RRdb.Prepstmt.GetAssessment.QueryRow(asmid).Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID,
-		&a.ATypeLID, &a.RAID, &a.Amount, &a.Start, &a.Stop, &a.RentCycle,
-		&a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.Comment, &a.LastModTime, &a.LastModBy)
-	if nil != err {
-		Ulog("GetAssessment: could not get assessment with asmid = %d,  err = %v\n", asmid, err)
-	}
-	return a, err
+	row := RRdb.Prepstmt.GetAssessment.QueryRow(asmid)
+	ReadAssessment(row, &a)
+	return a, nil
+}
+
+// GetAssessmentInstance returns the Assessment struct for the account with the supplied asmid
+func GetAssessmentInstance(start *time.Time, pasmid int64) (Assessment, error) {
+	var a Assessment
+	row := RRdb.Prepstmt.GetAssessmentInstance.QueryRow(start, pasmid)
+	ReadAssessment(row, &a)
+	return a, nil
 }
 
 //=======================================================

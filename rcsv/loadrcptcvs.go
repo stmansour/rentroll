@@ -41,8 +41,8 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 		a.RCPTID = rcpt.RCPTID
 
 		// make sure the referenced assessment actually exists
-		_, err := rlib.GetAssessment(a.ASMID)
-		if err != nil {
+		a1, _ := rlib.GetAssessment(a.ASMID)
+		if a1.ASMID == 0 {
 			return fmt.Errorf("GenerateReceiptAllocations: Referenced assessment ID %d does not exist\n", a.ASMID)
 		}
 
@@ -56,6 +56,7 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 			}
 		}
 		rlib.InsertReceiptAllocation(&a)
+		rcpt.RA = append(rcpt.RA, a)
 	}
 	return nil
 }
@@ -182,7 +183,14 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 		fmt.Printf("%s: line %d -  error processing payments: %s\n", funcname, lineno, err.Error())
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)
+		return CsvErrorSensitivity
 	}
+
+	//-------------------------------------------------------------------
+	// Process the receipt...
+	//-------------------------------------------------------------------
+	rlib.ProcessNewReceipt(Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, &r)
+
 	return 0
 }
 

@@ -1,6 +1,7 @@
 package rlib
 
-// InsertAssessment writes a new assessmenttype record to the database
+// InsertAssessment writes a new assessmenttype record to the database. If the record is successfully written,
+// the ASMID field is set to its new value.
 func InsertAssessment(a *Assessment) (int64, error) {
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy)
@@ -8,6 +9,7 @@ func InsertAssessment(a *Assessment) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			a.ASMID = rid
 		}
 	} else {
 		Ulog("InsertAssessment: error inserting Assessment:  %v\n", err)
@@ -446,7 +448,8 @@ func InsertRentable(a *Rentable) (int64, error) {
 //  R E C E I P T
 //=======================================================
 
-// InsertReceipt writes a new Receipt record to the database
+// InsertReceipt writes a new Receipt record to the database. If the record is successfully written,
+// the RCPTID field is set to its new value.
 func InsertReceipt(r *Receipt) (int64, error) {
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.RAID, r.PMTID, r.Dt, r.DocNo, r.Amount, r.AcctRule, r.Comment, r.OtherPayorName, r.LastModBy)
@@ -454,6 +457,7 @@ func InsertReceipt(r *Receipt) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			tid = int64(id)
+			r.RCPTID = tid
 		}
 	} else {
 		Ulog("InsertReceipt: error inserting Receipt:  %v\n", err)

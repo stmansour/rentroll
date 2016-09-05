@@ -8,11 +8,13 @@ import (
 	"net/http"
 	"os"
 	"phonebook/lib"
+	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
-import _ "github.com/go-sql-driver/mysql"
 
 // CmdRUNBOOKS and the rest are command numbers used by the Dispatch function.
 const (
@@ -177,6 +179,7 @@ func main() {
 
 	if App.BatchMode {
 		ctx := createStartupCtx()
+		rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
 		Dispatch(&ctx)
 	} else {
 		initHTTP()

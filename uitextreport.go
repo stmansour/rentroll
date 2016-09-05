@@ -106,7 +106,7 @@ func UIStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalAg
 		case 2: // receipts
 			amt := rlib.RoundToCent(m[i].amt)
 			d += amt
-			b -= amt
+			b += amt
 			fmt.Printf("%10s  R%010d  %-40.40s  %12s  %12s  %12s\n", m[i].dt.Format(rlib.RRDATEINPFMT), m[i].id, "Payment received", " ", rlib.RRCommaf(m[i].amt), rlib.RRCommaf(b))
 		case 3: // opening balance
 			fmt.Printf("%10s  %-11s  %-40.40s  %12s  %12s  %12s\n", d1.Format(rlib.RRDATEINPFMT), " ", "Opening Balance", " ", " ", rlib.RRCommaf(b))

@@ -60,6 +60,10 @@ var App struct {
 	RPRefFile      string                     // RatePlanRef
 	RPRRTRateFile  string                     // RatePlanRefRTRate
 	RPRSPRateFile  string                     // RatePlanRefSPRate
+	BUD            string                     // business unit designator
+	DtStart        time.Time                  // range start time
+	DtStop         time.Time                  // range stop time
+	Xbiz           rlib.XBusiness             // xbusiness associated with -G  (BUD)
 }
 
 func readCommandLineArgs() {
@@ -75,6 +79,8 @@ func readCommandLineArgs() {
 	rcptPtr := flag.String("e", "", "add receipts via csv file")
 	rsrefsPtr := flag.String("F", "", "assign rentable specialties to rentables via csv file")
 	rprptr := flag.String("f", "", "add RatePlanRefs via csv file")
+	pDates := flag.String("g", "", "Date Rage.  Example: 1/1/16,2/1/16")
+	pBUD := flag.String("G", "", "BUD - business unit designator")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
 	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName")
 	slPtr := flag.String("l", "", "add StringLists via csv file")
@@ -132,6 +138,26 @@ func readCommandLineArgs() {
 	App.RPRefFile = *rprptr
 	App.RPRRTRateFile = *rprrt
 	App.RPRSPRateFile = *rprsp
+	var err error
+	s := *pDates
+	if len(s) > 0 {
+		ss := strings.Split(s, ",")
+		App.DtStart, err = rlib.StringToDate(ss[0])
+		if err != nil {
+			fmt.Printf("Invalid start date:  %s\n", ss[0])
+			os.Exit(1)
+		}
+		App.DtStop, err = rlib.StringToDate(ss[1])
+		if err != nil {
+			fmt.Printf("Invalid stop date:  %s\n", ss[1])
+			os.Exit(1)
+		}
+	} else if len(App.AsmtFile) > 0 || len(App.RcptFile) > 0 {
+		fmt.Printf("To load Assessments or Receipts you must specify a time range.\n")
+		os.Exit(1)
+	}
+
+	App.BUD = strings.TrimSpace(*pBUD)
 }
 
 func bizErrCheck(sa []string) {
@@ -191,6 +217,27 @@ func main() {
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 
+	//----------------------------------------------------
+	// initialize the CSV infrastructure
+	//----------------------------------------------------
+	if len(App.BUD) > 0 {
+		b2 := rlib.GetBusinessByDesignation(App.BUD)
+		if b2.BID == 0 {
+			fmt.Printf("Could not find Business Unit named %s\n", App.BUD)
+			os.Exit(1)
+		}
+		rlib.GetXBusiness(b2.BID, &App.Xbiz)
+	} else if len(App.AsmtFile) > 0 || len(App.RcptFile) > 0 {
+		fmt.Printf("To load Assessments or Receipts you must provide a business unit\n")
+		os.Exit(1)
+	}
+	if App.Xbiz.P.BID > 0 {
+		rcsv.InitRCSV(&App.DtStart, &App.DtStop, &App.Xbiz)
+	}
+
+	//----------------------------------------------------
+	// Now, on with the main portion of the program...
+	//----------------------------------------------------
 	if len(App.BizFile) > 0 {
 		rcsv.LoadBusinessCSV(App.BizFile)
 	}

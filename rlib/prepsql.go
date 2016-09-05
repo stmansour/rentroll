@@ -114,7 +114,11 @@ func buildPreparedStatements() {
 	AsmFlds := "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,Comment,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAssessmentInstance, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE Start=? and PASMID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and (PASMID=0 or RentCycle=0) and Start<? and Stop>=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRecurringAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and PASMID=0 and RentCycle>0 and Start<? and Stop>=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and (PASMID!=0 or RentCycle=0) and Start<? and Stop>=?")
 	Errcheck(err)
