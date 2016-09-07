@@ -56,9 +56,6 @@ func GetCachedLedgerByGL(bid int64, s string) GLAccount {
 func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
 	for i := 0; i < len(j.JA); i++ {
 		m := ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
-		// fGenRcv := false
-		// fSecDep := false
-		// idx := 0
 		for k := 0; k < len(m); k++ {
 			var l LedgerEntry
 			l.BID = xbiz.P.BID
@@ -92,17 +89,31 @@ func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.
 //
 // If no LedgerMarker is found on or before d1, then one will be created.
 //
-// A new LedgerMarker will be created at d2 with the new balance.
+// A new LedgerMarker will be created at dt with the new balance.
 //
 // INPUTS
 //		bid   - business id
 //		plid  - parent ledger id
 //		raid  - which RentalAgreement
-//		d1,d2 - time range to look for ledger activity that needs to be
-//              incorporated into the LedgerMarker.
+//		dt    - compute the balance for the subledger on this date
 //-----------------------------------------------------------------------------
-func UpdateSubLedgerMarkers(bid int64, d1, d2 *time.Time) {
+func UpdateSubLedgerMarkers(bid int64, d2 *time.Time) {
 	funcname := "UpdateSubLedgerMarkers"
+
+	// find the nearest previous ledger marker for any account (GenRcv)
+	// Its date will be d1, the start time. We'll need to compute all
+	// activity that has taken place since that time in order to produce
+	// the balance for each ledger marker
+	d := GetDateOfLedgerMarkerOnOrBefore(bid, d2)
+	d1 := &d
+
+	// GenRcvLID := RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
+	// lm := GetLedgerMarkerOnOrBefore(bid, GenRcvLID, d2)
+	// if lm.LMID == 0 {
+	// 	Ulog("%s - SEVERE ERROR - unable to locate a LedgerMarker on or before %s\n", d2.Format(RRDATEFMT4))
+	// 	return
+	// }
+
 	// For each Rental Agreement
 	rows, err := RRdb.Prepstmt.GetRentalAgreementByBusiness.Query(bid)
 	Errcheck(err)
@@ -174,40 +185,54 @@ func UpdateSubLedgerMarkers(bid int64, d1, d2 *time.Time) {
 	Errcheck(rows.Err())
 }
 
-func closeLedgerPeriod(xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, d1, d2 *time.Time, state int64) {
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(li.BID, li.LID, d1, d2)
-	Errcheck(err)
-	bal := lm.Balance
-	defer rows.Close()
-	for rows.Next() {
-		var l LedgerEntry
-		ReadLedgerEntries(rows, &l)
-		bal += l.Amount
-	}
-	Errcheck(rows.Err())
-
+func closeLedgerPeriod(xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, dt *time.Time, state int64) {
+	bal := GetRAAccountBalance(li.BID, li.LID, 0, dt)
 	var nlm LedgerMarker
 	nlm = *lm
 	nlm.Balance = bal
-	nlm.Dt = *d2
+	nlm.Dt = *dt
 	nlm.State = state
-	// fmt.Printf("nlm - %s - %s   GLNo: %s, Balance: %6.2f\n",
-	// 	nlm.DtStart.Format(RRDATEFMT), nlm.Dt.Format(RRDATEFMT), nlm.GLNumber, nlm.Balance)
 	InsertLedgerMarker(&nlm)
+}
+
+// GenerateLedgerMarkers creates all ledgermarkers at dt
+func GenerateLedgerMarkers(xbiz *XBusiness, dt *time.Time) {
+	funcname := "GenerateLedgerMarkers"
+	//----------------------------------------------------------------------------------
+	// Spin through all ledgers and update the LedgerMarkers with the ending balance...
+	//----------------------------------------------------------------------------------
+	t := GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
+	// fmt.Printf("len(t) =  %d\n", len(t))
+	for i := 0; i < len(t); i++ {
+		// lm := GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
+		lm := GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i].LID, dt)
+		if lm.LMID == 0 {
+			fmt.Printf("%s: Could not get GLAccount %d (%s) in busines %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
+			continue
+		}
+		// fmt.Printf("lm = %#v\n", lm)
+		closeLedgerPeriod(xbiz, &t[i], &lm, dt, MARKERSTATEOPEN)
+	}
+	// Errcheck(rows.Err())
+
+	//----------------------------------------------------------------------------------
+	// Now we need to update the ledger markers for RAIDs and RIDs
+	//----------------------------------------------------------------------------------
+	UpdateSubLedgerMarkers(xbiz.P.BID, dt)
 }
 
 // GenerateLedgerRecords creates ledgers records based on the Journal records over the supplied time range.
 func GenerateLedgerRecords(xbiz *XBusiness, d1, d2 *time.Time) {
-	funcname := "GenerateLedgerRecords"
+	// funcname := "GenerateLedgerRecords"
 	err := RemoveLedgerEntries(xbiz, d1, d2)
 	if err != nil {
 		Ulog("Could not remove existing LedgerEntries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
 		return
 	}
 	initLedgerCache()
-	//==============================================================================
+	//----------------------------------------------------------------------------------
 	// Loop through the Journal records for this time period, update all ledgers...
-	//==============================================================================
+	//----------------------------------------------------------------------------------
 	rows, err := RRdb.Prepstmt.GetAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
@@ -219,27 +244,5 @@ func GenerateLedgerRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 		GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
 	}
 	Errcheck(rows.Err())
-
-	//==============================================================================
-	// Now that all the ledgers have been updated, we can close the ledgers and mark
-	// their state as MARKERSTATEOPEN
-	// Spin through all ledgers and update the LedgerMarkers with the ending balance...
-	//==============================================================================
-	t := GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
-	// fmt.Printf("len(t) =  %d\n", len(t))
-	for i := 0; i < len(t); i++ {
-		lm := GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
-		if lm.LMID == 0 {
-			fmt.Printf("%s: Could not get GLAccount %d (%s) in busines %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
-			continue
-		}
-		// fmt.Printf("lm = %#v\n", lm)
-		closeLedgerPeriod(xbiz, &t[i], &lm, d1, d2, MARKERSTATEOPEN)
-	}
-	Errcheck(rows.Err())
-
-	//==============================================================================
-	// Now we need to update the ledger markers for RAIDs and RIDs
-	//==============================================================================
-	UpdateSubLedgerMarkers(xbiz.P.BID, d1, d2)
+	GenerateLedgerMarkers(xbiz, d2)
 }

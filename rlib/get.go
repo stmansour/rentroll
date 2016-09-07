@@ -330,7 +330,9 @@ func GetAllDepositMethods(bid int64) []DepositMethod {
 // GetInvoice reads a Invoice structure based on the supplied Invoice id
 func GetInvoice(id int64) (Invoice, error) {
 	var a Invoice
-	err := RRdb.Prepstmt.GetInvoice.QueryRow(id).Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy)
+	var err error
+	row := RRdb.Prepstmt.GetInvoice.QueryRow(id)
+	ReadInvoice(row, &a)
 	if err == nil {
 		a.A, err = GetInvoiceAssessments(id)
 		if err == nil {
@@ -348,7 +350,7 @@ func GetAllInvoicesInRange(bid int64, d1, d2 *time.Time) []Invoice {
 	defer rows.Close()
 	for rows.Next() {
 		var a Invoice
-		Errcheck(rows.Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy))
+		ReadInvoices(rows, &a)
 		a.A, err = GetInvoiceAssessments(a.InvoiceNo)
 		Errcheck(err)
 		a.P, err = GetInvoicePayors(a.InvoiceNo)
@@ -913,7 +915,7 @@ func GetRentalAgreementPayors(raid int64, d1, d2 *time.Time) []RentalAgreementPa
 	t = make([]RentalAgreementPayor, 0)
 	for rows.Next() {
 		var r RentalAgreementPayor
-		Errcheck(rows.Scan(&r.RAID, &r.TCID, &r.DtStart, &r.DtStop))
+		ReadRentalAgreementPayors(rows, &r)
 		t = append(t, r)
 	}
 	return t
@@ -1163,6 +1165,14 @@ func GetLedgerEntryArray(rows *sql.Rows) ([]LedgerEntry, error) {
 	return m, rows.Err()
 }
 
+// GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied Ledger during the supplied range
+func GetLedgerEntriesInRange(d1, d2 *time.Time, bid, lid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(bid, lid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
 // GetLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
 func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
@@ -1203,13 +1213,13 @@ func GetAllLedgerEntriesInRange(bid int64, d1, d2 *time.Time) ([]LedgerEntry, er
 	return GetLedgerEntryArray(rows)
 }
 
-// GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
-func GetLedgerEntriesInRange(bid, lid, raid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
-	Errcheck(err)
-	defer rows.Close()
-	return GetLedgerEntryArray(rows)
-}
+// // GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
+// func GetLedgerEntriesInRange(bid, lid, raid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
+// 	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	return GetLedgerEntryArray(rows)
+// }
 
 //=======================================================
 //  NOTES
@@ -1503,4 +1513,14 @@ func GetXPerson(tcid int64, x *XPerson) {
 	if 0 == x.Pay.TCID {
 		GetPayor(tcid, &x.Pay)
 	}
+}
+
+// GetDateOfLedgerMarkerOnOrBefore returns the Dt value of the last LedgerMarker set generated on or before d1
+func GetDateOfLedgerMarkerOnOrBefore(bid int64, d1 *time.Time) time.Time {
+	GenRcvLID := RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
+	lm := GetLedgerMarkerOnOrBefore(bid, GenRcvLID, d1)
+	if lm.LMID == 0 {
+		Ulog("%s - SEVERE ERROR - unable to locate a LedgerMarker on or before %s\n", d1.Format(RRDATEFMT4))
+	}
+	return lm.Dt
 }

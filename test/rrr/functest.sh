@@ -20,7 +20,10 @@ docsvtest "j" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
 docsvtest "k" "-A asmt.csv -G ${BUD} -g 7/1/16,8/1/16 -L 11,${BUD}" "Assessments"
 docsvtest "l" "-e rcpt.csv -G ${BUD} -g 7/1/16,8/1/16 -L 13,${BUD}" "Receipts"
 
+# DEC 2014  -  JAN 2015
 dorrtest "m" "-j 2014-12-01 -k 2015-01-01 -b ${BUD}" "ProcessDeposits"
+
+# JUL 2016  -  AUG 2016
 dorrtest "p" "${RRDATERANGE} -b ${BUD} -r 11" "GSR"
 dorrtest "m" "${RRDATERANGE} -b ${BUD} " "Process"
 dorrtest "n" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"

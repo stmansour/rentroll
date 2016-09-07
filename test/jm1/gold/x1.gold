@@ -1,0 +1,31 @@
+Statement  -  Rental Agreement RA00000001   Payor(s): Aaron Read, Kirsten Read
+Period  Feb 1, 2016 - Feb 29, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-02-01               Opening Balance                                                               0.00
+2016-02-01  ASM00000010  Gross Scheduled Rent-Taxable                  3,500.00                    3,500.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,500.00          0.00      3,500.00
+
+Statement  -  Rental Agreement RA00000002   Payor(s): Rita Costea, Daniel Costea
+Period  Feb 1, 2016 - Feb 29, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-02-01               Opening Balance                                                               0.00
+2016-02-01  ASM00000011  Gross Scheduled Rent-Taxable                  3,550.00                    3,550.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,550.00          0.00      3,550.00
+
+Statement  -  Rental Agreement RA00000003   Payor(s): Gagik Haroutunian
+Period  Feb 1, 2016 - Feb 29, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-02-01               Opening Balance                                                               0.00
+2016-02-01  ASM00000012  Gross Scheduled Rent-Taxable                  1,062.07                    1,062.07
+2016-02-01  ASM00000013  Serviced Fees                                   111.26                    1,173.33
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 1,173.33          0.00      1,173.33
+

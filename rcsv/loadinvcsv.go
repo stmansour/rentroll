@@ -2,42 +2,56 @@ package rcsv
 
 import (
 	"fmt"
-	"math"
 	"rentroll/rlib"
 	"strings"
 )
 
 // CVS record format:
-// 0    1         2       3        4       5            6
-// BUD, Date,    Payor,   DateDue, Amount, DeliveredBy, Assessments
-// REX, 6/1/16,  DEP001,  7/1/16  2005.37, 1,           "ASM00001,2"
+// 0    1        /* 2        */ 3        4            5
+// BUD, Date,    /*PayorSpec,*/ DateDue, DeliveredBy, AssessmentSpec
+// REX, 6/1/16,  /*DEP001,   */ 7/1/16   1,           "ASM00001,2"
 
 // CreateInvoicesFromCSV reads an invoice type string array and creates a database record
-func CreateInvoicesFromCSV(sa []string, lineno int) {
+func CreateInvoicesFromCSV(sa []string, lineno int) int {
 	funcname := "CreateInvoicesFromCSV"
 	var err error
 	var inv rlib.Invoice
-	var ok bool
 
-	bud := strings.ToLower(strings.TrimSpace(sa[0]))
-	if bud == "bud" {
-		return // this is just the column heading
+	const (
+		BUD            = 0
+		Date           = iota
+		DateDue        = iota
+		DeliveredBy    = iota
+		AssessmentSpec = iota
+	)
+	// PayorSpec      = iota
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"Date", Date},
+		{"DateDue", DateDue},
+		{"DeliveredBy", DeliveredBy},
+		{"AssessmentSpec", AssessmentSpec},
 	}
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 7
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	// {"PayorSpec", PayorSpec},
+
+	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+		return 1
+	}
+	if lineno == 1 {
+		return 0
 	}
 
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
+	bud := strings.ToLower(strings.TrimSpace(sa[BUD]))
 	if len(bud) > 0 {
 		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d - Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return
+			rlib.Ulog("%s: line %d - Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
+			return CsvErrorSensitivity
 		}
 		inv.BID = b1.BID
 	}
@@ -45,42 +59,34 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Date
 	//-------------------------------------------------------------------
-	inv.Dt, err = rlib.StringToDate(sa[1])
+	inv.Dt, err = rlib.StringToDate(sa[Date])
 	if err != nil {
-		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[1])
-		return
+		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[Date])
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
-	// Payors
+	// PayorSpecs
 	//-------------------------------------------------------------------
-	t, err := CSVLoaderTransactantList(sa[2])
-	if err != nil {
-		fmt.Printf("%s: line %d - invalid payor list:  %s\n", funcname, lineno, sa[2])
-		return
-	}
+	// t, err := CSVLoaderTransactantList(sa[PayorSpec])
+	// if err != nil {
+	// 	fmt.Printf("%s: line %d - invalid payor list:  %s\n", funcname, lineno, sa[PayorSpec])
+	// 	return CsvErrorSensitivity
+	// }
 
 	//-------------------------------------------------------------------
 	// Date Due
 	//-------------------------------------------------------------------
-	inv.DtDue, err = rlib.StringToDate(sa[3])
+	inv.DtDue, err = rlib.StringToDate(sa[DateDue])
 	if err != nil {
-		fmt.Printf("%s: line %d - invalid due date:  %s\n", funcname, lineno, sa[3])
-		return
-	}
-
-	//-------------------------------------------------------------------
-	// Amount
-	//-------------------------------------------------------------------
-	inv.Amount, ok = rlib.FloatFromString(sa[4], "deposit Amount is invalid")
-	if !ok {
-		return
+		fmt.Printf("%s: line %d - invalid due date:  %s\n", funcname, lineno, sa[DateDue])
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// DeliveredBy
 	//-------------------------------------------------------------------
-	inv.DeliveredBy = strings.TrimSpace(sa[5])
+	inv.DeliveredBy = strings.TrimSpace(sa[DeliveredBy])
 
 	//-------------------------------------------------------------------
 	// Assessments - comma separated list of ASMIDs. Could be of the form
@@ -90,31 +96,51 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 	var mm []rlib.Assessment
 	var tot = float64(0)
 
-	s := strings.TrimSpace(sa[6])
+	s := strings.TrimSpace(sa[AssessmentSpec])
 	ssa := strings.Split(s, ",")
 	if len(ssa) == 0 {
 		rlib.Ulog("%s: line %d - no assessments found. You must supply at least one assessment\n", funcname, lineno)
-		return
+		return CsvErrorSensitivity
 	}
+	RAID := int64(0) // initialize as unset...
 	for i := 0; i < len(ssa); i++ {
 		id := CSVLoaderGetASMID(ssa[i])
 		if 0 == id {
 			rlib.Ulog("%s: line %d - invalid assessment number: %s\n", funcname, lineno, ssa[i])
-			return
+			return CsvErrorSensitivity
 		}
 		asmts = append(asmts, id)
 		// load each assessment so that we can total the amount and see if it matches Amount
 		a, err := rlib.GetAssessment(id)
 		if err != nil {
 			fmt.Printf("%s: line %d -  error getting Assessment %d: %v\n", funcname, lineno, id, err)
-			return
+			return CsvErrorSensitivity
 		}
+		if RAID == 0 { // if RAID has not been set...
+			RAID = a.RAID // ...set it now
+		}
+		if RAID != a.RAID { // the RAID needs to be the same for every assessment, if not it's an error
+			fmt.Printf("%s: line %d -  Assessment %d belongs to Rental Agreement %d.\n", funcname, lineno, a.ASMID, a.RAID)
+			fmt.Printf("\tAll Assessments must belong to the same Rental Agreement\n")
+			return CsvErrorSensitivity
+		}
+
 		tot += a.Amount
 		mm = append(mm, a) // may need this later
 	}
-	if math.Abs(tot-inv.Amount) > 0.005 {
-		rlib.Ulog("%s: line %d - Total of all assessments found to be %8.2f, but Amount was specified as %8.2f. Please correct.\n", funcname, lineno, tot, inv.Amount)
-		return
+	inv.Amount = tot
+
+	// build the payor list
+	m := rlib.GetRentalAgreementPayors(RAID, &inv.Dt, &inv.DtDue) // these are the main payors
+	// for i := 0; i < len(t); i++ {                                 // if there are any additional people that should receive the invoice...
+	// 	var a rlib.RentalAgreementPayor // add them...
+	// 	a.TCID = t[i].TCID              // as a RentalAgreementPayor struct...
+	// 	m = append(m, a)                // in this array
+	// }
+
+	if err != nil {
+		fmt.Printf("%s: line %d -  error getting Rental Agreement %d: %v\n", funcname, lineno, RAID, err)
+		return CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
@@ -123,7 +149,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 	id, err := rlib.InsertInvoice(&inv)
 	if err != nil {
 		fmt.Printf("%s: line %d -  error inserting invoice: %v\n", funcname, lineno, err)
-		return
+		return CsvErrorSensitivity
 	}
 	// Next, its associated Assessments
 	for i := 0; i < len(asmts); i++ {
@@ -134,27 +160,30 @@ func CreateInvoicesFromCSV(sa []string, lineno int) {
 		if nil != err {
 			fmt.Printf("%s: line %d -  error inserting invoice part: %v\n", funcname, lineno, err)
 			rlib.DeleteInvoice(id)
-			return
+			return CsvErrorSensitivity
 		}
 	}
 	// Finally, the payors
-	for i := 0; i < len(t); i++ {
+	for i := 0; i < len(m); i++ {
 		var a rlib.InvoicePayor
 		a.InvoiceNo = id
-		a.PID = t[i].TCID
+		a.PID = m[i].TCID
 		err = rlib.InsertInvoicePayor(&a)
 		if nil != err {
 			fmt.Printf("%s: line %d -  error inserting invoice payor: %v\n", funcname, lineno, err)
 			rlib.DeleteInvoice(id)
-			return
+			return CsvErrorSensitivity
 		}
 	}
+	return 0
 }
 
 // LoadInvoicesCSV loads a csv file with deposits and creates Invoice records
 func LoadInvoicesCSV(fname string) {
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateInvoicesFromCSV(t[i], i+1)
+		if CreateInvoicesFromCSV(t[i], i+1) > 0 {
+			return
+		}
 	}
 }

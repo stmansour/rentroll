@@ -40,7 +40,10 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) {
 			ja.RID = r.RID
 			// fmt.Printf("VACANCY: inserting journalAllocation entry: %#v\n", ja)
 			InsertJournalAllocationEntry(&ja)
+			j.JA = append(j.JA, ja)
 		}
+		initLedgerCache()
+		GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
 	}
 }
 

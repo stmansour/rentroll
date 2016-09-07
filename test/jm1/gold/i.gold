@@ -1,8 +1,8 @@
-           RA Template                     
-BID        ID           RA Template Name   
----------  -----------  -------------------
-B00000001  RAT00000001  Agreement3722.1.doc
-B00000001  RAT00000002  Agreement4421.2.doc
-B00000001  RAT00000003  Agreement4980.3.doc
-B00000001  RAT00000004  Agreement5342.7.doc
+           Value                           
+CID        Type   Name         Value  Units
+---------  -----  -----------  -----  -----
+C00000001  int    Square Feet   1215  sqft 
+C00000002  int    Square Feet   1239  sqft 
+C00000003  int    Square Feet   1433  sqft 
+C00000004  int    Square Feet    827  sqft 
 

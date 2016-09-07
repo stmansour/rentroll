@@ -10,7 +10,7 @@ REX,Other Accrued Taxes,30199,30100,Liability,Current Liabilities,0,active,Assoc
 REX,Owners' Equity,39000,,Owners Equty,Equity,0,active,Unassociated,17,12/1/15,yes,0,0,
 REX,Gross Scheduled Rent-Taxable,41000,,Rent,Income,0,active,Unassociated,12,12/1/15,yes,0,1,
 REX,Gross Scheduled Rent-Not Taxable,41001,,Rent,Income,0,active,Unassociated,,12/1/15,yes,0,1,
-REX,Income Offset,41002,,,Income,0,active,,,12/1/15,no,0,0,
+REX,Income Offsets,41002,,,Income,0,active,,,12/1/15,no,0,0,
 REX,Unit Income Offsets,41100,41002,Income Offset,Income,0,active,,,12/1/15,no,0,0,
 REX,Vacancy,41101,41100,Income Offset,Income,0,active,Unassociated,14,12/1/15,yes,0,0,
 REX,Loss (Gain) to Lease,41102,41100,Income Offset,Income,0,active,Associated,13,12/1/15,yes,0,0,

@@ -211,7 +211,9 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				rlib.Ulog("RentRollTextReport: WARNING. IncomeOffsetGLAccountName = %q was not found in the GLAccounts\n", IncomeOffsetGLAccountName)
 			}
 			if incOffsetAcct > 0 {
-				icos = rlib.GetRAAccountBalance(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
+				icosd1 := rlib.GetRAAccountBalance(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstart)
+				icosd2 := rlib.GetRAAccountBalance(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
+				icos = icosd2 - icosd1
 			}
 			oic := float64(0)
 			otherIncomeAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, OtherIncomeGLAccountName)
@@ -219,7 +221,9 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				rlib.Ulog("RentRollTextReport: WARNING. OtherIncomeGLAccountName = %q was not found in the GLAccounts\n", OtherIncomeGLAccountName)
 			}
 			if otherIncomeAcct > 0 {
-				oic = rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
+				oicd1 := rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstart)
+				oicd2 := rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
+				oic = oicd2 - oicd1
 			}
 
 			//-------------------------------------------------------------------------------------------------------
@@ -285,6 +289,16 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		for i := 0; i < len(v); i++ {
 			gsr, gsrRate := ComputeGSRandGSRRate(&p, &v[i].DtStart, &v[i].DtStop, xbiz)
 
+			icos := float64(0)
+			incOffsetAcct := rlib.GetLIDFromGLAccountName(p.BID, IncomeOffsetGLAccountName)
+			if incOffsetAcct == 0 {
+				rlib.Ulog("RentRollTextReport: WARNING. IncomeOffsetGLAccountName = %q was not found in the GLAccounts\n", IncomeOffsetGLAccountName)
+			} else {
+				icosd1 := rlib.GetRentableAccountBalance(xbiz.P.BID, incOffsetAcct, p.RID, d1)
+				icosd2 := rlib.GetRentableAccountBalance(xbiz.P.BID, incOffsetAcct, p.RID, d2)
+				icos = icosd2 - icosd1
+			}
+
 			tbl.AddRow()
 			tbl.Puts(-1, RName, p.Name)
 			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
@@ -300,8 +314,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 			// tbl.Putd(-1, RAgrStop, ra.AgreementStop)
 			tbl.Putf(-1, GSRRate, gsrRate)
 			tbl.Putf(-1, GSRAmt, gsr)
-			// tbl.Putf(-1, IncOff, icos)
-			// tbl.Putf(-1, OtherInc)
+			tbl.Putf(-1, IncOff, icos)
 			// tbl.Putf(-1, ContractRent, contractRentVal)
 			// tbl.Putf(-1, OtherInc, oic)
 			// tbl.Putf(-1, PmtRcvd, oic)

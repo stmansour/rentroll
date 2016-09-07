@@ -1,7 +1,8 @@
-                                                           Proration                                                                     
-ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType            Account Rule                    
------------  ------  ----------  ---------  -------------  -------------  ----------  -----------------  --------------------------------
-ASM00000001  0       RA00000001  R00000001  non-recurring  non-recurring    7,000.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
-ASM00000002  0       RA00000002  R00000002  non-recurring  non-recurring    3,000.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
-ASM00000003  0       RA00000003  R00000003  non-recurring  non-recurring    3,300.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
+                                                                                              Agreement   Agreement   Possession  Possession                          Rent Cycle                                                             
+RAID        Payor                       User                                                  Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal  Special Provisions  Notes                         
+----------  --------------------------  ----------------------------------------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  ------------------  ------------------------------
+RA00000001  Aaron Read, Kirsten Read    Aaron Read, Kirsten Read                              03/01/2014  03/01/2016  03/01/2014  03/01/2016  03/01/2014  03/01/2016  03/01/2014  1                            This is a note for Kirsten and
+RA00000002  Rita Costea, Daniel Costea  Child1 Costea, Daniel Costea, Rita Costea             04/01/2011  04/01/2016  04/01/2011  04/01/2016  04/01/2011  04/01/2016  04/01/2011  1                            This is a note for Costea's   
+RA00000003  Gagik Haroutunian           Gagik Haroutunian                                     08/12/2010  02/08/2016  08/12/2010  02/08/2016  08/12/2010  02/08/2016  08/12/2010  1                            This is a gagik note          
+RA00000004  Lauren Beck, Kevin Mills    Child1 Mills, Child2 Mills, Kevin Mills, Lauren Beck  07/01/2016  07/01/2018  07/01/2016  07/01/2018  07/01/2016  07/01/2018  07/01/2016  1                            This is a Mills note          
 

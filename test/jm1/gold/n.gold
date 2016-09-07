@@ -1,0 +1,7 @@
+                                                           Proration                                                                     
+ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType            Account Rule                    
+-----------  ------  ----------  ---------  -------------  -------------  ----------  -----------------  --------------------------------
+ASM00000001  0       RA00000001  R00000001  non-recurring  non-recurring    7,000.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
+ASM00000002  0       RA00000002  R00000002  non-recurring  non-recurring    3,000.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
+ASM00000003  0       RA00000003  R00000003  non-recurring  non-recurring    3,300.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
+

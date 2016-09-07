@@ -6,11 +6,11 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          07/01/16                                                                0.00
-                            Payment #2111 - Income Offsets  07/02/16         69           3         6303-231       2500.00       2500.00
-         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         70           1         6303-231        308.35       2808.35
-         Payment #3999 - Unit Gross Scheduled Rent-Taxable  07/16/16         71           2         6303-231        400.00       3208.35
-         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         72           4         6303-231        750.00       3958.35
-                            Payment #6430 - Income Offsets  07/04/16         73           5         6303-231       4200.00       8158.35
+                            Payment #2111 - Income Offsets  07/02/16         68           3         6303-231       2500.00       2500.00
+         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         69           1         6303-231        308.35       2808.35
+         Payment #3999 - Unit Gross Scheduled Rent-Taxable  07/16/16         70           2         6303-231        400.00       3208.35
+         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         71           4         6303-231        750.00       3958.35
+                            Payment #6430 - Income Offsets  07/04/16         72           5         6303-231       4200.00       8158.35
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          07/31/16                                                             8158.35
 
@@ -85,16 +85,16 @@
             Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         60           5         6392-930        125.00       8401.62
             Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         61           5         6392-930        125.00       8526.62
             Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         62           5         6392-930        125.00       8651.62
-                               Assessment - Income Offsets  07/05/16         64           2         6303-231        -11.00       8640.62
-                               Assessment - Income Offsets  07/06/16         65           2         6303-231        -11.00       8629.62
-                                  Assessment - Gas Overage  07/05/16         66           2         6303-231        230.00       8859.62
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         67           6         6323-302       2750.00      11609.62
-                         Assessment - Resident Concessions  07/01/16         68           6         6323-302       -250.00      11359.62
-                            Payment #2111 - Income Offsets  07/02/16         69           3         6303-231      -2500.00       8859.62
-         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         70           1         6303-231       -308.35       8551.27
-         Payment #3999 - Unit Gross Scheduled Rent-Taxable  07/16/16         71           2         6303-231       -400.00       8151.27
-         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         72           4         6303-231       -750.00       7401.27
-                            Payment #6430 - Income Offsets  07/04/16         73           5         6303-231      -4200.00       3201.27
+                               Assessment - Income Offsets  07/05/16         63           2         6303-231        -11.00       8640.62
+                               Assessment - Income Offsets  07/06/16         64           2         6303-231        -11.00       8629.62
+                                  Assessment - Gas Overage  07/05/16         65           2         6303-231        230.00       8859.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         66           6         6323-302       2750.00      11609.62
+                         Assessment - Resident Concessions  07/01/16         67           6         6323-302       -250.00      11359.62
+                            Payment #2111 - Income Offsets  07/02/16         68           3         6303-231      -2500.00       8859.62
+         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         69           1         6303-231       -308.35       8551.27
+         Payment #3999 - Unit Gross Scheduled Rent-Taxable  07/16/16         70           2         6303-231       -400.00       8151.27
+         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         71           4         6303-231       -750.00       7401.27
+                            Payment #6430 - Income Offsets  07/04/16         72           5         6303-231      -4200.00       3201.27
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          07/31/16                                                             3201.27
 
@@ -189,7 +189,7 @@
             Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         60           5         6392-930       -125.00      -8342.27
             Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         61           5         6392-930       -125.00      -8467.27
             Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         62           5         6392-930       -125.00      -8592.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         67           6         6323-302      -3319.35     -11911.62
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         66           6         6323-302      -3319.35     -11911.62
                                               Unassociated  07/04/16         75           0         6303-231        -76.00     -11987.62
                                               Unassociated  07/09/16         76           0         6303-231       -276.00     -12263.62
                                               Unassociated  07/31/16         77           0         6303-231        -56.87     -12320.49
@@ -237,7 +237,7 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          07/01/16                                                                0.00
             Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         31           4         6323-301         25.00         25.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         67           6         6323-302        569.35        594.35
+            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         66           6         6323-302        569.35        594.35
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          07/31/16                                                              594.35
 
@@ -253,9 +253,9 @@
                                Assessment - Income Offsets  07/01/16          4           1         6303-231         24.00         24.00
                                Assessment - Income Offsets  07/02/16          5           1         6303-231         24.00         48.00
                                Assessment - Income Offsets  07/03/16          6           1         6303-231         24.00         72.00
-                               Assessment - Income Offsets  07/05/16         64           2         6303-231         11.00         83.00
-                               Assessment - Income Offsets  07/06/16         65           2         6303-231         11.00         94.00
-                         Assessment - Resident Concessions  07/01/16         68           6         6323-302        250.00        344.00
+                               Assessment - Income Offsets  07/05/16         63           2         6303-231         11.00         83.00
+                               Assessment - Income Offsets  07/06/16         64           2         6303-231         11.00         94.00
+                         Assessment - Resident Concessions  07/01/16         67           6         6323-302        250.00        344.00
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          07/31/16                                                              344.00
 
@@ -281,7 +281,7 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          07/01/16                                                                0.00
                                   Assessment - Gas Overage  07/01/16          7           1         6303-231        -12.35        -12.35
-                                  Assessment - Gas Overage  07/05/16         66           2         6303-231       -230.00       -242.35
+                                  Assessment - Gas Overage  07/05/16         65           2         6303-231       -230.00       -242.35
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          07/31/16                                                             -242.35
 

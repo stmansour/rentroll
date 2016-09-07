@@ -79,6 +79,16 @@ func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
 		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadInvoice reads a full Invoice structure of data from the database based on the supplied Rows pointer.
+func ReadInvoice(row *sql.Row, a *Invoice) {
+	Errcheck(row.Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadInvoices reads a full Invoice structure of data from the database based on the supplied Rows pointer.
+func ReadInvoices(rows *sql.Rows, a *Invoice) {
+	Errcheck(rows.Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy))
+}
+
 // ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerEntry(row *sql.Row, a *LedgerEntry) {
 	Errcheck(row.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
@@ -207,6 +217,16 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 		&a.ExpenseAdjustment, &a.EstimatedCharges, &a.RateChange, &a.NextRateChange, &a.PermittedUses, &a.ExclusiveUses,
 		&a.ExtensionOption, &a.ExtensionOptionNotice, &a.ExpansionOption, &a.ExpansionOptionNotice, &a.RightOfFirstRefusal,
 		&a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentalAgreementPayor reads a full RentalAgreementPayor structure of data from the database based on the supplied Row pointer.
+func ReadRentalAgreementPayor(row *sql.Row, a *RentalAgreementPayor) error {
+	return row.Scan(&a.RAID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS)
+}
+
+// ReadRentalAgreementPayors reads a full RentalAgreementPayor structure of data from the database based on the supplied Rows pointer.
+func ReadRentalAgreementPayors(rows *sql.Rows, a *RentalAgreementPayor) error {
+	return rows.Scan(&a.RAID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS)
 }
 
 // ReadRentalAgreementTemplate reads a full RentalAgreementTemplate structure of data from the database based on the supplied Row pointer.

@@ -31,7 +31,7 @@ FORCEGOOD=0
 TESTCOUNT=0
 
 if [ "x" == "x${RRDATERANGE}" ]; then
-	echo "RRDATERANGE not set.  Setting to default = -j 2016-03-01 -k 2016-04-01"
+	echo "RRDATERANGE not set.  Setting to default = -j 2016-01-01 -k 2016-02-01"
 	RRDATERANGE="-j 2016-03-01 -k 2016-04-01"
 fi
 
@@ -39,6 +39,12 @@ if [ "x" == "${BUD}x" ]; then
 	echo "BUD not set.  Setting to default = REX"
 	BUD="REX"
 fi
+
+if [ "x" == "x${CSVDATERANGE}" ]; then
+	echo "CSVDATERANGE not set.  Setting to default = -g 1/1/16,2/1/16"
+	CSVDATERANGE="-G ${BUD} -g 1/1/16,2/1/16"
+fi
+
 
 #############################################################################
 #  This code ensures that mysql does not touch production databases.
@@ -50,6 +56,8 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 fi
 
 pause() {
+	echo
+	echo
 	read -p "Press [Enter] to continue,  Q or X to quit..." x
 	x=$(echo "${x}" | tr "[:upper:]" "[:lower:]")
 	if [ ${x} == "q" -o ${x} == "x" ]; then
@@ -59,6 +67,7 @@ pause() {
 
 csvload() {
 	echo "command is:  ${CSVLOAD} ${1}"
+	echo
 	${CSVLOAD} ${1}
 }
 
@@ -85,6 +94,7 @@ B)   Business
 C)   Chart of Accounts
 CA)  Custom Attributes
 D)   Delinquency
+DE)  Deposits
 DM)  Deposit Methods
 DY)  Depositories 
 G)   GSR
@@ -134,6 +144,7 @@ EOF
 		  b) csvload "-L 3" ;;
 		  c) csvload "-L 10,${BUD}" ;;
 		 ca) csvload "-L 14" ;;
+		 de) csvload "${CSVDATERANGE} -L 19,${BUD}" ;;
 		 dm) csvload "-L 23,${BUD}" ;;
 		 dy) csvload "-L 18,${BUD}" ;;
 		  g) app "-b ${BUD} -r 11" ;;
@@ -382,8 +393,8 @@ logcheck() {
 		cp log llog
 		for f in "${out_filters[@]}"
 		do
-			perl -pe "$f" ll.g > x1; mv x1 ll.g
-			perl -pe "$f" llog > y1; mv y1 llog
+			perl -pe "$f" ll.g > llx1; mv llx1 ll.g
+			perl -pe "$f" llog > lly1; mv lly1 llog
 		done
 		UDIFFS=$(diff llog ll.g | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
@@ -410,6 +421,7 @@ logcheck() {
 #--------------------------------------------------------------------------
 tdir
 while getopts "forR:" o; do
+	echo "o = ${o}"
 	case "${o}" in
 		r | R)
 			doReport

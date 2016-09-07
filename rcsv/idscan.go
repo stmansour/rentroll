@@ -83,6 +83,9 @@ func CSVLoaderTransactantList(s string) ([]rlib.Transactant, error) {
 	funcname := "CSVLoaderTransactantList"
 	var m []rlib.Transactant
 	var noerr error
+	if "" == s {
+		return m, nil
+	}
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
 	ss := strings.Split(s2, ",")
 	for i := 0; i < len(ss); i++ {

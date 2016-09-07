@@ -310,48 +310,48 @@
                               Unit Gross Scheduled Rent-Taxable  07/31/16         5         6392-930     41000       -125.00
                                            Loss (Gain) to Lease  07/31/16         5         6392-930     41102          0.00
                                                                
-   J00000064  Income Offsets  6303-231 [A2, daily]             
+   J00000063  Income Offsets  6303-231 [A2, daily]             
                                             Accounts Receivable  07/05/16         2         6303-231     12000        -11.00
                                            Resident Concessions  07/05/16         2         6303-231     41104         11.00
                                                                
-   J00000065  Income Offsets  6303-231 [A2, daily]             
+   J00000064  Income Offsets  6303-231 [A2, daily]             
                                             Accounts Receivable  07/06/16         2         6303-231     12000        -11.00
                                            Resident Concessions  07/06/16         2         6303-231     41104         11.00
                                                                
-   J00000066  Gas Overage  6303-231 [A2]                       
+   J00000065  Gas Overage  6303-231 [A2]                       
                                             Accounts Receivable  07/05/16         2         6303-231     12000        230.00
                                                     Gas Overage  07/05/16         2         6303-231     41306       -230.00
                                                                
-   J00000067  Unit Gross Scheduled Rent-Taxable  6323-302 [A3, monthly] 
+   J00000066  Unit Gross Scheduled Rent-Taxable  6323-302 [A3, monthly] 
                                             Accounts Receivable  07/01/16         6         6323-302     12000       2750.00
                               Unit Gross Scheduled Rent-Taxable  07/01/16         6         6323-302     41000      -3319.35
                                            Loss (Gain) to Lease  07/01/16         6         6323-302     41102        569.35
                                                                
-   J00000068  Resident Concessions  6323-302 [A3, monthly]     
+   J00000067  Resident Concessions  6323-302 [A3, monthly]     
                                             Accounts Receivable  07/01/16         6         6323-302     12000       -250.00
                                            Resident Concessions  07/01/16         6         6323-302     41104        250.00
                                                                
-   J00000069  Payment -    #2111  2500.00                      
+   J00000068  Payment -    #2111  2500.00                      
    	Income Offsets                                             
                                                            Cash  07/02/16         1         6303-231     10000       2500.00
                                             Accounts Receivable  07/02/16         1         6303-231     12000      -2500.00
                                                                
-   J00000070  Payment -    #2283  308.35                       
+   J00000069  Payment -    #2283  308.35                       
    	Unit Gross Scheduled Rent-Taxable                          
                                             Accounts Receivable  07/15/16         1         6303-231     12000       -308.35
                                                            Cash  07/15/16         1         6303-231     10000        308.35
                                                                
-   J00000071  Payment - Smith   #3999  400.00                  
+   J00000070  Payment - Smith   #3999  400.00                  
    	Unit Gross Scheduled Rent-Taxable                          
                                             Accounts Receivable  07/16/16         1         6303-231     12000       -400.00
                                                            Cash  07/16/16         1         6303-231     10000        400.00
                                                                
-   J00000072  Payment - Jones,Jones   #1039  750.00            
+   J00000071  Payment - Jones,Jones   #1039  750.00            
    	Unit Gross Scheduled Rent-Taxable                          
                                             Accounts Receivable  07/03/16         1         6303-231     12000       -750.00
                                                            Cash  07/03/16         1         6303-231     10000        750.00
                                                                
-   J00000073  Payment -    #6430  4200.00                      
+   J00000072  Payment -    #6430  4200.00                      
    	Income Offsets                                             
                                             Accounts Receivable  07/04/16         1         6303-231     12000      -4200.00
                                                            Cash  07/04/16         1         6303-231     10000       4200.00

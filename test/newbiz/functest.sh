@@ -44,6 +44,6 @@ mysqlverify "g1" " "                   "Receipts"	            "select RCPTID,BID
 mysqlverify "h1" "-u custom.csv"       "CustomAttributes"	    "select CID,Type,Name,Value,LastModBy from CustomAttr;"
 mysqlverify "i1" "-U assigncustom.csv" "CustomAttributesAssignment" "select * from CustomAttrRef;"
 mysqlverify "j1" "-O nt.csv"           "NoteTypes"	            "select NTID,BID,Name,LastModBy from NoteType;"
-mysqlverify "k1" "-y deposit.csv"      "Deposits"	            "select DID,BID,Dt,DEPID,Amount,LastModBy from Deposit;"
+mysqlverify "k1" "-y deposit.csv ${RRCTX}"      "Deposits"	            "select DID,BID,Dt,DEPID,Amount,LastModBy from Deposit;"
 
 logcheck

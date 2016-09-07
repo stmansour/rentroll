@@ -1,14 +1,9 @@
-                        Middle                        Is                                         
-TCID        First Name  Name    Last Name    Company  Company  Cell Phone     Primary Email      
-----------  ----------  ------  -----------  -------  -------  -------------  -------------------
-TC00000001  Aaron               Read                  No       123-456-7890   aaron@rexford.com  
-TC00000002  Kirsten             Read                  No       123-456-7891   kirsten@rexford.com
-TC00000003  Rita                Costea                No       123-456-7892   rita@rexford.com   
-TC00000004  Daniel              Costea                No       123-456-7893   daniel@rexford.com 
-TC00000005  Child1              Costea                No       123-456-7893a                     
-TC00000006  Gagik               Haroutunian           No       123-456-7894   gagik@rexford.com  
-TC00000007  Lauren              Beck                  No       123-456-7895   lauren@rexford.com 
-TC00000008  Kevin               Mills                 No       123-456-7896   kevin@rexford.com  
-TC00000009  Child1              Mills                 No       123-456-7896a                     
-TC00000010  Child2              Mills                 No       123-456-7896b                     
+                                                               Manage                                  
+                                    Rent     Proration         To                                      
+RTID        Style  Name             Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
+----------  -----  ---------------  -------  ---------  -----  ------  --------------------------------
+RT00000001  Rex1   309 Rexford      monthly  daily      daily  Yes     |    1/1/14 -   1/1/17 $ 3500.00
+RT00000002  Rex2   309 1/2 Rexford  monthly  daily      daily  Yes     |    1/1/14 -   1/1/17 $ 3550.00
+RT00000003  Rex3   311 Rexford      monthly  daily      daily  Yes     |    1/1/14 -   1/1/17 $ 4400.00
+RT00000004  Rex4   311 1/2 Rexford  monthly  daily      daily  Yes     |    1/1/14 -   1/1/17 $ 2500.00
 

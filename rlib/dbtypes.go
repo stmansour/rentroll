@@ -357,6 +357,7 @@ type RentalAgreementPayor struct {
 	TCID    int64
 	DtStart time.Time // start date/time for this Payor
 	DtStop  time.Time // stop date/time
+	FLAGS   uint64    // 1<<0 is the bit that indicates this payor is a 'guarantor'
 }
 
 // RentableUser describes a User associated with a rental agreement

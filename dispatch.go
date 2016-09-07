@@ -123,6 +123,8 @@ func RunBooks(ctx *DispatchCtx) {
 		if err != nil {
 			fmt.Printf("Delinquency text report error: %s\n", err.Error())
 		}
+	case 15: // Process Vacancy...
+		rlib.GenVacancyJournals(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	default:
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)

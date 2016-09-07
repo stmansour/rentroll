@@ -70,12 +70,6 @@ func buildPreparedStatements() {
 	// Errcheck(err)
 
 	//===============================
-	//  Agreement Payor
-	//===============================
-	RRdb.Prepstmt.InsertRentalAgreementPayor, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop) VALUES(?,?,?,?)")
-	Errcheck(err)
-
-	//===============================
 	//  RentalAgreementPet
 	//===============================
 	PETflds := "PETID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModTime,LastModBy"
@@ -259,7 +253,7 @@ func buildPreparedStatements() {
 	InvoiceFlds := "InvoiceNo,BID,Dt,DtDue,Amount,DeliveredBy,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetInvoice, err = RRdb.Dbrr.Prepare("SELECT " + InvoiceFlds + " FROM Invoice WHERE InvoiceNo=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllInvoicesInRange, err = RRdb.Dbrr.Prepare("SELECT " + InvoiceFlds + " FROM Invoice WHERE BID=? AND ?<=Dt AND Dt<?")
+	RRdb.Prepstmt.GetAllInvoicesInRange, err = RRdb.Dbrr.Prepare("SELECT " + InvoiceFlds + " FROM Invoice WHERE BID=? AND ?>=Dt AND DtDue<=?")
 	Errcheck(err)
 
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(InvoiceFlds)
@@ -606,11 +600,14 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAID,TCID,DtStart,DtStop from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>=DtStart")
-	Errcheck(err)
 	RRdb.Prepstmt.GetRentableUsers, err = RRdb.Dbrr.Prepare("SELECT RID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>=DtStart")
+	Errcheck(err)
+
+	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>=DtStart")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertRentalAgreementPayor, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop,FLAGS) VALUES(?,?,?,?,?)")
 	Errcheck(err)
 
 	//===============================

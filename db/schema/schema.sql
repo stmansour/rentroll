@@ -207,9 +207,10 @@ CREATE TABLE RentalAgreementRentables (
 
 CREATE TABLE RentalAgreementPayors (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
-    TCID BIGINT NOT NULL DEFAULT 0,                            -- who is the Payor for this agreement
+    TCID BIGINT NOT NULL DEFAULT 0,                           -- who is the Payor for this agreement
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Payor was no longer being billed to this agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this Payor was no longer being billed to this agreement
+    FLAGS BIGINT NOT NULL DEFAULT 0                           -- 1 << 0 is the bit that indicates this payor is a 'guarantor'
 );
 
 CREATE TABLE RentableUsers (
@@ -720,7 +721,7 @@ CREATE TABLE ReceiptAllocation (
 CREATE TABLE DepositMethod (
     DPMID BIGINT NOT NULL AUTO_INCREMENT, 
     BID BIGINT NOT NULL DEFAULT 0,                              -- which business
-    Name VARCHAR(50) NOT NULL DEFAULT '',                       -- 0 = not specified, 1 = Hand Delivery, Scanned Batch, CC Shift 4, CC NAYAX, ACH, US Mail
+    Name VARCHAR(50) NOT NULL DEFAULT '',                       -- 0 = not specified, 1 = Hand Delivery, Scanned Batch, US Mail
     PRIMARY KEY (DPMID)
 );
 

@@ -60,6 +60,21 @@ func (t *CustomAttribute) TypeToString() string {
 }
 
 // IDtoString is the method to produce a consistent printable id string
+func (t *Deposit) IDtoString() string {
+	return IDtoString("DEP", t.DEPID)
+}
+
+// IDtoString is the method to produce a consistent printable id string
+func (t *DepositMethod) IDtoString() string {
+	return IDtoString("DPM", t.DPMID)
+}
+
+// IDtoString is the method to produce a consistent printable id string
+func (t *Depository) IDtoString() string {
+	return IDtoString("DEP", t.DEPID)
+}
+
+// IDtoString is the method to produce a consistent printable id string
 func (t *GLAccount) IDtoString() string {
 	return IDtoString("L", t.LID)
 }

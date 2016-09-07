@@ -501,7 +501,7 @@ func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
 // InsertRentalAgreementPayor writes a new User record to the database
 func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementPayor.Exec(a.RAID, a.TCID, a.DtStart, a.DtStop)
+	res, err := RRdb.Prepstmt.InsertRentalAgreementPayor.Exec(a.RAID, a.TCID, a.DtStart, a.DtStop, a.FLAGS)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

@@ -387,18 +387,6 @@ func RRreportRentalAgreements(f int, bid int64) string {
 	return t.SprintTable(f)
 }
 
-// ReportPaymentTypesToText returns a string representation of the rlib.PaymentType struct
-func ReportPaymentTypesToText(p *rlib.PaymentType) string {
-	return fmt.Sprintf("PT%08d     B%08d   %s\n",
-		p.PMTID, p.BID, p.Name)
-}
-
-// ReportPaymentTypesToHTML returns a string representation of the rlib.PaymentType struct
-func ReportPaymentTypesToHTML(p *rlib.PaymentType) string {
-	return fmt.Sprintf("<tr><td>PT%08d</td><td>B%08d</td><td>%s</td></tr>\n",
-		p.PMTID, p.BID, p.Name)
-}
-
 // RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
 func RRreportPaymentTypes(f int, bid int64) string {
 	m := rlib.GetPaymentTypesByBusiness(bid)
@@ -513,6 +501,98 @@ func RRreportReceipts(f int, bid int64) string {
 	return t.SprintTable(f)
 }
 
+// RRreportInvoices generates a report of all rlib.GLAccount accounts
+func RRreportInvoices(f int, bid int64) string {
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("InvoiceNo", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Due Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("DeliveredBy", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	m := rlib.GetAllInvoicesInRange(bid, &Rcsv.DtStart, &Rcsv.DtStop)
+	for i := 0; i < len(m); i++ {
+		t.AddRow()
+		t.Putd(-1, 0, m[i].Dt)
+		t.Puts(-1, 1, m[i].IDtoString())
+		t.Puts(-1, 2, rlib.IDtoString("B", m[i].BID))
+		t.Putd(-1, 3, m[i].DtDue)
+		t.Putf(-1, 4, m[i].Amount)
+		t.Puts(-1, 5, m[i].DeliveredBy)
+	}
+	t.TightenColumns()
+	return t.SprintTable(f)
+}
+
+// RRreportDepository generates a report of all rlib.GLAccount accounts
+func RRreportDepository(f int, bid int64) string {
+	m := rlib.GetAllDepositories(bid)
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("DEPID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("AccountNo", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	for i := 0; i < len(m); i++ {
+		t.AddRow()
+		t.Puts(-1, 0, m[i].IDtoString())
+		t.Puts(-1, 1, rlib.IDtoString("B", m[i].BID))
+		t.Puts(-1, 2, m[i].AccountNo)
+		t.Puts(-1, 3, m[i].Name)
+	}
+	t.TightenColumns()
+	return t.SprintTable(f)
+}
+
+// RRreportDepositMethods generates a report of all rlib.GLAccount accounts
+func RRreportDepositMethods(f int, bid int64) string {
+	m := rlib.GetAllDepositMethods(bid)
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("DPMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	for i := 0; i < len(m); i++ {
+		t.AddRow()
+		t.Puts(-1, 0, m[i].IDtoString())
+		t.Puts(-1, 1, rlib.IDtoString("B", m[i].BID))
+		t.Puts(-1, 2, m[i].Name)
+	}
+	t.TightenColumns()
+	return t.SprintTable(f)
+}
+
+// RRreportDeposits generates a report of all rlib.GLAccount accounts
+func RRreportDeposits(f int, bid int64) string {
+	m := rlib.GetAllDepositsInRange(bid, &Rcsv.DtStart, &Rcsv.DtStop)
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("DEPID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Receipts", 60, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	for i := 0; i < len(m); i++ {
+		s := ""
+		for j := 0; j < len(m[i].DP); j++ {
+			s += rlib.IDtoString("RCPT", m[i].DP[j].RCPTID)
+			if j+1 < len(m[i].DP) {
+				s += ", "
+			}
+		}
+		t.AddRow()
+		t.Putd(-1, 0, m[i].Dt)
+		t.Puts(-1, 1, m[i].IDtoString())
+		t.Puts(-1, 2, rlib.IDtoString("B", m[i].BID))
+		t.Putf(-1, 3, m[i].Amount)
+		t.Puts(-1, 4, s)
+	}
+	t.TightenColumns()
+	return t.SprintTable(f)
+}
+
 // ReportRentalAgreementPetToText returns a string representation of the chart of accts
 func ReportRentalAgreementPetToText(p *rlib.RentalAgreementPet) string {
 	end := ""
@@ -555,71 +635,6 @@ func RRreportNoteTypes(t int, bid int64) string {
 		switch t {
 		case rlib.RPTTEXT:
 			s += ReportNoteTypeToText(&m[i])
-		case rlib.RPTHTML:
-			fmt.Printf("UNIMPLEMENTED\n")
-		default:
-			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	return s
-}
-
-// RRreportDepository generates a report of all rlib.GLAccount accounts
-func RRreportDepository(t int, bid int64) string {
-	m := rlib.GetAllDepositories(bid)
-	s := fmt.Sprintf("%-11s  %-9s  %-12s %-50s\n", "DEPID", "BID", "AccountNo", "Name")
-	for i := 0; i < len(m); i++ {
-		switch t {
-		case rlib.RPTTEXT:
-			s += fmt.Sprintf("DEP%08d  B%08d  %-12s %-50s\n", m[i].DEPID, m[i].BID, m[i].AccountNo, m[i].Name)
-		case rlib.RPTHTML:
-			fmt.Printf("UNIMPLEMENTED\n")
-		default:
-			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	return s
-}
-
-// RRreportDeposits generates a report of all rlib.GLAccount accounts
-func RRreportDeposits(t int, bid int64) string {
-	d1, _ := rlib.StringToDate("1/1/1970")
-	d2, _ := rlib.StringToDate("12/31/9999")
-	m := rlib.GetAllDepositsInRange(bid, &d1, &d2)
-	s := fmt.Sprintf("%-10s  %-11s  %-9s  %-8s %s\n", "Date", "DEPID", "BID", "Amount", "Receipts")
-	for i := 0; i < len(m); i++ {
-		switch t {
-		case rlib.RPTTEXT:
-			s += fmt.Sprintf("%10s  DEP%08d  B%08d  %8.2f  ",
-				m[i].Dt.Format(rlib.RRDATEINPFMT), m[i].DEPID, m[i].BID, m[i].Amount)
-			for j := 0; j < len(m[i].DP); j++ {
-				s += fmt.Sprintf("RCPT%08d ", m[i].DP[j].RCPTID)
-			}
-			s += "\n"
-		case rlib.RPTHTML:
-			fmt.Printf("UNIMPLEMENTED\n")
-		default:
-			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
-	return s
-}
-
-// RRreportInvoices generates a report of all rlib.GLAccount accounts
-func RRreportInvoices(t int, bid int64) string {
-	d1, _ := rlib.StringToDate("1/1/1970")
-	d2, _ := rlib.StringToDate("12/31/9999")
-	m := rlib.GetAllInvoicesInRange(bid, &d1, &d2)
-
-	s := fmt.Sprintf("%-10s  %10s  %-9s  %-10s  %-8s  %-15s\n", "Date", "InvoiceNo", "BID", "Due Date", "Amount", "DeliveredBy")
-	for i := 0; i < len(m); i++ {
-		switch t {
-		case rlib.RPTTEXT:
-			s += fmt.Sprintf("%10s  IN%08d  B%08d  %10s  %8.2f  %-15s\n",
-				m[i].Dt.Format(rlib.RRDATEINPFMT), m[i].InvoiceNo, m[i].BID, m[i].DtDue.Format(rlib.RRDATEINPFMT), m[i].Amount, m[i].DeliveredBy)
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
@@ -693,25 +708,6 @@ func RRreportSpecialtyAssigns(t int, bid int64) string {
 		}
 	}
 	rlib.Errcheck(rows.Err())
-	return s
-}
-
-// RRreportDepositMethods generates a report of all rlib.GLAccount accounts
-func RRreportDepositMethods(t int, bid int64) string {
-	m := rlib.GetAllDepositMethods(bid)
-
-	s := fmt.Sprintf("%8s  %-10s  %s\n", "DPMID", "BID", "Name")
-	for i := 0; i < len(m); i++ {
-		switch t {
-		case rlib.RPTTEXT:
-			s += fmt.Sprintf("%8d  B%08d  %s\n", m[i].DPMID, m[i].BID, m[i].Name)
-		case rlib.RPTHTML:
-			fmt.Printf("UNIMPLEMENTED\n")
-		default:
-			fmt.Printf("RRreportDepositMethods: unrecognized print format: %d\n", t)
-			return ""
-		}
-	}
 	return s
 }
 
