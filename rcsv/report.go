@@ -435,7 +435,7 @@ func RRreportAssessments(f int, bid int64) string {
 	t.AddColumn("Proration Cycle", 13, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
 	t.AddColumn("AsmType", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Account Rule", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Account Rule", 80, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	for rows.Next() {
 		var a rlib.Assessment
 		rlib.ReadAssessments(rows, &a)

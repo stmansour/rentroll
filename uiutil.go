@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"rentroll/rlib"
+	"runtime/debug"
 	"time"
 )
 
@@ -85,6 +86,10 @@ func BuildXLedgerList(ui *RRuiSupport, bid int64, dt time.Time) {
 		var x XLedger
 		x.G = n[i]
 		x.LM = m[n[i].LID]
+		if n[i].LID == 0 {
+			fmt.Printf("found LID == 0\n")
+			debug.PrintStack()
+		}
 		ui.LDG.XL = append(ui.LDG.XL, x)
 		k++
 	}

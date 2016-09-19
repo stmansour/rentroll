@@ -253,11 +253,12 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 	}
 
 	//--------------------------------------------------------------------------------
-	// Compute the total for this account
+	// Compute the total for this account. If this ledger does not allow posts, don't
+	// consider its Balance.
 	//--------------------------------------------------------------------------------
 	lm := GetRALedgerMarkerOnOrBefore(bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
 	// fmt.Printf("GetRALedgerMarkerOnOrBefore(bid,lid,raid,dt) = lm.LMID = %d, lm.Dt = %s\n", lm.LMID, lm.Dt.Format(RRDATEFMT4))
-	if lm.LMID > 0 {
+	if lm.LMID > 0 && RRdb.BizTypes[bid].GLAccounts[lid].AllowPost != 0 {
 		bal += lm.Balance // we initialize the balance to this amount
 		// fmt.Printf("LedgerMarker( bid=%d, lid=%d, raid=%d ) --> LM%08d,  dt = %10s, lm.Balance = %8.2f ==>  bal = %8.2f\n", bid, lid, raid, lm.LMID, lm.Dt.Format(RRDATEFMT4), lm.Balance, bal)
 	}
@@ -274,6 +275,13 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 	bal += activity
 	// fmt.Printf("====>  balance = %.2f\n", bal)
 	return bal
+}
+
+// GetAccountBalance returns the balance of the account with LID lid on date dt.
+// It's just a wrapper around GetRAAccountBalance with raid set to 0.  This returns
+// the account balance we're after, but with a more obvious function name to call.
+func GetAccountBalance(bid, lid int64, dt *time.Time) float64 {
+	return GetRAAccountBalance(bid, lid, 0, dt)
 }
 
 // GetRentableAccountBalance returns the balance of the account with LID lid on date dt. If rid is 0 then all

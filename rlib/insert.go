@@ -203,6 +203,7 @@ func InsertJournalEntry(j *Journal) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			j.JID = rid
 		}
 	}
 	return rid, err

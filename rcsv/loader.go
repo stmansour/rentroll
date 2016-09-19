@@ -74,6 +74,7 @@ var CSVLoaders = []CSVLoader{
 	{Name: "CustomAttributeRefs", Index: CSVCustomAttributeRefs, Loader: LoadCustomAttributeRefsCSV},
 	{Name: "NoteTypes", Index: CSVNoteTypes, Loader: LoadNoteTypesCSV},
 	{Name: "Invoices", Index: CSVInvoices, Loader: LoadInvoicesCSV},
+	{Name: "Building", Index: CSVBuilding, Loader: LoadBuildingCSV},
 }
 
 // Rcsv contains the shared data used by the RCS loaders

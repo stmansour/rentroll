@@ -186,7 +186,11 @@ func UpdateSubLedgerMarkers(bid int64, d2 *time.Time) {
 }
 
 func closeLedgerPeriod(xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, dt *time.Time, state int64) {
-	bal := GetRAAccountBalance(li.BID, li.LID, 0, dt)
+	bal := float64(0)
+	// if RRdb.BizTypes[xbiz.P.BID].GLAccounts[li.LID].AllowPost != 0 { // if it is a non posting ledger, just mark the amount as 0.
+	bal = GetRAAccountBalance(li.BID, li.LID, 0, dt)
+	// }
+
 	var nlm LedgerMarker
 	nlm = *lm
 	nlm.Balance = bal

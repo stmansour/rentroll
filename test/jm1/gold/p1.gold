@@ -1,4 +1,33 @@
-Date        DEPID        BID            Amount  Receipts                                
-----------  -----------  ---------  ----------  ----------------------------------------
-01/20/2016  DEP00000001  B00000001   11,450.00  RCPT00000004, RCPT00000005, RCPT00000006
+Statement  -  Rental Agreement RA00000001   Payor(s): Aaron Read, Kirsten Read
+Period  Jan 1, 2016 - Jan 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-01-01               Opening Balance                                                               0.00
+2016-01-01  ASM00000005  Gross Scheduled Rent-Taxable                  3,500.00                    3,500.00
+2016-01-02  R0000000004  Payment received                                           -3,500.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,500.00     -3,500.00          0.00
+
+Statement  -  Rental Agreement RA00000002   Payor(s): Rita Costea, Daniel Costea
+Period  Jan 1, 2016 - Jan 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-01-01               Opening Balance                                                               0.00
+2016-01-01  ASM00000007  Gross Scheduled Rent-Taxable                  3,550.00                    3,550.00
+2016-01-04  R0000000005  Payment received                                           -3,550.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,550.00     -3,550.00          0.00
+
+Statement  -  Rental Agreement RA00000003   Payor(s): Gagik Haroutunian
+Period  Jan 1, 2016 - Jan 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-01-01               Opening Balance                                                               0.00
+2016-01-01  ASM00000009  Gross Scheduled Rent-Taxable                  4,400.00                    4,400.00
+2016-01-31  R0000000006  Payment received                                           -4,400.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 4,400.00     -4,400.00          0.00
 

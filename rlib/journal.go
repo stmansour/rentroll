@@ -280,8 +280,8 @@ func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
 			a1.PASMID = a.ASMID                                           // parent assessment
 
 			// Check to ensure that this instance does not already exist...
-			a2, _ := GetAssessmentInstance(&a1.Start, a1.PASMID) // if this returns an existing instance...
-			if a2.ASMID == 0 {                                   // .. then it's already been processed and we can skip it
+			a2, _ := GetAssessmentInstance(&a1.Start, a1.PASMID) // if this returns an existing instance (ASMID != 0) then it's already been processed...
+			if a2.ASMID == 0 {                                   // ... otherwise, process this instance
 				_, err := InsertAssessment(&a1)
 				Errlog(err)
 				// fmt.Printf("ProcessJournalEntry: 4, inserted a1.ASMID = %d\n", a1.ASMID)

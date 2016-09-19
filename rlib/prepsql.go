@@ -93,7 +93,7 @@ func buildPreparedStatements() {
 	//===============================
 	RRdb.Prepstmt.InsertRentalAgreementRentable, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop FROM RentalAgreementRentables WHERE RID=? AND DtStop>=? AND DtStart<=?")
+	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop FROM RentalAgreementRentables WHERE RID=? AND DtStop>? AND DtStart<=?")
 	Errcheck(err)
 
 	//===============================

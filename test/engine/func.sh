@@ -25,7 +25,7 @@ dorrtest "a" "${RRDATERANGE} -b ${BUD} -x" "Process"
 dorrtest "b" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest "c" "${RRDATERANGE} -b ${BUD} -r 2" "Ledger"
 dorrtest "d" "${RRDATERANGE} -b ${BUD} -r 5" "AssessmentChecker"
-dorrtest "e" "${RRDATERANGE} -b ${BUD} -r 6" "LedgerBalance"
+dorrtest "e" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 
 docsvtest "f" "-u custom.csv -L 14" "CustomAttributes"
 docsvtest "g" "-U assigncustom.csv -L 15" "AssignCustomAttributes"

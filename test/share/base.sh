@@ -139,7 +139,7 @@ EOF
 		  j) app "-b ${BUD} -r 1" ;;
 		  l) app "-b ${BUD} -r 2" ;;
 		 la) app "-b ${BUD} -r 10" ;;
-		 lb) app "-b ${BUD} -r 6" ;;
+		 lb) app "-b ${BUD} -r 17" ;;
 		  a) csvload "-L 11,${BUD}" ;;
 		  b) csvload "-L 3" ;;
 		  c) csvload "-L 10,${BUD}" ;;

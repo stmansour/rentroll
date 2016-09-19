@@ -175,7 +175,7 @@ func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	// get the ids of the distinct ledgers that have been updated during d1-d2
 	// that is, only 1 occurrence of each LID
 	var t int64arr
-	rows, err := rlib.RRdb.Dbrr.Query("SELECT DISTINCT LID FROM LedgerEntry")
+	rows, err := rlib.RRdb.Dbrr.Query("SELECT DISTINCT LID FROM LedgerEntry ORDER BY Dt,RAID ASC")
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -201,9 +201,6 @@ func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 func LedgerReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {
-		// dd2 := d1.AddDate(0, 0, -1)
-		// dd1 := time.Date(dd2.Year(), dd2.Month(), 1, 0, 0, 0, 0, dd2.Location())
-		// lm := rlib.GetLedgerMarkerByLIDDateRange(xbiz.P.BID, t[i].LID, &dd1, &dd2)
 		lm := rlib.GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i].LID, d1)
 		if lm.LMID < 1 {
 			fmt.Printf("LedgerReportText: GLNumber %s -- no LedgerMarker on or before: %s\n", t[i].GLNumber, d1.Format(rlib.RRDATEFMT))

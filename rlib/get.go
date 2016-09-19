@@ -3,6 +3,7 @@ package rlib
 import (
 	"database/sql"
 	"fmt"
+	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -1057,6 +1058,7 @@ func GetJournal(jid int64) (Journal, error) {
 	err := RRdb.Prepstmt.GetJournal.QueryRow(jid).Scan(&r.JID, &r.BID, &r.RAID,
 		&r.Dt, &r.Amount, &r.Type, &r.ID, &r.Comment, &r.LastModTime, &r.LastModBy)
 	if nil != err {
+		debug.PrintStack() //  DEBUG
 		fmt.Printf("GetJournal: could not get Journal entry with jid = %d,  err = %v\n", jid, err)
 	}
 	return r, err

@@ -58,12 +58,12 @@ func RunBooks(ctx *DispatchCtx) {
 	case 5: // ASSESSMENT CHECK REPORT
 		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 6: // LEDGER BALANCE REPORT
-		var ui RRuiSupport
-		ui.B = ctx.xbiz.P
-		ui.DtStart = ctx.DtStart
-		ui.DtStop = ctx.DtStop
-		BuildXLedgerList(&ui, ctx.xbiz.P.BID, ctx.DtStop)
-		UILedgerTextReport(&ui)
+		// var ui RRuiSupport
+		// ui.B = ctx.xbiz.P
+		// ui.DtStart = ctx.DtStart
+		// ui.DtStop = ctx.DtStop
+		// BuildXLedgerList(&ui, ctx.xbiz.P.BID, ctx.DtStop)
+		// UILedgerTextReport(&ui)
 	case 7: // RENTABLE COUNT BY TYPE
 		UIRentableCountByRentableTypeReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 8: // STATEMENT
@@ -125,6 +125,14 @@ func RunBooks(ctx *DispatchCtx) {
 		}
 	case 15: // Process Vacancy...
 		rlib.GenVacancyJournals(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+	case 16: // Process LedgerMarkers Only
+		rlib.GenerateLedgerMarkers(&ctx.xbiz, &ctx.DtStop)
+	case 17: // LEDGER BALANCE REPORT
+		rrpt.LedgerBalanceReport(&ctx.xbiz, &ctx.DtStop)
+	case 18: // Process Journal Entries only
+		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
+	case 19: // process Ledgers
+		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	default:
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)

@@ -24,6 +24,7 @@ func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.Rent
 	case rlib.RARQDANY:
 		v = true
 	}
+	// fmt.Printf("inRange = %t, before = %t, after = %t, v = %t, GLAccount = %s (%d)\n", inRange, before, after, v, asmt.Name, asmt.LID)
 	return v
 }
 

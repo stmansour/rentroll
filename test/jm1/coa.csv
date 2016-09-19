@@ -1,8 +1,8 @@
 BUD,Name,GLNumber,Parent GLNumber,Collective,Account Type,Balance,Account Status,Associated,Type,Date,Allow Posting,RARequired,Manage To Budget,Description
-REX,Cash,10000,,Cash,Bank Account,0,active,Unassociated,10,12/1/15,yes,0,0,Main cash account
+REX,Cash,10000,,Cash,Bank Account,0,active,Unassociated,10,12/1/15,yes,3,0,Main cash account
 REX,Credit Card Clearing,11000,,Cash,Current Asset,0,active,Unassociated,,12/1/15,yes,0,0,
 REX,Accounts Receivable,12000,,Account Receivable,Current Asset,0,active,Unassociated,11,12/1/15,yes,0,0,
-REX,Security Deposits,30000,,Liability,Current Liabilities,0,active,Associated,16,12/1/15,yes,0,0,
+REX,Security Deposits,30000,,Liability,Current Liabilities,0,active,Associated,16,12/1/15,yes,3,0,
 REX,Accrued Taxes,30100,,Liability,Current Liabilities,0,active,Associated,,12/1/15,no,0,0,
 REX,Sales Taxes,30101,30100,Liability,Current Liabilities,0,active,Associated,,12/1/15,yes,0,0,
 REX,Transient Occupancy Taxes,30102,30100,Liability,Current Liabilities,0,active,Associated,,12/1/15,yes,0,0,
@@ -51,7 +51,7 @@ REX,Expense Reimbursement,41409,41400,Other Income,Income,0,active,Associated,,1
 REX,Special Cleaning Fee,41410,41400,Other Income,Income,0,active,Associated,,12/1/15,yes,0,0,
 REX,Eviction Fee Reimbursement,41411,41400,Other Income,Income,0,active,Associated,,12/1/15,yes,1,0,
 REX,Extra Person Charge,41412,41400,Other Income,Income,0,active,Associated,,12/1/15,yes,0,0,
-REX,Forfeited Security Deposit,41413,41400,Other Income,Income,0,active,Associated,,12/1/15,yes,1,0,
+REX,Forfeited Security Deposit,41413,41400,Other Income,Income,0,active,Associated,,12/1/15,yes,2,0,
 REX,Damage Fee,41414,41400,Other Income,Income,0,active,Associated,,12/1/15,yes,1,0,
 REX,CAM Fees,41415,,Other Income,Income,,active,Associated,,12/1/15,yes,1,0,
 REX,Other Miscellaneous Income,41499,41400,Other Income,Income,0,active,Associated,,12/1/15,yes,1,0,
