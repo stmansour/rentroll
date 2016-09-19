@@ -299,11 +299,13 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 				icos = icosd2 - icosd1
 			}
 
+			m := rlib.GetRentableStatusByRange(p.RID, d1, d2)
+			lastRStat := m[len(m)-1].Status
 			tbl.AddRow()
 			tbl.Puts(-1, RName, p.Name)
 			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
 			tbl.Puti(-1, RTSqFt, sqft)
-			tbl.Puts(-1, RUsers, "vacant")
+			tbl.Puts(-1, RUsers, rlib.RentableStatusToString(lastRStat))
 			tbl.Puts(-1, RPayors, "vacant")
 			tbl.Puts(-1, RAgr, "n/a")
 			// tbl.Putd(-1, UseStart, ra.PossessionStart)
