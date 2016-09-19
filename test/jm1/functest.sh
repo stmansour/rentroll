@@ -122,7 +122,7 @@ update RentalAgreement SET AgreementStop="2018-03-01",PossessionStop="2018-03-01
 INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(1,1,0,3750,"2016-03-01 00:00:00","2018-03-01 00:00:00");
 INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(1,3750,"2016-03-01 00:00:00","2018-03-01 00:00:00");
 EOF
-/usr/local/bin/mysql --no-defaults <xxyyzz
+${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz
 
 RRDATERANGE="-j 2016-03-01 -k 2016-04-01"
@@ -151,7 +151,7 @@ cat >xxyyzz <<EOF
 use rentroll
 INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(3,4150,"2016-04-01 00:00:00","2018-04-01 00:00:00");
 EOF
-/usr/local/bin/mysql --no-defaults <xxyyzz
+${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz
 
 

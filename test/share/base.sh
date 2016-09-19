@@ -17,6 +17,7 @@ ERRFILE="err.txt"
 UNAME=$(uname)
 LOGFILE="log"
 MYSQLOPTS=""
+MYSQL=$(which mysql)
 TESTCOUNT=0			## this is an internal counter, your external script should not touch it
 TREPORT="../testreport.txt"
 SCRIPTPATH=$(pwd -P)
