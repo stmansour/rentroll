@@ -97,9 +97,15 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 	// fmt.Printf("pf = %f, num = %d, den = %d, start = %s, stop = %s\n", pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
-	// fmt.Printf("calling ParseAcctRule:\n  asmt = %d\n  rid = %d, d1 = %s, d2 = %s\n", a.ASMID, a.RID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
+	// fmt.Printf("calling ParseAcctRule:\n  asmt = %d\n  rid = %d, d1 = %s, d2 = %s\n  a.Amount = %f\n", a.ASMID, a.RID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Amount)
+
 	m := ParseAcctRule(xbiz, a.RID, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+
 	// fmt.Printf("journalAssessment:  m = %#v\n", m)
+	// for i := 0; i < len(m); i++ {
+	// 	fmt.Printf("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
+	// }
+
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)
 	// fmt.Printf("j.Amount = %f\n", j.Amount)

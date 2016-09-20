@@ -18,7 +18,7 @@ L00000008  39000     Owners' Equity                                          0.0
 L00000003  41000     Gross Scheduled Rent-Taxable                      -27,900.00
 L00000014  41001     Gross Scheduled Rent-Not Taxable                        0.00
 L00000015  41002     Income Offsets                        8,337.93              
-L00000024  41003     Other Income                              0.00              
+L00000024  41003     Other Income                           -111.26              
 L00000016  41100     Unit Income Offsets                   8,337.93              
 L00000005  41101     Vacancy                                             8,337.93
 L00000004  41102     Loss (Gain) to Lease                                    0.00
@@ -29,9 +29,9 @@ L00000020  41106     Administrative Concession                               0.0
 L00000021  41107     Off Line Renovations                                    0.00
 L00000022  41108     Off Line Maintenance                                    0.00
 L00000023  41199     Othe Income Offsets                                     0.00
-L00000025  41200     Serviced Fees                             0.00              
+L00000025  41200     Serviced Fees                          -111.26              
 L00000026  41201     Broadcast and IT Services                               0.00
-L00000027  41202     Food Services                                           0.00
+L00000027  41202     Food Services                                        -111.26
 L00000028  41203     Linen Services                                          0.00
 L00000029  41204     Wash N Fold Services                                    0.00
 L00000030  41299     Other Service Fees                                      0.00
@@ -76,4 +76,4 @@ L00000068  49991     Cash Over/Short                                         0.0
 L00000069  49992     Bad Debt                                                0.00
 L00000070  49998     Income Suspense                                         0.00
 ---------  --------  --------------------------------  ------------  ------------
-                                                                           111.26
+                                                                             0.00

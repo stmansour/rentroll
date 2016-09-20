@@ -1,12 +1,12 @@
 LEDGER MARKERS
 JGM First, LLC
-Balances as of:  April 1, 2016
+Balances as of:  May 1, 2016
 
                                                             Summary              
 LID        GLNumber  Name                                   Balance       Balance
 ---------  --------  --------------------------------  ------------  ------------
 L00000006            Security Deposit Receivable               0.00              
-L00000001  10000     Cash                                               39,408.04
+L00000001  10000     Cash                                               46,708.04
 L00000009  11000     Credit Card Clearing                                    0.00
 L00000002  12000     Accounts Receivable                                     0.00
 L00000007  30000     Security Deposits                                 -10,000.00
@@ -15,12 +15,12 @@ L00000011  30101     Sales Taxes                                             0.0
 L00000012  30102     Transient Occupancy Taxes                               0.00
 L00000013  30199     Other Accrued Taxes                                     0.00
 L00000008  39000     Owners' Equity                                          0.00
-L00000003  41000     Gross Scheduled Rent-Taxable                      -42,100.00
+L00000003  41000     Gross Scheduled Rent-Taxable                      -56,050.00
 L00000014  41001     Gross Scheduled Rent-Not Taxable                        0.00
-L00000015  41002     Income Offsets                       15,237.93              
+L00000015  41002     Income Offsets                       21,887.93              
 L00000024  41003     Other Income                         -2,545.97              
-L00000016  41100     Unit Income Offsets                  15,237.93              
-L00000005  41101     Vacancy                                            15,237.93
+L00000016  41100     Unit Income Offsets                  21,887.93              
+L00000005  41101     Vacancy                                            21,887.93
 L00000004  41102     Loss (Gain) to Lease                                    0.00
 L00000017  41103     Employee Concessions                                    0.00
 L00000018  41104     Resident Concessions                                    0.00

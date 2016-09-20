@@ -144,31 +144,33 @@ dorrtest  "q3" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 #    GSR and Contract rent change to 4150 for 311 Rexford
 #========================================================================================
 
-##-----------------------------------------------------
-##  1. Update ContractRent to $3750/month
-##-----------------------------------------------------
+##----------------------------------------------------------
+##  1. Update MarketRate for RentableType 3 to $4150/month
+##----------------------------------------------------------
 cat >xxyyzz <<EOF
 use rentroll
 INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(3,4150,"2016-04-01 00:00:00","2018-04-01 00:00:00");
 EOF
 ${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz
-
-
 dorrtest  "z3" "-j 2016-01-01 -k 2016-06-01 -b ${BUD} -r 20,R003" "MarketRateValidation"
 
+
+##----------------------------------------------------------
+##  2. Process the rent checks and generate reports
+##----------------------------------------------------------
 RRDATERANGE="-j 2016-04-01 -k 2016-05-01"
 CSVLOADRANGE="-G ${BUD} -g 4/1/16,5/1/16"
-# docsvtest "b3" "-A asm2016Apr.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Apr"  
-# dorrtest  "a3" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-Apr"
-# docsvtest "i3" "-e rcpt2016Apr.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Apr"
-# docsvtest "j3" "-y deposit-2016Apr.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Apr"
-# dorrtest  "k3" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Apr"
-# dorrtest  "l3" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
-# dorrtest  "m3" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
-# dorrtest  "n3" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
-# dorrtest  "o3" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
-# dorrtest  "p3" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
-# dorrtest  "q3" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+# docsvtest "b4" "-A asm2016Apr.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Apr"  		## no new assessments this month
+dorrtest  "a4" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-Apr"
+docsvtest "i4" "-e rcpt2016Apr.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Apr"
+docsvtest "j4" "-y deposit-2016Apr.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Apr"
+dorrtest  "k4" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Apr"
+dorrtest  "l4" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m4" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n4" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o4" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p4" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q4" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck

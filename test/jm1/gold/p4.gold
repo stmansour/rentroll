@@ -1,0 +1,22 @@
+Statement  -  Rental Agreement RA00000001   Payor(s): 
+Period  Apr 1, 2016 - Apr 30, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-04-01               Opening Balance                                                               0.00
+2016-04-01  ASM00000019  Gross Scheduled Rent-Taxable                  3,750.00                    3,750.00
+2016-04-01  R0000000012  Payment received                                           -3,750.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,750.00     -3,750.00          0.00
+
+Statement  -  Rental Agreement RA00000002   Payor(s): Rita Costea, Daniel Costea
+Period  Apr 1, 2016 - Apr 30, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-04-01               Opening Balance                                                               0.00
+2016-04-01  ASM00000018  Gross Scheduled Rent-Taxable                  3,550.00                    3,550.00
+2016-04-02  R0000000013  Payment received                                           -3,550.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,550.00     -3,550.00          0.00
+

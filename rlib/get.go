@@ -783,7 +783,6 @@ func GetRentableMarketRates(rt *RentableType) {
 func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) float64 {
 	rtid := GetRTIDForDate(r.RID, d1) // first thing... find the RTID for this time range
 	mr := xbiz.RT[rtid].MR
-	// fmt.Printf("GetRentableMarketRate: Get Market Rate for RTID = %d, %s - %s\n", rtid, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 	for i := 0; i < len(mr); i++ {
 		if DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
 			return mr[i].MarketRate
