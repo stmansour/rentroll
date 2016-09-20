@@ -18,9 +18,9 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          03/01/16                                                            32973.33
-                   Assessment - Forfeited Security Deposit  03/02/16         24           3      311 Rexford       -865.29      32108.04
-              Payment #2003 - Gross Scheduled Rent-Taxable  03/01/16         26           1      309 Rexford       3750.00      35858.04
-              Payment #1924 - Gross Scheduled Rent-Taxable  03/05/16         27           2  309 1/2 Rexford       3550.00      39408.04
+              Payment #2003 - Gross Scheduled Rent-Taxable  03/01/16         26           1      309 Rexford       3750.00      36723.33
+              Payment #1924 - Gross Scheduled Rent-Taxable  03/05/16         27           2  309 1/2 Rexford       3550.00      40273.33
+                   Assessment - Forfeited Security Deposit  03/02/16         24           3      311 Rexford       -865.29      39408.04
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          03/31/16                                                            39408.04
 
@@ -47,8 +47,8 @@
    Opening Balance                                          03/01/16                                                                0.00
                  Assessment - Gross Scheduled Rent-Taxable  03/01/16         23           1      309 Rexford       3750.00       3750.00
                  Assessment - Gross Scheduled Rent-Taxable  03/01/16         25           2  309 1/2 Rexford       3550.00       7300.00
-              Payment #2003 - Gross Scheduled Rent-Taxable  03/01/16         26           1      309 Rexford      -3750.00       3550.00
-              Payment #1924 - Gross Scheduled Rent-Taxable  03/05/16         27           2  309 1/2 Rexford      -3550.00          0.00
+              Payment #1924 - Gross Scheduled Rent-Taxable  03/05/16         27           2  309 1/2 Rexford      -3550.00       3750.00
+              Payment #2003 - Gross Scheduled Rent-Taxable  03/01/16         26           1      309 Rexford      -3750.00          0.00
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          03/31/16                                                                0.00
 
@@ -134,10 +134,10 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          03/01/16                                                           -27900.00
-                 Assessment - Gross Scheduled Rent-Taxable  03/01/16         23           1      309 Rexford      -3750.00     -31650.00
-                 Assessment - Gross Scheduled Rent-Taxable  03/01/16         25           2  309 1/2 Rexford      -3550.00     -35200.00
-                                              Unassociated  03/31/16         28           0      311 Rexford      -4400.00     -39600.00
-                                              Unassociated  03/31/16         29           0  311 1/2 Rexford      -2500.00     -42100.00
+                                              Unassociated  03/31/16         29           0  311 1/2 Rexford      -2500.00     -30400.00
+                 Assessment - Gross Scheduled Rent-Taxable  03/01/16         25           2  309 1/2 Rexford      -3550.00     -33950.00
+                 Assessment - Gross Scheduled Rent-Taxable  03/01/16         23           1      309 Rexford      -3750.00     -37700.00
+                                              Unassociated  03/31/16         28           0      311 Rexford      -4400.00     -42100.00
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          03/31/16                                                           -42100.00
 

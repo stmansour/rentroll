@@ -56,6 +56,11 @@ func CSVLoaderGetRAID(sa string) int64 {
 	return readNumFromExpr(sa, "^RA0*(.*)", "Rental Agreement")
 }
 
+// CSVLoaderGetRID parses a string of the form R000000321 and returns the RID , in this case 321.
+func CSVLoaderGetRID(sa string) int64 {
+	return readNumFromExpr(sa, "^R0*(.*)", "Rentable")
+}
+
 // CSVLoaderGetRPID parses a string of the form RP000000321 and returns the RPID , in this case 321.
 func CSVLoaderGetRPID(sa string) int64 {
 	return readNumFromExpr(sa, "^RP0*(.*)", "Rate Plan")

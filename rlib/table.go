@@ -178,6 +178,8 @@ func (t *Table) AdjustColumnHeader(cd *ColumnDef) {
 				if len(s)+len(sa[k])+1 <= cd.Width { // if it fits...
 					s += " " + sa[k] // ...add it to the list...
 					i = k            // ...and keep loop in sync
+				} else {
+					break // otherwise, add what we have and then go back to the outer loop
 				}
 			}
 			a = append(a, s)

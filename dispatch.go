@@ -133,6 +133,15 @@ func RunBooks(ctx *DispatchCtx) {
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 	case 19: // process Ledgers
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+	case 20: // List market rates for rentable over time period
+		// ctx.Report format:  20,RID
+		sa := strings.Split(ctx.Args, ",")
+		if len(sa) < 2 {
+			fmt.Printf("Missing parameter(s).  Example:  -r 20,R004\n")
+			os.Exit(1)
+		}
+		rid := rcsv.CSVLoaderGetRID(sa[1])
+		rrpt.RentableMarketRates(&ctx.xbiz, rid, &ctx.DtStart, &ctx.DtStop)
 	default:
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)

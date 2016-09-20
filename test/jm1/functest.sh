@@ -155,6 +155,8 @@ ${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz
 
 
+dorrtest  "z3" "-j 2016-01-01 -k 2016-06-01 -b ${BUD} -r 20,R003" "MarketRateValidation"
+
 RRDATERANGE="-j 2016-04-01 -k 2016-05-01"
 CSVLOADRANGE="-G ${BUD} -g 4/1/16,5/1/16"
 # docsvtest "b3" "-A asm2016Apr.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Apr"  

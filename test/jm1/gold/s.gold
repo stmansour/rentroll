@@ -19,8 +19,8 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          12/01/15                                                                0.00
                          Payment #1126 - Security Deposits  12/02/15          4           1      309 Rexford       7000.00       7000.00
-                         Payment #1597 - Security Deposits  12/03/15          5           2  309 1/2 Rexford       3000.00      10000.00
-                          Payment #237 - Security Deposits  12/04/15          6           3      311 Rexford       3300.00      13300.00
+                          Payment #237 - Security Deposits  12/04/15          6           3      311 Rexford       3300.00      10300.00
+                         Payment #1597 - Security Deposits  12/03/15          5           2  309 1/2 Rexford       3000.00      13300.00
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          12/31/15                                                            13300.00
 
@@ -46,11 +46,11 @@
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          12/01/15                                                                0.00
                             Assessment - Security Deposits  12/01/15          1           1      309 Rexford       7000.00       7000.00
-                            Assessment - Security Deposits  12/01/15          2           2  309 1/2 Rexford       3000.00      10000.00
-                            Assessment - Security Deposits  12/01/15          3           3      311 Rexford       3300.00      13300.00
-                         Payment #1126 - Security Deposits  12/02/15          4           1      309 Rexford      -7000.00       6300.00
-                         Payment #1597 - Security Deposits  12/03/15          5           2  309 1/2 Rexford      -3000.00       3300.00
-                          Payment #237 - Security Deposits  12/04/15          6           3      311 Rexford      -3300.00          0.00
+                            Assessment - Security Deposits  12/01/15          3           3      311 Rexford       3300.00      10300.00
+                            Assessment - Security Deposits  12/01/15          2           2  309 1/2 Rexford       3000.00      13300.00
+                         Payment #1597 - Security Deposits  12/03/15          5           2  309 1/2 Rexford      -3000.00      10300.00
+                          Payment #237 - Security Deposits  12/04/15          6           3      311 Rexford      -3300.00       7000.00
+                         Payment #1126 - Security Deposits  12/02/15          4           1      309 Rexford      -7000.00          0.00
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          12/31/15                                                                0.00
 
@@ -63,9 +63,9 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          12/01/15                                                                0.00
-                            Assessment - Security Deposits  12/01/15          1           1      309 Rexford      -7000.00      -7000.00
-                            Assessment - Security Deposits  12/01/15          2           2  309 1/2 Rexford      -3000.00     -10000.00
-                            Assessment - Security Deposits  12/01/15          3           3      311 Rexford      -3300.00     -13300.00
+                            Assessment - Security Deposits  12/01/15          2           2  309 1/2 Rexford      -3000.00      -3000.00
+                            Assessment - Security Deposits  12/01/15          3           3      311 Rexford      -3300.00      -6300.00
+                            Assessment - Security Deposits  12/01/15          1           1      309 Rexford      -7000.00     -13300.00
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          12/31/15                                                           -13300.00
 

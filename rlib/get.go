@@ -958,6 +958,21 @@ func GetReceiptAllocations(rcptid int64, r *Receipt) {
 		Errcheck(rows.Scan(&a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule))
 		r.RA = append(r.RA, a)
 	}
+
+	// for i := 0; i < len(r.RA)-1; i++ {
+	// 	for k := i + 1; k < len(r.RA); k++ {
+	// 		if r.RA[i].Amount < r.RA[k].Amount {
+	// 			r.RA[i].Amount, r.RA[k].Amount = r.RA[k].Amount, r.RA[i].Amount
+	// 		}
+	// 	}
+	// }
+
+	// DEBUG - PLEASE REMOVE
+	// for i := 0; i < len(r.RA)-1; i++ {
+	// 	if r.RA[i].Amount < r.RA[i+1].Amount {
+	// 		fmt.Printf("YIPES: bad order.  r.RA[%d].Amount = %f, r.RA[%d].Amount = %f\n", i, r.RA[i].Amount, i+1, r.RA[i+1].Amount)
+	// 	}
+	// }
 }
 
 // GetReceipts for the supplied Business (bid) in date range [d1 - d2)
@@ -1050,6 +1065,13 @@ func GetJournalAllocations(jid int64, j *Journal) {
 		Errcheck(rows.Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
 		j.JA = append(j.JA, a)
 	}
+	// for i := 0; i < len(j.JA)-1; i++ {
+	// 	for k := i + 1; k < len(j.JA); k++ {
+	// 		if j.JA[i].Amount < j.JA[k].Amount {
+	// 			j.JA[i].Amount, j.JA[k].Amount = j.JA[k].Amount, j.JA[i].Amount
+	// 		}
+	// 	}
+	// }
 }
 
 // GetJournal returns the Journal struct for the account with the supplied name
