@@ -155,7 +155,6 @@ ${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz
 dorrtest  "z3" "-j 2016-01-01 -k 2016-06-01 -b ${BUD} -r 20,R003" "MarketRateValidation"
 
-
 ##----------------------------------------------------------
 ##  2. Process the rent checks and generate reports
 ##----------------------------------------------------------
@@ -172,5 +171,59 @@ dorrtest  "n4" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 dorrtest  "o4" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p4" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q4" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
+#========================================================================================
+# MAY 2016
+#    GSR and Contract rent change to 3800 for 309.5 Rexford
+#========================================================================================
+
+##----------------------------------------------------------
+##  1. Update MarketRate for RentableType 2 to $3800/month
+##     Update ContractRent for Rentable 2 to $3800/month
+##----------------------------------------------------------
+cat >xxyyzz <<EOF
+use rentroll
+INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(2,3800,"2016-05-01 00:00:00","2018-01-01 00:00:00");
+INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(2,2,0,3800,"2016-05-01 00:00:00","2018-03-01 00:00:00");
+UPDATE RentalAgreementRentables SET DtStop="2016-05-01" WHERE ContractRent=3550 AND RID=2;
+EOF
+${MYSQL} --no-defaults <xxyyzz
+rm -f xxyyzz
+dorrtest  "z4" "-j 2016-01-01 -k 2016-09-01 -b ${BUD} -r 20,R002" "MarketRateValidation"
+
+##----------------------------------------------------------
+##  2. Process the rent checks and generate reports
+##----------------------------------------------------------
+RRDATERANGE="-j 2016-05-01 -k 2016-06-01"
+CSVLOADRANGE="-G ${BUD} -g 5/1/16,6/1/16"
+docsvtest "b5" "-A asm2016-05.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-May"
+dorrtest  "a5" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-May"
+docsvtest "i5" "-e rcpt2016-05.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-May"
+docsvtest "j5" "-y deposit-2016-05.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-May"
+dorrtest  "k5" "${RRDATERANGE} -b ${BUD}" "Finish-2016-May"
+dorrtest  "l5" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m5" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n5" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o5" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p5" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q5" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
+#========================================================================================
+# JUNE 2016
+#========================================================================================
+RRDATERANGE="-j 2016-06-01 -k 2016-07-01"
+CSVLOADRANGE="-G ${BUD} -g 6/1/16,7/1/16"
+# docsvtest "b6" "-A asm2016-06.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Jun"  		## no new assessments this month
+dorrtest  "a6" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-Jun"
+docsvtest "i6" "-e rcpt2016-06.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Jun"
+docsvtest "j6" "-y deposit-2016-06.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Jun"
+dorrtest  "k6" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Jun"
+dorrtest  "l6" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m6" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n6" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o6" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p6" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q6" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
 
 logcheck

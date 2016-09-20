@@ -596,13 +596,13 @@ func buildPreparedStatements() {
 	//====================================================
 	//  Rental Agreement { Rentable | Users | Payors }
 	//====================================================
-	RRdb.Prepstmt.GetRentalAgreementRentables, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RAID=? and ?<DtStop and ?>=DtStart")
+	RRdb.Prepstmt.GetRentalAgreementRentables, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RAID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>=DtStart")
+	RRdb.Prepstmt.GetRentalAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableUsers, err = RRdb.Dbrr.Prepare("SELECT RID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? and ?<DtStop and ?>=DtStart")
+	RRdb.Prepstmt.GetRentableUsers, err = RRdb.Dbrr.Prepare("SELECT RID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>=DtStart")
+	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT RAID,RID,CLID,ContractRent,DtStart,DtStop from RentalAgreementRentables WHERE RID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
 
 	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>=DtStart")

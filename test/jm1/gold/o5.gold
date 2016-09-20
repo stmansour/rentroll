@@ -1,0 +1,79 @@
+LEDGER MARKERS
+JGM First, LLC
+Balances as of:  June 1, 2016
+
+                                                            Summary              
+LID        GLNumber  Name                                   Balance       Balance
+---------  --------  --------------------------------  ------------  ------------
+L00000006            Security Deposit Receivable               0.00              
+L00000001  10000     Cash                                               54,258.04
+L00000009  11000     Credit Card Clearing                                    0.00
+L00000002  12000     Accounts Receivable                                     0.00
+L00000007  30000     Security Deposits                                 -10,000.00
+L00000010  30100     Accrued Taxes                             0.00              
+L00000011  30101     Sales Taxes                                             0.00
+L00000012  30102     Transient Occupancy Taxes                               0.00
+L00000013  30199     Other Accrued Taxes                                     0.00
+L00000008  39000     Owners' Equity                                          0.00
+L00000003  41000     Gross Scheduled Rent-Taxable                      -70,250.00
+L00000014  41001     Gross Scheduled Rent-Not Taxable                        0.00
+L00000015  41002     Income Offsets                       28,537.93              
+L00000024  41003     Other Income                         -2,545.97              
+L00000016  41100     Unit Income Offsets                  28,537.93              
+L00000005  41101     Vacancy                                            28,537.93
+L00000004  41102     Loss (Gain) to Lease                                    0.00
+L00000017  41103     Employee Concessions                                    0.00
+L00000018  41104     Resident Concessions                                    0.00
+L00000019  41105     Owner Concession                                        0.00
+L00000020  41106     Administrative Concession                               0.00
+L00000021  41107     Off Line Renovations                                    0.00
+L00000022  41108     Off Line Maintenance                                    0.00
+L00000023  41199     Othe Income Offsets                                     0.00
+L00000025  41200     Serviced Fees                          -111.26              
+L00000026  41201     Broadcast and IT Services                               0.00
+L00000027  41202     Food Services                                        -111.26
+L00000028  41203     Linen Services                                          0.00
+L00000029  41204     Wash N Fold Services                                    0.00
+L00000030  41299     Other Service Fees                                      0.00
+L00000031  41300     Utility Fees                              0.00              
+L00000032  41301     Electric Base Fee                                       0.00
+L00000033  41302     Electric Overage                                        0.00
+L00000034  41303     Water and Sewer Base Fee                                0.00
+L00000035  41304     Water and Sewer Overage                                 0.00
+L00000036  41305     Gas Base Fee                                            0.00
+L00000037  41306     Gas Overage                                             0.00
+L00000038  41307     Trash Collection Base Fee                               0.00
+L00000039  41308     Trash Collection Overage                                0.00
+L00000040  41399     Other Utility Fee                                       0.00
+L00000041  41400     Miscellaneous Income                 -2,434.71              
+L00000042  41401     Application Fees                                        0.00
+L00000043  41402     Late Fees                                               0.00
+L00000044  41403     Insufficient Funds Fee                                  0.00
+L00000045  41404     Month to Month Fee                                      0.00
+L00000046  41405     Premium Upgrades                                        0.00
+L00000047  41406     No Show or Termination Fee                              0.00
+L00000048  41407     Pet Fees                                                0.00
+L00000049  41408     Pet Rent                                                0.00
+L00000050  41409     Expense Reimbursement                                   0.00
+L00000051  41410     Special Cleaning Fee                                    0.00
+L00000052  41411     Eviction Fee Reimbursement                              0.00
+L00000053  41412     Extra Person Charge                                     0.00
+L00000054  41413     Forfeited Security Deposit                         -2,434.71
+L00000055  41414     Damage Fee                                              0.00
+L00000056  41415     CAM Fees                                                0.00
+L00000057  41499     Other Miscellaneous Income                              0.00
+L00000058  41500     Taxes Collected in Trust                                0.00
+L00000059  41501     Sales Taxes                                             0.00
+L00000060  41502     Transient Occupancy Taxes                               0.00
+L00000061  42000     Business Income                           0.00              
+L00000062  42100     Convenience Store                                       0.00
+L00000063  42200     Fitness Center Revenue                                  0.00
+L00000064  42300     Vending Income                                          0.00
+L00000065  42400     Restaurant Sales                                        0.00
+L00000066  42500     Bar Sales                                               0.00
+L00000067  42600     Spa Sales                                               0.00
+L00000068  49991     Cash Over/Short                                         0.00
+L00000069  49992     Bad Debt                                                0.00
+L00000070  49998     Income Suspense                                         0.00
+---------  --------  --------------------------------  ------------  ------------
+                                                                             0.00
