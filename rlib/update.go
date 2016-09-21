@@ -179,7 +179,7 @@ func UpdateRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 
 // UpdateRentableTypeRef updates a RentableTypeRef record in the database
 func UpdateRentableTypeRef(a *RentableTypeRef) error {
-	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RTID, a.RentCycle, a.ProrationCycle, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.LastModBy, a.RID, a.DtStart, a.DtStop)
 	if nil != err {
 		Ulog("UpdateRentableTypeRef: error updating RentableTypeRef:  %v\n", err)
 		Ulog("RentableTypeRef = %#v\n", *a)

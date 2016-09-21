@@ -627,13 +627,13 @@ func buildPreparedStatements() {
 	//===============================
 	//  RentableTypeRef
 	//===============================
-	flds = "RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModTime,LastModBy"
+	flds = "RID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetRentableTypeRefsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RID=? and DtStop>? and DtStart<? ORDER BY DtStart ASC")
 	Errcheck(err)
 
-	RRdb.Prepstmt.InsertRentableTypeRef, err = RRdb.Dbrr.Prepare("INSERT INTO RentableTypeRef (RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModBy) VALUES(?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertRentableTypeRef, err = RRdb.Dbrr.Prepare("INSERT INTO RentableTypeRef (RID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy) VALUES(?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableTypeRef, err = RRdb.Dbrr.Prepare("UPDATE RentableTypeRef SET RTID=?,RentCycle=?,ProrationCycle=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?")
+	RRdb.Prepstmt.UpdateRentableTypeRef, err = RRdb.Dbrr.Prepare("UPDATE RentableTypeRef SET RID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,DtStart=?,DtStop=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentableTypeRef, err = RRdb.Dbrr.Prepare("DELETE from RentableTypeRef WHERE RID=? and DtStart=? and DtStop=?")
 	Errcheck(err)

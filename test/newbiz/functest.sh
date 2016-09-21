@@ -23,7 +23,7 @@ mysqlverify "o"  " "                   "Users"	                    "select TCID,
 mysqlverify "p"  " "                   "Payors"	                    "select TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
 mysqlverify "q"  " "                   "Prospects"	            "select TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
 mysqlverify "k"  "-r rentable.csv"     "Rentables"	            "select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
-mysqlverify "l"  " "                   "RentableTypeRef"	    "select RID,RTID,RentCycle,ProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
+mysqlverify "l"  " "                   "RentableTypeRef"	    "select RID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 mysqlverify "m"  " "                   "RentableStatus"	            "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
 mysqlverify "r"  "-T rat.csv"          "RentalAgreementTemplates"   "select RATID,BID,RATemplateName,LastModBy from RentalAgreementTemplate;"
 mysqlverify "s"  "-C ra.csv"           "RentalAgreements"	    "select RAID,RATID,BID,AgreementStart,AgreementStop,Renewal,SpecialProvisions,LastModBy from RentalAgreement;"

@@ -40,11 +40,11 @@ func GSRTextReport(xbiz *rlib.XBusiness, dt *time.Time) error {
 		rtr := rlib.GetRentableTypeRefForDate(r.RID, dt) // what type is it on this date?
 		rc = xbiz.RT[rtr.RTID].RentCycle
 		pc = xbiz.RT[rtr.RTID].Proration
-		if rtr.RentCycle != 0 {
-			rc = rtr.RentCycle
+		if rtr.OverrideRentCycle != 0 {
+			rc = rtr.OverrideRentCycle
 		}
-		if rtr.ProrationCycle != 0 {
-			pc = rtr.ProrationCycle
+		if rtr.OverrideProrationCycle != 0 {
+			pc = rtr.OverrideProrationCycle
 		}
 		dt1 := dt.Add(rlib.CycleDuration(rc, *dt))                    // 1 full cycle
 		amt, _, _, err := rlib.CalculateLoadedGSR(&r, dt, &dt1, xbiz) // calculate its GSR

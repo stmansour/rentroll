@@ -608,7 +608,7 @@ func InsertRentableStatus(a *RentableStatus) error {
 
 // InsertRentableTypeRef writes a new RentableTypeRef record to the database
 func InsertRentableTypeRef(a *RentableTypeRef) error {
-	_, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.RTID, a.RentCycle, a.ProrationCycle, a.DtStart, a.DtStop, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.LastModBy)
 	return err
 }
 

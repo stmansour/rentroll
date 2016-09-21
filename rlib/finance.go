@@ -333,13 +333,13 @@ func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int6
 		return rc, pro, rtid, fmt.Errorf("No RentableTypeRef for %s", dt.Format(RRDATEINPFMT))
 	}
 	rtid = GetRTIDForDate(r.RID, dt)
-	if rrt.RentCycle > CYCLENORECUR { // if there's an override for RentCycle...
-		rc = rrt.RentCycle // ...set it
+	if rrt.OverrideRentCycle > CYCLENORECUR { // if there's an override for RentCycle...
+		rc = rrt.OverrideRentCycle // ...set it
 	} else {
 		rc = xbiz.RT[rtid].RentCycle
 	}
-	if rrt.ProrationCycle > CYCLENORECUR { // if there's an override for Propration...
-		pro = rrt.ProrationCycle // ...set it
+	if rrt.OverrideProrationCycle > CYCLENORECUR { // if there's an override for Propration...
+		pro = rrt.OverrideProrationCycle // ...set it
 	} else {
 		pro = xbiz.RT[rtid].Proration
 	}

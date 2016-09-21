@@ -34,12 +34,12 @@ func RentableMarketRates(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time) {
 					dt2 = *d2 // ...then snap to the end date
 				}
 				rcycle := xbiz.RT[m[i].RTID].RentCycle
-				if m[i].RentCycle != 0 {
-					rcycle = m[i].RentCycle
+				if m[i].OverrideRentCycle != 0 {
+					rcycle = m[i].OverrideRentCycle
 				}
 				pcycle := xbiz.RT[m[i].RTID].Proration
-				if m[i].ProrationCycle != 0 {
-					pcycle = m[i].ProrationCycle
+				if m[i].OverrideProrationCycle != 0 {
+					pcycle = m[i].OverrideProrationCycle
 				}
 				tbl.AddRow()
 				tbl.Putd(-1, 0, dt1)

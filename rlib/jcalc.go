@@ -137,11 +137,11 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 	// fmt.Printf("GetProrationCycle: rt = (%s - %s) rentcycle=%d, prorate=%d, rtid=%d\n",
 	// 	rt.DtStart.Format("1/2/06"), rt.DtStop.Format("1/2/06"), rt.RentCycle, rt.ProrationCycle, rt.RTID)
 
-	if rt.ProrationCycle > CYCLENORECUR { // if there's an override
-		prorationCycle = rt.ProrationCycle //use the override
+	if rt.OverrideProrationCycle > CYCLENORECUR { // if there's an override
+		prorationCycle = rt.OverrideProrationCycle //use the override
 	}
-	if rt.RentCycle > CYCLENORECUR { // if there's an override...
-		rentCycle = rt.RentCycle // ...use it
+	if rt.OverrideRentCycle > CYCLENORECUR { // if there's an override...
+		rentCycle = rt.OverrideRentCycle // ...use it
 	}
 
 	// determine the rentable type for time dt
@@ -231,8 +231,8 @@ func GetRentCycleRefList(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) []Rent
 		var rcr RentCycleRef
 		rcr.DtStart = r.RT[i].DtStart
 		rcr.DtStop = r.RT[i].DtStop
-		rcr.RentCycle = r.RT[i].RentCycle
-		rcr.ProrationCycle = r.RT[i].ProrationCycle
+		rcr.RentCycle = r.RT[i].OverrideRentCycle
+		rcr.ProrationCycle = r.RT[i].OverrideProrationCycle
 		if rcr.RentCycle == 0 {
 			rcr.RentCycle = xbiz.RT[r.RT[i].RTID].RentCycle
 			rcr.ProrationCycle = xbiz.RT[r.RT[i].RTID].Proration

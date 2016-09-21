@@ -694,14 +694,14 @@ type Rentable struct {
 
 // RentableTypeRef is the time-based Rentable type attribute
 type RentableTypeRef struct {
-	RID            int64     // the Rentable to which this record belongs
-	RTID           int64     // the Rentable's type during this time range
-	RentCycle      int64     // Override Rent Cycle.  0 =unset,  otherwise same values as RentableType.RentCycle
-	ProrationCycle int64     // Override Proration. 0 = unset, otherwise the same values as RentableType.Proration
-	DtStart        time.Time // timerange start
-	DtStop         time.Time // timerange stop
-	LastModTime    time.Time
-	LastModBy      int64
+	RID                    int64     // the Rentable to which this record belongs
+	RTID                   int64     // the Rentable's type during this time range
+	OverrideRentCycle      int64     // Override Rent Cycle.  0 =unset,  otherwise same values as RentableType.RentCycle
+	OverrideProrationCycle int64     // Override Proration. 0 = unset, otherwise the same values as RentableType.Proration
+	DtStart                time.Time // timerange start
+	DtStop                 time.Time // timerange stop
+	LastModTime            time.Time
+	LastModBy              int64
 }
 
 // RentCycleRef is a simplified struct containing a rent cycle and the

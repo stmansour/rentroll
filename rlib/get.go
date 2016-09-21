@@ -670,7 +670,7 @@ func GetRentableTypeRefsByRange(RID int64, d1, d2 *time.Time) []RentableTypeRef 
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableTypeRef
-		Errcheck(rows.Scan(&a.RID, &a.RTID, &a.RentCycle, &a.ProrationCycle, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.RID, &a.RTID, &a.OverrideRentCycle, &a.OverrideProrationCycle, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 		rs = append(rs, a)
 	}
 	Errcheck(rows.Err())

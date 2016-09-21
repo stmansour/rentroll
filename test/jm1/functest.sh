@@ -26,8 +26,8 @@ docsvtest "l" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
 docsvtest "m" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
 
 # get the deposits on the books
-docsvtest "n" "-A asm2015Dec.csv -G ${BUD} -g 12/1/15,1/1/16 -L 11,${BUD}" "Assessments-2015-DEC"
-docsvtest "o" "-e rcpt2015Dec.csv -G ${BUD} -g 12/1/15,1/1/16 -L 13,${BUD}" "Receipts-2015-DEC"
+docsvtest "n" "-A asm2015-12.csv -G ${BUD} -g 12/1/15,1/1/16 -L 11,${BUD}" "Assessments-2015-DEC"
+docsvtest "o" "-e rcpt2015-12.csv -G ${BUD} -g 12/1/15,1/1/16 -L 13,${BUD}" "Receipts-2015-DEC"
 
 # validate GSR
 dorrtest "p" "-j 2015-12-01 -k 2016-01-01 -b ${BUD} -r 11" "GSR"
@@ -53,21 +53,21 @@ CSVLOADRANGE="-G ${BUD} -g 1/1/16,2/1/16"
 dorrtest "a1" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-JAN"
 
 # 2.  Load new assessments for this period.  For this test, we start the rent assessments now.
-docsvtest "b1" "-A asm2016Jan.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-JAN"
+docsvtest "b1" "-A asm2016-01.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-JAN"
 
 # 3.  Create Invoices for each tenant
-docsvtest "c1" "-i invoice-2016Jan-Read.csv ${CSVLOADRANGE} -L 20,REX" "Invoice-2016Jan-Read"
-docsvtest "d1" "-i invoice-2016Jan-Costea.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016Jan-Costea"
-docsvtest "e1" "-i invoice-2016Jan-Haroutunian.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016Jan-Haroutunian"
+docsvtest "c1" "-i invoice-2016-01-Read.csv ${CSVLOADRANGE} -L 20,REX" "Invoice-2016Jan-Read"
+docsvtest "d1" "-i invoice-2016-01-Costea.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016Jan-Costea"
+docsvtest "e1" "-i invoice-2016-01-Haroutunian.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016Jan-Haroutunian"
 dorrtest "f1" "${RRDATERANGE} -b ${BUD} -r 9,IN001" "InvoiceReport-2016Jan-Read"
 dorrtest "g1" "${RRDATERANGE} -b ${BUD} -r 9,2" "InvoiceReport-2016Jan-Costea"
 dorrtest "h1" "${RRDATERANGE} -b ${BUD} -r 9,3" "InvoiceReport-2016Jan-Haroutunian"
 
 # 4. Enter any receipts (and assessments if any) since Jan1 - end of the month
-docsvtest "i1" "-e rcpt2016Jan.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-JAN"
+docsvtest "i1" "-e rcpt2016-01.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-JAN"
 
 # 5. Create deposits for all receipts
-docsvtest "j1" "-y deposit-2016Jan.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-JAN"
+docsvtest "j1" "-y deposit-2016-01.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-JAN"
 
 # 6. Process anything that was just added
 dorrtest "k3" "${RRDATERANGE} -b ${BUD}" "Finish-2016-JAN"
@@ -80,7 +80,6 @@ dorrtest "o1" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest "p1" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest "q1" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
-
 #========================================================================================
 # FEBRUARY 2016
 #    Haroutunian moves out on Feb 8
@@ -88,15 +87,15 @@ dorrtest "q1" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 RRDATERANGE="-j 2016-02-01 -k 2016-03-01"
 CSVLOADRANGE="-G ${BUD} -g 2/1/16,3/1/16"
 dorrtest  "a2" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-FEB"
-docsvtest "b2" "-A asm2016Feb.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-FEB"
-docsvtest "c2" "-i invoice-2016Feb-Read.csv ${CSVLOADRANGE} -L 20,REX" "Invoice-2016Feb-Read"
-docsvtest "d2" "-i invoice-2016Feb-Costea.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016Feb-Costea"
-docsvtest "e2" "-i invoice-2016Feb-Haroutunian.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016Feb-Haroutunian"
-dorrtest  "f2" "${RRDATERANGE} -b ${BUD} -r 9,IN001" "InvoiceReport-2016Feb-Read"
-dorrtest  "g2" "${RRDATERANGE} -b ${BUD} -r 9,2" "InvoiceReport-2016Feb-Costea"
-dorrtest  "h2" "${RRDATERANGE} -b ${BUD} -r 9,3" "InvoiceReport-2016Feb-Haroutunian"
-docsvtest "i2" "-e rcpt2016Feb.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-FEB"
-docsvtest "j2" "-y deposit-2016Feb.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-FEB"
+docsvtest "b2" "-A asm2016-02.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-FEB"
+docsvtest "c2" "-i invoice-2016-02-Read.csv ${CSVLOADRANGE} -L 20,REX" "Invoice-2016-02-Read"
+docsvtest "d2" "-i invoice-2016-02-Costea.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016-02-Costea"
+docsvtest "e2" "-i invoice-2016-02-Haroutunian.csv ${CSVLOADRANGE} -L 20,REX" "invoice-2016-02-Haroutunian"
+dorrtest  "f2" "${RRDATERANGE} -b ${BUD} -r 9,IN001" "InvoiceReport-2016-02-Read"
+dorrtest  "g2" "${RRDATERANGE} -b ${BUD} -r 9,2" "InvoiceReport-2016-02-Costea"
+dorrtest  "h2" "${RRDATERANGE} -b ${BUD} -r 9,3" "InvoiceReport-2016-02-Haroutunian"
+docsvtest "i2" "-e rcpt2016-02.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-FEB"
+docsvtest "j2" "-y deposit-2016-02.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-FEB"
 dorrtest  "k2" "${RRDATERANGE} -b ${BUD}" "Finish-2016-FEB"
 dorrtest  "l2" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest  "m2" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
@@ -127,10 +126,10 @@ rm -f xxyyzz
 
 RRDATERANGE="-j 2016-03-01 -k 2016-04-01"
 CSVLOADRANGE="-G ${BUD} -g 3/1/16,4/1/16"
-docsvtest "b3" "-A asm2016Mar.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Mar"  
+docsvtest "b3" "-A asm2016-03.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Mar"  
 dorrtest  "a3" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-Mar"
-docsvtest "i3" "-e rcpt2016Mar.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Mar"
-docsvtest "j3" "-y deposit-2016Mar.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Mar"
+docsvtest "i3" "-e rcpt2016-03.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Mar"
+docsvtest "j3" "-y deposit-2016-03.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Mar"
 dorrtest  "k3" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Mar"
 dorrtest  "l3" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest  "m3" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
@@ -162,8 +161,8 @@ RRDATERANGE="-j 2016-04-01 -k 2016-05-01"
 CSVLOADRANGE="-G ${BUD} -g 4/1/16,5/1/16"
 # docsvtest "b4" "-A asm2016Apr.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Apr"  		## no new assessments this month
 dorrtest  "a4" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-Apr"
-docsvtest "i4" "-e rcpt2016Apr.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Apr"
-docsvtest "j4" "-y deposit-2016Apr.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Apr"
+docsvtest "i4" "-e rcpt2016-04.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Apr"
+docsvtest "j4" "-y deposit-2016-04.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Apr"
 dorrtest  "k4" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Apr"
 dorrtest  "l4" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest  "m4" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
