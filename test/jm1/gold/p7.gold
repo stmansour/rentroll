@@ -1,0 +1,35 @@
+Statement  -  Rental Agreement RA00000001   Payor(s): 
+Period  Jul 1, 2016 - Jul 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-07-01               Opening Balance                                                               0.00
+2016-07-01  ASM00000028  Gross Scheduled Rent-Taxable                  3,750.00                    3,750.00
+2016-07-01  R0000000018  Payment received                                           -3,750.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,750.00     -3,750.00          0.00
+
+Statement  -  Rental Agreement RA00000002   Payor(s): Rita Costea, Daniel Costea
+Period  Jul 1, 2016 - Jul 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-07-01               Opening Balance                                                               0.00
+2016-07-01  ASM00000029  Gross Scheduled Rent-Taxable                  3,800.00                    3,800.00
+2016-07-11  R0000000019  Payment received                                           -3,800.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                 3,800.00     -3,800.00          0.00
+
+Statement  -  Rental Agreement RA00000004   Payor(s): Lauren Beck, Kevin Mills
+Period  Jul 1, 2016 - Jul 31, 2016
+
+Date        ID           Description                                     Charge       Payment       Balance
+-----------------------------------------------------------------------------------------------------------
+2016-07-01               Opening Balance                                                               0.00
+2016-07-01  ASM00000026  Gross Scheduled Rent-Taxable                  4,150.00                    4,150.00
+2016-07-01  ASM00000027  Security Deposits                             8,300.00                   12,450.00
+2016-07-01  R0000000020  Payment received                                           -8,300.00      4,150.00
+2016-07-01  R0000000020  Payment received                                           -4,150.00          0.00
+-----------------------------------------------------------------------------------------------------------
+Totals                                                                12,450.00    -12,450.00          0.00
+

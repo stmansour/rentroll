@@ -11,9 +11,18 @@ import (
 // Returns true if the assessment is valid, false otherwise
 func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.RentalAgreement) bool {
 	v := false // be pessimistic
-	inRange := (rlib.DateInRange(&a.Start, &ra.AgreementStart, &ra.AgreementStop) || a.Start.Equal(ra.AgreementStart)) && (rlib.DateInRange(&a.Stop, &ra.AgreementStart, &ra.AgreementStop) || a.Stop.Equal(ra.AgreementStop))
+	t1 := rlib.DateInRange(&a.Start, &ra.AgreementStart, &ra.AgreementStop)
+	t2 := a.Start.Equal(ra.AgreementStart)
+	t3 := rlib.DateInRange(&a.Stop, &ra.AgreementStart, &ra.AgreementStop)
+	t4 := a.Stop.Equal(ra.AgreementStop)
+
+	// fmt.Printf("a.Start = %s, a.Stop = %s, ra.AgrStart = %s, ra.AgrStop = %s\n", a.Start.Format(rlib.RRDATEFMT4), a.Stop.Format(rlib.RRDATEFMT4), ra.AgreementStart.Format(rlib.RRDATEFMT4), ra.AgreementStop.Format(rlib.RRDATEFMT4))
+	// fmt.Printf("t1 = %t, t2 = %t, t3 = %t, t4 = %t\n", t1, t2, t3, t4)
+
+	inRange := (t1 || t2) && (t3 || t4)
 	before := a.Start.Before(ra.AgreementStart) && a.Stop.Before(ra.AgreementStop)
 	after := (a.Start.After(ra.AgreementStart) || a.Start.Equal(ra.AgreementStart)) && (a.Stop.After(ra.AgreementStop) || a.Stop.Equal(ra.AgreementStop))
+
 	switch asmt.RARequired {
 	case rlib.RARQDINRANGE:
 		v = inRange

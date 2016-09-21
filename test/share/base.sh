@@ -105,6 +105,7 @@ J)   Journal
 L)   Ledger
 LA)  Ledger Activity
 LB)  Ledger Balance
+MR)  Market Rate for Rentable
 NT)  Note Types
 P)   People
 PE)  Pets
@@ -141,6 +142,7 @@ EOF
 		  l) app "-b ${BUD} -r 2" ;;
 		 la) app "-b ${BUD} -r 10" ;;
 		 lb) app "-b ${BUD} -r 17" ;;
+		 mr) app "-b ${BUD} -r 20,R001" ;;
 		  a) csvload "-L 11,${BUD}" ;;
 		  b) csvload "-L 3" ;;
 		  c) csvload "-L 10,${BUD}" ;;

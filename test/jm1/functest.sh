@@ -225,5 +225,39 @@ dorrtest  "o6" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p6" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q6" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
+#========================================================================================
+# JULY 2016
+#    Add assessments for rent and security deposit for 311 Rexford
+#========================================================================================
+RRDATERANGE="-j 2016-07-01 -k 2016-08-01"
+CSVLOADRANGE="-G ${BUD} -g 7/1/16,8/1/16"
+docsvtest "b7" "-A asm2016-07.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Jul"
+dorrtest  "a7" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-Jul"
+docsvtest "i7" "-e rcpt2016-07.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Jul"
+docsvtest "j7" "-y deposit-2016-07.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Jul"
+dorrtest  "k7" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Jul"
+dorrtest  "l7" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m7" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n7" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o7" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p7" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q7" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
+#========================================================================================
+# AUGUST 2016
+#========================================================================================
+RRDATERANGE="-j 2016-08-01 -k 2016-09-01"
+CSVLOADRANGE="-G ${BUD} -g 8/1/16,9/1/16"
+# docsvtest "b8" "-A asm2016-08.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Aug"  ## no new assessments
+dorrtest  "a8" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2016-Aug"
+docsvtest "i8" "-e rcpt2016-08.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Aug"
+docsvtest "j8" "-y deposit-2016-08.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Aug"
+dorrtest  "k8" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Aug"
+dorrtest  "l8" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m8" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n8" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o8" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p8" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q8" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck

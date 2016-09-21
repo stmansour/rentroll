@@ -1,0 +1,39 @@
+   =========================================================================================================================
+   Business:  JGM First, LLC
+   08/01/16 - 08/31/16
+   -------------------------------------------------------------------------------------------------------------------------
+   Description                                                       Date    RntAgr         Rentable     GL No        Amount
+   -------------------------------------------------------------------------------------------------------------------------
+   J00000056  Gross Scheduled Rent-Taxable  309 Rexford [Rex1, monthly] 
+                                            Accounts Receivable  08/01/16         1      309 Rexford     12000       3750.00
+                                   Gross Scheduled Rent-Taxable  08/01/16         1      309 Rexford     41000      -3750.00
+                                           Loss (Gain) to Lease  08/01/16         1      309 Rexford     41102          0.00
+                                                               
+   J00000057  Gross Scheduled Rent-Taxable (27/31 days)  309 1/2 Rexford [Rex2, monthly] 
+                                            Accounts Receivable  08/01/16         2  309 1/2 Rexford     12000       3309.68
+                                   Gross Scheduled Rent-Taxable  08/01/16         2  309 1/2 Rexford     41000      -3309.68
+                                           Loss (Gain) to Lease  08/01/16         2  309 1/2 Rexford     41102          0.00
+                                                               
+   J00000058  Gross Scheduled Rent-Taxable  311 Rexford [Rex3, monthly] 
+                                            Accounts Receivable  08/01/16         4      311 Rexford     12000       4150.00
+                                   Gross Scheduled Rent-Taxable  08/01/16         4      311 Rexford     41000      -4150.00
+                                           Loss (Gain) to Lease  08/01/16         4      311 Rexford     41102          0.00
+                                                               
+   J00000059  Payment -    #2153  3750.00                      
+   	Gross Scheduled Rent-Taxable                               
+                                            Accounts Receivable  08/01/16         1      309 Rexford     12000      -3750.00
+                                                           Cash  08/01/16         1      309 Rexford     10000       3750.00
+                                                               
+   J00000060  Payment - Costea,Costea   #1948  3309.68         
+   	Gross Scheduled Rent-Taxable                               
+                                            Accounts Receivable  08/05/16         2  309 1/2 Rexford     12000      -3309.68
+                                                           Cash  08/05/16         2  309 1/2 Rexford     10000       3309.68
+                                                               
+   J00000061  Payment - Beck,Mills   #8733  4150.00            
+   	Gross Scheduled Rent-Taxable                               
+                                            Accounts Receivable  08/01/16         4      311 Rexford     12000      -4150.00
+                                                           Cash  08/01/16         4      311 Rexford     10000       4150.00
+                                                               
+   J00000062  Unassociated: 311 1/2 Rexford vacant Aug 1 - Sep 1
+                                   Gross Scheduled Rent-Taxable  08/31/16         0  311 1/2 Rexford     41000      -2500.00
+                                                        Vacancy  08/31/16         0  311 1/2 Rexford     41101       2500.00
