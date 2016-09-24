@@ -15,7 +15,7 @@ ver.go:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	go clean
-	rm -f rentroll ver.go conf.json rentroll.log
+	rm -f rentroll ver.go conf.json rentroll.log *.out
 
 test: package
 	rm -f test/*/err.txt
@@ -35,9 +35,9 @@ package: rentroll
 	cp -r html ./tmp/rentroll/
 	@echo "*** PACKAGE COMPLETED ***"
 
-t:
-	./mdb
-	./rentroll
+publish: package
+	cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar
+	cd tmp;/usr/local/accord/bin/deployfile.sh rentroll.tar.gz jenkins-snapshot/rentroll/latest
 
 all: clean rentroll test
 

@@ -12,3 +12,4 @@ test:
 
 package:
 	for dir in $(DIRS); do make -C $$dir package;done
+	cp installman.sh ../tmp/rentroll/

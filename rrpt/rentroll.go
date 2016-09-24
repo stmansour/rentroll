@@ -48,7 +48,7 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		return e
 	}
 	fmt.Printf("%s\n", strings.ToUpper(c.LegalName))
-	fmt.Printf("Rentroll report for period beginning %s and ending %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3))
+	fmt.Printf("Rentroll report for period beginning %s and up to and including %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT4))
 
 	var tbl rlib.Table
 	tbl.Init()                                                                            //sets column spacing and date format to default
