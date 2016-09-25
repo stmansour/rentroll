@@ -94,9 +94,9 @@ start() {
 		fi
 	fi
 
-	# if [ ! -f "/usr/local/share/man/man1/pbbkup.1" ]; then
-	# 	./installman.sh >${PROGNAME}.log 2>&1
-	# fi
+	if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
+		./installman.sh >installman.log 2>&1
+	fi
 
 	./${PROGNAME} >log.out 2>&1 &
 	if [ ${IAM} == "root" ]; then

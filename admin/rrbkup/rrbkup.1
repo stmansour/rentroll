@@ -9,15 +9,13 @@ rrbkup \- back up the Accord RentRoll database
 .SH DESCRIPTION
 .B rrbkup
 make a backup of the Accord RentRoll database. Backups are
-stored in Artifactory under the path of the form
-.B accord/db/01/(databaseName)db.sql.gz.  For example, the default
-database is named "rentroll", so the file path for data-only backups would be
-.B accord/db/01/rentroll.sql.gz.
-The number in the path will range from 01 to 31 and represents the day of 
-the month on which the backup was done. For example, a backup made on
-Jan 05 will be storedin accord/db/05/accorddb.sql.gz.  This backup will be
+stored in a directory called 'bkup' which created in the current path
+if necessary.  The file name will be rentroll\f\Idd\f\R.sql.gz and
+\f\Idd\f\R will be the current day of the month.
+For example, a backup made on
+Jan 05 will be storedin bkup/rentroll05.sql.gz.  This backup will be
 kept until Feb 05. When a backup is made on Feb 05, the new backup will overwrite
-the file in the path accord/db/05. 
+the file bkup/rentroll05.sql.gz. 
 .SH OPTIONS
 .TP
 .IP "-B database_username"

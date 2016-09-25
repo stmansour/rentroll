@@ -36,12 +36,8 @@ ZZEOF
 #   BACKUP - DATA ONLY
 ##############################################################
 bkupData() {
-	mysqldump ${MYSQLOPTS} ${DATABASE} > ${DATABASE}db.sql
-	gzip ${DATABASE}db.sql
-	if [ ${UNAME} != "Darwin" ]; then
-		${DEPLOY} ${DATABASE}db.sql.gz ${DATABASE}/db/${DOM}
-		rm -f ${DATABASE}db.sql.gz
-	fi
+	mysqldump ${MYSQLOPTS} ${DATABASE} > ${BKUPNAME}
+	gzip ${BKUPNAME}
 }
 
 
@@ -64,10 +60,10 @@ while getopts ":hN:" o; do
 done
 shift $((OPTIND-1))
 
-if [ ${FULL} -eq 0 ]; then
-	echo "Backing up data on database ${DATABASE}..."
-	bkupData
-fi
+BKUPNAME="${DATABASE}${DOM}.sql"
+echo "Backing up data on database ${DATABASE}..."
+bkupData
 
-echo
-echo "Done."
+mkdir -p bkup
+mv ${BKUPNAME}.gz bkup/
+ls -l bkup/${BKUPNAME}.gz
