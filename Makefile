@@ -33,6 +33,7 @@ package: rentroll
 	cp rentroll ./tmp/rentroll/
 	cp conf.json ./tmp/rentroll/
 	cp -r html ./tmp/rentroll/
+	cp activate.sh ./tmp/rentroll/
 	@echo "*** PACKAGE COMPLETED ***"
 
 publish: package
