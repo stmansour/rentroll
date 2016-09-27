@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"rentroll/rlib"
 	"runtime/debug"
 	"time"
@@ -48,11 +49,23 @@ type StmtEntry struct {
 // It is the responsibility of the page function to populate the data needed by
 // the page. The recommendation is to populate only the data needed.
 type RRuiSupport struct {
-	DtStart time.Time       // start of period of interest
-	DtStop  time.Time       // end of period of interest
-	B       rlib.Business   // business associated with this report
-	BL      []rlib.Business // array of all businesses, for initializing dropdown selections
-	LDG     UILedger        // ledgers associated with this report
+	DtStart       string          // start of period of interest
+	DtStop        string          // end of period of interest
+	B             rlib.Business   // business associated with this report
+	BL            []rlib.Business // array of all businesses, for initializing dropdown selections
+	LDG           UILedger        // ledgers associated with this report
+	ReportContent string          // text report content
+	PgHnd         []RRPageHandler // the list of reports and handlers
+}
+
+// RRPageHandler is a structure of page names and handlers
+type RRPageHandler struct {
+	ReportName   string                                   // report name
+	FormPageName string                                   // name of form to collect information for this report
+	URL          string                                   // url for this handler
+	Handler      func(http.ResponseWriter, *http.Request) // the actual handler function
+	// ReportPageName string
+	// ReportHandler  string
 }
 
 //========================================================================================================
@@ -74,6 +87,11 @@ func UIInitBizList(ui *RRuiSupport) {
 	if err != nil {
 		rlib.Ulog("UIInitBizList: err = %s\n", err.Error())
 	}
+}
+
+// UIInitUISupport sets the ui context structure value for page handlers equal to App.PageHandlers
+func UIInitUISupport(ui *RRuiSupport) {
+	ui.PgHnd = App.PageHandlers
 }
 
 // BuildXLedgerList initializes all ledger information for use in the UI. It loads all defined GLAccounts

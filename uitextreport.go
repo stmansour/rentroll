@@ -12,7 +12,7 @@ import (
 // UILedgerTextReport prints a report of data that will be used to format a ledger UI.
 // This routine is primarily for testing
 func UILedgerTextReport(ui *RRuiSupport) {
-	fmt.Printf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ui.B.Name, ui.DtStop.Format("January 2, 2006"))
+	fmt.Printf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ui.B.Name, ui.DtStop)
 	fmt.Printf("%-9s  %50s  %10s  %12s\n", "LID", "Name", "GLNumber", "Balance")
 	lineLen := 9 + 50 + 10 + 12 + (2 * 3)
 	for i := 0; i < len(ui.LDG.XL); i++ {

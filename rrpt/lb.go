@@ -6,12 +6,9 @@ import (
 	"time"
 )
 
-// LedgerBalanceReport prints a report of data that will be used to format a ledger UI.
-// This routine is primarily for testing
-func LedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) {
-	fmt.Printf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", xbiz.P.Name, dt.Format("January 2, 2006"))
+// LedgerBalanceReport builds a table of trial balance information
+func LedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) rlib.Table {
 	bid := xbiz.P.BID
-	// fmt.Printf("%-9s  %50s  %10s  %12s\n", "LID", "Name", "GLNumber", "Balance")
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("LID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -37,6 +34,14 @@ func LedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) {
 	tbl.Sort(0, len(tbl.Row)-1, 1)
 	tbl.AddLineAfter(len(tbl.Row) - 1)                          // a line after the last row in the table
 	tbl.InsertSumRow(len(tbl.Row), 0, len(tbl.Row)-1, []int{4}) // insert @ len essentially adds a row.  Only want to sum column 4
+	return tbl
+}
+
+//PrintLedgerBalanceReport prints a report of data that will be used to format a ledger UI.
+// This routine is primarily for testing
+func PrintLedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) {
+	fmt.Printf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", xbiz.P.Name, dt.Format("January 2, 2006"))
+	tbl := LedgerBalanceReport(xbiz, dt)
 	tbl.TightenColumns()
 	fmt.Print(tbl.SprintTable(rlib.TABLEOUTTEXT))
 }

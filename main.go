@@ -44,20 +44,29 @@ type DispatchCtx struct {
 
 // App is the global data structure for this app
 var App struct {
-	dbdir        *sql.DB  // phonebook db
-	dbrr         *sql.DB  // rentroll db
-	DBDir        string   // phonebook database
-	DBRR         string   // rentroll database
-	PortRR       int      // port on which rentroll listens
-	DBUser       string   // user for all databases
-	Report       string   // if testing engine, which report/action to perform
-	LogFile      *os.File // where to log messages
-	BatchMode    bool     // if true, then don't start http, the command line request is for a batch process
-	SkipVacCheck bool     // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
-	CSVLoad      string   // if loading csv, this string will have index,filename
-	sStart       string   // start time
-	sStop        string   // stop time
-	Bud          string   // BUD from the command line
+	dbdir        *sql.DB         // phonebook db
+	dbrr         *sql.DB         // rentroll db
+	DBDir        string          // phonebook database
+	DBRR         string          // rentroll database
+	PortRR       int             // port on which rentroll listens
+	DBUser       string          // user for all databases
+	Report       string          // if testing engine, which report/action to perform
+	LogFile      *os.File        // where to log messages
+	BatchMode    bool            // if true, then don't start http, the command line request is for a batch process
+	SkipVacCheck bool            // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
+	CSVLoad      string          // if loading csv, this string will have index,filename
+	sStart       string          // start time
+	sStop        string          // stop time
+	Bud          string          // BUD from the command line
+	PageHandlers []RRPageHandler // table of http requests and handlers
+}
+
+// WebContext is a struct of information that is essentially session information
+// associated with a login session.
+type WebContext struct {
+	Biz string // the 3 character designation for a business
+	D1  string // start date/time for reports, etc.
+	D2  string // stop date/time
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
@@ -125,7 +134,8 @@ func initHTTP() {
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/dispatch/", dispatchHandler)
 	http.HandleFunc("/srvformTrialBal/", srvformTrialBalance)
-	http.HandleFunc("/trialbalance/", hndTrialBalance)
+	http.HandleFunc("/trialbalance/", RptTrialBalance)
+	http.HandleFunc("/rptrentroll/", RptRentRoll)
 }
 
 func main() {
@@ -184,6 +194,7 @@ func main() {
 	} else {
 		initHTTP()
 		rlib.Ulog("RentRoll initiating HTTP service on port %d\n", App.PortRR)
+		initPageHandlers()
 		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)
 		if nil != err {
 			fmt.Printf("*** Error on http.ListenAndServe: %v\n", err)

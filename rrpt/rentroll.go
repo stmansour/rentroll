@@ -34,24 +34,39 @@ func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rl
 
 // RentRollTextReport generates a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
 func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
-	funcname := "RentRollTextReport"
+	tbl, err := RentRollReport(xbiz, d1, d2)
+	if err == nil {
+		fmt.Print(tbl.Title)
+		fmt.Print(tbl.SprintRowText(len(tbl.Row) - 1))
+		fmt.Print(tbl.SprintLineText())
+		fmt.Print(tbl.SprintTable(rlib.TABLEOUTTEXT))
+	}
+	return err
+}
+
+// RentRollReport generates a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
+func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error) {
+	funcname := "RentRollReport"
+	var tbl rlib.Table
 	custom := "Square Feet"
 	var noerr error
 	bu, err := rlib.GetBusinessUnitByDesignation(xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
-		return e
+		return tbl, e
 	}
 	c, err := rlib.GetCompany(int64(bu.CoCode))
 	if err != nil {
 		e := fmt.Errorf("%s: error getting Company - %s\n", funcname, err.Error())
-		return e
+		return tbl, e
 	}
-	fmt.Printf("%s\n", strings.ToUpper(c.LegalName))
-	fmt.Printf("Rentroll report for period beginning %s and up to and including %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT4))
 
-	var tbl rlib.Table
-	tbl.Init()                                                                            //sets column spacing and date format to default
+	tbl.Init() //sets column spacing and date format to default
+
+	s := fmt.Sprintf("%s\n", strings.ToUpper(c.LegalName))
+	s += fmt.Sprintf("Rentroll report for period beginning %s and up to and including %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT4))
+	tbl.SetTitle(s)
+
 	totalsRSet := tbl.CreateRowset()                                                      // a rowset to sum for totals
 	tbl.AddColumn("Rentable", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)              // RentableType name
@@ -349,9 +364,6 @@ func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
 		[]int{GSRAmt, IncOff, ContractRent, OtherInc, PmtRcvd, BeginRcv, ChgRcv, EndRcv, BeginSecDep, ChgSecDep, EndSecDep})
 
 	tbl.TightenColumns()
-	fmt.Print(tbl.SprintRowText(len(tbl.Row) - 1))
-	fmt.Print(tbl.SprintLineText())
-	fmt.Print(tbl)
 
-	return noerr
+	return tbl, noerr
 }

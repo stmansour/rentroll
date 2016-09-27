@@ -128,7 +128,7 @@ func RunBooks(ctx *DispatchCtx) {
 	case 16: // Process LedgerMarkers Only
 		rlib.GenerateLedgerMarkers(&ctx.xbiz, &ctx.DtStop)
 	case 17: // LEDGER BALANCE REPORT
-		rrpt.LedgerBalanceReport(&ctx.xbiz, &ctx.DtStop)
+		rrpt.PrintLedgerBalanceReport(&ctx.xbiz, &ctx.DtStop)
 	case 18: // Process Journal Entries only
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 	case 19: // process Ledgers
@@ -164,14 +164,16 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	action := r.FormValue("action")
-	url := r.FormValue("url")
+	// fmt.Printf("dispatchHandler: action = %s\n", action)
 	if len(action) > 0 {
-		switch action {
-		case "Ledger Balance":
-			http.Redirect(w, r, url, http.StatusFound)
-			return
-		default:
-			fmt.Printf("%s: Unrecognized action: %s\n", funcname, action)
+		for i := 0; i < len(App.PageHandlers); i++ {
+			if action == App.PageHandlers[i].ReportName {
+				if action == "Home" {
+					break
+				}
+				App.PageHandlers[i].Handler(w, r)
+				return
+			}
 		}
 	}
 
@@ -179,7 +181,11 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 	if nil != err {
 		fmt.Printf("%s: error loading template: %v\n", funcname, err)
 	}
+
+	UIInitUISupport(&ui) // general data initialized
+	UIInitBizList(&ui)   // biz list initialization
 	err = t.Execute(w, &ui)
+
 	if nil != err {
 		rlib.LogAndPrintError(funcname, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

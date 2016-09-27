@@ -63,6 +63,7 @@ type Rowset struct {
 // Table is a structure that defines a spreadsheet-like grid of cells and the
 // operations that can be performed.
 type Table struct {
+	Title        string      // table title
 	ColDefs      []ColumnDef // table's column definitions, ordered 0..n left to right
 	Row          []Colset    // Each Colset forms a row
 	TextColSpace int         // space between text columns
@@ -70,6 +71,11 @@ type Table struct {
 	DateFmt      string      // format for printing dates
 	LineAfter    []int       // array of row numbers that have a horizontal line after they are printed
 	RS           []Rowset    // a list of rowsets
+}
+
+// SetTitle sets the table's Title string to the supplied value
+func (t *Table) SetTitle(s string) {
+	t.Title = s
 }
 
 // TypeToString returns a string describing the data type of the cell.
@@ -499,12 +505,12 @@ func (t *Table) SprintColumnHeaders(f int) string {
 
 // SprintTable renders the entire table to a string
 func (t *Table) SprintTable(f int) string {
-	var s string
+	s := ""
 	switch f {
 	case TABLEOUTTEXT:
-		s = t.SprintColHdrsText()
+		s += t.SprintColHdrsText()
 	case TABLEOUTHTML:
-		s = t.SprintColHdrsHTML()
+		s += t.SprintColHdrsHTML()
 	}
 	for i := 0; i < t.Rows(); i++ {
 		s += t.SprintRow(i, f)
@@ -515,7 +521,7 @@ func (t *Table) SprintTable(f int) string {
 // String is the "stringer" method implementation for go so that you can simply
 // print(t)
 func (t Table) String() string {
-	return t.SprintTable(TABLEOUTTEXT)
+	return t.Title + t.SprintTable(TABLEOUTTEXT)
 }
 
 // InsertRow adds a new Row at the specified index.
