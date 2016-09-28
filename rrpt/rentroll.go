@@ -64,7 +64,7 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 	tbl.Init() //sets column spacing and date format to default
 
 	s := fmt.Sprintf("%s\n", strings.ToUpper(c.LegalName))
-	s += fmt.Sprintf("Rentroll report for period beginning %s and up to and including %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT4))
+	s += fmt.Sprintf("Rentroll report for period beginning %s up to and including %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT4))
 	tbl.SetTitle(s)
 
 	totalsRSet := tbl.CreateRowset()                                                      // a rowset to sum for totals
@@ -358,12 +358,14 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 		tbl.AddRow() // Can't look ahead with rows.Next, so always add a blank line, remove the last one after loop ends.  See note on DeleteRow below.
 	}
 	rlib.Errcheck(rows.Err())
-	tbl.DeleteRow(len(tbl.Row) - 1)    // removes the last blank line. Can't check rows.Next twice, so no other way I can see to do this
-	tbl.AddLineAfter(len(tbl.Row) - 1) // a line after the last row in the table
-	tbl.InsertSumRowsetCols(totalsRSet, len(tbl.Row),
-		[]int{GSRAmt, IncOff, ContractRent, OtherInc, PmtRcvd, BeginRcv, ChgRcv, EndRcv, BeginSecDep, ChgSecDep, EndSecDep})
+	if len(tbl.Row) > 0 {
+		tbl.DeleteRow(len(tbl.Row) - 1)    // removes the last blank line. Can't check rows.Next twice, so no other way I can see to do this
+		tbl.AddLineAfter(len(tbl.Row) - 1) // a line after the last row in the table
+		tbl.InsertSumRowsetCols(totalsRSet, len(tbl.Row),
+			[]int{GSRAmt, IncOff, ContractRent, OtherInc, PmtRcvd, BeginRcv, ChgRcv, EndRcv, BeginSecDep, ChgSecDep, EndSecDep})
 
-	tbl.TightenColumns()
+		tbl.TightenColumns()
+	}
 
 	return tbl, noerr
 }

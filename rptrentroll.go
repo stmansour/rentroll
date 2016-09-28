@@ -11,22 +11,9 @@ import (
 	"time"
 )
 
-// RptRentRoll is the HTTP handler for the RentRoll report request
-func RptRentRoll(w http.ResponseWriter, r *http.Request) {
-	funcname := "RptRentRoll"
-	// fmt.Printf("Entered %s\n", funcname)
-	var ui RRuiSupport
-	var err error
-	var xbiz rlib.XBusiness
-
+func getBizStartStop(w http.ResponseWriter, r *http.Request, ui *RRuiSupport, xbiz *rlib.XBusiness) {
 	now := time.Now()
-
-	action := r.FormValue("action")
-	// fmt.Printf("RptRentRoll: action = %s\n", action)
-	if action != "RentRoll" {
-		dispatchHandler(w, r)
-		return
-	}
+	var err error
 
 	// Init to reasonable starting values
 	ui.DtStart = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC).Format(rlib.RRDATEINPFMT)
@@ -43,9 +30,15 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request) {
 	}
 	BID := r.FormValue("BID")
 
-	UIInitBizList(&ui)
-	dtStart, err := time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(ui.DtStart))
-	dtStop, err := time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(ui.DtStop))
+	UIInitBizList(ui)
+	ui.D1, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(ui.DtStart))
+	if err != nil {
+		rlib.Ulog("getBizStartStop: could not parse %s, err = %v\n", ui.DtStart, err)
+	}
+	ui.D2, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(ui.DtStop))
+	if err != nil {
+		rlib.Ulog("getBizStartStop: could not parse %s, err = %v\n", ui.DtStop, err)
+	}
 	if len(BID) > 0 {
 		i, err := strconv.Atoi(strings.TrimSpace(BID))
 		if err != nil {
@@ -53,7 +46,7 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		rlib.GetXBusiness(int64(i), &xbiz)
+		rlib.GetXBusiness(int64(i), xbiz)
 		if xbiz.P.BID == 0 {
 			rlib.Ulog("Error fetching business with BID = %d\n", i)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -65,10 +58,32 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request) {
 		rlib.InitBusinessFields(ui.B.BID)
 		rlib.GetDefaultLedgers(xbiz.P.BID) // Gather its chart of accounts
 		rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts = rlib.GetGLAccountMap(xbiz.P.BID)
-		UIInitBizList(&ui)
+		UIInitBizList(ui)
+	}
+}
 
-		tbl, err := rrpt.RentRollReport(&xbiz, &dtStart, &dtStop)
-		ui.ReportContent = tbl.Title + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
+// RptRentRoll is the HTTP handler for the RentRoll report request
+func RptRentRoll(w http.ResponseWriter, r *http.Request) {
+	funcname := "RptRentRoll"
+	// fmt.Printf("Entered %s\n", funcname)
+	var ui RRuiSupport
+	var xbiz rlib.XBusiness
+
+	action := r.FormValue("action")
+	// fmt.Printf("RptRentRoll: action = %s\n", action)
+	if action != "RentRoll" {
+		dispatchHandler(w, r)
+		return
+	}
+
+	getBizStartStop(w, r, &ui, &xbiz)
+	if xbiz.P.BID > 0 {
+		tbl, err := rrpt.RentRollReport(&xbiz, &ui.D1, &ui.D2)
+		if err == nil {
+			ui.ReportContent = tbl.Title + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
+		} else {
+			ui.ReportContent = fmt.Sprintf("Error generating RentRoll report:  %s\n", err)
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html")
@@ -83,5 +98,4 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request) {
 		rlib.LogAndPrintError(funcname, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
 }

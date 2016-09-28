@@ -78,6 +78,11 @@ func (t *Table) SetTitle(s string) {
 	t.Title = s
 }
 
+// GetTitle sets the table's Title string to the supplied value
+func (t *Table) GetTitle() string {
+	return t.Title
+}
+
 // TypeToString returns a string describing the data type of the cell.
 func (c *Cell) TypeToString() string {
 	switch c.Type {
@@ -406,6 +411,9 @@ func (t *Table) SprintLineText() string {
 
 // SprintRowText formats the requested row as text in a string and returns the string
 func (t *Table) SprintRowText(row int) string {
+	if row < 0 {
+		return ""
+	}
 	lalen := len(t.LineAfter)
 	s := ""
 	for i := 0; i < len(t.Row[row].Col); i++ {

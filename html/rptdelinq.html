@@ -4,21 +4,19 @@
 <link href="/html/rentroll.css" rel="stylesheet"  type="text/css">
 <!-- <link rel="icon" type="image/png" href="/images/favicon32x32.png"> -->
 
-<title>Accord RentRoll - RentRoll</title>
+<title>Accord RentRoll - Delinqency</title>
 </head>
 <body>
-<H1>RentRoll</H1>
+<H1>Delinqency</H1>
 <p>FUNCTIONAL TEST INTERFACE</p>
-
 
 <form action="/dispatch/" method="POST">
 <table border="0">
 <tr>
 	<td>Business Unit</td><td><select name="BID">{{range .BL}}<option value="{{.BID}}">{{.Name}}</option>{{end}}</select></td>
 	<td width=10></td>
-	<td>Period beginning</td><td><input type=date name="DtStart" size="10" value="{{.DtStart}}"></td>
-	<td>up to and including</td><td><input type=date name="DtStop" size="10" value="{{.DtStop}}"></td>
-	<td colspan="6"><input type="submit" name="action" value="RentRoll"></td>
+	<td>As of</td><td><input type=date name="DtStop" size="10" value="{{.DtStop}}"></td>
+    <td colspan="6"><input type="submit" name="action" value="Delinquency"></td>
 </tr>
 <tr><td colspan="6"><input type="submit" name="action" value="Home"></td></tr>
 </table>

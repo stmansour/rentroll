@@ -6,10 +6,10 @@
 </head>
 <body>
 <H1>Accord RentRoll</H1>
+<p>FUNCTIONAL TEST INTERFACE</p>
 
 <p></p>
 <form action="/dispatch/"  method="POST">
-<p>COMMANDS:</p>
 <table>{{range .PgHnd}}
 <tr><td><input type="submit" name="action" value="{{.ReportName}}"></td></tr>
 {{end}}</table>

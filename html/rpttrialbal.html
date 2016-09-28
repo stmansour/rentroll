@@ -8,7 +8,7 @@
 </head>
 <body>
 <H1>Trial Balance</H1>
-
+<p>FUNCTIONAL TEST INTERFACE</p>
 
 <form action="/dispatch/" method="POST">
 <table border="0">
@@ -16,8 +16,8 @@
 	<td>Business Unit</td><td><select name="BID">{{range .BL}}<option value="{{.BID}}">{{.Name}}</option>{{end}}</select></td>
 	<td width=10></td>
 	<td>As of Date</td><td><input type=date name="DtStop" size="10" value="{{.DtStop}}"></td>
+	<td colspan="6"><input type="submit" name="action" value="Trial Balance"></td>
 </tr>
-<tr><td colspan="6"><input type="submit" name="action" value="Trial Balance"></td></tr>
 <tr><td colspan="6"><input type="submit" name="action" value="Home"></td></tr>
 </table>
 </form>

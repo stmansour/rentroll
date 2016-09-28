@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"runtime/debug"
 	"time"
 )
 
@@ -50,7 +49,9 @@ type StmtEntry struct {
 // the page. The recommendation is to populate only the data needed.
 type RRuiSupport struct {
 	DtStart       string          // start of period of interest
+	D1            time.Time       // time.Time value for DtStart
 	DtStop        string          // end of period of interest
+	D2            time.Time       // time.Time value for DtStop
 	B             rlib.Business   // business associated with this report
 	BL            []rlib.Business // array of all businesses, for initializing dropdown selections
 	LDG           UILedger        // ledgers associated with this report
@@ -94,27 +95,27 @@ func UIInitUISupport(ui *RRuiSupport) {
 	ui.PgHnd = App.PageHandlers
 }
 
-// BuildXLedgerList initializes all ledger information for use in the UI. It loads all defined GLAccounts
-// and the LedgerMarkers for a specific period
-func BuildXLedgerList(ui *RRuiSupport, bid int64, dt time.Time) {
-	m := rlib.GetAllLedgerMarkersOnOrBefore(bid, &dt) // map of ledger markers indexed by LID
-	n := rlib.GetLedgerList(bid)                      // list of all ledgers
-	k := 0
-	for i := 0; i < len(n); i++ {
-		var x XLedger
-		x.G = n[i]
-		x.LM = m[n[i].LID]
-		if n[i].LID == 0 {
-			fmt.Printf("found LID == 0\n")
-			debug.PrintStack()
-		}
-		ui.LDG.XL = append(ui.LDG.XL, x)
-		k++
-	}
+// // BuildXLedgerList initializes all ledger information for use in the UI. It loads all defined GLAccounts
+// // and the LedgerMarkers for a specific period
+// func BuildXLedgerList(ui *RRuiSupport, bid int64, dt time.Time) {
+// 	m := rlib.GetAllLedgerMarkersOnOrBefore(bid, &dt) // map of ledger markers indexed by LID
+// 	n := rlib.GetLedgerList(bid)                      // list of all ledgers
+// 	k := 0
+// 	for i := 0; i < len(n); i++ {
+// 		var x XLedger
+// 		x.G = n[i]
+// 		x.LM = m[n[i].LID]
+// 		if n[i].LID == 0 {
+// 			fmt.Printf("found LID == 0\n")
+// 			debug.PrintStack()
+// 		}
+// 		ui.LDG.XL = append(ui.LDG.XL, x)
+// 		k++
+// 	}
 
-	ui.LDG.Balance = LMSum(&ui.LDG.XL)
-	ui.LDG.BID = bid
-}
+// 	ui.LDG.Balance = LMSum(&ui.LDG.XL)
+// 	ui.LDG.BID = bid
+// }
 
 // GetRentableCountByRentableType returns a structure containing the count of Rentables for each RentableType
 // in the specified time range

@@ -165,18 +165,17 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 
 	action := r.FormValue("action")
 	// fmt.Printf("dispatchHandler: action = %s\n", action)
-	if len(action) > 0 {
+	if len(action) > 0 && action != "Home" {
 		for i := 0; i < len(App.PageHandlers); i++ {
 			if action == App.PageHandlers[i].ReportName {
-				if action == "Home" {
-					break
-				}
+				// fmt.Printf("dispatchHandler: found handler for action = %s at index %d\n", action, i)
 				App.PageHandlers[i].Handler(w, r)
 				return
 			}
 		}
 	}
 
+	// fmt.Printf("dispatchHandler: No handler for action = %s\n", action)
 	t, err := template.New("dispatch.html").Funcs(RRfuncMap).ParseFiles("./html/dispatch.html")
 	if nil != err {
 		fmt.Printf("%s: error loading template: %v\n", funcname, err)

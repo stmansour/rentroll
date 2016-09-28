@@ -9,24 +9,35 @@ import (
 
 // DelinquencyTextReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
 func DelinquencyTextReport(xbiz *rlib.XBusiness, d2 *time.Time) error {
-	funcname := "DelinquencyTextReport"
+	tbl, err := DelinquencyReport(xbiz, d2)
+	if err == nil {
+		fmt.Print(tbl)
+	}
+	return err
+}
+
+// DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
+func DelinquencyReport(xbiz *rlib.XBusiness, d2 *time.Time) (rlib.Table, error) {
+	funcname := "DelinquencyReport"
+	var tbl rlib.Table
 	var noerr error
+
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	bu, err := rlib.GetBusinessUnitByDesignation(xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
-		return e
+		return tbl, e
 	}
 	c, err := rlib.GetCompany(int64(bu.CoCode))
 	if err != nil {
 		e := fmt.Errorf("%s: error getting Company - %s\n", funcname, err.Error())
-		return e
+		return tbl, e
 	}
-	fmt.Printf("%s\n", strings.ToUpper(c.LegalName))
-	fmt.Printf("DELINQUENCY REPORT\nReport Date: %s\n\n", d2.Format(rlib.RRDATEFMT3))
+	s := fmt.Sprintf("%s\n", strings.ToUpper(c.LegalName))
+	s += fmt.Sprintf("DELINQUENCY REPORT\nReport Date: %s\n\n", d2.Format(rlib.RRDATEFMT3))
 
-	var tbl rlib.Table
-	tbl.Init()                                                                    //sets column spacing and date format to default
+	tbl.Init() //sets column spacing and date format to default
+	tbl.SetTitle(s)
 	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)            // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)      // RentableType name
 	tbl.AddColumn("Rentable Agreement", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // RentableType name
@@ -101,6 +112,5 @@ func DelinquencyTextReport(xbiz *rlib.XBusiness, d2 *time.Time) error {
 	}
 	rlib.Errcheck(rows.Err())
 
-	fmt.Print(tbl)
-	return noerr
+	return tbl, noerr
 }

@@ -73,6 +73,8 @@ func initPageHandlers() {
 
 		{ReportName: "Trial Balance", FormPageName: "formtrialbal.html", URL: "/trialbalance/", Handler: RptTrialBalance},
 		{ReportName: "RentRoll", FormPageName: "rptrentroll.html", URL: "/rptrentroll/", Handler: RptRentRoll},
+		{ReportName: "Delinquency", FormPageName: "rptdelinq.html", URL: "/rptdelinq/", Handler: RptDelinq},
+		// {ReportName: "Journal", FormPageName: "journal.html", URL: "/rptjournal/", Handler: RptJournal},
 		{ReportName: "Home", FormPageName: "dispatch.html", URL: "/dispatch/", Handler: dispatchHandler},
 
 		// {ReportName: "Assessments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
