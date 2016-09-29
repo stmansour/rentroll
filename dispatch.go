@@ -12,15 +12,22 @@ import (
 	"text/template"
 )
 
+// InitBizInternals initializes several internal structures with information about the business.
+// xbiz.P.BID must be set to the BID of interest before calling this function
+func InitBizInternals(bid int64, xbiz *rlib.XBusiness) {
+	rlib.GetXBusiness(bid, xbiz) // get its info
+	rlib.InitBusinessFields(bid)
+	rlib.GetDefaultLedgers(bid) // Gather its chart of accounts
+	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
+	rlib.GetAllNoteTypes(bid)
+	rlib.LoadRentableTypeCustomaAttributes(xbiz)
+}
+
 // RunBooks runs a series of commands to handle command line run requests
 func RunBooks(ctx *DispatchCtx) {
 	var err error
-	rlib.GetXBusiness(ctx.xbiz.P.BID, &ctx.xbiz) // get its info
-	rlib.InitBusinessFields(ctx.xbiz.P.BID)
-	rlib.GetDefaultLedgers(ctx.xbiz.P.BID) // Gather its chart of accounts
-	rlib.RRdb.BizTypes[ctx.xbiz.P.BID].GLAccounts = rlib.GetGLAccountMap(ctx.xbiz.P.BID)
-	rlib.GetAllNoteTypes(ctx.xbiz.P.BID)
-	rlib.LoadRentableTypeCustomaAttributes(&ctx.xbiz)
+
+	InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
 	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
 	// fmt.Printf("RunBooks: Rcsv.Xbiz = %#v\n", rcsv.Rcsv.Xbiz)
 
@@ -47,7 +54,12 @@ func RunBooks(ctx *DispatchCtx) {
 	case 1: // JOURNAL
 		JournalReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 2: // LEDGER
-		LedgerReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		// LedgerReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		m := rrpt.LedgerReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		for i := 0; i < len(m); i++ {
+			fmt.Print(m[i])
+			fmt.Printf("\n\n")
+		}
 	case 3: // INTERNAL ACCT RULE TEST
 		intTest(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 4: // RENTROLL REPORT
@@ -57,13 +69,7 @@ func RunBooks(ctx *DispatchCtx) {
 		}
 	case 5: // ASSESSMENT CHECK REPORT
 		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-	case 6: // LEDGER BALANCE REPORT
-		// var ui RRuiSupport
-		// ui.B = ctx.xbiz.P
-		// ui.DtStart = ctx.DtStart
-		// ui.DtStop = ctx.DtStop
-		// BuildXLedgerList(&ui, ctx.xbiz.P.BID, ctx.DtStop)
-		// UILedgerTextReport(&ui)
+	case 6: // available
 	case 7: // RENTABLE COUNT BY TYPE
 		UIRentableCountByRentableTypeReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 8: // STATEMENT
@@ -78,7 +84,12 @@ func RunBooks(ctx *DispatchCtx) {
 		invoiceno := rcsv.CSVLoaderGetInvoiceNo(sa[1])
 		rrpt.InvoiceTextReport(invoiceno)
 	case 10: // LEDGER ACTIVITY
-		LedgerActivityReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		// LedgerActivityReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		m := rrpt.LedgerActivityReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		for i := 0; i < len(m); i++ {
+			fmt.Print(m[i])
+			fmt.Printf("\n\n")
+		}
 	case 11: // RENTABLE GSR
 		rrpt.GSRTextReport(&ctx.xbiz, &ctx.DtStart)
 	case 12: // LEDGERBALANCE ON DATE
@@ -159,30 +170,28 @@ func Dispatch(ctx *DispatchCtx) {
 }
 
 func dispatchHandler(w http.ResponseWriter, r *http.Request) {
-	var ui RRuiSupport
 	funcname := "dispatchHandler"
+	var ui RRuiSupport
+	var xbiz rlib.XBusiness
 	w.Header().Set("Content-Type", "text/html")
 
+	getBizStartStop(w, r, &ui, &xbiz)
+	ui.PgHnd = App.PageHandlers
 	action := r.FormValue("action")
-	// fmt.Printf("dispatchHandler: action = %s\n", action)
+	tmpl := "dispatch.html"
 	if len(action) > 0 && action != "Home" {
 		for i := 0; i < len(App.PageHandlers); i++ {
 			if action == App.PageHandlers[i].ReportName {
-				// fmt.Printf("dispatchHandler: found handler for action = %s at index %d\n", action, i)
-				App.PageHandlers[i].Handler(w, r)
-				return
+				App.PageHandlers[i].Handler(w, r, &xbiz, &ui, &tmpl)
+				break
 			}
 		}
 	}
 
-	// fmt.Printf("dispatchHandler: No handler for action = %s\n", action)
-	t, err := template.New("dispatch.html").Funcs(RRfuncMap).ParseFiles("./html/dispatch.html")
+	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/" + tmpl)
 	if nil != err {
 		fmt.Printf("%s: error loading template: %v\n", funcname, err)
 	}
-
-	UIInitUISupport(&ui) // general data initialized
-	UIInitBizList(&ui)   // biz list initialization
 	err = t.Execute(w, &ui)
 
 	if nil != err {

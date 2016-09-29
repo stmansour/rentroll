@@ -38,17 +38,16 @@ func DelinquencyReport(xbiz *rlib.XBusiness, d2 *time.Time) (rlib.Table, error) 
 
 	tbl.Init() //sets column spacing and date format to default
 	tbl.SetTitle(s)
-	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)            // column for the Rentable name
-	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)      // RentableType name
-	tbl.AddColumn("Rentable Agreement", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // RentableType name
-	tbl.AddColumn("Rentable Payors", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)    // Users of this rentable
-	tbl.AddColumn("Rentable Users", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)     // Users of this rentable
-	tbl.AddColumn("<30 Days", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)           // the Rental Agreement id
-	tbl.AddColumn("31 to 60 Days", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)      // the possession start date
-	tbl.AddColumn("61 to 90 Days", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)      // the possession start date
-	tbl.AddColumn("90+ Days", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)           // the rental start date
-	tbl.AddColumn("Total Receivable", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYLEFT)    // the rental start date
-	tbl.AddColumn("Collection Notes", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)   // the possession start date
+	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                           // column for the Rentable name
+	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                     // RentableType name
+	tbl.AddColumn("Rentable Agreement", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                // RentableType name
+	tbl.AddColumn("Rentable Payors", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // Users of this rentable
+	tbl.AddColumn("Rentable Users", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // Users of this rentable
+	tbl.AddColumn("As of "+d2.Format(rlib.RRDATEFMT3), 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT) // the Rental Agreement id
+	tbl.AddColumn("30 Days Prior", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                     // the possession start date
+	tbl.AddColumn("60 Days Prior", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                     // the possession start date
+	tbl.AddColumn("90 Days Prior", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                     // the rental start date
+	tbl.AddColumn("Collection Notes", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                  // the possession start date
 
 	const (
 		RID     = 0
@@ -56,11 +55,10 @@ func DelinquencyReport(xbiz *rlib.XBusiness, d2 *time.Time) (rlib.Table, error) 
 		RAgr    = iota
 		RPayors = iota
 		RUsers  = iota
+		D0      = iota
 		D30     = iota
-		D3160   = iota
-		D6190   = iota
+		D60     = iota
 		D90     = iota
-		TotRcv  = iota
 		CNotes  = iota
 	)
 
@@ -103,11 +101,10 @@ func DelinquencyReport(xbiz *rlib.XBusiness, d2 *time.Time) (rlib.Table, error) 
 			tbl.Puts(-1, RAgr, ra.IDtoString())
 			tbl.Puts(-1, RPayors, payornames)
 			tbl.Puts(-1, RUsers, usernames)
-			tbl.Putf(-1, D30, d2Bal-d30Bal)
-			tbl.Putf(-1, D3160, d30Bal-d60Bal)
-			tbl.Putf(-1, D6190, d60Bal-d90Bal)
+			tbl.Putf(-1, D0, d2Bal)
+			tbl.Putf(-1, D30, d30Bal)
+			tbl.Putf(-1, D60, d60Bal)
 			tbl.Putf(-1, D90, d90Bal)
-			tbl.Putf(-1, TotRcv, d2Bal)
 		}
 	}
 	rlib.Errcheck(rows.Err())

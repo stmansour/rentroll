@@ -10,7 +10,7 @@ import (
 
 func initRentRoll() {
 	initJFmt()
-	initTFmt()
+	// initTFmt()
 	rlib.RpnInit()
 
 	RRfuncMap = template.FuncMap{
@@ -71,11 +71,14 @@ func initPageHandlers() {
 	var m = []RRPageHandler{
 		// ReportName FormPageName URL
 
-		{ReportName: "Trial Balance", FormPageName: "formtrialbal.html", URL: "/trialbalance/", Handler: RptTrialBalance},
-		{ReportName: "RentRoll", FormPageName: "rptrentroll.html", URL: "/rptrentroll/", Handler: RptRentRoll},
-		{ReportName: "Delinquency", FormPageName: "rptdelinq.html", URL: "/rptdelinq/", Handler: RptDelinq},
-		// {ReportName: "Journal", FormPageName: "journal.html", URL: "/rptjournal/", Handler: RptJournal},
-		{ReportName: "Home", FormPageName: "dispatch.html", URL: "/dispatch/", Handler: dispatchHandler},
+		{ReportName: "Delinquency", FormPageName: "rptdelinq.html", Handler: RptDelinq},
+		{ReportName: "GSR", FormPageName: "rptgsr.html", Handler: RptGSR},
+		{ReportName: "Ledger", FormPageName: "rptledger.html", Handler: RptLedger},
+		{ReportName: "Ledger Activity", FormPageName: "rptledger.html", Handler: RptLedgerActivity},
+		{ReportName: "RentRoll", FormPageName: "rptrentroll.html", Handler: RptRentRoll},
+		{ReportName: "Trial Balance", FormPageName: "formtrialbal.html", Handler: RptTrialBalance},
+		// {ReportName: "Journal", FormPageName: "journal.html", Handler: RptJournal},
+		{ReportName: "Home", FormPageName: "dispatch.html", Handler: nil},
 
 		// {ReportName: "Assessments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Business", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
@@ -85,11 +88,9 @@ func initPageHandlers() {
 		// {ReportName: "Deposits", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Deposit Methods", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Depositories ", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "GSR", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Invoice", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Invoice Report", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Journal", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Ledger", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Ledger Activity", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Market Rate for Rentable", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Note Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},

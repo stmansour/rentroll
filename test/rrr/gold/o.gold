@@ -1,300 +1,300 @@
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   10000 - Cash                                           
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-                            Payment #6430 - Income Offsets  07/04/16         72           5         6303-231       4200.00       4200.00
-                            Payment #2111 - Income Offsets  07/02/16         68           3         6303-231       2500.00       6700.00
-         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         71           4         6303-231        750.00       7450.00
-         Payment #3999 - Unit Gross Scheduled Rent-Taxable  07/16/16         70           2         6303-231        400.00       7850.00
-         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         69           1         6303-231        308.35       8158.35
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                             8158.35
+LEDGER
+Business: JGM First, LLC
+Account:  10000 - Cash
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Payment #6430 - Income Offsets                           07/04/2016  J00000072          5   6303-231             4,200.00      4,200.00
+Payment #2111 - Income Offsets                           07/02/2016  J00000068          3   6303-231             2,500.00      6,700.00
+Payment #1039 - Unit Gross Scheduled Rent-Taxable        07/03/2016  J00000071          4   6303-231               750.00      7,450.00
+Payment #3999 - Unit Gross Scheduled Rent-Taxable        07/16/2016  J00000070          2   6303-231               400.00      7,850.00
+Payment #2283 - Unit Gross Scheduled Rent-Taxable        07/15/2016  J00000069          1   6303-231               308.35      8,158.35
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                            8,158.35
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   12000 - Accounts Receivable                            
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                             2500.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         66           6         6323-302       2750.00       5250.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         31           4         6323-301        730.00       5980.00
-                                  Assessment - Gas Overage  07/05/16         65           2         6303-231        230.00       6210.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         42           5         6392-930        125.00       6335.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         43           5         6392-930        125.00       6460.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         46           5         6392-930        125.00       6585.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         44           5         6392-930        125.00       6710.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         45           5         6392-930        125.00       6835.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         47           5         6392-930        125.00       6960.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         48           5         6392-930        125.00       7085.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         40           5         6392-930        125.00       7210.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         32           5         6392-930        125.00       7335.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         33           5         6392-930        125.00       7460.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         34           5         6392-930        125.00       7585.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         35           5         6392-930        125.00       7710.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         36           5         6392-930        125.00       7835.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         41           5         6392-930        125.00       7960.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         38           5         6392-930        125.00       8085.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         39           5         6392-930        125.00       8210.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         49           5         6392-930        125.00       8335.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         50           5         6392-930        125.00       8460.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         51           5         6392-930        125.00       8585.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         62           5         6392-930        125.00       8710.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         61           5         6392-930        125.00       8835.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         37           5         6392-930        125.00       8960.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         60           5         6392-930        125.00       9085.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         59           5         6392-930        125.00       9210.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         58           5         6392-930        125.00       9335.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         57           5         6392-930        125.00       9460.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         56           5         6392-930        125.00       9585.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         55           5         6392-930        125.00       9710.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         54           5         6392-930        125.00       9835.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         52           5         6392-930        125.00       9960.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         53           5         6392-930        125.00      10085.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16          8           2         6303-231         92.00      10177.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16          9           2         6303-231         92.00      10269.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          3           1         6303-231         76.00      10345.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          2           1         6303-231         76.00      10421.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          1           1         6303-231         76.00      10497.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         28           3         6303-231         56.87      10553.87
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         10           3         6303-231         56.87      10610.74
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         18           3         6303-231         56.87      10667.61
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         17           3         6303-231         56.87      10724.48
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         16           3         6303-231         56.87      10781.35
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         15           3         6303-231         56.87      10838.22
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         14           3         6303-231         56.87      10895.09
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         13           3         6303-231         56.87      10951.96
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         12           3         6303-231         56.87      11008.83
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         11           3         6303-231         56.87      11065.70
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         19           3         6303-231         56.87      11122.57
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         20           3         6303-231         56.87      11179.44
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         21           3         6303-231         56.87      11236.31
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         30           3         6303-231         56.87      11293.18
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         29           3         6303-231         56.87      11350.05
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         27           3         6303-231         56.87      11406.92
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         26           3         6303-231         56.87      11463.79
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         25           3         6303-231         56.87      11520.66
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         24           3         6303-231         56.87      11577.53
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         23           3         6303-231         56.87      11634.40
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         22           3         6303-231         56.87      11691.27
-                                  Assessment - Gas Overage  07/01/16          7           1         6303-231         12.35      11703.62
-                               Assessment - Income Offsets  07/05/16         63           2         6303-231        -11.00      11692.62
-                               Assessment - Income Offsets  07/06/16         64           2         6303-231        -11.00      11681.62
-                               Assessment - Income Offsets  07/01/16          4           1         6303-231        -24.00      11657.62
-                               Assessment - Income Offsets  07/02/16          5           1         6303-231        -24.00      11633.62
-                               Assessment - Income Offsets  07/03/16          6           1         6303-231        -24.00      11609.62
-                         Assessment - Resident Concessions  07/01/16         67           6         6323-302       -250.00      11359.62
-         Payment #2283 - Unit Gross Scheduled Rent-Taxable  07/15/16         69           1         6303-231       -308.35      11051.27
-         Payment #3999 - Unit Gross Scheduled Rent-Taxable  07/16/16         70           2         6303-231       -400.00      10651.27
-         Payment #1039 - Unit Gross Scheduled Rent-Taxable  07/03/16         71           4         6303-231       -750.00       9901.27
-                            Payment #2111 - Income Offsets  07/02/16         68           3         6303-231      -2500.00       7401.27
-                            Payment #6430 - Income Offsets  07/04/16         72           5         6303-231      -4200.00       3201.27
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                             3201.27
+LEDGER
+Business: JGM First, LLC
+Account:  12000 - Accounts Receivable
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                2,500.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000066          6   6323-302             2,750.00      5,250.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000031          4   6323-301               730.00      5,980.00
+Assessment - Gas Overage                                 07/05/2016  J00000065          2   6303-231               230.00      6,210.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000042          5   6392-930               125.00      6,335.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000043          5   6392-930               125.00      6,460.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000046          5   6392-930               125.00      6,585.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000044          5   6392-930               125.00      6,710.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000045          5   6392-930               125.00      6,835.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000047          5   6392-930               125.00      6,960.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000048          5   6392-930               125.00      7,085.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/09/2016  J00000040          5   6392-930               125.00      7,210.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000032          5   6392-930               125.00      7,335.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000033          5   6392-930               125.00      7,460.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000034          5   6392-930               125.00      7,585.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/04/2016  J00000035          5   6392-930               125.00      7,710.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000036          5   6392-930               125.00      7,835.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000041          5   6392-930               125.00      7,960.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/07/2016  J00000038          5   6392-930               125.00      8,085.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/08/2016  J00000039          5   6392-930               125.00      8,210.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000049          5   6392-930               125.00      8,335.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000050          5   6392-930               125.00      8,460.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000051          5   6392-930               125.00      8,585.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/31/2016  J00000062          5   6392-930               125.00      8,710.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000061          5   6392-930               125.00      8,835.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000037          5   6392-930               125.00      8,960.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000060          5   6392-930               125.00      9,085.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000059          5   6392-930               125.00      9,210.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000058          5   6392-930               125.00      9,335.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000057          5   6392-930               125.00      9,460.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000056          5   6392-930               125.00      9,585.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000055          5   6392-930               125.00      9,710.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000054          5   6392-930               125.00      9,835.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000052          5   6392-930               125.00      9,960.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000053          5   6392-930               125.00     10,085.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000008          2   6303-231                92.00     10,177.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000009          2   6303-231                92.00     10,269.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000003          1   6303-231                76.00     10,345.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000002          1   6303-231                76.00     10,421.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000001          1   6303-231                76.00     10,497.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000028          3   6303-231                56.87     10,553.87
+Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000010          3   6303-231                56.87     10,610.74
+Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000018          3   6303-231                56.87     10,667.61
+Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000017          3   6303-231                56.87     10,724.48
+Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000016          3   6303-231                56.87     10,781.35
+Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000015          3   6303-231                56.87     10,838.22
+Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000014          3   6303-231                56.87     10,895.09
+Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000013          3   6303-231                56.87     10,951.96
+Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000012          3   6303-231                56.87     11,008.83
+Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000011          3   6303-231                56.87     11,065.70
+Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000019          3   6303-231                56.87     11,122.57
+Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000020          3   6303-231                56.87     11,179.44
+Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000021          3   6303-231                56.87     11,236.31
+Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000030          3   6303-231                56.87     11,293.18
+Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000029          3   6303-231                56.87     11,350.05
+Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000027          3   6303-231                56.87     11,406.92
+Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000026          3   6303-231                56.87     11,463.79
+Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000025          3   6303-231                56.87     11,520.66
+Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000024          3   6303-231                56.87     11,577.53
+Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000023          3   6303-231                56.87     11,634.40
+Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000022          3   6303-231                56.87     11,691.27
+Assessment - Gas Overage                                 07/01/2016  J00000007          1   6303-231                12.35     11,703.62
+Assessment - Income Offsets                              07/05/2016  J00000063          2   6303-231               -11.00     11,692.62
+Assessment - Income Offsets                              07/06/2016  J00000064          2   6303-231               -11.00     11,681.62
+Assessment - Income Offsets                              07/01/2016  J00000004          1   6303-231               -24.00     11,657.62
+Assessment - Income Offsets                              07/02/2016  J00000005          1   6303-231               -24.00     11,633.62
+Assessment - Income Offsets                              07/03/2016  J00000006          1   6303-231               -24.00     11,609.62
+Assessment - Resident Concessions                        07/01/2016  J00000067          6   6323-302              -250.00     11,359.62
+Payment #2283 - Unit Gross Scheduled Rent-Taxable        07/15/2016  J00000069          1   6303-231              -308.35     11,051.27
+Payment #3999 - Unit Gross Scheduled Rent-Taxable        07/16/2016  J00000070          2   6303-231              -400.00     10,651.27
+Payment #1039 - Unit Gross Scheduled Rent-Taxable        07/03/2016  J00000071          4   6303-231              -750.00      9,901.27
+Payment #2111 - Income Offsets                           07/02/2016  J00000068          3   6303-231            -2,500.00      7,401.27
+Payment #6430 - Income Offsets                           07/04/2016  J00000072          5   6303-231            -4,200.00      3,201.27
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                            3,201.27
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   30000 - Security Deposits                              
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                            -2500.00
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                            -2500.00
+LEDGER
+Business: JGM First, LLC
+Account:  30000 - Security Deposits
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               -2,500.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                           -2,500.00
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   39000 - Owners' Equity                                 
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                                0.00
+LEDGER
+Business: JGM First, LLC
+Account:  39000 - Owners' Equity
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                                0.00
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41000 - Unit Gross Scheduled Rent-Taxable              
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                            -2356.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         30           3         6303-231        -56.87      -2412.87
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         19           3         6303-231        -56.87      -2469.74
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         20           3         6303-231        -56.87      -2526.61
-                                              Unassociated  07/31/16         77           0         6303-231        -56.87      -2583.48
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         22           3         6303-231        -56.87      -2640.35
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         23           3         6303-231        -56.87      -2697.22
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         24           3         6303-231        -56.87      -2754.09
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         25           3         6303-231        -56.87      -2810.96
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         26           3         6303-231        -56.87      -2867.83
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         27           3         6303-231        -56.87      -2924.70
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         28           3         6303-231        -56.87      -2981.57
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         29           3         6303-231        -56.87      -3038.44
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         18           3         6303-231        -56.87      -3095.31
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         17           3         6303-231        -56.87      -3152.18
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         10           3         6303-231        -56.87      -3209.05
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         11           3         6303-231        -56.87      -3265.92
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         12           3         6303-231        -56.87      -3322.79
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         13           3         6303-231        -56.87      -3379.66
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         14           3         6303-231        -56.87      -3436.53
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         15           3         6303-231        -56.87      -3493.40
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         16           3         6303-231        -56.87      -3550.27
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         21           3         6303-231        -56.87      -3607.14
-                                              Unassociated  07/04/16         75           0         6303-231        -76.00      -3683.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16          1           1         6303-231        -76.00      -3759.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16          2           1         6303-231        -76.00      -3835.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16          3           1         6303-231        -76.00      -3911.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16          8           2         6303-231        -92.00      -4003.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16          9           2         6303-231        -92.00      -4095.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/23/16         54           5         6392-930       -125.00      -4220.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/22/16         53           5         6392-930       -125.00      -4345.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/21/16         52           5         6392-930       -125.00      -4470.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/20/16         51           5         6392-930       -125.00      -4595.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/19/16         50           5         6392-930       -125.00      -4720.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/18/16         49           5         6392-930       -125.00      -4845.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/24/16         55           5         6392-930       -125.00      -4970.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/25/16         56           5         6392-930       -125.00      -5095.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/26/16         57           5         6392-930       -125.00      -5220.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/27/16         58           5         6392-930       -125.00      -5345.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/28/16         59           5         6392-930       -125.00      -5470.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/29/16         60           5         6392-930       -125.00      -5595.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/30/16         61           5         6392-930       -125.00      -5720.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/31/16         62           5         6392-930       -125.00      -5845.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/17/16         48           5         6392-930       -125.00      -5970.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/16/16         47           5         6392-930       -125.00      -6095.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         32           5         6392-930       -125.00      -6220.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/02/16         33           5         6392-930       -125.00      -6345.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/03/16         34           5         6392-930       -125.00      -6470.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/04/16         35           5         6392-930       -125.00      -6595.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/05/16         36           5         6392-930       -125.00      -6720.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/06/16         37           5         6392-930       -125.00      -6845.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/07/16         38           5         6392-930       -125.00      -6970.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/08/16         39           5         6392-930       -125.00      -7095.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/09/16         40           5         6392-930       -125.00      -7220.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/10/16         41           5         6392-930       -125.00      -7345.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/11/16         42           5         6392-930       -125.00      -7470.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/12/16         43           5         6392-930       -125.00      -7595.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/13/16         44           5         6392-930       -125.00      -7720.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/14/16         45           5         6392-930       -125.00      -7845.14
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/15/16         46           5         6392-930       -125.00      -7970.14
-                                              Unassociated  07/05/16         78           0         6323-303       -258.06      -8228.20
-                                              Unassociated  07/09/16         76           0         6303-231       -276.00      -8504.20
-                                              Unassociated  07/11/16         79           0         6323-303       -309.68      -8813.88
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         31           4         6323-301       -755.00      -9568.88
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         66           6         6323-302      -3319.35     -12888.23
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                           -12888.23
+LEDGER
+Business: JGM First, LLC
+Account:  41000 - Unit Gross Scheduled Rent-Taxable
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               -2,356.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000030          3   6303-231               -56.87     -2,412.87
+Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000019          3   6303-231               -56.87     -2,469.74
+Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000020          3   6303-231               -56.87     -2,526.61
+Unassociated                                             07/31/2016  J00000077          0   6303-231               -56.87     -2,583.48
+Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000022          3   6303-231               -56.87     -2,640.35
+Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000023          3   6303-231               -56.87     -2,697.22
+Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000024          3   6303-231               -56.87     -2,754.09
+Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000025          3   6303-231               -56.87     -2,810.96
+Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000026          3   6303-231               -56.87     -2,867.83
+Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000027          3   6303-231               -56.87     -2,924.70
+Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000028          3   6303-231               -56.87     -2,981.57
+Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000029          3   6303-231               -56.87     -3,038.44
+Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000018          3   6303-231               -56.87     -3,095.31
+Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000017          3   6303-231               -56.87     -3,152.18
+Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000010          3   6303-231               -56.87     -3,209.05
+Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000011          3   6303-231               -56.87     -3,265.92
+Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000012          3   6303-231               -56.87     -3,322.79
+Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000013          3   6303-231               -56.87     -3,379.66
+Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000014          3   6303-231               -56.87     -3,436.53
+Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000015          3   6303-231               -56.87     -3,493.40
+Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000016          3   6303-231               -56.87     -3,550.27
+Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000021          3   6303-231               -56.87     -3,607.14
+Unassociated                                             07/04/2016  J00000075          0   6303-231               -76.00     -3,683.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000001          1   6303-231               -76.00     -3,759.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000002          1   6303-231               -76.00     -3,835.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000003          1   6303-231               -76.00     -3,911.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000008          2   6303-231               -92.00     -4,003.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000009          2   6303-231               -92.00     -4,095.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/23/2016  J00000054          5   6392-930              -125.00     -4,220.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/22/2016  J00000053          5   6392-930              -125.00     -4,345.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/21/2016  J00000052          5   6392-930              -125.00     -4,470.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/20/2016  J00000051          5   6392-930              -125.00     -4,595.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/19/2016  J00000050          5   6392-930              -125.00     -4,720.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/18/2016  J00000049          5   6392-930              -125.00     -4,845.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/24/2016  J00000055          5   6392-930              -125.00     -4,970.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/25/2016  J00000056          5   6392-930              -125.00     -5,095.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/26/2016  J00000057          5   6392-930              -125.00     -5,220.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000058          5   6392-930              -125.00     -5,345.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000059          5   6392-930              -125.00     -5,470.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000060          5   6392-930              -125.00     -5,595.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000061          5   6392-930              -125.00     -5,720.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/31/2016  J00000062          5   6392-930              -125.00     -5,845.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/17/2016  J00000048          5   6392-930              -125.00     -5,970.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/16/2016  J00000047          5   6392-930              -125.00     -6,095.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000032          5   6392-930              -125.00     -6,220.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000033          5   6392-930              -125.00     -6,345.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000034          5   6392-930              -125.00     -6,470.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/04/2016  J00000035          5   6392-930              -125.00     -6,595.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000036          5   6392-930              -125.00     -6,720.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000037          5   6392-930              -125.00     -6,845.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/07/2016  J00000038          5   6392-930              -125.00     -6,970.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/08/2016  J00000039          5   6392-930              -125.00     -7,095.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/09/2016  J00000040          5   6392-930              -125.00     -7,220.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/10/2016  J00000041          5   6392-930              -125.00     -7,345.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/11/2016  J00000042          5   6392-930              -125.00     -7,470.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/12/2016  J00000043          5   6392-930              -125.00     -7,595.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/13/2016  J00000044          5   6392-930              -125.00     -7,720.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/14/2016  J00000045          5   6392-930              -125.00     -7,845.14
+Assessment - Unit Gross Scheduled Rent-Taxable           07/15/2016  J00000046          5   6392-930              -125.00     -7,970.14
+Unassociated                                             07/05/2016  J00000078          0   6323-303              -258.06     -8,228.20
+Unassociated                                             07/09/2016  J00000076          0   6303-231              -276.00     -8,504.20
+Unassociated                                             07/11/2016  J00000079          0   6323-303              -309.68     -8,813.88
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000031          4   6323-301              -755.00     -9,568.88
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000066          6   6323-302            -3,319.35    -12,888.23
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                          -12,888.23
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41100 - Income Offsets                                 
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                                0.00
+LEDGER
+Business: JGM First, LLC
+Account:  41100 - Income Offsets
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                                0.00
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41101 - Vacancy                                        
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                             2356.00
-                                              Unassociated  07/11/16         79           0         6323-303        309.68       2665.68
-                                              Unassociated  07/09/16         76           0         6303-231        276.00       2941.68
-                                              Unassociated  07/05/16         78           0         6323-303        258.06       3199.74
-                                              Unassociated  07/04/16         75           0         6303-231         76.00       3275.74
-                                              Unassociated  07/31/16         77           0         6303-231         56.87       3332.61
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                             3332.61
+LEDGER
+Business: JGM First, LLC
+Account:  41101 - Vacancy
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                2,356.00
+Unassociated                                             07/11/2016  J00000079          0   6323-303               309.68      2,665.68
+Unassociated                                             07/09/2016  J00000076          0   6303-231               276.00      2,941.68
+Unassociated                                             07/05/2016  J00000078          0   6323-303               258.06      3,199.74
+Unassociated                                             07/04/2016  J00000075          0   6303-231                76.00      3,275.74
+Unassociated                                             07/31/2016  J00000077          0   6303-231                56.87      3,332.61
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                            3,332.61
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41102 - Loss (Gain) to Lease                           
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         66           6         6323-302        569.35        569.35
-            Assessment - Unit Gross Scheduled Rent-Taxable  07/01/16         31           4         6323-301         25.00        594.35
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                              594.35
+LEDGER
+Business: JGM First, LLC
+Account:  41102 - Loss (Gain) to Lease
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000066          6   6323-302               569.35        569.35
+Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000031          4   6323-301                25.00        594.35
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                              594.35
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41104 - Resident Concessions                           
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-                         Assessment - Resident Concessions  07/01/16         67           6         6323-302        250.00        250.00
-                               Assessment - Income Offsets  07/01/16          4           1         6303-231         24.00        274.00
-                               Assessment - Income Offsets  07/02/16          5           1         6303-231         24.00        298.00
-                               Assessment - Income Offsets  07/03/16          6           1         6303-231         24.00        322.00
-                               Assessment - Income Offsets  07/05/16         63           2         6303-231         11.00        333.00
-                               Assessment - Income Offsets  07/06/16         64           2         6303-231         11.00        344.00
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                              344.00
+LEDGER
+Business: JGM First, LLC
+Account:  41104 - Resident Concessions
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Resident Concessions                        07/01/2016  J00000067          6   6323-302               250.00        250.00
+Assessment - Income Offsets                              07/01/2016  J00000004          1   6303-231                24.00        274.00
+Assessment - Income Offsets                              07/02/2016  J00000005          1   6303-231                24.00        298.00
+Assessment - Income Offsets                              07/03/2016  J00000006          1   6303-231                24.00        322.00
+Assessment - Income Offsets                              07/05/2016  J00000063          2   6303-231                11.00        333.00
+Assessment - Income Offsets                              07/06/2016  J00000064          2   6303-231                11.00        344.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                              344.00
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41300 - Other Income                                   
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                                0.00
+LEDGER
+Business: JGM First, LLC
+Account:  41300 - Other Income
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                                0.00
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41306 - Gas Overage                                    
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-                                  Assessment - Gas Overage  07/01/16          7           1         6303-231        -12.35        -12.35
-                                  Assessment - Gas Overage  07/05/16         65           2         6303-231       -230.00       -242.35
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                             -242.35
+LEDGER
+Business: JGM First, LLC
+Account:  41306 - Gas Overage
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Gas Overage                                 07/01/2016  J00000007          1   6303-231               -12.35        -12.35
+Assessment - Gas Overage                                 07/05/2016  J00000065          2   6303-231              -230.00       -242.35
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                             -242.35
 
 
-   =====================================================================================================================================
-   Business:  JGM First, LLC
-   41413 - Forfeited Security Deposit                     
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Opening Balance                                          07/01/16                                                                0.00
-   -------------------------------------------------------------------------------------------------------------------------------------
-   Closing Balance                                          07/31/16                                                                0.00
+LEDGER
+Business: JGM First, LLC
+Account:  41413 - Forfeited Security Deposit
+Period:   07/01/16 - 07/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          07/31/2016                                                                0.00
 
 

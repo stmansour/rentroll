@@ -133,10 +133,6 @@ func initHTTP() {
 	Chttp.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/dispatch/", dispatchHandler)
-	// http.HandleFunc("/srvformTrialBal/", srvformTrialBalance)
-	http.HandleFunc("/trialbalance/", RptTrialBalance)
-	http.HandleFunc("/rptrentroll/", RptRentRoll)
-	// http.HandleFunc("/rptjournal/", RptJournal)
 }
 
 func main() {

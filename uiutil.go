@@ -61,12 +61,9 @@ type RRuiSupport struct {
 
 // RRPageHandler is a structure of page names and handlers
 type RRPageHandler struct {
-	ReportName   string                                   // report name
-	FormPageName string                                   // name of form to collect information for this report
-	URL          string                                   // url for this handler
-	Handler      func(http.ResponseWriter, *http.Request) // the actual handler function
-	// ReportPageName string
-	// ReportHandler  string
+	ReportName   string                                                                           // report name
+	FormPageName string                                                                           // name of form to collect information for this report
+	Handler      func(http.ResponseWriter, *http.Request, *rlib.XBusiness, *RRuiSupport, *string) // the actual handler function
 }
 
 //========================================================================================================

@@ -70,6 +70,7 @@ type Table struct {
 	maxHdrRows   int         // maximum number of header rows across all ColDefs
 	DateFmt      string      // format for printing dates
 	LineAfter    []int       // array of row numbers that have a horizontal line after they are printed
+	LineBefore   []int       // array of row numbers that have a horizontal line before they are printed
 	RS           []Rowset    // a list of rowsets
 }
 
@@ -108,6 +109,12 @@ func (t *Table) Init() {
 func (t *Table) AddLineAfter(row int) {
 	t.LineAfter = append(t.LineAfter, row)
 	sort.Ints(t.LineAfter)
+}
+
+// AddLineBefore keeps track of the row numbers before which a line will be printed
+func (t *Table) AddLineBefore(row int) {
+	t.LineBefore = append(t.LineBefore, row)
+	sort.Ints(t.LineBefore)
 }
 
 // CreateRowset creates a new rowset. You can add row indeces to it.  You can process the rows at those indeces later.
@@ -414,8 +421,13 @@ func (t *Table) SprintRowText(row int) string {
 	if row < 0 {
 		return ""
 	}
-	lalen := len(t.LineAfter)
 	s := ""
+	if len(t.LineBefore) > 0 {
+		j := sort.SearchInts(t.LineBefore, row)
+		if j < len(t.LineBefore) && row == t.LineBefore[j] {
+			s += t.SprintLineText()
+		}
+	}
 	for i := 0; i < len(t.Row[row].Col); i++ {
 		switch t.Row[row].Col[i].Type {
 		case CELLFLOAT:
@@ -434,10 +446,9 @@ func (t *Table) SprintRowText(row int) string {
 		}
 	}
 	s += "\n"
-	if lalen > 0 {
-		l := len(t.LineAfter)
+	if len(t.LineAfter) > 0 {
 		j := sort.SearchInts(t.LineAfter, row)
-		if j < l && row == t.LineAfter[j] {
+		if j < len(t.LineAfter) && row == t.LineAfter[j] {
 			s += t.SprintLineText()
 		}
 	}
