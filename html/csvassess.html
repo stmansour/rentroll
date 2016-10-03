@@ -1,0 +1,26 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link href="/html/rentroll.css" rel="stylesheet"  type="text/css">
+<title>Accord RentRoll - Import Assessments</title>
+</head>
+<body>
+<H1>Import Assessments via CSV File</H1>
+
+<form action="/dispatch/" method="POST" enctype="multipart/form-data">
+<input type="hidden" name="sourcepage" value="assessment">
+<input type="hidden" name="DtStart" value="{{.DtStart}}">
+<input type="hidden" name="DtStop" value="{{.DtStop}}">
+<input type="hidden" name="BID" value="{{.B.BID}}">
+<p>Assessment file name: <input type="file" id="asmtfile" name="filename"></p>
+<p></p>
+<p><input type="submit" name="action" value="Import"></p>
+<p><input type="submit" name="action" value="Cancel"></p>
+</form>
+
+<div class="preformatted">
+{{.ReportContent}}
+</div>
+
+</body>
+</html>

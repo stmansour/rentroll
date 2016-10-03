@@ -89,6 +89,11 @@ func (a *Invoice) IDtoString() string {
 }
 
 // IDtoString is the method to produce a consistent printable id string
+func (a *Journal) IDtoString() string {
+	return IDtoString("J", a.JID)
+}
+
+// IDtoString is the method to produce a consistent printable id string
 func (a *LedgerMarker) IDtoString() string {
 	return IDtoString("LM", a.LMID)
 }
@@ -165,6 +170,18 @@ func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
 	}
 	sort.Strings(m)
 	return m
+}
+
+// GetPayorLastNames returns an array of strings that contains the last names
+// of every Payor responsible for this Rental Agreement during the timespan d1,d2.
+func (t *RentalAgreement) GetPayorLastNames(d1, d2 *time.Time) []string {
+	var sa []string
+	for i := 0; i < len(t.P); i++ {
+		if d1.Before(t.AgreementStop) && d2.After(t.AgreementStart) {
+			sa = append(sa, t.P[i].Trn.LastName)
+		}
+	}
+	return sa
 }
 
 // GetPayorNameList returns an array of strings with all the Payor names associated with the Rental Agreement

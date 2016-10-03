@@ -7,7 +7,6 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
-	"strconv"
 	"strings"
 	"text/template"
 )
@@ -32,27 +31,30 @@ func RunBooks(ctx *DispatchCtx) {
 	// fmt.Printf("RunBooks: Rcsv.Xbiz = %#v\n", rcsv.Rcsv.Xbiz)
 
 	// first handle requests for a CSV Load...
-	if len(ctx.CSVLoadStr) > 0 {
-		// fmt.Printf("CSVLoadStr = %s\n", ctx.CSVLoadStr)
-		ss := strings.Split(ctx.CSVLoadStr, ",") // index,fname
-		if len(ss) < 2 {
-			fmt.Printf("Invalid CSVLoader Request:  %s.  Need index,filename\n", ctx.CSVLoadStr)
-			os.Exit(1)
-		}
-		i, err := strconv.Atoi(ss[0])
-		if err != nil {
-			fmt.Printf("Invalid CSVLoaderIndex: %s.  err: %s\n", ss[0], err.Error())
-			os.Exit(1)
-		}
-		// fmt.Printf("calling LoadCSV( %d , %s )\n", i, ss[1])
-		rcsv.LoadCSV(i, ss[1])
-		return
-	}
+	// if len(ctx.CSVLoadStr) > 0 {
+	// 	// fmt.Printf("CSVLoadStr = %s\n", ctx.CSVLoadStr)
+	// 	ss := strings.Split(ctx.CSVLoadStr, ",") // index,fname
+	// 	if len(ss) < 2 {
+	// 		fmt.Printf("Invalid CSVLoader Request:  %s.  Need index,filename\n", ctx.CSVLoadStr)
+	// 		os.Exit(1)
+	// 	}
+	// 	i, err := strconv.Atoi(ss[0])
+	// 	if err != nil {
+	// 		fmt.Printf("Invalid CSVLoaderIndex: %s.  err: %s\n", ss[0], err.Error())
+	// 		os.Exit(1)
+	// 	}
+	// 	// fmt.Printf("calling LoadCSV( %d , %s )\n", i, ss[1])
+	// 	rcsv.LoadCSV(i, ss[1])
+	// 	return
+	// }
 
 	// and generate the requested report...
 	switch ctx.Report {
 	case 1: // JOURNAL
-		JournalReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		// JournalReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		tbl := rrpt.JournalReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		fmt.Print(tbl)
+
 	case 2: // LEDGER
 		// LedgerReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 		m := rrpt.LedgerReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
@@ -171,23 +173,28 @@ func Dispatch(ctx *DispatchCtx) {
 
 func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "dispatchHandler"
+	tmpl := "dispatch.html"
 	var ui RRuiSupport
 	var xbiz rlib.XBusiness
-	w.Header().Set("Content-Type", "text/html")
 
 	getBizStartStop(w, r, &ui, &xbiz)
 	ui.PgHnd = App.PageHandlers
 	action := r.FormValue("action")
-	tmpl := "dispatch.html"
-	if len(action) > 0 && action != "Home" {
+
+	// fmt.Printf("action = %s\n", action)
+
+	if action == "Assessments" {
+		CmdCsvAssess(w, r, &xbiz, &ui, &tmpl)
+	} else if len(action) > 0 && action != "Home" {
+		w.Header().Set("Content-Type", "text/html")
 		for i := 0; i < len(App.PageHandlers); i++ {
 			if action == App.PageHandlers[i].ReportName {
+				// fmt.Printf("dispatchHandler:  calling handler for %s\n", App.PageHandlers[i].ReportName)
 				App.PageHandlers[i].Handler(w, r, &xbiz, &ui, &tmpl)
 				break
 			}
 		}
 	}
-
 	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/" + tmpl)
 	if nil != err {
 		fmt.Printf("%s: error loading template: %v\n", funcname, err)

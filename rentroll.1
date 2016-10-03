@@ -58,12 +58,12 @@ unless otherwise noted.
 
 .nf
 reportSpec          Description
-------------------- -------------------------------------------
+------------------- -----------------------------------------------------
 -r  1               Journal report
 -r  2               Ledger report
 -r  4               Rentroll report
 -r  5               Assessment check report 
--r  6               Ledger balance report
+-r  6               \fIunassigned\fR
 -r  7               Rentable count by RentableType
 -r  8               Statement
 -r  9,InvoiceNo     Example -r 9,IN00001  or   -r 9,1
@@ -80,6 +80,20 @@ reportSpec          Description
                     for ledger 4 involving Rental Agreement 3.
 -r 14,date          Delinquency Report for the supplied date.
                     Example: -r 14,2016-05-25
+-r 15               Process vacancy and generate vacancy journal entries.
+-r 16               Generate Ledger Markers for the current Stop date.
+-r 17               Ledger Balance Report - shows the value of all 
+	                ledgers on the current Stop date.
+-r 18               Generate Journal records for the current period
+-r 19               Generate Ledger records for the current period. Note
+                    that the Journal records must be generated first as
+                    the Ledger records are based on Journal entries.
+-r 20,RID			List the MarketRates for rentables over the supplied
+                    rentable over the current period.
+                    Example:  -r 20,R000027
+                              -r 20,27
+                    Both examples list the Market Rates for the rentable
+                    with RID = 27.
 .fi
 
 .IP "-v"
@@ -98,4 +112,4 @@ Please report bugs to sman@accordinterests.com
 .SH AUTHOR
 Steve Mansour (sman@accordinterests.com)
 .SH "SEE ALSO"
-.BR phonebook (1), rrloadcsv (1)
+.BR phonebook(1), rrloadcsv(1), rrbkup(1), rrrestore(1)

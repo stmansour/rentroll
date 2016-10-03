@@ -302,11 +302,13 @@ func main() {
 		rcsv.LoadRatePlanRefSPRatesCSV(App.RPRSPRateFile)
 	}
 	if len(App.AsmtFile) > 0 {
-		rcsv.LoadAssessmentsCSV(App.AsmtFile)
+		s := rcsv.LoadAssessmentsCSV(App.AsmtFile)
+		fmt.Print(s)
 	}
 	if len(App.RcptFile) > 0 {
 		App.PmtTypes = rlib.GetPaymentTypes()
-		rcsv.LoadReceiptsCSV(App.RcptFile)
+		s := rcsv.LoadReceiptsCSV(App.RcptFile)
+		fmt.Print(s)
 	}
 	if len(App.DepositFile) > 0 {
 		rcsv.LoadDepositCSV(App.DepositFile)

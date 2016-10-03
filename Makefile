@@ -25,10 +25,14 @@ test: package
 man: rentroll.1
 	cp rentroll.1 /usr/local/share/man/man1
 
+instman:
+	pushd tmp/rentroll;./installman.sh;popd
+
 package: rentroll
 	rm -rf tmp
 	mkdir -p tmp/rentroll
 	mkdir -p tmp/rentroll/man/man1/
+	cp rentroll.1 tmp/rentroll/man/man1
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp rentroll ./tmp/rentroll/
 	cp conf.json ./tmp/rentroll/

@@ -73,12 +73,14 @@ func initPageHandlers() {
 
 		{ReportName: "Delinquency", FormPageName: "rptdelinq.html", Handler: RptDelinq},
 		{ReportName: "GSR", FormPageName: "rptgsr.html", Handler: RptGSR},
+		{ReportName: "Journal", FormPageName: "rptjournal.html", Handler: RptJournal},
 		{ReportName: "Ledger", FormPageName: "rptledger.html", Handler: RptLedger},
 		{ReportName: "Ledger Activity", FormPageName: "rptledger.html", Handler: RptLedgerActivity},
 		{ReportName: "RentRoll", FormPageName: "rptrentroll.html", Handler: RptRentRoll},
 		{ReportName: "Trial Balance", FormPageName: "formtrialbal.html", Handler: RptTrialBalance},
+
 		// {ReportName: "Journal", FormPageName: "journal.html", Handler: RptJournal},
-		{ReportName: "Home", FormPageName: "dispatch.html", Handler: nil},
+		// {ReportName: "Home", FormPageName: "dispatch.html", Handler: nil},
 
 		// {ReportName: "Assessments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Business", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
@@ -116,4 +118,5 @@ func initPageHandlers() {
 	for i := 0; i < len(m); i++ {
 		App.PageHandlers = append(App.PageHandlers, m[i])
 	}
+
 }

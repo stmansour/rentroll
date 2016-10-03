@@ -19,3 +19,12 @@ func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 		}
 	}
 }
+
+// RptJournal is the HTTP handler for the Journal report request
+func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport, tmpl *string) {
+	*tmpl = "rptjournal.html"
+	if xbiz.P.BID > 0 {
+		tbl := rrpt.JournalReport(xbiz, &ui.D1, &ui.D2)
+		ui.ReportContent = tbl.Title + tbl.SprintTable(rlib.TABLEOUTTEXT)
+	}
+}

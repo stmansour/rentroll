@@ -1,32 +1,29 @@
-   =========================================================================================================================
-   Business:  JGM First, LLC
-   07/01/16 - 07/31/16
-   -------------------------------------------------------------------------------------------------------------------------
-   Description                                                       Date    RntAgr         Rentable     GL No        Amount
-   -------------------------------------------------------------------------------------------------------------------------
-   J00000001  Cash (3/31 days)  6323-303 [A3, monthly]         
-                                            Accounts Receivable  07/01/16         1         6323-303     12000        300.00
-                              Unit Gross Scheduled Rent-Taxable  07/01/16         1         6323-303     41000       -300.00
-                                           Loss (Gain) to Lease  07/01/16         1         6323-303     41102          0.00
-                                                               
-   J00000002  Cash (4/31 days)  6323-303 [A3, monthly]         
-                                            Accounts Receivable  07/05/16         2         6323-303     12000        516.13
-                              Unit Gross Scheduled Rent-Taxable  07/05/16         2         6323-303     41000       -400.00
-                                           Loss (Gain) to Lease  07/05/16         2         6323-303     41102          0.00
-                                                               
-   J00000003  Cash (21/31 days)  6323-303 [A3, monthly]        
-                                            Accounts Receivable  07/11/16         3         6323-303     12000       2167.74
-                              Unit Gross Scheduled Rent-Taxable  07/11/16         3         6323-303     41000      -2100.00
-                                           Loss (Gain) to Lease  07/11/16         3         6323-303     41102          0.00
-                                                               
-   J00000004  Payment - Diddit   #3383  735.35                 
-   	Cash                                                       
-                                            Accounts Receivable  07/15/16         1         6323-303     12000       -735.35
-                                                           Cash  07/15/16         1         6323-303     10000        735.35
-                                                               
-   J00000005  Unassociated: 6323-303 vacant Jul 4 - Jul 5      
-                              Unit Gross Scheduled Rent-Taxable  07/04/16         0         6323-303     41000       -100.00
-                                                        Vacancy  07/04/16         0         6323-303     41101        100.00
-   J00000006  Unassociated: 6323-303 vacant Jul 9 - Jul 11     
-                              Unit Gross Scheduled Rent-Taxable  07/10/16         0         6323-303     41000       -232.26
-                                                        Vacancy  07/10/16         0         6323-303     41101        232.26
+JOURNAL
+Business: JGM First, LLC
+Period:   07/01/16 - 07/31/16
+
+Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
+----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
+J00000001   Cash (3/31 days)  6323-303 [A3, monthly]                                                                                              
+            Accounts Receivable                                                     07/01/20  RA00000001  6323-303         12000            300.00
+            Unit Gross Scheduled Rent-Taxable                                       07/01/20  RA00000001  6323-303         41000           -300.00
+                                                                                                                                                  
+J00000002   Cash (4/31 days)  6323-303 [A3, monthly]                                                                                              
+            Accounts Receivable                                                     07/05/20  RA00000002  6323-303         12000            516.13
+            Unit Gross Scheduled Rent-Taxable                                       07/05/20  RA00000002  6323-303         41000           -400.00
+                                                                                                                                                  
+J00000003   Cash (21/31 days)  6323-303 [A3, monthly]                                                                                             
+            Accounts Receivable                                                     07/11/20  RA00000003  6323-303         12000          2,167.74
+            Unit Gross Scheduled Rent-Taxable                                       07/11/20  RA00000003  6323-303         41000         -2,100.00
+                                                                                                                                                  
+J00000004   Payment - Diddit   #3383  735.35                                                                                                      
+            Cash                                                                                                                                  
+            Accounts Receivable                                                     07/15/20  RA00000001  6323-303         12000           -735.35
+            Cash                                                                    07/15/20  RA00000001  6323-303         10000            735.35
+                                                                                                                                                  
+J00000005   Unassociated: 6323-303 vacant Jul 4 - Jul 5                                                                                           
+            Unit Gross Scheduled Rent-Taxable                                       07/04/20  0           6323-303         41000           -100.00
+            Vacancy                                                                 07/04/20  0           6323-303         41101            100.00
+J00000006   Unassociated: 6323-303 vacant Jul 9 - Jul 11                                                                                          
+            Unit Gross Scheduled Rent-Taxable                                       07/10/20  0           6323-303         41000           -232.26
+            Vacancy                                                                 07/10/20  0           6323-303         41101            232.26

@@ -2,13 +2,22 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto);
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
 
-table, th, td {
+table, td {
     border-collapse:collapse;
-    border: 0px solid #ddd;
     font-family: "Open Sans","Roboto",sans-serif;
+    border: 0px solid #bbb;
     font-size: 9pt;
-    border-spacing:2px;
-    padding: 2px;
+    border-spacing:6px;
+    padding: 6px;
+}
+
+th {
+    font-family: "Roboto","Open Sans",sans-serif;
+    font-weight: bolder;
+    border: 0px solid #bbb;
+    font-size: 9pt;
+    border-spacing:20px;
+    padding: 6px;
 }
 
 p {
