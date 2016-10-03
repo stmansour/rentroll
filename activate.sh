@@ -12,7 +12,7 @@ PORT=8270
 WATCHDOGOPTS=""
 GETFILE="/usr/local/accord/bin/getfile.sh"
 RENTROLLHOME="/home/ec2-user/apps/${PROGNAME}"
-DBNAME="${PROGNAME}"
+DATABASENAME="${PROGNAME}"
 DBUSER="ec2-user"
 IAM=$(whoami)
 
@@ -73,7 +73,11 @@ makeProdNode() {
 #--------------------------------------------------------------
 setupAppNode() {
 	# nothing to do at this time.  Phonebook (Directory) installs everything we need.
-	X="OK"
+	echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
+	echo "source ${DATABASENAME}db.sql" >> restore.sql
+	echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
+	mysql ${MYSQLOPTS} < restore.sql
+	echo "Done."
 }
 
 start() {
@@ -87,7 +91,7 @@ start() {
 
 	if [ ${IAM} == "root" ]; then
 		chown -R ec2-user *
-		chmod u+s ${PROGNAME} pbwatchdog
+		# chmod u+s ${PROGNAME} pbwatchdog
 		if [ $(uname) == "Linux" -a ! -f "/etc/init.d/${PROGNAME}" ]; then
 			cp ./activate.sh /etc/init.d/${PROGNAME}
 			chkconfig --add ${PROGNAME}
@@ -165,8 +169,8 @@ while getopts ":p:qih:N:Tb" o; do
             echo "HOST set to: ${HOST}"
             ;;
         N)
-            DBNAME=${OPTARG}
-            # echo "DBNAME set to: ${DBNAME}"
+            DATABASENAME=${OPTARG}
+            # echo "DATABASENAME set to: ${DATABASENAME}"
             ;;
         p)
             PORT=${OPTARG}
