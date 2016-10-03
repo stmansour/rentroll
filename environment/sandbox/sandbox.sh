@@ -23,4 +23,5 @@ fi
 
 
 rm -f qm* *.log *.out
-${ACCORDBIN}/uhura -p ${UPORT} -d -k -e ${SYS_TEST_DIR}/${ENV_DESCR} >uhura.out 2>&1 
+echo "${ACCORDBIN}/uhura -p ${UPORT} -d -k -e ${SYS_TEST_DIR}/${ENV_DESCR} >uhura.out 2>&1"
+${ACCORDBIN}/uhura -p ${UPORT} -d -k -e ${SYS_TEST_DIR}/${ENV_DESCR} >uhura.out 2>&1
