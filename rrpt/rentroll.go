@@ -57,7 +57,7 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 	}
 	c, err := rlib.GetCompany(int64(bu.CoCode))
 	if err != nil {
-		e := fmt.Errorf("%s: error getting Company - %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: GetCompany(%d) returned error getting Company: %s\n", funcname, err.Error())
 		return tbl, e
 	}
 
