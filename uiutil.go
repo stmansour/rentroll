@@ -85,6 +85,10 @@ func UIInitBizList(ui *RRuiSupport) {
 	if err != nil {
 		rlib.Ulog("UIInitBizList: err = %s\n", err.Error())
 	}
+	// DEBUGGING
+	// for i := 0; i < len(ui.BL); i++ {
+	// 	fmt.Printf("ui.BL[%d] = %#v\n", i, ui.BL[i])
+	// }
 }
 
 // UIInitUISupport sets the ui context structure value for page handlers equal to App.PageHandlers

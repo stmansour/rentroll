@@ -14,7 +14,7 @@
 <form action="/dispatch/" method="POST">
 <table border="0">
 <tr>
-	<td>Business Unit</td><td><select name="BID">{{range .BL}}<option value="{{.BID}}">{{.Name}}</option>{{end}}</select></td>
+	<td>Business Unit</td><td><select name="BID">{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}</select></td>
 	<td width=10></td>
 	<td>Period beginning</td><td><input type=date name="DtStart" size="10" value="{{.DtStart}}"></td>
 	<td>and ending </td><td><input type=date name="DtStop" size="10" value="{{.DtStop}}"></td>
