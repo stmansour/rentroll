@@ -51,6 +51,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 	var err error
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	rs := "" // return string
+	var xbiz rlib.XBusiness
 
 	const (
 		BUD            = 0
@@ -96,7 +97,9 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 			rs += fmt.Sprintf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
 			return rs, CsvErrorSensitivity
 		}
-		a.BID = b1.BID
+		rlib.InitBizInternals(b1.BID, &xbiz) // this initializes a number of internal variables that the internals need and is efficient if they are already loaded
+		Rcsv.Xbiz = &xbiz
+		a.BID = Rcsv.Xbiz.P.BID
 	}
 
 	//-------------------------------------------------------------------
@@ -227,13 +230,18 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 		return rs, CsvErrorSensitivity
 	}
 
+	adup := rlib.GetAssessmentDuplicate(&a.Start, a.Amount, a.PASMID, a.RID, a.RAID, a.ATypeLID)
+	if adup.ASMID != 0 {
+		rs = fmt.Sprintf("%s: line %d - this is a duplicate of an existing assessment: %s\n", funcname, lineno, adup.IDtoString())
+		return rs, CsvErrorSensitivity
+	}
+
 	_, err = rlib.InsertAssessment(&a)
 	if err != nil {
 		rs = fmt.Sprintf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
 	}
 
 	// process this new assessment over the requested time range...
-	// fmt.Printf("Rcsv.Xbiz = %#v\n", *Rcsv.Xbiz)
 	rlib.ProcessJournalEntry(&a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop)
 
 	return rs, 0
@@ -242,6 +250,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 // LoadAssessmentsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadAssessmentsCSV(fname string) string {
 	rs := ""
+	// fmt.Printf("Calling LoadCSV(%s)\n", fname)
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		if t[i][0] == "#" {

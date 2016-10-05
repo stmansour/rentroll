@@ -110,6 +110,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentInstance, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE Start=? and PASMID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAssessmentDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE Start=? and Amount=? and PASMID=? and RID=? and RAID=? and ATypeLID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and (PASMID=0 or RentCycle=0) and Start<? and Stop>=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRecurringAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and PASMID=0 and RentCycle>0 and Start<? and Stop>=?")
@@ -288,16 +290,23 @@ func buildPreparedStatements() {
 	//==========================================
 	// JOURNAL
 	//==========================================
-	RRdb.Prepstmt.GetJournal, err = RRdb.Dbrr.Prepare("select JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from Journal WHERE JID=?")
+	flds = "JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetJournal, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE JID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetJournalMarker, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker WHERE JMID=?")
+	// RRdb.Prepstmt.GetJournalInstance, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=0 and Raid=0 and ID=? and ?<=Dt and Dt<?")
+	// Errcheck(err)
+	RRdb.Prepstmt.GetJournalVacancy, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=0 and Raid=0 and ID=? and ?<=Dt and Dt<?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetJournalMarkers, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker ORDER BY JMID DESC LIMIT ?")
+	RRdb.Prepstmt.GetAllJournalsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from Journal WHERE BID=? and ?<=Dt and Dt<?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertJournal, err = RRdb.Dbrr.Prepare("INSERT INTO Journal (BID,RAID,Dt,Amount,Type,ID,Comment,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
+
+	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
+
+	RRdb.Prepstmt.InsertJournal, err = RRdb.Dbrr.Prepare("INSERT INTO Journal (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllJournalsInRange, err = RRdb.Dbrr.Prepare("SELECT JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy from Journal WHERE BID=? and ?<=Dt and Dt<?")
+	RRdb.Prepstmt.DeleteJournalEntry, err = RRdb.Dbrr.Prepare("DELETE FROM Journal WHERE JID=?")
 	Errcheck(err)
+
 	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT JAID,JID,RID,Amount,ASMID,AcctRule from JournalAllocation WHERE JAID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,JID,RID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC")
@@ -310,31 +319,34 @@ func buildPreparedStatements() {
 
 	RRdb.Prepstmt.DeleteJournalAllocations, err = RRdb.Dbrr.Prepare("DELETE FROM JournalAllocation WHERE JID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteJournalEntry, err = RRdb.Dbrr.Prepare("DELETE FROM Journal WHERE JID=?")
-	Errcheck(err)
 	RRdb.Prepstmt.DeleteJournalMarker, err = RRdb.Dbrr.Prepare("DELETE FROM JournalMarker WHERE JMID=?")
+	Errcheck(err)
+
+	RRdb.Prepstmt.GetJournalMarker, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker WHERE JMID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetJournalMarkers, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker ORDER BY JMID DESC LIMIT ?")
 	Errcheck(err)
 
 	//==========================================
 	// LEDGER;  GLAccount
 	//==========================================
-	LDGRfields := "LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,RARequired,ManageToBudget,Description,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND GLNumber=?")
+	flds = "LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,RARequired,ManageToBudget,Description,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=?")
+	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type=?")
 	Errcheck(err)
-	// RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=1 AND RAID=?")
+	// RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type=1 AND RAID=?")
 	// Errcheck(err)
-	// RRdb.Prepstmt.GetSecDepBalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type=2 AND RAID=?")
+	// RRdb.Prepstmt.GetSecDepBalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type=2 AND RAID=?")
 	// Errcheck(err)
-	RRdb.Prepstmt.GetLedger, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE LID=?")
+	RRdb.Prepstmt.GetLedger, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE LID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? ORDER BY GLNumber ASC, Name ASC")
+	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? ORDER BY GLNumber ASC, Name ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + LDGRfields + " FROM GLAccount WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
+	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
 	Errcheck(err)
 
-	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(LDGRfields)
+	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 
 	RRdb.Prepstmt.InsertLedger, err = RRdb.Dbrr.Prepare("INSERT INTO GLAccount (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
@@ -538,6 +550,8 @@ func buildPreparedStatements() {
 	//==========================================
 	flds = "RCPTID,PRCPTID,BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment,OtherPayorName,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE RCPTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetReceiptDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE Dt=? and Amount=? and DocNo=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from Receipt WHERE BID=? and Dt >= ? and Dt < ?")
 	Errcheck(err)

@@ -150,19 +150,25 @@ func RentableStatusToString(n int64) string {
 	return RentableStatusString[n]
 }
 
+var acceptedDateFmts = []string{
+	RRDATEINPFMT,
+	RRDATEFMT2,
+	RRDATEFMT,
+	RRDATEFMT3,
+	RRDATETIMEINPFMT,
+}
+
 // StringToDate tries to convert the supplied string to a time.Time value. It will use the two
 // formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2
 func StringToDate(s string) (time.Time, error) {
 	// try the ansi std date format first
+	var Dt time.Time
+	var err error
 	s = strings.TrimSpace(s)
-	Dt, err := time.Parse(RRDATEINPFMT, s)
-	if err != nil {
-		Dt, err = time.Parse(RRDATEFMT2, s) // try excel default version
-		if err != nil {
-			Dt, err = time.Parse(RRDATEFMT, s) // try 0 filled version
-			if nil != err {
-				Dt, err = time.Parse(RRDATEFMT3, s) // try 4 digit year version
-			}
+	for i := 0; i < len(acceptedDateFmts); i++ {
+		Dt, err = time.Parse(acceptedDateFmts[i], s)
+		if nil == err {
+			break
 		}
 	}
 	return Dt, err

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"rentroll/rlib"
 	"time"
 )
@@ -57,13 +56,6 @@ type RRuiSupport struct {
 	LDG           UILedger        // ledgers associated with this report
 	ReportContent string          // text report content
 	PgHnd         []RRPageHandler // the list of reports and handlers
-}
-
-// RRPageHandler is a structure of page names and handlers
-type RRPageHandler struct {
-	ReportName   string                                                                           // report name
-	FormPageName string                                                                           // name of form to collect information for this report
-	Handler      func(http.ResponseWriter, *http.Request, *rlib.XBusiness, *RRuiSupport, *string) // the actual handler function
 }
 
 //========================================================================================================
@@ -164,10 +156,7 @@ func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []Stm
 		var se StmtEntry
 		se.amt = n[i].Amount
 		se.dt = n[i].Dt
-		j, err := rlib.GetJournal(n[i].JID)
-		if err != nil {
-			return m
-		}
+		j := rlib.GetJournal(n[i].JID)
 		se.t = int(j.Type)
 		se.id = j.ID
 		if se.t == rlib.JOURNALTYPEASMID {

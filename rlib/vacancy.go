@@ -23,12 +23,24 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) {
 		var j Journal
 		j.BID = xbiz.P.BID
 		j.Amount = RoundToCent(m[i].Amount)
-		j.Dt = m[i].DtStop.AddDate(0, 0, -1) // associated date is last day of period
+		// TODO: fix the next line
+		j.Dt = m[i].DtStop.AddDate(0, 0, -1) // associated date is period end - 1 proration cycle (or 1 sec if no proration)
 		j.Type = JNLTYPEUNAS                 // this is an unassociated entry
 		j.RAID = 0                           // we really mean it, it is unassociated
 		j.ID = r.RID                         // mark the associated Rentable
 		j.Comment = m[i].Comment             // this will note consecutive days for vacancy
 		// fmt.Printf("ProcessRentable: insert journal entry: %s - %s, %8.2f\n", j.Dt.Format(RRDATEINPFMT), j.Comment, j.Amount)
+
+		// TODO: this check must be more thorough. Examine the RentCycle, query over the time of the rent cycle
+		//       to see if other records were generated and handle.
+		//       By convention, the period for Vacancy detection is:  supplied range, date/time of journal entry =
+		//       rentcycle - 1 prorationcycle (or one second whichever is larger)
+		// These entries must be idempotent. Make sure it does not already exist.
+		jv := GetJournalVacancy(r.RID, &j.Dt, &m[i].DtStop)
+		if jv.JID != 0 { // if the JID >0 ..
+			continue // then this entry was already generated, keep going
+		}
+
 		jid, err := InsertJournalEntry(&j)
 		Errlog(err)
 		if jid > 0 {

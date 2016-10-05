@@ -3,7 +3,6 @@ package rlib
 import (
 	"database/sql"
 	"fmt"
-	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -80,6 +79,14 @@ func GetAssessmentInstance(start *time.Time, pasmid int64) (Assessment, error) {
 	row := RRdb.Prepstmt.GetAssessmentInstance.QueryRow(start, pasmid)
 	ReadAssessment(row, &a)
 	return a, nil
+}
+
+// GetAssessmentDuplicate returns the Assessment struct for the account with the supplied asmid
+func GetAssessmentDuplicate(start *time.Time, amt float64, pasmid, rid, raid, atypelid int64) Assessment {
+	var a Assessment
+	row := RRdb.Prepstmt.GetAssessmentDuplicate.QueryRow(start, amt, pasmid, rid, raid, atypelid)
+	ReadAssessment(row, &a)
+	return a
 }
 
 //=======================================================
@@ -395,6 +402,94 @@ func GetInvoicePayors(id int64) ([]InvoicePayor, error) {
 }
 
 //=======================================================
+//  JOURNAL
+//=======================================================
+
+// GetJournal returns the Journal struct for the journal entry with the supplied id
+func GetJournal(jid int64) Journal {
+	var r Journal
+	row := RRdb.Prepstmt.GetJournal.QueryRow(jid)
+	ReadJournal(row, &r)
+	return r
+}
+
+// // GetJournalInstance returns the Journal struct for entries that were created with the assumption that
+// // they are idempotent -- essentially: instances of recurring assessments and vacancy instances.  This call
+// // is made prior to generating new ones to ensure that we don't have double entries for the same thing.
+// func GetJournalInstance(id int64, dt1, dt2 *time.Time) Journal {
+// 	var r Journal
+// 	row := RRdb.Prepstmt.GetJournalInstance.QueryRow(id, dt1, dt2)
+// 	ReadJournal(row, &r)
+// 	return r
+// }
+
+// GetJournalVacancy returns the Journal struct for entries that were created with the assumption that
+// they are idempotent -- essentially: instances of recurring assessments and vacancy instances.  This call
+// is made prior to generating new ones to ensure that we don't have double entries for the same thing.
+func GetJournalVacancy(id int64, dt1, dt2 *time.Time) Journal {
+	var r Journal
+	row := RRdb.Prepstmt.GetJournalVacancy.QueryRow(id, dt1, dt2)
+	ReadJournal(row, &r)
+	return r
+}
+
+// GetJournalMarkers loads the last n Journal markers
+func GetJournalMarkers(n int64) []JournalMarker {
+	rows, err := RRdb.Prepstmt.GetJournalMarkers.Query(n)
+	Errcheck(err)
+	defer rows.Close()
+	var t []JournalMarker
+	t = make([]JournalMarker, 0)
+	for rows.Next() {
+		var r JournalMarker
+		Errcheck(rows.Scan(&r.JMID, &r.BID, &r.State, &r.DtStart, &r.DtStop))
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetLastJournalMarker returns the last Journal marker or nil if no Journal markers exist
+func GetLastJournalMarker() JournalMarker {
+	t := GetJournalMarkers(1)
+	if len(t) > 0 {
+		return t[0]
+	}
+	var j JournalMarker
+	return j
+}
+
+// GetJournalAllocation returns the Journal allocation for the supplied JAID
+func GetJournalAllocation(jaid int64) (JournalAllocation, error) {
+	var a JournalAllocation
+	err := RRdb.Prepstmt.GetJournalAllocation.QueryRow(jaid).Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule)
+	if err != nil {
+		Ulog("Error getting JournalAllocation jaid = %d:  error = %v\n", jaid, err)
+	}
+	return a, err
+}
+
+// GetJournalAllocations loads all Journal allocations associated with the supplied Journal id into
+// the RA array within a Journal structure
+func GetJournalAllocations(jid int64, j *Journal) {
+	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(jid)
+	Errcheck(err)
+	defer rows.Close()
+	j.JA = make([]JournalAllocation, 0)
+	for rows.Next() {
+		var a JournalAllocation
+		Errcheck(rows.Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
+		j.JA = append(j.JA, a)
+	}
+	// for i := 0; i < len(j.JA)-1; i++ {
+	// 	for k := i + 1; k < len(j.JA); k++ {
+	// 		if j.JA[i].Amount < j.JA[k].Amount {
+	// 			j.JA[i].Amount, j.JA[k].Amount = j.JA[k].Amount, j.JA[i].Amount
+	// 		}
+	// 	}
+	// }
+}
+
+//=======================================================
 //  L E D G E R   M A R K E R
 //=======================================================
 
@@ -502,6 +597,236 @@ func GetAllLedgerMarkersOnOrBefore(bid int64, dt *time.Time) map[int64]LedgerMar
 }
 
 //=======================================================
+//  L E D G E R
+//=======================================================
+
+// GetLedgerList returns an array of all GLAccount
+// this is essentially a way to get the exhaustive list of GLAccount numbers for a Business
+func GetLedgerList(bid int64) []GLAccount {
+	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	var t []GLAccount
+	for rows.Next() {
+		var r GLAccount
+		ReadGLAccounts(rows, &r)
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetGLAccountMap returns a map of all GLAccounts for the supplied business
+func GetGLAccountMap(bid int64) map[int64]GLAccount {
+	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	var t map[int64]GLAccount
+	t = make(map[int64]GLAccount)
+	for rows.Next() {
+		var r GLAccount
+		ReadGLAccounts(rows, &r)
+		t[r.LID] = r
+	}
+	return t
+}
+
+// GetLedger returns the GLAccount struct for the supplied LID
+func GetLedger(lid int64) GLAccount {
+	var a GLAccount
+	row := RRdb.Prepstmt.GetLedger.QueryRow(lid)
+	ReadGLAccount(row, &a)
+	return a
+}
+
+// GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
+func GetLedgerByGLNo(bid int64, s string) GLAccount {
+	var a GLAccount
+	row := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s)
+	ReadGLAccount(row, &a)
+	return a
+}
+
+// GetLedgerByType returns the GLAccount struct for the supplied Type
+func GetLedgerByType(bid, t int64) GLAccount {
+	var a GLAccount
+	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
+	ReadGLAccount(row, &a)
+	return a
+}
+
+// // GetRABalanceLedger returns the GLAccount struct for the supplied Type
+// func GetRABalanceLedger(bid, RAID int64) GLAccount {
+// 	var a GLAccount
+// 	var err error
+// 	row := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid)
+// 	ReadGLAccount(row, &a)
+// 	return a
+// }
+
+// // GetSecDepBalanceLedger returns the GLAccount struct for the supplied Type
+// func GetSecDepBalanceLedger(bid, RAID int64) GLAccount {
+// 	var a GLAccount
+// 	var err error
+// 	row := RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(bid, RAID)
+// 	ReadGLAccount(row, &a)
+// 	return a
+// }
+
+// GetDefaultLedgers loads the default GLAccount for the supplied Business bid
+func GetDefaultLedgers(bid int64) {
+	rows, err := RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var r GLAccount
+		ReadGLAccounts(rows, &r)
+		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
+	}
+}
+
+//=======================================================
+//  LEDGER ENTRY
+//=======================================================
+
+// GetLedgerEntryArray returns a list of Ledger Entries for the supplied rows value
+func GetLedgerEntryArray(rows *sql.Rows) ([]LedgerEntry, error) {
+	var m []LedgerEntry
+	for rows.Next() {
+		var le LedgerEntry
+		ReadLedgerEntries(rows, &le)
+		m = append(m, le)
+	}
+	return m, rows.Err()
+}
+
+// GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied Ledger during the supplied range
+func GetLedgerEntriesInRange(d1, d2 *time.Time, bid, lid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(bid, lid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
+// GetLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
+func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
+// GetLedgerEntriesForRentable returns a list of Ledger Entries for the supplied Rentable (rid) and Ledger (lid)
+func GetLedgerEntriesForRentable(d1, d2 *time.Time, rid, lid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(d1, d2, rid, lid)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
+// GetAllLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement
+func GetAllLedgerEntriesForRAID(d1, d2 *time.Time, raid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
+// GetAllLedgerEntriesForRID returns a list of Ledger Entries for the supplied Rentable ID
+func GetAllLedgerEntriesForRID(d1, d2 *time.Time, rid int64) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(d1, d2, rid)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
+// GetAllLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
+func GetAllLedgerEntriesInRange(bid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	return GetLedgerEntryArray(rows)
+}
+
+// // GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
+// func GetLedgerEntriesInRange(bid, lid, raid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
+// 	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	return GetLedgerEntryArray(rows)
+// }
+
+//=======================================================
+//  NOTES
+//=======================================================
+
+// GetNote reads a Note structure based on the supplied Note id
+func GetNote(tid int64, t *Note) {
+	ReadNote(RRdb.Prepstmt.GetNote.QueryRow(tid), t)
+}
+
+// GetNoteAndChildNotes reads a Note structure based on the supplied Note id, then it reads all its child notes, organizes them by Date
+// and returns them in an array
+func GetNoteAndChildNotes(nid int64) Note {
+	var n Note
+	GetNote(nid, &n)
+	rows, err := RRdb.Prepstmt.GetNoteAndChildNotes.Query(nid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var p Note
+		ReadNotes(rows, &p)
+		n.CN = append(n.CN, p)
+	}
+	Errcheck(rows.Err())
+	return n
+}
+
+//=======================================================
+//  NOTELIST
+//=======================================================
+
+// GetNoteList reads a NoteList structure based on the supplied NoteList id
+func GetNoteList(nlid int64) NoteList {
+	var m NoteList
+	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.LastModTime, &m.LastModBy))
+	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var nid int64
+		Errcheck(rows.Scan(&nid))
+		p := GetNoteAndChildNotes(nid)
+		m.N = append(m.N, p)
+	}
+	Errcheck(rows.Err())
+	return m
+}
+
+//=======================================================
+//  NOTE TYPE
+//=======================================================
+
+// GetNoteType reads a NoteType structure based on the supplied NoteType id
+func GetNoteType(ntid int64, t *NoteType) {
+	Errcheck(RRdb.Prepstmt.GetNoteType.QueryRow(ntid).Scan(&t.NTID, &t.BID, &t.Name, &t.LastModTime, &t.LastModBy))
+}
+
+// GetAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
+func GetAllNoteTypes(bid int64) []NoteType {
+	var m []NoteType
+	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var p NoteType
+		Errcheck(rows.Scan(&p.NTID, &p.BID, &p.Name, &p.LastModTime, &p.LastModBy))
+		m = append(m, p)
+	}
+	Errcheck(rows.Err())
+	return m
+}
+
+//=======================================================
 //  P A Y M E N T   T Y P E S
 //=======================================================
 
@@ -536,6 +861,200 @@ func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
 		t[a.PMTID] = a
 	}
 	Errcheck(rows.Err())
+	return t
+}
+
+//=======================================================
+//  RATE PLAN
+//=======================================================
+
+// GetRatePlan reads a RatePlan structure based on the supplied RatePlan id
+func GetRatePlan(id int64, a *RatePlan) {
+	ReadRatePlan(RRdb.Prepstmt.GetRatePlan.QueryRow(id), a)
+}
+
+// GetRatePlanByName reads a RatePlan structure based on the supplied RatePlan id
+func GetRatePlanByName(id int64, s string, a *RatePlan) {
+	ReadRatePlan(RRdb.Prepstmt.GetRatePlanByName.QueryRow(id, s), a)
+}
+
+// GetAllRatePlans reads all RatePlan structures based on the supplied bid
+func GetAllRatePlans(id int64) []RatePlan {
+	var m []RatePlan
+	rows, err := RRdb.Prepstmt.GetAllRatePlans.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var p RatePlan
+		ReadRatePlans(rows, &p)
+		m = append(m, p)
+	}
+	Errcheck(rows.Err())
+	return m
+}
+
+// GetRatePlanRef reads a RatePlanRef structure based on the supplied RatePlanRef id
+func GetRatePlanRef(id int64, a *RatePlanRef) {
+	ReadRatePlanRef(RRdb.Prepstmt.GetRatePlanRef.QueryRow(id), a)
+}
+
+// GetRatePlanRefFull reads a RatePlanRef structure based on the supplied RatePlanRef id and
+// pulls in all the RTRate and SPRate structure arrays
+func GetRatePlanRefFull(id int64, a *RatePlanRef) {
+	if a.RPRID == 0 {
+		ReadRatePlanRef(RRdb.Prepstmt.GetRatePlanRef.QueryRow(id), a)
+	}
+	// now load all its rates
+	rows, err := RRdb.Prepstmt.GetAllRatePlanRefRTRates.Query(id)
+	if err != nil {
+		Ulog("GetRatePlanRefFull:   GetAllRatePlanRefRTRates - error = %s\n", err.Error())
+		return
+	}
+	for rows.Next() {
+		var p RatePlanRefRTRate
+		ReadRatePlanRefRTRates(rows, &p)
+		a.RT = append(a.RT, p)
+	}
+	// now load all Specialty rates
+	rows, err = RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(a.RPRID, a.RPID)
+	if err != nil {
+		Ulog("GetRatePlanRefFull: GetAllRatePlanRefSPRates - error = %s\n", err.Error())
+		return
+	}
+	for rows.Next() {
+		var p RatePlanRefSPRate
+		ReadRatePlanRefSPRates(rows, &p)
+		a.SP = append(a.SP, p)
+	}
+}
+
+// GetRatePlanRefsInRange reads a RatePlanRef structure based on the supplied RatePlan id and the date.
+func GetRatePlanRefsInRange(id int64, d1, d2 *time.Time) []RatePlanRef {
+	var m []RatePlanRef
+	rows, err := RRdb.Prepstmt.GetRatePlanRefsInRange.Query(id, d1, d2)
+	if err != nil {
+		Ulog("GetRatePlanRefsInRange: error = %s\n", err.Error())
+		return m
+	}
+	for rows.Next() {
+		var a RatePlanRef
+		ReadRatePlanRefs(rows, &a)
+		m = append(m, a)
+	}
+	return m
+}
+
+// GetAllRatePlanRefsInRange reads all RatePlanRef structure based on the supplied date range
+func GetAllRatePlanRefsInRange(d1, d2 *time.Time) []RatePlanRef {
+	var m []RatePlanRef
+	rows, err := RRdb.Prepstmt.GetAllRatePlanRefsInRange.Query(d1, d2)
+	if err != nil {
+		Ulog("GetAllRatePlanRefsInRange: error = %s\n", err.Error())
+		return m
+	}
+	for rows.Next() {
+		var a RatePlanRef
+		ReadRatePlanRefs(rows, &a)
+		m = append(m, a)
+	}
+	return m
+}
+
+// GetRatePlanRefRTRate reads the RatePlanRefRTRate struct for the supplied rprid and rtid
+func GetRatePlanRefRTRate(rprid, rtid int64, a *RatePlanRefRTRate) {
+	row := RRdb.Prepstmt.GetRatePlanRefRTRate.QueryRow(rprid, rtid)
+	ReadRatePlanRefRTRate(row, a)
+}
+
+// GetRatePlanRefSPRate reads the RatePlanRefSPRate struct for the supplied rprid and rtid
+func GetRatePlanRefSPRate(rprid, rtid int64, a *RatePlanRefSPRate) {
+	row := RRdb.Prepstmt.GetRatePlanRefSPRate.QueryRow(rprid, rtid)
+	ReadRatePlanRefSPRate(row, a)
+}
+
+// GetAllRatePlanRefSPRates reads all RatePlanRefSPRate structures based on the supplied RatePlan id and the date.
+func GetAllRatePlanRefSPRates(rprid, rtid int64) []RatePlanRefSPRate {
+	var m []RatePlanRefSPRate
+	rows, err := RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(rprid, rtid)
+	if err != nil {
+		Ulog("GetAllRatePlanRefSPRates: error = %s\n", err.Error())
+		return m
+	}
+	for rows.Next() {
+		var a RatePlanRefSPRate
+		ReadRatePlanRefSPRates(rows, &a)
+		m = append(m, a)
+	}
+	return m
+}
+
+//=======================================================
+//  RECEIPT ALLOCATION
+//=======================================================
+
+// GetReceipt returns a Receipt structure for the supplied RCPTID
+func GetReceipt(rcptid int64) Receipt {
+	var r Receipt
+	row := RRdb.Prepstmt.GetReceipt.QueryRow(rcptid)
+	ReadReceipt(row, &r)
+	GetReceiptAllocations(rcptid, &r)
+	return r
+}
+
+// GetReceiptDuplicate returns a Receipt structure for the supplied RCPTID
+func GetReceiptDuplicate(dt *time.Time, amt float64, docno string) Receipt {
+	var r Receipt
+	row := RRdb.Prepstmt.GetReceiptDuplicate.QueryRow(dt, amt, docno)
+	ReadReceipt(row, &r)
+	// GetReceiptAllocations(rcptid, &r)  // I don't think we need to spend time on this operation for duplicate checking, but uncomment if needed
+	return r
+}
+
+// GetReceiptAllocations loads all Receipt allocations associated with the supplied Receipt id into
+// the RA array within a Receipt structure
+func GetReceiptAllocations(rcptid int64, r *Receipt) {
+	rows, err := RRdb.Prepstmt.GetReceiptAllocations.Query(rcptid)
+	Errcheck(err)
+	defer rows.Close()
+	r.RA = make([]ReceiptAllocation, 0)
+	for rows.Next() {
+		var a ReceiptAllocation
+		Errcheck(rows.Scan(&a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule))
+		r.RA = append(r.RA, a)
+	}
+}
+
+// GetReceipts for the supplied Business (bid) in date range [d1 - d2)
+func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
+	rows, err := RRdb.Prepstmt.GetReceiptsInDateRange.Query(bid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	var t []Receipt
+	t = make([]Receipt, 0)
+	for rows.Next() {
+		var r Receipt
+		ReadReceipts(rows, &r)
+		r.RA = make([]ReceiptAllocation, 0)
+		GetReceiptAllocations(r.RCPTID, &r)
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetReceiptsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2)
+func GetReceiptsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []Receipt {
+	rows, err := RRdb.Prepstmt.GetReceiptsInRAIDDateRange.Query(bid, raid, d1, d2)
+	Errcheck(err)
+	defer rows.Close()
+	var t []Receipt
+	t = make([]Receipt, 0)
+	for rows.Next() {
+		var r Receipt
+		ReadReceipts(rows, &r)
+		r.RA = make([]ReceiptAllocation, 0)
+		GetReceiptAllocations(r.RCPTID, &r)
+		t = append(t, r)
+	}
 	return t
 }
 
@@ -939,504 +1458,6 @@ func GetRentalAgreementByRATemplateName(ref string) RentalAgreementTemplate {
 	row := RRdb.Prepstmt.GetRentalAgreementByRATemplateName.QueryRow(ref)
 	ReadRentalAgreementTemplate(row, &r)
 	return r
-}
-
-//=======================================================
-//  RECEIPT ALLOCATION
-//=======================================================
-
-// GetReceiptAllocations loads all Receipt allocations associated with the supplied Receipt id into
-// the RA array within a Receipt structure
-func GetReceiptAllocations(rcptid int64, r *Receipt) {
-	rows, err := RRdb.Prepstmt.GetReceiptAllocations.Query(rcptid)
-	Errcheck(err)
-	defer rows.Close()
-	r.RA = make([]ReceiptAllocation, 0)
-	for rows.Next() {
-		var a ReceiptAllocation
-		Errcheck(rows.Scan(&a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule))
-		r.RA = append(r.RA, a)
-	}
-
-	// for i := 0; i < len(r.RA)-1; i++ {
-	// 	for k := i + 1; k < len(r.RA); k++ {
-	// 		if r.RA[i].Amount < r.RA[k].Amount {
-	// 			r.RA[i].Amount, r.RA[k].Amount = r.RA[k].Amount, r.RA[i].Amount
-	// 		}
-	// 	}
-	// }
-
-	// DEBUG - PLEASE REMOVE
-	// for i := 0; i < len(r.RA)-1; i++ {
-	// 	if r.RA[i].Amount < r.RA[i+1].Amount {
-	// 		fmt.Printf("YIPES: bad order.  r.RA[%d].Amount = %f, r.RA[%d].Amount = %f\n", i, r.RA[i].Amount, i+1, r.RA[i+1].Amount)
-	// 	}
-	// }
-}
-
-// GetReceipts for the supplied Business (bid) in date range [d1 - d2)
-func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
-	rows, err := RRdb.Prepstmt.GetReceiptsInDateRange.Query(bid, d1, d2)
-	Errcheck(err)
-	defer rows.Close()
-	var t []Receipt
-	t = make([]Receipt, 0)
-	for rows.Next() {
-		var r Receipt
-		ReadReceipts(rows, &r)
-		r.RA = make([]ReceiptAllocation, 0)
-		GetReceiptAllocations(r.RCPTID, &r)
-		t = append(t, r)
-	}
-	return t
-}
-
-// GetReceiptsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2)
-func GetReceiptsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []Receipt {
-	rows, err := RRdb.Prepstmt.GetReceiptsInRAIDDateRange.Query(bid, raid, d1, d2)
-	Errcheck(err)
-	defer rows.Close()
-	var t []Receipt
-	t = make([]Receipt, 0)
-	for rows.Next() {
-		var r Receipt
-		ReadReceipts(rows, &r)
-		r.RA = make([]ReceiptAllocation, 0)
-		GetReceiptAllocations(r.RCPTID, &r)
-		t = append(t, r)
-	}
-	return t
-}
-
-// GetReceipt returns a Receipt structure for the supplied RCPTID
-func GetReceipt(rcptid int64) Receipt {
-	var r Receipt
-	Errcheck(RRdb.Prepstmt.GetReceipt.QueryRow(rcptid).Scan(
-		&r.RCPTID, &r.PRCPTID, &r.BID, &r.RAID, &r.PMTID, &r.Dt, &r.DocNo, &r.Amount, &r.AcctRule, &r.Comment, &r.OtherPayorName, &r.LastModTime, &r.LastModBy))
-	GetReceiptAllocations(rcptid, &r)
-	return r
-}
-
-// GetJournalMarkers loads the last n Journal markers
-func GetJournalMarkers(n int64) []JournalMarker {
-	rows, err := RRdb.Prepstmt.GetJournalMarkers.Query(n)
-	Errcheck(err)
-	defer rows.Close()
-	var t []JournalMarker
-	t = make([]JournalMarker, 0)
-	for rows.Next() {
-		var r JournalMarker
-		Errcheck(rows.Scan(&r.JMID, &r.BID, &r.State, &r.DtStart, &r.DtStop))
-		t = append(t, r)
-	}
-	return t
-}
-
-// GetLastJournalMarker returns the last Journal marker or nil if no Journal markers exist
-func GetLastJournalMarker() JournalMarker {
-	t := GetJournalMarkers(1)
-	if len(t) > 0 {
-		return t[0]
-	}
-	var j JournalMarker
-	return j
-}
-
-// GetJournalAllocation returns the Journal allocation for the supplied JAID
-func GetJournalAllocation(jaid int64) (JournalAllocation, error) {
-	var a JournalAllocation
-	err := RRdb.Prepstmt.GetJournalAllocation.QueryRow(jaid).Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule)
-	if err != nil {
-		Ulog("Error getting JournalAllocation jaid = %d:  error = %v\n", jaid, err)
-	}
-	return a, err
-}
-
-// GetJournalAllocations loads all Journal allocations associated with the supplied Journal id into
-// the RA array within a Journal structure
-func GetJournalAllocations(jid int64, j *Journal) {
-	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(jid)
-	Errcheck(err)
-	defer rows.Close()
-	j.JA = make([]JournalAllocation, 0)
-	for rows.Next() {
-		var a JournalAllocation
-		Errcheck(rows.Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
-		j.JA = append(j.JA, a)
-	}
-	// for i := 0; i < len(j.JA)-1; i++ {
-	// 	for k := i + 1; k < len(j.JA); k++ {
-	// 		if j.JA[i].Amount < j.JA[k].Amount {
-	// 			j.JA[i].Amount, j.JA[k].Amount = j.JA[k].Amount, j.JA[i].Amount
-	// 		}
-	// 	}
-	// }
-}
-
-// GetJournal returns the Journal struct for the account with the supplied name
-func GetJournal(jid int64) (Journal, error) {
-	var r Journal
-	err := RRdb.Prepstmt.GetJournal.QueryRow(jid).Scan(&r.JID, &r.BID, &r.RAID,
-		&r.Dt, &r.Amount, &r.Type, &r.ID, &r.Comment, &r.LastModTime, &r.LastModBy)
-	if nil != err {
-		debug.PrintStack() //  DEBUG
-		fmt.Printf("GetJournal: could not get Journal entry with jid = %d,  err = %v\n", jid, err)
-	}
-	return r, err
-}
-
-//=======================================================
-//  L E D G E R
-//=======================================================
-
-// GetLedgerList returns an array of all GLAccount
-// this is essentially a way to get the exhaustive list of GLAccount numbers for a Business
-func GetLedgerList(bid int64) []GLAccount {
-	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	var t []GLAccount
-	for rows.Next() {
-		var r GLAccount
-		ReadGLAccounts(rows, &r)
-		t = append(t, r)
-	}
-	return t
-}
-
-// GetGLAccountMap returns a map of all GLAccounts for the supplied business
-func GetGLAccountMap(bid int64) map[int64]GLAccount {
-	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	var t map[int64]GLAccount
-	t = make(map[int64]GLAccount)
-	for rows.Next() {
-		var r GLAccount
-		ReadGLAccounts(rows, &r)
-		t[r.LID] = r
-	}
-	return t
-}
-
-// GetLedger returns the GLAccount struct for the supplied LID
-func GetLedger(lid int64) GLAccount {
-	var a GLAccount
-	row := RRdb.Prepstmt.GetLedger.QueryRow(lid)
-	ReadGLAccount(row, &a)
-	return a
-}
-
-// GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
-func GetLedgerByGLNo(bid int64, s string) GLAccount {
-	var a GLAccount
-	row := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s)
-	ReadGLAccount(row, &a)
-	return a
-}
-
-// GetLedgerByType returns the GLAccount struct for the supplied Type
-func GetLedgerByType(bid, t int64) GLAccount {
-	var a GLAccount
-	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
-	ReadGLAccount(row, &a)
-	return a
-}
-
-// // GetRABalanceLedger returns the GLAccount struct for the supplied Type
-// func GetRABalanceLedger(bid, RAID int64) GLAccount {
-// 	var a GLAccount
-// 	var err error
-// 	row := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid)
-// 	ReadGLAccount(row, &a)
-// 	return a
-// }
-
-// // GetSecDepBalanceLedger returns the GLAccount struct for the supplied Type
-// func GetSecDepBalanceLedger(bid, RAID int64) GLAccount {
-// 	var a GLAccount
-// 	var err error
-// 	row := RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(bid, RAID)
-// 	ReadGLAccount(row, &a)
-// 	return a
-// }
-
-// GetDefaultLedgers loads the default GLAccount for the supplied Business bid
-func GetDefaultLedgers(bid int64) {
-	rows, err := RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var r GLAccount
-		ReadGLAccounts(rows, &r)
-		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
-	}
-}
-
-//=======================================================
-//  LEDGER ENTRY
-//=======================================================
-
-// GetLedgerEntryArray returns a list of Ledger Entries for the supplied rows value
-func GetLedgerEntryArray(rows *sql.Rows) ([]LedgerEntry, error) {
-	var m []LedgerEntry
-	for rows.Next() {
-		var le LedgerEntry
-		ReadLedgerEntries(rows, &le)
-		m = append(m, le)
-	}
-	return m, rows.Err()
-}
-
-// GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied Ledger during the supplied range
-func GetLedgerEntriesInRange(d1, d2 *time.Time, bid, lid int64) ([]LedgerEntry, error) {
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(bid, lid, d1, d2)
-	Errcheck(err)
-	defer rows.Close()
-	return GetLedgerEntryArray(rows)
-}
-
-// GetLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
-func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
-	Errcheck(err)
-	defer rows.Close()
-	return GetLedgerEntryArray(rows)
-}
-
-// GetLedgerEntriesForRentable returns a list of Ledger Entries for the supplied Rentable (rid) and Ledger (lid)
-func GetLedgerEntriesForRentable(d1, d2 *time.Time, rid, lid int64) ([]LedgerEntry, error) {
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(d1, d2, rid, lid)
-	Errcheck(err)
-	defer rows.Close()
-	return GetLedgerEntryArray(rows)
-}
-
-// GetAllLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement
-func GetAllLedgerEntriesForRAID(d1, d2 *time.Time, raid int64) ([]LedgerEntry, error) {
-	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
-	Errcheck(err)
-	defer rows.Close()
-	return GetLedgerEntryArray(rows)
-}
-
-// GetAllLedgerEntriesForRID returns a list of Ledger Entries for the supplied Rentable ID
-func GetAllLedgerEntriesForRID(d1, d2 *time.Time, rid int64) ([]LedgerEntry, error) {
-	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(d1, d2, rid)
-	Errcheck(err)
-	defer rows.Close()
-	return GetLedgerEntryArray(rows)
-}
-
-// GetAllLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
-func GetAllLedgerEntriesInRange(bid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
-	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
-	Errcheck(err)
-	defer rows.Close()
-	return GetLedgerEntryArray(rows)
-}
-
-// // GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
-// func GetLedgerEntriesInRange(bid, lid, raid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
-// 	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	return GetLedgerEntryArray(rows)
-// }
-
-//=======================================================
-//  NOTES
-//=======================================================
-
-// GetNote reads a Note structure based on the supplied Note id
-func GetNote(tid int64, t *Note) {
-	ReadNote(RRdb.Prepstmt.GetNote.QueryRow(tid), t)
-}
-
-// GetNoteAndChildNotes reads a Note structure based on the supplied Note id, then it reads all its child notes, organizes them by Date
-// and returns them in an array
-func GetNoteAndChildNotes(nid int64) Note {
-	var n Note
-	GetNote(nid, &n)
-	rows, err := RRdb.Prepstmt.GetNoteAndChildNotes.Query(nid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var p Note
-		ReadNotes(rows, &p)
-		n.CN = append(n.CN, p)
-	}
-	Errcheck(rows.Err())
-	return n
-}
-
-//=======================================================
-//  NOTELIST
-//=======================================================
-
-// GetNoteList reads a NoteList structure based on the supplied NoteList id
-func GetNoteList(nlid int64) NoteList {
-	var m NoteList
-	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.LastModTime, &m.LastModBy))
-	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var nid int64
-		Errcheck(rows.Scan(&nid))
-		p := GetNoteAndChildNotes(nid)
-		m.N = append(m.N, p)
-	}
-	Errcheck(rows.Err())
-	return m
-}
-
-//=======================================================
-//  NOTE TYPE
-//=======================================================
-
-// GetNoteType reads a NoteType structure based on the supplied NoteType id
-func GetNoteType(ntid int64, t *NoteType) {
-	Errcheck(RRdb.Prepstmt.GetNoteType.QueryRow(ntid).Scan(&t.NTID, &t.BID, &t.Name, &t.LastModTime, &t.LastModBy))
-}
-
-// GetAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
-func GetAllNoteTypes(bid int64) []NoteType {
-	var m []NoteType
-	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var p NoteType
-		Errcheck(rows.Scan(&p.NTID, &p.BID, &p.Name, &p.LastModTime, &p.LastModBy))
-		m = append(m, p)
-	}
-	Errcheck(rows.Err())
-	return m
-}
-
-//=======================================================
-//  RATE PLAN
-//=======================================================
-
-// GetRatePlan reads a RatePlan structure based on the supplied RatePlan id
-func GetRatePlan(id int64, a *RatePlan) {
-	ReadRatePlan(RRdb.Prepstmt.GetRatePlan.QueryRow(id), a)
-}
-
-// GetRatePlanByName reads a RatePlan structure based on the supplied RatePlan id
-func GetRatePlanByName(id int64, s string, a *RatePlan) {
-	ReadRatePlan(RRdb.Prepstmt.GetRatePlanByName.QueryRow(id, s), a)
-}
-
-// GetAllRatePlans reads all RatePlan structures based on the supplied bid
-func GetAllRatePlans(id int64) []RatePlan {
-	var m []RatePlan
-	rows, err := RRdb.Prepstmt.GetAllRatePlans.Query(id)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var p RatePlan
-		ReadRatePlans(rows, &p)
-		m = append(m, p)
-	}
-	Errcheck(rows.Err())
-	return m
-}
-
-// GetRatePlanRef reads a RatePlanRef structure based on the supplied RatePlanRef id
-func GetRatePlanRef(id int64, a *RatePlanRef) {
-	ReadRatePlanRef(RRdb.Prepstmt.GetRatePlanRef.QueryRow(id), a)
-}
-
-// GetRatePlanRefFull reads a RatePlanRef structure based on the supplied RatePlanRef id and
-// pulls in all the RTRate and SPRate structure arrays
-func GetRatePlanRefFull(id int64, a *RatePlanRef) {
-	if a.RPRID == 0 {
-		ReadRatePlanRef(RRdb.Prepstmt.GetRatePlanRef.QueryRow(id), a)
-	}
-	// now load all its rates
-	rows, err := RRdb.Prepstmt.GetAllRatePlanRefRTRates.Query(id)
-	if err != nil {
-		Ulog("GetRatePlanRefFull:   GetAllRatePlanRefRTRates - error = %s\n", err.Error())
-		return
-	}
-	for rows.Next() {
-		var p RatePlanRefRTRate
-		ReadRatePlanRefRTRates(rows, &p)
-		a.RT = append(a.RT, p)
-	}
-	// now load all Specialty rates
-	rows, err = RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(a.RPRID, a.RPID)
-	if err != nil {
-		Ulog("GetRatePlanRefFull: GetAllRatePlanRefSPRates - error = %s\n", err.Error())
-		return
-	}
-	for rows.Next() {
-		var p RatePlanRefSPRate
-		ReadRatePlanRefSPRates(rows, &p)
-		a.SP = append(a.SP, p)
-	}
-}
-
-// GetRatePlanRefsInRange reads a RatePlanRef structure based on the supplied RatePlan id and the date.
-func GetRatePlanRefsInRange(id int64, d1, d2 *time.Time) []RatePlanRef {
-	var m []RatePlanRef
-	rows, err := RRdb.Prepstmt.GetRatePlanRefsInRange.Query(id, d1, d2)
-	if err != nil {
-		Ulog("GetRatePlanRefsInRange: error = %s\n", err.Error())
-		return m
-	}
-	for rows.Next() {
-		var a RatePlanRef
-		ReadRatePlanRefs(rows, &a)
-		m = append(m, a)
-	}
-	return m
-}
-
-// GetAllRatePlanRefsInRange reads all RatePlanRef structure based on the supplied date range
-func GetAllRatePlanRefsInRange(d1, d2 *time.Time) []RatePlanRef {
-	var m []RatePlanRef
-	rows, err := RRdb.Prepstmt.GetAllRatePlanRefsInRange.Query(d1, d2)
-	if err != nil {
-		Ulog("GetAllRatePlanRefsInRange: error = %s\n", err.Error())
-		return m
-	}
-	for rows.Next() {
-		var a RatePlanRef
-		ReadRatePlanRefs(rows, &a)
-		m = append(m, a)
-	}
-	return m
-}
-
-// GetRatePlanRefRTRate reads the RatePlanRefRTRate struct for the supplied rprid and rtid
-func GetRatePlanRefRTRate(rprid, rtid int64, a *RatePlanRefRTRate) {
-	row := RRdb.Prepstmt.GetRatePlanRefRTRate.QueryRow(rprid, rtid)
-	ReadRatePlanRefRTRate(row, a)
-}
-
-// GetRatePlanRefSPRate reads the RatePlanRefSPRate struct for the supplied rprid and rtid
-func GetRatePlanRefSPRate(rprid, rtid int64, a *RatePlanRefSPRate) {
-	row := RRdb.Prepstmt.GetRatePlanRefSPRate.QueryRow(rprid, rtid)
-	ReadRatePlanRefSPRate(row, a)
-}
-
-// GetAllRatePlanRefSPRates reads all RatePlanRefSPRate structures based on the supplied RatePlan id and the date.
-func GetAllRatePlanRefSPRates(rprid, rtid int64) []RatePlanRefSPRate {
-	var m []RatePlanRefSPRate
-	rows, err := RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(rprid, rtid)
-	if err != nil {
-		Ulog("GetAllRatePlanRefSPRates: error = %s\n", err.Error())
-		return m
-	}
-	for rows.Next() {
-		var a RatePlanRefSPRate
-		ReadRatePlanRefSPRates(rows, &a)
-		m = append(m, a)
-	}
-	return m
 }
 
 //=======================================================

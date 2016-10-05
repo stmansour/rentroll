@@ -19,7 +19,7 @@ func printLedgerHeader(tbl *rlib.Table, xbiz *rlib.XBusiness, l *rlib.GLAccount,
 
 // returns the payment/accessment reason, Rentable name
 func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
-	j, _ := rlib.GetJournal(l.JID)
+	j := rlib.GetJournal(l.JID)
 	sra := fmt.Sprintf("%9d", j.RAID)
 	switch j.Type {
 	case rlib.JNLTYPEUNAS:

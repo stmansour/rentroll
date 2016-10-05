@@ -420,12 +420,20 @@ func RRreportPaymentTypes(f int, bid int64) string {
 func RRreportAssessments(f int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	t := RRAssessmentsTable(bid, &d1, &d2)
+	return t.GetTitle() + "\n" + t.SprintTable(f)
+}
+
+// RRAssessmentsTable generates a report of all rlib.GLAccount accounts
+func RRAssessmentsTable(bid int64, d1, d2 *time.Time) rlib.Table {
 	rlib.InitBusinessFields(bid)
 	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
 	rlib.Errcheck(err)
 	defer rows.Close()
+
 	var t rlib.Table
+	t.SetTitle(fmt.Sprintf("Assessments:  BID = %s, from %s up to %s", rlib.IDtoString("B", bid), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4)))
 	t.Init()
 	t.AddColumn("ASMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("PASMID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -452,27 +460,20 @@ func RRreportAssessments(f int, bid int64) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t
 }
-
-// // ReportReceiptToText returns a string representation of the chart of accts
-// func ReportReceiptToText(p *rlib.Receipt) string {
-// 	return fmt.Sprintf("RCPT%08d   %8.2f  %s\n",
-// 		p.RCPTID, p.Amount, p.AcctRule)
-// }
-
-// // ReportReceiptToHTML returns a string representation of the chart of accts
-// func ReportReceiptToHTML(p *rlib.Receipt) string {
-// 	return fmt.Sprintf("<tr><td>RCPT%08d</td><td>%8.2f</td><td>%s</d></tr\n",
-// 		p.RCPTID, p.Amount, p.AcctRule)
-// }
 
 // RRreportReceipts generates a report of all rlib.GLAccount accounts
 func RRreportReceipts(f int, bid int64) string {
 	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	m := rlib.GetReceipts(bid, &d1, &d2)
-	//s := fmt.Sprintf("      RCPTID     Amount  AcctRule\n")
+	t := RRReceiptsTable(bid, &d1, &d2)
+	return t.SprintTable(f)
+}
+
+// RRReceiptsTable generates a report of all rlib.GLAccount accounts
+func RRReceiptsTable(bid int64, d1, d2 *time.Time) rlib.Table {
+	m := rlib.GetReceipts(bid, d1, d2)
 	var t rlib.Table
 	t.Init()
 	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
@@ -498,7 +499,7 @@ func RRreportReceipts(f int, bid int64) string {
 		t.Puts(-1, 8, a.Comment)
 	}
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t
 }
 
 // RRreportInvoices generates a report of all rlib.GLAccount accounts

@@ -89,6 +89,16 @@ func ReadInvoices(rows *sql.Rows, a *Invoice) {
 	Errcheck(rows.Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadJournal reads a full Journal structure of data from the database based on the supplied Rows pointer.
+func ReadJournal(row *sql.Row, a *Journal) {
+	Errcheck(row.Scan(&a.JID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadJournals reads a full Journal structure of data from the database based on the supplied Rows pointer.
+func ReadJournals(rows *sql.Rows, a *Journal) {
+	Errcheck(rows.Scan(&a.JID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
+}
+
 // ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerEntry(row *sql.Row, a *LedgerEntry) {
 	Errcheck(row.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
@@ -189,6 +199,18 @@ func ReadRatePlanRefSPRates(rows *sql.Rows, a *RatePlanRefSPRate) {
 	Errcheck(rows.Scan(&a.RPRID, &a.RTID, &a.RSPID, &a.FLAGS, &a.Val))
 }
 
+// ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.
+func ReadReceipt(row *sql.Row, a *Receipt) {
+	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.RAID, &a.PMTID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
+		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadReceipts reads a full Receipt structure of data from the database based on the supplied Rows pointer.
+func ReadReceipts(rows *sql.Rows, a *Receipt) {
+	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.RAID, &a.PMTID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
+		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
+}
+
 // ReadRentable reads a full Rentable structure of data from the database based on the supplied Row pointer.
 func ReadRentable(row *sql.Row, a *Rentable) error {
 	return row.Scan(&a.RID, &a.BID, &a.Name, &a.AssignmentTime, &a.LastModTime, &a.LastModBy)
@@ -237,18 +259,6 @@ func ReadRentalAgreementTemplate(row *sql.Row, a *RentalAgreementTemplate) error
 // ReadRentalAgreementTemplates reads a full RentalAgreementTemplate structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreementTemplates(rows *sql.Rows, a *RentalAgreementTemplate) error {
 	return rows.Scan(&a.RATID, &a.BID, &a.RATemplateName, &a.LastModTime, &a.LastModBy)
-}
-
-// ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.
-func ReadReceipt(row *sql.Row, a *Receipt) {
-	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.RAID, &a.PMTID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
-		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
-}
-
-// ReadReceipts reads a full Receipt structure of data from the database based on the supplied Rows pointer.
-func ReadReceipts(rows *sql.Rows, a *Receipt) {
-	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.RAID, &a.PMTID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
-		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadStringList reads a full StringList structure from the database based on the supplied row object

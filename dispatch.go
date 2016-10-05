@@ -7,48 +7,107 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
+	"strconv"
 	"strings"
 	"text/template"
+	"time"
 )
 
-// InitBizInternals initializes several internal structures with information about the business.
-// xbiz.P.BID must be set to the BID of interest before calling this function
-func InitBizInternals(bid int64, xbiz *rlib.XBusiness) {
-	rlib.GetXBusiness(bid, xbiz) // get its info
-	rlib.InitBusinessFields(bid)
-	rlib.GetDefaultLedgers(bid) // Gather its chart of accounts
-	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
-	rlib.GetAllNoteTypes(bid)
-	rlib.LoadRentableTypeCustomaAttributes(xbiz)
+// RRPHreport et al are categorizations of commands
+const (
+	RRPHrpt = 0
+	RRPHcmd = iota
+	RRPHadm = iota
+)
+
+// RRPageHandler is a structure of page names and handlers
+type RRPageHandler struct {
+	Name     string                                                                  // report name
+	PageName string                                                                  // name of form to collect information for this report
+	Handler  func(http.ResponseWriter, *http.Request, *rlib.XBusiness, *RRuiSupport) // the actual handler function
+	Category int                                                                     // report, command, admin
 }
 
-// RunBooks runs a series of commands to handle command line run requests
-func RunBooks(ctx *DispatchCtx) {
+// GetUIContext initializes the structures used by the UI based on some common form elements.
+func GetUIContext(w http.ResponseWriter, r *http.Request, ui *RRuiSupport, xbiz *rlib.XBusiness) {
+	now := time.Now()
 	var err error
 
-	InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
+	// Init to reasonable starting values
+	ui.DtStart = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC).Format(rlib.RRDATEINPFMT)
+	ui.DtStop = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0).Format(rlib.RRDATEINPFMT)
+
+	// override with input if available
+	s := r.FormValue("DtStart")
+	if s != "" {
+		ui.DtStart = s
+	}
+	s = r.FormValue("DtStop")
+	if s != "" {
+		ui.DtStop = s
+	}
+	BID := r.FormValue("BID")
+
+	UIInitBizList(ui)
+	ui.D1, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(ui.DtStart))
+	if err != nil {
+		rlib.Ulog("GetUIContext: could not parse %s, err = %v\n", ui.DtStart, err)
+	}
+	ui.D2, err = time.Parse(rlib.RRDATEINPFMT, strings.TrimSpace(ui.DtStop))
+	if err != nil {
+		rlib.Ulog("GetUIContext: could not parse %s, err = %v\n", ui.DtStop, err)
+	}
+	if len(BID) > 0 {
+		i, err := strconv.Atoi(strings.TrimSpace(BID))
+		if err != nil {
+			rlib.Ulog("Error fetching business with BID = %d\n", i)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		rlib.InitBizInternals(int64(i), xbiz)
+		UIInitBizList(ui)
+	}
+}
+
+func dispatchHandler(w http.ResponseWriter, r *http.Request) {
+	funcname := "dispatchHandler"
+	tmpl := "dispatch.html"
+	var ui RRuiSupport
+	var xbiz rlib.XBusiness
+
+	GetUIContext(w, r, &ui, &xbiz)
+	ui.PgHnd = App.PageHandlers
+	action := r.FormValue("action")
+
+	if len(action) > 0 {
+		w.Header().Set("Content-Type", "text/html")
+		for i := 0; i < len(App.PageHandlers); i++ {
+			if action == App.PageHandlers[i].Name && nil != App.PageHandlers[i].Handler {
+				App.PageHandlers[i].Handler(w, r, &xbiz, &ui)
+				tmpl = App.PageHandlers[i].PageName
+				break
+			}
+		}
+	}
+	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/" + tmpl)
+	if nil != err {
+		fmt.Printf("%s: error loading template: %v\n", funcname, err)
+	}
+	err = t.Execute(w, &ui)
+
+	if nil != err {
+		rlib.LogAndPrintError(funcname, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// RunCommandLine runs a series of commands to handle command line run requests
+func RunCommandLine(ctx *DispatchCtx) {
+	var err error
+
+	rlib.InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
 	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-	// fmt.Printf("RunBooks: Rcsv.Xbiz = %#v\n", rcsv.Rcsv.Xbiz)
 
-	// first handle requests for a CSV Load...
-	// if len(ctx.CSVLoadStr) > 0 {
-	// 	// fmt.Printf("CSVLoadStr = %s\n", ctx.CSVLoadStr)
-	// 	ss := strings.Split(ctx.CSVLoadStr, ",") // index,fname
-	// 	if len(ss) < 2 {
-	// 		fmt.Printf("Invalid CSVLoader Request:  %s.  Need index,filename\n", ctx.CSVLoadStr)
-	// 		os.Exit(1)
-	// 	}
-	// 	i, err := strconv.Atoi(ss[0])
-	// 	if err != nil {
-	// 		fmt.Printf("Invalid CSVLoaderIndex: %s.  err: %s\n", ss[0], err.Error())
-	// 		os.Exit(1)
-	// 	}
-	// 	// fmt.Printf("calling LoadCSV( %d , %s )\n", i, ss[1])
-	// 	rcsv.LoadCSV(i, ss[1])
-	// 	return
-	// }
-
-	// and generate the requested report...
 	switch ctx.Report {
 	case 1: // JOURNAL
 		// JournalReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
@@ -165,44 +224,8 @@ func RunBooks(ctx *DispatchCtx) {
 func Dispatch(ctx *DispatchCtx) {
 	switch ctx.Cmd {
 	case CmdRUNBOOKS:
-		RunBooks(ctx)
+		RunCommandLine(ctx)
 	default:
 		fmt.Printf("Unrecognized command: %d\n", ctx.Cmd)
-	}
-}
-
-func dispatchHandler(w http.ResponseWriter, r *http.Request) {
-	funcname := "dispatchHandler"
-	tmpl := "dispatch.html"
-	var ui RRuiSupport
-	var xbiz rlib.XBusiness
-
-	getBizStartStop(w, r, &ui, &xbiz)
-	ui.PgHnd = App.PageHandlers
-	action := r.FormValue("action")
-
-	// fmt.Printf("action = %s\n", action)
-
-	if action == "Assessments" {
-		CmdCsvAssess(w, r, &xbiz, &ui, &tmpl)
-	} else if len(action) > 0 && action != "Home" {
-		w.Header().Set("Content-Type", "text/html")
-		for i := 0; i < len(App.PageHandlers); i++ {
-			if action == App.PageHandlers[i].ReportName {
-				// fmt.Printf("dispatchHandler:  calling handler for %s\n", App.PageHandlers[i].ReportName)
-				App.PageHandlers[i].Handler(w, r, &xbiz, &ui, &tmpl)
-				break
-			}
-		}
-	}
-	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/" + tmpl)
-	if nil != err {
-		fmt.Printf("%s: error loading template: %v\n", funcname, err)
-	}
-	err = t.Execute(w, &ui)
-
-	if nil != err {
-		rlib.LogAndPrintError(funcname, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

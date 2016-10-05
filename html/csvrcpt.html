@@ -2,13 +2,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link href="/html/rentroll.css" rel="stylesheet"  type="text/css">
-<title>Accord RentRoll - Import Assessments</title>
+<title>Accord RentRoll - Import Receipts</title>
 </head>
 <body>
-<H1>Import Assessments via CSV File</H1>
+<H1>Import Receipts via CSV File</H1>
 
 <form action="/dispatch/" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="sourcepage" value="assessment">
+<input type="hidden" name="sourcepage" value="receipts">
 <table>
 <tr>
 <td>Business Unit</td><td><select name="BID">{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}</select>
@@ -17,7 +17,7 @@
 </td>
 </tr>
 <tr>
-<td>Assessment file name:</td><td colspan=3><input type="file" id="asmtfile" name="filename"> <input type="submit" name="action" value="Assessments"></td>
+<td>Receipts file name:</td><td colspan="3"><input type="file" id="asmtfile" name="filename"> <input type="submit" name="action" value="Receipts"></td>
 </tr>
 <tr><td colspan="4"><input type="submit" name="action" value="Home"></td></tr>
 </table>

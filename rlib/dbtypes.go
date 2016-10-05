@@ -760,8 +760,8 @@ type Journal struct {
 	RAID        int64               // unique id of Rental Agreement
 	Dt          time.Time           // when this entry was made
 	Amount      float64             // the amount
-	Type        int64               // 1 means this is an assessment, 2 means it is a payment
-	ID          int64               // if Type == 1 then it is the ASMID that caused this entry, of Type ==2 then it is the RCPTID
+	Type        int64               // 0 = unassociated with RA, 1 means this is an assessment, 2 means it is a payment
+	ID          int64               // if Type == 0 then it is the RentableID, if Type == 1 then it is the ASMID that caused this entry, if Type ==2 then it is the RCPTID
 	Comment     string              // for notes like "prior period adjustment"
 	LastModTime time.Time           // auto updated
 	LastModBy   int64               // user making the mod
@@ -1078,9 +1078,12 @@ type RRprepSQL struct {
 	GetRentalAgreementsForRentable     *sql.Stmt
 	GetAssessmentInstance              *sql.Stmt
 	GetRecurringAssessmentsByBusiness  *sql.Stmt
-
-	// GetSecDepBalanceLedger                   *sql.Stmt
-	//	GetLedgerMarkerByRAID                    *sql.Stmt
+	GetJournalVacancy                  *sql.Stmt
+	GetAssessmentDuplicate             *sql.Stmt
+	GetReceiptDuplicate                *sql.Stmt
+	// GetJournalInstance                 *sql.Stmt
+	// GetSecDepBalanceLedger             *sql.Stmt
+	// GetLedgerMarkerByRAID              *sql.Stmt
 }
 
 // PBprepSQL is the structure of prepared sql statements for the Phonebook db
@@ -1129,4 +1132,15 @@ func InitBusinessFields(bid int64) {
 		}
 		RRdb.BizTypes[bid] = &bt
 	}
+}
+
+// InitBizInternals initializes several internal structures with information about the business.
+func InitBizInternals(bid int64, xbiz *XBusiness) {
+	// fmt.Printf("Entered InitBizInternals\n")
+	GetXBusiness(bid, xbiz) // get its info
+	InitBusinessFields(bid)
+	GetDefaultLedgers(bid) // Gather its chart of accounts
+	RRdb.BizTypes[bid].GLAccounts = GetGLAccountMap(bid)
+	GetAllNoteTypes(bid)
+	LoadRentableTypeCustomaAttributes(xbiz)
 }

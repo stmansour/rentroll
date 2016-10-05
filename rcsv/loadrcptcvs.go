@@ -106,7 +106,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	if len(bud) > 0 {
 		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("CreateLedgerMarkers: rlib.Business with designation %s does not exist\n", sa[0])
+			rs := fmt.Sprintf("CreateLedgerMarkers: rlib.Business with designation %s does not exist\n", sa[0])
 			return rs, CsvErrorSensitivity
 		}
 		r.BID = b1.BID
@@ -120,7 +120,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 
 	_, err = rlib.GetRentalAgreement(r.RAID)
 	if nil != err {
-		fmt.Printf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[RAID], err)
+		rs := fmt.Sprintf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[RAID], err)
 		return rs, CsvErrorSensitivity
 	}
 
@@ -130,7 +130,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	r.PMTID, _ = rlib.IntFromString(sa[PMTID], "Payment type is invalid")
 	_, ok := (*PmtTypes)[r.PMTID]
 	if !ok {
-		fmt.Printf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[PMTID])
+		rs := fmt.Sprintf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[PMTID])
 		return rs, CsvErrorSensitivity
 	}
 
@@ -139,7 +139,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	dt, err := rlib.StringToDate(sa[Dt])
 	if err != nil {
-		fmt.Printf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[Dt])
+		rs := fmt.Sprintf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[Dt])
 		return rs, CsvErrorSensitivity
 	}
 	r.Dt = dt
@@ -166,13 +166,23 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	if len(r.AcctRule) == 0 || r.PMTID == 0 ||
 		r.Amount == 0 || r.RAID == 0 || r.BID == 0 {
-		fmt.Printf("Skipping this record\n")
+		rs := fmt.Sprintf("Skipping this record\n")
+		return rs, CsvErrorSensitivity
+	}
+
+	//-------------------------------------------------------------------
+	// Make sure there's no duplicate...
+	//-------------------------------------------------------------------
+	rdup := rlib.GetReceiptDuplicate(&r.Dt, r.Amount, r.DocNo)
+	if rdup.RCPTID != 0 {
+		rs = fmt.Sprintf("%s: line %d - this is a duplicate of an existing receipt: %s\n", funcname, lineno, rdup.IDtoString())
 		return rs, CsvErrorSensitivity
 	}
 
 	rcptid, err := rlib.InsertReceipt(&r)
 	if err != nil {
-		fmt.Printf("%s: line %d -  error inserting assessment: %v\n", funcname, lineno, err)
+		rs := fmt.Sprintf("%s: line %d -  error inserting receipt: %v\n", funcname, lineno, err)
+		return rs, CsvErrorSensitivity
 	}
 	r.RCPTID = rcptid
 
@@ -181,7 +191,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	err = GenerateReceiptAllocations(&r, &xbiz)
 	if err != nil {
-		fmt.Printf("%s: line %d -  error processing payments: %s\n", funcname, lineno, err.Error())
+		rs := fmt.Sprintf("%s: line %d -  error processing receipt: %s\n", funcname, lineno, err.Error())
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)
 		return rs, CsvErrorSensitivity

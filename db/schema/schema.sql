@@ -793,8 +793,8 @@ CREATE TABLE Journal (
     RAID BIGINT NOT NULL DEFAULT 0,                                -- associated rental agreement
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- date when it occurred
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- how much
-    Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unknown, 1 = assessment, 2 = payment/Receipt
-    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 1 then it is the ASMID that caused this entry, if Type ==2 then it is the RCPTID
+    Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unassociated with RA, 1 = assessment, 2 = payment/Receipt
+    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 0 then it is the RentableID, if Type == 1 then it is the ASMID that caused this entry, if Type ==2 then it is the RCPTID
     -- no last mod by, etc., this is all handled in the JournalAudit table
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP,                                    -- when was this record last written

@@ -93,11 +93,14 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time.Time) error {
 	// funcname := "journalAssessment"
 	pf, num, den, start, stop := ProrateAssessment(xbiz, a, &d, d1, d2)
+
 	// fmt.Printf("ProrateAssessment: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// fmt.Printf("pf = %f, num = %d, den = %d, start = %s, stop = %s\n", pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
+
 	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
 
 	// fmt.Printf("calling ParseAcctRule:\n  asmt = %d\n  rid = %d, d1 = %s, d2 = %s\n  a.Amount = %f\n", a.ASMID, a.RID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Amount)
+	// fmt.Printf("RRdb.BizTypes[bid].DefaultAccts = %#v\n", RRdb.BizTypes[a.BID].DefaultAccts)
 
 	m := ParseAcctRule(xbiz, a.RID, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 
@@ -108,6 +111,7 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)
+
 	// fmt.Printf("j.Amount = %f\n", j.Amount)
 
 	//------------------------------------------------------------------------------------------------------
@@ -159,6 +163,7 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 	}
 
 	// fmt.Printf("INSERTING JOURNAL: Date = %s, Type = %d, amount = %f\n", j.Dt, j.Type, j.Amount)
+
 	jid, err := InsertJournalEntry(&j)
 	if err != nil {
 		Ulog("error inserting Journal entry: %v\n", err)
@@ -228,7 +233,13 @@ func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessm
 		}
 		a.ASMID = ASMID
 	}
+
+	// fmt.Println("c1")
+
 	journalAssessment(xbiz, a.Start, a, d1, d2)
+
+	// fmt.Println("d1")
+
 	return noerr
 }
 
@@ -267,7 +278,7 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
 // ProcessJournalEntry processes an assessment. It adds instances of recurring assessments for
 // the time period d1-d2 if they do not already exist. Then creates a journal entry for the assessment.
 func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
-	// fmt.Printf("ProcessJournalEntry: 1\n")
+	// fmt.Printf("ProcessJournalEntry: 1.   a = %#v\n", a)
 	if a.RentCycle == RECURNONE {
 		ProcessNewAssessmentInstance(xbiz, d1, d2, a)
 	} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
@@ -285,7 +296,8 @@ func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
 			a1.ASMID = 0                                                  // ensure this is a new assessment
 			a1.PASMID = a.ASMID                                           // parent assessment
 
-			// Check to ensure that this instance does not already exist...
+			// The generation of recurring assessment instances needs to be idempotent.
+			// Check to ensure that this instance does not already exist before generating it
 			a2, _ := GetAssessmentInstance(&a1.Start, a1.PASMID) // if this returns an existing instance (ASMID != 0) then it's already been processed...
 			if a2.ASMID == 0 {                                   // ... otherwise, process this instance
 				_, err := InsertAssessment(&a1)

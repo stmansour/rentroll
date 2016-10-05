@@ -14,21 +14,23 @@
 <input type="hidden" name="DtStop" value="{{.DtStop}}"></td>
 <input type="hidden" name="BID" value="{{.B.BID}}">
 <table>
-<tr><th align="center">Reports</th><th></th><th align="center">Upload</th><th></th><th align="center">Backup</th></tr>
+<tr><th align="center">Reports</th><th></th><th align="center">CSV Load</th><th></th><th align="center">Admin</th></tr>
 <tr>
 <td><hr></td><td></td>
 <td><hr></td><td></td>
 <td><hr></td>
 </tr>
 <tr>
-<td align="center">{{range .PgHnd}}<input type="submit" name="action" value="{{.ReportName}}"><br>{{end}}</form>
-</td>
+<!-- REPORTS -->
+<td align="center">{{range .PgHnd}}{{if eq .Category 0}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
 <td width="20"></td>
-<td align="center"><input type="submit" name="action" value="Assessments"><br>
-<input type="submit" name="action" value="Payments"><br></td>
+<!-- COMMANDS -->
+<td align="center">{{range .PgHnd}}{{if eq .Category 1}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
 <td width="20"></td>
-<td align="center"><input type="submit" name="action" value="Backup Database"><br>
-<input type="submit" name="action" value="Restore From Backup"><br></td></tr>
+<!-- ADMIN -->
+<td align="center">{{range .PgHnd}}{{if eq .Category 2}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
+</tr>
 </table>
+</form>
 </body>
 </html>

@@ -9,7 +9,7 @@ import (
 )
 
 func initRentRoll() {
-	initJFmt()
+	// initJFmt()
 	// initTFmt()
 	rlib.RpnInit()
 
@@ -70,19 +70,20 @@ func createStartupCtx() DispatchCtx {
 func initPageHandlers() {
 	var m = []RRPageHandler{
 		// ReportName FormPageName URL
+		{"Delinquency", "rptdelinq.html", RptDelinq, RRPHrpt},
+		{"GSR", "rptgsr.html", RptGSR, RRPHrpt},
+		{"Journal", "rptjournal.html", RptJournal, RRPHrpt},
+		{"Ledger", "rptledger.html", RptLedger, RRPHrpt},
+		{"Ledger Activity", "rptledgeract.html", RptLedgerActivity, RRPHrpt},
+		{"RentRoll", "rptrentroll.html", RptRentRoll, RRPHrpt},
+		{"Trial Balance", "rpttrialbal.html", RptTrialBalance, RRPHrpt},
+		{"Assessments", "csvassess.html", CmdCsvAssess, RRPHcmd},
+		{"Receipts", "csvrcpt.html", CmdCsvRcpt, RRPHcmd},
+		{"Backup", "admbkup.html", nil, RRPHadm},
+		{"Restore", "admrestore.html", nil, RRPHadm},
 
-		{ReportName: "Delinquency", FormPageName: "rptdelinq.html", Handler: RptDelinq},
-		{ReportName: "GSR", FormPageName: "rptgsr.html", Handler: RptGSR},
-		{ReportName: "Journal", FormPageName: "rptjournal.html", Handler: RptJournal},
-		{ReportName: "Ledger", FormPageName: "rptledger.html", Handler: RptLedger},
-		{ReportName: "Ledger Activity", FormPageName: "rptledger.html", Handler: RptLedgerActivity},
-		{ReportName: "RentRoll", FormPageName: "rptrentroll.html", Handler: RptRentRoll},
-		{ReportName: "Trial Balance", FormPageName: "formtrialbal.html", Handler: RptTrialBalance},
-
-		// {ReportName: "Journal", FormPageName: "journal.html", Handler: RptJournal},
 		// {ReportName: "Home", FormPageName: "dispatch.html", Handler: nil},
 
-		// {ReportName: "Assessments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Business", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Chart of Accounts", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 		// {ReportName: "Custom Attributes", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
