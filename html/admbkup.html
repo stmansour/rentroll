@@ -1,0 +1,29 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link href="/html/rentroll.css" rel="stylesheet"  type="text/css">
+<title>Accord RentRoll - Database Backup</title>
+</head>
+<body>
+<H1>Database Backup</H1>
+<form action="/dispatch/" method="POST" enctype="multipart/form-data">
+<input type="hidden" name="sourcepage" value="admbkup">
+<input type="hidden" name="DtStart" value="{{.DtStart}}"></td>
+<input type="hidden" name="DtStop" value="{{.DtStop}}"></td>
+<input type="hidden" name="BID" value="{{.B.BID}}">
+<table>
+<tr>
+<td>Backup Database</td>
+	<td><input type="submit" name="action" value="Backup"></td>
+</td>
+</tr>
+<tr><td colspan="4"><input type="submit" name="action" value="Home"></td></tr>
+</table>
+</form>
+
+<div class="preformatted">
+{{.ReportContent}}
+</div>
+
+</body>
+</html>

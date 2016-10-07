@@ -17,6 +17,7 @@ import (
 const (
 	RRPHrpt = 0
 	RRPHcmd = iota
+	RRPHcsv = iota
 	RRPHadm = iota
 )
 
@@ -26,6 +27,60 @@ type RRPageHandler struct {
 	PageName string                                                                  // name of form to collect information for this report
 	Handler  func(http.ResponseWriter, *http.Request, *rlib.XBusiness, *RRuiSupport) // the actual handler function
 	Category int                                                                     // report, command, admin
+}
+
+func initPageHandlers() {
+	var m = []RRPageHandler{
+		// ReportName FormPageName URL
+		{"Delinquency", "rptdelinq.html", RptDelinq, RRPHrpt},
+		{"GSR", "rptgsr.html", RptGSR, RRPHrpt},
+		{"Journal", "rptjournal.html", RptJournal, RRPHrpt},
+		{"Ledger", "rptledger.html", RptLedger, RRPHrpt},
+		{"Ledger Activity", "rptledgeract.html", RptLedgerActivity, RRPHrpt},
+		{"RentRoll", "rptrentroll.html", RptRentRoll, RRPHrpt},
+		{"Trial Balance", "rpttrialbal.html", RptTrialBalance, RRPHrpt},
+		{"Assessments", "csvassess.html", CmdCsvAssess, RRPHcsv},
+		{"Receipts", "csvrcpt.html", CmdCsvRcpt, RRPHcsv},
+		{"Generate Journals", "cmdgenjnl.html", CmdGenJnl, RRPHcmd},
+		// {"Generate Ledgers", "cmdgenldg.html", CmdGenLdg, RRPHcmd},
+		{"Backup", "admbkup.html", AdmBkup, RRPHadm},
+		{"Restore", "admrestore.html", AdmRestore, RRPHadm},
+
+		// {ReportName: "Business", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Chart of Accounts", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Custom Attributes", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Delinquency", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Deposits", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Deposit Methods", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Depositories ", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Invoice", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Invoice Report", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Journal", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Ledger Activity", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Market Rate for Rentable", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Note Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "People", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Pets", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Payment Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rental Agreements", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rental Agreement Account Balance", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rentable Count by Rentable Type", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rentables", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "RatePlans", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "RatePlanRef", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rentable Specialty Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rentable Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rentable Specialties", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Specialty Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Sources", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Statements", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Rental Agreement Templates", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {ReportName: "Custom Attribute Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+	}
+	for i := 0; i < len(m); i++ {
+		App.PageHandlers = append(App.PageHandlers, m[i])
+	}
+
 }
 
 // GetUIContext initializes the structures used by the UI based on some common form elements.
