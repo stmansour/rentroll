@@ -212,9 +212,12 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			//-------------------------------------------------------------------------------------------------------
 			pf, _, _, dt1, _ := rlib.CalcProrationInfo(&dtstart, &dtstop, d1, d2, cycleval, prorateval)
 			numCycles := dtstop.Sub(dtstart) / rlib.CycleDuration(cycleval, dt1)
-			contractRentVal := pf * rar.ContractRent
-			if numCycles > 1 {
-				contractRentVal += float64(numCycles-1) * rar.ContractRent
+			contractRentVal := float64(0)
+			if dtstop.After(dtstart) {
+				contractRentVal = pf * rar.ContractRent
+				if numCycles > 1 {
+					contractRentVal += float64(numCycles-1) * rar.ContractRent
+				}
 			}
 
 			//-------------------------------------------------------------------------------------------------------
@@ -238,7 +241,7 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			if otherIncomeAcct > 0 {
 				oicd1 := rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstart)
 				oicd2 := rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
-				oic = oicd2 - oicd1
+				oic = oicd1 - oicd2 // I know this looks backwards. But in the report we want this number to show up as positive (normally), so we want -1 * (oicd2-oicd1)
 			}
 
 			//-------------------------------------------------------------------------------------------------------
@@ -291,9 +294,9 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			tbl.Putf(-1, BeginRcv, raStartBal)
 			tbl.Putf(-1, ChgRcv, raEndBal-raStartBal)
 			tbl.Putf(-1, EndRcv, raEndBal)
-			tbl.Putf(-1, BeginSecDep, secdepStartBal)
-			tbl.Putf(-1, ChgSecDep, secdepEndBal-secdepStartBal)
-			tbl.Putf(-1, EndSecDep, secdepEndBal)
+			tbl.Putf(-1, BeginSecDep, -secdepStartBal)
+			tbl.Putf(-1, ChgSecDep, secdepStartBal-secdepEndBal)
+			tbl.Putf(-1, EndSecDep, -secdepEndBal)
 			// fmt.Printf("secdepEndBal = %8.2f, secdepStartBal = %8.2f,  diff = %8.2f\n", secdepEndBal, secdepStartBal, secdepEndBal-secdepStartBal)
 		}
 

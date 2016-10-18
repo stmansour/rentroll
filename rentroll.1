@@ -5,8 +5,10 @@ rentroll \- Accord Office RentRoll Service
 .B rentroll
 [\fB\-A\fR]
 [\fB\-B\fR \fIdatabase_username\fR]
+[\fB\-C\fR \fIcert_filename\fR]
 [\fB\-help\fR]
 [\fB\-j\fR \fIperiodStartDate\fR]
+[\fB\-K\fR \fIprivatekey_filename\fR]
 [\fB\-k\fR \fIperiodStopDate\fR]
 [\fB\-M\fR \fIrentroll_database_name\fR]
 [\fB\-N\fR \fIdirectory_database_name\fR]
@@ -25,10 +27,16 @@ Run rentroll in batch mode, do not start the HTTP service. Be sure to set the da
 and set the report using -R.
 .IP "-B database_username"
 Username for logging into the database server. Default name is "ec2-user"
+.IP "-C cert_filename"
+Filename for the certificate for the key-pair, the public part of the pair. The default
+filename is localhost.crt
 .IP "-j periodStartDate"
 For use with batch mode operation. Set the period to 
 .I periodStartDate
 which is in the format yyyy-mm-dd.  Example: 2016-05-01
+.IP "-K key_filename"
+Filename for the private key for the key-pair, the private part of the pair. The default
+filename is localhost.key
 .IP "-k periodStopDate"
 For use with batch mode operation. Set the period to 
 .I periodStopDate

@@ -259,4 +259,11 @@ dorrtest  "o8" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p8" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q8" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
+#========================================================================================
+# AUGUST 2016
+#========================================================================================
+RRDATERANGE="-j 2016-09-01 -k 2016-10-01"
+CSVLOADRANGE="-G ${BUD} -g 9/1/16,10/1/16"
+dorrtest  "a9" "${RRDATERANGE} -b ${BUD}" "Process-2016-Sep"
+
 logcheck

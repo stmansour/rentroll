@@ -58,6 +58,8 @@ var App struct {
 	sStart       string          // start time
 	sStop        string          // stop time
 	Bud          string          // BUD from the command line
+	CertFile     string          // public certificate
+	KeyFile      string          //private key file
 	PageHandlers []RRPageHandler // table of http requests and handlers
 }
 
@@ -83,6 +85,8 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pStart := flag.String("j", "2015-11-01", "Accounting Period start time")
 	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
+	pKey := flag.String("K", "localhost.key", "Private key file")
+	pCert := flag.String("C", "localhost.crt", "Cert file")
 	pBud := flag.String("b", "", "Business Unit Identifier (BUD)")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	rptPtr := flag.String("r", "0", "report: 0 = generate Journal records, 1 = Journal, 2 = Rentable, 4=Rentroll, 5=AssessmentCheck, 6=LedgerBalance, 7=RentableCountByType, 8=Statement, 9=Invoice, 10=LedgerActivity, 11=RentableGSR, 12-RALedgerBalanceOnDate,LID,RAID,Date, 13-RAAcctActivity,LID,RAID, 14,Date=delinqRpt")
@@ -106,6 +110,8 @@ func readCommandLineArgs() {
 	App.BatchMode = *bPtr
 	App.Bud = *pBud
 	App.SkipVacCheck = *xPtr
+	App.CertFile = *pCert
+	App.KeyFile = *pKey
 	// fmt.Printf("*pLoad = %s\n", *pLoad)
 	App.CSVLoad = *pLoad
 }
@@ -192,6 +198,7 @@ func main() {
 		initHTTP()
 		rlib.Ulog("RentRoll initiating HTTP service on port %d\n", App.PortRR)
 		initPageHandlers()
+		go http.ListenAndServeTLS(fmt.Sprintf(":%d", App.PortRR+1), App.CertFile, App.KeyFile, nil)
 		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)
 		if nil != err {
 			fmt.Printf("*** Error on http.ListenAndServe: %v\n", err)
