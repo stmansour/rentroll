@@ -47,7 +47,7 @@ echo -n "."; cd ..
 echo
 echo -n "Retrieving latest development snapshot of rentroll..."
 /usr/local/accord/bin/getfile.sh jenkins-snapshot/rentroll/latest/rentroll.tar.gz
-
+echo
 echo -n "."; gunzip -f rentroll.tar.gz
 echo -n "."; tar xf rentroll.tar
 echo -n "."; chown -R ec2-user:ec2-user rentroll
@@ -56,6 +56,7 @@ echo -n "."; echo -n "starting..."
 echo -n "."; ./activate.sh start
 echo -n "."; sleep 3
 echo -n "."; status=$(./activate.sh ready)
+echo
 if [ "${status}" = "OK" ]; then
     echo "Activation successful"
 else
