@@ -184,7 +184,7 @@ func RRreportRentableTypes(f int, bid int64) string {
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
-func RRreportPeople(f int) string {
+func RRreportPeople(f int, bid int64) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllTransactants.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -306,7 +306,7 @@ func RRreportCustomAttributeRefs(f int) string {
 }
 
 // RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
-func RRreportRentalAgreementTemplates(f int) string {
+func RRreportRentalAgreementTemplates(f int, bid int64) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -532,13 +532,13 @@ func RRreportDepository(f int, bid int64) string {
 	m := rlib.GetAllDepositories(bid)
 	var t rlib.Table
 	t.Init()
-	t.AddColumn("DEPID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("DEPID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("AccountNo", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Name", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	for i := 0; i < len(m); i++ {
 		t.AddRow()
-		t.Puts(-1, 0, m[i].IDtoString())
+		t.Puts(-1, 0, rlib.IDtoString("DEP", m[i].DEPID))
 		t.Puts(-1, 1, rlib.IDtoString("B", m[i].BID))
 		t.Puts(-1, 2, m[i].AccountNo)
 		t.Puts(-1, 3, m[i].Name)
@@ -557,7 +557,7 @@ func RRreportDepositMethods(f int, bid int64) string {
 	t.AddColumn("Name", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	for i := 0; i < len(m); i++ {
 		t.AddRow()
-		t.Puts(-1, 0, m[i].IDtoString())
+		t.Puts(-1, 0, rlib.IDtoString("DPM", m[i].DPMID))
 		t.Puts(-1, 1, rlib.IDtoString("B", m[i].BID))
 		t.Puts(-1, 2, m[i].Name)
 	}
@@ -591,6 +591,48 @@ func RRreportDeposits(f int, bid int64) string {
 		t.Puts(-1, 4, s)
 	}
 	t.TightenColumns()
+	return t.SprintTable(f)
+}
+
+func getCategory(s string) (string, string) {
+	cat := ""
+	val := ""
+	loc := strings.Index(s, "^")
+	if loc > 0 {
+		cat = strings.TrimSpace(s[:loc])
+		if len(s) > loc+1 {
+			val = strings.TrimSpace(s[loc+1:])
+		}
+	} else {
+		val = s
+	}
+	return cat, val
+}
+
+// RRreportStringLists generates a report of all StringLists for the supplied business (bid)
+func RRreportStringLists(f int, bid int64) string {
+	var (
+		cat, val string
+	)
+	m := rlib.GetAllStringLists(bid)
+
+	var t rlib.Table
+	t.Init()
+	t.AddColumn("SLSID", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Category", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Value", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	for i := 0; i < len(m); i++ {
+		t.AddRow()
+		t.Puts(-1, 0, m[i].Name)
+		for j := 0; j < len(m[i].S); j++ {
+			cat, val = getCategory(m[i].S[j].Value)
+			t.AddRow()
+			t.Puts(-1, 0, rlib.IDtoString("SLS", m[i].S[j].SLSID))
+			t.Puts(-1, 1, cat)
+			t.Puts(-1, 2, val)
+		}
+	}
 	return t.SprintTable(f)
 }
 
@@ -727,50 +769,6 @@ func RRreportSources(t int, bid int64) string {
 			fmt.Printf("RRreportSources: unrecognized print format: %d\n", t)
 			return ""
 		}
-	}
-	return s
-}
-
-func getCategory(s string) (string, string) {
-	cat := ""
-	val := ""
-	loc := strings.Index(s, "^")
-	if loc > 0 {
-		cat = strings.TrimSpace(s[:loc])
-		if len(s) > loc+1 {
-			val = strings.TrimSpace(s[loc+1:])
-		}
-	} else {
-		val = s
-	}
-	return cat, val
-}
-
-// RRreportStringLists generates a report of all StringLists for the supplied business (bid)
-func RRreportStringLists(t int, bid int64) string {
-	var (
-		s        string
-		cat, val string
-	)
-	m := rlib.GetAllStringLists(bid)
-
-	for i := 0; i < len(m); i++ {
-		s += fmt.Sprintf("String List Name:  %s\n", m[i].Name)
-		s += fmt.Sprintf("%-11s  %-25s  %-50s\n", "SLSID", "Category", "Value")
-		s += fmt.Sprintf("%-11s  %-25s  %-50s\n", "-----", "--------", "-----")
-		for j := 0; j < len(m[i].S); j++ {
-			cat, val = getCategory(m[i].S[j].Value)
-			switch t {
-			case rlib.RPTTEXT:
-				s += fmt.Sprintf("SLS%08d  %-25s  %-50s\n", m[i].S[j].SLSID, cat, val)
-			case rlib.RPTHTML:
-				fmt.Printf("UNIMPLEMENTED\n")
-			default:
-				fmt.Printf("RRreportSources: unrecognized print format: %d\n", t)
-				return ""
-			}
-		}
-		s += "\n"
 	}
 	return s
 }

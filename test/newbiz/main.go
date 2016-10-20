@@ -239,25 +239,25 @@ func main() {
 	// Now, on with the main portion of the program...
 	//----------------------------------------------------
 	if len(App.BizFile) > 0 {
-		rcsv.LoadBusinessCSV(App.BizFile)
+		fmt.Print(rcsv.LoadBusinessCSV(App.BizFile))
 	}
 	if len(App.SLFile) > 0 {
 		rcsv.LoadStringTablesCSV(App.SLFile)
 	}
 	if len(App.PmtTypeFile) > 0 {
-		rcsv.LoadPaymentTypesCSV(App.PmtTypeFile)
+		fmt.Print(rcsv.LoadPaymentTypesCSV(App.PmtTypeFile))
 	}
 	if len(App.DMFile) > 0 {
-		rcsv.LoadDepositMethodsCSV(App.DMFile)
+		fmt.Print(rcsv.LoadDepositMethodsCSV(App.DMFile))
 	}
 	if len(App.SrcFile) > 0 {
 		rcsv.LoadSourcesCSV(App.SrcFile)
 	}
 	if len(App.RTFile) > 0 {
-		rcsv.LoadRentableTypesCSV(App.RTFile)
+		fmt.Print(rcsv.LoadRentableTypesCSV(App.RTFile))
 	}
 	if len(App.CustomFile) > 0 {
-		rcsv.LoadCustomAttributesCSV(App.CustomFile)
+		fmt.Print(rcsv.LoadCustomAttributesCSV(App.CustomFile))
 	}
 	if len(App.DepositoryFile) > 0 {
 		rcsv.LoadDepositoryCSV(App.DepositoryFile)
@@ -269,7 +269,7 @@ func main() {
 		rcsv.LoadBuildingCSV(App.BldgFile)
 	}
 	if len(App.PplFile) > 0 {
-		rcsv.LoadPeopleCSV(App.PplFile)
+		fmt.Print(rcsv.LoadPeopleCSV(App.PplFile))
 	}
 	if len(App.RFile) > 0 {
 		rcsv.LoadRentablesCSV(App.RFile)
@@ -278,16 +278,16 @@ func main() {
 		rcsv.LoadRentableSpecialtyRefsCSV(App.RspRefsFile)
 	}
 	if len(App.RatFile) > 0 {
-		rcsv.LoadRentalAgreementTemplatesCSV(App.RatFile)
+		fmt.Print(rcsv.LoadRentalAgreementTemplatesCSV(App.RatFile))
 	}
 	if len(App.RaFile) > 0 {
-		rcsv.LoadRentalAgreementCSV(App.RaFile)
+		fmt.Print(rcsv.LoadRentalAgreementCSV(App.RaFile))
 	}
 	if len(App.PetFile) > 0 {
 		rcsv.LoadPetsCSV(App.PetFile)
 	}
 	if len(App.CoaFile) > 0 {
-		rcsv.LoadChartOfAccountsCSV(App.CoaFile)
+		fmt.Print(rcsv.LoadChartOfAccountsCSV(App.CoaFile))
 	}
 	if len(App.RPFile) > 0 {
 		rcsv.LoadRatePlansCSV(App.RPFile)
@@ -314,7 +314,7 @@ func main() {
 		rcsv.LoadDepositCSV(App.DepositFile)
 	}
 	if len(App.AssignFile) > 0 {
-		rcsv.LoadCustomAttributeRefsCSV(App.AssignFile)
+		fmt.Print(rcsv.LoadCustomAttributeRefsCSV(App.AssignFile))
 	}
 	if len(App.NoteTypeFile) > 0 {
 		rcsv.LoadNoteTypesCSV(App.NoteTypeFile)
@@ -345,9 +345,12 @@ func main() {
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rcsv.RRreportRentables(rlib.RPTTEXT, bid))
 		case 7:
-			fmt.Printf("%s\n", rcsv.RRreportPeople(rlib.RPTTEXT))
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportPeople(rlib.RPTTEXT, bid))
 		case 8:
-			fmt.Printf("%s\n", rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT))
+			bid := loaderGetBiz(sa[1])
+			fmt.Printf("%s\n", rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT, bid))
 		case 9:
 			bizErrCheck(sa)
 			bid := loaderGetBiz(sa[1])

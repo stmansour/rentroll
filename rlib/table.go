@@ -84,6 +84,11 @@ func (t *Table) GetTitle() string {
 	return t.Title
 }
 
+// RowCount returns the number of rows in the table
+func (t *Table) RowCount() int {
+	return len(t.Row)
+}
+
 // TypeToString returns a string describing the data type of the cell.
 func (c *Cell) TypeToString() string {
 	switch c.Type {

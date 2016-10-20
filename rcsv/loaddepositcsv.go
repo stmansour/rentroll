@@ -34,7 +34,8 @@ func CreateDepositsFromCSV(sa []string, lineno int) int {
 		{"ReceiptSpec", ReceiptSpec},
 	}
 
-	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+	_, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
 		return 1
 	}
 	if lineno == 1 {

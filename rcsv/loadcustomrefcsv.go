@@ -10,7 +10,7 @@ import (
 //  5 ,         123,     456
 
 // CreateCustomAttributeRefs reads a rlib.CustomAttributeRefs string array and creates a database record
-func CreateCustomAttributeRefs(sa []string, lineno int) int {
+func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
 	funcname := "Createrlib.CustomAttributeRefs"
 	var ok bool
 	var c rlib.CustomAttributeRef
@@ -28,29 +28,30 @@ func CreateCustomAttributeRefs(sa []string, lineno int) int {
 		{"CID", CID},
 	}
 
-	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
-		return 1
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
+		return rs, 1
 	}
 	if lineno == 1 {
-		return 0
+		return rs, 0
 	}
 
 	c.ElementType, ok = rlib.IntFromString(sa[0], "ElementType is invalid")
 	if !ok {
-		return CsvErrorSensitivity
+		return rs, CsvErrorSensitivity
 	}
 	if c.ElementType < rlib.ELEMRENTABLETYPE || c.ElementType > rlib.ELEMLAST {
-		fmt.Printf("ElementType value must be a number from %d to %d\n", rlib.ELEMRENTABLETYPE, rlib.ELEMLAST)
-		return CsvErrorSensitivity
+		rs += fmt.Sprintf("ElementType value must be a number from %d to %d\n", rlib.ELEMRENTABLETYPE, rlib.ELEMLAST)
+		return rs, CsvErrorSensitivity
 	}
 
 	c.ID, ok = rlib.IntFromString(sa[1], "ID value cannot be converted to an integer")
 	if !ok {
-		return CsvErrorSensitivity
+		return rs, CsvErrorSensitivity
 	}
 	c.CID, ok = rlib.IntFromString(sa[2], "CID value cannot be converted to an integer")
 	if !ok {
-		return CsvErrorSensitivity
+		return rs, CsvErrorSensitivity
 	}
 
 	switch c.ElementType {
@@ -58,24 +59,28 @@ func CreateCustomAttributeRefs(sa []string, lineno int) int {
 		var rt rlib.RentableType
 		err := rlib.GetRentableType(c.ID, &rt)
 		if err != nil {
-			fmt.Printf("%s: line %d - Could not load rlib.RentableType with id %d:  error = %v\n", funcname, lineno, c.ID, err)
-			return CsvErrorSensitivity
+			rs += fmt.Sprintf("%s: line %d - Could not load rlib.RentableType with id %d:  error = %v\n", funcname, lineno, c.ID, err)
+			return rs, CsvErrorSensitivity
 		}
 	}
 
 	err := rlib.InsertCustomAttributeRef(&c)
 	if err != nil {
-		fmt.Printf("%s: line %d - Could not insert CustomAttributeRef. err = %v\n", funcname, lineno, err)
+		rs += fmt.Sprintf("%s: line %d - Could not insert CustomAttributeRef. err = %v\n", funcname, lineno, err)
 	}
-	return 0
+	return rs, 0
 }
 
 // LoadCustomAttributeRefsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadCustomAttributeRefsCSV(fname string) {
+func LoadCustomAttributeRefsCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		if CreateCustomAttributeRefs(t[i], i+1) > 0 {
-			return
+		s, err := CreateCustomAttributeRefs(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
 		}
 	}
+	return rs
 }

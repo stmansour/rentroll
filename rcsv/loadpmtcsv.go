@@ -14,7 +14,7 @@ import (
 // REH,"Cash", "Cash"
 
 // CreatePaymentTypeFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreatePaymentTypeFromCSV(sa []string, lineno int) int {
+func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
 	funcname := "CreatePaymentTypeFromCSV"
 	var pt rlib.PaymentType
 	const (
@@ -30,11 +30,12 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) int {
 		{"Description", Description},
 	}
 
-	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
-		return 1
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
+		return rs, 1
 	}
 	if lineno == 1 {
-		return 0
+		return rs, 0
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
@@ -45,8 +46,8 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) int {
 	if len(des) > 0 {
 		b := rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			rlib.Ulog("%s: line %d - Business named %s not found\n", funcname, lineno, des)
-			return CsvErrorSensitivity
+			rs += fmt.Sprintf("%s: line %d - Business named %s not found\n", funcname, lineno, des)
+			return rs, CsvErrorSensitivity
 		}
 		pt.BID = b.BID
 	}
@@ -59,16 +60,23 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) int {
 	//-------------------------------------------------------------------
 	err := rlib.InsertPaymentType(&pt)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
+		rs += fmt.Sprintf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
+		return rs, CsvErrorSensitivity
 	}
 
-	return 0
+	return rs, 0
 }
 
 // LoadPaymentTypesCSV loads a csv file with rental specialty types and processes each one
-func LoadPaymentTypesCSV(fname string) {
+func LoadPaymentTypesCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreatePaymentTypeFromCSV(t[i], i+1)
+		s, err := CreatePaymentTypeFromCSV(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
+		}
 	}
+	return rs
 }

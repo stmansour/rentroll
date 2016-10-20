@@ -56,6 +56,7 @@ type RRuiSupport struct {
 	LDG           UILedger        // ledgers associated with this report
 	ReportContent string          // text report content
 	PgHnd         []RRPageHandler // the list of reports and handlers
+	PageTitle     string          // set page title via software
 }
 
 //========================================================================================================

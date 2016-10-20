@@ -50,7 +50,6 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 	var r rlib.Rentable
 	var err error
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	rs := "" // return string
 	var xbiz rlib.XBusiness
 
 	const (
@@ -82,7 +81,8 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 		{"AcctRule", AcctRule},
 	}
 
-	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
 		return rs, 1
 	}
 	if lineno == 1 {

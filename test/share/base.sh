@@ -171,7 +171,7 @@ EOF
 		 sa) csvload "-L 22,${BUD}" ;;
 		 so) csvload "-L 24,${BUD}" ;;
 		 st) app "-b ${BUD} -r 8" ;;
-		  t) csvload "-L 8" ;;
+		  t) csvload "-L 8,${BUD}" ;;
 		  u) csvload "-L 15" ;;
 		  x)	exit 0 ;;
 		  *)	echo "Unknown report: ${choice}"

@@ -19,6 +19,7 @@ const (
 	RRPHcmd = iota
 	RRPHcsv = iota
 	RRPHadm = iota
+	RRPHnon = iota // suppress this button
 )
 
 // RRPageHandler is a structure of page names and handlers
@@ -31,51 +32,80 @@ type RRPageHandler struct {
 
 func initPageHandlers() {
 	var m = []RRPageHandler{
-		// ReportName FormPageName URL
+		// Name  HTMLFilename  cmdType
+		{"Business", "", CmdSimpleReport, RRPHrpt},
+		{"B", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"Chart Of Accounts", "coa.html", CmdSimpleReport, RRPHrpt},
+		{"Custom Attributes", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Custom Attribute Refs", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"ASM", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"C", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"CR", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"COA", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"DPM", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"DEP", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"PMT", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"R", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"RAT", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"RA", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"RCPT", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"RT", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"SL", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"T", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"Assessments", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Deposit Methods", "dpm.html", CmdSimpleReport, RRPHrpt},
+		{"Depositories", "dep.html", CmdSimpleReport, RRPHrpt},
 		{"Delinquency", "rptdelinq.html", RptDelinq, RRPHrpt},
 		{"GSR", "rptgsr.html", RptGSR, RRPHrpt},
 		{"Journal", "rptjournal.html", RptJournal, RRPHrpt},
 		{"Ledger", "rptledger.html", RptLedger, RRPHrpt},
 		{"Ledger Activity", "rptledgeract.html", RptLedgerActivity, RRPHrpt},
+		{"People", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Payment Types", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Receipts", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Rentables", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Rental Agreements", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Rental Agreement Templates", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Rentable Types", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"RentRoll", "rptrentroll.html", RptRentRoll, RRPHrpt},
+		{"String Lists", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Trial Balance", "rpttrialbal.html", RptTrialBalance, RRPHrpt},
+
+		{"Generate Journals", "cmdgenjnl.html", CmdGenJnl, RRPHcmd},
+
 		{"Assessments", "csvassess.html", CmdCsvAssess, RRPHcsv},
 		{"Receipts", "csvrcpt.html", CmdCsvRcpt, RRPHcsv},
-		{"Generate Journals", "cmdgenjnl.html", CmdGenJnl, RRPHcmd},
+		{"CSVLoad", "csvload.html", CmdCSVLoad, RRPHcsv},
+
 		// {"Generate Ledgers", "cmdgenldg.html", CmdGenLdg, RRPHcmd},
 		{"Backup", "admbkup.html", AdmBkup, RRPHadm},
 		{"Restore", "admrestore.html", AdmRestore, RRPHadm},
 
-		// {ReportName: "Business", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Chart of Accounts", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Custom Attributes", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Delinquency", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Deposits", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Deposit Methods", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Depositories ", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Invoice", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Invoice Report", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Journal", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Ledger Activity", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Market Rate for Rentable", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Note Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "People", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Pets", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Payment Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rental Agreements", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rental Agreement Account Balance", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rentable Count by Rentable Type", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rentables", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "RatePlans", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "RatePlanRef", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rentable Specialty Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rentable Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rentable Specialties", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Specialty Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Sources", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Statements", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Rental Agreement Templates", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
-		// {ReportName: "Custom Attribute Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Custom Attributes", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Delinquency", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Deposits", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Invoice", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Invoice Report", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Journal", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Ledger Activity", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Market Rate for Rentable", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Note Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "People", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Pets", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Payment Types", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Rental Agreements", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Rental Agreement Account Balance", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Rentable Count by Rentable Type", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Rentables", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "RatePlans", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "RatePlanRef", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Rentable Specialty Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Rentable Specialties", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Specialty Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Sources", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Statements", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Rental Agreement Templates", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
+		// {Name: "Custom Attribute Assignments", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
 	}
 	for i := 0; i < len(m); i++ {
 		App.PageHandlers = append(App.PageHandlers, m[i])
@@ -134,19 +164,26 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 	ui.PgHnd = App.PageHandlers
 	action := r.FormValue("action")
 
+	fmt.Printf("dispatchHandler: action = %s\n", action)
+
 	if len(action) > 0 {
 		w.Header().Set("Content-Type", "text/html")
 		for i := 0; i < len(App.PageHandlers); i++ {
 			if action == App.PageHandlers[i].Name && nil != App.PageHandlers[i].Handler {
+				ui.PageTitle = App.PageHandlers[i].Name
 				App.PageHandlers[i].Handler(w, r, &xbiz, &ui)
-				tmpl = App.PageHandlers[i].PageName
+				if len(App.PageHandlers[i].PageName) > 0 {
+					tmpl = App.PageHandlers[i].PageName
+				}
 				break
 			}
 		}
 	}
 	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/" + tmpl)
 	if nil != err {
-		fmt.Printf("%s: error loading template: %v\n", funcname, err)
+		s := fmt.Sprintf("%s: error loading template: %v\n", funcname, err)
+		ui.ReportContent += s
+		fmt.Print(s)
 	}
 	err = t.Execute(w, &ui)
 

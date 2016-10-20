@@ -93,7 +93,8 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 		{"Comment", Comment},
 	}
 
-	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
 		return rs, 1
 	}
 	if lineno == 1 {

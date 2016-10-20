@@ -121,3 +121,107 @@ func CmdGenJnl(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 	t := rrpt.JournalReport(xbiz, &ui.D1, &ui.D2)
 	ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
 }
+
+type csvLoaderT struct {
+	prefix  string              // id prefix
+	handler func(string) string // actual csv loader
+}
+
+var loaders = []csvLoaderT{
+	{prefix: "ASM", handler: rcsv.LoadAssessmentsCSV},
+	{prefix: "B", handler: rcsv.LoadBusinessCSV},
+	{prefix: "C", handler: rcsv.LoadCustomAttributesCSV},
+	{prefix: "CR", handler: rcsv.LoadCustomAttributeRefsCSV},
+	{prefix: "COA", handler: rcsv.LoadChartOfAccountsCSV},
+	{prefix: "DPM", handler: rcsv.LoadDepositMethodsCSV},
+	{prefix: "DEP", handler: rcsv.LoadDepositoryCSV},
+	{prefix: "RT", handler: rcsv.LoadRentableTypesCSV},
+	{prefix: "SL", handler: rcsv.LoadStringTablesCSV},
+	{prefix: "T", handler: rcsv.LoadPeopleCSV},
+	{prefix: "PMT", handler: rcsv.LoadPaymentTypesCSV},
+	{prefix: "R", handler: rcsv.LoadRentablesCSV},
+	{prefix: "RA", handler: rcsv.LoadRentalAgreementCSV},
+	{prefix: "RAT", handler: rcsv.LoadRentalAgreementTemplatesCSV},
+	{prefix: "RA", handler: rcsv.LoadRentalAgreementCSV},
+	{prefix: "RCPT", handler: rcsv.LoadReceiptsCSV},
+	// {prefix: "RSP", handler: rcsv.LoadRentalSpecialtiesCSV},
+}
+
+func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
+	switch prefix {
+	case "ASM", "Assessments":
+		return rcsv.RRreportAssessments(rlib.RPTTEXT, xbiz.P.BID)
+	case "B", "Business":
+		return rcsv.RRreportBusiness(rlib.RPTTEXT)
+	case "COA", "Chart Of Accounts":
+		return rcsv.RRreportChartOfAccounts(rlib.RPTTEXT, xbiz.P.BID)
+	case "C", "Custom Attributes":
+		return rcsv.RRreportCustomAttributes(rlib.RPTTEXT)
+	case "CR", "Custom Attribute Refs":
+		return rcsv.RRreportCustomAttributeRefs(rlib.RPTTEXT)
+	case "DPM", "Deposit Methods":
+		return rcsv.RRreportDepositMethods(rlib.RPTTEXT, xbiz.P.BID)
+	case "DEP", "Depositories":
+		return rcsv.RRreportDepository(rlib.RPTTEXT, xbiz.P.BID)
+	case "PMT", "Payment Types":
+		return rcsv.RRreportPaymentTypes(rlib.RPTTEXT, xbiz.P.BID)
+	case "R", "Rentables":
+		return rcsv.RRreportRentables(rlib.RPTTEXT, xbiz.P.BID)
+	case "RAT", "Rental Agreement Templates":
+		return rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT, xbiz.P.BID)
+	case "RA", "Rental Agreements":
+		return rcsv.RRreportRentalAgreements(rlib.RPTTEXT, xbiz.P.BID)
+	case "RCPT", "Receipts":
+		return rcsv.RRreportRentalAgreements(rlib.RPTTEXT, xbiz.P.BID)
+	case "RT", "Rentable Types":
+		return rcsv.RRreportRentableTypes(rlib.RPTTEXT, xbiz.P.BID)
+	case "SL", "String Lists":
+		return rcsv.RRreportStringLists(rlib.RPTTEXT, xbiz.P.BID)
+	case "T", "People":
+		return rcsv.RRreportPeople(rlib.RPTTEXT, xbiz.P.BID)
+	}
+	return "unhandled loader type: " + prefix
+}
+
+// CmdSimpleReport returns the report output in ui.ReportContent for the provid
+func CmdSimpleReport(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+	action := r.FormValue("action")
+	fmt.Printf("Simple report:  xbiz.P.BID = %d, action = %s\n", xbiz.P.BID, action)
+	if xbiz.P.BID > 0 {
+		ui.ReportContent = csvloadReporter(action, xbiz, ui)
+	}
+}
+
+// CmdCSVLoad is the HTTP handler for loading csv viles
+func CmdCSVLoad(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+	fmt.Printf("Entered CmdCSVLoad\n")
+	sp := r.FormValue("sourcepage")
+	if sp != "csvload" {
+		fmt.Printf("sp != csvload,   sp = %s\n", sp)
+		return
+	}
+
+	action := r.FormValue("action")
+	fmt.Printf("CmdCSVLoad: action = %s, len(action) = %d\n", action, len(action))
+	if len(action) > 0 {
+		fmt.Printf("CmdCSVLoad: action = %s, len loaders = %d\n", action, len(loaders))
+		for i := 0; i < len(loaders); i++ {
+			fmt.Printf("i = %d, loader = %v\n", i, loaders[i])
+			if action == loaders[i].prefix {
+				fmt.Printf("found loader, i = %d, loader = %v\n", i, loaders[i])
+				fname := ""
+				path := ""
+				if GetUploadedFile(w, r, &fname, &path, ui) != 0 {
+					ui.ReportContent = "Failed to upload file"
+					return
+				}
+				fmt.Printf("file = %s\n", fname)
+				if len(fname) > 0 {
+					rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
+					ui.ReportContent = loaders[i].handler(path)
+					ui.ReportContent += csvloadReporter(loaders[i].prefix, xbiz, ui)
+				}
+			}
+		}
+	}
+}

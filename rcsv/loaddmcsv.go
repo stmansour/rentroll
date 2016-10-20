@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"fmt"
 	"rentroll/rlib"
 	"strings"
 )
@@ -14,9 +15,10 @@ import (
 //        REX, CC Shift 4, CC NAYAX, ACH, US Mail...
 
 // CreateDepositMethod creates a database record for the values supplied in sa[]
-func CreateDepositMethod(sa []string, lineno int) int {
+func CreateDepositMethod(sa []string, lineno int) (string, int) {
 	funcname := "CreateDepositMethod"
 	var a rlib.DepositMethod // start the struct we'll be saving
+	rs := ""
 
 	const (
 		BUD  = 0
@@ -29,11 +31,12 @@ func CreateDepositMethod(sa []string, lineno int) int {
 		{"Name", Name},
 	}
 
-	if ValidateCSVColumns(csvCols, sa, funcname, lineno) > 0 {
-		return 1
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
+		return rs, 1
 	}
 	if lineno == 1 {
-		return 0
+		return rs, 0
 	}
 
 	//-------------------------------------------------------------------
@@ -43,8 +46,8 @@ func CreateDepositMethod(sa []string, lineno int) int {
 	if len(des) > 0 {                                  // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
-			return CsvErrorSensitivity
+			rs += fmt.Sprintf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
+			return rs, CsvErrorSensitivity
 		}
 		a.BID = b1.BID
 	}
@@ -58,26 +61,30 @@ func CreateDepositMethod(sa []string, lineno int) int {
 		if err != nil {
 			s := err.Error()
 			if !strings.Contains(s, "no rows") {
-				rlib.Ulog("%s: line %d -   returned error %v\n", funcname, lineno, err)
+				rs += fmt.Sprintf("%s: line %d -   returners, d error %v\n", funcname, lineno, err)
 			}
 		}
 		if len(a1.Name) > 0 {
-			rlib.Ulog("%s: line %d - DepositMethod with Name %s already exists\n", funcname, lineno, name)
-			return CsvErrorSensitivity
+			rs += fmt.Sprintf("%s: line %d - DepositMethod with Name %s already exists\n", funcname, lineno, name)
+			return rs, CsvErrorSensitivity
 		}
 	}
 
 	a.Name = name
 	rlib.InsertDepositMethod(&a)
-	return 0
+	return rs, 0
 }
 
 // LoadDepositMethodsCSV loads a csv file with assessment types and processes each one
-func LoadDepositMethodsCSV(fname string) {
+func LoadDepositMethodsCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		if CreateDepositMethod(t[i], i+1) > 0 {
-			return
+		s, err := CreateDepositMethod(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
 		}
 	}
+	return rs
 }

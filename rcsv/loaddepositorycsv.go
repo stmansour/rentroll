@@ -11,30 +11,39 @@ import (
 // BUD, Name,       AccountNo
 
 // CreateDepositoriesFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateDepositoriesFromCSV(sa []string, lineno int) {
+func CreateDepositoriesFromCSV(sa []string, lineno int) (string, int) {
 	funcname := "CreateDepositoriesFromCSV"
 	var err error
 	var d rlib.Depository
 
-	bud := strings.ToLower(strings.TrimSpace(sa[0]))
-	if bud == "bud" {
-		return // this is just the column heading
+	const (
+		BUD       = 0
+		Name      = iota
+		AccountNo = iota
+	)
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"Name", Name},
+		{"AccountNo", AccountNo},
 	}
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 3
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
+		return rs, 1
+	}
+	if lineno == 1 {
+		return rs, 0
 	}
 
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
-	if len(bud) > 0 {
-		b1 := rlib.GetBusinessByDesignation(bud)
+	if len(sa[BUD]) > 0 {
+		b1 := rlib.GetBusinessByDesignation(sa[BUD])
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return
+			rs += fmt.Sprintf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return rs, CsvErrorSensitivity
 		}
 		d.BID = b1.BID
 	}
@@ -42,31 +51,38 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Name
 	//-------------------------------------------------------------------
-	d.Name = strings.TrimSpace(sa[1])
+	d.Name = strings.TrimSpace(sa[Name])
 	if len(d.Name) == 0 {
-		rlib.Ulog("%s: line %d - no name for Depository. Please supply a name\n", funcname, lineno)
-		return
+		rs += fmt.Sprintf("%s: line %d - no name for Depository. Please supply a name\n", funcname, lineno)
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// AccountNo
 	//-------------------------------------------------------------------
-	d.AccountNo = strings.TrimSpace(sa[2])
+	d.AccountNo = strings.TrimSpace(sa[AccountNo])
 	if len(d.AccountNo) == 0 {
-		rlib.Ulog("%s: line %d - no AccountNo for Depository. Please supply AccountNo\n", funcname, lineno)
-		return
+		rs += fmt.Sprintf("%s: line %d - no AccountNo for Depository. Please supply AccountNo\n", funcname, lineno)
+		return rs, CsvErrorSensitivity
 	}
 
 	_, err = rlib.InsertDepository(&d)
 	if err != nil {
-		fmt.Printf("%s: line %d -  error inserting depository: %v\n", funcname, lineno, err)
+		rs += fmt.Sprintf("%s: line %d -  error inserting depository: %v\n", funcname, lineno, err)
 	}
+	return rs, 0
 }
 
 // LoadDepositoryCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadDepositoryCSV(fname string) {
+func LoadDepositoryCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateDepositoriesFromCSV(t[i], i+1)
+		s, err := CreateDepositoriesFromCSV(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
+		}
 	}
+	return rs
 }
