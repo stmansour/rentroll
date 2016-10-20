@@ -172,7 +172,7 @@ func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) strin
 	case "RA", "Rental Agreements":
 		return rcsv.RRreportRentalAgreements(rlib.RPTTEXT, xbiz.P.BID)
 	case "RCPT", "Receipts":
-		return rcsv.RRreportRentalAgreements(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportReceipts(rlib.RPTTEXT, xbiz.P.BID)
 	case "RT", "Rentable Types":
 		return rcsv.RRreportRentableTypes(rlib.RPTTEXT, xbiz.P.BID)
 	case "SL", "String Lists":
