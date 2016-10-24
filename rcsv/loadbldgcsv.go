@@ -9,32 +9,55 @@ import (
 
 //  CSV file format:
 // 0           1      2       3        4    5     6          7
-// Designation,BldgNo,Address,Address2,City,State,PostalCode,Country
+// BUD,BldgNo,Address,Address2,City,State,PostalCode,Country
 // REH,1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA"
 
 // CreateBuilding reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateBuilding(sa []string, lineno int) {
+func CreateBuilding(sa []string, lineno int) (string, int) {
 	funcname := "CreateBuilding"
 	var b rlib.Building
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "designation" {
-		return // this is just the column heading
+
+	const (
+		BUD        = 0
+		BldgNo     = iota
+		Address    = iota
+		Address2   = iota
+		City       = iota
+		State      = iota
+		PostalCode = iota
+		Country    = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"BldgNo", BldgNo},
+		{"Address", Address},
+		{"Address2", Address2},
+		{"City", City},
+		{"State", State},
+		{"PostalCode", PostalCode},
+		{"Country", Country},
 	}
 
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 8
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
+		return rs, 1
 	}
+	if lineno == 1 {
+		return rs, 0
+	}
+
+	des := strings.ToLower(strings.TrimSpace(sa[0]))
+
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, des)
-			return
+			rs += fmt.Sprintf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, des)
+			return rs, CsvErrorSensitivity
 		}
 		b.BID = b1.BID
 	}
@@ -45,8 +68,8 @@ func CreateBuilding(sa []string, lineno int) {
 	if len(sa[1]) > 0 {
 		i, err := strconv.Atoi(sa[1])
 		if err != nil || i < 0 {
-			fmt.Printf("%s: line %d - invalid rlib.Building number: %s\n", funcname, lineno, sa[1])
-			return
+			rs += fmt.Sprintf("%s: line %d - invalid rlib.Building number: %s\n", funcname, lineno, sa[1])
+			return rs, CsvErrorSensitivity
 		}
 		b.BLDGID = int64(i)
 	}
@@ -63,14 +86,22 @@ func CreateBuilding(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	_, err := rlib.InsertBuildingWithID(&b)
 	if nil != err {
-		fmt.Printf("%s: line %d - error inserting rlib.Building = %v\n", funcname, lineno, err)
+		rs += fmt.Sprintf("%s: line %d - error inserting rlib.Building = %v\n", funcname, lineno, err)
+		return rs, CsvErrorSensitivity
 	}
+	return rs, 0
 }
 
 // LoadBuildingCSV loads a csv file with rental specialty types and processes each one
-func LoadBuildingCSV(fname string) {
+func LoadBuildingCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateBuilding(t[i], i+1)
+		s, err := CreateBuilding(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
+		}
 	}
+	return rs
 }

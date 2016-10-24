@@ -433,6 +433,15 @@ func GetJournalVacancy(id int64, dt1, dt2 *time.Time) Journal {
 	return r
 }
 
+// GetJournalByReceiptID returns the Journal struct for a Journal Entry that references the supplied
+// receiptID
+func GetJournalByReceiptID(id int64) Journal {
+	var r Journal
+	row := RRdb.Prepstmt.GetJournalByReceiptID.QueryRow(id)
+	ReadJournal(row, &r)
+	return r
+}
+
 // GetJournalMarkers loads the last n Journal markers
 func GetJournalMarkers(n int64) []JournalMarker {
 	rows, err := RRdb.Prepstmt.GetJournalMarkers.Query(n)

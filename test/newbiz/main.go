@@ -176,6 +176,12 @@ func loaderGetBiz(s string) int64 {
 	return bid
 }
 
+type csvimporter struct {
+	Name    string
+	CmdOpt  string
+	Handler func(string) string
+}
+
 func main() {
 	readCommandLineArgs()
 	rlib.RRReadConfig()
@@ -242,7 +248,7 @@ func main() {
 		fmt.Print(rcsv.LoadBusinessCSV(App.BizFile))
 	}
 	if len(App.SLFile) > 0 {
-		rcsv.LoadStringTablesCSV(App.SLFile)
+		fmt.Print(rcsv.LoadStringTablesCSV(App.SLFile))
 	}
 	if len(App.PmtTypeFile) > 0 {
 		fmt.Print(rcsv.LoadPaymentTypesCSV(App.PmtTypeFile))
@@ -260,22 +266,22 @@ func main() {
 		fmt.Print(rcsv.LoadCustomAttributesCSV(App.CustomFile))
 	}
 	if len(App.DepositoryFile) > 0 {
-		rcsv.LoadDepositoryCSV(App.DepositoryFile)
+		fmt.Print(rcsv.LoadDepositoryCSV(App.DepositoryFile))
 	}
 	if len(App.RSpFile) > 0 {
-		rcsv.LoadRentalSpecialtiesCSV(App.RSpFile)
+		fmt.Print(rcsv.LoadRentalSpecialtiesCSV(App.RSpFile))
 	}
 	if len(App.BldgFile) > 0 {
-		rcsv.LoadBuildingCSV(App.BldgFile)
+		fmt.Print(rcsv.LoadBuildingCSV(App.BldgFile))
 	}
 	if len(App.PplFile) > 0 {
 		fmt.Print(rcsv.LoadPeopleCSV(App.PplFile))
 	}
 	if len(App.RFile) > 0 {
-		rcsv.LoadRentablesCSV(App.RFile)
+		fmt.Print(rcsv.LoadRentablesCSV(App.RFile))
 	}
 	if len(App.RspRefsFile) > 0 {
-		rcsv.LoadRentableSpecialtyRefsCSV(App.RspRefsFile)
+		fmt.Print(rcsv.LoadRentableSpecialtyRefsCSV(App.RspRefsFile))
 	}
 	if len(App.RatFile) > 0 {
 		fmt.Print(rcsv.LoadRentalAgreementTemplatesCSV(App.RatFile))
@@ -284,22 +290,22 @@ func main() {
 		fmt.Print(rcsv.LoadRentalAgreementCSV(App.RaFile))
 	}
 	if len(App.PetFile) > 0 {
-		rcsv.LoadPetsCSV(App.PetFile)
+		fmt.Print(rcsv.LoadPetsCSV(App.PetFile))
 	}
 	if len(App.CoaFile) > 0 {
 		fmt.Print(rcsv.LoadChartOfAccountsCSV(App.CoaFile))
 	}
 	if len(App.RPFile) > 0 {
-		rcsv.LoadRatePlansCSV(App.RPFile)
+		fmt.Print(rcsv.LoadRatePlansCSV(App.RPFile))
 	}
 	if len(App.RPRefFile) > 0 {
-		rcsv.LoadRatePlanRefsCSV(App.RPRefFile)
+		fmt.Print(rcsv.LoadRatePlanRefsCSV(App.RPRefFile))
 	}
 	if len(App.RPRRTRateFile) > 0 {
-		rcsv.LoadRatePlanRefRTRatesCSV(App.RPRRTRateFile)
+		fmt.Print(rcsv.LoadRatePlanRefRTRatesCSV(App.RPRRTRateFile))
 	}
 	if len(App.RPRSPRateFile) > 0 {
-		rcsv.LoadRatePlanRefSPRatesCSV(App.RPRSPRateFile)
+		fmt.Print(rcsv.LoadRatePlanRefSPRatesCSV(App.RPRSPRateFile))
 	}
 	if len(App.AsmtFile) > 0 {
 		s := rcsv.LoadAssessmentsCSV(App.AsmtFile)
@@ -311,16 +317,16 @@ func main() {
 		fmt.Print(s)
 	}
 	if len(App.DepositFile) > 0 {
-		rcsv.LoadDepositCSV(App.DepositFile)
+		fmt.Print(rcsv.LoadDepositCSV(App.DepositFile))
 	}
 	if len(App.AssignFile) > 0 {
 		fmt.Print(rcsv.LoadCustomAttributeRefsCSV(App.AssignFile))
 	}
 	if len(App.NoteTypeFile) > 0 {
-		rcsv.LoadNoteTypesCSV(App.NoteTypeFile)
+		fmt.Print(rcsv.LoadNoteTypesCSV(App.NoteTypeFile))
 	}
 	if len(App.InvoiceFile) > 0 {
-		rcsv.LoadInvoicesCSV(App.InvoiceFile)
+		fmt.Print(rcsv.LoadInvoicesCSV(App.InvoiceFile))
 	}
 
 	if len(App.Report) > 0 {

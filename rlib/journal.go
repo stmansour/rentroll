@@ -323,18 +323,10 @@ func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
 	}
 }
 
-// GenerateJournalRecords creates Journal records for Assessments and receipts over the supplied time range.
+// GenerateRecurInstances creates Assessment instance records for recurring Assessments and then
+// creates the corresponding journal instances for the new assessment instances
 //=================================================================================================
-func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time, skipVac bool) {
-	// err := RemoveJournalEntries(xbiz, d1, d2)
-	// if err != nil {
-	// 	Ulog("Could not remove existing Journal entries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
-	// 	return
-	// }
-
-	//-----------------------------------------------------------
-	//  PROCESS ASSESSMSENTS
-	//-----------------------------------------------------------
+func GenerateRecurInstances(xbiz *XBusiness, d1, d2 *time.Time) {
 	// fmt.Printf("GetRecurringAssessmentsByBusiness - d2 = %s   d1 = %s\n", d2.Format(RRDATEINPFMT), d1.Format(RRDATEINPFMT))
 	rows, err := RRdb.Prepstmt.GetRecurringAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1) // only get recurring instances without a parent
 	Errcheck(err)
@@ -345,29 +337,43 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time, skipVac bool) {
 		ProcessJournalEntry(&a, xbiz, d1, d2)
 	}
 	Errcheck(rows.Err())
+}
 
-	//-----------------------------------------------------------
-	//  COMPUTE VACANCY
-	//-----------------------------------------------------------
-	if !skipVac {
-		GenVacancyJournals(xbiz, d1, d2)
+// ProcessAllReceipts creates Journal records for Receipts in the supplied date range
+//=================================================================================================
+func ProcessAllReceipts(xbiz *XBusiness, d1, d2 *time.Time) {
+	r := GetReceipts(xbiz.P.BID, d1, d2)
+	for i := 0; i < len(r); i++ {
+		j := GetJournalByReceiptID(r[i].RCPTID)
+		if j.JID == 0 {
+			ProcessNewReceipt(xbiz, d1, d2, &r[i])
+		}
 	}
+}
 
-	//-----------------------------------------------------------
-	//  PROCESS RECEIPTS
-	//-----------------------------------------------------------
-	// r := GetReceipts(xbiz.P.BID, d1, d2)
-	// for i := 0; i < len(r); i++ {
-	// 	ProcessNewReceipt(xbiz, d1, d2, &r[i])
-	// }
-
-	//-----------------------------------------------------------
-	//  ADD JOURNAL MARKER
-	//-----------------------------------------------------------
+// CreateJournalMarker creates a Journal Marker record for the supplied date range
+//=================================================================================================
+func CreateJournalMarker(xbiz *XBusiness, d1, d2 *time.Time) {
 	var jm JournalMarker
 	jm.BID = xbiz.P.BID
 	jm.State = MARKERSTATEOPEN
 	jm.DtStart = *d1
-	jm.DtStop = (*d2).AddDate(0, 0, -1)
+	jm.DtStop = *d2
 	InsertJournalMarker(&jm)
+}
+
+// GenerateJournalRecords creates Journal records for Assessments and receipts over the supplied time range.
+//=================================================================================================
+func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time, skipVac bool) {
+	// err := RemoveJournalEntries(xbiz, d1, d2)
+	// if err != nil {
+	// 	Ulog("Could not remove existing Journal entries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
+	// 	return
+	// }
+	GenerateRecurInstances(xbiz, d1, d2)
+	if !skipVac {
+		GenVacancyJournals(xbiz, d1, d2)
+	}
+	ProcessAllReceipts(xbiz, d1, d2)
+	CreateJournalMarker(xbiz, d1, d2)
 }

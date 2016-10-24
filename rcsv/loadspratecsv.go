@@ -20,27 +20,29 @@ import (
 // REX, FAA-T,  2,       KDS,    	  Lake View,   87%,     Fireplace,
 
 // CreateRatePlanRefSPRate reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRatePlanRefSPRate(sa []string, lineno int) {
+func CreateRatePlanRefSPRate(sa []string, lineno int) (string, int) {
 	funcname := "CreateRatePlanRefSPRate"
 	var b rlib.Business
+	rs := ""
 
 	required := 5
 	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+		rs += fmt.Sprintf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return rs, 1
 	}
+
 	//-------------------------------------------------------------------
 	// BUD
 	//-------------------------------------------------------------------
 	des := strings.ToLower(strings.TrimSpace(sa[0]))
 	if des == "bud" {
-		return // this is just the column heading
+		return rs, 0 // this is just the column heading
 	}
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			rlib.Ulog("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return
+			rs += fmt.Sprintf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return rs, CsvErrorSensitivity
 		}
 	}
 
@@ -56,8 +58,8 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) {
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			rlib.Ulog("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
-			return
+			rs += fmt.Sprintf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
+			return rs, CsvErrorSensitivity
 		}
 	}
 
@@ -70,8 +72,8 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	a.RPRID = CSVLoaderGetRPRID(strings.TrimSpace(sa[2]))
 	if 0 == a.RPRID {
-		rlib.Ulog("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[2])
-		return
+		rs += fmt.Sprintf("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[2])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
@@ -87,8 +89,8 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) {
 		}
 	}
 	if !found {
-		fmt.Printf("%s: line %d - could not find Specialty with name = %s\n", funcname, lineno, rtname)
-		return
+		rs += fmt.Sprintf("%s: line %d - could not find Specialty with name = %s\n", funcname, lineno, rtname)
+		return rs, CsvErrorSensitivity
 	}
 
 	for i := 4; i < len(sa); i += 2 {
@@ -111,8 +113,8 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) {
 			}
 		}
 		if !found {
-			fmt.Printf("%s: line %d - could not find Specialty with name = %s\n", funcname, lineno, name)
-			return
+			rs += fmt.Sprintf("%s: line %d - could not find Specialty with name = %s\n", funcname, lineno, name)
+			return rs, CsvErrorSensitivity
 		}
 
 		//-------------------------------------------------------------------
@@ -124,7 +126,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) {
 		amt := strings.TrimSpace(sa[i+1])
 		p.Val, ok = rlib.FloatFromString(amt, "bad amount")
 		if !ok {
-			return
+			return rs, CsvErrorSensitivity
 		}
 		if strings.Contains(amt, "%") {
 			p.FLAGS |= rlib.FlSPRpct // mark it as a percentage
@@ -135,15 +137,23 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) {
 		//-------------------------------------------------------------------
 		err = rlib.InsertRatePlanRefSPRate(&p)
 		if nil != err {
-			fmt.Printf("%s: lineno %d  - error inserting RatePlanRefSPRate = %v\n", funcname, lineno, err)
+			rs += fmt.Sprintf("%s: lineno %d  - error inserting RatePlanRefSPRate = %v\n", funcname, lineno, err)
+			return rs, CsvErrorSensitivity
 		}
 	}
+	return rs, 0
 }
 
 // LoadRatePlanRefSPRatesCSV loads a csv file with RatePlan rates for specific rentable types
-func LoadRatePlanRefSPRatesCSV(fname string) {
+func LoadRatePlanRefSPRatesCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRatePlanRefSPRate(t[i], i+1)
+		s, err := CreateRatePlanRefSPRate(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
+		}
 	}
+	return rs
 }

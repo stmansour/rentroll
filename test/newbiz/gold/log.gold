@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Thu Oct 20 11:17:23 PDT 2016
+Date/Time:    Fri Oct 21 10:14:43 PDT 2016
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2016/10/20 11:17:24 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2016/10/21 10:14:44 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 9 - rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
 CreateRentableType: line 11 - Invalid rental proration frequency: 99
@@ -15,12 +15,19 @@ CreateRentableType: line 14 - Invalid manage to budget flag: nyet
 CreateRentableType: line 15 - Invalid manage to budget flag: 3
 CreateRentableType: line 16 - Stop date (2014-01-01 00:00:00 +0000 UTC) must be after Start date (2016-01-01 00:00:00 +0000 UTC)
 CreateRentalSpecialty: lineno 3  - rlib.Business rex already has a rlib.RentableSpecialty named Lake View
-2016/10/20 11:17:25 CreateBuilding: line 5 - rlib.Business with designation bug does not exist
+CreateBuilding: line 5 - rlib.Business with designation bug does not exist
 CreateBuilding: line 6 - invalid rlib.Building number: qe
 CreatePeopleFromCSV: line 12 - rlib.Transactant with PrimaryEmail address = homerj@springfield.com already exists
 CreatePeopleFromCSV: line 13 - rlib.Transactant with PrimaryEmail address = sskinner@sfelementary.com already exists
 CreatePeopleFromCSV: line 14 - IsCompany value is invalid: 99
-2016/10/20 11:17:25 CSVLoaderTransactantList:  error retrieving Transactant with TCID, phone, or email: billybob@springfield.com
+CreateRentables: line 2 - Business with bud aaa does not exist
+CreateRentables: lineno 3 - Could not load rentable type with style name: QYX  -- error = sql: no rows in result set
+CreateRentables: lineno 13 - invalid AssignmentTime number: 9
+CreateRentables: lineno 14 - invalid AssignmentTime number: 9
+CreateRentables: lineno 15 - invalid AssignmentTime number: 9
+CreateRentables: lineno 16 - Rentable with name "107" already exists. Skipping. 
+CreateRentables: lineno 17 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
+2016/10/21 10:14:45 CSVLoaderTransactantList:  error retrieving Transactant with TCID, phone, or email: billybob@springfield.com
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
@@ -47,4 +54,4 @@ IntFromString: Value cannot be converted to an unsigned integer: ab827
 Type value must be a number from 0 to 4
 ElementType value must be a number from 5 to 7
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Thu Oct 20 11:17:26 PDT 2016
+Test completed: Fri Oct 21 10:14:46 PDT 2016

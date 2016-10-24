@@ -297,6 +297,8 @@ func buildPreparedStatements() {
 	// Errcheck(err)
 	RRdb.Prepstmt.GetJournalVacancy, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=0 and Raid=0 and ID=? and ?<=Dt and Dt<?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetJournalByReceiptID, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=2 and ID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllJournalsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from Journal WHERE BID=? and ?<=Dt and Dt<?")
 	Errcheck(err)
 

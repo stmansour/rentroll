@@ -38,7 +38,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
 		return rs, 0
 	}
 
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
+	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
 
 	//-------------------------------------------------------------------
 	// Check to see if this rental specialty type is already in the database

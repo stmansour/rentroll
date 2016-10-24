@@ -22,29 +22,45 @@ import (
 // }
 
 // CreateRentableSpecialtyRefsCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
+func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (string, int) {
 	funcname := "CreateRentableSpecialtyRefsCSV"
 	var a rlib.RentableSpecialtyRef
 	var r rlib.Rentable
 	var err error
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "bud" {
-		return // this is just the column heading
+
+	const (
+		BUD               = 0
+		RID               = iota
+		RentableSpecialty = iota
+		DtStart           = iota
+		DtStop            = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"RID", RID},
+		{"RentableSpecialty", RentableSpecialty},
+		{"DtStart", DtStart},
+		{"DtStop", DtStop},
 	}
 
-	// fmt.Printf("line %d, sa = %#v\n", lineno, sa)
-	required := 5
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	rs, y := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if y > 0 {
+		return rs, 1
 	}
+	if lineno == 1 {
+		return rs, 0
+	}
+
+	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
 
 	var b rlib.Business
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			rlib.Ulog("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[0])
-			return
+			rs += fmt.Sprintf("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[0])
+			return rs, CsvErrorSensitivity
 		}
 	}
 	a.BID = b.BID
@@ -52,13 +68,13 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Find and set the rlib.Rentable
 	//-------------------------------------------------------------------
-	s := strings.TrimSpace(sa[1])
+	s := strings.TrimSpace(sa[RID])
 	if len(s) > 0 {
 		// fmt.Printf("Searching: rentable name = %s, BID = %d\n", s, b.BID)
 		r, err = rlib.GetRentableByName(s, b.BID)
 		if err != nil {
-			fmt.Printf("%s: line %d - Error loading rlib.Rentable named: %s in Business %d.  Error = %v\n", funcname, lineno, s, b.BID, err)
-			return
+			rs += fmt.Sprintf("%s: line %d - Error loading rlib.Rentable named: %s in Business %d.  Error = %v\n", funcname, lineno, s, b.BID, err)
+			return rs, CsvErrorSensitivity
 		}
 	}
 	a.RID = r.RID
@@ -66,33 +82,41 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// Make sure we can find the RentableSpecialty
 	//-------------------------------------------------------------------
-	name := strings.TrimSpace(sa[2])
+	name := strings.TrimSpace(sa[RentableSpecialty])
 	rsp := rlib.GetRentableSpecialtyTypeByName(r.BID, name)
 	if rsp.RSPID == 0 {
-		fmt.Printf("%s: line %d - could not find a rlib.RentableSpecialty named %s in rlib.Business %d\n", funcname, lineno, name, r.BID)
-		return
+		rs += fmt.Sprintf("%s: line %d - could not find a rlib.RentableSpecialty named %s in rlib.Business %d\n", funcname, lineno, name, r.BID)
+		return rs, CsvErrorSensitivity
 	}
 	a.RSPID = rsp.RSPID
 
 	//-------------------------------------------------------------------
 	// Get the dates
 	//-------------------------------------------------------------------
-	a.DtStart, a.DtStop, err = readTwoDates(sa[3], sa[4], funcname, lineno)
+	a.DtStart, a.DtStop, err = readTwoDates(sa[DtStart], sa[DtStop], funcname, lineno)
 	if err != nil {
-		fmt.Printf("%s", err.Error())
-		return
+		rs += fmt.Sprintf("%s", err.Error())
+		return rs, CsvErrorSensitivity
 	}
 
 	err = rlib.InsertRentableSpecialtyRef(&a)
 	if err != nil {
-		fmt.Printf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
+		rs += fmt.Sprintf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
+		return rs, CsvErrorSensitivity
 	}
+	return rs, 0
 }
 
 // LoadRentableSpecialtyRefsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadRentableSpecialtyRefsCSV(fname string) {
+func LoadRentableSpecialtyRefsCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRentableSpecialtyRefsCSV(t[i], i+1)
+		s, err := CreateRentableSpecialtyRefsCSV(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
+		}
 	}
+	return rs
 }

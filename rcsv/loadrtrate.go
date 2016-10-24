@@ -20,27 +20,45 @@ import (
 // REX, FAA-T,      1,     KDS,    			 80%
 
 // CreateRatePlanRefRTRate reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRatePlanRefRTRate(sa []string, lineno int) {
+func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	funcname := "CreateRatePlanRefRTRate"
 	var b rlib.Business
 
-	required := 5
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	const (
+		BUD          = 0
+		RPName       = iota
+		RPRID        = iota
+		RentableType = iota
+		Amount       = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"RPName", RPName},
+		{"RPRID", RPRID},
+		{"RentableType", RentableType},
+		{"Amount", Amount},
 	}
+
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
+		return rs, 1
+	}
+	if lineno == 1 {
+		return rs, 0
+	}
+
+	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
+
 	//-------------------------------------------------------------------
 	// BUD
 	//-------------------------------------------------------------------
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "bud" {
-		return // this is just the column heading
-	}
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			rlib.Ulog("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return
+			rs += fmt.Sprintf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
+			return rs, CsvErrorSensitivity
 		}
 	}
 
@@ -48,12 +66,12 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) {
 	// RatePlan Name
 	//-------------------------------------------------------------------
 	var rp rlib.RatePlan
-	rpname := strings.ToLower(strings.TrimSpace(sa[1]))
+	rpname := strings.ToLower(strings.TrimSpace(sa[RPName]))
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			rlib.Ulog("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
-			return
+			rs += fmt.Sprintf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
+			return rs, CsvErrorSensitivity
 		}
 	}
 
@@ -64,21 +82,21 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// RPRef
 	//-------------------------------------------------------------------
-	a.RPRID = CSVLoaderGetRPRID(strings.TrimSpace(sa[2]))
+	a.RPRID = CSVLoaderGetRPRID(strings.TrimSpace(sa[RPRID]))
 	if 0 == a.RPRID {
-		rlib.Ulog("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[2])
-		return
+		rs += fmt.Sprintf("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[RPRID])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// RT Style
 	// identifies the RentableType
 	//-------------------------------------------------------------------
-	name := strings.TrimSpace(sa[3])
+	name := strings.TrimSpace(sa[RentableType])
 	rt, err := rlib.GetRentableTypeByStyle(name, b.BID)
 	if err != nil {
-		fmt.Printf("%s: line %d - could not load RentableType with Style = %s,  err:  %s\n", funcname, lineno, sa[3], err.Error())
-		return
+		rs += fmt.Sprintf("%s: line %d - could not load RentableType with Style = %s,  err:  %s\n", funcname, lineno, sa[RentableType], err.Error())
+		return rs, CsvErrorSensitivity
 	}
 	a.RTID = rt.RTID
 
@@ -87,10 +105,10 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) {
 	// Entered as a string. If the string contains a % then the amount
 	// is a percentage and we set the % flag. Otherwise, it is an absolute amount
 	//-------------------------------------------------------------------
-	amt := strings.TrimSpace(sa[4])
+	amt := strings.TrimSpace(sa[Amount])
 	a.Val, ok = rlib.FloatFromString(amt, "bad amount")
 	if !ok {
-		return
+		return rs, CsvErrorSensitivity
 	}
 	if strings.Contains(amt, "%") {
 		a.FLAGS |= rlib.FlRTRpct
@@ -101,14 +119,22 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	err = rlib.InsertRatePlanRefRTRate(&a)
 	if nil != err {
-		fmt.Printf("%s: lineno %d  - error inserting RatePlanRefRTRate = %v\n", funcname, lineno, err)
+		rs += fmt.Sprintf("%s: lineno %d  - error inserting RatePlanRefRTRate = %v\n", funcname, lineno, err)
+		return rs, CsvErrorSensitivity
 	}
+	return rs, 0
 }
 
 // LoadRatePlanRefRTRatesCSV loads a csv file with RatePlan rates for specific rentable types
-func LoadRatePlanRefRTRatesCSV(fname string) {
+func LoadRatePlanRefRTRatesCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRatePlanRefRTRate(t[i], i+1)
+		s, err := CreateRatePlanRefRTRate(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
+		}
 	}
+	return rs
 }

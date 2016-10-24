@@ -15,27 +15,55 @@ import (
 // REX, A2-LongTerm,  1/1/2016, 7/1/2016, 12,            2,             75.0,               25.00,                    ,
 
 // CreateRatePlanRef reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRatePlanRef(sa []string, lineno int) {
+func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	funcname := "CreateRatePlanRef"
 	var b rlib.Business
 
-	required := 10
-	if len(sa) < required {
-		fmt.Printf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		return
+	const (
+		BUD               = 0
+		RPName            = iota
+		DtStart           = iota
+		DtStop            = iota
+		FeeAppliesAge     = iota
+		MaxNoFeeUsers     = iota
+		AdditionalUserFee = iota
+		CancellationFee   = iota
+		PromoCode         = iota
+		Flags             = iota
+	)
+
+	// csvCols is an array that defines all the columns that should be in this csv file
+	var csvCols = []CSVColumn{
+		{"BUD", BUD},
+		{"RPName", RPName},
+		{"DtStart", DtStart},
+		{"DtStop", DtStop},
+		{"FeeAppliesAge", FeeAppliesAge},
+		{"MaxNoFeeUsers", MaxNoFeeUsers},
+		{"AdditionalUserFee", AdditionalUserFee},
+		{"CancellationFee", CancellationFee},
+		{"PromoCode", PromoCode},
+		{"Flags", Flags},
 	}
+
+	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
+	if x > 0 {
+		return rs, 1
+	}
+	if lineno == 1 {
+		return rs, 0
+	}
+
+	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
+
 	//-------------------------------------------------------------------
 	// BUD
 	//-------------------------------------------------------------------
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	if des == "bud" {
-		return // this is just the column heading
-	}
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			rlib.Ulog("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return
+			rs += fmt.Sprintf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return rs, CsvErrorSensitivity
 		}
 	}
 
@@ -43,12 +71,12 @@ func CreateRatePlanRef(sa []string, lineno int) {
 	// RatePlan Name
 	//-------------------------------------------------------------------
 	var rp rlib.RatePlan
-	rpname := strings.ToLower(strings.TrimSpace(sa[1]))
+	rpname := strings.ToLower(strings.TrimSpace(sa[RPName]))
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			rlib.Ulog("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
-			return
+			rs += fmt.Sprintf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
+			return rs, CsvErrorSensitivity
 		}
 	}
 
@@ -59,68 +87,68 @@ func CreateRatePlanRef(sa []string, lineno int) {
 	//-------------------------------------------------------------------
 	// DtStart
 	//-------------------------------------------------------------------
-	dt := sa[2]
+	dt := sa[DtStart]
 	a.DtStart, err = rlib.StringToDate(dt)
 	if err != nil {
-		fmt.Printf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[2])
-		return
+		rs += fmt.Sprintf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[DtStart])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// DtStop
 	//-------------------------------------------------------------------
-	dt = sa[3]
+	dt = sa[DtStop]
 	a.DtStop, err = rlib.StringToDate(dt)
 	if err != nil {
-		fmt.Printf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[3])
-		return
+		rs += fmt.Sprintf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[DtStop])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// Fee Applies Age
 	//-------------------------------------------------------------------
-	a.FeeAppliesAge, ok = rlib.IntFromString(sa[4], "Invalid FeeAppliesAge")
+	a.FeeAppliesAge, ok = rlib.IntFromString(sa[FeeAppliesAge], "Invalid FeeAppliesAge")
 	if !ok {
-		fmt.Printf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[4])
-		return
+		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[FeeAppliesAge])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// Max No Fee Users
 	//-------------------------------------------------------------------
-	a.MaxNoFeeUsers, ok = rlib.IntFromString(sa[5], "Invalid MaxNoFeeUsers")
+	a.MaxNoFeeUsers, ok = rlib.IntFromString(sa[MaxNoFeeUsers], "Invalid MaxNoFeeUsers")
 	if !ok {
-		fmt.Printf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[5])
-		return
+		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[MaxNoFeeUsers])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// AdditionalUserFee
 	//-------------------------------------------------------------------
-	a.AdditionalUserFee, ok = rlib.FloatFromString(sa[6], "Invalid Additional User Fee")
+	a.AdditionalUserFee, ok = rlib.FloatFromString(sa[AdditionalUserFee], "Invalid Additional User Fee")
 	if !ok {
-		fmt.Printf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[6])
-		return
+		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[AdditionalUserFee])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// CancellationFee
 	//-------------------------------------------------------------------
-	a.CancellationFee, ok = rlib.FloatFromString(sa[7], "Invalid Additional User Fee")
+	a.CancellationFee, ok = rlib.FloatFromString(sa[CancellationFee], "Invalid Cancellation Fee")
 	if !ok {
-		fmt.Printf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[7])
-		return
+		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[CancellationFee])
+		return rs, CsvErrorSensitivity
 	}
 
 	//-------------------------------------------------------------------
 	// PromoCode
 	//-------------------------------------------------------------------
-	a.PromoCode = strings.TrimSpace(sa[8])
+	a.PromoCode = strings.TrimSpace(sa[PromoCode])
 
 	//-------------------------------------------------------------------
 	// FLAGS
 	//-------------------------------------------------------------------
-	ss := strings.TrimSpace(sa[9])
+	ss := strings.TrimSpace(sa[Flags])
 	if len(ss) > 0 {
 		ssa := strings.Split(ss, ",")
 		for i := 0; i < len(ssa); i++ {
@@ -128,8 +156,8 @@ func CreateRatePlanRef(sa []string, lineno int) {
 			case "hide":
 				a.FLAGS |= rlib.FlRTRRefHide // do not show this rate plan to users
 			default:
-				fmt.Printf("%s: line %d - Unrecognized export flag: %s\n", funcname, lineno, ssa[i])
-				return
+				rs += fmt.Sprintf("%s: line %d - Unrecognized export flag: %s\n", funcname, lineno, ssa[i])
+				return rs, CsvErrorSensitivity
 			}
 		}
 	}
@@ -140,14 +168,22 @@ func CreateRatePlanRef(sa []string, lineno int) {
 	a.RPID = rp.RPID
 	_, err = rlib.InsertRatePlanRef(&a)
 	if nil != err {
-		fmt.Printf("%s: lineno %d  - error inserting RatePlanRef = %v\n", funcname, lineno, err)
+		rs += fmt.Sprintf("%s: lineno %d  - error inserting RatePlanRef = %v\n", funcname, lineno, err)
+		return rs, CsvErrorSensitivity
 	}
+	return rs, 0
 }
 
 // LoadRatePlanRefsCSV loads a csv file with rental specialty types and processes each one
-func LoadRatePlanRefsCSV(fname string) {
+func LoadRatePlanRefsCSV(fname string) string {
+	rs := ""
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		CreateRatePlanRef(t[i], i+1)
+		s, err := CreateRatePlanRef(t[i], i+1)
+		rs += s
+		if err > 0 {
+			break
+		}
 	}
+	return rs
 }

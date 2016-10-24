@@ -932,6 +932,7 @@ type RRprepSQL struct {
 	GetJournalAllocation               *sql.Stmt
 	GetJournalAllocations              *sql.Stmt
 	GetJournalByRange                  *sql.Stmt
+	GetJournalByReceiptID              *sql.Stmt
 	GetJournalMarker                   *sql.Stmt
 	GetJournalMarkers                  *sql.Stmt
 	GetLatestLedgerMarkerByLID         *sql.Stmt
