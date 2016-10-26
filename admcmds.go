@@ -29,6 +29,7 @@ func CreateDBBackupFileList() string {
 	t.Init()
 	t.AddColumn("Filename", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Modified", 23, rlib.CELLDATETIME, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Size (bytes)", 12, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
 	t.SetTitle("Database Backup Files\n\n")
 	files, err := ioutil.ReadDir("./bkup")
 	if err != nil {
@@ -43,6 +44,7 @@ func CreateDBBackupFileList() string {
 		t.AddRow()
 		t.Puts(-1, 0, file.Name())
 		t.Putdt(-1, 1, file.ModTime())
+		t.Puti(-1, 2, file.Size())
 	}
 	return t.String()
 }
