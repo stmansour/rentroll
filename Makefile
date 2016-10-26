@@ -32,6 +32,7 @@ package: rentroll
 	rm -rf tmp
 	mkdir -p tmp/rentroll
 	mkdir -p tmp/rentroll/man/man1/
+	mkdir -p tmp/rentroll/example/csv
 	cp rentroll.1 tmp/rentroll/man/man1
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp rentroll ./tmp/rentroll/

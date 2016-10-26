@@ -10,18 +10,34 @@ rrloadcsv \- load CSV files into the Accord RentRoll database
 [\fB\-C\fR\fI rentalAgreements.csv\fR]
 [\fB\-c\fR\fI chartOfAccts.csv\fR]
 [\fB\-D\fR\fI buildings.csv\fR]
+[\fB\-d\fR\fI depositories.csv\fR]
+[\fB\-E\fR\fI pets.csv\fR]
 [\fB\-e\fR\fI receipts.csv\fR]
+[\fB\-F\fR\fI spcassign.csv\fR]
+[\fB\-f\fR\fI ratePlanRefs.csv\fR]
+[\fB\-G\fR\fI BUD\fR]
+[\fB\-g\fR\fI Date Range\fR]
+[\fB\-i\fR\fI invoices.csv\fR]
 [\fB\-help\fR ]
 [\fB\-L\fR\fI report\fR]
+[\fB\-l\fR\fI stringlists.csv\fR]
 [\fB\-M\fR\fI rentrolldbname\fR]
+[\fB\-m\fR\fI depositmethods.csv\fR]
 [\fB\-N\fR\fI directorydbname\fR]
-[\fB\-P\fR\fI payments.csv\fR]
-[\fB\-P\fR\fI people.csv\fR]
+[\fB\-n\fR\fI rateplanrefRTrate.csv\fR]
+[\fB\-O\fR\fI notetypes.csv\fR]
+[\fB\-P\fR\fI paymenttypes.csv\fR]
+[\fB\-p\fR\fI people.csv\fR]
 [\fB\-R\fR\fI rentableTypes.csv\fR]
 [\fB\-r\fR\fI rentables.csv\fR]
+[\fB\-S\fR\fI sources.csv\fR]
 [\fB\-s\fR\fI rentableSpecialties.csv\fR]
 [\fB\-T\fR\fI rentalAgreementTemplates.csv\fR]
+[\fB\-t\fR\fI rateplanrefSpcRates.csv\fR]
+[\fB\-U\fR\fI assignCustomAttributes.csv\fR]
+[\fB\-u\fR\fI customAttributes.csv\fR]
 [\fB\-v\fR]
+[\fB\-y\fR\fI deposits.csv\fR]
 
 .SH DESCRIPTION
 .B rrloadcsv
@@ -31,16 +47,13 @@ data it imports.
 .SH OPTIONS
 .TP
 .IP "-A assessments.csv"
-Load assessments. 
+Load assessments. Note: use -L 4 to list assessment types.
 .IP "-a assessmentTypes.csv"
 Load assessment types in the supplied csv file. Note: use -L 4 to list assessment types. 
 .IP "-B db_user"
 Username for logging into the database server. Default name is "ec2-user"
 .IP "-b business.csv"
 Load businesses via the supplied csv file. Note: use -L 3 to list businesses.
-.IP "-f"
-Back up both the data in the database as well as the pictures of individuals.
-If this option is not specified, only the data in the database is saved.
 .IP "-help"
 Lists the command options to stdout.
 .IP "-N database_name"
@@ -64,6 +77,8 @@ is the business name designation
 .IP "-T rentalAgreementTemplates.csv"
 Load rental agreement templates via the supplied csv file. Note: use -L 8 to 
 generate a list of rental templates from the database.
+.IP "-v"
+Print the program version to stdout.
 
 .SH EXAMPLES
 
@@ -72,7 +87,7 @@ Loads the businesses defined in mybiz.csv to the RentRoll database, then prints 
 of the businesses in the database to stdout.
 
 .SH BUGS
-No known bugs.
+Please report bugs to the author
 
 .SH AUTHOR
 Steve Mansour (sman@accordinterests.com)

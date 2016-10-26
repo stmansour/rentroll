@@ -10,4 +10,5 @@ test:
 	@echo "*** TEST completed in jm1 ***"
 
 package:
+	cp *.csv ../../tmp/rentroll/example/csv/
 	@echo "*** PACKAGE completed in jm1 ***"
