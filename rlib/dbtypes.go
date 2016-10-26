@@ -883,6 +883,8 @@ type RRprepSQL struct {
 	GetAllBusinesses                   *sql.Stmt
 	GetAllBusinessRentableTypes        *sql.Stmt
 	GetAllBusinessSpecialtyTypes       *sql.Stmt
+	GetAllCustomAttributeRefs          *sql.Stmt
+	GetAllCustomAttributes             *sql.Stmt
 	GetAllDemandSources                *sql.Stmt
 	GetAllDepositMethods               *sql.Stmt
 	GetAllDepositories                 *sql.Stmt
@@ -910,12 +912,15 @@ type RRprepSQL struct {
 	GetAllStringLists                  *sql.Stmt
 	GetAllTransactants                 *sql.Stmt
 	GetAssessment                      *sql.Stmt
+	GetAssessmentDuplicate             *sql.Stmt
+	GetAssessmentInstance              *sql.Stmt
 	GetAssessmentType                  *sql.Stmt
 	GetAssessmentTypeByName            *sql.Stmt
 	GetBuilding                        *sql.Stmt
 	GetBusiness                        *sql.Stmt
 	GetBusinessByDesignation           *sql.Stmt
 	GetCustomAttribute                 *sql.Stmt
+	GetCustomAttributeRef              *sql.Stmt
 	GetCustomAttributeRefs             *sql.Stmt
 	GetDefaultLedgers                  *sql.Stmt
 	GetDemandSource                    *sql.Stmt
@@ -924,6 +929,7 @@ type RRprepSQL struct {
 	GetDepositMethod                   *sql.Stmt
 	GetDepositMethodByName             *sql.Stmt
 	GetDepository                      *sql.Stmt
+	GetDepositoryByAccount             *sql.Stmt
 	GetDepositParts                    *sql.Stmt
 	GetInvoice                         *sql.Stmt
 	GetInvoiceAssessments              *sql.Stmt
@@ -935,6 +941,7 @@ type RRprepSQL struct {
 	GetJournalByReceiptID              *sql.Stmt
 	GetJournalMarker                   *sql.Stmt
 	GetJournalMarkers                  *sql.Stmt
+	GetJournalVacancy                  *sql.Stmt
 	GetLatestLedgerMarkerByLID         *sql.Stmt
 	GetLedger                          *sql.Stmt
 	GetLedgerByGLNo                    *sql.Stmt
@@ -945,6 +952,7 @@ type RRprepSQL struct {
 	GetLedgerEntriesInRangeByGLNo      *sql.Stmt
 	GetLedgerEntriesInRangeByLID       *sql.Stmt
 	GetLedgerEntry                     *sql.Stmt
+	GetLedgerEntryByJAID               *sql.Stmt
 	GetLedgerList                      *sql.Stmt
 	GetLedgerMarkerByDateRange         *sql.Stmt
 	GetLedgerMarkerByLIDDateRange      *sql.Stmt
@@ -955,6 +963,7 @@ type RRprepSQL struct {
 	GetNoteList                        *sql.Stmt
 	GetNoteListMembers                 *sql.Stmt
 	GetNoteType                        *sql.Stmt
+	GetPaymentTypeByName               *sql.Stmt
 	GetPaymentTypesByBusiness          *sql.Stmt
 	GetPayor                           *sql.Stmt
 	GetProspect                        *sql.Stmt
@@ -967,8 +976,10 @@ type RRprepSQL struct {
 	GetRatePlanRefSPRate               *sql.Stmt
 	GetReceipt                         *sql.Stmt
 	GetReceiptAllocations              *sql.Stmt
+	GetReceiptDuplicate                *sql.Stmt
 	GetReceiptsInDateRange             *sql.Stmt
 	GetReceiptsInRAIDDateRange         *sql.Stmt
+	GetRecurringAssessmentsByBusiness  *sql.Stmt
 	GetRentable                        *sql.Stmt
 	GetRentableByName                  *sql.Stmt
 	GetRentableLedgerMarkerOnOrBefore  *sql.Stmt
@@ -988,6 +999,7 @@ type RRprepSQL struct {
 	GetRentalAgreementPayors           *sql.Stmt
 	GetRentalAgreementPet              *sql.Stmt
 	GetRentalAgreementRentables        *sql.Stmt
+	GetRentalAgreementsForRentable     *sql.Stmt
 	GetRentalAgreementTemplate         *sql.Stmt
 	GetSecurityDepositAssessment       *sql.Stmt
 	GetSLString                        *sql.Stmt
@@ -1051,6 +1063,7 @@ type RRprepSQL struct {
 	ReadRatePlan                       *sql.Stmt
 	ReadRatePlanRef                    *sql.Stmt
 	UpdateAssessment                   *sql.Stmt
+	UpdateBusiness                     *sql.Stmt
 	UpdateDemandSource                 *sql.Stmt
 	UpdateDeposit                      *sql.Stmt
 	UpdateDepositMethod                *sql.Stmt
@@ -1073,15 +1086,8 @@ type RRprepSQL struct {
 	UpdateSLString                     *sql.Stmt
 	UpdateStringList                   *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
-	UpdateBusiness                     *sql.Stmt
-	GetAllCustomAttributes             *sql.Stmt
-	GetAllCustomAttributeRefs          *sql.Stmt
-	GetRentalAgreementsForRentable     *sql.Stmt
-	GetAssessmentInstance              *sql.Stmt
-	GetRecurringAssessmentsByBusiness  *sql.Stmt
-	GetJournalVacancy                  *sql.Stmt
-	GetAssessmentDuplicate             *sql.Stmt
-	GetReceiptDuplicate                *sql.Stmt
+	GetCustomAttributeByVals           *sql.Stmt
+
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
 	// GetLedgerMarkerByRAID              *sql.Stmt

@@ -33,12 +33,8 @@ type RRPageHandler struct {
 func initPageHandlers() {
 	var m = []RRPageHandler{
 		// Name  HTMLFilename  cmdType
-		{"Business", "", CmdSimpleReport, RRPHrpt},
-		{"B", "csvload.html", CmdCSVLoad, RRPHnon},
-		{"Chart Of Accounts", "coa.html", CmdSimpleReport, RRPHrpt},
-		{"Custom Attributes", "rt.html", CmdSimpleReport, RRPHrpt},
-		{"Custom Attribute Refs", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"ASM", "csvload.html", CmdCSVLoad, RRPHnon},
+		{"B", "csvload.html", CmdCSVLoad, RRPHnon},
 		{"C", "csvload.html", CmdCSVLoad, RRPHnon},
 		{"CR", "csvload.html", CmdCSVLoad, RRPHnon},
 		{"COA", "csvload.html", CmdCSVLoad, RRPHnon},
@@ -53,6 +49,10 @@ func initPageHandlers() {
 		{"SL", "csvload.html", CmdCSVLoad, RRPHnon},
 		{"T", "csvload.html", CmdCSVLoad, RRPHnon},
 		{"Assessments", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Business", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Chart Of Accounts", "coa.html", CmdSimpleReport, RRPHrpt},
+		{"Custom Attributes", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Custom Attribute Refs", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Deposit Methods", "dpm.html", CmdSimpleReport, RRPHrpt},
 		{"Depositories", "dep.html", CmdSimpleReport, RRPHrpt},
 		{"Delinquency", "rptdelinq.html", RptDelinq, RRPHrpt},
@@ -63,15 +63,19 @@ func initPageHandlers() {
 		{"People", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Payment Types", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Receipts", "rt.html", CmdSimpleReport, RRPHrpt},
+		{"Rentable Count By Type", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Rentables", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Rental Agreements", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Rental Agreement Templates", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Rentable Types", "rt.html", CmdSimpleReport, RRPHrpt},
-		{"RentRoll", "rptrentroll.html", RptRentRoll, RRPHrpt},
+		{"RentRolls", "rptrentroll.html", RptRentRoll, RRPHrpt},
+		{"Statements", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"String Lists", "rt.html", CmdSimpleReport, RRPHrpt},
 		{"Trial Balance", "rpttrialbal.html", RptTrialBalance, RRPHrpt},
 
-		{"Generate Journals", "cmdgenjnl.html", CmdGenJnl, RRPHcmd},
+		{"Update Journals", "cmdgenjnl.html", CmdGenJnl, RRPHcmd},
+		{"Update Vacancy", "rt.html", CmdGenVac, RRPHcmd},
+		{"Update Ledgers", "rt.html", CmdGenLdg, RRPHcmd},
 
 		{"Assessments", "csvassess.html", CmdCsvAssess, RRPHcsv},
 		{"Receipts", "csvrcpt.html", CmdCsvRcpt, RRPHcsv},
@@ -79,6 +83,7 @@ func initPageHandlers() {
 
 		// {"Generate Ledgers", "cmdgenldg.html", CmdGenLdg, RRPHcmd},
 		{"Backup", "admbkup.html", AdmBkup, RRPHadm},
+		{"New Database", "rt.html", AdmNewDB, RRPHadm},
 		{"Restore", "admrestore.html", AdmRestore, RRPHadm},
 
 		// {Name: "Custom Attributes", FormPageName: "formtrialbal.html", FormHandler: "/trialbalance/", ReportPageName: "", ReportHandler: "/trialbalance/"},
@@ -224,9 +229,10 @@ func RunCommandLine(ctx *DispatchCtx) {
 		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 6: // available
 	case 7: // RENTABLE COUNT BY TYPE
-		UIRentableCountByRentableTypeReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		t := rrpt.RentableCountByRentableTypeReportTbl(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		fmt.Print(t.String())
 	case 8: // STATEMENT
-		UIStatementTextReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		fmt.Print(rrpt.RptStatementTextReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop))
 	case 9: // Invoice
 		// ctx.Report format:  9,IN0001  or  9,1   -- both say that we want Invoice 1 to be printed
 		sa := strings.Split(ctx.Args, ",")
@@ -306,6 +312,8 @@ func RunCommandLine(ctx *DispatchCtx) {
 		}
 		rid := rcsv.CSVLoaderGetRID(sa[1])
 		rrpt.RentableMarketRates(&ctx.xbiz, rid, &ctx.DtStart, &ctx.DtStop)
+	case 21: // backup file list
+		fmt.Print(CreateDBBackupFileList())
 	default:
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)

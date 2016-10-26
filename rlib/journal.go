@@ -339,9 +339,9 @@ func GenerateRecurInstances(xbiz *XBusiness, d1, d2 *time.Time) {
 	Errcheck(rows.Err())
 }
 
-// ProcessAllReceipts creates Journal records for Receipts in the supplied date range
+// ProcessReceiptRange creates Journal records for Receipts in the supplied date range
 //=================================================================================================
-func ProcessAllReceipts(xbiz *XBusiness, d1, d2 *time.Time) {
+func ProcessReceiptRange(xbiz *XBusiness, d1, d2 *time.Time) {
 	r := GetReceipts(xbiz.P.BID, d1, d2)
 	for i := 0; i < len(r); i++ {
 		j := GetJournalByReceiptID(r[i].RCPTID)
@@ -374,6 +374,6 @@ func GenerateJournalRecords(xbiz *XBusiness, d1, d2 *time.Time, skipVac bool) {
 	if !skipVac {
 		GenVacancyJournals(xbiz, d1, d2)
 	}
-	ProcessAllReceipts(xbiz, d1, d2)
+	ProcessReceiptRange(xbiz, d1, d2)
 	CreateJournalMarker(xbiz, d1, d2)
 }

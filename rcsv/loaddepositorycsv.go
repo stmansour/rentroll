@@ -65,6 +65,11 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (string, int) {
 		rs += fmt.Sprintf("%s: line %d - no AccountNo for Depository. Please supply AccountNo\n", funcname, lineno)
 		return rs, CsvErrorSensitivity
 	}
+	dup := rlib.GetDepositoryByAccount(d.BID, d.AccountNo)
+	if dup.DEPID != 0 {
+		rs += fmt.Sprintf("%s: line %d -  depository with account number %s already exists\n", funcname, lineno, d.AccountNo)
+		return rs, CsvErrorSensitivity
+	}
 
 	_, err = rlib.InsertDepository(&d)
 	if err != nil {

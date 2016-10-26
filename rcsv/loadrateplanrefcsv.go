@@ -82,7 +82,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 
 	var a rlib.RatePlanRef
 	var err error
-	var ok bool
+	var errmsg string
 
 	//-------------------------------------------------------------------
 	// DtStart
@@ -107,8 +107,8 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	// Fee Applies Age
 	//-------------------------------------------------------------------
-	a.FeeAppliesAge, ok = rlib.IntFromString(sa[FeeAppliesAge], "Invalid FeeAppliesAge")
-	if !ok {
+	a.FeeAppliesAge, errmsg = rlib.IntFromString(sa[FeeAppliesAge], "Invalid FeeAppliesAge")
+	if len(errmsg) > 0 {
 		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[FeeAppliesAge])
 		return rs, CsvErrorSensitivity
 	}
@@ -116,8 +116,8 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	// Max No Fee Users
 	//-------------------------------------------------------------------
-	a.MaxNoFeeUsers, ok = rlib.IntFromString(sa[MaxNoFeeUsers], "Invalid MaxNoFeeUsers")
-	if !ok {
+	a.MaxNoFeeUsers, errmsg = rlib.IntFromString(sa[MaxNoFeeUsers], "Invalid MaxNoFeeUsers")
+	if len(errmsg) > 0 {
 		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[MaxNoFeeUsers])
 		return rs, CsvErrorSensitivity
 	}
@@ -125,8 +125,8 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	// AdditionalUserFee
 	//-------------------------------------------------------------------
-	a.AdditionalUserFee, ok = rlib.FloatFromString(sa[AdditionalUserFee], "Invalid Additional User Fee")
-	if !ok {
+	a.AdditionalUserFee, errmsg = rlib.FloatFromString(sa[AdditionalUserFee], "Invalid Additional User Fee")
+	if len(errmsg) > 0 {
 		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[AdditionalUserFee])
 		return rs, CsvErrorSensitivity
 	}
@@ -134,8 +134,8 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	// CancellationFee
 	//-------------------------------------------------------------------
-	a.CancellationFee, ok = rlib.FloatFromString(sa[CancellationFee], "Invalid Cancellation Fee")
-	if !ok {
+	a.CancellationFee, errmsg = rlib.FloatFromString(sa[CancellationFee], "Invalid Cancellation Fee")
+	if len(errmsg) > 0 {
 		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[CancellationFee])
 		return rs, CsvErrorSensitivity
 	}

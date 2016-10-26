@@ -53,7 +53,9 @@ func GetCachedLedgerByGL(bid int64, s string) GLAccount {
 }
 
 // GenerateLedgerEntriesFromJournal creates all the LedgerEntries necessary to describe the Journal entry provided
-func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) {
+// The number of LedgerEntries inserted is returned
+func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.Time) int {
+	nr := 0
 	for i := 0; i < len(j.JA); i++ {
 		m := ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
 		for k := 0; k < len(m); k++ {
@@ -71,10 +73,15 @@ func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.
 			l.RAID = j.RAID
 			l.RID = j.JA[i].RID
 			if l.Amount >= float64(0.005) || l.Amount < float64(-0.005) { // ignore rounding errors
-				InsertLedgerEntry(&l)
+				dup := GetLedgerEntryByJAID(l.BID, l.LID, l.JAID) //
+				if dup.LEID == 0 {
+					InsertLedgerEntry(&l)
+					nr++
+				}
 			}
 		}
 	}
+	return nr
 }
 
 // UpdateSubLedgerMarkers is being added to keep track of totals per Rental
@@ -226,12 +233,14 @@ func GenerateLedgerMarkers(xbiz *XBusiness, dt *time.Time) {
 }
 
 // GenerateLedgerRecords creates ledgers records based on the Journal records over the supplied time range.
-func GenerateLedgerRecords(xbiz *XBusiness, d1, d2 *time.Time) {
+func GenerateLedgerRecords(xbiz *XBusiness, d1, d2 *time.Time) int {
+	nr := 0
+	// fmt.Printf("Generate Ledger Records: BID=%d, d1 = %s, d2 = %s\n", xbiz.P.BID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// funcname := "GenerateLedgerRecords"
 	err := RemoveLedgerEntries(xbiz, d1, d2)
 	if err != nil {
 		Ulog("Could not remove existing LedgerEntries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
-		return
+		return nr
 	}
 	initLedgerCache()
 	//----------------------------------------------------------------------------------
@@ -240,13 +249,13 @@ func GenerateLedgerRecords(xbiz *XBusiness, d1, d2 *time.Time) {
 	rows, err := RRdb.Prepstmt.GetAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
-	// fmt.Printf("Loading Journal Entries from %s to %s.\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT))
 	for rows.Next() {
 		var j Journal
 		Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
 		GetJournalAllocations(j.JID, &j)
-		GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
+		nr += GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
 	}
 	Errcheck(rows.Err())
 	GenerateLedgerMarkers(xbiz, d2)
+	return nr
 }

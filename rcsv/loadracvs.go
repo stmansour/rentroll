@@ -326,6 +326,26 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 		ra.NLID = nl.NLID
 	}
 
+	//-------------------------------------------------------------------
+	// look for any rental agreements already in existence that cover
+	// the rentables referenced in this one...
+	//-------------------------------------------------------------------
+	errcount := 0
+	for i := 0; i < len(m); i++ {
+		rra := rlib.GetAgreementsForRentable(m[i].RID, &ra.AgreementStart, &ra.AgreementStop)
+		// fmt.Printf("i = %d,  number of existing agreements for rentable %d: %d\n", i, m[i].RID, len(rra))
+		for j := 0; j < len(rra); j++ {
+			rs += fmt.Sprintf("%s: line %d - Rentable %s is already included in Rental Agreement %s from %s to %s\n",
+				funcname, lineno,
+				rlib.IDtoString("R", rra[j].RID), rlib.IDtoString("RA", rra[j].RAID),
+				rra[j].DtStart.Format(rlib.RRDATEFMT4), rra[j].DtStop.Format(rlib.RRDATEFMT4))
+			errcount++
+		}
+	}
+	if errcount > 0 {
+		return rs, CsvErrorSensitivity
+	}
+
 	//------------------------------------
 	// Write the rental agreement record
 	//-----------------------------------

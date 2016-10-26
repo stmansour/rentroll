@@ -8,21 +8,23 @@ rrbkup \- back up the Accord RentRoll database
 
 .SH DESCRIPTION
 .B rrbkup
-make a backup of the Accord RentRoll database. Backups are
+makes a backup of the Accord RentRoll database. Backups are
 stored in a directory called 'bkup' which created in the current path
-if necessary.  The file name will be rentroll\f\Idd\f\R.sql.gz and
-\f\Idd\f\R will be the current day of the month.
+if necessary.  By default, the backup file name will be rentroll\fIdd\fR.sql.gz and
+\fIdd\fR will be the current day of the month.
 For example, a backup made on
 Jan 05 will be storedin bkup/rentroll05.sql.gz.  This backup will be
 kept until Feb 05. When a backup is made on Feb 05, the new backup will overwrite
-the file bkup/rentroll05.sql.gz. 
+the file bkup/rentroll05.sql.gz. The base filename of the backup file created by
+.B rrbkup
+(in this case rentroll05) can be overridden with the -f option.
 .SH OPTIONS
 .TP
 .IP "-B database_username"
 Username for logging into the database server. Default name is "ec2-user"
-.IP "-f"
-Back up both the data in the database as well as the pictures of individuals.
-If this option is not specified, only the data in the database is saved.
+.IP "-f base_filename"
+Use base_filename as the base file name. For example, "-f xyz" would result
+in the backup file bkup/xyz.sql.gz
 .IP "-help"
 Lists the command options to stdout.
 .IP "-N database_name"

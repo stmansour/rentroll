@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func readNumAndStatusFromExpr(sa, expr, errmsg string) (int64, bool) {
+func readNumAndStatusFromExpr(sa, expr, errmsg string) (int64, string) {
 	s := strings.TrimSpace(sa)
 	re, _ := regexp.Compile(expr)
 	m := re.FindStringSubmatch(s) // returns this pattern:  ["xxx0000001" "2"]
@@ -97,7 +97,7 @@ func CSVLoaderTransactantList(s string) ([]rlib.Transactant, error) {
 		var a rlib.Transactant
 		s = strings.TrimSpace(ss[i])                          // either the email address or the phone number
 		n, ok := readNumAndStatusFromExpr(s, "^TC0*(.*)", "") // "" suppresses error messages
-		if ok {
+		if len(ok) == 0 {
 			rlib.GetTransactant(n, &a)
 		} else {
 			a = rlib.GetTransactantByPhoneOrEmail(s)

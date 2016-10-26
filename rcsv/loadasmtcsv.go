@@ -194,8 +194,9 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	// Set the InvoiceNo.  If not specified, just leave it as 0
 	//-------------------------------------------------------------------
-	a.InvoiceNo, ok = rlib.IntFromString(sa[9], "InvoiceNo is invalid")
-	if !ok {
+	var errmsg string
+	a.InvoiceNo, errmsg = rlib.IntFromString(sa[9], "InvoiceNo is invalid")
+	if len(errmsg) > 0 {
 		rs = "Bad InvoiceNo: " + sa[9]
 		return rs, CsvErrorSensitivity
 	}

@@ -15,7 +15,7 @@ ver.go:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	go clean
-	rm -f rentroll ver.go conf.json rentroll.log *.out
+	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore
 
 test: package
 	rm -f test/*/err.txt
@@ -38,6 +38,10 @@ package: rentroll
 	cp conf.json ./tmp/rentroll/
 	cp -r html ./tmp/rentroll/
 	cp activate.sh update.sh ./tmp/rentroll/
+	rm -f ./rrnewdb ./rrbkup ./rrrestore
+	ln -s tmp/rentroll/rrnewdb
+	ln -s tmp/rentroll/rrbkup
+	ln -s tmp/rentroll/rrrestore
 	@echo "*** PACKAGE COMPLETED ***"
 
 publish: package

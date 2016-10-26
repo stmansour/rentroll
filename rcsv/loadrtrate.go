@@ -77,7 +77,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 
 	var a rlib.RatePlanRefRTRate
 	var err error
-	var ok bool
+	var errmsg string
 
 	//-------------------------------------------------------------------
 	// RPRef
@@ -106,8 +106,8 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	// is a percentage and we set the % flag. Otherwise, it is an absolute amount
 	//-------------------------------------------------------------------
 	amt := strings.TrimSpace(sa[Amount])
-	a.Val, ok = rlib.FloatFromString(amt, "bad amount")
-	if !ok {
+	a.Val, errmsg = rlib.FloatFromString(amt, "bad amount")
+	if len(errmsg) > 0 {
 		return rs, CsvErrorSensitivity
 	}
 	if strings.Contains(amt, "%") {

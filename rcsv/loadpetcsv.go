@@ -14,7 +14,7 @@ import (
 func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (string, int) {
 	funcname := "CreateRentalAgreementPetsFromCSV"
 	var pet rlib.RentalAgreementPet
-	var ok bool
+	var errmsg string
 
 	const (
 		RAID   = iota
@@ -65,9 +65,9 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	// Get the Weight
 	//-------------------------------------------------------------------
-	pet.Weight, ok = rlib.FloatFromString(sa[Weight], "Weight is invalid")
-	if !ok {
-		rs += fmt.Sprintf("%s: line %d - Weight is invalid: %s\n", funcname, lineno, sa[5])
+	pet.Weight, errmsg = rlib.FloatFromString(sa[Weight], "Weight is invalid")
+	if len(errmsg) > 0 {
+		rs += fmt.Sprintf("%s: line %d - Weight is invalid: %s  (%s)\n", funcname, lineno, sa[5], errmsg)
 		return rs, CsvErrorSensitivity
 	}
 

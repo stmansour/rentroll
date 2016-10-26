@@ -115,11 +115,29 @@ func CmdGenJnl(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 		return
 	}
 
-	rlib.GenerateJournalRecords(xbiz, &ui.D1, &ui.D2, false)
-	// rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+	rlib.GenerateRecurInstances(xbiz, &ui.D1, &ui.D2) // generate and process assessment instances in this range
+	rlib.ProcessReceiptRange(xbiz, &ui.D1, &ui.D2)    // process receipts in this range
 	ui.ReportContent += fmt.Sprintf("\nJournal\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 	t := rrpt.JournalReport(xbiz, &ui.D1, &ui.D2)
 	ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
+}
+
+// CmdGenVac is the HTTP handler for generating Vacancy Journal records
+func CmdGenVac(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+	if xbiz.P.BID > 0 {
+		nr := rlib.GenVacancyJournals(xbiz, &ui.D1, &ui.D2)
+		ui.ReportContent = fmt.Sprintf("Processed range %s - %s.  Vacancy records added: %d\n", ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4), nr)
+	}
+}
+
+// CmdGenLdg is the HTTP handler for generating Vacancy Journal records
+func CmdGenLdg(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+	// fmt.Printf("CmdGenLdg: BID=%d, d1 = %s, d2 = %s\n", xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
+	if xbiz.P.BID > 0 {
+		nr := rlib.GenerateLedgerRecords(xbiz, &ui.D1, &ui.D2)
+		ui.ReportContent = fmt.Sprintf("Processed range %s - %s.  Ledger records added: %d\n", ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4), nr)
+		RptLedgerActivity(w, r, xbiz, ui)
+	}
 }
 
 type csvLoaderT struct {
@@ -142,18 +160,19 @@ var loaders = []csvLoaderT{
 	{prefix: "R", handler: rcsv.LoadRentablesCSV},
 	{prefix: "RA", handler: rcsv.LoadRentalAgreementCSV},
 	{prefix: "RAT", handler: rcsv.LoadRentalAgreementTemplatesCSV},
-	{prefix: "RA", handler: rcsv.LoadRentalAgreementCSV},
 	{prefix: "RCPT", handler: rcsv.LoadReceiptsCSV},
 	// {prefix: "RSP", handler: rcsv.LoadRentalSpecialtiesCSV},
 }
 
 func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
+	// fmt.Printf("csvloadReporter: prefix=%s, BID=%d\n", prefix, xbiz.P.BID)
 	switch prefix {
 	case "ASM", "Assessments":
 		return rcsv.RRreportAssessments(rlib.RPTTEXT, xbiz.P.BID)
 	case "B", "Business":
 		return rcsv.RRreportBusiness(rlib.RPTTEXT)
 	case "COA", "Chart Of Accounts":
+		rlib.InitBizInternals(xbiz.P.BID, xbiz)
 		return rcsv.RRreportChartOfAccounts(rlib.RPTTEXT, xbiz.P.BID)
 	case "C", "Custom Attributes":
 		return rcsv.RRreportCustomAttributes(rlib.RPTTEXT)
@@ -167,16 +186,20 @@ func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) strin
 		return rcsv.RRreportPaymentTypes(rlib.RPTTEXT, xbiz.P.BID)
 	case "R", "Rentables":
 		return rcsv.RRreportRentables(rlib.RPTTEXT, xbiz.P.BID)
-	case "RAT", "Rental Agreement Templates":
-		return rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT, xbiz.P.BID)
 	case "RA", "Rental Agreements":
 		return rcsv.RRreportRentalAgreements(rlib.RPTTEXT, xbiz.P.BID)
+	case "RAT", "Rental Agreement Templates":
+		return rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT, xbiz.P.BID)
 	case "RCPT", "Receipts":
 		return rcsv.RRreportReceipts(rlib.RPTTEXT, xbiz.P.BID)
 	case "RT", "Rentable Types":
 		return rcsv.RRreportRentableTypes(rlib.RPTTEXT, xbiz.P.BID)
+	case "Rentable Count By Type":
+		return rrpt.RentableCountByRentableTypeReport(rlib.RPTTEXT, xbiz, &ui.D1, &ui.D2)
 	case "SL", "String Lists":
 		return rcsv.RRreportStringLists(rlib.RPTTEXT, xbiz.P.BID)
+	case "Statements":
+		return rrpt.RptStatementTextReport(xbiz, &ui.D1, &ui.D2)
 	case "T", "People":
 		return rcsv.RRreportPeople(rlib.RPTTEXT, xbiz.P.BID)
 	}
@@ -206,7 +229,7 @@ func CmdCSVLoad(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 	if len(action) > 0 {
 		fmt.Printf("CmdCSVLoad: action = %s, len loaders = %d\n", action, len(loaders))
 		for i := 0; i < len(loaders); i++ {
-			fmt.Printf("i = %d, loader = %v\n", i, loaders[i])
+			// fmt.Printf("i = %d, loader = %v\n", i, loaders[i])
 			if action == loaders[i].prefix {
 				fmt.Printf("found loader, i = %d, loader = %v\n", i, loaders[i])
 				fname := ""

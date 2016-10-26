@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Fri Oct 21 10:14:43 PDT 2016
+Date/Time:    Tue Oct 25 15:39:48 PDT 2016
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2016/10/21 10:14:44 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2016/10/25 15:39:49 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 9 - rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
 CreateRentableType: line 11 - Invalid rental proration frequency: 99
@@ -27,7 +27,7 @@ CreateRentables: lineno 14 - invalid AssignmentTime number: 9
 CreateRentables: lineno 15 - invalid AssignmentTime number: 9
 CreateRentables: lineno 16 - Rentable with name "107" already exists. Skipping. 
 CreateRentables: lineno 17 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
-2016/10/21 10:14:45 CSVLoaderTransactantList:  error retrieving Transactant with TCID, phone, or email: billybob@springfield.com
+2016/10/25 15:39:50 CSVLoaderTransactantList:  error retrieving Transactant with TCID, phone, or email: billybob@springfield.com
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
@@ -49,9 +49,11 @@ CreateReceiptsFromCSV: line 6 -  Payment type is invalid: 999
 CreateReceiptsFromCSV: line 7 -  invalid rlib.Receipt date:  12-11-2015
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 
+CreateCustomAttributes: line 6 - Type value must be a number from 0 to 4
 IntFromString: Value cannot be converted to an integer: ab827
+
 IntFromString: Value cannot be converted to an unsigned integer: ab827
-Type value must be a number from 0 to 4
+
 ElementType value must be a number from 5 to 7
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Fri Oct 21 10:14:46 PDT 2016
+Test completed: Tue Oct 25 15:39:51 PDT 2016

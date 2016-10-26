@@ -59,6 +59,16 @@ func ReadDemandSources(rows *sql.Rows, a *DemandSource) {
 	Errcheck(rows.Scan(&a.SourceSLSID, &a.BID, &a.Name, &a.Industry, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadDepository reads a full Depository structure from the database based on the supplied row object
+func ReadDepository(row *sql.Row, a *Depository) {
+	Errcheck(row.Scan(&a.DEPID, &a.BID, &a.Name, &a.AccountNo, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadDepositories reads a full Depository structure from the database based on the supplied rows object
+func ReadDepositories(rows *sql.Rows, a *Depository) {
+	Errcheck(rows.Scan(&a.DEPID, &a.BID, &a.Name, &a.AccountNo, &a.LastModTime, &a.LastModBy))
+}
+
 // // ReadGLAccounts reads a full GLAccount structure of data from the database based on the supplied Rows pointer.
 // func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
 // 	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber, &a.Status, &a.Type, &a.Name, &a.AcctType,
@@ -127,6 +137,16 @@ func ReadNote(row *sql.Row, a *Note) {
 // ReadNotes reads a full Note structure from the database based on the supplied row object
 func ReadNotes(rows *sql.Rows, a *Note) {
 	Errcheck(rows.Scan(&a.NID, &a.NLID, &a.PNID, &a.NTID, &a.RID, &a.RAID, &a.TCID, &a.Comment, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadPaymentType reads a full PaymentType structure from the database based on the supplied row object
+func ReadPaymentType(row *sql.Row, a *PaymentType) {
+	Errcheck(row.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadPaymentTypes reads a full PaymentType structure from the database based on the supplied rows object
+func ReadPaymentTypes(rows *sql.Rows, a *PaymentType) {
+	Errcheck(rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object

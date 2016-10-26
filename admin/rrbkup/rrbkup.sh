@@ -19,10 +19,15 @@ ACCORD RentRoll database backup utility
 Usage:   rrbkup.sh [OPTIONS]
 
 OPTIONS:
+-f  fname
+    Make fname the base file name.  The database backup file will
+    be named <fname>.sql.gz .  If this option is not specified
+    the file will be named:  rentroll<dayOfMonth>.sql.gz
+
 -h	print this help message
 
 Examples:
-Command to backup database
+Command to backup database to the default filename
 	bash$  ./rrbkup
 
 Command to get help
@@ -44,13 +49,15 @@ bkupData() {
 ##############################################################
 #   MAIN ROUTINE
 ##############################################################
-while getopts ":hN:" o; do
+while getopts ":f:hN:" o; do
     case "${o}" in
+        f)  USERFNAME=${OPTARG}
+            ;;
         h)
-			usage
+            usage
             ;;
         N)
-			DATABASE=${OPTARG}
+            DATABASE=${OPTARG}
             ;;
         *)
 			echo "UNRECOGNIZED OPTION:  ${o}"
@@ -60,8 +67,13 @@ while getopts ":hN:" o; do
 done
 shift $((OPTIND-1))
 
-BKUPNAME="${DATABASE}${DOM}.sql"
-echo "Backing up data on database ${DATABASE}..."
+if [ "${USERFNAME}x" == "x" ]; then
+    BKUPNAME=${DATABASE}${DOM}.sql
+else
+    BKUPNAME=${USERFNAME}.sql
+fi
+
+echo "Backing up data on from ${DATABASE} to ./bkup/${BKUPNAME}.gz"
 bkupData
 
 mkdir -p bkup

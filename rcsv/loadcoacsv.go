@@ -245,8 +245,9 @@ func CreateLedgerMarkers(sa []string, lineno int) (string, int) {
 	//----------------------------------------------------------------------
 	// RAREQUIRED
 	//----------------------------------------------------------------------
-	RARequired, ok := rlib.IntFromString(sa[12], fmt.Sprintf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST))
-	if !ok {
+	RARequired, errmsg := rlib.IntFromString(sa[12], fmt.Sprintf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST))
+	if len(errmsg) > 0 {
+		rs += errmsg + "\n"
 		return rs, CsvErrorSensitivity
 	}
 	if RARequired < rlib.RARQDINRANGE || RARequired > rlib.RARQDLAST {

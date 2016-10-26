@@ -14,7 +14,7 @@
 <input type="hidden" name="DtStop" value="{{.DtStop}}"></td>
 <input type="hidden" name="BID" value="{{.B.BID}}">
 <table>
-<tr><th align="center">Reports</th><th></th><th align="center">Commands</th><th></th><th align="center">CSV Load</th><th></th><th align="center">Admin</th></tr>
+<tr><th align="center">Reports</th><th></th><th align="center">CSV Load</th><th></th><th align="center">Commands</th><th></th><th align="center">Admin</th></tr>
 <tr>
 <td><hr></td><td></td>
 <td><hr></td><td></td>
@@ -26,10 +26,10 @@
 <td valign="top" align="center">{{range .PgHnd}}{{if eq .Category 0}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
 <td width="20"></td>
 <!-- CSV IMPORT -->
-<td valign="top" align="center">{{range .PgHnd}}{{if eq .Category 1}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
+<td valign="top" align="center">{{range .PgHnd}}{{if eq .Category 2}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
 <td width="20"></td>
 <!-- COMMANDS -->
-<td valign="top" align="center">{{range .PgHnd}}{{if eq .Category 2}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
+<td valign="top" align="center">{{range .PgHnd}}{{if eq .Category 1}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
 <td width="20"></td>
 <!-- ADMIN -->
 <td valign="top" align="center">{{range .PgHnd}}{{if eq .Category 3}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>

@@ -152,26 +152,26 @@ func IsSQLNoResultsError(err error) bool {
 // IntFromString converts the supplied string to an int64 value. If there
 // is a problem in the conversion, it generates an error message. To suppress
 // the error message, pass in "" for errmsg.
-func IntFromString(sa string, errmsg string) (int64, bool) {
+func IntFromString(sa string, errmsg string) (int64, string) {
 	var n = int64(0)
 	s := strings.TrimSpace(sa)
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
 			if "" != errmsg {
-				fmt.Printf("IntFromString: %s: %s\n", errmsg, s)
+				return 0, fmt.Sprintf("IntFromString: %s: %s\n", errmsg, s)
 			}
-			return n, false
+			return n, err.Error()
 		}
 		n = int64(i)
 	}
-	return n, true
+	return n, ""
 }
 
 // FloatFromString converts the supplied string to an int64 value. If there
 // is a problem in the conversion, it generates an error message.  If the string
 // contains a '%' at the end, it treats the number as a percentage (divides by 100)
-func FloatFromString(sa string, errmsg string) (float64, bool) {
+func FloatFromString(sa string, errmsg string) (float64, string) {
 	var f = float64(0)
 	s := strings.TrimSpace(sa)
 	i := strings.Index(s, "%")
@@ -181,15 +181,14 @@ func FloatFromString(sa string, errmsg string) (float64, bool) {
 	if len(s) > 0 {
 		x, err := strconv.ParseFloat(s, 64)
 		if err != nil {
-			fmt.Printf("FloatFromString: %s: %s\n", errmsg, sa)
-			return f, false
+			return f, fmt.Sprintf("FloatFromString: %s: %s\n", errmsg, sa)
 		}
 		f = x
 	}
 	if i > 0 {
 		f /= 100.0
 	}
-	return f, true
+	return f, ""
 }
 
 // LoadCSV loads a comma-separated-value file into an array of strings and returns the array of strings

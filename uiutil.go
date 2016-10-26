@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"rentroll/rlib"
 	"time"
 )
@@ -17,30 +16,6 @@ type UILedger struct {
 	Balance float64 // sum of all LM Balances
 	BID     int64
 	XL      []XLedger // all ledgers in this business
-}
-
-// RTIDCount is for counting rentables of a particular type
-type RTIDCount struct {
-	RT    rlib.RentableType // ID of the types we're counting
-	Count int64             // the count
-}
-
-// StatementEntry is a struct containing references to an Assessment or a Receipt that is
-// part of a billing statement associated with a RentalAgreement
-type StatementEntry struct {
-	t   int              // type: 1 = assessment, 2 = Receipt, 3 = Initial Balance
-	a   *rlib.Assessment // for type==1, the pointer to the assessment
-	r   *rlib.Receipt    // for type ==2, the pointer to the receipt
-	bal float64          // opening balance
-}
-
-// StmtEntry describes an entry on a statement
-type StmtEntry struct {
-	t       int   // 1 = assessment, 2 = Receipt, 3 = Initial Balance
-	id      int64 // ASMID if t==1, RCPTID if t==2, n/a if t==3
-	asmtlid int64 // valid only for t==1, the assessments ATypeLID
-	amt     float64
-	dt      time.Time
 }
 
 // RRuiSupport is a structure of data that will be passed to all html pages.
@@ -110,65 +85,3 @@ func UIInitUISupport(ui *RRuiSupport) {
 // 	ui.LDG.Balance = LMSum(&ui.LDG.XL)
 // 	ui.LDG.BID = bid
 // }
-
-// GetRentableCountByRentableType returns a structure containing the count of Rentables for each RentableType
-// in the specified time range
-func GetRentableCountByRentableType(xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]RTIDCount, error) {
-	var count int64
-	var m []RTIDCount
-	var err error
-	i := 0
-	for _, v := range xbiz.RT {
-		s := fmt.Sprintf("SELECT COUNT(*) FROM RentableTypeRef WHERE RTID=%d AND DtStop>\"%s\" AND DtStart<\"%s\"",
-			v.RTID, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
-		err = rlib.RRdb.Dbrr.QueryRow(s).Scan(&count)
-		if err != nil {
-			fmt.Printf("GetRentableCountByRentableType: query=\"%s\"    err = %s\n", s, err.Error())
-		}
-		var rc RTIDCount
-		rc.Count = count
-		rc.RT = v
-		var cerr error
-		rc.RT.CA, cerr = rlib.GetAllCustomAttributes(rlib.ELEMRENTABLETYPE, v.RTID)
-		if cerr != nil {
-			if !rlib.IsSQLNoResultsError(cerr) { // it's not really an error if we don't find any custom attributes
-				err = cerr
-				break
-			}
-		}
-
-		m = append(m, rc)
-		i++
-	}
-	return m, err
-}
-
-// GetStatementData returns an array of StatementEntries for building a statement
-func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []StmtEntry {
-	var m []StmtEntry
-	bal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, raid, d1)
-	var initBal = StmtEntry{amt: bal, t: 3, dt: *d1}
-	m = append(m, initBal)
-	n, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID)
-	if err != nil {
-		return m
-	}
-	for i := 0; i < len(n); i++ {
-		var se StmtEntry
-		se.amt = n[i].Amount
-		se.dt = n[i].Dt
-		j := rlib.GetJournal(n[i].JID)
-		se.t = int(j.Type)
-		se.id = j.ID
-		if se.t == rlib.JOURNALTYPEASMID {
-			// read the assessment to find out what it was for...
-			a, err := rlib.GetAssessment(se.id)
-			if err != nil {
-				return m
-			}
-			se.asmtlid = a.ATypeLID
-		}
-		m = append(m, se)
-	}
-	return m
-}

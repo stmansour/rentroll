@@ -15,11 +15,15 @@ usage() {
 ACCORD RentRoll database restore utility
 Usage:   ${PROGNAME} [OPTIONS]
 
+Back up the rentroll database to a file in the ./bkup directory.
+
 OPTIONS:
--d  day-of-month. Default is today's date. Note that if the daily
-                  backup has not been performed yet, this would restore
-                  last month's data.
--f 	full restore -- includes pictures. Default is data only
+-d  day-of-month.  Default is today's date. Note that if the daily
+                   backup has not been performed yet, this would restore
+                   last month's data.
+-f 	base_filename. This option allows you to specify the base file name.
+                   For example, "-f xyz" would restore the database file
+                   named ./bkup/xyz.sql.gz
 -h	print this help message
 -n  force --no-defaults onto all mysql commands
 
@@ -35,7 +39,7 @@ ZZEOF
 }
 
 ##############################################################
-#   RESTORE - DATA ONLY
+#   RESTORE
 ##############################################################
 restoreData() {
 	# CWD=$(pwd)	
@@ -61,7 +65,7 @@ restoreData() {
 ##############################################################
 #   MAIN ROUTINE
 ##############################################################
-while getopts ":d:fhnN:" o; do
+while getopts ":df:hnN:" o; do
     case "${o}" in
         d)
             DOM=${OPTARG}
@@ -73,6 +77,8 @@ while getopts ":d:fhnN:" o; do
             	echo "Small value for DOM is 1."
             	exit 1
             fi
+            ;;
+        f)  USERFNAME=${OPTARG}
             ;;
         h)
 			usage
@@ -88,5 +94,10 @@ while getopts ":d:fhnN:" o; do
 done
 shift $((OPTIND-1))
 
-BKUPNAME="${DATABASE}${DOM}.sql"
+if [ "${USERFNAME}x" == "x" ]; then
+    BKUPNAME="${DATABASE}${DOM}.sql"
+else
+    BKUPNAME=${USERFNAME}.sql
+fi
+
 restoreData

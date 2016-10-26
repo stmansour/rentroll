@@ -20,10 +20,11 @@ const (
 	COLJUSTIFYLEFT  = 1
 	COLJUSTIFYRIGHT = 2
 
-	CELLINT    = 1
-	CELLFLOAT  = 2
-	CELLSTRING = 3
-	CELLDATE   = 4
+	CELLINT      = 1
+	CELLFLOAT    = 2
+	CELLSTRING   = 3
+	CELLDATE     = 4
+	CELLDATETIME = 5
 
 	TABLEOUTTEXT = 1
 	TABLEOUTHTML = 2
@@ -44,7 +45,7 @@ type ColumnDef struct {
 	Title     string   // the column title
 	Width     int      // column width
 	Justify   int      // justification
-	Pfmt      string   //printf-style formatting information for values in this column
+	Pfmt      string   // printf-style formatting information for values in this column
 	CellType  int      // type of data in this column
 	Hdr       []string // multiple lines of column headers as needed -- based on width and Title
 	Fdecimals int      // the number of decimal digits for floating point numbers. The default is 2
@@ -69,6 +70,7 @@ type Table struct {
 	TextColSpace int         // space between text columns
 	maxHdrRows   int         // maximum number of header rows across all ColDefs
 	DateFmt      string      // format for printing dates
+	DateTimeFmt  string      // format for datetime values
 	LineAfter    []int       // array of row numbers that have a horizontal line after they are printed
 	LineBefore   []int       // array of row numbers that have a horizontal line before they are printed
 	RS           []Rowset    // a list of rowsets
@@ -100,6 +102,8 @@ func (c *Cell) TypeToString() string {
 		return "float"
 	case CELLDATE:
 		return "date"
+	case CELLDATETIME:
+		return "datetime"
 	}
 	return "unknown"
 }
@@ -108,6 +112,7 @@ func (c *Cell) TypeToString() string {
 func (t *Table) Init() {
 	t.TextColSpace = 2
 	t.DateFmt = "01/02/2006"
+	t.DateTimeFmt = "01/02/2006 15:04:00 MST"
 }
 
 // AddLineAfter keeps track of the row numbers after which a line will be printed
@@ -380,13 +385,25 @@ func (t *Table) Puts(row, col int, v string) bool {
 // bounds the return value is false. Otherwise, the return
 // value is true
 func (t *Table) Putd(row, col int, v time.Time) bool {
+	return t.putdint(row, col, v, CELLDATE)
+}
+
+// Putdt updates the Cell at row,col with the datetimv value v
+// and sets its type to CELLDATETIME. If row or col is out of
+// bounds the return value is false. Otherwise, the return
+// value is true
+func (t *Table) Putdt(row, col int, v time.Time) bool {
+	return t.putdint(row, col, v, CELLDATETIME)
+}
+
+func (t *Table) putdint(row, col int, v time.Time, x int) bool {
 	if row >= len(t.Row) || col >= len(t.ColDefs) {
 		return false
 	}
 	if row < 0 {
 		row = len(t.Row) - 1
 	}
-	t.Row[row].Col[col].Type = CELLDATE
+	t.Row[row].Col[col].Type = x
 	t.Row[row].Col[col].Dval = v
 	return true
 }
@@ -443,6 +460,8 @@ func (t *Table) SprintRowText(row int) string {
 			s += fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Sval)
 		case CELLDATE:
 			s += fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateFmt))
+		case CELLDATETIME:
+			s += fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateTimeFmt))
 		default:
 			s += Mkstr(t.ColDefs[i].Width, ' ')
 		}
@@ -615,7 +634,7 @@ func (t *Table) Sort(from, to, col int) {
 				swap = t.Row[i].Col[col].Fval > t.Row[j].Col[col].Fval
 			case CELLSTRING:
 				swap = t.Row[i].Col[col].Sval > t.Row[j].Col[col].Sval
-			case CELLDATE:
+			case CELLDATE, CELLDATETIME:
 				swap = t.Row[i].Col[col].Dval.After(t.Row[j].Col[col].Dval)
 			}
 			if swap {

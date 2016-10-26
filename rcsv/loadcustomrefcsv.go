@@ -12,7 +12,7 @@ import (
 // CreateCustomAttributeRefs reads a rlib.CustomAttributeRefs string array and creates a database record
 func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
 	funcname := "Createrlib.CustomAttributeRefs"
-	var ok bool
+	var errmsg string
 	var c rlib.CustomAttributeRef
 
 	const (
@@ -36,8 +36,8 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
 		return rs, 0
 	}
 
-	c.ElementType, ok = rlib.IntFromString(sa[0], "ElementType is invalid")
-	if !ok {
+	c.ElementType, errmsg = rlib.IntFromString(sa[0], "ElementType is invalid")
+	if len(errmsg) > 0 {
 		return rs, CsvErrorSensitivity
 	}
 	if c.ElementType < rlib.ELEMRENTABLETYPE || c.ElementType > rlib.ELEMLAST {
@@ -45,12 +45,12 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
 		return rs, CsvErrorSensitivity
 	}
 
-	c.ID, ok = rlib.IntFromString(sa[1], "ID value cannot be converted to an integer")
-	if !ok {
+	c.ID, errmsg = rlib.IntFromString(sa[1], "ID value cannot be converted to an integer")
+	if len(errmsg) > 0 {
 		return rs, CsvErrorSensitivity
 	}
-	c.CID, ok = rlib.IntFromString(sa[2], "CID value cannot be converted to an integer")
-	if !ok {
+	c.CID, errmsg = rlib.IntFromString(sa[2], "CID value cannot be converted to an integer")
+	if len(errmsg) > 0 {
 		return rs, CsvErrorSensitivity
 	}
 
@@ -62,6 +62,12 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
 			rs += fmt.Sprintf("%s: line %d - Could not load rlib.RentableType with id %d:  error = %v\n", funcname, lineno, c.ID, err)
 			return rs, CsvErrorSensitivity
 		}
+	}
+
+	ref := rlib.GetCustomAttributeRef(c.ElementType, c.ID, c.CID)
+	if ref.ElementType == c.ElementType && ref.CID == c.CID && ref.ID == c.ID {
+		rs += fmt.Sprintf("%s: line %d - This reference already exists. No changes were made.\n", funcname, lineno)
+		return rs, CsvErrorSensitivity
 	}
 
 	err := rlib.InsertCustomAttributeRef(&c)

@@ -13,7 +13,7 @@ import (
 // CreateCustomAttributes reads a CustomAttributes string array and creates a database record
 func CreateCustomAttributes(sa []string, lineno int) (string, int) {
 	funcname := "CreateCustomAttributes"
-	var ok bool
+	var errmsg string
 	var c rlib.CustomAttribute
 
 	const (
@@ -39,12 +39,12 @@ func CreateCustomAttributes(sa []string, lineno int) (string, int) {
 		return rs, 0
 	}
 
-	c.Type, ok = rlib.IntFromString(sa[1], "Type is invalid")
-	if !ok {
+	c.Type, errmsg = rlib.IntFromString(sa[1], "Type is invalid")
+	if len(errmsg) > 0 {
 		return rs, CsvErrorSensitivity
 	}
 	if c.Type < rlib.CUSTSTRING || c.Type > rlib.CUSTLAST {
-		rs += fmt.Sprintf("Type value must be a number from %d to %d\n", rlib.CUSTSTRING, rlib.CUSTLAST)
+		rs += fmt.Sprintf("%s: line %d - Type value must be a number from %d to %d\n", funcname, lineno, rlib.CUSTSTRING, rlib.CUSTLAST)
 		return rs, CsvErrorSensitivity
 	}
 
@@ -53,20 +53,29 @@ func CreateCustomAttributes(sa []string, lineno int) (string, int) {
 	c.Units = strings.TrimSpace(sa[3])
 	switch c.Type {
 	case rlib.CUSTINT:
-		_, ok = rlib.IntFromString(c.Value, "Value cannot be converted to an integer")
-		if !ok {
+		_, errmsg = rlib.IntFromString(c.Value, "Value cannot be converted to an integer")
+		if len(errmsg) > 0 {
+			rs += errmsg + "\n"
 			return rs, CsvErrorSensitivity
 		}
 	case rlib.CUSTUINT:
-		_, ok = rlib.IntFromString(c.Value, "Value cannot be converted to an unsigned integer")
-		if !ok {
+		_, errmsg = rlib.IntFromString(c.Value, "Value cannot be converted to an unsigned integer")
+		if len(errmsg) > 0 {
+			rs += errmsg + "\n"
 			return rs, CsvErrorSensitivity
 		}
 	case rlib.CUSTFLOAT:
-		_, ok = rlib.FloatFromString(c.Value, "Value cannot be converted to an float")
-		if !ok {
+		_, errmsg = rlib.FloatFromString(c.Value, "Value cannot be converted to an float")
+		if len(errmsg) > 0 {
+			rs += errmsg + "\n"
 			return rs, CsvErrorSensitivity
 		}
+	}
+
+	dup := rlib.GetCustomAttributeByVals(c.Type, c.Name, c.Value, c.Units)
+	if dup.CID > 0 {
+		rs += fmt.Sprintf("%s: line %d - A custom attribute with Type = %d, Name = %s, Value = %s, Units = %s already exists.  Skipped.\n", funcname, lineno, c.Type, c.Name, c.Value, c.Units)
+		return rs, CsvErrorSensitivity
 	}
 
 	_, err := rlib.InsertCustomAttribute(&c)

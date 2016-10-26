@@ -12,8 +12,10 @@ import (
 // count the number of days that are covered.  Compare this to the total
 // number of days in the period. Then generate a vacancy entry for the time
 // period for which no rent was assessed.
+// The return value is the number of vacancy records added
 //============================================================================================
-func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) {
+func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
+	nr := 0
 	m := VacancyDetect(xbiz, d1, d2, r)
 	// fmt.Printf("ProcessRentable: r = %s (%d), period=(%s - %s) len(m) = %d\n", r.Name, r.RID, d1.Format("Jan 2"), d2.Format("Jan 2"), len(m))
 	for i := 0; i < len(m); i++ {
@@ -43,6 +45,7 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) {
 
 		jid, err := InsertJournalEntry(&j)
 		Errlog(err)
+		nr++
 		if jid > 0 {
 			var ja JournalAllocation
 			ja.JID = jid
@@ -57,19 +60,22 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) {
 		initLedgerCache()
 		GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
 	}
+	return nr
 }
 
 // GenVacancyJournals creates Journal entries that cover vacancy for
 // every Rentable where the Rentable type is being managed to budget
 //===============================================================================================
-func GenVacancyJournals(xbiz *XBusiness, d1, d2 *time.Time) {
+func GenVacancyJournals(xbiz *XBusiness, d1, d2 *time.Time) int {
+	nr := 0
 	rows, err := RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
 	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var r Rentable
 		Errcheck(rows.Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy))
-		ProcessRentable(xbiz, d1, d2, &r)
+		nr += ProcessRentable(xbiz, d1, d2, &r)
 	}
 	Errcheck(rows.Err())
+	return nr
 }

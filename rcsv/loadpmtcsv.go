@@ -16,7 +16,7 @@ import (
 // CreatePaymentTypeFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
 func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
 	funcname := "CreatePaymentTypeFromCSV"
-	var pt rlib.PaymentType
+	var pt, dup rlib.PaymentType
 	const (
 		BUD         = 0
 		Name        = iota
@@ -54,6 +54,12 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
 
 	pt.Name = strings.TrimSpace(sa[1])
 	pt.Description = strings.TrimSpace(sa[2])
+
+	rlib.GetPaymentTypeByName(pt.BID, pt.Name, &dup)
+	if dup.PMTID > 0 {
+		rs += fmt.Sprintf("%s: line %d - Payment type named %s already exists.  Skipping...\n", funcname, lineno, pt.Name)
+		return rs, CsvErrorSensitivity
+	}
 
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done

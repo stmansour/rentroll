@@ -164,6 +164,8 @@ func buildPreparedStatements() {
 	flds = "CID,Type,Name,Value,Units,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetCustomAttribute, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttr WHERE CID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetCustomAttributeByVals, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttr WHERE Type=? AND Name=? AND Value=? AND Units=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllCustomAttributes, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttr")
 	Errcheck(err)
 
@@ -178,6 +180,8 @@ func buildPreparedStatements() {
 	//==========================================
 	flds = "ElementType,ID,CID"
 	RRdb.Prepstmt.GetCustomAttributeRefs, err = RRdb.Dbrr.Prepare("SELECT CID FROM CustomAttrRef WHERE ElementType=? and ID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetCustomAttributeRef, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttrRef WHERE ElementType=? and ID=? and CID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllCustomAttributeRefs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttrRef")
 	Errcheck(err)
@@ -236,6 +240,8 @@ func buildPreparedStatements() {
 	//==========================================
 	DepositoryFlds := "DEPID,BID,Name,AccountNo,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetDepository, err = RRdb.Dbrr.Prepare("SELECT " + DepositoryFlds + " FROM Depository WHERE DEPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetDepositoryByAccount, err = RRdb.Dbrr.Prepare("SELECT " + DepositoryFlds + " FROM Depository WHERE BID=? AND AccountNo=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllDepositories, err = RRdb.Dbrr.Prepare("SELECT " + DepositoryFlds + " FROM Depository WHERE BID=?")
 	Errcheck(err)
@@ -369,6 +375,8 @@ func buildPreparedStatements() {
 	// Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesInRangeByLID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? AND LID=? AND ?<=Dt AND Dt<? ORDER BY Amount DESC, Dt ASC")
 	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerEntryByJAID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " from LedgerEntry WHERE BID=? AND LID=? AND JAID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesForRAID, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RAID=? AND LID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesForRentable, err = RRdb.Dbrr.Prepare("SELECT " + LEfields + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RID=? AND LID=?")
@@ -466,6 +474,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertPaymentType, err = RRdb.Dbrr.Prepare("INSERT INTO PaymentTypes (BID,Name,Description,LastModBy) VALUES(?,?,?,?)")
 	Errcheck(err)
 	RRdb.Prepstmt.GetPaymentTypesByBusiness, err = RRdb.Dbrr.Prepare("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentTypes WHERE BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetPaymentTypeByName, err = RRdb.Dbrr.Prepare("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentTypes WHERE BID=? AND NAME=?")
 	Errcheck(err)
 
 	//==========================================

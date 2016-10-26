@@ -168,6 +168,14 @@ func GetCustomAttribute(id int64) CustomAttribute {
 	return a
 }
 
+// GetCustomAttributeByVals reads a CustomAttribute structure based on the supplied attributes
+func GetCustomAttributeByVals(t int64, n, v, u string) CustomAttribute {
+	var a CustomAttribute
+	row := RRdb.Prepstmt.GetCustomAttributeByVals.QueryRow(t, n, v, u)
+	ReadCustomAttribute(row, &a)
+	return a
+}
+
 // GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
 func GetAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error) {
 	var t []int64
@@ -190,6 +198,14 @@ func GetAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error
 	}
 
 	return m, err
+}
+
+// GetCustomAttributeRef reads a CustomAttribute structure for the supplied ElementType, ID, and CID
+func GetCustomAttributeRef(e, i, c int64) CustomAttributeRef {
+	var a CustomAttributeRef
+	row := RRdb.Prepstmt.GetCustomAttributeRef.QueryRow(e, i, c)
+	ReadCustomAttributeRef(row, &a)
+	return a
 }
 
 // LoadRentableTypeCustomaAttributes adds all the custom attributes to each RentableType
@@ -269,6 +285,14 @@ func GetDepository(id int64) (Depository, error) {
 	var a Depository
 	err := RRdb.Prepstmt.GetDepository.QueryRow(id).Scan(&a.DEPID, &a.BID, &a.Name, &a.AccountNo, &a.LastModTime, &a.LastModBy)
 	return a, err
+}
+
+// GetDepositoryByAccount reads a Depository structure based on the supplied Account id
+func GetDepositoryByAccount(bid int64, acct string) Depository {
+	var a Depository
+	row := RRdb.Prepstmt.GetDepositoryByAccount.QueryRow(bid, acct)
+	ReadDepository(row, &a)
+	return a
 }
 
 // GetAllDepositories returns an array of all Depositories for the supplied business
@@ -647,6 +671,14 @@ func GetLedger(lid int64) GLAccount {
 	return a
 }
 
+// GetLedgerEntryByJAID returns the GLAccount struct for the supplied LID
+func GetLedgerEntryByJAID(bid, lid, jaid int64) LedgerEntry {
+	var a LedgerEntry
+	row := RRdb.Prepstmt.GetLedgerEntryByJAID.QueryRow(bid, lid, jaid)
+	ReadLedgerEntry(row, &a)
+	return a
+}
+
 // GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
 func GetLedgerByGLNo(bid int64, s string) GLAccount {
 	var a GLAccount
@@ -849,11 +881,17 @@ func GetPaymentTypes() map[int64]PaymentType {
 
 	for rows.Next() {
 		var a PaymentType
-		Errcheck(rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
+		ReadPaymentTypes(rows, &a)
+		// Errcheck(rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.PMTID] = a
 	}
 	Errcheck(rows.Err())
 	return t
+}
+
+// GetPaymentTypeByName reads a PaymentType structure based on the supplied bid and na
+func GetPaymentTypeByName(bid int64, name string, a *PaymentType) {
+	ReadPaymentType(RRdb.Prepstmt.GetPaymentTypeByName.QueryRow(bid, name), a)
 }
 
 // GetPaymentTypesByBusiness returns a slice of payment types indexed by the PMTID for the supplied Business
@@ -866,7 +904,8 @@ func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
 
 	for rows.Next() {
 		var a PaymentType
-		Errcheck(rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
+		ReadPaymentTypes(rows, &a)
+		// Errcheck(rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.PMTID] = a
 	}
 	Errcheck(rows.Err())
