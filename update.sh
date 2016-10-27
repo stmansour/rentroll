@@ -54,9 +54,10 @@ echo -n "."; chown -R ec2-user:ec2-user rentroll
 echo -n "."; cd rentroll/
 echo -n "."; echo -n "starting..."
 echo -n "."; ./activate.sh start
-echo -n "."; sleep 3
+echo -n "."; sleep 2
 echo -n "."; status=$(./activate.sh ready)
 echo
+./installman.sh >installman.log 2>&1
 if [ "${status}" = "OK" ]; then
     echo "Activation successful"
 else

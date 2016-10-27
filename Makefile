@@ -49,6 +49,10 @@ publish: package
 	cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar
 	cd tmp;/usr/local/accord/bin/deployfile.sh rentroll.tar.gz jenkins-snapshot/rentroll/latest
 
+pubimages:
+	cd tmp/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
+
+
 all: clean rentroll test
 
 

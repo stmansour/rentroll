@@ -102,6 +102,8 @@ start() {
 
 	if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
 		./installman.sh >installman.log 2>&1
+		${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz
+		tar xzvf rrimages.tar.gz
 	fi
 
 	./${PROGNAME} >log.out 2>&1 &
