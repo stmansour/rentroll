@@ -1,5 +1,6 @@
 PASS=AP3wHZhcQQCvkC4GVCCZzPcqe3L
 ART=http://ec2-52-91-201-195.compute-1.amazonaws.com/artifactory
+GETFILE="/usr/local/accord/bin/getfile.sh"
 USR=accord
 
 EXTERNAL_HOST_NAME=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
@@ -46,7 +47,9 @@ echo -n ".";
 echo -n "."; cd ..
 echo
 echo -n "Retrieving latest development snapshot of rentroll..."
-/usr/local/accord/bin/getfile.sh jenkins-snapshot/rentroll/latest/rentroll.tar.gz
+${GETFILE} jenkins-snapshot/rentroll/latest/rentroll.tar.gz
+${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz
+tar xzvf rrimages.tar.gz
 echo
 echo -n "."; gunzip -f rentroll.tar.gz
 echo -n "."; tar xf rentroll.tar
