@@ -48,8 +48,6 @@ echo -n "."; cd ..
 echo
 echo -n "Retrieving latest development snapshot of rentroll..."
 ${GETFILE} jenkins-snapshot/rentroll/latest/rentroll.tar.gz
-${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz
-tar xzvf rrimages.tar.gz
 echo
 echo -n "."; gunzip -f rentroll.tar.gz
 echo -n "."; tar xf rentroll.tar
@@ -66,3 +64,5 @@ if [ "${status}" = "OK" ]; then
 else
     echo "Problems activating rentroll.  Status = ${status}"
 fi
+${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz
+tar xzvf rrimages.tar.gz
