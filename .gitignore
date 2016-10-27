@@ -2,3 +2,7 @@
 mdb
 buildno
 tmp
+bkup
+html/.DS_Store
+html/help/.DS_Store
+html/help/SettingUpANewBusinessWithCSVImport/images/

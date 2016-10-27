@@ -14,8 +14,19 @@
 <input type="hidden" name="DtStop" value="{{.DtStop}}"></td>
 <input type="hidden" name="BID" value="{{.B.BID}}">
 <table>
-<tr><th align="center">Reports</th><th></th><th align="center">CSV Load</th><th></th><th align="center">Commands</th><th></th><th align="center">Admin</th></tr>
 <tr>
+	<th align="center">Reports</th>
+	<th></th>
+	<th align="center">CSV Load</th>
+	<th></th>
+	<th align="center">Commands</th>
+	<th></th>
+	<th align="center">Admin</th>
+	<th></th>
+	<th align="center">Help</th>
+</tr>
+<tr>
+<td><hr></td><td></td>
 <td><hr></td><td></td>
 <td><hr></td><td></td>
 <td><hr></td><td></td>
@@ -33,6 +44,12 @@
 <td width="20"></td>
 <!-- ADMIN -->
 <td valign="top" align="center">{{range .PgHnd}}{{if eq .Category 3}}<input type="submit" name="action" value="{{.Name}}"><br>{{end}}{{end}}</td>
+<td width="20"></td>
+<!-- HELP -->
+<td valign="top" align="center">
+<a href="/html/help/SettingUpANewBusinessWithCSVImport/SettingUpANewBusinessWithCSVImport.html">Setting Up A New Business With CSV Import</a><br>
+<a href="/example/csv/flist.html">Example CSV Files</a>
+</td>
 </tr>
 </table>
 </form>

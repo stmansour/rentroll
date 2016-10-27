@@ -15,7 +15,7 @@ ver.go:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	go clean
-	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore
+	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example
 
 test: package
 	rm -f test/*/err.txt

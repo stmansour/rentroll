@@ -209,7 +209,7 @@ func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) strin
 // CmdSimpleReport returns the report output in ui.ReportContent for the provid
 func CmdSimpleReport(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	action := r.FormValue("action")
-	fmt.Printf("Simple report:  xbiz.P.BID = %d, action = %s\n", xbiz.P.BID, action)
+	// fmt.Printf("Simple report:  xbiz.P.BID = %d, action = %s\n", xbiz.P.BID, action)
 	if xbiz.P.BID > 0 {
 		ui.ReportContent = csvloadReporter(action, xbiz, ui)
 	}
@@ -220,14 +220,14 @@ func CmdCSVLoad(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 	fmt.Printf("Entered CmdCSVLoad\n")
 	sp := r.FormValue("sourcepage")
 	if sp != "csvload" {
-		fmt.Printf("sp != csvload,   sp = %s\n", sp)
+		// fmt.Printf("sp != csvload,   sp = %s\n", sp)
 		return
 	}
 
 	action := r.FormValue("action")
-	fmt.Printf("CmdCSVLoad: action = %s, len(action) = %d\n", action, len(action))
+	// fmt.Printf("CmdCSVLoad: action = %s, len(action) = %d\n", action, len(action))
 	if len(action) > 0 {
-		fmt.Printf("CmdCSVLoad: action = %s, len loaders = %d\n", action, len(loaders))
+		// fmt.Printf("CmdCSVLoad: action = %s, len loaders = %d\n", action, len(loaders))
 		for i := 0; i < len(loaders); i++ {
 			// fmt.Printf("i = %d, loader = %v\n", i, loaders[i])
 			if action == loaders[i].prefix {

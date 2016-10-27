@@ -11,4 +11,5 @@ test:
 
 package:
 	cp *.csv ../../tmp/rentroll/example/csv/
+	cp *.html ../../tmp/rentroll/example/csv/
 	@echo "*** PACKAGE completed in jm1 ***"

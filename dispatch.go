@@ -169,7 +169,7 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 	ui.PgHnd = App.PageHandlers
 	action := r.FormValue("action")
 
-	fmt.Printf("dispatchHandler: action = %s\n", action)
+	// fmt.Printf("dispatchHandler: action = %s\n", action)
 
 	if len(action) > 0 {
 		w.Header().Set("Content-Type", "text/html")
