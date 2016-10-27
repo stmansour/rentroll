@@ -1,89 +1,162 @@
-.TH rrloadcsv 1 "March 23, 2016" "Version 1.0" "USER COMMANDS"
+.TH filename 1 "March 23, 2016" "Version 1.0" "USER COMMANDS"
 .SH NAME
-rrloadcsv \- load CSV files into the Accord RentRoll database
+filename \- filename files into the Accord RentRoll database
 .SH SYNOPSIS
-.B rrloadcsv
-[\fB\-A\fR \fIassessments.csv\fR]
-[\fB\-a\fR \fIassessmentTypes.csv\fR]
+.B filename
+[\fB\-A\fR \filename\fR]
+[\fB\-a\fR \filename\fR]
 [\fB\-B\fR\fI db_user\fR]
-[\fB\-b\fR\fI business.csv\fR]
-[\fB\-C\fR\fI rentalAgreements.csv\fR]
-[\fB\-c\fR\fI chartOfAccts.csv\fR]
-[\fB\-D\fR\fI buildings.csv\fR]
-[\fB\-d\fR\fI depositories.csv\fR]
-[\fB\-E\fR\fI pets.csv\fR]
-[\fB\-e\fR\fI receipts.csv\fR]
-[\fB\-F\fR\fI spcassign.csv\fR]
-[\fB\-f\fR\fI ratePlanRefs.csv\fR]
+[\fB\-b\fR\fI filename\fR]
+[\fB\-C\fR\fI filename\fR]
+[\fB\-c\fR\fI filename\fR]
+[\fB\-D\fR\fI filename\fR]
+[\fB\-d\fR\fI filename\fR]
+[\fB\-E\fR\fI filename\fR]
+[\fB\-e\fR\fI filename\fR]
+[\fB\-F\fR\fI filename\fR]
+[\fB\-f\fR\fI filename\fR]
 [\fB\-G\fR\fI BUD\fR]
 [\fB\-g\fR\fI Date Range\fR]
-[\fB\-i\fR\fI invoices.csv\fR]
+[\fB\-i\fR\fI filename\fR]
 [\fB\-help\fR ]
 [\fB\-L\fR\fI report\fR]
-[\fB\-l\fR\fI stringlists.csv\fR]
+[\fB\-l\fR\fI filename\fR]
 [\fB\-M\fR\fI rentrolldbname\fR]
-[\fB\-m\fR\fI depositmethods.csv\fR]
+[\fB\-m\fR\fI filename\fR]
 [\fB\-N\fR\fI directorydbname\fR]
-[\fB\-n\fR\fI rateplanrefRTrate.csv\fR]
-[\fB\-O\fR\fI notetypes.csv\fR]
-[\fB\-P\fR\fI paymenttypes.csv\fR]
-[\fB\-p\fR\fI people.csv\fR]
-[\fB\-R\fR\fI rentableTypes.csv\fR]
-[\fB\-r\fR\fI rentables.csv\fR]
-[\fB\-S\fR\fI sources.csv\fR]
-[\fB\-s\fR\fI rentableSpecialties.csv\fR]
-[\fB\-T\fR\fI rentalAgreementTemplates.csv\fR]
-[\fB\-t\fR\fI rateplanrefSpcRates.csv\fR]
-[\fB\-U\fR\fI assignCustomAttributes.csv\fR]
-[\fB\-u\fR\fI customAttributes.csv\fR]
+[\fB\-n\fR\fI filename\fR]
+[\fB\-O\fR\fI filename\fR]
+[\fB\-P\fR\fI filename\fR]
+[\fB\-p\fR\fI filename\fR]
+[\fB\-R\fR\fI filename\fR]
+[\fB\-r\fR\fI filename\fR]
+[\fB\-S\fR\fI filename\fR]
+[\fB\-s\fR\fI filename\fR]
+[\fB\-T\fR\fI filename\fR]
+[\fB\-t\fR\fI filename\fR]
+[\fB\-U\fR\fI filename\fR]
+[\fB\-u\fR\fI filename\fR]
 [\fB\-v\fR]
-[\fB\-y\fR\fI deposits.csv\fR]
+[\fB\-y\fR\fI filename\fR]
 
 .SH DESCRIPTION
-.B rrloadcsv
+.B filename
 is a utility program to load comma-separated-value (CSV) files into the 
 Accord RentRoll database. It can also be used to generate a text list of the
 data it imports. 
 .SH OPTIONS
 .TP
-.IP "-A assessments.csv"
-Load assessments. Note: use -L 4 to list assessment types.
-.IP "-a assessmentTypes.csv"
-Load assessment types in the supplied csv file. Note: use -L 4 to list assessment types. 
+.IP "-A filename"
+Load assessments. Note: use -L 11 to list assessments.
+.IP "-a filename"
+Load assessment types in the CSV file, \fIfilename\fR. Note: use -L 4,\fIBUD\fR to list assessment types. 
 .IP "-B db_user"
 Username for logging into the database server. Default name is "ec2-user"
-.IP "-b business.csv"
-Load businesses via the supplied csv file. Note: use -L 3 to list businesses.
+.IP "-b filename"
+Load businesses via the CSV file, \fIfilename\fR. Note: use -L 3,\fIBUD\fR to list Businesses.
+.IP "-C filename"
+Load Rental Agreements via the CSV file, \fIfilename\fR. Note: use -L 9,\fIBUD\fR to list Rental Agreements.
+.IP "-c filename"
+Load a Chart of Accounts via the CSV file, \fIfilename\fR. Note: use -L 10 to list the Chart of Accounts.
+.IP "-D filename"
+Load Buildings via the CSV file, \fIfilename\fR.
+.IP "-d filename"
+Load Depositories via the CSV file, \fIfilename\fR. Note: use -L 18,\fIBUD\fR to list Depositories.
+.IP "-E filename"
+Load Pets via the CSV file, \fIfilename\fR. Note: use -L 16,\fIRAID\fR to list Pets, where \fIRAID\fR is the
+Rental Agreement ID.
+.IP "-e filename"
+Load Receipts via the CSV file, \fIfilename\fR. Note: use -L 13,\fIBUD\fR to list Receipts.
+.IP "-F filename"
+Assign Rentable Specialties via the CSV file, \fIfilename\fR. Note: use -L 22,\fIBUD\fR to show Specialty Assignments.
+.IP "-f filename"
+Load Rate Plan References via the CSV file, \fIfilename\fR. Note: use -L 26,\fIBUD\fR to list Rate Plans.
+.IP "-G BUD"
+Set the Business Unit Designation (BUD) for this command.
+.IP "-g d1,d2"
+Set the date range for this command. Example: -g 1/1/16,2/1/16
 .IP "-help"
 Lists the command options to stdout.
-.IP "-N database_name"
-The default name for the production database is "rentroll".
-.IP "-p people.csv"
-Load people (renters, payors, prospects, ...) via the supplied csv file. Note: use -L 7 to 
+.IP "-i filename"
+Load Invoices via the CSV file, \fIfilename\fR. Note: use -L 20,\fIBUD\fR to list invoices.
+.IP "-L n[,...]"
+Simple reporting capability. \fIn\fR is an index representing which report.
+Certain reports require other information. This information is simply appended to the index number
+as defined in the table below.
+.nf
+.RS 7
+
+#   Report                       Parameters
+--  ---------------------------  ----------
+ 3  Businesses                    3,\fIBUD\fR
+ 5  Rentable Types                5,\fIBUD\fR
+ 6  Rentables                     6,\fIBUD\fR
+ 7  People                        7,\fIBUD\fR
+ 8  Rental Agreement Templates    8,\fIBUD\fR
+ 9  Rental Agreements             9,\fIBUD\fR
+10  Chart of Accounts            10,\fIBUD\fR
+11  Assessments                  11,\fIBUD\fR
+12  Payment Types                12,\fIBUD\fR
+13  Receipts                     13,\fIBUD\fR
+14  Custom Attributes            14
+15  Custom Attribute References  15
+16  Pets                         16,\fIRAID\fR
+17  Note Types                   17,\fIBUD\fR
+18  Depositories                 18,\fIBUD\fR
+19  Deposits                     19,\fIBUD\fR
+20  Invoices                     20,\fIBUD\fR
+21  Rentable Specialties         21,\fIBUD\fR
+22  Specialty Assignments        22,\fIBUD\fR
+23  Deposit Methods              23,\fIBUD\fR
+24  Sources                      24,\fIBUD\fR
+25  String Lists                 25,\fIBUD\fR
+26  Rate Plans                   26,\fIBUD\fR
+27  Rate Plan References         27,\fIBUD\fR
+
+.RE
+.IP "-l filename"
+Load String Lists via the CSV file, \fIfilename\fR. Note: use -L 25,\fIBUD\fR to list String Lists.
+.IP "-M rentroll_database_name"
+The default name for the production rentroll database is "rentroll".
+.IP "-m filename"
+Load Deposit Methods via the CSV file, \fIfilename\fR. Note: use -L 23,\fIBUD\fR to list Deposit Methods.
+.IP "-N directory_database_name"
+The default name for the production directory database is "accord".
+.IP "-n filename"
+Load Rate Plan References for Rentable Types via the CSV file, \fIfilename\fR. Note: use -L 26,\fIBUD\fR to list Deposit Methods.
+.IP "-O filename"
+Load Note Types via the CSV file, \fIfilename\fR. Note: use -L 17,\fIBUD\fR to list Note Types.
+.IP "-P filename"
+Load Payment Types via the CSV file, \fIfilename\fR. Note: use -L 12,\fIBUD\fR to list Payment Types.
+.IP "-p filename"
+Load people (renters, payors, prospects, ...) via the CSV file, \fIfilename\fR. Note: use -L 7,\fIBUD\fR to 
 generate a list of people from the database.
-.IP "-r rentables.csv"
-Load the individual rentables via the supplied csv file. Note: use -L 6,\fIdes\fR to list rentables, where
-.I des
-is the business name designation
-.IP "-r rentalAgreements.csv"
-Load the rentable agreements via the supplied csv file. Note: use -L 9,\fIdes\fR to list rentable agreements, where
-.I des
-is the business name designation
-.IP "-R rentableTypes.csv"
-Load rentable types via the supplied csv file. Note: use -L 5,\fIdes\fR to list rentable 
-types, where
-.I des
-is the business name designation
-.IP "-T rentalAgreementTemplates.csv"
-Load rental agreement templates via the supplied csv file. Note: use -L 8 to 
-generate a list of rental templates from the database.
+.IP "-R filename"
+Load Rentable Types via the CSV file, \fIfilename\fR. Note: use -L 5,\fIdes\fR to list Rentable Types
+.IP "-r filename"
+Load Rentables via the CSV file, \fIfilename\fR. Note: use -L 5,\fIdes\fR to list Rentables 
+.IP "-S filename"
+Load Sources via the CSV file, \fIfilename\fR. Note: use -L 24,\fIBUD\fR to list Sources
+.IP "-s filename"
+Load Rentable Specialties via the CSV file, \fIfilename\fR. Note: use -L 21,\fIBUD\fR to list Sources
+.IP "-T filename"
+Load Rental Agreement Templates via the CSV file, \fIfilename\fR. Note: use -L 8,\fIBUD\fR to 
+generate a list of Rental Agreement Templates.
+.IP "-t filename"
+Load Rate Plan Specialty References via the CSV file, \fIfilename\fR. Note: use -L 27,\fIBUD\fR to list Rate Plans
+.IP "-U filename"
+Assign Custom Attributes via the CSV file, \fIfilename\fR. Note: use -L 15 to list Custom Attributes
+.IP "-u filename"
+Load Custom Attributes via the CSV file, \fIfilename\fR. Note: use -L 14 to list Custom Attributes
 .IP "-v"
 Print the program version to stdout.
+.IP "-y filename"
+Load Deposits via the CSV file, \fIfilename\fR. Note: use -L 19 to list Deposits
 
 .SH EXAMPLES
 
-.IP "rrloadcsv -b mybiz.csv -L 3"
-Loads the businesses defined in mybiz.csv to the RentRoll database, then prints a list
+.IP "rrloadcsv -b biz.cxv -L 3"
+Loads the businesses defined in biz.csv to the RentRoll database, then prints a list
 of the businesses in the database to stdout.
 
 .SH BUGS
