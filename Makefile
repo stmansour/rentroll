@@ -38,6 +38,7 @@ package: rentroll
 	cp rentroll ./tmp/rentroll/
 	cp conf.json ./tmp/rentroll/
 	cp -r html ./tmp/rentroll/
+	cp -r js ./tmp/rentroll/
 	cp activate.sh update.sh ./tmp/rentroll/
 	rm -f ./rrnewdb ./rrbkup ./rrrestore
 	ln -s tmp/rentroll/rrnewdb
@@ -51,6 +52,11 @@ publish: package
 
 pubimages:
 	cd tmp/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
+
+pubjs:
+	cd tmp/rentroll;tar czvf rrjs.tar.gz ./js;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
+
+pub: pubjs pubimages
 
 
 all: clean rentroll test
