@@ -796,6 +796,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllTransactants, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAllTransactantsForBID, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant WHERE BID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.FindTransactantByPhoneOrEmail, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?")
 	Errcheck(err)
 

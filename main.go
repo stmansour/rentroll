@@ -139,6 +139,7 @@ func initHTTP() {
 	Chttp.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/dispatch/", dispatchHandler)
+	http.HandleFunc("/svc/", svcHandler)
 }
 
 func main() {

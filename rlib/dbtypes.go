@@ -396,6 +396,7 @@ type DemandSource struct {
 // Transactant is the basic structure of information
 // about a person who is a Prospect, applicant, User, or Payor
 type Transactant struct {
+	Recid          int // this is to support the grid widget
 	TCID           int64
 	BID            int64
 	NLID           int64
@@ -494,6 +495,33 @@ type XPerson struct {
 	Pay Payor
 }
 
+// // FlattenedXPerson is defined for w2ui grid on the interface
+// type FlattenedXPerson struct {
+// 	Recid          int
+// 	TCID           int64
+// 	BID            int64
+// 	NLID           int64
+// 	FirstName      string
+// 	MiddleName     string
+// 	LastName       string
+// 	PreferredName  string
+// 	CompanyName    string // sometimes the entity will be a company
+// 	IsCompany      int    // 1 => the entity is a company, 0 = not a company
+// 	PrimaryEmail   string
+// 	SecondaryEmail string
+// 	WorkPhone      string
+// 	CellPhone      string
+// 	Address        string
+// 	Address2       string
+// 	City           string
+// 	State          string
+// 	PostalCode     string
+// 	Country        string
+// 	Website        string // person's website
+// 	LastModTime    time.Time
+// 	LastModBy      int64
+// }
+
 // Assessment is a charge associated with a Rentable
 type Assessment struct {
 	ASMID          int64     // unique id for this assessment
@@ -505,7 +533,7 @@ type Assessment struct {
 	Amount         float64   // how much
 	Start          time.Time // start time
 	Stop           time.Time // stop time, may be the same as start time or later
-	RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, G = quarterly, 8 = yearly
 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	InvoiceNo      int64     // A uniqueID for the invoice number
 	AcctRule       string    // expression showing how to account for the amount
@@ -821,6 +849,7 @@ type LedgerMarker struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
+	Recid          int       // this is for the grid widget
 	LID            int64     // unique id for this GLAccount
 	PLID           int64     // unique id of Parent, 0 if no parent
 	BID            int64     // Business unit associated with this GLAccount
@@ -911,6 +940,7 @@ type RRprepSQL struct {
 	GetAllSingleInstanceAssessments    *sql.Stmt
 	GetAllStringLists                  *sql.Stmt
 	GetAllTransactants                 *sql.Stmt
+	GetAllTransactantsForBID           *sql.Stmt
 	GetAssessment                      *sql.Stmt
 	GetAssessmentDuplicate             *sql.Stmt
 	GetAssessmentInstance              *sql.Stmt
