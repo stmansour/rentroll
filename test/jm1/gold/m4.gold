@@ -17,11 +17,9 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               39,408.04
-Payment #2003 - Gross Scheduled Rent-Taxable             04/01/2016  J00000032          1   309 Rexford          3,750.00     43,158.04
-Payment #1924 - Gross Scheduled Rent-Taxable             04/02/2016  J00000033          2   309 1/2 Rexford      3,550.00     46,708.04
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                           46,708.04
+Closing Balance                                          04/30/2016                                                                0.00
 
 
 LEDGER
@@ -44,10 +42,6 @@ Period:   04/01/16 - 04/30/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000031          1   309 Rexford          3,750.00      3,750.00
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000030          2   309 1/2 Rexford      3,550.00      7,300.00
-Payment #1924 - Gross Scheduled Rent-Taxable             04/02/2016  J00000033          2   309 1/2 Rexford     -3,550.00      3,750.00
-Payment #2003 - Gross Scheduled Rent-Taxable             04/01/2016  J00000032          1   309 Rexford         -3,750.00          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          04/30/2016                                                                0.00
 
@@ -59,9 +53,9 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                              -10,000.00
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                          -10,000.00
+Closing Balance                                          04/30/2016                                                                0.00
 
 
 LEDGER
@@ -131,13 +125,11 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                              -42,100.00
-Unassociated                                             04/30/2016  J00000035          0   311 1/2 Rexford     -2,500.00    -44,600.00
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000030          2   309 1/2 Rexford     -3,550.00    -48,150.00
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000031          1   309 Rexford         -3,750.00    -51,900.00
-Unassociated                                             04/30/2016  J00000034          0   311 Rexford         -4,150.00    -56,050.00
+Opening Balance                                                                                                              -15,237.93
+Unassociated                                             04/30/2016  J00000007          0   311 1/2 Rexford     -2,500.00    -17,737.93
+Unassociated                                             04/30/2016  J00000006          0   311 Rexford         -4,150.00    -21,887.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                          -56,050.00
+Closing Balance                                          04/30/2016                                                          -21,887.93
 
 
 LEDGER
@@ -171,9 +163,9 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               -2,545.97
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                           -2,545.97
+Closing Balance                                          04/30/2016                                                                0.00
 
 
 LEDGER
@@ -196,8 +188,8 @@ Period:   04/01/16 - 04/30/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               15,237.93
-Unassociated                                             04/30/2016  J00000034          0   311 Rexford          4,150.00     19,387.93
-Unassociated                                             04/30/2016  J00000035          0   311 1/2 Rexford      2,500.00     21,887.93
+Unassociated                                             04/30/2016  J00000006          0   311 Rexford          4,150.00     19,387.93
+Unassociated                                             04/30/2016  J00000007          0   311 1/2 Rexford      2,500.00     21,887.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          04/30/2016                                                           21,887.93
 
@@ -305,9 +297,9 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                 -111.26
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                             -111.26
+Closing Balance                                          04/30/2016                                                                0.00
 
 
 LEDGER
@@ -329,9 +321,9 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                 -111.26
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                             -111.26
+Closing Balance                                          04/30/2016                                                                0.00
 
 
 LEDGER
@@ -497,9 +489,9 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               -2,434.71
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                           -2,434.71
+Closing Balance                                          04/30/2016                                                                0.00
 
 
 LEDGER
@@ -653,9 +645,9 @@ Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               -2,434.71
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                           -2,434.71
+Closing Balance                                          04/30/2016                                                                0.00
 
 
 LEDGER

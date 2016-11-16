@@ -17,13 +17,9 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               61,808.04
-Payment #8733 - Security Deposits                        07/01/2016  J00000054          4   311 Rexford          8,300.00     70,108.04
-Payment #8733 - Gross Scheduled Rent-Taxable             07/01/2016  J00000054          4   311 Rexford          4,150.00     74,258.04
-Payment #1948 - Gross Scheduled Rent-Taxable             07/11/2016  J00000053          2   309 1/2 Rexford      3,800.00     78,058.04
-Payment #2153 - Gross Scheduled Rent-Taxable             07/01/2016  J00000052          1   309 Rexford          3,750.00     81,808.04
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                           81,808.04
+Closing Balance                                          07/31/2016                                                                0.00
 
 
 LEDGER
@@ -46,14 +42,6 @@ Period:   07/01/16 - 07/31/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Security Deposits                           07/01/2016  J00000049          4   311 Rexford          8,300.00      8,300.00
-Assessment - Gross Scheduled Rent-Taxable                07/01/2016  J00000048          4   311 Rexford          4,150.00     12,450.00
-Assessment - Gross Scheduled Rent-Taxable                07/01/2016  J00000051          2   309 1/2 Rexford      3,800.00     16,250.00
-Assessment - Gross Scheduled Rent-Taxable                07/01/2016  J00000050          1   309 Rexford          3,750.00     20,000.00
-Payment #2153 - Gross Scheduled Rent-Taxable             07/01/2016  J00000052          1   309 Rexford         -3,750.00     16,250.00
-Payment #1948 - Gross Scheduled Rent-Taxable             07/11/2016  J00000053          2   309 1/2 Rexford     -3,800.00     12,450.00
-Payment #8733 - Gross Scheduled Rent-Taxable             07/01/2016  J00000054          4   311 Rexford         -4,150.00      8,300.00
-Payment #8733 - Security Deposits                        07/01/2016  J00000054          4   311 Rexford         -8,300.00          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                                0.00
 
@@ -65,10 +53,9 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                              -10,000.00
-Assessment - Security Deposits                           07/01/2016  J00000049          4   311 Rexford         -8,300.00    -18,300.00
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                          -18,300.00
+Closing Balance                                          07/31/2016                                                                0.00
 
 
 LEDGER
@@ -138,13 +125,10 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                              -84,450.00
-Unassociated                                             07/31/2016  J00000055          0   311 1/2 Rexford     -2,500.00    -86,950.00
-Assessment - Gross Scheduled Rent-Taxable                07/01/2016  J00000050          1   309 Rexford         -3,750.00    -90,700.00
-Assessment - Gross Scheduled Rent-Taxable                07/01/2016  J00000051          2   309 1/2 Rexford     -3,800.00    -94,500.00
-Assessment - Gross Scheduled Rent-Taxable                07/01/2016  J00000048          4   311 Rexford         -4,150.00    -98,650.00
+Opening Balance                                                                                                              -35,187.93
+Unassociated                                             07/31/2016  J00000012          0   311 1/2 Rexford     -2,500.00    -37,687.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                          -98,650.00
+Closing Balance                                          07/31/2016                                                          -37,687.93
 
 
 LEDGER
@@ -178,9 +162,9 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               -2,545.97
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                           -2,545.97
+Closing Balance                                          07/31/2016                                                                0.00
 
 
 LEDGER
@@ -203,7 +187,7 @@ Period:   07/01/16 - 07/31/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               35,187.93
-Unassociated                                             07/31/2016  J00000055          0   311 1/2 Rexford      2,500.00     37,687.93
+Unassociated                                             07/31/2016  J00000012          0   311 1/2 Rexford      2,500.00     37,687.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                           37,687.93
 
@@ -311,9 +295,9 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                 -111.26
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                             -111.26
+Closing Balance                                          07/31/2016                                                                0.00
 
 
 LEDGER
@@ -335,9 +319,9 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                 -111.26
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                             -111.26
+Closing Balance                                          07/31/2016                                                                0.00
 
 
 LEDGER
@@ -503,9 +487,9 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               -2,434.71
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                           -2,434.71
+Closing Balance                                          07/31/2016                                                                0.00
 
 
 LEDGER
@@ -659,9 +643,9 @@ Period:   07/01/16 - 07/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               -2,434.71
+Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          07/31/2016                                                           -2,434.71
+Closing Balance                                          07/31/2016                                                                0.00
 
 
 LEDGER
