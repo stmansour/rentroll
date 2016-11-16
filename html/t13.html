@@ -349,16 +349,17 @@ var transactantGrid = {
         expandColumn: false
     },        
     columns: [
-        {field: 'Address',          caption: "Address",         size: '10%', sortable: true},
-        {field: 'Address2',         caption: "Address2",        size: '10%', sortable: true},
-        {field: 'CellPhone',        caption: "CellPhone",       size: '10%', sortable: true},
-        {field: 'City',             caption: "City",            size: '10%', sortable: true},
-        {field: 'FirstName',        caption: "FirstName",       size: '10%', sortable: true},
-        {field: 'LastName',         caption: "LastName",        size: '10%', sortable: true},
-        {field: 'PostalCode',       caption: "PostalCode",      size: '10%', sortable: true},
-        {field: 'PrimaryEmail',     caption: "PrimaryEmail",    size: '10%', sortable: true},
-        {field: 'State',            caption: "State",           size: '10%', sortable: true},
-        {field: 'WorkPhone',        caption: "WorkPhone",       size: '10%', sortable: true},
+        {field: 'Address',          caption: "Address",         size: '10%', sortable: true, hidden: true},
+        {field: 'Address2',         caption: "Address2",        size: '10%', sortable: true, hidden: true},
+        {field: 'CellPhone',        caption: "Cell Phone",       size: '10%', sortable: true, hidden: false},
+        {field: 'City',             caption: "City",            size: '10%', sortable: true, hidden: true},
+        {field: 'FirstName',        caption: "First Name",       size: '10%', sortable: true, hidden: false},
+        {field: 'MiddleName',        caption: "Middle Name",       size: '10%', sortable: true, hidden: true},
+        {field: 'LastName',         caption: "Last Name",        size: '10%', sortable: true, hidden: false},
+        {field: 'PostalCode',       caption: "PostalCode",      size: '10%', sortable: true, hidden: true},
+        {field: 'PrimaryEmail',     caption: "Primary Email",    size: '10%', sortable: true, hidden: false},
+        {field: 'State',            caption: "State",           size: '10%', sortable: true, hidden: true},
+        {field: 'WorkPhone',        caption: "Work Phone",       size: '10%', sortable: true, hidden: false},
     ],
     onClick: function(event) {
         console.log('**** CAUGHT EVENT: ' + event)
@@ -398,11 +399,6 @@ var transactantGrid = {
     }
 }
 
-function refreshGrid(auto) {
-    w2ui.transactantGrid.autoLoad = auto;
-    w2ui.transactantGrid.skip(0);    
-}
-
 //-----------------------------------------------------------------------------
 // processTransactants does an ajax call to the rentroll server to get all 
 // transactants associated with a particular business.  It replaces the 
@@ -433,39 +429,107 @@ var transPreviewForm = {
     formHTML: 
         '<div class="w2ui-page page-0">'+
         '    <div class="w2ui-field">'+
-        '        <label>First Name:</label>'+
-        '        <div>'+
-        '           <input name="FirstName" type="text" maxlength="100" style="width: 250px"/>'+
-        '        </div>'+
+        '        <label>TCID:</label><div><input name="TCID" type="int" maxlength="100" style="width: 250px"/></div>'+
         '    </div>'+
         '    <div class="w2ui-field">'+
-        '        <label>Last Name:</label>'+
-        '        <div>'+
-        '            <input name="LastName" type="text" maxlength="100" style="width: 250px"/>'+
-        '        </div>'+
+        '        <label>BID:</label><div><input name="BID" type="int" maxlength="100" style="width: 250px"/></div>'+
         '    </div>'+
         '    <div class="w2ui-field">'+
-        '        <label>Email:</label>'+
-        '        <div>'+
-        '            <input name="PrimaryEmail" type="text" style="width: 250px"/>'+
-        '        </div>'+
+        '        <label>NLID:</label><div><input name="NLID" type="int" maxlength="100" style="width: 250px"/></div>'+
         '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>First Name:</label><div><input name="FirstName" type="text" maxlength="100" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Middle Name:</label><div><input name="MiddleName" type="text" maxlength="100" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Last Name:</label><div><input name="LastName" type="text" maxlength="100" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Company Name:</label><div><input name="CompanyName" type="text" maxlength="100" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Is Company:</label><div><input name="Is Company" type="text" maxlength="3" style="width: 50px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Primary Email:</label><div><input name="PrimaryEmail" type="text" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Secondary Email:</label><div><input name="SecondaryEmail" type="text" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Work Phone:</label><div><input name="WorkPhone" type="phone" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Cell Phone:</label><div><input name="CellPhone" type="phone" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Address:</label><div><input name="Address" type="text" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Address2:</label><div><input name="Address2" type="text" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>City:</label><div><input name="City" type="text" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>State:</label><div><input name="State" type="text" size="2"/>&nbsp;&nbsp;&nbsp;&nbsp;<label>Postal Code:</label><input name="PostalCode" type="text" size="10"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Country:</label><div><input name="Country" type="text" style="width: 250px"/></div>'+
+        '    </div>'+
+        '    <div class="w2ui-field">'+
+        '        <label>Website:</label><div><input name="Website" type="url" style="width: 250px"/></div>'+
+        '    </div>'+
+        '<div>'+
+        '    <button class="btn" name="reset">Reset</button>'+
+        '    <button class="btn" name="save">Save</button>'+
         '</div>'+
-        '<div class="w2ui-buttons">'+
-         '    <button class="btn" name="save">Save</button>'+
         '</div>',
     fields: [
         { field: 'FirstName', type: 'text', required: true },
         { field: 'LastName', type: 'text', required: true },
-        { field: 'PrimaryEmail', type: 'email' },
+        { field: 'MiddleName', type: 'text', required: false },
+        { field: 'PreferredName', type: 'text', required: false },
+        { field: 'PrimaryEmail', type: 'email', required: false },
+        { field: 'TCID', type: 'int', required: false },
+        { field: 'BID', type: 'int', required: false },
+        { field: 'NLID', type: 'int', required: false },
+        { field: 'CompanyName', type: 'text', required: false },
+        { field: 'IsCompany', type: 'text', required: false },
+        { field: 'SecondaryEmail', type: 'email', required: false },
+        { field: 'WorkPhone', type: 'phone', required: false },
+        { field: 'CellPhone', type: 'phone', required: false },
+        { field: 'Address', type: 'text', required: false },
+        { field: 'Address2', type: 'text', required: false },
+        { field: 'City', type: 'text', required: false },
+        { field: 'State', type: 'text', required: false },
+        { field: 'PostalCode', type: 'text', required: false },
+        { field: 'Country', type: 'text', required: false },
+        { field: 'Website', type: 'text', required: false },
+        { field: 'LastModTime', type: 'text', required: false },
+        { field: 'LastModBy', type: 'text', required: false },
     ],
-    record: { 
-        FirstName    : 'John',
-        LastName    : 'Doe',
-        PrimaryEmail    : 'jdoe@example.com'
-    },
+    // record: { 
+    //     FirstName    : 'John',
+    //     LastName    : 'Doe',
+    //     PrimaryEmail    : 'jdoe@example.com'
+    // },
     actions: {
-        "save": function () { this.validate(); },
+        reset: function () {
+            this.clear();
+        },
+        save: function () {
+            var obj = this;
+            this.save({}, function (data) { 
+                if (data.status == 'error') {
+                    console.log('ERROR: '+ data.message);
+                    return;
+                }
+                obj.clear();
+            });
+        }
     }
 }
 

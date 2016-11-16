@@ -120,9 +120,15 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (string, int) {
 		b.Name = strings.TrimSpace(sa[1])
 		b.Designation = des
 	}
-	_, err = rlib.InsertBusiness(&b)
+
+	//fmt.Printf("Business to save:  %#v\n", b)
+	bid, err := rlib.InsertBusiness(&b)
 	if err != nil {
 		rs += fmt.Sprintf("CreatePhonebookLinkedBusiness: error inserting rlib.Business = %v\n", err)
+	}
+	err = rlib.NewBusinessInit(bid)
+	if err != nil {
+		rs += fmt.Sprintf("CreatePhonebookLinkedBusiness: error from NewBusinessInit = %v\n", err)
 	}
 	return rs, 0
 }

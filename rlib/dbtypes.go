@@ -354,10 +354,18 @@ type RentalAgreementRentable struct {
 // RentalAgreementPayor describes a Payor associated with a rental agreement
 type RentalAgreementPayor struct {
 	RAID    int64
-	TCID    int64
+	TCID    int64     // the payor's transactant id
 	DtStart time.Time // start date/time for this Payor
 	DtStop  time.Time // stop date/time
 	FLAGS   uint64    // 1<<0 is the bit that indicates this payor is a 'guarantor'
+}
+
+// RentalAgreementTax - the time based attribute for whether the rental agreement is taxable
+type RentalAgreementTax struct {
+	RAID    int64     //associated rental agreement
+	DtStart time.Time // start date/time for this Payor
+	DtStop  time.Time // stop date/time
+	FLAGS   uint64    // 1<<0 is whether the agreement is taxable
 }
 
 // RentableUser describes a User associated with a rental agreement
@@ -396,7 +404,7 @@ type DemandSource struct {
 // Transactant is the basic structure of information
 // about a person who is a Prospect, applicant, User, or Payor
 type Transactant struct {
-	Recid          int // this is to support the grid widget
+	Recid          int `json:"recid"` // this is to support the grid widget
 	TCID           int64
 	BID            int64
 	NLID           int64
@@ -494,33 +502,6 @@ type XPerson struct {
 	Psp Prospect
 	Pay Payor
 }
-
-// // FlattenedXPerson is defined for w2ui grid on the interface
-// type FlattenedXPerson struct {
-// 	Recid          int
-// 	TCID           int64
-// 	BID            int64
-// 	NLID           int64
-// 	FirstName      string
-// 	MiddleName     string
-// 	LastName       string
-// 	PreferredName  string
-// 	CompanyName    string // sometimes the entity will be a company
-// 	IsCompany      int    // 1 => the entity is a company, 0 = not a company
-// 	PrimaryEmail   string
-// 	SecondaryEmail string
-// 	WorkPhone      string
-// 	CellPhone      string
-// 	Address        string
-// 	Address2       string
-// 	City           string
-// 	State          string
-// 	PostalCode     string
-// 	Country        string
-// 	Website        string // person's website
-// 	LastModTime    time.Time
-// 	LastModBy      int64
-// }
 
 // Assessment is a charge associated with a Rentable
 type Assessment struct {
@@ -849,7 +830,7 @@ type LedgerMarker struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	Recid          int       // this is for the grid widget
+	Recid          int       `json:"recid"` // this is for the grid widget
 	LID            int64     // unique id for this GLAccount
 	PLID           int64     // unique id of Parent, 0 if no parent
 	BID            int64     // Business unit associated with this GLAccount
@@ -1117,6 +1098,10 @@ type RRprepSQL struct {
 	UpdateStringList                   *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
 	GetCustomAttributeByVals           *sql.Stmt
+	InsertRentalAgreementTax           *sql.Stmt
+	GetRentalAgreementTax              *sql.Stmt
+	DeleteRentalAgreementTax           *sql.Stmt
+	UpdateeRentalAgreementTax          *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

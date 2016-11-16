@@ -918,24 +918,24 @@ CREATE TABLE LedgerMarkerAudit (
 -- ----------------------------------------------------------------------------------------
 --    LEDGERs  - These define the required ledgers
 -- ----------------------------------------------------------------------------------------
-INSERT INTO GLAccount (BID,RAID,GLNumber,Status,Type,Name) VALUES
-    (1,0,"",2,10,"Bank Account"),                   -- 1
-    (1,0,"",2,11,"General Accounts Receivable"),    -- 2
-    (1,0,"",2,12,"Gross Scheduled Rent"),           -- 3
-    (1,0,"",2,13,"Loss to Lease"),                  -- 4
-    (1,0,"",2,14,"Vacancy"),                        -- 5
-    (1,0,"",2,15,"Security Deposit Receivable"),    -- 6
-    (1,0,"",2,16,"Security Deposit Assessment"),    -- 7
-    (1,0,"",2,17,"Owner Equity");                   -- 8
--- ----------------------------------------------------------------------------------------
---    LEDGERs MARKERS - These define the required ledgers
--- ----------------------------------------------------------------------------------------
-INSERT INTO LedgerMarker (BID,LID,State,Dt,Balance) VALUES
-    (1,1,3,"2015-10-31",0.0),
-    (1,2,3,"2015-10-31",0.0),
-    (1,3,3,"2015-10-31",0.0),
-    (1,4,3,"2015-10-31",0.0),
-    (1,5,3,"2015-10-31",0.0),
-    (1,6,3,"2015-10-31",0.0),
-    (1,7,3,"2015-10-31",0.0),
-    (1,8,3,"2015-10-31",0.0);
+-- INSERT INTO GLAccount (BID,RAID,GLNumber,Status,Type,Name) VALUES
+--     (1,0,"",2,10,"Bank Account"),                   -- 1
+--     (1,0,"",2,11,"General Accounts Receivable"),    -- 2
+--     (1,0,"",2,12,"Gross Scheduled Rent"),           -- 3
+--     (1,0,"",2,13,"Loss to Lease"),                  -- 4
+--     (1,0,"",2,14,"Vacancy"),                        -- 5
+--     (1,0,"",2,15,"Security Deposit Receivable"),    -- 6
+--     (1,0,"",2,16,"Security Deposit Assessment"),    -- 7
+--     (1,0,"",2,17,"Owner Equity");                   -- 8
+-- -- ----------------------------------------------------------------------------------------
+-- --    LEDGERs MARKERS - These define the required ledgers
+-- -- ----------------------------------------------------------------------------------------
+-- INSERT INTO LedgerMarker (BID,LID,State,Dt,Balance) VALUES
+--     (1,1,3,"2015-10-31",0.0),
+--     (1,2,3,"2015-10-31",0.0),
+--     (1,3,3,"2015-10-31",0.0),
+--     (1,4,3,"2015-10-31",0.0),
+--     (1,5,3,"2015-10-31",0.0),
+--     (1,6,3,"2015-10-31",0.0),
+--     (1,7,3,"2015-10-31",0.0),
+--     (1,8,3,"2015-10-31",0.0);

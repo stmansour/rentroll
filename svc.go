@@ -74,6 +74,7 @@ func svcHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+	fmt.Printf("\n-------------------------------------\n\n")
 }
 
 // SvcTransactants generates a report of all Businesses defined in the database.

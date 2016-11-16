@@ -262,6 +262,7 @@ func InsertLedger(l *GLAccount) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			l.LID = rid
 		}
 	} else {
 		Ulog("Error inserting GLAccount:  %v\n", err)
