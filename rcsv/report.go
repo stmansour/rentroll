@@ -330,6 +330,7 @@ func RRreportRentalAgreementTemplates(f int, bid int64) string {
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
 func RRreportRentalAgreements(f int, bid int64) string {
+	rs := ""
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -357,7 +358,7 @@ func RRreportRentalAgreements(f int, bid int64) string {
 		rlib.Errcheck(rows.Scan(&raid))
 		p, err = rlib.GetXRentalAgreement(raid, &d1, &d2)
 		if err != nil {
-			rlib.Ulog("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
+			rs += fmt.Sprintf("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
 			continue
 		}
 		note := ""
@@ -384,7 +385,7 @@ func RRreportRentalAgreements(f int, bid int64) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return rs + t.SprintTable(f)
 }
 
 // RRreportPaymentTypes generates a report of all rlib.GLAccount accounts

@@ -217,28 +217,21 @@ func CmdSimpleReport(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusines
 
 // CmdCSVLoad is the HTTP handler for loading csv viles
 func CmdCSVLoad(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
-	fmt.Printf("Entered CmdCSVLoad\n")
 	sp := r.FormValue("sourcepage")
 	if sp != "csvload" {
-		// fmt.Printf("sp != csvload,   sp = %s\n", sp)
 		return
 	}
 
 	action := r.FormValue("action")
-	// fmt.Printf("CmdCSVLoad: action = %s, len(action) = %d\n", action, len(action))
 	if len(action) > 0 {
-		// fmt.Printf("CmdCSVLoad: action = %s, len loaders = %d\n", action, len(loaders))
 		for i := 0; i < len(loaders); i++ {
-			// fmt.Printf("i = %d, loader = %v\n", i, loaders[i])
 			if action == loaders[i].prefix {
-				fmt.Printf("found loader, i = %d, loader = %v\n", i, loaders[i])
 				fname := ""
 				path := ""
 				if GetUploadedFile(w, r, &fname, &path, ui) != 0 {
 					ui.ReportContent = "Failed to upload file"
 					return
 				}
-				fmt.Printf("file = %s\n", fname)
 				if len(fname) > 0 {
 					rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
 					ui.ReportContent = loaders[i].handler(path)

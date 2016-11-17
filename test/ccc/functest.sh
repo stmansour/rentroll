@@ -3,10 +3,10 @@ TESTNAME="CCC"
 TESTSUMMARY="Setup and run CCC company and the Rexford Properties"
 
 RRDATERANGE="-j 2016-01-01 -k 2016-02-01"
+BUD="CCC"
 
 source ../share/base.sh
 
-BUD="CCC"
 
 #========================================================================================
 # INITIALIZE THE BUSINESS
@@ -15,16 +15,16 @@ BUD="CCC"
 #========================================================================================
 docsvtest "a" "-b business.csv -L 3" "Business"
 docsvtest "b" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
-# docsvtest "c" "-m depmeth.csv -L 23,${BUD}" "DepositMethods"
-# docsvtest "d" "-d depository.csv -L 18,${BUD}" "Depositories"
-# docsvtest "e" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "c" "-m depmeth.csv -L 23,${BUD}" "DepositMethods"
+docsvtest "d" "-d depository.csv -L 18,${BUD}" "Depositories"
+docsvtest "e" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
 # docsvtest "f" "-l strlists.csv -L 25,${BUD}" "StringLists"
-# docsvtest "g" "-p people.csv  -L 7,${BUD}" "People"
-# docsvtest "h" "-r rentable.csv -L 6,${BUD}" "Rentables"
+docsvtest "g" "-p people.csv  -L 7,${BUD}" "People"
+docsvtest "h" "-r rentable.csv -L 6,${BUD}" "Rentables"
 # docsvtest "i" "-u custom.csv -L 14" "CustomAttributes"
 # docsvtest "j" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
-# docsvtest "k" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
-# docsvtest "l" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
+docsvtest "k" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
+docsvtest "l" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
 # docsvtest "m" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
 
 # # get the deposits on the books

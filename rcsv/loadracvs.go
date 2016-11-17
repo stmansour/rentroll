@@ -31,8 +31,9 @@ func BuildPayorList(s string, dfltStart, dfltStop string, funcname string, linen
 	for i := 0; i < len(s1); i++ {
 		ss := strings.Split(s1[i], ",")
 		if len(ss) != 3 {
-			err := fmt.Errorf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+			rs += fmt.Sprintf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 				funcname, lineno, len(ss), ss)
+			err := fmt.Errorf(rs)
 			return m, rs, err
 		}
 		// PAYOR (rlib.Transactant)
@@ -100,6 +101,7 @@ func BuildUserList(sa, dfltStart, dfltStop string, funcname string, lineno int) 
 // CreateRentalAgreement creates database records for the rental agreement defined in sa[]
 func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	funcname := "CreateRentalAgreement"
+
 	var ra rlib.RentalAgreement
 	var m []rlib.RentalAgreementRentable
 
@@ -333,7 +335,6 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	errcount := 0
 	for i := 0; i < len(m); i++ {
 		rra := rlib.GetAgreementsForRentable(m[i].RID, &ra.AgreementStart, &ra.AgreementStop)
-		// fmt.Printf("i = %d,  number of existing agreements for rentable %d: %d\n", i, m[i].RID, len(rra))
 		for j := 0; j < len(rra); j++ {
 			rs += fmt.Sprintf("%s: line %d - Rentable %s is already included in Rental Agreement %s from %s to %s\n",
 				funcname, lineno,
