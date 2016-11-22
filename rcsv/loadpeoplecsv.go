@@ -88,6 +88,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 		x        float64
 		userNote string
 	)
+	ignoreDupPhone := false
 
 	const (
 		BUD                       = 0
@@ -264,6 +265,10 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 		case WorkPhone:
 			tr.WorkPhone = s
 		case CellPhone:
+			if len(s) > 0 && s[0] == '*' {
+				s = s[1:]
+				ignoreDupPhone = true
+			}
 			tr.CellPhone = s
 		case Address:
 			tr.Address = s
@@ -480,7 +485,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 			return rs, CsvErrorSensitivity
 		}
 	}
-	if len(tr.CellPhone) > 0 {
+	if len(tr.CellPhone) > 0 && !ignoreDupPhone {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.CellPhone)
 		if t1.TCID > 0 {
 			rs += fmt.Sprintf("%s: line %d - rlib.Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)

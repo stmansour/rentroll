@@ -1567,7 +1567,17 @@ func GetSLStrings(id int64, a *StringList) {
 func GetTransactantByPhoneOrEmail(s string) Transactant {
 	var t Transactant
 	p := fmt.Sprintf("SELECT "+TRNSfields+" FROM Transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
-	ReadTransactant(RRdb.Dbrr.QueryRow(p), &t)
+
+	// there could be multiple people with the same identifying number...
+	// to safeguard, we'll read as a query and accept first match
+	rows, err := RRdb.Dbrr.Query(p)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		ReadTransactants(rows, &t)
+		return t
+	}
+	//ReadTransactant(RRdb.Dbrr.QueryRow(p), &t)
 	return t
 }
 

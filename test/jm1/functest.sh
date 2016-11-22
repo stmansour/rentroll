@@ -22,7 +22,6 @@ docsvtest "h" "-r rentable.csv -L 6,${BUD}" "Rentables"
 docsvtest "i" "-u custom.csv -L 14" "CustomAttributes"
 docsvtest "j" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
 docsvtest "k" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
-exit
 docsvtest "l" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
 docsvtest "m" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
 

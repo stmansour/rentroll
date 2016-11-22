@@ -210,6 +210,19 @@ type CustomAttributeRef struct {
 	CID         int64 // uid of the custom attribute
 }
 
+// AssessmentType is a list of chargest that the company can make
+type AssessmentType struct {
+	ASMTID      int64     // unique id for this rate plan
+	BID         int64     // which business
+	Name        string    // RATemplateName a string associated with each rental type agreement (essentially, the doc name)
+	DtStart     time.Time // when does this charge go into effect
+	DtStop      time.Time // when does this charge end
+	Cycle       int64     // recurrence
+	Prorate     int64     //
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+}
+
 // RentalAgreementTemplate is a template used to set up new rental agreements
 type RentalAgreementTemplate struct {
 	RATID          int64     // unique id for this rate plan

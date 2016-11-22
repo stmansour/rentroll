@@ -141,7 +141,7 @@ func CreateRentables(sa []string, lineno int) (string, int) {
 			name := strings.TrimSpace(ss[0])
 			// t := rlib.GetTransactantByPhoneOrEmail(name)
 			n, err := CSVLoaderTransactantList(name)
-			if n[0].TCID == 0 {
+			if len(n) == 0 || n[0].TCID == 0 {
 				rerr := fmt.Sprintf("%s: line %d - could not find Transactant with contact information %s\n", funcname, lineno, name)
 				rs += fmt.Sprintf("%s", rerr)
 				return rs, CsvErrorSensitivity
