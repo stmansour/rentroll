@@ -219,3 +219,23 @@ func UpdateTransactant(a *Transactant) error {
 	}
 	return err
 }
+
+// UpdateUser updates a User record in the database
+// func UpdateUser(a *User) error {
+// 	_, err := RRdb.Prepstmt.UpdateUser.Exec(a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy, a.TCID)
+// 	if nil != err {
+// 		Ulog("UpdateUser: error updating User:  %v\n", err)
+// 		Ulog("User = %#v\n", *a)
+// 	}
+// 	return err
+// }
+
+// UpdateVehicle updates a Vehicle record in the database
+func UpdateVehicle(a *Vehicle) error {
+	_, err := RRdb.Prepstmt.UpdateVehicle.Exec(a.TCID, a.BID, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.LastModBy, a.VID)
+	if nil != err {
+		Ulog("UpdateVehicle: error updating Vehicle:  %v\n", err)
+		Ulog("Vehicle = %#v\n", *a)
+	}
+	return err
+}

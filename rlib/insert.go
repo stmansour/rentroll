@@ -679,7 +679,7 @@ func InsertTransactant(a *Transactant) (int64, error) {
 // InsertUser writes a new User record to the database
 func InsertUser(a *User) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.Points, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -688,6 +688,22 @@ func InsertUser(a *User) (int64, error) {
 	} else {
 		Ulog("InsertUser: error inserting User:  %v\n", err)
 		Ulog("User = %#v\n", *a)
+	}
+	return tid, err
+}
+
+// InsertVehicle writes a new Vehicle record to the database
+func InsertVehicle(a *Vehicle) (int64, error) {
+	var tid = int64(0)
+	res, err := RRdb.Prepstmt.InsertVehicle.Exec(a.TCID, a.BID, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			tid = int64(id)
+		}
+	} else {
+		Ulog("InsertVehicle: error inserting Vehicle:  %v\n", err)
+		Ulog("Vehicle = %#v\n", *a)
 	}
 	return tid, err
 }

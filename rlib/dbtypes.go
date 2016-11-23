@@ -475,13 +475,6 @@ type User struct {
 	// USERID                    int64
 	TCID                      int64
 	Points                    int64
-	CarMake                   string
-	CarModel                  string
-	CarColor                  string
-	CarYear                   int64
-	LicensePlateState         string
-	LicensePlateNumber        string
-	ParkingPermitNumber       string
 	DateofBirth               time.Time
 	EmergencyContactName      string
 	EmergencyContactAddress   string
@@ -493,6 +486,25 @@ type User struct {
 	SourceSLSID               int64
 	LastModTime               time.Time
 	LastModBy                 int64
+	Vehicles                  []Vehicle
+}
+
+// Vehicle contains all the vehicle information for a User's vehicld
+type Vehicle struct {
+	VID                 int64
+	TCID                int64
+	BID                 int64
+	CarMake             string
+	CarModel            string
+	CarColor            string
+	CarYear             int64
+	LicensePlateState   string
+	LicensePlateNumber  string
+	ParkingPermitNumber string
+	DtStart             time.Time
+	DtStop              time.Time
+	LastModTime         time.Time
+	LastModBy           int64
 }
 
 // Payor is attributes of the person financially responsible
@@ -1115,6 +1127,11 @@ type RRprepSQL struct {
 	GetRentalAgreementTax              *sql.Stmt
 	DeleteRentalAgreementTax           *sql.Stmt
 	UpdateeRentalAgreementTax          *sql.Stmt
+	GetVehicle                         *sql.Stmt
+	InsertVehicle                      *sql.Stmt
+	UpdateVehicle                      *sql.Stmt
+	DeleteVehicle                      *sql.Stmt
+	GetVehiclesByTransactant           *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

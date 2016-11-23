@@ -311,22 +311,22 @@ func ReadTransactants(rows *sql.Rows, a *Transactant) {
 	Errcheck(rows.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName, &a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone, &a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.LastModTime, &a.LastModBy))
 }
 
-// // ReadFlattenedXPerson reads a full FlattenedXPerson structure from the database based on the supplied row object
-// func ReadFlattenedXPerson(row *sql.Row, a *FlattenedXPerson) {
-// 	Errcheck(row.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName, &a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone, &a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.LastModTime, &a.LastModBy))
-// }
-
-// // ReadFlattenedXPersons reads a full FlattenedXPerson structure from the database based on the supplied rows object
-// func ReadFlattenedXPersons(rows *sql.Rows, a *FlattenedXPerson) {
-// 	Errcheck(rows.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName, &a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone, &a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.LastModTime, &a.LastModBy))
-// }
-
 // ReadUser reads a full User structure from the database based on the supplied row object
 func ReadUser(row *sql.Row, a *User) {
-	Errcheck(row.Scan(&a.TCID, &a.Points, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.TCID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadUsers reads a full User structure from the database based on the supplied rows object
 func ReadUsers(rows *sql.Rows, a *User) {
-	Errcheck(rows.Scan(&a.TCID, &a.Points, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.TCID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadVehicle reads a full Vehicle structure from the database based on the supplied row object
+func ReadVehicle(row *sql.Row, a *Vehicle) {
+	Errcheck(row.Scan(&a.VID, &a.TCID, &a.VID, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadVehicles reads a full Vehicle structure from the database based on the supplied rows object
+func ReadVehicles(rows *sql.Rows, a *Vehicle) {
+	Errcheck(rows.Scan(&a.VID, &a.TCID, &a.VID, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 }

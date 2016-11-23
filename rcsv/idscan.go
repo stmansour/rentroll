@@ -84,7 +84,7 @@ func CSVLoaderGetTCID(sa string) int64 {
 // CSVLoaderTransactantList takes a comma separated list of email addresses and phone numbers
 // and returns an array of transactants for each.  If any of the addresses in the list
 // cannot be resolved to a rlib.Transactant, then processing stops immediately and an error is returned.
-func CSVLoaderTransactantList(s string) ([]rlib.Transactant, error) {
+func CSVLoaderTransactantList(BID int64, s string) ([]rlib.Transactant, error) {
 	funcname := "CSVLoaderTransactantList"
 	var m []rlib.Transactant
 	var noerr error
@@ -100,7 +100,7 @@ func CSVLoaderTransactantList(s string) ([]rlib.Transactant, error) {
 		if len(ok) == 0 {
 			rlib.GetTransactant(n, &a)
 		} else {
-			a = rlib.GetTransactantByPhoneOrEmail(s)
+			a = rlib.GetTransactantByPhoneOrEmail(BID, s)
 		}
 		if 0 == a.TCID {
 			rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)

@@ -645,15 +645,8 @@ CREATE TABLE Prospect (
 --   USER
 -- ===========================================
 CREATE TABLE User (
-    TCID BIGINT NOT NULL DEFAULT 0,                                       -- associated Transactant
+    TCID BIGINT NOT NULL DEFAULT 0,                             -- associated Transactant
     Points BIGINT NOT NULL DEFAULT 0,                           -- bonus points for this User
-    CarMake VARCHAR(100) NOT NULL DEFAULT '',
-    CarModel VARCHAR(100) NOT NULL DEFAULT '',
-    CarColor VARCHAR(100) NOT NULL DEFAULT '',
-    CarYear BIGINT NOT NULL DEFAULT 0,
-    LicensePlateState VARCHAR(100) NOT NULL DEFAULT '',
-    LicensePlateNumber VARCHAR(100) NOT NULL DEFAULT '',
-    ParkingPermitNumber VARCHAR(100) NOT NULL DEFAULT '',
     DateofBirth DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     EmergencyContactName VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyContactAddress VARCHAR(100) NOT NULL DEFAULT '',
@@ -667,6 +660,26 @@ CREATE TABLE User (
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (TCID)
 );
+
+CREATE TABLE Vehicle (
+    VID BIGINT NOT NULL AUTO_INCREMENT,                               -- Unique identifier for vehicle
+    TCID BIGINT NOT NULL DEFAULT 0,                              -- Transactant ID of vehicle owner
+    BID BIGINT NOT NULL DEFAULT 0,
+    CarMake VARCHAR(100) NOT NULL DEFAULT '',
+    CarModel VARCHAR(100) NOT NULL DEFAULT '',
+    CarColor VARCHAR(100) NOT NULL DEFAULT '',
+    CarYear BIGINT NOT NULL DEFAULT 0,
+    LicensePlateState VARCHAR(100) NOT NULL DEFAULT '',
+    LicensePlateNumber VARCHAR(100) NOT NULL DEFAULT '',
+    ParkingPermitNumber VARCHAR(100) NOT NULL DEFAULT '',
+    DtStart DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
+    DtStop DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
+    LastModTime TIMESTAMP,                                       -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (VID)
+);
+
+
 
 -- ===========================================
 --   PAYOR

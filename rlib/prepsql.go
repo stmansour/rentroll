@@ -729,16 +729,6 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
-	// RENTER
-	//==========================================
-	RENTERflds := "TCID,Points,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetUser, err = RRdb.Dbrr.Prepare("SELECT " + RENTERflds + " FROM User where TCID=?")
-	Errcheck(err)
-	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(RENTERflds)
-	RRdb.Prepstmt.InsertUser, err = RRdb.Dbrr.Prepare("INSERT INTO User (" + s4 + ") VALUES(" + s5 + ")")
-	Errcheck(err)
-
-	//==========================================
 	// SOURCE
 	//==========================================
 	SRCflds := "SourceSLSID,BID,Name,Industry,LastModTime,LastModBy"
@@ -748,7 +738,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllDemandSources, err = RRdb.Dbrr.Prepare("SELECT " + SRCflds + " FROM DemandSource WHERE BID=?")
 	Errcheck(err)
-	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(SRCflds)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(SRCflds)
 	RRdb.Prepstmt.InsertDemandSource, err = RRdb.Dbrr.Prepare("INSERT INTO DemandSource (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateDemandSource, err = RRdb.Dbrr.Prepare("UPDATE DemandSource SET " + s3 + " WHERE SourceSLSID=?")
@@ -805,6 +795,39 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertTransactant, err = RRdb.Dbrr.Prepare("INSERT INTO Transactant (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateTransactant, err = RRdb.Dbrr.Prepare("UPDATE Transactant SET " + s3 + " WHERE TCID=?")
+	Errcheck(err)
+
+	//==========================================
+	// User
+	//==========================================
+	flds = "TCID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetUser, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM User where TCID=?")
+	Errcheck(err)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	// exceptional situation here - we want TCID to be the UserID - so, add them
+	s4 = "INSERT INTO User (" + "TCID," + s1 + ") VALUES(" + "?," + s2 + ")"
+	// fmt.Printf("Insert User SQL:  \"%s\"\n", s4)
+	RRdb.Prepstmt.InsertUser, err = RRdb.Dbrr.Prepare(s4)
+	Errcheck(err)
+	// RRdb.Prepstmt.UpdateUser, err = RRdb.Dbrr.Prepare("UPDATE User SET " + s3 + " WHERE TCID=?")
+	// Errcheck(err)
+	// RRdb.Prepstmt.DeleteUser, err = RRdb.Dbrr.Prepare("DELETE from User WHERE TCID=?")
+	// Errcheck(err)
+
+	//==========================================
+	// Vehicle
+	//==========================================
+	flds = "VID,TCID,BID,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetVehicle, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where VID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetVehiclesByTransactant, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where TCID=?")
+	Errcheck(err)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertVehicle, err = RRdb.Dbrr.Prepare("INSERT INTO Vehicle (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateVehicle, err = RRdb.Dbrr.Prepare("UPDATE Vehicle SET " + s3 + " WHERE VID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteVehicle, err = RRdb.Dbrr.Prepare("DELETE from Vehicle WHERE VID=?")
 	Errcheck(err)
 
 }

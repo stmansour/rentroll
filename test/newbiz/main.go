@@ -39,6 +39,7 @@ var App struct {
 	RSpFile        string                     // Rentable specialties
 	BldgFile       string                     // Buildings for this Business
 	PplFile        string                     // people for this Business
+	VehicleFile    string                     // vehicles that belong to people
 	RatFile        string                     // rentalAgreementTemplates
 	RaFile         string                     // rental agreement cvs file
 	CoaFile        string                     // chart of accounts
@@ -99,6 +100,7 @@ func readCommandLineArgs() {
 	rprsp := flag.String("t", "", "add RatePlanRef Specialty Rates via csv file")
 	asgnPtr := flag.String("U", "", "assign custom attributes via csv file")
 	custPtr := flag.String("u", "", "add custom attributes via csv file")
+	vehiclePtr := flag.String("V", "", "add people vehicles via csv file")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	depositPtr := flag.String("y", "", "add Deposits via csv file")
 
@@ -138,6 +140,7 @@ func readCommandLineArgs() {
 	App.RPRefFile = *rprptr
 	App.RPRRTRateFile = *rprrt
 	App.RPRSPRateFile = *rprsp
+	App.VehicleFile = *vehiclePtr
 	var err error
 	s := *pDates
 	if len(s) > 0 {
@@ -276,6 +279,9 @@ func main() {
 	}
 	if len(App.PplFile) > 0 {
 		fmt.Print(rcsv.LoadPeopleCSV(App.PplFile))
+	}
+	if len(App.VehicleFile) > 0 {
+		fmt.Print(rcsv.LoadVehicleCSV(App.VehicleFile))
 	}
 	if len(App.RFile) > 0 {
 		fmt.Print(rcsv.LoadRentablesCSV(App.RFile))

@@ -1,15 +1,15 @@
-BUD,FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit,Taxpayor ID, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee,Notes,DesiredUsageStartDate,RentableTypePreference,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,FloatingDeposit,RAID
-REX,Joshua,,Jones,ABC Corporation,0,JJones@abc.com,,,123-456-7890,123 South Rexford,,Beverly Hills,CA,90210,USA,10,,Mustang,,,,I AM AARON,,1,,,,,,,,,1,,,,,,,,,,,1000.75,Note for Aaron,,,1,,,,,,,1
-REX,,,,ABC Corporation,1,info@abc.com,,,123-983-2244,10 S. ABC Pkwy,,Hollywood,CA,90220,USA,20,,Rabbit,,,,,,2,,,,,,,,,2,,,,,,,,,,,,Note for Kirsten,,,2,,,,,,,2
-REX,Amanda,,Smith,,0,asmith@gmail.com,,,123-456-7891,2211 Hyannis Circle,,Glendale,CA,90210,USA,30,,Fiesta,,,,LOVELY RITA,,3,,,,,,,,,3,,,,,,,,,,,1100.75,,,,3,,,,,,,3
-REX,Christoph,,Jones,ARC Energy,0,cjones@arcenergy.com,,,123-456-7892,1957 Billow Way,,LA,CA,90210,USA,40,,Golf,,,,I AM DANIEL,,4,,,,,,,,,4,,,,,,,,,,,,,,,4,,,,,,,4
-REX,,,,ARC Energy,1,info@arcenergy.com,,,123-945-3715,9000 Zap Ave,,LA,CA,90220,USA,50,,,,,,,,5,,,,,,,,,,,,,,,,,,,,,,,,5,,,,,,,5
-REX,Cindy,,Jones,,0,CindyJ@rexford.com,,,123-456-7893,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,60,,Astra,,,,,,6,,,,,,,,,,,,,,,,,,,,1200.75,,,,6,,,,,,,6
-REX,Edith,,Jones,,0,EdithJ@rexford.com,,,123-456-8516,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,70,,Polo,,,,I AM LAUREN,,7,,,,,,,,,,,,,,,,,,,,1300.75,,,,7,,,,,,,7
-REX,Ed,,Jones,,0,edj@rexford.com,,,123-456-7894,311 South Rexford,,Beverly Hills,CA,90210,USA,80,,A3,,,,I AM KEVEN,,8,,,,,,,,,,,,,,,,,,,,,,,,8,,,,,,,8
-REX,Amanda,,Curry,,0,acurry@rexford.com,,,123-456-2337,311 South Rexford,,Beverly Hills,CA,90210,USA,90,,,,,,,,9,,,,,,,,,,,,,,,,,,,,,,,,9,,,,,,,9
-REX,Jeb,,Night,,0,jnight@rexford.com,,,123-456-8519,311 South Rexford,,Beverly Hills,CA,90210,USA,100,,,,,,,,10,,,,,,,,,,,,,,,,,,,,,,,,10,,,,,,,10
-REX,Chris,P,Bacon,,0,chris@bacon.com,,,123-456-6571,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-REX,Betty,,Diddit,,0,betty@diddit.com,,,123-456-9435,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-REX,Betty,,Diddent,,0,betty@diddent.com,,,123-456-0055,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-REX,Leeloo,,Kaixin,,0,leeloo@kaixin.com,,,123-456-0066,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+BUD,FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit,Taxpayor ID, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee,Notes,DesiredUsageStartDate,RentableTypePreference,Approver,DeclineReasonSLSID,OtherPreferences,FollowUpDate,CSAgent,OutcomeSLSID,FloatingDeposit,RAID
+REX,Joshua,,Jones,ABC Corporation,0,JJones@abc.com,,,123-456-7890,123 South Rexford,,Beverly Hills,CA,90210,USA,10,1,,,,,,,,,1,,,,,,,,,,,1000.75,Note for Aaron,,,1,,,,,,,1
+REX,,,,ABC Corporation,1,info@abc.com,,,123-983-2244,10 S. ABC Pkwy,,Hollywood,CA,90220,USA,20,2,,,,,,,,,2,,,,,,,,,,,,Note for Kirsten,,,2,,,,,,,2
+REX,Amanda,,Smith,,0,asmith@gmail.com,,,123-456-7891,2211 Hyannis Circle,,Glendale,CA,90210,USA,30,3,,,,,,,,,3,,,,,,,,,,,1100.75,,,,3,,,,,,,3
+REX,Christoph,,Jones,ARC Energy,0,cjones@arcenergy.com,,,123-456-7892,1957 Billow Way,,LA,CA,90210,USA,40,4,,,,,,,,,4,,,,,,,,,,,,,,,4,,,,,,,4
+REX,,,,ARC Energy,1,info@arcenergy.com,,,123-945-3715,9000 Zap Ave,,LA,CA,90220,USA,50,5,,,,,,,,,,,,,,,,,,,,,,,,5,,,,,,,5
+REX,Cindy,,Jones,,0,CindyJ@rexford.com,,,123-456-7893,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,60,6,,,,,,,,,,,,,,,,,,,,1200.75,,,,6,,,,,,,6
+REX,Edith,,Jones,,0,EdithJ@rexford.com,,,123-456-8516,309 1/2 South Rexford,,Beverly Hills,CA,90210,USA,70,7,,,,,,,,,,,,,,,,,,,,1300.75,,,,7,,,,,,,7
+REX,Ed,,Jones,,0,edj@rexford.com,,,123-456-7894,311 South Rexford,,Beverly Hills,CA,90210,USA,80,8,,,,,,,,,,,,,,,,,,,,,,,,8,,,,,,,8
+REX,Amanda,,Curry,,0,acurry@rexford.com,,,123-456-2337,311 South Rexford,,Beverly Hills,CA,90210,USA,90,9,,,,,,,,,,,,,,,,,,,,,,,,9,,,,,,,9
+REX,Jeb,,Night,,0,jnight@rexford.com,,,123-456-8519,311 South Rexford,,Beverly Hills,CA,90210,USA,100,10,,,,,,,,,,,,,,,,,,,,,,,,10,,,,,,,10
+REX,Chris,P,Bacon,,0,chris@bacon.com,,,123-456-6571,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+REX,Betty,,Diddit,,0,betty@diddit.com,,,123-456-9435,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+REX,Betty,,Diddent,,0,betty@diddent.com,,,123-456-0055,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+REX,Leeloo,,Kaixin,,0,leeloo@kaixin.com,,,123-456-0066,311 South Rexford,,Beverly Hills,CA,90210,USA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

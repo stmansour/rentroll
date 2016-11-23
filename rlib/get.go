@@ -1564,9 +1564,9 @@ func GetSLStrings(id int64, a *StringList) {
 //=======================================================
 
 // GetTransactantByPhoneOrEmail searches for a transactoant match on the phone number or email
-func GetTransactantByPhoneOrEmail(s string) Transactant {
+func GetTransactantByPhoneOrEmail(BID int64, s string) Transactant {
 	var t Transactant
-	p := fmt.Sprintf("SELECT "+TRNSfields+" FROM Transactant where WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\"", s, s, s, s)
+	p := fmt.Sprintf("SELECT "+TRNSfields+" FROM Transactant where BID=%d AND (WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\")", BID, s, s, s, s)
 
 	// there could be multiple people with the same identifying number...
 	// to safeguard, we'll read as a query and accept first match
@@ -1591,7 +1591,9 @@ func GetProspect(id int64, p *Prospect) {
 	ReadProspect(RRdb.Prepstmt.GetProspect.QueryRow(id), p)
 }
 
-// GetUser reads a User structure based on the supplied User id
+// GetUser reads a User structure based on the supplied User id.
+// This call does not load the vehicle list.  You can use GetVehiclesByTransactant()
+// if you need them.  Or you can call GetXPerson, which loads all details about a Transactant.
 func GetUser(tcid int64, t *User) {
 	ReadUser(RRdb.Prepstmt.GetUser.QueryRow(tcid), t)
 }
@@ -1599,6 +1601,26 @@ func GetUser(tcid int64, t *User) {
 // GetPayor reads a Payor structure based on the supplied Transactant id
 func GetPayor(pid int64, p *Payor) {
 	ReadPayor(RRdb.Prepstmt.GetPayor.QueryRow(pid), p)
+}
+
+// GetVehicle reads a Vehicle structure based on the supplied Vehicle id
+func GetVehicle(vid int64, t *Vehicle) {
+	ReadVehicle(RRdb.Prepstmt.GetVehicle.QueryRow(vid), t)
+}
+
+// GetVehiclesByTransactant reads a Vehicle structure based on the supplied Vehicle id
+func GetVehiclesByTransactant(tcid int64) []Vehicle {
+	var m []Vehicle
+	rows, err := RRdb.Prepstmt.GetVehiclesByTransactant.Query(tcid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a Vehicle
+		ReadVehicles(rows, &a)
+		m = append(m, a)
+	}
+	Errcheck(rows.Err())
+	return m
 }
 
 // GetXPerson will load a full XPerson given the trid
@@ -1611,6 +1633,7 @@ func GetXPerson(tcid int64, x *XPerson) {
 	}
 	if 0 == x.Tnt.TCID {
 		GetUser(tcid, &x.Tnt)
+		x.Tnt.Vehicles = GetVehiclesByTransactant(tcid)
 	}
 	if 0 == x.Pay.TCID {
 		GetPayor(tcid, &x.Pay)

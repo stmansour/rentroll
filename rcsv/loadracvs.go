@@ -22,7 +22,7 @@ import (
 // default values of dfltStart and dfltStop -- which are the start/stop time of the rental agreement --
 // are used instead. This is common because the payors will usually be the same for the entire rental
 // agreement lifetime.
-func BuildPayorList(s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, string, error) {
+func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, string, error) {
 	rs := ""
 	var m []rlib.RentalAgreementPayor
 	// var noerr error
@@ -36,11 +36,9 @@ func BuildPayorList(s string, dfltStart, dfltStop string, funcname string, linen
 			err := fmt.Errorf(rs)
 			return m, rs, err
 		}
-		// PAYOR (rlib.Transactant)
 		s = strings.TrimSpace(ss[0]) // either the email address or the phone number or TransactantID (TC0003234)
 
-		//t := rlib.GetTransactantByPhoneOrEmail(s)
-		n, _ := CSVLoaderTransactantList(s)
+		n, _ := CSVLoaderTransactantList(BID, s)
 		if len(n) == 0 {
 			rerr := fmt.Errorf("%s:  lineno %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, s)
 			rs += fmt.Sprintf("%s", rerr.Error())
@@ -65,7 +63,7 @@ func BuildPayorList(s string, dfltStart, dfltStop string, funcname string, linen
 }
 
 // BuildUserList parses a UserSpec and returns an array of RentableUser structs
-func BuildUserList(sa, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentableUser, error) {
+func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentableUser, error) {
 	s2 := strings.TrimSpace(sa) // TCID, email address, or the phone number
 	s1 := strings.Split(s2, ";")
 	var m []rlib.RentableUser
@@ -78,7 +76,7 @@ func BuildUserList(sa, dfltStart, dfltStop string, funcname string, lineno int) 
 			return m, err
 		}
 		s := strings.TrimSpace(ss[0]) // TCID, email address, or the phone number
-		n, err := CSVLoaderTransactantList(s)
+		n, err := CSVLoaderTransactantList(BID, s)
 		if err != nil {
 			err := fmt.Errorf("%s: lineno %d - invalid person identifier: %s. Error = %s\n", funcname, lineno, s, err.Error())
 			return m, err
@@ -244,7 +242,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	//  The Payors
 	//-------------------------------------------------------------------
-	payors, ts, err := BuildPayorList(sa[PayorSpec], dfltStart, dfltStop, funcname, lineno)
+	payors, ts, err := BuildPayorList(ra.BID, sa[PayorSpec], dfltStart, dfltStop, funcname, lineno)
 	rs += ts
 	if err != nil { // save the full list
 		return rs, CsvErrorSensitivity
@@ -253,7 +251,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	//  The Users
 	//-------------------------------------------------------------------
-	users, err := BuildUserList(sa[UserSpec], dfltStart, dfltStop, funcname, lineno)
+	users, err := BuildUserList(ra.BID, sa[UserSpec], dfltStart, dfltStop, funcname, lineno)
 	if err != nil { // save the full list
 		return rs, CsvErrorSensitivity
 	}

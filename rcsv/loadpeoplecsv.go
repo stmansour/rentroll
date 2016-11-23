@@ -91,30 +91,30 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 	ignoreDupPhone := false
 
 	const (
-		BUD                       = 0
-		FirstName                 = iota
-		MiddleName                = iota
-		LastName                  = iota
-		CompanyName               = iota
-		IsCompany                 = iota
-		PrimaryEmail              = iota
-		SecondaryEmail            = iota
-		WorkPhone                 = iota
-		CellPhone                 = iota
-		Address                   = iota
-		Address2                  = iota
-		City                      = iota
-		State                     = iota
-		PostalCode                = iota
-		Country                   = iota
-		Points                    = iota
-		CarMake                   = iota
-		CarModel                  = iota
-		CarColor                  = iota
-		CarYear                   = iota
-		LicensePlateState         = iota
-		LicensePlateNumber        = iota
-		ParkingPermitNumber       = iota
+		BUD            = 0
+		FirstName      = iota
+		MiddleName     = iota
+		LastName       = iota
+		CompanyName    = iota
+		IsCompany      = iota
+		PrimaryEmail   = iota
+		SecondaryEmail = iota
+		WorkPhone      = iota
+		CellPhone      = iota
+		Address        = iota
+		Address2       = iota
+		City           = iota
+		State          = iota
+		PostalCode     = iota
+		Country        = iota
+		Points         = iota
+		// CarMake                   = iota
+		// CarModel                  = iota
+		// CarColor                  = iota
+		// CarYear                   = iota
+		// LicensePlateState         = iota
+		// LicensePlateNumber        = iota
+		// ParkingPermitNumber       = iota
 		AccountRep                = iota
 		DateofBirth               = iota
 		EmergencyContactName      = iota
@@ -168,13 +168,13 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 		{"PostalCode", PostalCode},
 		{"Country", Country},
 		{"Points", Points},
-		{"CarMake", CarMake},
-		{"CarModel", CarModel},
-		{"CarColor", CarColor},
-		{"CarYear", CarYear},
-		{"LicensePlateState", LicensePlateState},
-		{"LicensePlateNumber", LicensePlateNumber},
-		{"ParkingPermitNumber", ParkingPermitNumber},
+		// {"CarMake", CarMake},
+		// {"CarModel", CarModel},
+		// {"CarColor", CarColor},
+		// {"CarYear", CarYear},
+		// {"LicensePlateState", LicensePlateState},
+		// {"LicensePlateNumber", LicensePlateNumber},
+		// {"ParkingPermitNumber", ParkingPermitNumber},
 		{"AccountRep", AccountRep},
 		{"DateofBirth", DateofBirth},
 		{"EmergencyContactName", EmergencyContactName},
@@ -291,27 +291,27 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 				}
 				t.Points = int64(i)
 			}
-		case CarMake:
-			t.CarMake = s
-		case CarModel:
-			t.CarModel = s
-		case CarColor:
-			t.CarColor = s
-		case CarYear:
-			if len(s) > 0 {
-				i, err := strconv.Atoi(strings.TrimSpace(s))
-				if err != nil {
-					rs += fmt.Sprintf("%s: line %d - CarYear value is invalid: %s\n", funcname, lineno, s)
-					return rs, CsvErrorSensitivity
-				}
-				t.CarYear = int64(i)
-			}
-		case LicensePlateState:
-			t.LicensePlateState = s
-		case LicensePlateNumber:
-			t.LicensePlateNumber = s
-		case ParkingPermitNumber:
-			t.ParkingPermitNumber = s
+		// case CarMake:
+		// 	t.CarMake = s
+		// case CarModel:
+		// 	t.CarModel = s
+		// case CarColor:
+		// 	t.CarColor = s
+		// case CarYear:
+		// 	if len(s) > 0 {
+		// 		i, err := strconv.Atoi(strings.TrimSpace(s))
+		// 		if err != nil {
+		// 			rs += fmt.Sprintf("%s: line %d - CarYear value is invalid: %s\n", funcname, lineno, s)
+		// 			return rs, CsvErrorSensitivity
+		// 		}
+		// 		t.CarYear = int64(i)
+		// 	}
+		// case LicensePlateState:
+		// 	t.LicensePlateState = s
+		// case LicensePlateNumber:
+		// 	t.LicensePlateNumber = s
+		// case ParkingPermitNumber:
+		// 	t.ParkingPermitNumber = s
 		case AccountRep:
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
@@ -479,14 +479,14 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 	// Make sure this person doesn't already exist...
 	//-------------------------------------------------------------------
 	if len(tr.PrimaryEmail) > 0 {
-		t1 := rlib.GetTransactantByPhoneOrEmail(tr.PrimaryEmail)
+		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.PrimaryEmail)
 		if t1.TCID > 0 {
 			rs += fmt.Sprintf("%s: line %d - rlib.Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
 			return rs, CsvErrorSensitivity
 		}
 	}
 	if len(tr.CellPhone) > 0 && !ignoreDupPhone {
-		t1 := rlib.GetTransactantByPhoneOrEmail(tr.CellPhone)
+		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.CellPhone)
 		if t1.TCID > 0 {
 			rs += fmt.Sprintf("%s: line %d - rlib.Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
 			return rs, CsvErrorSensitivity
@@ -532,6 +532,8 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 		rs += fmt.Sprintf("%s: line %d - after InsertTransactant tcid = %d\n", funcname, lineno, tcid)
 		return rs, CsvErrorSensitivity
 	}
+	// fmt.Printf("tcid = %d\n", tcid)
+	// fmt.Printf("inserting user = %#v\n", t)
 	_, err = rlib.InsertUser(&t)
 	if nil != err {
 		rs += fmt.Sprintf("%s: line %d - error inserting rlib.User = %v\n", funcname, lineno, err)
