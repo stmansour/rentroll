@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Wed Nov 16 15:04:35 CST 2016
+Date/Time:    Sun Nov 27 21:35:34 PST 2016
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2016/11/16 15:04:36 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2016/11/27 21:35:36 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 9 - rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
 CreateRentableType: line 11 - Invalid rental proration frequency: 99
@@ -27,7 +27,7 @@ CreateRentables: lineno 14 - invalid AssignmentTime number: 9
 CreateRentables: lineno 15 - invalid AssignmentTime number: 9
 CreateRentables: lineno 16 - Rentable with name "107" already exists. Skipping. 
 CreateRentables: lineno 17 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
-2016/11/16 15:04:37 CSVLoaderTransactantList:  error retrieving Transactant with TCID, phone, or email: billybob@springfield.com
+2016/11/27 21:35:36 CSVLoaderTransactantList:  error retrieving Transactant with TCID, phone, or email: billybob@springfield.com
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
@@ -57,6 +57,6 @@ IntFromString: Value cannot be converted to an integer: ab827
 
 IntFromString: Value cannot be converted to an unsigned integer: ab827
 
-ElementType value must be a number from 5 to 7
+ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Wed Nov 16 15:04:38 CST 2016
+Test completed: Sun Nov 27 21:35:37 PST 2016

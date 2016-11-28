@@ -13,14 +13,20 @@ const (
 	RPTTEXT = 1
 	RPTHTML = 2
 
-	ELEMPERSON       = 1 // people
-	ELEMCOMPANY      = 2 // companies
-	ELEMCLASS        = 3 // classes
-	ELEMSVC          = 4 // the executable service
-	ELEMRENTABLETYPE = 5 // RentableType element
-	ELEMRATEPLAN     = 6 // Rate Plan
-	ELEMPROSPECT     = 7 // Transactant, Prospect, Applicant, Payor, User
-	ELEMLAST         = 7 // keep in sync with last one added
+	ELEMPERSON          = 1 // people
+	ELEMCOMPANY         = 2 // companies
+	ELEMCLASS           = 3 // classes
+	ELEMSVC             = 4 // the executable service
+	ELEMRENTABLETYPE    = 5 // RentableType element
+	ELEMRATEPLAN        = 6 // Rate Plan
+	ELEMTRANSACTANT     = 7
+	ELEMUSER            = 8
+	ELEMPROSPECT        = 9
+	ELEMAPPLICANT       = 10
+	ELEMPAYOR           = 11
+	ELEMRENTABLE        = 12
+	ELEMRENTALAGREEMENT = 13
+	ELEMLAST            = 13 // keep in sync with last one added
 
 	// CUSTSTRING et al are Custom Attribute types
 	CUSTSTRING = 0
