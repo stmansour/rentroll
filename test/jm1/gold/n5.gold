@@ -1,15 +1,43 @@
 LEDGER
 Business: JGM First, LLC
+Account:  10000 - Cash
+Period:   05/01/16 - 05/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               39,100.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          05/31/2016                                                           39,100.00
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  12000 - Accounts Receivable
+Period:   05/01/16 - 05/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                8,362.07
+Assessment - Gross Scheduled Rent-Taxable                05/01/2016  J00000031          2   309 1/2 Rexford      3,800.00     12,162.07
+Assessment - Gross Scheduled Rent-Taxable                05/01/2016  J00000032          1   309 Rexford          3,750.00     15,912.07
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          05/31/2016                                                           15,912.07
+
+
+LEDGER
+Business: JGM First, LLC
 Account:  41000 - Gross Scheduled Rent-Taxable
 Period:   05/01/16 - 05/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                              -21,887.93
-Unassociated                                             05/31/2016  J00000009          0   311 1/2 Rexford     -2,500.00    -24,387.93
-Unassociated                                             05/31/2016  J00000008          0   311 Rexford         -4,150.00    -28,537.93
+Opening Balance                                                                                                              -56,050.00
+Unassociated                                             05/31/2016  J00000034          0   311 1/2 Rexford     -2,500.00    -58,550.00
+Assessment - Gross Scheduled Rent-Taxable                05/01/2016  J00000032          1   309 Rexford         -3,750.00    -62,300.00
+Assessment - Gross Scheduled Rent-Taxable                05/01/2016  J00000031          2   309 1/2 Rexford     -3,800.00    -66,100.00
+Unassociated                                             05/31/2016  J00000033          0   311 Rexford         -4,150.00    -70,250.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          05/31/2016                                                          -28,537.93
+Closing Balance                                          05/31/2016                                                          -70,250.00
 
 
 LEDGER
@@ -20,9 +48,21 @@ Period:   05/01/16 - 05/31/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               21,887.93
-Unassociated                                             05/31/2016  J00000008          0   311 Rexford          4,150.00     26,037.93
-Unassociated                                             05/31/2016  J00000009          0   311 1/2 Rexford      2,500.00     28,537.93
+Unassociated                                             05/31/2016  J00000033          0   311 Rexford          4,150.00     26,037.93
+Unassociated                                             05/31/2016  J00000034          0   311 1/2 Rexford      2,500.00     28,537.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          05/31/2016                                                           28,537.93
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  30000 - Security Deposits
+Period:   05/01/16 - 05/31/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                              -13,300.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          05/31/2016                                                          -13,300.00
 
 

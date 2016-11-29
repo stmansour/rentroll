@@ -1608,12 +1608,8 @@ func GetVehicle(vid int64, t *Vehicle) {
 	ReadVehicle(RRdb.Prepstmt.GetVehicle.QueryRow(vid), t)
 }
 
-// GetVehiclesByTransactant reads a Vehicle structure based on the supplied Vehicle id
-func GetVehiclesByTransactant(tcid int64) []Vehicle {
+func getVehicleList(rows *sql.Rows) []Vehicle {
 	var m []Vehicle
-	rows, err := RRdb.Prepstmt.GetVehiclesByTransactant.Query(tcid)
-	Errcheck(err)
-	defer rows.Close()
 	for rows.Next() {
 		var a Vehicle
 		ReadVehicles(rows, &a)
@@ -1621,6 +1617,30 @@ func GetVehiclesByTransactant(tcid int64) []Vehicle {
 	}
 	Errcheck(rows.Err())
 	return m
+}
+
+// GetVehiclesByLicensePlate reads a Vehicle structure based on the supplied Vehicle id
+func GetVehiclesByLicensePlate(s string) []Vehicle {
+	rows, err := RRdb.Prepstmt.GetVehiclesByLicensePlate.Query(s)
+	Errcheck(err)
+	defer rows.Close()
+	return getVehicleList(rows)
+}
+
+// GetVehiclesByTransactant reads a Vehicle structure based on the supplied Vehicle id
+func GetVehiclesByTransactant(tcid int64) []Vehicle {
+	rows, err := RRdb.Prepstmt.GetVehiclesByTransactant.Query(tcid)
+	Errcheck(err)
+	defer rows.Close()
+	return getVehicleList(rows)
+}
+
+// GetVehiclesByBID reads a Vehicle structure based on the supplied Vehicle id
+func GetVehiclesByBID(bid int64) []Vehicle {
+	rows, err := RRdb.Prepstmt.GetVehiclesByBID.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	return getVehicleList(rows)
 }
 
 // GetXPerson will load a full XPerson given the trid

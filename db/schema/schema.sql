@@ -29,7 +29,6 @@
 -- RSPID = unit specialty id
 -- RTID = Rentable type id
 -- TCID = Transactant id
--- TCID = Transactant id
 -- USERID = User id
 
 DROP DATABASE IF EXISTS rentroll;
@@ -665,13 +664,14 @@ CREATE TABLE Vehicle (
     VID BIGINT NOT NULL AUTO_INCREMENT,                               -- Unique identifier for vehicle
     TCID BIGINT NOT NULL DEFAULT 0,                              -- Transactant ID of vehicle owner
     BID BIGINT NOT NULL DEFAULT 0,
-    CarMake VARCHAR(100) NOT NULL DEFAULT '',
-    CarModel VARCHAR(100) NOT NULL DEFAULT '',
-    CarColor VARCHAR(100) NOT NULL DEFAULT '',
-    CarYear BIGINT NOT NULL DEFAULT 0,
-    LicensePlateState VARCHAR(100) NOT NULL DEFAULT '',
-    LicensePlateNumber VARCHAR(100) NOT NULL DEFAULT '',
-    ParkingPermitNumber VARCHAR(100) NOT NULL DEFAULT '',
+    VehicleType VARCHAR(80) NOT NULL DEFAULT '',
+    VehicleMake VARCHAR(80) NOT NULL DEFAULT '',
+    VehicleModel VARCHAR(80) NOT NULL DEFAULT '',
+    VehicleColor VARCHAR(80) NOT NULL DEFAULT '',
+    VehicleYear BIGINT NOT NULL DEFAULT 0,
+    LicensePlateState VARCHAR(80) NOT NULL DEFAULT '',
+    LicensePlateNumber VARCHAR(80) NOT NULL DEFAULT '',
+    ParkingPermitNumber VARCHAR(80) NOT NULL DEFAULT '',
     DtStart DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     DtStop DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     LastModTime TIMESTAMP,                                       -- when was this record last written

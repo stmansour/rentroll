@@ -5,23 +5,23 @@ Balances as of:  July 1, 2016
                                                             Summary              
 LID        GLNumber  Name                                   Balance       Balance
 ---------  --------  --------------------------------  ------------  ------------
-L00000014            Security Deposit Receivable               0.00              
-L00000009  10000     Cash                                                    0.00
+L00000006            Security Deposit Receivable               0.00              
+L00000001  10000     Cash                                               39,100.00
 L00000052  11000     Credit Card Clearing                                    0.00
-L00000010  12000     Accounts Receivable                                     0.00
-L00000015  30000     Security Deposits                                       0.00
+L00000002  12000     Accounts Receivable                                23,462.07
+L00000007  30000     Security Deposits                                 -13,300.00
 L00000053  30100     Accrued Taxes                             0.00              
 L00000054  30101     Sales Taxes                                             0.00
 L00000055  30102     Transient Occupancy Taxes                               0.00
 L00000056  30199     Other Accrued Taxes                                     0.00
-L00000016  39000     Owners' Equity                                          0.00
-L00000011  41000     Gross Scheduled Rent-Taxable                      -35,187.93
+L00000008  39000     Owners' Equity                                          0.00
+L00000003  41000     Gross Scheduled Rent-Taxable                      -84,450.00
 L00000057  41001     Gross Scheduled Rent-Not Taxable                        0.00
 L00000058  41002     Income Offsets                       35,187.93              
 L00000067  41003     Other Income                              0.00              
 L00000059  41100     Unit Income Offsets                  35,187.93              
-L00000013  41101     Vacancy                                            35,187.93
-L00000012  41102     Loss (Gain) to Lease                                    0.00
+L00000005  41101     Vacancy                                            35,187.93
+L00000004  41102     Loss (Gain) to Lease                                    0.00
 L00000060  41103     Employee Concessions                                    0.00
 L00000061  41104     Resident Concessions                                    0.00
 L00000062  41105     Owner Concession                                        0.00

@@ -64,7 +64,7 @@ func ValidateCSVColumns(csvCols []CSVColumn, sa []string, funcname string, linen
 // CSV file format:
 //  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------>|<----------------------------------------------------------------------------- rlib.Payor ------------------------------------------------->|
 //   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53            54               55
-// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee,Notes,DesiredUsageStartDate, RentableTypePreference, Approver, DeclineReasonSLSID, OtherPreferences, FollowUpDate, CSAgent, OutcomeSLSID, FloatingDeposit, RAID
+// 	BUD, FirstName, MiddleName, LastName, CompanyName, IsCompany, PrimaryEmail, SecondaryEmail, WorkPhone, CellPhone, Address, Address2, City, State, PostalCode, Country, Points, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber, AccountRep, DateofBirth, EmergencyContactName, EmergencyContactAddress, EmergencyContactTelephone, EmergencyEmail, AlternateAddress, EligibleFutureUser, Industry, SourceSLSID, CreditLimit, TaxpayorID, EmployerName, EmployerStreetAddress, EmployerCity, EmployerState, EmployerPostalCode, EmployerEmail, EmployerPhone, Occupation, ApplicationFee,Notes,DesiredUsageStartDate, RentableTypePreference, Approver, DeclineReasonSLSID, OtherPreferences, FollowUpDate, CSAgent, OutcomeSLSID, FloatingDeposit, RAID
 // 	Edna,,Krabappel,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Ned,,Flanders,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 // 	Moe,,Szyslak,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -108,10 +108,10 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 		PostalCode     = iota
 		Country        = iota
 		Points         = iota
-		// CarMake                   = iota
-		// CarModel                  = iota
-		// CarColor                  = iota
-		// CarYear                   = iota
+		// VehicleMake                   = iota
+		// VehicleModel                  = iota
+		// VehicleColor                  = iota
+		// VehicleYear                   = iota
 		// LicensePlateState         = iota
 		// LicensePlateNumber        = iota
 		// ParkingPermitNumber       = iota
@@ -168,10 +168,10 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 		{"PostalCode", PostalCode},
 		{"Country", Country},
 		{"Points", Points},
-		// {"CarMake", CarMake},
-		// {"CarModel", CarModel},
-		// {"CarColor", CarColor},
-		// {"CarYear", CarYear},
+		// {"VehicleMake", VehicleMake},
+		// {"VehicleModel", VehicleModel},
+		// {"VehicleColor", VehicleColor},
+		// {"VehicleYear", VehicleYear},
 		// {"LicensePlateState", LicensePlateState},
 		// {"LicensePlateNumber", LicensePlateNumber},
 		// {"ParkingPermitNumber", ParkingPermitNumber},
@@ -291,20 +291,20 @@ func CreatePeopleFromCSV(sa []string, lineno int) (string, int) {
 				}
 				t.Points = int64(i)
 			}
-		// case CarMake:
-		// 	t.CarMake = s
-		// case CarModel:
-		// 	t.CarModel = s
-		// case CarColor:
-		// 	t.CarColor = s
-		// case CarYear:
+		// case VehicleMake:
+		// 	t.VehicleMake = s
+		// case VehicleModel:
+		// 	t.VehicleModel = s
+		// case VehicleColor:
+		// 	t.VehicleColor = s
+		// case VehicleYear:
 		// 	if len(s) > 0 {
 		// 		i, err := strconv.Atoi(strings.TrimSpace(s))
 		// 		if err != nil {
-		// 			rs += fmt.Sprintf("%s: line %d - CarYear value is invalid: %s\n", funcname, lineno, s)
+		// 			rs += fmt.Sprintf("%s: line %d - VehicleYear value is invalid: %s\n", funcname, lineno, s)
 		// 			return rs, CsvErrorSensitivity
 		// 		}
-		// 		t.CarYear = int64(i)
+		// 		t.VehicleYear = int64(i)
 		// 	}
 		// case LicensePlateState:
 		// 	t.LicensePlateState = s

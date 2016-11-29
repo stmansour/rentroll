@@ -1,7 +1,15 @@
-CreateAssessmentsFromCSV: line 2 - rlib.Assessment type is invalid: 3
-CreateAssessmentsFromCSV: line 3 - rlib.Assessment type is invalid: 7
-Assessments:  BID = B00000002, from 12/31/1969 up to 12/31/9998
-                                      Proration                                   
-ASMID  PASMID  RAID  RID  Rent Cycle  Cycle          Amount  AsmType  Account Rule
------  ------  ----  ---  ----------  ---------  ----------  -------  ------------
+Assessments:  BID = B00000001, from 12/31/1969 up to 12/31/9998
+                                                           Proration                                                                                                            
+ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType                       Account Rule                                                
+-----------  ------  ----------  ---------  -------------  -------------  ----------  ----------------------------  ------------------------------------------------------------
+ASM00000001  0       RA00000001  R00000001  non-recurring  non-recurring    7,000.00  Security Deposits             d ${GLGENRCV} _, c ${GLSECDEP} _                            
+ASM00000002  0       RA00000002  R00000002  non-recurring  non-recurring    3,000.00  Security Deposits             d ${GLGENRCV} _, c ${GLSECDEP} _                            
+ASM00000003  0       RA00000003  R00000003  non-recurring  non-recurring    3,300.00  Security Deposits             d ${GLGENRCV} _, c ${GLSECDEP} _                            
+ASM00000004  0       RA00000001  R00000001  monthly        daily            3,500.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000006  0       RA00000002  R00000002  monthly        daily            3,550.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000008  0       RA00000003  R00000003  monthly        daily            4,400.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000013  0       RA00000001  R00000001  monthly        daily            3,750.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000018  0       RA00000002  R00000002  monthly        daily            3,800.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000023  0       RA00000004  R00000003  monthly        daily            4,150.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000025  0       RA00000004  R00000003  non-recurring  non-recurring    8,300.00  Security Deposits             d ${GLGENRCV} _, c ${GLSECDEP} _                            
 

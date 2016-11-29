@@ -500,10 +500,11 @@ type Vehicle struct {
 	VID                 int64
 	TCID                int64
 	BID                 int64
-	CarMake             string
-	CarModel            string
-	CarColor            string
-	CarYear             int64
+	VehicleType         string
+	VehicleMake         string
+	VehicleModel        string
+	VehicleColor        string
+	VehicleYear         int64
 	LicensePlateState   string
 	LicensePlateNumber  string
 	ParkingPermitNumber string
@@ -1138,6 +1139,8 @@ type RRprepSQL struct {
 	UpdateVehicle                      *sql.Stmt
 	DeleteVehicle                      *sql.Stmt
 	GetVehiclesByTransactant           *sql.Stmt
+	GetVehiclesByBID                   *sql.Stmt
+	GetVehiclesByLicensePlate          *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

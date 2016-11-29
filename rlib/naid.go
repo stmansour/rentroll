@@ -159,6 +159,11 @@ func (t *RentableType) IDtoString() string {
 	return IDtoString("RT", t.RTID)
 }
 
+// IDtoString for Vehicle returns a unique identifier string.
+func (t *Vehicle) IDtoString() string {
+	return IDtoString("V", t.VID)
+}
+
 // GetUserNameList returns an array of strings with all the User names associated with the Rentable. the strings are sorted alphabetically
 func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
 	var m []string

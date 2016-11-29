@@ -817,10 +817,14 @@ func buildPreparedStatements() {
 	//==========================================
 	// Vehicle
 	//==========================================
-	flds = "VID,TCID,BID,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModTime,LastModBy"
+	flds = "VID,TCID,BID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetVehicle, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where VID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetVehiclesByTransactant, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetVehiclesByBID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetVehiclesByLicensePlate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Vehicle where LicensePlateNumber=?")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertVehicle, err = RRdb.Dbrr.Prepare("INSERT INTO Vehicle (" + s1 + ") VALUES(" + s2 + ")")

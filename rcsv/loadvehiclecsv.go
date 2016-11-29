@@ -9,7 +9,7 @@ import (
 
 // CSV file format:
 //   0   1     2        3         4         5        6                  7                   8
-// 	BUD, TCID, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber
+// 	BUD, TCID, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber
 // 	REX, 1
 // 	REX, 1
 // 	REX, 1
@@ -32,10 +32,11 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 	const (
 		BUD                 = 0
 		TCID                = iota
-		CarMake             = iota
-		CarModel            = iota
-		CarColor            = iota
-		CarYear             = iota
+		VehicleType         = iota
+		VehicleMake         = iota
+		VehicleModel        = iota
+		VehicleColor        = iota
+		VehicleYear         = iota
 		LicensePlateState   = iota
 		LicensePlateNumber  = iota
 		ParkingPermitNumber = iota
@@ -47,10 +48,11 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 	var csvCols = []CSVColumn{
 		{"BUD", BUD},
 		{"User", TCID},
-		{"CarMake", CarMake},
-		{"CarModel", CarModel},
-		{"CarColor", CarColor},
-		{"CarYear", CarYear},
+		{"VehicleType", VehicleType},
+		{"VehicleMake", VehicleMake},
+		{"VehicleModel", VehicleModel},
+		{"VehicleColor", VehicleColor},
+		{"VehicleYear", VehicleYear},
 		{"LicensePlateState", LicensePlateState},
 		{"LicensePlateNumber", LicensePlateNumber},
 		{"ParkingPermitNumber", ParkingPermitNumber},
@@ -90,20 +92,22 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 				return rs, CsvErrorSensitivity
 			}
 			t.TCID = tr.TCID
-		case CarMake:
-			t.CarMake = s
-		case CarModel:
-			t.CarModel = s
-		case CarColor:
-			t.CarColor = s
-		case CarYear:
+		case VehicleType:
+			t.VehicleType = s
+		case VehicleMake:
+			t.VehicleMake = s
+		case VehicleModel:
+			t.VehicleModel = s
+		case VehicleColor:
+			t.VehicleColor = s
+		case VehicleYear:
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
-					rs += fmt.Sprintf("%s: line %d - CarYear value is invalid: %s\n", funcname, lineno, s)
+					rs += fmt.Sprintf("%s: line %d - VehicleYear value is invalid: %s\n", funcname, lineno, s)
 					return rs, CsvErrorSensitivity
 				}
-				t.CarYear = int64(i)
+				t.VehicleYear = int64(i)
 			}
 		case LicensePlateState:
 			t.LicensePlateState = s
@@ -129,6 +133,17 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 			}
 		default:
 			rs += fmt.Sprintf("i = %d, unknown field\n", i)
+		}
+	}
+
+	//-------------------------------------------------------------------
+	// Check for duplicate...
+	//-------------------------------------------------------------------
+	tm := rlib.GetVehiclesByLicensePlate(t.LicensePlateNumber)
+	for i := 0; i < len(tm); i++ {
+		if t.LicensePlateNumber == tm[i].LicensePlateNumber && t.LicensePlateState == tm[i].LicensePlateState {
+			rs += fmt.Sprintf("%s: line %d - vehicle with License Plate %s in State = %s already exists\n", funcname, lineno, t.LicensePlateNumber, t.LicensePlateState)
+			return rs, CsvErrorSensitivity
 		}
 	}
 

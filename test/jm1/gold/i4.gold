@@ -2,7 +2,17 @@ CreateReceiptsFromCSV: line 2 -  error processing receipt: GenerateReceiptAlloca
 
 CreateReceiptsFromCSV: line 3 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 18 does not exist
 
-                    Parent                                                        
-Date        RCPTID  RCPTID  RAID  PMTID  Doc No      Amount  Account Rule  Comment
-----------  ------  ------  ----  -----  ------  ----------  ------------  -------
+                          Parent                                                                                                                                    
+Date        RCPTID        RCPTID  RAID        PMTID        Doc No      Amount  Account Rule                                    Comment                              
+----------  ------------  ------  ----------  -----------  ------  ----------  ----------------------------------------------  -------------------------------------
+12/02/2015  RCPT00000001  0       RA00000001  PMT00000001  1126      7,000.00  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _    Get the Security Deposit on the books
+12/03/2015  RCPT00000002  0       RA00000002  PMT00000002  1597      3,000.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _    Get the Security Deposit on the books
+12/04/2015  RCPT00000003  0       RA00000003  PMT00000003  237       3,300.00  ASM(3) c ${GLGENRCV} _, ASM(3) d ${GLCASH} _    Get the Security Deposit on the books
+01/02/2016  RCPT00000004  0       RA00000001  PMT00000001  1183      3,500.00  ASM(5) c ${GLGENRCV} _, ASM(5) d ${GLCASH} _                                         
+01/04/2016  RCPT00000005  0       RA00000002  PMT00000002  1631      3,550.00  ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _                                         
+01/31/2016  RCPT00000006  0       RA00000003  PMT00000003  258       4,400.00  ASM(9) c ${GLGENRCV} _, ASM(9) d ${GLCASH} _                                         
+02/01/2016  RCPT00000007  0       RA00000001  PMT00000001  1193      3,500.00  ASM(5) c ${GLGENRCV} _, ASM(5) d ${GLCASH} _                                         
+02/02/2016  RCPT00000008  0       RA00000002  PMT00000002  1652      3,550.00  ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _                                         
+03/01/2016  RCPT00000010  0       RA00000001  PMT00000001  2003      3,750.00  ASM(14) c ${GLGENRCV} _, ASM(14) d ${GLCASH} _                                       
+03/05/2016  RCPT00000011  0       RA00000002  PMT00000002  1924      3,550.00  ASM(6) c ${GLGENRCV} _, ASM(6) d ${GLCASH} _                                         
 

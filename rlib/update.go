@@ -232,7 +232,7 @@ func UpdateTransactant(a *Transactant) error {
 
 // UpdateVehicle updates a Vehicle record in the database
 func UpdateVehicle(a *Vehicle) error {
-	_, err := RRdb.Prepstmt.UpdateVehicle.Exec(a.TCID, a.BID, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.LastModBy, a.VID)
+	_, err := RRdb.Prepstmt.UpdateVehicle.Exec(a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.LastModBy, a.VID)
 	if nil != err {
 		Ulog("UpdateVehicle: error updating Vehicle:  %v\n", err)
 		Ulog("Vehicle = %#v\n", *a)

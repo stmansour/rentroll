@@ -1,6 +1,7 @@
 Test Name:    JM1
 Test Purpose: Setup and run JM1 company and the Rexford Properties
-Date/Time:    Wed Nov 16 15:33:45 CST 2016
+Date/Time:    Mon Nov 28 18:25:27 PST 2016
 
 Create new database...  successful
-Test completed: Wed Nov 16 15:33:54 CST 2016
+BEGIN JM1 FUNCTIONAL TEST
+Test completed: Mon Nov 28 18:25:37 PST 2016

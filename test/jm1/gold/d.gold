@@ -1,5 +1,5 @@
 DEPID        BID        AccountNo  Name           
 -----------  ---------  ---------  ---------------
-DEP00000001  B00000002  987654321  Wells Fargo    
-DEP00000002  B00000002  012345678  Bank Of America
+DEP00000001  B00000001  987654321  Wells Fargo    
+DEP00000002  B00000001  012345678  Bank Of America
 

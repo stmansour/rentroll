@@ -6,6 +6,7 @@ RRDATERANGE="-j 2016-01-01 -k 2016-02-01"
 
 source ../share/base.sh
 
+echo "BEGIN JM1 FUNCTIONAL TEST" >>${LOGFILE}
 #========================================================================================
 # INITIALIZE THE BUSINESS
 #   This section has the 1-time tasks to set up the business and get the accounts to
@@ -18,7 +19,7 @@ docsvtest "d" "-d depository.csv -L 18,${BUD}" "Depositories"
 docsvtest "e" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "f" "-l strlists.csv -L 25,${BUD}" "StringLists"
 docsvtest "g" "-p people.csv  -L 7,${BUD}" "People"
-docsvtest "ga" "-V vehicle.csv" "Vehicles"
+docsvtest "ga" "-V vehicle.csv -L 28,${BUD}" "Vehicles"
 docsvtest "h" "-r rentable.csv -L 6,${BUD}" "Rentables"
 docsvtest "i" "-u custom.csv -L 14" "CustomAttributes"
 docsvtest "j" "-U assigncustom.csv -L 15" "AssignCustomAttributes"

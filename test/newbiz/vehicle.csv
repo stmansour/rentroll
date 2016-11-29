@@ -1,14 +1,14 @@
-BUD,User, CarMake, CarModel, CarColor, CarYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber,DtStart,DtStop
-REX,816-123-4561,Ford,Taurus,tan,1980,MO,BR541,3001,,
-REX,816-123-4562,Ford,Escort,green,1981,MO,BR542,3002,1/1/15,
-REX,816-123-4563,Chrysler,LaBaron,dark blue,1982,MO,BR543,3003,,2/15/16
-REX,816-123-4564,Audi,80,,1983,MO,BR544,3004,,
-REX,816-123-4565,Buick,Regal,,1984,MO,BR545,3005,7/31/16,7/31/17
-REX,816-123-4566,Buick,Riviera,,1985,MO,BR546,3006,,
-REX,816-123-4567,Dodge,Diplomat,,1986,MO,BR547,3007,,
-REX,816-123-4568,,Canyonero,red,1987,MO,BR549,3008,,
-REX,816-123-4569,Ford,Canyonero,red,2002,MO,BR549,P0001,,
-REX,816-398-4561,,,,,,,,,
-REX,,,Canyonero,red,,MO,BR549,,,
-REX,,,Canyonero,red,,MO,BR549,,,
-REX,816-123-4561,,,,,,,,,
+BUD,User,VehicleType, VehicleMake, VehicleModel, VehicleColor, VehicleYear, LicensePlateState, LicensePlateNumber, ParkingPermitNumber,DtStart,DtStop
+REX,816-123-4561,CAR,Ford,Taurus,tan,1980,MO,BR541,3001,,
+REX,816-123-4562,CAR,Ford,Escort,green,1981,MO,BR542,3002,1/1/15,
+REX,816-123-4563,CAR,Chrysler,LaBaron,dark blue,1982,MO,BR543,3003,,2/15/16
+REX,816-123-4564,CAR,Audi,80,,1983,MO,BR544,3004,,
+REX,816-123-4565,CAR,Buick,Regal,,1984,MO,BR545,3005,7/31/16,7/31/17
+REX,816-123-4566,CAR,Buick,Riviera,,1985,MO,BR546,3006,,
+REX,816-123-4567,CAR,Dodge,Diplomat,,1986,MO,BR547,3007,,
+REX,816-123-4568,CAR,,Canyonero,red,1987,MO,BR549,3008,,
+REX,816-123-4569,SUV,Ford,Canyonero,red,2002,MO,BR549,P0001,,
+REX,816-398-4561,SUV,,,,,,,,,
+REX,,SUV,,Canyonero,red,,MO,BR549,,,
+REX,,SUV,,Canyonero,red,,MO,BR549,,,
+REX,816-123-4561,SUV,,,,,,,,,

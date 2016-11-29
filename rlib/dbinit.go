@@ -4,14 +4,14 @@ import "time"
 
 // DefaultAccts are the required accounts for all businesses
 var NewBizDefaultAccts = []GLAccount{
-	{Status: 2, Type: 10, Name: "Bank Account"},
-	{Status: 2, Type: 11, Name: "General Accounts Receivable"},
-	{Status: 2, Type: 12, Name: "Gross Scheduled Rent"},
-	{Status: 2, Type: 13, Name: "Loss to Lease"},
-	{Status: 2, Type: 14, Name: "Vacancy"},
+	{Status: 2, Type: GLCASH, Name: "Bank Account"},
+	{Status: 2, Type: GLGENRCV, Name: "General Accounts Receivable"},
+	{Status: 2, Type: GLGSRENT, Name: "Gross Scheduled Rent"},
+	{Status: 2, Type: GLLTL, Name: "Loss to Lease"},
+	{Status: 2, Type: GLVAC, Name: "Vacancy"},
 	{Status: 2, Type: 15, Name: "Security Deposit Receivable"},
-	{Status: 2, Type: 16, Name: "Security Deposit Assessment"},
-	{Status: 2, Type: 17, Name: "Owner Equity"},
+	{Status: 2, Type: GLSECDEP, Name: "Security Deposit Assessment"},
+	{Status: 2, Type: GLOWNREQUITY, Name: "Owner Equity"},
 }
 
 // NewBusinessInit should be called immediately after creating a new business in order to

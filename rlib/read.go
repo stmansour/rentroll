@@ -323,10 +323,10 @@ func ReadUsers(rows *sql.Rows, a *User) {
 
 // ReadVehicle reads a full Vehicle structure from the database based on the supplied row object
 func ReadVehicle(row *sql.Row, a *Vehicle) {
-	Errcheck(row.Scan(&a.VID, &a.TCID, &a.VID, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadVehicles reads a full Vehicle structure from the database based on the supplied rows object
 func ReadVehicles(rows *sql.Rows, a *Vehicle) {
-	Errcheck(rows.Scan(&a.VID, &a.TCID, &a.VID, &a.CarMake, &a.CarModel, &a.CarColor, &a.CarYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 }

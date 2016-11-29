@@ -695,7 +695,7 @@ func InsertUser(a *User) (int64, error) {
 // InsertVehicle writes a new Vehicle record to the database
 func InsertVehicle(a *Vehicle) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertVehicle.Exec(a.TCID, a.BID, a.CarMake, a.CarModel, a.CarColor, a.CarYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertVehicle.Exec(a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

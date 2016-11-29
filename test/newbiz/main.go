@@ -18,6 +18,7 @@ import (
 	"os"
 	"rentroll/rcsv"
 	"rentroll/rlib"
+	"rentroll/rrpt"
 	"strings"
 	"time"
 
@@ -83,7 +84,7 @@ func readCommandLineArgs() {
 	pDates := flag.String("g", "", "Date Range.  Example: 1/1/16,2/1/16")
 	pBUD := flag.String("G", "", "BUD - business unit designator")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName, 28-BUD")
 	slPtr := flag.String("l", "", "add StringLists via csv file")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	dmPtr := flag.String("m", "", "add DepositMethods via csv file")
@@ -435,6 +436,11 @@ func main() {
 			dt := time.Now()
 			bid := loaderGetBiz(sa[1])
 			fmt.Printf("%s\n", rcsv.RRreportRatePlanRefs(rlib.RPTTEXT, bid, &dt, &dt))
+		case 28:
+			bizErrCheck(sa)
+			bid := loaderGetBiz(sa[1])
+			tbl := rrpt.VehicleReport(bid)
+			fmt.Printf("%s\n", tbl.SprintTable(rlib.TABLEOUTTEXT))
 		default:
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 		}

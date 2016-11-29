@@ -135,14 +135,14 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	// rlib.Assessment Type
 	//-------------------------------------------------------------------
-	a.ATypeLID, _ = rlib.IntFromString(sa[2], "rlib.Assessment type is invalid")
+	a.ATypeLID, _ = rlib.IntFromString(sa[2], "value for Assessment type is invalid")
 	// asmt, ok := (*AsmtTypes)[a.ATypeLID]
 	rlib.InitBusinessFields(a.BID)
 	rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
 	rlib.RRdb.BizTypes[a.BID].GLAccounts = rlib.GetGLAccountMap(a.BID)
 	gla, ok := rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
 	if !ok {
-		rs = fmt.Sprintf("%s: line %d - rlib.Assessment type is invalid: %s\n", funcname, lineno, sa[2])
+		rs = fmt.Sprintf("%s: line %d - Assessment type is invalid: %s\n", funcname, lineno, sa[2])
 		return rs, CsvErrorSensitivity
 	}
 

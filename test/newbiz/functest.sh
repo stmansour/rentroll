@@ -22,7 +22,7 @@ mysqlverify "n"  "-p people.csv"       		"Transactants"	            	"select TCI
 mysqlverify "o"  ""				       		"Users"	                    	"select TCID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID from User;"
 mysqlverify "p"  ""				 	   		"Payors"	                    "select TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
 mysqlverify "q"  ""				       		"Prospects"	            		"select TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
-mysqlverify "na"  "-V vehicle.csv"       	"Vehicles"	            		"select VID,TCID,CarMake,CarModel,CarColor,CarYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"
+mysqlverify "na"  "-V vehicle.csv"       	"Vehicles"	            		"select VID,TCID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"
 mysqlverify "k"  "-r rentable.csv"     		"Rentables"	            		"select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
 mysqlverify "l"  " "                   		"RentableTypeRef"	    		"select RID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 mysqlverify "m"  " "                   		"RentableStatus"	            "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"

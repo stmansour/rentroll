@@ -17,9 +17,11 @@ Period:   02/01/16 - 02/29/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                    0.00
+Opening Balance                                                                                                               24,750.00
+Payment #1652 - Gross Scheduled Rent-Taxable             02/02/2016  J00000018          2   309 1/2 Rexford      3,550.00     28,300.00
+Payment #1193 - Gross Scheduled Rent-Taxable             02/01/2016  J00000017          1   309 Rexford          3,500.00     31,800.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          02/29/2016                                                                0.00
+Closing Balance                                          02/29/2016                                                           31,800.00
 
 
 LEDGER
@@ -42,8 +44,13 @@ Period:   02/01/16 - 02/29/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
+Assessment - Gross Scheduled Rent-Taxable                02/01/2016  J00000015          2   309 1/2 Rexford      3,550.00      3,550.00
+Assessment - Gross Scheduled Rent-Taxable                02/01/2016  J00000014          1   309 Rexford          3,500.00      7,050.00
+Assessment - Gross Scheduled Rent-Taxable                02/01/2016  J00000016          3   311 Rexford          1,062.07      8,112.07
+Payment #1193 - Gross Scheduled Rent-Taxable             02/01/2016  J00000017          1   309 Rexford         -3,500.00      4,612.07
+Payment #1652 - Gross Scheduled Rent-Taxable             02/02/2016  J00000018          2   309 1/2 Rexford     -3,550.00      1,062.07
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          02/29/2016                                                                0.00
+Closing Balance                                          02/29/2016                                                            1,062.07
 
 
 LEDGER
@@ -53,9 +60,9 @@ Period:   02/01/16 - 02/29/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                    0.00
+Opening Balance                                                                                                              -13,300.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          02/29/2016                                                                0.00
+Closing Balance                                          02/29/2016                                                          -13,300.00
 
 
 LEDGER
@@ -125,11 +132,14 @@ Period:   02/01/16 - 02/29/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               -2,500.00
-Unassociated                                             02/29/2016  J00000003          0   311 1/2 Rexford     -2,500.00     -5,000.00
-Unassociated                                             02/29/2016  J00000002          0   311 Rexford         -3,337.93     -8,337.93
+Opening Balance                                                                                                              -13,950.00
+Assessment - Gross Scheduled Rent-Taxable                02/01/2016  J00000016          3   311 Rexford         -1,062.07    -15,012.07
+Unassociated                                             02/29/2016  J00000020          0   311 1/2 Rexford     -2,500.00    -17,512.07
+Unassociated                                             02/29/2016  J00000019          0   311 Rexford         -3,337.93    -20,850.00
+Assessment - Gross Scheduled Rent-Taxable                02/01/2016  J00000014          1   309 Rexford         -3,500.00    -24,350.00
+Assessment - Gross Scheduled Rent-Taxable                02/01/2016  J00000015          2   309 1/2 Rexford     -3,550.00    -27,900.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          02/29/2016                                                           -8,337.93
+Closing Balance                                          02/29/2016                                                          -27,900.00
 
 
 LEDGER
@@ -188,8 +198,8 @@ Period:   02/01/16 - 02/29/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                2,500.00
-Unassociated                                             02/29/2016  J00000002          0   311 Rexford          3,337.93      5,837.93
-Unassociated                                             02/29/2016  J00000003          0   311 1/2 Rexford      2,500.00      8,337.93
+Unassociated                                             02/29/2016  J00000019          0   311 Rexford          3,337.93      5,837.93
+Unassociated                                             02/29/2016  J00000020          0   311 1/2 Rexford      2,500.00      8,337.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          02/29/2016                                                            8,337.93
 
