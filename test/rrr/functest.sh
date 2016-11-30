@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TESTNAME="RentRoll Report"
-TESTSUMMARY="Test the RentRoll Report"
+TESTNAME="RentRoll Report / Web Services"
+TESTSUMMARY="Test the RentRoll Report and Web Services"
 
 RRDATERANGE="-j 2016-07-01 -k 2016-08-01"
 
@@ -30,5 +30,12 @@ dorrtest "o" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
 dorrtest "q" "-r 12,11,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
 dorrtest "q1" "-r 12,9,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
 dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
+
+echo "STARTING RENTROLL SERVER"
+startRentRollServer
+dojsonPOST "http://localhost:8270/svc/GLAccounts" "w2uiGridReq" "s"  "WebService--ChartOfAccounts"
+stopRentRollServer
+echo "RENTROLL SERVER STOPPED"
 
 logcheck

@@ -3,7 +3,7 @@
 <head>
     <!-- <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" /> -->
     <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <!-- <script src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script> -->
     <script src="/js/w2ui-1.5.rc1.min.js"></script>
     <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script>
@@ -36,25 +36,31 @@ var config = {
                       '</div>' 
             },
             { type: 'break', id: 'break1' },
-            { type: 'menu',    id: 'moduleMenu', caption: 'RentRoll',    icon: 'fa fa-building', items: [
-                { text: 'Directory', icon: 'fa fa-user' }, 
-                { text: 'RentRoll', icon: 'fa fa-building-o' }, 
+            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
+                { text: 'Directory',          icon: 'fa fa-user' }, 
+                { text: 'RentRoll',           icon: 'fa fa-building-o' }, 
+                { text: 'Forms & Procedures', icon: 'fa fa-book' }, 
             ]},
-            { type: 'html', id: 'BUD',
-                html: '<select class="HR" name="CoCode">'+
-                    '<option value="1" >REX</option>'+
-                    '<option value="2" >401</option>'+
-                    '<option value="3" >CCC</option></select>'
-            },
+            // { type: 'html', id: 'BUD',
+            //     html: '<select class="HR" name="CoCode">'+
+            //         '<option value="1" >REX</option>'+
+            //         '<option value="2" >401</option>'+
+            //         '<option value="3" >CCC</option></select>'
+            // },
+            { type: 'menu',    id: 'budMenu', caption: 'Select Business Unit',    icon: 'fa fa-building', items: [
+                { text: 'REX', icon: 'fa fa-building-o' }, 
+                { text: 'CCC', icon: 'fa fa-building-o' }, 
+                { text: '401', icon: 'fa fa-building-o' }, 
+            ]},
             { type: 'break', id: 'break2' },
             { type: 'button',  id: 'goRentantables',  caption: 'Rentables',  icon: 'fa fa-cube', hint: 'Rentables' },
             { type: 'button',  id: 'goTransactants',  caption: 'Transactants',  icon: 'fa fa-users', hint: 'Transactants' },
-            { type: 'button',  id: 'goRentalAgreements',  caption: 'Rental<br>Agreements',  icon: 'fa fa-file-text-o', hint: 'Rental Agreements' },
+            { type: 'button',  id: 'goRentalAgreements',  caption: 'Rental<br>Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
             { type: 'button',  id: 'goAssessments',  caption: 'Assessments',  icon: 'fa fa-star-o', hint: 'Assessments' },
             { type: 'button',  id: 'goReceipts',  caption: 'Receipts',  icon: 'fa fa-star', hint: 'Receipts' },
-            { type: 'button',  id: 'goRatePlan',  caption: 'Rate Plan',  icon: 'fa fa-user', hint: 'RatePlan' },
+            { type: 'button',  id: 'goRatePlan',  caption: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
             { type: 'button',  id: 'goService',  caption: 'Service',  icon: 'fa fa-user', hint: 'Service' },
-            { type: 'button',  id: 'goReports',  caption: 'Reports',  icon: 'fa fa-user', hint: 'Reports' },
+            { type: 'button',  id: 'goReports',  caption: 'Reports',  icon: 'fa fa-file-text-o', hint: 'Reports' },
             { type: 'button',  id: 'goAdmin',  caption: 'Admin',  icon: 'fa fa-wrench', hint: 'Admin' },
             { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
                 { text: 'togSidebar', icon: 'fa fa-folder-o' }, 

@@ -30,6 +30,26 @@ type ServiceHandler struct {
 	Handler func(http.ResponseWriter, *http.Request, *ServiceData)
 }
 
+// W2uiGridRequest is a struct suitable for holding the json data
+// posted to a web service by the W2ui Grid.
+type W2uiGridRequest struct {
+	Cmd         string `json:"cmd"`
+	Limit       int    `json:"limit"`
+	Offset      int    `json:"offset"`
+	Selected    []int  `json:"selected"`
+	SearchLogic string `json:"searchLogic"`
+	Search      []struct {
+		Field    string `json:"field"`
+		Type     string `json:"type"`
+		Value    string `json:"value"`
+		Operator string `json:"operator"`
+	} `json:"search"`
+	Sort []struct {
+		Field     string `json:"field"`
+		Direction string `json:"direction"`
+	} `json:"sort"`
+}
+
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
 	{"transactants", SvcTransactants},
@@ -47,16 +67,16 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 
 // svcHandler is the main dispatch point for service requests
 func svcHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Entered svcHandler\n")
-	fmt.Printf("Request URI = %s\n", r.RequestURI)
-	fmt.Printf("Headers:\n")
-	for k, v := range r.Header {
-		fmt.Printf("%s: %s\n", k, v)
+	var t W2uiGridRequest
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&t)
+	if err != nil {
+		panic(err)
 	}
-	fmt.Printf("r.Form = %#v\n", r.Form)
-	fmt.Printf("cmd = %s\n", r.FormValue("cmd"))
-	fmt.Printf("limit = %s\n", r.FormValue("limit"))
-	fmt.Printf("offset = %s\n", r.FormValue("offset"))
+
+	fmt.Printf("Cmd    = %s\n", t.Cmd)
+	fmt.Printf("Limit  = %d\n", t.Limit)
+	fmt.Printf("Offset = %d\n", t.Offset)
 
 	path := "/svc/"                     // this is the part of the URL that got us into this handler
 	cmdinfo := r.RequestURI[len(path):] // this pulls off the specific request

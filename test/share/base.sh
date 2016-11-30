@@ -22,6 +22,10 @@ TESTCOUNT=0			## this is an internal counter, your external script should not to
 TREPORT="../testreport.txt"
 SCRIPTPATH=$(pwd -P)
 
+if [ "x${RRPORT}" = "x" ]; then
+	RRPORT="8270"
+fi
+
 RRBIN="../../tmp/rentroll"
 RENTROLL="${RRBIN}/rentroll -A"
 CSVLOAD="${RRBIN}/rrloadcsv"
@@ -417,6 +421,88 @@ logcheck() {
 		echo "FINISHED...  but did not check output"
 	fi
 	elapsedtime
+}
+
+#########################################################
+# startRentRollServer()
+#	Kills any currently running instances of the server
+#   then starts it up again.  The port is set to the
+#   default port of 8270.  If you set RRPORT prior 
+#   to including base.sh to override the port number
+#########################################################
+startRentRollServer () {
+	stopRentRollServer
+	${RRBIN}/rentroll -p ${RRPORT} > ${RRBIN}/rrlog 2>&1 &
+	sleep 1
+}
+
+#########################################################
+# stopRentRollServer()
+#	Kills any currently running instances of the server
+#########################################################
+stopRentRollServer () {
+	killall rentroll > /dev/null 2>&1
+	sleep 1
+}
+
+########################################
+# dojsonPOST()
+#   Simulate a POST command to the server and use
+#   the supplied file name as the json data
+#	Parameters:
+# 		$1 = url
+#       $2 = json file
+# 		$3 = base file name
+#		$4 = title
+########################################
+dojsonPOST () {
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $3 $4
+	CMD="curl -s -X POST ${1} -H \"Content-Type: application/json\" -d @${2}"
+	${CMD} | python -m json.tool >${3} 2>>${LOGFILE}
+
+	if [ "${FORCEGOOD}" = "1" ]; then
+		cp ${3} ${GOLD}/${3}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f ${GOLD}/${3}.gold ]; then
+			echo "UNSET CONTENT" > ${GOLD}/${3}.gold
+			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
+		fi
+
+		#--------------------------------------------------------------------
+		# The actual data has timestamp information that changes every run.
+		# The timestamp can be filtered out for purposes of testing whether
+		# or not the web service could be called and can return the expected
+		# data.
+		#--------------------------------------------------------------------
+		declare -a out_filters=(
+			's/(^[ \t]+"LastModTime":).*/$1 TIMESTAMP/'
+		)
+		cp gold/${3}.gold qqx
+		cp ${3} qqy
+		for f in "${out_filters[@]}"
+		do
+			perl -pe "$f" qqx > qqx1; mv qqx1 qqx
+			perl -pe "$f" qqy > qqy1; mv qqy1 qqy
+		done
+
+		UDIFFS=$(diff qqx qqy | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			echo "PASSED"
+		else
+			echo "FAILED...   if correct:  mv ${3} ${GOLD}/${3}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
+			echo "Differences in ${3} are as follows:" >> ${ERRFILE}
+			diff qqx qqy >> ${ERRFILE}
+			cat ${ERRFILE}
+			failmsg
+			exit 1
+		fi
+	else
+		echo 
+	fi
+	rm -f qqx qqy
 }
 
 #--------------------------------------------------------------------------
