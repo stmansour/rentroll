@@ -10,6 +10,4 @@ test:
 	@echo "*** TEST completed in ccc ***"
 
 package:
-	cp *.csv ../../tmp/rentroll/example/csv/
-	cp *.html ../../tmp/rentroll/example/csv/
 	@echo "*** PACKAGE completed in ccc ***"

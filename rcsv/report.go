@@ -109,11 +109,13 @@ func RRreportChartOfAccounts(f int, bid int64) string {
 	for k := range rlib.RRdb.BizTypes[bid].GLAccounts { // First make an array of all the LIDs
 		a = append(a, k)
 	}
-	// now sort based on GLNumber...
+	// now sort based on GLNumber, then by LID...
 	m := rlib.RRdb.BizTypes[bid].GLAccounts // for notational convenience
 	for i := 0; i < len(a); i++ {
 		for j := i + 1; j < len(a); j++ {
-			if m[a[i]].GLNumber > m[a[j]].GLNumber {
+			isGreater := m[a[i]].GLNumber > m[a[j]].GLNumber
+			isEqual := m[a[i]].GLNumber == m[a[j]].GLNumber
+			if isGreater || (isEqual && m[a[i]].LID > m[a[j]].LID) {
 				a[i], a[j] = a[j], a[i]
 			}
 		}

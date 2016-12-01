@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="/js/w2ui-1.5.rc1.js"></script>
+    <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script>
+</head>
+<body>
+
+<!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
+
+<script>
+var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
+var pstyle2 = 'border: 1px solid #ffffcc; padding: 0px;';
+var config = {
+    mainlayout: {
+        name: 'mainlayout',
+        padding: 1,
+        panels: [
+            { type: 'top', size: 60, resizable: true, style: pstyle, content: 'top' },
+            { type: 'left', size: 200, style: pstyle, content: 'left' },
+            { type: 'main', style: pstyle, content: 'main' },
+			{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
+			{ type: 'right', size: 200, resizable: true, style: pstyle, hidden: true, content: 'right' },
+            { type: 'bottom', size: 20, resizable: true, style: pstyle, content: '&copy; 2015-2016 Accord Interests' }
+        ]
+    },
+    toplayout: {
+        name: 'toplayout',
+        padding: 1,
+        panels: [
+            { type: 'top', size: 60, style: pstyle2},
+            { type: 'left', size: 200, style: pstyle2, hidden: true },
+            { type: 'main',  size: 100, style: pstyle2, hidden: true, content: 'toplayout - main' },
+            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle2, content: 'preview' },
+            { type: 'right', size: 200, resizable: true, style: pstyle2, hidden: true },
+            { type: 'bottom', size: 20, resizable: true, style: pstyle2, hidden: true, content: 'toplayout - bottom' }
+        ]
+    },
+    toptoolbar: {
+        name: 'toptoolbar',
+        items: [
+             { type: 'html',  id: 'logo',
+                html: '<div style="padding: 4px 0px;">'+
+                      '<img src="/html/images/logo.png">'+
+                      '</div>' 
+            },
+            { type: 'break', id: 'break1' },
+            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
+                { text: 'Directory',          icon: 'fa fa-user' }, 
+                { text: 'RentRoll',           icon: 'fa fa-building-o' }, 
+                { text: 'Forms & Procedures', icon: 'fa fa-book' }, 
+            ]},
+            // { type: 'html', id: 'BUD',
+            //     html: '<select class="HR" name="CoCode">'+
+            //         '<option value="1" >REX</option>'+
+            //         '<option value="2" >401</option>'+
+            //         '<option value="3" >CCC</option></select>'
+            // },
+            { type: 'menu',    id: 'budMenu', caption: 'Select Business Unit',    icon: 'fa fa-building', items: [
+                { text: 'REX', icon: 'fa fa-building-o' }, 
+                { text: 'CCC', icon: 'fa fa-building-o' }, 
+                { text: '401', icon: 'fa fa-building-o' }, 
+            ]},
+            { type: 'break', id: 'break2' },
+            { type: 'button',  id: 'goRentantables',  caption: 'Rentables',  icon: 'fa fa-cube', hint: 'Rentables' },
+            { type: 'button',  id: 'goTransactants',  caption: 'Transactants',  icon: 'fa fa-users', hint: 'Transactants' },
+            { type: 'button',  id: 'goRentalAgreements',  caption: 'Rental<br>Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
+            { type: 'button',  id: 'goAssessments',  caption: 'Assessments',  icon: 'fa fa-star-o', hint: 'Assessments' },
+            { type: 'button',  id: 'goReceipts',  caption: 'Receipts',  icon: 'fa fa-star', hint: 'Receipts' },
+            { type: 'button',  id: 'goRatePlan',  caption: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
+            { type: 'menu',    id: 'goServiceMenu',  caption: 'Service',  icon: 'fa fa-user', hint: 'Service', items: [
+                { text: 'GLAccounts', icon: 'fa fa-folder-o' }, 
+                { text: 'Transactants', icon: 'fa fa-folder-o' }, 
+            ]},
+            { type: 'button',  id: 'goReports',  caption: 'Reports',  icon: 'fa fa-file-text-o', hint: 'Reports' },
+            { type: 'button',  id: 'goAdmin',  caption: 'Admin',  icon: 'fa fa-wrench', hint: 'Admin' },
+            { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
+                { text: 'mainLayoutSidebar', icon: 'fa fa-folder-o' }, 
+                { text: 'mainLayoutMain', icon: 'fa fa-folder-open-o' }, 
+                { text: 'mainLayoutPreview', icon: 'fa fa-folder-open' },
+                { text: 'mainLayoutRight', icon: 'fa fa-folder-open' },
+                { text: 'mainLayoutFooter', icon: 'fa fa-folder-open' },
+                { text: 'topLayoutmain', icon: 'fa fa-folder-open' },
+            ]},
+        ],
+        onClick: function (event) {
+            var s;
+            var found = false;
+            var x;
+            switch(event.target) {
+                case "moduleMenu:Directory": window.location.href = 'https://directory.airoller.com/'; break;
+                case "moduleMenu:RentRoll": window.location.href = 'https://rentroll.airoller.com/'; break;
+                case "menuButton:mainLayoutSidebar": s = 'left';    x = w2ui['mainlayout']; found=true; break;
+                case "menuButton:mainLayoutMain":    s = 'main';    x = w2ui['mainlayout']; found=true; break;
+                case "menuButton:mainLayoutPreview": s = 'preview'; x = w2ui['mainlayout']; found=true; break;
+                case "menuButton:mainLayoutRight":   s = 'right';   x = w2ui['mainlayout']; found=true; break;
+                case "menuButton:mainLayoutFooter":  s = 'bottom';  x = w2ui['mainlayout']; found=true; break;
+                case "menuButton:mainLayoutMain":    s = 'main';    x = w2ui['mainlayout']; found=true; break;
+                case "menuButton:topLayoutMain":
+                    w2ui['toplayout'].toggle('main',true);
+                    break;
+                case "goServiceMenu:GLAccounts":
+                    console.log('set the mainLayout-main window to the accounts grid')
+                    w2ui['mainlayout'].content('main', w2ui['accountsGrid']);
+                    break;
+                case "goServiceMenu:Transactants":
+                    console.log('set the mainLayout-main window to the Transactant grid')
+                    w2ui['mainlayout'].content('main', w2ui['transactantGrid']);
+                    break;
+            }
+            if (found) {
+                x.toggle(s,true);
+            }
+        },
+     },
+}
+
+var accountsGrid = {
+    name: 'accountsGrid',
+    url: 'https://localhost:8271/gsvc/GLAccounts',
+    show: {
+        header: false,
+        toolbar: true,
+        footer: true,
+        searches: true,
+        lineNumbers: false,
+        selectColumn: false,
+        expandColumn: false
+    },        
+    columns: [
+        {field: 'recid',    caption: 'recid', size: '40px', sortable: true},
+        {field: 'LID',      caption: 'LID', size: '50px', sortable: true},
+        {field: 'PLID',     caption: 'PLID', size: '50px', sortable: true},
+        {field: 'BID',      caption: 'BID', size: '40px', sortable: true},
+        {field: 'GLNumber', caption: 'GL Number', size: '85px', sortable: true},
+        {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
+        {field: 'Status',   caption: 'Status', size: '50px', sortable: true},
+        {field: 'AcctType', caption: 'AcctType', size: '140px', sortable: true},
+    ],
+    onSelect:  function(event) {
+        console.log(event);
+        console.log('**** SELECT EVENT CAUGHT *****')
+    },
+    onClick: function(event) {
+        event.onComplete = function () {
+            // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
+            //   console.log(val + ' -> ' + this[val]);
+            // });   
+            var sel = this.getSelection(true);
+            console.log('Current selection is ' + sel );
+        }
+    }
+}
+
+var transactantGrid = { 
+    name: 'transactantGrid', 
+    url: 'https://localhost:8271/gsvc/transactants',
+    show: {
+        header: false,
+        toolbar: true,
+        footer: true,
+        lineNumbers: false,
+        selectColumn: false,
+        expandColumn: false
+    },        
+    columns: [
+        {field: 'FirstName',    caption: "First Name",    size: '10%', sortable: true, hidden: false},
+        {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: false},
+        {field: 'LastName',     caption: "Last Name",     size: '10%', sortable: true, hidden: false},
+        {field: 'PrimaryEmail', caption: "Primary Email", size: '10%', sortable: true, hidden: false},
+        {field: 'WorkPhone',    caption: "Work Phone",    size: '10%', sortable: true, hidden: false},
+        {field: 'CellPhone',    caption: "Cell Phone",    size: '10%', sortable: true, hidden: false},
+        {field: 'Address',      caption: "Address",       size: '10%', sortable: true, hidden: false},
+        {field: 'Address2',     caption: "Address2",      size: '10%', sortable: true, hidden: false},
+        {field: 'City',         caption: "City",          size: '10%', sortable: true, hidden: false},
+        {field: 'PostalCode',   caption: "PostalCode",    size: '10%', sortable: true, hidden: false},
+        {field: 'State',        caption: "State",         size: '10%', sortable: true, hidden: false},
+    ],
+    onClick: function(event) {
+        console.log('**** CAUGHT EVENT: ' + event)
+        console.log('     event.type = ' + event.type)
+            var sel = this.getSelection(true);
+            console.log('Current selection is ' + sel );
+        // event.onComplete = function () {
+        //     // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
+        //     //   console.log(val + ' -> ' + this[val]);
+        //     // });   
+        //     console.log('*** onComplete handler ***')
+        //     var sel = this.getSelection(true);
+        //     console.log('Current selection is ' + sel );
+        //     var index, j;
+        //     var l = sel.length;
+        //     if (l > 0) {
+        //         for (index = 0; index < sel.length; ++index) {
+        //             j = sel[index];
+        //             console.log('sel[index] is ' + sel[index] + ' j = ' + j)
+        //             var f = w2ui['transPreviewForm'];
+        //             w2ui['layout'].show('preview',true);
+        //             w2ui['previewLayout'].content('main', f);
+        //             ob = this.get(j)
+        //             f.record['FirstName'] = ob.FirstName;
+        //             f.record['LastName'] = ob.LastName;
+        //             f.record['PrimaryEmail'] = ob.PrimaryEmail;
+        //             }
+        //     } else {
+        //         console.log('*** NO SELECTION FOUND ***   So, select index 0')
+        //         this.select(1)
+        //     }
+        // }
+    }
+}
+
+$(function () {
+    $('#layout').w2layout(config.mainlayout);
+    w2ui.mainlayout.content('top', $().w2layout(config.toplayout));
+    w2ui.toplayout.content('top', $().w2toolbar(config.toptoolbar));
+    $().w2grid(accountsGrid);
+    $().w2grid(transactantGrid);
+
+});
+</script>
+
+<div id="layout"style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+
+</body>
+</html>

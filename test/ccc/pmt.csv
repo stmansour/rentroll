@@ -1,0 +1,7 @@
+BUD,Name,Description
+CCC,Cash,Cash
+CCC,Check,Personal check from payor
+CCC,VISA,Credit card charge
+CCC,AMEX,American Express credit card
+CCC,ACH,Bank Automated Clearing House 
+CCC,Wire,Bank Wire Transfer

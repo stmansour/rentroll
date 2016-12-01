@@ -3,10 +3,12 @@ mdb
 buildno
 tmp
 bkup
-html/.DS_Store
-html/help/.DS_Store
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
 html/help/SettingUpANewBusinessWithCSVImport/images/
 html/help/Glossary/.DS_Store
 html/help/Glossary/resources/
 html/images
 js
+localhost.*

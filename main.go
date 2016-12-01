@@ -138,8 +138,9 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 func initHTTP() {
 	Chttp.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", HomeHandler)
+	http.HandleFunc("/home/", HomeUIHandler)
 	http.HandleFunc("/dispatch/", dispatchHandler)
-	http.HandleFunc("/svc/", svcHandler)
+	http.HandleFunc("/gsvc/", gridServicHandler)
 }
 
 func main() {

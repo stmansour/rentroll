@@ -1,0 +1,13 @@
+                                                                               Manage                                  
+                                                   Rent      Proration         To                                      
+RTID        Style       Name                       Cycle     Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
+----------  ----------  -------------------------  --------  ---------  -----  ------  --------------------------------
+RT00000001  Unit A      Condo A                    monthly   daily      daily  Yes     |    1/1/16 - 12/31/16 $  660.31
+RT00000002  Unit B      Condo B                    monthly   daily      daily  Yes     |    1/1/16 - 12/31/16 $ 3932.99
+RT00000003  Unit C      Condo C                    monthly   daily      daily  Yes     |    1/1/16 - 12/31/16 $ 1533.57
+RT00000004  Unit D      Condo D                    monthly   daily      daily  Yes     |    1/1/16 - 12/31/16 $ 2818.62
+RT00000005  Unit E      Condo E                    monthly   daily      daily  Yes     |    1/1/16 - 12/31/16 $ 6857.01
+RT00000006  Roof        Rooftop Lease              quarterl  daily      daily  Yes     |    1/1/16 - 12/31/16 $20766.25
+RT00000007  Parcel B    Parcel B                   monthly   daily      daily  Yes     |    1/1/16 - 12/31/16 $ 1023.71
+RT00000008  Roof Maint  Roof Maintenance Agreemen  monthly   daily      daily  Yes     |    3/1/16 - 12/31/16 $ 1500.00
+

@@ -1,4 +1,4 @@
-DIRS = rrbkup rrnewdb rrrestore
+DIRS = rrbkup rrnewdb rrrestore rrloadcsv
 
 admin:
 	for dir in $(DIRS); do make -C $$dir; done
