@@ -72,7 +72,7 @@ makeProdNode() {
 #  use setup...
 #--------------------------------------------------------------
 setupAppNode() {
-	# nothing to do at this time.  Phonebook (Directory) installs everything we need.
+	rm -rf ${DATABASENAME}db*
 	${GETFILE} accord/db/${DATABASENAME}db.sql.gz
 	gunzip ${DATABASENAME}db.sql
 	echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
@@ -236,6 +236,9 @@ for arg do
 		;;
 	"makeprod")
 		makeProdNode
+		;;
+	"updatedb")
+		setupAppNode
 		;;
 	*)
 		echo "Unrecognized command: $arg"

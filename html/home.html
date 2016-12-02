@@ -12,30 +12,44 @@
 
 <script>
 var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
-var pstyle2 = 'border: 1px solid #ffffcc; padding: 0px;';
+var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
+var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 8pt; background-color: white;';
+var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777'
 var config = {
     mainlayout: {
         name: 'mainlayout',
-        padding: 1,
+        padding: 0,
         panels: [
-            { type: 'top', size: 60, resizable: true, style: pstyle, content: 'top' },
-            { type: 'left', size: 200, style: pstyle, content: 'left' },
+            { type: 'top', size: 55, style: pstyle, content: 'top' },
+            { type: 'left', size: 200, hidden: true, style: pstyle, content: 'left' },
             { type: 'main', style: pstyle, content: 'main' },
 			{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-			{ type: 'right', size: 200, resizable: true, style: pstyle, hidden: true, content: 'right' },
-            { type: 'bottom', size: 20, resizable: true, style: pstyle, content: '&copy; 2015-2016 Accord Interests' }
+			{ type: 'right', size: 200, resizable: true, style: pstyle, hidden: true, content: 'Details' },
+            { type: 'bottom', size: 23, resizable: true, style: stdfmt, content: '&copy; 2015-2016 Accord Interests' }
         ]
     },
     toplayout: {
         name: 'toplayout',
         padding: 1,
         panels: [
-            { type: 'top', size: 60, style: pstyle2},
-            { type: 'left', size: 200, style: pstyle2, hidden: true },
-            { type: 'main',  size: 100, style: pstyle2, hidden: true, content: 'toplayout - main' },
+            { type: 'top', hidden: true, size: 60, resizable: true, style: pstyle2, content: '<p align="center">**** Accord NEWS FLASH ****</p>'},
+            { type: 'left', size: 200, style: pstyle2, content: 'sidebar' },
+            { type: 'main',  size: 100, style: pstyle2, content: 'toplayout - main' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle2, content: 'preview' },
-            { type: 'right', size: 200, resizable: true, style: pstyle2, hidden: true },
+            { type: 'right', size: 200, resizable: true, style: pstyle2, content: 'detail' },
             { type: 'bottom', size: 20, resizable: true, style: pstyle2, hidden: true, content: 'toplayout - bottom' }
+        ]
+    },
+    reportslayout: {
+        name: 'reportslayout',
+        padding: 1,
+        panels: [
+            { type: 'top',size: 40, style: pstyle2, content: 'reports toolbar'},
+            { type: 'left', size: 200, hidden: true, content: 'sidebar' },
+            { type: 'main',  size: 100, style: prefmt, content: 'reports main window' },
+            { type: 'preview', size: '50%', resizable: true, hidden: true, content: 'reports preview' },
+            { type: 'right', size: 200, resizable: true, hidden: true, content: 'reports - detail' },
+            { type: 'bottom', size: 20, resizable: true, hidden: true, content: 'reports - bottom' }
         ]
     },
     toptoolbar: {
@@ -70,19 +84,42 @@ var config = {
             { type: 'button',  id: 'goAssessments',  caption: 'Assessments',  icon: 'fa fa-star-o', hint: 'Assessments' },
             { type: 'button',  id: 'goReceipts',  caption: 'Receipts',  icon: 'fa fa-star', hint: 'Receipts' },
             { type: 'button',  id: 'goRatePlan',  caption: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
-            { type: 'menu',    id: 'goServiceMenu',  caption: 'Service',  icon: 'fa fa-user', hint: 'Service', items: [
+            { type: 'menu',    id: 'goServiceMenu',  caption: 'Service',  icon: 'fa fa-user', hint: 'GLAccounts, Transactants', items: [
                 { text: 'GLAccounts', icon: 'fa fa-folder-o' }, 
                 { text: 'Transactants', icon: 'fa fa-folder-o' }, 
             ]},
-            { type: 'button',  id: 'goReports',  caption: 'Reports',  icon: 'fa fa-file-text-o', hint: 'Reports' },
+            { type: 'menu',  id: 'goReports',  caption: 'Reports',  icon: 'fa fa-file-text-o', hint: 'Reports', items: [
+                { text: 'Assessments', icon: 'fa fa-file-text-o' },
+                { text: 'Business Units', icon: 'fa fa-file-text-o' },
+                { text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
+                { text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
+                { text: 'Depositories', icon: 'fa fa-file-text-o' },
+                { text: 'Delinquency', icon: 'fa fa-file-text-o' },
+                { text: 'GSR', icon: 'fa fa-file-text-o' },
+                { text: 'Journal', icon: 'fa fa-file-text-o' },
+                { text: 'Ledger', icon: 'fa fa-file-text-o' },
+                { text: 'Ledger Activity', icon: 'fa fa-file-text-o' },
+                { text: 'People', icon: 'fa fa-file-text-o' },
+                { text: 'Payment Types', icon: 'fa fa-file-text-o' },
+                { text: 'Receipts', icon: 'fa fa-file-text-o' },
+                { text: 'Count By Rentable Type', icon: 'fa fa-file-text-o' },
+                { text: 'Rentables', icon: 'fa fa-file-text-o' },
+                { text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
+                { text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
+                { text: 'Rentable Types', icon: 'fa fa-file-text-o' },
+                { text: 'RentRolls', icon: 'fa fa-file-text-o' },
+                { text: 'Statements', icon: 'fa fa-file-text-o' },
+                { text: 'String Lists', icon: 'fa fa-file-text-o' },
+                { text: 'Trial Balance', icon: 'fa fa-file-text-o' },            ]},
             { type: 'button',  id: 'goAdmin',  caption: 'Admin',  icon: 'fa fa-wrench', hint: 'Admin' },
             { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
-                { text: 'mainLayoutSidebar', icon: 'fa fa-folder-o' }, 
+                { text: 'Messages', icon: 'fa fa-folder-o' }, 
+                { text: 'Sidebar', icon: 'fa fa-folder-o' }, 
                 { text: 'mainLayoutMain', icon: 'fa fa-folder-open-o' }, 
-                { text: 'mainLayoutPreview', icon: 'fa fa-folder-open' },
-                { text: 'mainLayoutRight', icon: 'fa fa-folder-open' },
-                { text: 'mainLayoutFooter', icon: 'fa fa-folder-open' },
-                { text: 'topLayoutmain', icon: 'fa fa-folder-open' },
+                { text: 'topLayoutmain',  icon: 'fa fa-folder-open' },
+                { text: 'Preview', icon: 'fa fa-folder-open' },
+                { text: 'Details', icon: 'fa fa-folder-open' },
+                { text: 'Footer', icon: 'fa fa-folder-open' },
             ]},
         ],
         onClick: function (event) {
@@ -90,31 +127,57 @@ var config = {
             var found = false;
             var x;
             switch(event.target) {
-                case "moduleMenu:Directory": window.location.href = 'https://directory.airoller.com/'; break;
-                case "moduleMenu:RentRoll": window.location.href = 'https://rentroll.airoller.com/'; break;
-                case "menuButton:mainLayoutSidebar": s = 'left';    x = w2ui['mainlayout']; found=true; break;
-                case "menuButton:mainLayoutMain":    s = 'main';    x = w2ui['mainlayout']; found=true; break;
-                case "menuButton:mainLayoutPreview": s = 'preview'; x = w2ui['mainlayout']; found=true; break;
-                case "menuButton:mainLayoutRight":   s = 'right';   x = w2ui['mainlayout']; found=true; break;
-                case "menuButton:mainLayoutFooter":  s = 'bottom';  x = w2ui['mainlayout']; found=true; break;
-                case "menuButton:mainLayoutMain":    s = 'main';    x = w2ui['mainlayout']; found=true; break;
-                case "menuButton:topLayoutMain":
-                    w2ui['toplayout'].toggle('main',true);
-                    break;
+                case "moduleMenu:Directory":      window.location.href = 'https://directory.airoller.com/'; break;
+                case "moduleMenu:RentRoll":       window.location.href = 'https://rentroll.airoller.com/';  break;
+                case "menuButton:Messages":       w2ui['toplayout'].toggle('top',true);                     break;
+                case "menuButton:Sidebar":        w2ui['toplayout'].toggle('left',true);                    break;
+                case "menuButton:mainLayoutMain": w2ui['mainlayout'].toggle('main',true);                   break;
+                case "menuButton:Preview":        w2ui['toplayout'].toggle('preview',true);                 break;
+                case "menuButton:Details":        w2ui['toplayout'].toggle('right',true);                   break;
+                case "menuButton:Footer":         w2ui['mainlayout'].toggle('bottom',true);                 break;
+                case "menuButton:topLayoutMain":  w2ui['toplayout'].toggle('main',true);                    break;
                 case "goServiceMenu:GLAccounts":
-                    console.log('set the mainLayout-main window to the accounts grid')
-                    w2ui['mainlayout'].content('main', w2ui['accountsGrid']);
+                    w2ui['toplayout'].content('main', w2ui['accountsGrid']);
                     break;
                 case "goServiceMenu:Transactants":
-                    console.log('set the mainLayout-main window to the Transactant grid')
-                    w2ui['mainlayout'].content('main', w2ui['transactantGrid']);
+                    w2ui['toplayout'].content('main', w2ui['transactantGrid']);
                     break;
-            }
+                case "goReports:Assessments":
+                    w2ui['toplayout'].content('main', w2ui['reportslayout']);
+                    w2ui['reportslayout'].load('main', '/');
+                    break;
+           }
             if (found) {
                 x.toggle(s,true);
             }
         },
-     },
+    },
+    reportstoolbar: {
+        name: 'reportstoolbar',
+        items: [
+            { type: 'button',  id: 'monthback', icon: 'fa fa-angle-double-left' },
+            { type: 'button',  id: 'dayback', icon: 'fa fa-angle-left' },
+            { type: 'html',    id: 'reportsD1', html: function (item) {
+                    var html =
+                      '<div style="padding: 3px 10px;">'+
+                      ' Start: <input type="date" name="dateD1">'+
+                      '</div>';
+                    return html;
+                }
+            },
+            { type: 'html',    id: 'reportsD2', html: function (item) {
+                    var html =
+                      '<div style="padding: 3px 10px;">'+
+                      ' Stop: <input type="date" name="dateD2">'+
+                      '</div>';
+                    return html;
+                }
+            },
+            { type: 'button',  id: 'monthfwd', icon: 'fa fa-angle-right' },
+            { type: 'button',  id: 'dayfwd', icon: 'fa fa-angle-double-right' },
+        ]
+    }
+ 
 }
 
 var accountsGrid = {
@@ -214,8 +277,10 @@ var transactantGrid = {
 
 $(function () {
     $('#layout').w2layout(config.mainlayout);
-    w2ui.mainlayout.content('top', $().w2layout(config.toplayout));
-    w2ui.toplayout.content('top', $().w2toolbar(config.toptoolbar));
+    w2ui.mainlayout.content('main', $().w2layout(config.toplayout));
+    w2ui.mainlayout.content('top', $().w2toolbar(config.toptoolbar));
+    $().w2layout(config.reportslayout);
+    w2ui.reportslayout.content('top', $().w2toolbar(config.reportstoolbar));
     $().w2grid(accountsGrid);
     $().w2grid(transactantGrid);
 

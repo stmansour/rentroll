@@ -13,3 +13,6 @@ package:
 	cp *.csv ../../tmp/rentroll/example/csv/
 	cp *.html ../../tmp/rentroll/example/csv/
 	@echo "*** PACKAGE completed in jm1 ***"
+
+pubsandboxdb:
+	mysqldump --no-defaults rentroll >rentrolldb.sql ; gzip rentrolldb.sql ; /usr/local/accord/bin/deployfile.sh rentrolldb.sql.gz accord/db

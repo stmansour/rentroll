@@ -66,13 +66,13 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 	w.Write(b)
 }
 
-// gridServicHandler is the main dispatch point for w2ui grid service requests
+// gridServiceHandler is the main dispatch point for w2ui grid service requests
 // The expected input is of the form:
 //		request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D
 // This is exactly what the w2ui grid sends as a request.
-func gridServicHandler(w http.ResponseWriter, r *http.Request) {
+func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Printf("Entered gridServicHandler\n")
+	fmt.Printf("Entered gridServiceHandler\n")
 
 	funcname := "gridServiceHandler"
 	var d ServiceData
@@ -123,7 +123,7 @@ func gridServicHandler(w http.ResponseWriter, r *http.Request) {
 	path := "/gsvc/"                    // this is the part of the URL that got us into this handler
 	cmdinfo := r.RequestURI[len(path):] // this pulls off the specific request
 
-	fmt.Printf("gridServicHandler requested for \"%s\"\n", cmdinfo)
+	fmt.Printf("gridServiceHandler requested for \"%s\"\n", cmdinfo)
 
 	d.BID = int64(1) // temporary hack, TODO: generalize -- add to url
 
@@ -290,6 +290,9 @@ func SvcGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
+	bjson := string(b)
+	fmt.Printf("first 50 chars of response: %50.50s\n", bjson)
 	// fmt.Printf("Response Data:  %s\n", string(b))
 	w.Write(b)
 }
@@ -347,6 +350,10 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
+	bjson := string(b)
+	fmt.Printf("first 50 chars of response: %50.50s\n", bjson)
 	// fmt.Printf("Response Data:  %s\n", string(b))
+
 	w.Write(b)
 }
