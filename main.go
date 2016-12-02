@@ -141,7 +141,7 @@ func initHTTP() {
 	http.HandleFunc("/home/", HomeUIHandler)
 	http.HandleFunc("/dispatch/", dispatchHandler)
 	http.HandleFunc("/gsvc/", gridServiceHandler)
-	// http.HandleFunc("/wsvc/", webServiceHandler)
+	http.HandleFunc("/wsvc/", webServiceHandler)
 }
 
 func main() {

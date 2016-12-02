@@ -142,11 +142,31 @@ var config = {
                 case "goServiceMenu:Transactants":
                     w2ui['toplayout'].content('main', w2ui['transactantGrid']);
                     break;
-                case "goReports:Assessments":
-                    w2ui['toplayout'].content('main', w2ui['reportslayout']);
-                    w2ui['reportslayout'].load('main', '/');
-                    break;
-           }
+                case "goReports:Assessments":                showReport("Assessments"); break;
+                case "goReports:Business Units":             showReport("Business"); break;
+                case "goReports:Assessments":                showReport("Assessments"); break;
+                case "goReports:Chart Of Accounts":          showReport("Chart Of Accounts"); break;
+                case "goReports:Custom Attributes":          showReport("Custom Attributes"); break;
+                case "goReports:Custom Attribute Refs":      showReport("Custom Attribute Refs"); break;
+                case "goReports:Deposit Methods":            showReport("Deposit Methods"); break;
+                case "goReports:Depositories":               showReport("Depositories"); break;
+                //case "goReports:Delinquency":                showReport("Delinquency"); break;
+                //case "goReports:GSR":                        showReport("GSR"); break;
+                // case "goReports:Journal":                    showReport("Journal"); break;
+                // case "goReports:Ledger":                     showReport("Ledger"); break;
+                // case "goReports:Ledger Activity":            showReport("Ledger Activity"); break;
+                case "goReports:People":                     showReport("People"); break;
+                case "goReports:Payment Types":              showReport("Payment Types"); break;
+                case "goReports:Receipts":                   showReport("Receipts"); break;
+                case "goReports:Rentable Count By Type":     showReport("Rentable Count By Type"); break;
+                case "goReports:Rentables":                  showReport("Rentables"); break;
+                case "goReports:Rental Agreements":          showReport("Rental Agreements"); break;
+                case "goReports:Rental Agreement Templates": showReport("Rental Agreement Templates"); break;
+                case "goReports:Rentable Types":             showReport("Rentable Types"); break;
+                case "goReports:RentRolls":                  showReport("RentRolls"); break;
+                case "goReports:Statements":                 showReport("Statements"); break;
+                case "goReports:String Lists":               showReport("String Lists"); break;
+                case "goReports:Trial Balance":              showReport("Trial Balance"); break;           }
             if (found) {
                 x.toggle(s,true);
             }
@@ -160,7 +180,7 @@ var config = {
             { type: 'html',    id: 'reportsD1', html: function (item) {
                     var html =
                       '<div style="padding: 3px 10px;">'+
-                      ' Start: <input type="date" name="dateD1">'+
+                      ' Start: <input type="date" name="dateD1" value="2016-08-01">'+
                       '</div>';
                     return html;
                 }
@@ -168,7 +188,7 @@ var config = {
             { type: 'html',    id: 'reportsD2', html: function (item) {
                     var html =
                       '<div style="padding: 3px 10px;">'+
-                      ' Stop: <input type="date" name="dateD2">'+
+                      ' Stop: <input type="date" name="dateD2" value="2016-09-01">'+
                       '</div>';
                     return html;
                 }
@@ -178,6 +198,12 @@ var config = {
         ]
     }
  
+}
+
+function showReport(rptname) {
+    w2ui['toplayout'].content('main', w2ui['reportslayout']);
+    w2ui['toplayout'].hide('right');
+    w2ui['reportslayout'].load('main', '/wsvc/' + rptname);
 }
 
 var accountsGrid = {
