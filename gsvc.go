@@ -54,7 +54,9 @@ type ServiceData struct {
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
 	{"transactants", SvcTransactants},
+	{"xperson", SvcXperson},
 	{"GLAccounts", SvcGLAccounts},
+	{"rentables", SvcRentables},
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -67,9 +69,16 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 }
 
 // gridServiceHandler is the main dispatch point for w2ui grid service requests
+//
 // The expected input is of the form:
 //		request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D
 // This is exactly what the w2ui grid sends as a request.
+//
+// Some routines need more information than what is encoded in the request. In
+// these cases the extra information is passed in the request URI.  This information
+// must be parsed by each function, as the data needed will be different from
+// from function to function.
+//-----------------------------------------------------------------------------------------------------------
 func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Entered gridServiceHandler\n")
@@ -120,8 +129,12 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("sort[%d] - Field = %s,  Direction = %s\n", i, d.greq.Sort[i].Field, d.greq.Sort[i].Direction)
 	}
 
-	path := "/gsvc/"                    // this is the part of the URL that got us into this handler
-	cmdinfo := r.RequestURI[len(path):] // this pulls off the specific request
+	path := "/gsvc/"                       // this is the part of the URL that got us into this handler
+	cmdinfo := r.RequestURI[len(path):]    // this pulls off the specific request
+	fmt.Printf("URI info:  %s\n", cmdinfo) // print before we strip it off
+
+	sa := strings.Split(cmdinfo, "/")
+	cmdinfo = sa[0]
 
 	fmt.Printf("gridServiceHandler requested for \"%s\"\n", cmdinfo)
 
@@ -326,7 +339,7 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := d.greq.Offset
+	i := int64(d.greq.Offset)
 	count := 0
 	for rows.Next() {
 		var p rlib.Transactant
@@ -353,6 +366,67 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	bjson := string(b)
 	fmt.Printf("first 50 chars of response: %50.50s\n", bjson)
+	// fmt.Printf("Response Data:  %s\n", string(b))
+
+	w.Write(b)
+}
+
+// SvcRentables generates a report of all Rentables defined business d.BID
+func SvcRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Printf("Entered SvcRentables")
+	var p rlib.Rentable
+	var err error
+	var g struct {
+		Status  string          `json:"status"`
+		Total   int64           `json:"total"`
+		Records []rlib.Rentable `json:"records"`
+	}
+
+	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
+	order := "Name ASC"                  // default ORDER
+	q, qw := gridBuildQuery("Rentable", srch, order, d, &p)
+
+	// set g.Total to the total number of rows of this data...
+	g.Total, err = GetRowCount("Rentable", qw)
+	if err != nil {
+		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+
+	fmt.Printf("db query = %s\n", q)
+
+	rows, err := rlib.RRdb.Dbrr.Query(q)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	i := int64(d.greq.Offset)
+	count := 0
+	for rows.Next() {
+		var p rlib.Rentable
+		rlib.ReadRentables(rows, &p)
+		p.Recid = i
+		g.Records = append(g.Records, p)
+		count++ // update the count only after adding the record
+		if count >= d.greq.Limit {
+			break // if we've added the max number requested, then exit
+		}
+		i++ // update the index no matter what
+	}
+	fmt.Printf("Loaded %d rentables\n", len(g.Records))
+	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Errcheck(rows.Err())
+	w.Header().Set("Content-Type", "application/json")
+	g.Status = "success"
+	b, err := json.Marshal(g)
+	if err != nil {
+		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	bjson := string(b)
+	fmt.Printf("first 100 chars of response: %100.100s\n", bjson)
 	// fmt.Printf("Response Data:  %s\n", string(b))
 
 	w.Write(b)

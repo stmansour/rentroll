@@ -166,13 +166,14 @@ CREATE TABLE RentalAgreement (
     RATID BIGINT NOT NULL DEFAULT 0,                             -- reference to Rental Template (Occupancy Master Agreement)
     BID BIGINT NOT NULL DEFAULT 0,                               -- Business (so that we can process by Business)
     NLID BIGINT NOT NULL DEFAULT 0,                              -- NoteList ID
-    AgreementStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts
-    AgreementStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops
-    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when usage starts
-    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when usage stops
-    RentStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when Rent starts
-    RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when Rent stops
+    AgreementStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts (may be blank if RA initiated for floating deposit)
+    AgreementStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops  (may be blank if RA initiated for floating deposit)
+    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when usage starts  (may be blank if RA initiated for floating deposit)
+    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when usage stops   (may be blank if RA initiated for floating deposit)
+    RentStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when Rent starts   (may be blank if RA initiated for floating deposit)
+    RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when Rent stops    (may be blank if RA initiated for floating deposit)
     RentCycleEpoch DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Date on which rent cycle recurs. Start date for the recurring rent assessment
+    -- FloatingDepositAssessment DATE NOT NULL DEFAULT '1970-01-01 00:00:00'  -- Date on which floating deposit was assessed.
     Renewal SMALLINT NOT NULL DEFAULT 0,                         -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',         -- free-form text
     LeaseType BIGINT NOT NULL DEFAULT 0,                                -- Full Service Gross, Gross, ModifiedGross, Tripple Net
@@ -627,7 +628,7 @@ CREATE TABLE Prospect (
     CSAgent BIGINT NOT NULL DEFAULT 0,                      -- Accord Directory UserID - for the CSAgent 
     OutcomeSLSID BIGINT NOT NULL DEFAULT 0,                 -- id of string from a list of outcomes.
     FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,    --  d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement 
-    RAID BIGINT NOT NULL DEFAULT 0,                         -- created to hold On Account amount of Floating Deposit
+    RAID BIGINT NOT NULL DEFAULT 0,                         -- created to hold On Account amount of Floating Deposit  -- Make this 0 after Prospect becomes Transactant
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (TCID)

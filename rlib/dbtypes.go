@@ -423,7 +423,7 @@ type DemandSource struct {
 // Transactant is the basic structure of information
 // about a person who is a Prospect, applicant, User, or Payor
 type Transactant struct {
-	Recid          int `json:"recid"` // this is to support the grid widget
+	Recid          int64 `json:"recid"` // this is to support the grid widget
 	TCID           int64
 	BID            int64
 	NLID           int64
@@ -723,6 +723,7 @@ type RentableMarketRate struct {
 
 // Rentable is the basic struct for  entities to rent
 type Rentable struct {
+	Recid          int64             `json:"recid"` // this is to support the grid widget
 	RID            int64             // unique id for this Rentable
 	BID            int64             // Business
 	Name           string            // name for this rental
@@ -730,6 +731,7 @@ type Rentable struct {
 	LastModTime    time.Time         // time of last update to the db record
 	LastModBy      int64             // who made the update (Phonebook UID)
 	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
+	RTCurrent      int64             // RentableType ID its current type (current as defined by system datetime), NOT A DB FIELD
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
 }
 
