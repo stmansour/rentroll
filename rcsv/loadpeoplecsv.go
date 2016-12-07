@@ -8,59 +8,6 @@ import (
 	"time"
 )
 
-// CSVColumn defines a column of the CSV file
-type CSVColumn struct {
-	Name  string
-	Index int
-}
-
-// CsvErrLoose et al, are constants used to control whether an error on a single line causes
-// the entire CSV process to terminate or continue.   If LOOSE, then it will skip the error line
-// and continue to process the remaining lines.  If STRICT, then the entire CSV loading process
-// will terminate if any error is encountered
-const (
-	CsvErrLoose  = 0
-	CsvErrStrict = 1
-)
-
-// CsvErrorSensitivity is the error return value used by all the loadXYZcsv.go routines. We
-// initialize to LOOSE as it is best for testing and should be OK for normal use as well.
-var CsvErrorSensitivity = int(CsvErrLoose)
-
-// ValidateCSVColumns verifies the column titles with the supplied, expected titles.
-// Returns:
-//   0 = everything is OK
-//   1 = at least 1 column is wrong, error message already printed
-func ValidateCSVColumns(csvCols []CSVColumn, sa []string, funcname string, lineno int) (string, int) {
-	rs := ""
-	required := len(csvCols)
-	if len(sa) < required {
-		rs += fmt.Sprintf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
-		l := len(sa)
-		for i := 0; i < len(csvCols); i++ {
-			if i < l {
-				s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
-				if s != strings.ToLower(csvCols[i].Name) {
-					rs += fmt.Sprintf("%s: line %d - Error at column heading %d, expected %s, found %s\n", funcname, lineno, i, csvCols[i].Name, sa[i])
-					return rs, 1
-				}
-			}
-		}
-		return rs, 1
-	}
-
-	if lineno == 1 {
-		for i := 0; i < len(csvCols); i++ {
-			s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
-			if s != strings.ToLower(csvCols[i].Name) {
-				rs += fmt.Sprintf("%s: line %d - Error at column heading %d, expected %s, found %s\n", funcname, lineno, i, csvCols[i].Name, sa[i])
-				return rs, 1
-			}
-		}
-	}
-	return rs, 0
-}
-
 // CSV file format:
 //  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------>|<----------------------------------------------------------------------------- rlib.Payor ------------------------------------------------->|
 //   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53            54               55

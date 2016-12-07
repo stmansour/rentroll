@@ -1,7 +1,6 @@
 package rcsv
 
 import (
-	"fmt"
 	"regexp"
 	"rentroll/rlib"
 	"strings"
@@ -79,35 +78,4 @@ func CSVLoaderGetRCPTID(sa string) int64 {
 // CSVLoaderGetTCID parses a string of the form TC000000321 and returns the TCID , in this case 321.
 func CSVLoaderGetTCID(sa string) int64 {
 	return readNumFromExpr(sa, "^TC0*(.*)", "TCID")
-}
-
-// CSVLoaderTransactantList takes a comma separated list of email addresses and phone numbers
-// and returns an array of transactants for each.  If any of the addresses in the list
-// cannot be resolved to a rlib.Transactant, then processing stops immediately and an error is returned.
-func CSVLoaderTransactantList(BID int64, s string) ([]rlib.Transactant, error) {
-	funcname := "CSVLoaderTransactantList"
-	var m []rlib.Transactant
-	var noerr error
-	if "" == s {
-		return m, nil
-	}
-	s2 := strings.TrimSpace(s) // either the email address or the phone number
-	ss := strings.Split(s2, ",")
-	for i := 0; i < len(ss); i++ {
-		var a rlib.Transactant
-		s = strings.TrimSpace(ss[i])                          // either the email address or the phone number
-		n, ok := readNumAndStatusFromExpr(s, "^TC0*(.*)", "") // "" suppresses error messages
-		if len(ok) == 0 {
-			rlib.GetTransactant(n, &a)
-		} else {
-			a = rlib.GetTransactantByPhoneOrEmail(BID, s)
-		}
-		if 0 == a.TCID {
-			rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)
-			rlib.Ulog("%s", rerr.Error())
-			return m, rerr
-		}
-		m = append(m, a)
-	}
-	return m, noerr
 }

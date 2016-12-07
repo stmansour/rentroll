@@ -54,7 +54,7 @@ type ServiceData struct {
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
 	{"transactants", SvcTransactants},
-	{"xperson", SvcXperson},
+	{"xperson", SvcXPerson},
 	{"GLAccounts", SvcGLAccounts},
 	{"rentables", SvcRentables},
 }

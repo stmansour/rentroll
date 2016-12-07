@@ -78,8 +78,8 @@ type gxperson struct {
 //      save
 //      delete
 //-----------------------------------------------------------------------------------
-func SvcXperson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcXperson\n")
+func SvcXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Printf("Entered SvcXPerson\n")
 
 	var g struct {
 		Status string   `json:"status"`
@@ -128,7 +128,7 @@ func SvcXperson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Status = "success"
 		b, err := json.Marshal(g)
 		if err != nil {
-			e := fmt.Errorf("SvcXperson: Error marshaling json data: %s", err.Error())
+			e := fmt.Errorf("SvcXPerson: Error marshaling json data: %s", err.Error())
 			SvcGridErrorReturn(w, e)
 			return
 		}
