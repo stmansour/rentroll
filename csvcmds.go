@@ -79,7 +79,8 @@ func CmdCsvAssess(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, 
 		rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
 		m := rcsv.LoadAssessmentsCSV(path)
 		ui.ReportContent += rcsv.ErrlistToString(&m)
-		t := rcsv.RRAssessmentsTable(xbiz.P.BID, &ui.D1, &ui.D2)
+		var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
+		t := rcsv.RRAssessmentsTable(&ri)
 		ui.ReportContent += fmt.Sprintf("\nAssessments\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
 		removeUploadFile(path, ui)
@@ -103,7 +104,8 @@ func CmdCsvRcpt(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 		rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
 		m := rcsv.LoadReceiptsCSV(path)
 		ui.ReportContent = rcsv.ErrlistToString(&m)
-		t := rcsv.RRReceiptsTable(xbiz.P.BID, &ui.D1, &ui.D2)
+		var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
+		t := rcsv.RRReceiptsTable(&ri)
 		ui.ReportContent += fmt.Sprintf("\nReceipts\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
 		removeUploadFile(path, ui)
@@ -168,42 +170,44 @@ var loaders = []csvLoaderT{
 
 func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	// fmt.Printf("csvloadReporter: prefix=%s, BID=%d\n", prefix, xbiz.P.BID)
+	var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
+
 	switch prefix {
 	case "ASM", "Assessments":
-		return rcsv.RRreportAssessments(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportAssessments(&ri)
 	case "B", "Business":
-		return rcsv.RRreportBusiness(rlib.RPTTEXT)
+		return rcsv.RRreportBusiness(&ri)
 	case "COA", "Chart Of Accounts":
-		rlib.InitBizInternals(xbiz.P.BID, xbiz)
-		return rcsv.RRreportChartOfAccounts(rlib.RPTTEXT, xbiz.P.BID)
+		rlib.InitBizInternals(ri.Bid, xbiz)
+		return rcsv.RRreportChartOfAccounts(&ri)
 	case "C", "Custom Attributes":
-		return rcsv.RRreportCustomAttributes(rlib.RPTTEXT)
+		return rcsv.RRreportCustomAttributes(&ri)
 	case "CR", "Custom Attribute Refs":
-		return rcsv.RRreportCustomAttributeRefs(rlib.RPTTEXT)
+		return rcsv.RRreportCustomAttributeRefs(&ri)
 	case "DPM", "Deposit Methods":
-		return rcsv.RRreportDepositMethods(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportDepositMethods(&ri)
 	case "DEP", "Depositories":
-		return rcsv.RRreportDepository(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportDepository(&ri)
 	case "PMT", "Payment Types":
-		return rcsv.RRreportPaymentTypes(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportPaymentTypes(&ri)
 	case "R", "Rentables":
-		return rcsv.RRreportRentables(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportRentables(&ri)
 	case "RA", "Rental Agreements":
-		return rcsv.RRreportRentalAgreements(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportRentalAgreements(&ri)
 	case "RAT", "Rental Agreement Templates":
-		return rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportRentalAgreementTemplates(&ri)
 	case "RCPT", "Receipts":
-		return rcsv.RRreportReceipts(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportReceipts(&ri)
 	case "RT", "Rentable Types":
-		return rcsv.RRreportRentableTypes(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportRentableTypes(&ri)
 	case "Rentable Count By Type":
-		return rrpt.RentableCountByRentableTypeReport(rlib.RPTTEXT, xbiz, &ui.D1, &ui.D2)
+		return rrpt.RentableCountByRentableTypeReport(ri.OutputFormat, xbiz, &ri.D1, &ri.D2)
 	case "SL", "String Lists":
-		return rcsv.RRreportStringLists(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportStringLists(&ri)
 	case "Statements":
-		return rrpt.RptStatementTextReport(xbiz, &ui.D1, &ui.D2)
+		return rrpt.RptStatementTextReport(xbiz, &ri.D1, &ri.D2)
 	case "T", "People":
-		return rcsv.RRreportPeople(rlib.RPTTEXT, xbiz.P.BID)
+		return rcsv.RRreportPeople(&ri)
 	}
 	return "unhandled loader type: " + prefix
 }

@@ -183,7 +183,7 @@ func loaderGetBiz(s string) int64 {
 type csvimporter struct {
 	Name    string
 	CmdOpt  string
-	Handler func(string) string
+	Handler func(string) []error
 }
 
 func rrDoLoad(fname string, handler func(string) []error) {
@@ -250,202 +250,113 @@ func main() {
 		rcsv.InitRCSV(&App.DtStart, &App.DtStop, &App.Xbiz)
 	}
 
-	//----------------------------------------------------
-	// Now, on with the main portion of the program...
-	//----------------------------------------------------
-	if len(App.BizFile) > 0 {
-		rrDoLoad(App.BizFile, rcsv.LoadBusinessCSV)
-	}
-	if len(App.SLFile) > 0 {
-		rrDoLoad(App.SLFile, rcsv.LoadStringTablesCSV)
-	}
-	if len(App.PmtTypeFile) > 0 {
-		rrDoLoad(App.PmtTypeFile, rcsv.LoadPaymentTypesCSV)
-	}
-	if len(App.DMFile) > 0 {
-		rrDoLoad(App.DMFile, rcsv.LoadDepositMethodsCSV)
-	}
-	if len(App.SrcFile) > 0 {
-		rrDoLoad(App.SrcFile, rcsv.LoadSourcesCSV)
-	}
-	if len(App.RTFile) > 0 {
-		rrDoLoad(App.RTFile, rcsv.LoadRentableTypesCSV)
-	}
-	if len(App.CustomFile) > 0 {
-		rrDoLoad(App.CustomFile, rcsv.LoadCustomAttributesCSV)
-	}
-	if len(App.DepositoryFile) > 0 {
-		rrDoLoad(App.DepositoryFile, rcsv.LoadDepositoryCSV)
-	}
-	if len(App.RSpFile) > 0 {
-		rrDoLoad(App.RSpFile, rcsv.LoadRentalSpecialtiesCSV)
-	}
-	if len(App.BldgFile) > 0 {
-		rrDoLoad(App.BldgFile, rcsv.LoadBuildingCSV)
-	}
-	if len(App.PplFile) > 0 {
-		rrDoLoad(App.PplFile, rcsv.LoadPeopleCSV)
-	}
-	if len(App.VehicleFile) > 0 {
-		rrDoLoad(App.VehicleFile, rcsv.LoadVehicleCSV)
-	}
-	if len(App.RFile) > 0 {
-		rrDoLoad(App.RFile, rcsv.LoadRentablesCSV)
-	}
-	if len(App.RspRefsFile) > 0 {
-		rrDoLoad(App.RspRefsFile, rcsv.LoadRentableSpecialtyRefsCSV)
-	}
-	if len(App.RatFile) > 0 {
-		rrDoLoad(App.RatFile, rcsv.LoadRentalAgreementTemplatesCSV)
-	}
-	if len(App.RaFile) > 0 {
-		rrDoLoad(App.RaFile, rcsv.LoadRentalAgreementCSV)
-	}
-	if len(App.PetFile) > 0 {
-		rrDoLoad(App.PetFile, rcsv.LoadPetsCSV)
-	}
-	if len(App.CoaFile) > 0 {
-		rrDoLoad(App.CoaFile, rcsv.LoadChartOfAccountsCSV)
-	}
-	if len(App.RPFile) > 0 {
-		rrDoLoad(App.RPFile, rcsv.LoadRatePlansCSV)
-	}
-	if len(App.RPRefFile) > 0 {
-		rrDoLoad(App.RPRefFile, rcsv.LoadRatePlanRefsCSV)
-	}
-	if len(App.RPRRTRateFile) > 0 {
-		rrDoLoad(App.RPRRTRateFile, rcsv.LoadRatePlanRefRTRatesCSV)
-	}
-	if len(App.RPRSPRateFile) > 0 {
-		rrDoLoad(App.RPRSPRateFile, rcsv.LoadRatePlanRefSPRatesCSV)
-	}
-	if len(App.AsmtFile) > 0 {
-		rrDoLoad(App.AsmtFile, rcsv.LoadAssessmentsCSV)
-	}
 	if len(App.RcptFile) > 0 {
 		App.PmtTypes = rlib.GetPaymentTypes()
-		rrDoLoad(App.RcptFile, rcsv.LoadReceiptsCSV)
 	}
-	if len(App.DepositFile) > 0 {
-		rrDoLoad(App.DepositFile, rcsv.LoadDepositCSV)
+
+	//----------------------------------------------------
+	// Do all the file loading
+	//----------------------------------------------------
+	var h = []rcsv.CSVLoadHandler{
+		{Fname: App.BizFile, Handler: rcsv.LoadBusinessCSV},
+		{Fname: App.SLFile, Handler: rcsv.LoadStringTablesCSV},
+		{Fname: App.PmtTypeFile, Handler: rcsv.LoadPaymentTypesCSV},
+		{Fname: App.DMFile, Handler: rcsv.LoadDepositMethodsCSV},
+		{Fname: App.SrcFile, Handler: rcsv.LoadSourcesCSV},
+		{Fname: App.RTFile, Handler: rcsv.LoadRentableTypesCSV},
+		{Fname: App.CustomFile, Handler: rcsv.LoadCustomAttributesCSV},
+		{Fname: App.DepositoryFile, Handler: rcsv.LoadDepositoryCSV},
+		{Fname: App.RSpFile, Handler: rcsv.LoadRentalSpecialtiesCSV},
+		{Fname: App.BldgFile, Handler: rcsv.LoadBuildingCSV},
+		{Fname: App.PplFile, Handler: rcsv.LoadPeopleCSV},
+		{Fname: App.VehicleFile, Handler: rcsv.LoadVehicleCSV},
+		{Fname: App.RFile, Handler: rcsv.LoadRentablesCSV},
+		{Fname: App.RspRefsFile, Handler: rcsv.LoadRentableSpecialtyRefsCSV},
+		{Fname: App.RatFile, Handler: rcsv.LoadRentalAgreementTemplatesCSV},
+		{Fname: App.RaFile, Handler: rcsv.LoadRentalAgreementCSV},
+		{Fname: App.PetFile, Handler: rcsv.LoadPetsCSV},
+		{Fname: App.CoaFile, Handler: rcsv.LoadChartOfAccountsCSV},
+		{Fname: App.RPFile, Handler: rcsv.LoadRatePlansCSV},
+		{Fname: App.RPRefFile, Handler: rcsv.LoadRatePlanRefsCSV},
+		{Fname: App.RPRRTRateFile, Handler: rcsv.LoadRatePlanRefRTRatesCSV},
+		{Fname: App.RPRSPRateFile, Handler: rcsv.LoadRatePlanRefSPRatesCSV},
+		{Fname: App.AsmtFile, Handler: rcsv.LoadAssessmentsCSV},
+		{Fname: App.RcptFile, Handler: rcsv.LoadReceiptsCSV},
+		{Fname: App.DepositFile, Handler: rcsv.LoadDepositCSV},
+		{Fname: App.AssignFile, Handler: rcsv.LoadCustomAttributeRefsCSV},
+		{Fname: App.NoteTypeFile, Handler: rcsv.LoadNoteTypesCSV},
+		{Fname: App.InvoiceFile, Handler: rcsv.LoadInvoicesCSV},
 	}
-	if len(App.AssignFile) > 0 {
-		rrDoLoad(App.AssignFile, rcsv.LoadCustomAttributeRefsCSV)
+
+	for i := 0; i < len(h); i++ {
+		if len(h[i].Fname) > 0 {
+			rrDoLoad(h[i].Fname, h[i].Handler)
+		}
 	}
-	if len(App.NoteTypeFile) > 0 {
-		rrDoLoad(App.NoteTypeFile, rcsv.LoadNoteTypesCSV)
-	}
-	if len(App.InvoiceFile) > 0 {
-		rrDoLoad(App.InvoiceFile, rcsv.LoadInvoicesCSV)
+
+	//----------------------------------------------------
+	// Now do all the reporting
+	//----------------------------------------------------
+
+	bid := int64(0)  // placeholder value
+	raid := int64(0) // placeholder value
+	d1 := time.Now() // placeholder value
+	d2 := time.Now() // placeholder value
+	var r = []rcsv.CSVReporterInfo{
+		{ReportNo: 3, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportBusiness},
+		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentableTypes},
+		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentables},
+		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPeople},
+		{ReportNo: 8, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementTemplates},
+		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreements},
+		{ReportNo: 10, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportChartOfAccounts},
+		{ReportNo: 11, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportAssessments},
+		{ReportNo: 12, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPaymentTypes},
+		{ReportNo: 13, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportReceipts},
+		{ReportNo: 14, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributes},
+		{ReportNo: 15, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributeRefs},
+		{ReportNo: 16, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementPets},
+		{ReportNo: 17, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportNoteTypes},
+		{ReportNo: 18, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepository},
+		{ReportNo: 19, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDeposits},
+		{ReportNo: 20, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportInvoices},
+		{ReportNo: 21, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialties},
+		{ReportNo: 22, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialtyAssigns},
+		{ReportNo: 23, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepositMethods},
+		{ReportNo: 24, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSources},
+		{ReportNo: 25, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportStringLists},
+		{ReportNo: 26, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
+		{ReportNo: 27, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
+		{ReportNo: 28, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
 	}
 
 	if len(App.Report) > 0 {
 		sa := strings.Split(App.Report, ",")
-		i := int64(0)
+		i := -1
+		idx := -1
 		if len(sa) > 0 {
-			i, _ = rlib.IntFromString(sa[0], "report number")
+			ii, _ := rlib.IntFromString(sa[0], "report number")
+			i = int(ii)
 		}
-		switch i {
-		case 1:
-			fmt.Printf("1 - not yet implemented\n")
-		case 2:
-			fmt.Printf("2 - not yet implemented\n")
-		case 3:
-			fmt.Printf("%s\n", rcsv.RRreportBusiness(rlib.RPTTEXT))
-		case 5:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportRentableTypes(rlib.RPTTEXT, bid))
-		case 6:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportRentables(rlib.RPTTEXT, bid))
-		case 7:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportPeople(rlib.RPTTEXT, bid))
-		case 8:
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportRentalAgreementTemplates(rlib.RPTTEXT, bid))
-		case 9:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportRentalAgreements(rlib.RPTTEXT, bid))
-		case 10:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportChartOfAccounts(rlib.RPTTEXT, bid))
-		case 11:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportAssessments(rlib.RPTTEXT, bid))
-		case 12:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportPaymentTypes(rlib.RPTTEXT, bid))
-		case 13:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportReceipts(rlib.RPTTEXT, bid))
-		case 14:
-			fmt.Printf("%s\n", rcsv.RRreportCustomAttributes(rlib.RPTTEXT))
-		case 15:
-			fmt.Printf("%s\n", rcsv.RRreportCustomAttributeRefs(rlib.RPTTEXT))
-		case 16:
-			raid := rcsv.CSVLoaderGetRAID(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportRentalAgreementPets(rlib.RPTTEXT, raid))
-		case 17:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportNoteTypes(rlib.RPTTEXT, bid))
-		case 18:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportDepository(rlib.RPTTEXT, bid))
-		case 19:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportDeposits(rlib.RPTTEXT, bid))
-		case 20:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportInvoices(rlib.RPTTEXT, bid))
-		case 21:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportSpecialties(rlib.RPTTEXT, bid))
-		case 22:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportSpecialtyAssigns(rlib.RPTTEXT, bid))
-		case 23:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportDepositMethods(rlib.RPTTEXT, bid))
-		case 24:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportSources(rlib.RPTTEXT, bid))
-		case 25:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportStringLists(rlib.RPTTEXT, bid))
-		case 26:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportRatePlans(rlib.RPTTEXT, bid))
-		case 27:
-			bizErrCheck(sa)
-			dt := time.Now()
-			bid := loaderGetBiz(sa[1])
-			fmt.Printf("%s\n", rcsv.RRreportRatePlanRefs(rlib.RPTTEXT, bid, &dt, &dt))
-		case 28:
-			bizErrCheck(sa)
-			bid := loaderGetBiz(sa[1])
-			tbl := rrpt.VehicleReport(bid)
-			fmt.Printf("%s\n", tbl.SprintTable(rlib.TABLEOUTTEXT))
-		default:
+		for j := 0; j < len(r); j++ {
+			if r[j].ReportNo == i {
+				idx = j
+				break
+			}
+		}
+
+		if idx < 0 {
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
+			os.Exit(1)
 		}
+		if r[idx].NeedsBID {
+			bizErrCheck(sa)
+			r[idx].Bid = loaderGetBiz(sa[1])
+		}
+		if r[idx].NeedsRAID {
+			r[idx].Raid = rcsv.CSVLoaderGetRAID(sa[1])
+		}
+
+		fmt.Printf("%s\n", r[idx].Handler(&r[idx]))
 	}
 }

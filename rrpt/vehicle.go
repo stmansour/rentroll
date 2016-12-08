@@ -1,15 +1,14 @@
 package rrpt
 
 import (
-	"fmt"
+	"rentroll/rcsv"
 	"rentroll/rlib"
 )
 
-// VehicleReport returns a table containing a report of all
+// VehicleReportTable returns a table containing a report of all
 // vehicles in the supplied business
-func VehicleReport(bid int64) rlib.Table {
+func VehicleReportTable(bid int64) rlib.Table {
 	m := rlib.GetVehiclesByBID(bid)
-	fmt.Printf("len(m) = %d\n", len(m))
 	var tbl rlib.Table
 	tbl.Init()
 	var b rlib.Business
@@ -79,4 +78,11 @@ func VehicleReport(bid int64) rlib.Table {
 	// tbl.InsertSumRow(len(tbl.Row), 0, len(tbl.Row)-1, []int{4}) // insert @ len essentially adds a row.  Only want to sum column 4
 	tbl.TightenColumns()
 	return tbl
+}
+
+// VehicleReport returns a text report for vehicles
+// ri contains the BID needed by this report
+func VehicleReport(ri *rcsv.CSVReporterInfo) string {
+	t := VehicleReportTable(ri.Bid)
+	return t.SprintTable(ri.OutputFormat)
 }

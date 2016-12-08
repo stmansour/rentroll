@@ -50,7 +50,7 @@ type CSVLoader struct {
 // by the associated Index value
 var CSVLoaders = []CSVLoader{
 	{Name: "Assessments", Index: CSVAssessments, Loader: LoadAssessmentsCSV},
-	//{Name: "Receipts", Index: CSVReceipts, Loader: LoadReceiptsCSV},
+	{Name: "Receipts", Index: CSVReceipts, Loader: LoadReceiptsCSV},
 	// {Name: "Business", Index: CSVBusiness, Loader: LoadBusinessCSV},
 	// {Name: "StringTables", Index: CSVStringTables, Loader: LoadStringTablesCSV},
 	// {Name: "PaymentTypes", Index: CSVPaymentTypes, Loader: LoadPaymentTypesCSV},

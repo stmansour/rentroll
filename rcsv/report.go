@@ -9,7 +9,7 @@ import (
 )
 
 // RRreportBusiness generates a report of all Businesses defined in the database.
-func RRreportBusiness(f int) string {
+func RRreportBusiness(ri *CSVReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllBusinesses.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -35,7 +35,7 @@ func RRreportBusiness(f int) string {
 		tbl.Puts(-1, 5, rlib.RentalPeriodToString(p.DefaultGSRPC))
 	}
 	rlib.Errcheck(rows.Err())
-	return tbl.SprintTable(f)
+	return tbl.SprintTable(ri.OutputFormat)
 }
 
 // ReportCOA returns a string representation of the chart of accts
@@ -101,16 +101,16 @@ func ReportCOA(p rlib.GLAccount, t *rlib.Table) {
 }
 
 // RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
-func RRreportChartOfAccounts(f int, bid int64) string {
-	rlib.InitBusinessFields(bid)
-	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
+func RRreportChartOfAccounts(ri *CSVReporterInfo) string {
+	rlib.InitBusinessFields(ri.Bid)
+	rlib.RRdb.BizTypes[ri.Bid].GLAccounts = rlib.GetGLAccountMap(ri.Bid)
 
-	var a []int64                                       // Sort the map so test output will be the same every time. Sort by GLNumber.
-	for k := range rlib.RRdb.BizTypes[bid].GLAccounts { // First make an array of all the LIDs
+	var a []int64                                          // Sort the map so test output will be the same every time. Sort by GLNumber.
+	for k := range rlib.RRdb.BizTypes[ri.Bid].GLAccounts { // First make an array of all the LIDs
 		a = append(a, k)
 	}
 	// now sort based on GLNumber, then by LID...
-	m := rlib.RRdb.BizTypes[bid].GLAccounts // for notational convenience
+	m := rlib.RRdb.BizTypes[ri.Bid].GLAccounts // for notational convenience
 	for i := 0; i < len(a); i++ {
 		for j := i + 1; j < len(a); j++ {
 			isGreater := m[a[i]].GLNumber > m[a[j]].GLNumber
@@ -140,12 +140,12 @@ func RRreportChartOfAccounts(f int, bid int64) string {
 	for i := 0; i < len(a); i++ {
 		ReportCOA(m[a[i]], &t)
 	}
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
-func RRreportRentableTypes(f int, bid int64) string {
-	m := rlib.GetBusinessRentableTypes(bid)
+func RRreportRentableTypes(ri *CSVReporterInfo) string {
+	m := rlib.GetBusinessRentableTypes(ri.Bid)
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
@@ -182,11 +182,11 @@ func RRreportRentableTypes(f int, bid int64) string {
 		t.Puts(-1, 7, s)
 	}
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
-func RRreportPeople(f int, bid int64) string {
+func RRreportPeople(ri *CSVReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllTransactants.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -218,12 +218,12 @@ func RRreportPeople(f int, bid int64) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportRentables generates a report of all Businesses defined in the database.
-func RRreportRentables(f int, bid int64) string {
-	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(bid)
+func RRreportRentables(ri *CSVReporterInfo) string {
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
@@ -252,11 +252,11 @@ func RRreportRentables(f int, bid int64) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributes(f int) string {
+func RRreportCustomAttributes(ri *CSVReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributes.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -281,11 +281,11 @@ func RRreportCustomAttributes(f int) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributeRefs(f int) string {
+func RRreportCustomAttributeRefs(ri *CSVReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributeRefs.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -304,11 +304,11 @@ func RRreportCustomAttributeRefs(f int) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
-func RRreportRentalAgreementTemplates(f int, bid int64) string {
+func RRreportRentalAgreementTemplates(ri *CSVReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -327,13 +327,13 @@ func RRreportRentalAgreementTemplates(f int, bid int64) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
-func RRreportRentalAgreements(f int, bid int64) string {
+func RRreportRentalAgreements(ri *CSVReporterInfo) string {
 	rs := ""
-	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(bid)
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	var t rlib.Table
@@ -387,12 +387,12 @@ func RRreportRentalAgreements(f int, bid int64) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return rs + t.SprintTable(f)
+	return rs + t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
-func RRreportPaymentTypes(f int, bid int64) string {
-	m := rlib.GetPaymentTypesByBusiness(bid)
+func RRreportPaymentTypes(ri *CSVReporterInfo) string {
+	m := rlib.GetPaymentTypesByBusiness(ri.Bid)
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
@@ -416,19 +416,23 @@ func RRreportPaymentTypes(f int, bid int64) string {
 		t.Puts(-1, 3, v.Description)
 	}
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportAssessments generates a report of all rlib.GLAccount accounts
-func RRreportAssessments(f int, bid int64) string {
-	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
-	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	t := RRAssessmentsTable(bid, &d1, &d2)
-	return t.GetTitle() + "\n" + t.SprintTable(f)
+func RRreportAssessments(ri *CSVReporterInfo) string {
+	ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
+	ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+
+	t := RRAssessmentsTable(ri)
+	return t.GetTitle() + "\n" + t.SprintTable(ri.OutputFormat)
 }
 
 // RRAssessmentsTable generates a report of all rlib.GLAccount accounts
-func RRAssessmentsTable(bid int64, d1, d2 *time.Time) rlib.Table {
+func RRAssessmentsTable(ri *CSVReporterInfo) rlib.Table {
+	bid := ri.Bid
+	d1 := ri.D1
+	d2 := ri.D2
 	rlib.InitBusinessFields(bid)
 	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
@@ -467,16 +471,16 @@ func RRAssessmentsTable(bid int64, d1, d2 *time.Time) rlib.Table {
 }
 
 // RRreportReceipts generates a report of all rlib.GLAccount accounts
-func RRreportReceipts(f int, bid int64) string {
-	d1 := time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
-	d2 := time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	t := RRReceiptsTable(bid, &d1, &d2)
-	return t.SprintTable(f)
+func RRreportReceipts(ri *CSVReporterInfo) string {
+	ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
+	ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	t := RRReceiptsTable(ri)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRReceiptsTable generates a report of all rlib.GLAccount accounts
-func RRReceiptsTable(bid int64, d1, d2 *time.Time) rlib.Table {
-	m := rlib.GetReceipts(bid, d1, d2)
+func RRReceiptsTable(ri *CSVReporterInfo) rlib.Table {
+	m := rlib.GetReceipts(ri.Bid, &ri.D1, &ri.D2)
 	var t rlib.Table
 	t.Init()
 	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
@@ -506,7 +510,7 @@ func RRReceiptsTable(bid int64, d1, d2 *time.Time) rlib.Table {
 }
 
 // RRreportInvoices generates a report of all rlib.GLAccount accounts
-func RRreportInvoices(f int, bid int64) string {
+func RRreportInvoices(ri *CSVReporterInfo) string {
 	var t rlib.Table
 	t.Init()
 	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
@@ -516,7 +520,7 @@ func RRreportInvoices(f int, bid int64) string {
 	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
 	t.AddColumn("DeliveredBy", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
-	m := rlib.GetAllInvoicesInRange(bid, &Rcsv.DtStart, &Rcsv.DtStop)
+	m := rlib.GetAllInvoicesInRange(ri.Bid, &Rcsv.DtStart, &Rcsv.DtStop)
 	for i := 0; i < len(m); i++ {
 		t.AddRow()
 		t.Putd(-1, 0, m[i].Dt)
@@ -527,12 +531,12 @@ func RRreportInvoices(f int, bid int64) string {
 		t.Puts(-1, 5, m[i].DeliveredBy)
 	}
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportDepository generates a report of all rlib.GLAccount accounts
-func RRreportDepository(f int, bid int64) string {
-	m := rlib.GetAllDepositories(bid)
+func RRreportDepository(ri *CSVReporterInfo) string {
+	m := rlib.GetAllDepositories(ri.Bid)
 	var t rlib.Table
 	t.Init()
 	t.AddColumn("DEPID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -547,12 +551,12 @@ func RRreportDepository(f int, bid int64) string {
 		t.Puts(-1, 3, m[i].Name)
 	}
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportDepositMethods generates a report of all rlib.GLAccount accounts
-func RRreportDepositMethods(f int, bid int64) string {
-	m := rlib.GetAllDepositMethods(bid)
+func RRreportDepositMethods(ri *CSVReporterInfo) string {
+	m := rlib.GetAllDepositMethods(ri.Bid)
 	var t rlib.Table
 	t.Init()
 	t.AddColumn("DPMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -565,12 +569,12 @@ func RRreportDepositMethods(f int, bid int64) string {
 		t.Puts(-1, 2, m[i].Name)
 	}
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // RRreportDeposits generates a report of all rlib.GLAccount accounts
-func RRreportDeposits(f int, bid int64) string {
-	m := rlib.GetAllDepositsInRange(bid, &Rcsv.DtStart, &Rcsv.DtStop)
+func RRreportDeposits(ri *CSVReporterInfo) string {
+	m := rlib.GetAllDepositsInRange(ri.Bid, &Rcsv.DtStart, &Rcsv.DtStop)
 	var t rlib.Table
 	t.Init()
 	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
@@ -594,7 +598,7 @@ func RRreportDeposits(f int, bid int64) string {
 		t.Puts(-1, 4, s)
 	}
 	t.TightenColumns()
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 func getCategory(s string) (string, string) {
@@ -612,12 +616,12 @@ func getCategory(s string) (string, string) {
 	return cat, val
 }
 
-// RRreportStringLists generates a report of all StringLists for the supplied business (bid)
-func RRreportStringLists(f int, bid int64) string {
+// RRreportStringLists generates a report of all StringLists for the supplied business (ri.Bid)
+func RRreportStringLists(ri *CSVReporterInfo) string {
 	var (
 		cat, val string
 	)
-	m := rlib.GetAllStringLists(bid)
+	m := rlib.GetAllStringLists(ri.Bid)
 
 	var t rlib.Table
 	t.Init()
@@ -636,7 +640,7 @@ func RRreportStringLists(f int, bid int64) string {
 			t.Puts(-1, 2, val)
 		}
 	}
-	return t.SprintTable(f)
+	return t.SprintTable(ri.OutputFormat)
 }
 
 // ReportRentalAgreementPetToText returns a string representation of the chart of accts
@@ -650,17 +654,17 @@ func ReportRentalAgreementPetToText(p *rlib.RentalAgreementPet) string {
 }
 
 // RRreportRentalAgreementPets generates a report of all rlib.GLAccount accounts
-func RRreportRentalAgreementPets(t int, raid int64) string {
-	m := rlib.GetAllRentalAgreementPets(raid)
+func RRreportRentalAgreementPets(ri *CSVReporterInfo) string {
+	m := rlib.GetAllRentalAgreementPets(ri.Raid)
 	s := fmt.Sprintf("%-11s  %-10s  %-25s  %-15s  %-15s  %-15s  %-9s  %-10s  %-10s\n", "PETID", "RAID", "Name", "Type", "Breed", "Color", "Weight", "DtStart", "DtStop")
 	for i := 0; i < len(m); i++ {
-		switch t {
+		switch ri.OutputFormat {
 		case rlib.RPTTEXT:
 			s += ReportRentalAgreementPetToText(&m[i])
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportRentalAgreementPets: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportRentalAgreementPets: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}
@@ -674,17 +678,17 @@ func ReportNoteTypeToText(p *rlib.NoteType) string {
 }
 
 // RRreportNoteTypes generates a report of all rlib.GLAccount accounts
-func RRreportNoteTypes(t int, bid int64) string {
-	m := rlib.GetAllNoteTypes(bid)
+func RRreportNoteTypes(ri *CSVReporterInfo) string {
+	m := rlib.GetAllNoteTypes(ri.Bid)
 	s := fmt.Sprintf("%-10s  %-9s  %-50s\n", "NTID", "BID", "Name")
 	for i := 0; i < len(m); i++ {
-		switch t {
+		switch ri.OutputFormat {
 		case rlib.RPTTEXT:
 			s += ReportNoteTypeToText(&m[i])
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}
@@ -692,10 +696,10 @@ func RRreportNoteTypes(t int, bid int64) string {
 }
 
 // RRreportSpecialties generates a report of all RentalSpecialties
-func RRreportSpecialties(t int, bid int64) string {
+func RRreportSpecialties(ri *CSVReporterInfo) string {
 	s := fmt.Sprintf("%-11s  %-9s  %-30s  %10s  %-15s\n", "RSPID", "BID", "Name", "Fee", "Description")
 	var xbiz rlib.XBusiness
-	rlib.GetXBusiness(bid, &xbiz) // get its info
+	rlib.GetXBusiness(ri.Bid, &xbiz) // get its info
 
 	// Order the rentableSpecialtyTypes into a known order.
 	m := make([]int64, len(xbiz.US))
@@ -715,14 +719,14 @@ func RRreportSpecialties(t int, bid int64) string {
 	// now print
 	for i := 0; i < len(m); i++ {
 		v := xbiz.US[m[i]]
-		switch t {
+		switch ri.OutputFormat {
 		case rlib.RPTTEXT:
 			s += fmt.Sprintf("%11s  B%08d  %-30s  %10s  %s\n",
 				v.IDtoString(), v.BID, v.Name, rlib.RRCommaf(v.Fee), v.Description)
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportSpecialties: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportSpecialties: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}
@@ -730,26 +734,26 @@ func RRreportSpecialties(t int, bid int64) string {
 }
 
 // RRreportSpecialtyAssigns generates a report of all RentalSpecialty Assignments accounts
-func RRreportSpecialtyAssigns(t int, bid int64) string {
+func RRreportSpecialtyAssigns(ri *CSVReporterInfo) string {
 	var xbiz rlib.XBusiness
-	rlib.GetXBusiness(bid, &xbiz) // get its info
+	rlib.GetXBusiness(ri.Bid, &xbiz) // get its info
 
 	s := fmt.Sprintf("%9s  %9s  %-30s  %10s  %10s\n", "BID", "RID", "Specialty Name", "DtStart", "DtStop")
-	rows, err := rlib.RRdb.Prepstmt.GetAllRentableSpecialtyRefs.Query(bid)
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentableSpecialtyRefs.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a rlib.RentableSpecialtyRef
 		rlib.Errcheck(rows.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 
-		switch t {
+		switch ri.OutputFormat {
 		case rlib.RPTTEXT:
 			s += fmt.Sprintf("B%08d  R%08d  %-30s  %10s  %10s\n",
 				a.BID, a.RID, xbiz.US[a.RSPID].Name, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportSpecialtyAssigns: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportSpecialtyAssigns: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}
@@ -758,55 +762,55 @@ func RRreportSpecialtyAssigns(t int, bid int64) string {
 }
 
 // RRreportSources generates a report of all rlib.GLAccount accounts
-func RRreportSources(t int, bid int64) string {
-	m, _ := rlib.GetAllDemandSources(bid)
+func RRreportSources(ri *CSVReporterInfo) string {
+	m, _ := rlib.GetAllDemandSources(ri.Bid)
 
 	s := fmt.Sprintf("%-9s  %-9s  %-35s  %-35s\n", "SourceSLSID", "BID", "Name", "Industry")
 	for i := 0; i < len(m); i++ {
-		switch t {
+		switch ri.OutputFormat {
 		case rlib.RPTTEXT:
 			s += fmt.Sprintf("S%08d  B%08d  %-35s  %-35s\n", m[i].SourceSLSID, m[i].BID, m[i].Name, m[i].Industry)
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportSources: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportSources: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}
 	return s
 }
 
-// RRreportRatePlans generates a report of all RateLists for the supplied business (bid)
-func RRreportRatePlans(t int, bid int64) string {
-	m := rlib.GetAllRatePlans(bid)
+// RRreportRatePlans generates a report of all RateLists for the supplied business (ri.Bid)
+func RRreportRatePlans(ri *CSVReporterInfo) string {
+	m := rlib.GetAllRatePlans(ri.Bid)
 
 	s := fmt.Sprintf("%-10s  %-9s  %-50s\n", "RPID", "BID", "Name")
 	s += fmt.Sprintf("%-10s  %-9s  %-50s\n", "----", "---", "----")
 
 	for i := 0; i < len(m); i++ {
-		switch t {
+		switch ri.OutputFormat {
 		case rlib.RPTTEXT:
 			s += fmt.Sprintf("RP%08d  B%08d  %-50s\n", m[i].RPID, m[i].BID, m[i].Name)
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}
 	return s
 }
 
-// RRreportRatePlanRefs generates a report for RatePlans in business bid and valid on today's date
-func RRreportRatePlanRefs(t int, bid int64, d1, d2 *time.Time) string {
+// RRreportRatePlanRefs generates a report for RatePlans in business ri.Bid and valid on today's date
+func RRreportRatePlanRefs(ri *CSVReporterInfo) string {
 	funcname := "RRreportRatePlanRefs"
 	var rp rlib.RatePlan
 	var xbiz rlib.XBusiness
-	rlib.GetXBusiness(bid, &xbiz)
+	rlib.GetXBusiness(ri.Bid, &xbiz)
 
-	m := rlib.GetAllRatePlanRefsInRange(d1, d2)
+	m := rlib.GetAllRatePlanRefsInRange(&ri.D1, &ri.D2)
 	if len(m) == 0 {
-		fmt.Printf("%s: could not load RatePlanRefs for timerange %s - %s\n", funcname, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
+		fmt.Printf("%s: could not load RatePlanRefs for timerange %s - %s\n", funcname, ri.D1.Format(rlib.RRDATEFMT4), ri.D2.Format(rlib.RRDATEFMT4))
 		return ""
 	}
 
@@ -817,17 +821,17 @@ func RRreportRatePlanRefs(t int, bid int64, d1, d2 *time.Time) string {
 		p := m[i]
 		rlib.GetRatePlan(p.RPID, &rp)
 		rlib.GetRatePlanRefFull(p.RPRID, &p)
-		switch t {
+		switch ri.OutputFormat {
 		case rlib.RPTTEXT:
 			s += fmt.Sprintf("%-15.15s  RPR%08d  %10s  %10s  %8d  %6d  %9.2f  %9.2f  %s\n",
 				rp.Name, p.RPRID, p.DtStart.Format(rlib.RRDATEFMT4), p.DtStop.Format(rlib.RRDATEFMT4),
 				p.MaxNoFeeUsers, p.FeeAppliesAge, p.AdditionalUserFee, p.CancellationFee, p.PromoCode)
-			s += RRreportRatePlanRefRTRates(t, &p, &xbiz)
+			s += RRreportRatePlanRefRTRates(&p, &xbiz)
 			s += "\n"
 		case rlib.RPTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
-			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", t)
+			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", ri.OutputFormat)
 			return ""
 		}
 	}
@@ -835,7 +839,7 @@ func RRreportRatePlanRefs(t int, bid int64, d1, d2 *time.Time) string {
 }
 
 // RRreportRatePlanRefRTRates generates a report of rates for all RentableTypes using RatePlanRef rpr.RPRID
-func RRreportRatePlanRefRTRates(t int, rpr *rlib.RatePlanRef, xbiz *rlib.XBusiness) string {
+func RRreportRatePlanRefRTRates(rpr *rlib.RatePlanRef, xbiz *rlib.XBusiness) string {
 	var sporder []int64
 	s := fmt.Sprintf("\n\t%-10s  %-10s  %-20s  %-8s    ", "RTID", "Style", "Name", "Rate")
 	for _, v := range xbiz.US {
