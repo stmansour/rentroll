@@ -19,6 +19,7 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -297,54 +298,48 @@ func main() {
 	//----------------------------------------------------
 	// Now do all the reporting
 	//----------------------------------------------------
-
-	bid := int64(0)  // placeholder value
-	raid := int64(0) // placeholder value
-	d1 := time.Now() // placeholder value
-	d2 := time.Now() // placeholder value
 	var r = []rcsv.CSVReporterInfo{
-		{ReportNo: 3, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportBusiness},
-		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentableTypes},
-		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentables},
-		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPeople},
-		{ReportNo: 8, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementTemplates},
-		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreements},
-		{ReportNo: 10, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportChartOfAccounts},
-		{ReportNo: 11, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportAssessments},
-		{ReportNo: 12, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPaymentTypes},
-		{ReportNo: 13, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportReceipts},
-		{ReportNo: 14, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributes},
-		{ReportNo: 15, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributeRefs},
-		{ReportNo: 16, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementPets},
-		{ReportNo: 17, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportNoteTypes},
-		{ReportNo: 18, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepository},
-		{ReportNo: 19, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDeposits},
-		{ReportNo: 20, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportInvoices},
-		{ReportNo: 21, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialties},
-		{ReportNo: 22, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialtyAssigns},
-		{ReportNo: 23, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepositMethods},
-		{ReportNo: 24, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSources},
-		{ReportNo: 25, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportStringLists},
-		{ReportNo: 26, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
-		{ReportNo: 27, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
-		{ReportNo: 28, OutputFormat: rlib.RPTTEXT, Bid: bid, Raid: raid, D1: d1, D2: d2, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
+		{ReportNo: 3, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportBusiness},
+		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentableTypes},
+		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentables},
+		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPeople},
+		{ReportNo: 8, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementTemplates},
+		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreements},
+		{ReportNo: 10, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportChartOfAccounts},
+		{ReportNo: 11, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportAssessments},
+		{ReportNo: 12, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPaymentTypes},
+		{ReportNo: 13, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportReceipts},
+		{ReportNo: 14, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributes},
+		{ReportNo: 15, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributeRefs},
+		{ReportNo: 16, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementPets},
+		{ReportNo: 17, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportNoteTypes},
+		{ReportNo: 18, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepository},
+		{ReportNo: 19, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDeposits},
+		{ReportNo: 20, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportInvoices},
+		{ReportNo: 21, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialties},
+		{ReportNo: 22, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialtyAssigns},
+		{ReportNo: 23, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepositMethods},
+		{ReportNo: 24, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSources},
+		{ReportNo: 25, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportStringLists},
+		{ReportNo: 26, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
+		{ReportNo: 27, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
+		{ReportNo: 28, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
 	}
 
 	if len(App.Report) > 0 {
 		sa := strings.Split(App.Report, ",")
-		i := -1
-		idx := -1
-		if len(sa) > 0 {
-			ii, _ := rlib.IntFromString(sa[0], "report number")
-			i = int(ii)
+		rptno, err := strconv.Atoi(sa[0])
+		if err != nil {
+			fmt.Printf("Invalid report number: %s\n", sa[0])
+			os.Exit(1)
 		}
+		idx := -1
 		for j := 0; j < len(r); j++ {
-			if r[j].ReportNo == i {
+			if r[j].ReportNo == rptno {
 				idx = j
 				break
 			}
 		}
-
 		if idx < 0 {
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 			os.Exit(1)
@@ -356,7 +351,6 @@ func main() {
 		if r[idx].NeedsRAID {
 			r[idx].Raid = rcsv.CSVLoaderGetRAID(sa[1])
 		}
-
 		fmt.Printf("%s\n", r[idx].Handler(&r[idx]))
 	}
 }
