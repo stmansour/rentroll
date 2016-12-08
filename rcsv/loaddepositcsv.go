@@ -12,8 +12,7 @@ import (
 // REX, 5/21/16, DEP001,       DPM01, "RCPT00001,2"
 
 // CreateDepositsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
-	rs := ""
+func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 	funcname := "CreateDepositsFromCSV"
 	var err error
 	var d rlib.Deposit
@@ -35,12 +34,12 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 		{"ReceiptSpec", ReceiptSpec},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -50,8 +49,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 	if len(bud) > 0 {
 		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
-			rs += fmt.Sprintf("%s: line %d - Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
 		}
 		d.BID = b1.BID
 	}
@@ -61,8 +59,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	d.Dt, err = rlib.StringToDate(sa[Date])
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[Date])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[Date])
 	}
 
 	//-------------------------------------------------------------------
@@ -70,8 +67,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	d.DEPID = CSVLoaderGetDEPID(sa[DepositoryID])
 	if d.DEPID == 0 {
-		rs += fmt.Sprintf("%s: line %d - Depository %s was not found. Skipping this item.\n", funcname, lineno, sa[DepositoryID])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Depository %s was not found. Skipping this item.\n", funcname, lineno, sa[DepositoryID])
 	}
 
 	//-------------------------------------------------------------------
@@ -79,8 +75,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	d.DPMID = CSVLoaderGetDPMID(sa[DepositMethodID])
 	if d.DEPID == 0 {
-		rs += fmt.Sprintf("%s: line %d - Deposit Method %s was not found. Skipping this item.\n", funcname, lineno, sa[DepositMethodID])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Deposit Method %s was not found. Skipping this item.\n", funcname, lineno, sa[DepositMethodID])
 	}
 
 	//-------------------------------------------------------------------
@@ -94,14 +89,12 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 	s := strings.TrimSpace(sa[ReceiptSpec])
 	ssa := strings.Split(s, ",")
 	if len(ssa) == 0 {
-		rs += fmt.Sprintf("%s: line %d - no receipts found. You must supply at least one receipt\n", funcname, lineno)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no receipts found. You must supply at least one receipt\n", funcname, lineno)
 	}
 	for i := 0; i < len(ssa); i++ {
 		id := CSVLoaderGetRCPTID(ssa[i])
 		if 0 == id {
-			rs += fmt.Sprintf("%s: line %d - invalid receipt number: %s\n", funcname, lineno, ssa[i])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid receipt number: %s\n", funcname, lineno, ssa[i])
 		}
 		rcpts = append(rcpts, id)
 
@@ -117,8 +110,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	id, err := rlib.InsertDeposit(&d)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d -  error inserting deposit: %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit: %v\n", funcname, lineno, err)
 	}
 	for i := 0; i < len(rcpts); i++ {
 		var a rlib.DepositPart
@@ -126,23 +118,13 @@ func CreateDepositsFromCSV(sa []string, lineno int) (string, int) {
 		a.RCPTID = rcpts[i]
 		err = rlib.InsertDepositPart(&a)
 		if nil != err {
-			rs += fmt.Sprintf("%s: line %d -  error inserting deposit part: %v\n", funcname, lineno, err)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit part: %v\n", funcname, lineno, err)
 		}
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadDepositCSV loads a csv file with deposits and creates Deposit records
-func LoadDepositCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateDepositsFromCSV(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadDepositCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateDepositsFromCSV)
 }

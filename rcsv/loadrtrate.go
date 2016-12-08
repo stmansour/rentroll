@@ -7,20 +7,20 @@ import (
 )
 
 //  CSV file format:
-//                             RT name or style  string with or without %
-// 0    1             2        3                 4
-// BUD, RPName,       RPRID    RentableType,     Amount
-// REX, FAA-P, RPR0001, GM,               85%
-// REX, FAA-P,   1,     Flat Studio,      1400
-// REX, FAA-P,   1,     SBL,    			 1500
-// REX, FAA-P,   1,     KDS,    			 75%
-// REX, FAA-T,      1,     GM,               90%
-// REX, FAA-T,      1,     Flat Studio,      90%
-// REX, FAA-T,      1,     SBL,    			 1500
-// REX, FAA-T,      1,     KDS,    			 80%
+//                        RT name or style  string with or without %
+// 0    1             2   3                 4
+// BUD, RPName, RPRID     RentableType,     Amount
+// REX, FAA-P,  RPR0001,  GM,               85%
+// REX, FAA-P,  1,        Flat Studio,      1400
+// REX, FAA-P,  1,        SBL,    			1500
+// REX, FAA-P,  1,        KDS,    			75%
+// REX, FAA-T,  1,        GM,               90%
+// REX, FAA-T,  1,        Flat Studio,      90%
+// REX, FAA-T,  1,        SBL,    			1500
+// REX, FAA-T,  1,        KDS,    			80%
 
 // CreateRatePlanRefRTRate reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
+func CreateRatePlanRefRTRate(sa []string, lineno int) (int, error) {
 	funcname := "CreateRatePlanRefRTRate"
 	var b rlib.Business
 
@@ -41,12 +41,12 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 		{"Amount", Amount},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
@@ -57,8 +57,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			rs += fmt.Sprintf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
 		}
 	}
 
@@ -70,13 +69,11 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			rs += fmt.Sprintf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
 		}
 	}
 
 	var a rlib.RatePlanRefRTRate
-	var err error
 	var errmsg string
 
 	//-------------------------------------------------------------------
@@ -84,8 +81,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	a.RPRID = CSVLoaderGetRPRID(strings.TrimSpace(sa[RPRID]))
 	if 0 == a.RPRID {
-		rs += fmt.Sprintf("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[RPRID])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[RPRID])
 	}
 
 	//-------------------------------------------------------------------
@@ -95,8 +91,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	name := strings.TrimSpace(sa[RentableType])
 	rt, err := rlib.GetRentableTypeByStyle(name, b.BID)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - could not load RentableType with Style = %s,  err:  %s\n", funcname, lineno, sa[RentableType], err.Error())
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not load RentableType with Style = %s,  err:  %s\n", funcname, lineno, sa[RentableType], err.Error())
 	}
 	a.RTID = rt.RTID
 
@@ -108,7 +103,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	amt := strings.TrimSpace(sa[Amount])
 	a.Val, errmsg = rlib.FloatFromString(amt, "bad amount")
 	if len(errmsg) > 0 {
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, errmsg)
 	}
 	if strings.Contains(amt, "%") {
 		a.FLAGS |= rlib.FlRTRpct
@@ -119,22 +114,13 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	err = rlib.InsertRatePlanRefRTRate(&a)
 	if nil != err {
-		rs += fmt.Sprintf("%s: lineno %d  - error inserting RatePlanRefRTRate = %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - error inserting RatePlanRefRTRate = %v\n", funcname, lineno, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadRatePlanRefRTRatesCSV loads a csv file with RatePlan rates for specific rentable types
-func LoadRatePlanRefRTRatesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateRatePlanRefRTRate(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadRatePlanRefRTRatesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateRatePlanRefRTRate)
+
 }

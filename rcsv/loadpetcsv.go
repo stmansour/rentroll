@@ -11,7 +11,7 @@ import (
 // 8,Santa's Little Helper,Dog,  Greyhound,gray,  34.5,  2014-01-01,
 
 // CreateRentalAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
-func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (string, int) {
+func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	funcname := "CreateRentalAgreementPetsFromCSV"
 	var pet rlib.RentalAgreementPet
 	var errmsg string
@@ -39,22 +39,21 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (string, int) {
 		{"DtStop", Dt2},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
 	// Find Rental Agreement
 	//-------------------------------------------------------------------
 	pet.RAID = CSVLoaderGetRAID(sa[RAID])
-	_, err := rlib.GetRentalAgreement(pet.RAID)
+	_, err = rlib.GetRentalAgreement(pet.RAID)
 	if nil != err {
-		rs += fmt.Sprintf("%s: line %d - error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[0], err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[0], err)
 	}
 
 	pet.Name = strings.TrimSpace(sa[Name])
@@ -67,8 +66,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	pet.Weight, errmsg = rlib.FloatFromString(sa[Weight], "Weight is invalid")
 	if len(errmsg) > 0 {
-		rs += fmt.Sprintf("%s: line %d - Weight is invalid: %s  (%s)\n", funcname, lineno, sa[5], errmsg)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Weight is invalid: %s  (%s)\n", funcname, lineno, sa[5], errmsg)
 	}
 
 	//-------------------------------------------------------------------
@@ -76,8 +74,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	DtStart, err := rlib.StringToDate(sa[Dt1])
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[Dt1])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[Dt1])
 	}
 	pet.DtStart = DtStart
 
@@ -89,29 +86,18 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (string, int) {
 	}
 	DtStop, err := rlib.StringToDate(end)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[Dt2])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[Dt2])
 	}
 	pet.DtStop = DtStop
 
 	_, err = rlib.InsertRentalAgreementPet(&pet)
 	if nil != err {
-		rs += fmt.Sprintf("%s: line %d - Could not save pet, err = %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save pet, err = %v\n", funcname, lineno, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadPetsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadPetsCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateRentalAgreementPetsFromCSV(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadPetsCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateRentalAgreementPetsFromCSV)
 }

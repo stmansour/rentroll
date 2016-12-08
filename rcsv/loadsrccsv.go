@@ -13,7 +13,7 @@ import (
 //    REX, IRS,  Excessive Rules
 
 // CreateSourceCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateSourceCSV(sa []string, lineno int) (string, int) {
+func CreateSourceCSV(sa []string, lineno int) (int, error) {
 	funcname := "CreateSourceCSV"
 	var a rlib.DemandSource
 	var err error
@@ -31,12 +31,12 @@ func CreateSourceCSV(sa []string, lineno int) (string, int) {
 		{"Industry", Industy},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
@@ -48,8 +48,7 @@ func CreateSourceCSV(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			rlib.Ulog("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[BUD])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[BUD])
 		}
 	}
 	a.BID = b.BID
@@ -62,8 +61,7 @@ func CreateSourceCSV(sa []string, lineno int) (string, int) {
 		var src rlib.DemandSource
 		rlib.GetDemandSourceByName(b.BID, s, &src)
 		if len(src.Name) > 0 {
-			fmt.Printf("%s: line %d - DemandSource named %s already exists.\n", funcname, lineno, s)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - DemandSource named %s already exists.\n", funcname, lineno, s)
 		}
 	}
 	a.Name = s
@@ -75,23 +73,13 @@ func CreateSourceCSV(sa []string, lineno int) (string, int) {
 
 	_, err = rlib.InsertDemandSource(&a)
 	if err != nil {
-		fmt.Printf("%s: line %d - error inserting DemandSource: %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting DemandSource: %v\n", funcname, lineno, err)
 	}
 
-	return rs, 0
+	return 0, nil
 }
 
 // LoadSourcesCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadSourcesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateSourceCSV(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadSourcesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateSourceCSV)
 }

@@ -11,7 +11,7 @@ import (
 // "Square Feet", 0-2 , 	   "1638",  "sqft"
 
 // CreateCustomAttributes reads a CustomAttributes string array and creates a database record
-func CreateCustomAttributes(sa []string, lineno int) (string, int) {
+func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 	funcname := "CreateCustomAttributes"
 	var errmsg string
 	var c rlib.CustomAttribute
@@ -31,21 +31,20 @@ func CreateCustomAttributes(sa []string, lineno int) (string, int) {
 		{"Units", Units},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	c.Type, errmsg = rlib.IntFromString(sa[1], "Type is invalid")
 	if len(errmsg) > 0 {
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
 	}
 	if c.Type < rlib.CUSTSTRING || c.Type > rlib.CUSTLAST {
-		rs += fmt.Sprintf("%s: line %d - Type value must be a number from %d to %d\n", funcname, lineno, rlib.CUSTSTRING, rlib.CUSTLAST)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value must be a number from %d to %d\n", funcname, lineno, rlib.CUSTSTRING, rlib.CUSTLAST)
 	}
 
 	c.Name = strings.TrimSpace(sa[0])
@@ -55,46 +54,33 @@ func CreateCustomAttributes(sa []string, lineno int) (string, int) {
 	case rlib.CUSTINT:
 		_, errmsg = rlib.IntFromString(c.Value, "Value cannot be converted to an integer")
 		if len(errmsg) > 0 {
-			rs += errmsg + "\n"
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
 		}
 	case rlib.CUSTUINT:
 		_, errmsg = rlib.IntFromString(c.Value, "Value cannot be converted to an unsigned integer")
 		if len(errmsg) > 0 {
-			rs += errmsg + "\n"
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
 		}
 	case rlib.CUSTFLOAT:
 		_, errmsg = rlib.FloatFromString(c.Value, "Value cannot be converted to an float")
 		if len(errmsg) > 0 {
-			rs += errmsg + "\n"
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
 		}
 	}
 
 	dup := rlib.GetCustomAttributeByVals(c.Type, c.Name, c.Value, c.Units)
 	if dup.CID > 0 {
-		rs += fmt.Sprintf("%s: line %d - A custom attribute with Type = %d, Name = %s, Value = %s, Units = %s already exists.  Skipped.\n", funcname, lineno, c.Type, c.Name, c.Value, c.Units)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - A custom attribute with Type = %d, Name = %s, Value = %s, Units = %s already exists.  Skipped.\n", funcname, lineno, c.Type, c.Name, c.Value, c.Units)
 	}
 
-	_, err := rlib.InsertCustomAttribute(&c)
+	_, err = rlib.InsertCustomAttribute(&c)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - Could not insert CustomAttribute. err = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttribute. err = %v\n", funcname, lineno, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadCustomAttributesCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadCustomAttributesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateCustomAttributes(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadCustomAttributesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateCustomAttributes)
 }

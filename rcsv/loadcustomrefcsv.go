@@ -10,7 +10,7 @@ import (
 //  5 ,         123,     456
 
 // CreateCustomAttributeRefs reads a rlib.CustomAttributeRefs string array and creates a database record
-func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
+func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 	funcname := "Createrlib.CustomAttributeRefs"
 	var errmsg string
 	var c rlib.CustomAttributeRef
@@ -28,30 +28,29 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
 		{"CID", CID},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	c.ElementType, errmsg = rlib.IntFromString(sa[0], "ElementType is invalid")
 	if len(errmsg) > 0 {
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
 	}
 	if c.ElementType < rlib.ELEMRENTABLETYPE || c.ElementType > rlib.ELEMLAST {
-		rs += fmt.Sprintf("ElementType value must be a number from %d to %d\n", rlib.ELEMRENTABLETYPE, rlib.ELEMLAST)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("ElementType value must be a number from %d to %d\n", rlib.ELEMRENTABLETYPE, rlib.ELEMLAST)
 	}
 
 	c.ID, errmsg = rlib.IntFromString(sa[1], "ID value cannot be converted to an integer")
 	if len(errmsg) > 0 {
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
 	}
 	c.CID, errmsg = rlib.IntFromString(sa[2], "CID value cannot be converted to an integer")
 	if len(errmsg) > 0 {
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
 	}
 
 	switch c.ElementType {
@@ -59,34 +58,23 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (string, int) {
 		var rt rlib.RentableType
 		err := rlib.GetRentableType(c.ID, &rt)
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - Could not load rlib.RentableType with id %d:  error = %v\n", funcname, lineno, c.ID, err)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.RentableType with id %d:  error = %v\n", funcname, lineno, c.ID, err)
 		}
 	}
 
 	ref := rlib.GetCustomAttributeRef(c.ElementType, c.ID, c.CID)
 	if ref.ElementType == c.ElementType && ref.CID == c.CID && ref.ID == c.ID {
-		rs += fmt.Sprintf("%s: line %d - This reference already exists. No changes were made.\n", funcname, lineno)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - This reference already exists. No changes were made.\n", funcname, lineno)
 	}
 
-	err := rlib.InsertCustomAttributeRef(&c)
+	err = rlib.InsertCustomAttributeRef(&c)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - Could not insert CustomAttributeRef. err = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttributeRef. err = %v\n", funcname, lineno, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadCustomAttributeRefsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadCustomAttributeRefsCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateCustomAttributeRefs(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadCustomAttributeRefsCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateCustomAttributeRefs)
 }

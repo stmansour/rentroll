@@ -15,89 +15,8 @@ import (
 // 	REH,   "RAT001",       "2004-01-01", "2017-07-04", "866-123-4567,dtStart,dtStop;bill@x.com",   UserSpec,       1,       "",                “U101,2500.00;U102,2350.00”,
 // 	REH,   "RAT001",       "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",              UserSpec,       1,       "",                “U101,2500.00;U102,2350.00”,
 
-// BuildPayorList takes a semi-colon separated list of email addresses and phone numbers
-// and returns an array of rlib.RentalAgreementPayor records for each.  If any of the addresses in the list
-// cannot be resolved to a rlib.Transactant, then processing stops immediately and an error is returned.
-// Each value is time sensitive (has an associated time range). If the dates are not specified, then the
-// default values of dfltStart and dfltStop -- which are the start/stop time of the rental agreement --
-// are used instead. This is common because the payors will usually be the same for the entire rental
-// agreement lifetime.
-func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, string, error) {
-	rs := ""
-	var m []rlib.RentalAgreementPayor
-	// var noerr error
-	s2 := strings.TrimSpace(s) // either the email address or the phone number
-	s1 := strings.Split(s2, ";")
-	for i := 0; i < len(s1); i++ {
-		ss := strings.Split(s1[i], ",")
-		if len(ss) != 3 {
-			rs += fmt.Sprintf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
-				funcname, lineno, len(ss), ss)
-			err := fmt.Errorf(rs)
-			return m, rs, err
-		}
-		s = strings.TrimSpace(ss[0]) // either the email address or the phone number or TransactantID (TC0003234)
-
-		n, _ := CSVLoaderTransactantList(BID, s)
-		if len(n) == 0 {
-			rerr := fmt.Errorf("%s:  lineno %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, s)
-			rs += fmt.Sprintf("%s", rerr.Error())
-			return m, rs, rerr
-		}
-
-		var payor rlib.RentalAgreementPayor
-		payor.TCID = n[0].TCID
-
-		// Now grab the dates
-		if len(strings.TrimSpace(ss[1])) == 0 {
-			ss[1] = dfltStart
-		}
-		if len(strings.TrimSpace(ss[2])) == 0 {
-			ss[2] = dfltStop
-		}
-		payor.DtStart, payor.DtStop, _ = readTwoDates(ss[1], ss[2], funcname, lineno)
-
-		m = append(m, payor)
-	}
-	return m, rs, nil
-}
-
-// BuildUserList parses a UserSpec and returns an array of RentableUser structs
-func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentableUser, error) {
-	s2 := strings.TrimSpace(sa) // TCID, email address, or the phone number
-	s1 := strings.Split(s2, ";")
-	var m []rlib.RentableUser
-	var noerr error
-	for i := 0; i < len(s1); i++ {
-		ss := strings.Split(s1[i], ",")
-		if len(ss) != 3 {
-			err := fmt.Errorf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
-				funcname, lineno, len(ss), ss)
-			return m, err
-		}
-		s := strings.TrimSpace(ss[0]) // TCID, email address, or the phone number
-		n, err := CSVLoaderTransactantList(BID, s)
-		if err != nil {
-			err := fmt.Errorf("%s: lineno %d - invalid person identifier: %s. Error = %s\n", funcname, lineno, s, err.Error())
-			return m, err
-		}
-		var p rlib.RentableUser
-		p.TCID = n[0].TCID
-
-		if len(strings.TrimSpace(ss[1])) == 0 {
-			ss[1] = dfltStart
-		}
-		if len(strings.TrimSpace(ss[2])) == 0 {
-			ss[2] = dfltStop
-		}
-		p.DtStart, p.DtStop, _ = readTwoDates(ss[1], ss[2], funcname, lineno)
-		m = append(m, p)
-	}
-	return m, noerr
-}
-
 // CreateRentalAgreement creates database records for the rental agreement defined in sa[]
-func CreateRentalAgreement(sa []string, lineno int) (string, int) {
+func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	funcname := "CreateRentalAgreement"
 
 	var ra rlib.RentalAgreement
@@ -140,12 +59,12 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 		{"Notes", Notes},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -155,8 +74,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	if len(cmpdes) > 0 {
 		b2 := rlib.GetBusinessByDesignation(cmpdes)
 		if b2.BID == 0 {
-			rs += fmt.Sprintf("%s: line %d - could not find rlib.Business named %s\n", funcname, lineno, cmpdes)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find rlib.Business named %s\n", funcname, lineno, cmpdes)
 		}
 		ra.BID = b2.BID
 	}
@@ -168,8 +86,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b1 := rlib.GetRentalAgreementByRATemplateName(des)
 		if len(b1.RATemplateName) == 0 {
-			rs += fmt.Sprintf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[RATemplateName])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[RATemplateName])
 		}
 		ra.RATID = b1.RATID
 	}
@@ -180,8 +97,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	dfltStart := sa[AgreementStart]
 	DtStart, err := rlib.StringToDate(dfltStart)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - invalid agreement start date:  %s\n", funcname, lineno, sa[AgreementStart])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid agreement start date:  %s\n", funcname, lineno, sa[AgreementStart])
 	}
 
 	//-------------------------------------------------------------------
@@ -190,8 +106,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	dfltStop := sa[AgreementStop]
 	DtStop, err := rlib.StringToDate(dfltStop)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - invalid agreement stop date:  %s\n", funcname, lineno, sa[AgreementStop])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid agreement stop date:  %s\n", funcname, lineno, sa[AgreementStop])
 	}
 	ra.AgreementStop = DtStop
 
@@ -206,46 +121,40 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	if len(sa[PossessionStart]) > 0 {
 		ra.PossessionStart, err = rlib.StringToDate(sa[PossessionStart])
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - invalid possession start date:  %s\n", funcname, lineno, sa[PossessionStart])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid possession start date:  %s\n", funcname, lineno, sa[PossessionStart])
 		}
 	}
 	if len(sa[PossessionStop]) > 0 {
 		ra.PossessionStop, err = rlib.StringToDate(sa[PossessionStop])
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - invalid possession stop date:  %s\n", funcname, lineno, sa[PossessionStop])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid possession stop date:  %s\n", funcname, lineno, sa[PossessionStop])
 		}
 	}
 	if len(sa[RentStart]) > 0 {
 		ra.RentStart, err = rlib.StringToDate(sa[RentStart])
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - invalid Rent start date:  %s\n", funcname, lineno, sa[RentStart])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Rent start date:  %s\n", funcname, lineno, sa[RentStart])
 		}
 	}
 	if len(sa[RentStop]) > 0 {
 		ra.RentStop, err = rlib.StringToDate(sa[RentStop])
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - invalid Rent stop date:  %s\n", funcname, lineno, sa[RentStop])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Rent stop date:  %s\n", funcname, lineno, sa[RentStop])
 		}
 	}
 	if len(sa[RentCycleEpoch]) > 0 {
 		ra.RentCycleEpoch, err = rlib.StringToDate(sa[RentCycleEpoch])
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - invalid Rent cycle epoch date:  %s\n", funcname, lineno, sa[RentCycleEpoch])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Rent cycle epoch date:  %s\n", funcname, lineno, sa[RentCycleEpoch])
 		}
 	}
 
 	//-------------------------------------------------------------------
 	//  The Payors
 	//-------------------------------------------------------------------
-	payors, ts, err := BuildPayorList(ra.BID, sa[PayorSpec], dfltStart, dfltStop, funcname, lineno)
-	rs += ts
+	payors, err := BuildPayorList(ra.BID, sa[PayorSpec], dfltStart, dfltStop, funcname, lineno)
 	if err != nil { // save the full list
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, err
 	}
 
 	//-------------------------------------------------------------------
@@ -253,7 +162,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	users, err := BuildUserList(ra.BID, sa[UserSpec], dfltStart, dfltStop, funcname, lineno)
 	if err != nil { // save the full list
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, err
 	}
 
 	//-------------------------------------------------------------------
@@ -263,8 +172,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - Renewal value is invalid: %s\n", funcname, lineno, s)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Renewal value is invalid: %s\n", funcname, lineno, s)
 		}
 		ra.Renewal = int64(i)
 	}
@@ -281,20 +189,17 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	for i := 0; i < len(ss); i++ {
 		sss := strings.Split(ss[i], ",")
 		if len(sss) != 2 {
-			rs += fmt.Sprintf("%s: line %d - Badly formatted string: %s . Format for each semicolon delimited part must be RentableName,ContractRent\n", funcname, lineno, ss)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Badly formatted string: %s . Format for each semicolon delimited part must be RentableName,ContractRent\n", funcname, lineno, ss)
 
 		}
 		var rar rlib.RentalAgreementRentable
 		rnt, err := rlib.GetRentableByName(sss[0], ra.BID)
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - Could not load rentable named: %s  err = %s\n", funcname, lineno, sss[0], err.Error())
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable named: %s  err = %s\n", funcname, lineno, sss[0], err.Error())
 		}
 		x, err := strconv.ParseFloat(strings.TrimSpace(sss[1]), 64)
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - Invalid amount:  %s\n", funcname, lineno, sss[1])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid amount:  %s\n", funcname, lineno, sss[1])
 		}
 		rar.RID = rnt.RID
 		rar.DtStart = DtStart
@@ -311,8 +216,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 		var nl rlib.NoteList
 		nl.NLID, err = rlib.InsertNoteList(&nl)
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
 		}
 		var n rlib.Note
 		n.Comment = note
@@ -320,8 +224,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 		n.NLID = nl.NLID
 		_, err = rlib.InsertNote(&n)
 		if err != nil {
-			rs += fmt.Sprintf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
 		}
 		ra.NLID = nl.NLID
 	}
@@ -330,19 +233,14 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	// look for any rental agreements already in existence that cover
 	// the rentables referenced in this one...
 	//-------------------------------------------------------------------
-	errcount := 0
 	for i := 0; i < len(m); i++ {
 		rra := rlib.GetAgreementsForRentable(m[i].RID, &ra.AgreementStart, &ra.AgreementStop)
 		for j := 0; j < len(rra); j++ {
-			rs += fmt.Sprintf("%s: line %d - Rentable %s is already included in Rental Agreement %s from %s to %s\n",
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Rentable %s is already included in Rental Agreement %s from %s to %s\n",
 				funcname, lineno,
 				rlib.IDtoString("R", rra[j].RID), rlib.IDtoString("RA", rra[j].RAID),
 				rra[j].DtStart.Format(rlib.RRDATEFMT4), rra[j].DtStop.Format(rlib.RRDATEFMT4))
-			errcount++
 		}
-	}
-	if errcount > 0 {
-		return rs, CsvErrorSensitivity
 	}
 
 	//------------------------------------
@@ -350,8 +248,7 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 	//-----------------------------------
 	RAID, err := rlib.InsertRentalAgreement(&ra)
 	if nil != err {
-		rs += fmt.Sprintf("%s: line %d - error inserting rlib.RentalAgreement = %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.RentalAgreement = %v\n", funcname, lineno, err)
 	}
 
 	//------------------------------------------------------------
@@ -373,22 +270,10 @@ func CreateRentalAgreement(sa []string, lineno int) (string, int) {
 		payors[i].RAID = RAID
 		rlib.InsertRentalAgreementPayor(&payors[i])
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadRentalAgreementCSV loads a csv file with rental specialty types and processes each one
-func LoadRentalAgreementCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		if t[i][0] == "#" {
-			continue
-		}
-		s, err := CreateRentalAgreement(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadRentalAgreementCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateRentalAgreement)
 }

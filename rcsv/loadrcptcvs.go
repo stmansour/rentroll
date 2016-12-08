@@ -61,14 +61,15 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 	return nil
 }
 
+var pmtTypes = map[int64]rlib.PaymentType{}
+
 // CreateReceiptsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, lineno int) (string, int) {
+func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	funcname := "CreateReceiptsFromCSV"
 	var xbiz rlib.XBusiness
 	var r rlib.Receipt
 	var err error
 	bud := strings.ToLower(strings.TrimSpace(sa[0]))
-	rs := ""
 
 	const (
 		BUD      = 0
@@ -93,12 +94,12 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 		{"Comment", Comment},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -107,8 +108,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	if len(bud) > 0 {
 		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
-			rs := fmt.Sprintf("CreateLedgerMarkers: rlib.Business with designation %s does not exist\n", sa[0])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("CreateLedgerMarkers: rlib.Business with designation %s does not exist\n", sa[0])
 		}
 		r.BID = b1.BID
 		rlib.GetXBusiness(r.BID, &xbiz)
@@ -121,18 +121,16 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 
 	_, err = rlib.GetRentalAgreement(r.RAID)
 	if nil != err {
-		rs := fmt.Sprintf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[RAID], err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[RAID], err)
 	}
 
 	//-------------------------------------------------------------------
 	// Get the rlib.PaymentType
 	//-------------------------------------------------------------------
 	r.PMTID, _ = rlib.IntFromString(sa[PMTID], "Payment type is invalid")
-	_, ok := (*PmtTypes)[r.PMTID]
+	_, ok := pmtTypes[r.PMTID]
 	if !ok {
-		rs := fmt.Sprintf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[PMTID])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[PMTID])
 	}
 
 	//-------------------------------------------------------------------
@@ -140,8 +138,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	dt, err := rlib.StringToDate(sa[Dt])
 	if err != nil {
-		rs := fmt.Sprintf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[Dt])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[Dt])
 	}
 	r.Dt = dt
 
@@ -167,8 +164,7 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	if len(r.AcctRule) == 0 || r.PMTID == 0 ||
 		r.Amount == 0 || r.RAID == 0 || r.BID == 0 {
-		rs := fmt.Sprintf("Skipping this record\n")
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("Skipping this record\n")
 	}
 
 	//-------------------------------------------------------------------
@@ -176,14 +172,12 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	rdup := rlib.GetReceiptDuplicate(&r.Dt, r.Amount, r.DocNo)
 	if rdup.RCPTID != 0 {
-		rs = fmt.Sprintf("%s: line %d - this is a duplicate of an existing receipt: %s\n", funcname, lineno, rdup.IDtoString())
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing receipt: %s\n", funcname, lineno, rdup.IDtoString())
 	}
 
 	rcptid, err := rlib.InsertReceipt(&r)
 	if err != nil {
-		rs := fmt.Sprintf("%s: line %d -  error inserting receipt: %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting receipt: %v\n", funcname, lineno, err)
 	}
 	r.RCPTID = rcptid
 
@@ -192,10 +186,9 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	err = GenerateReceiptAllocations(&r, &xbiz)
 	if err != nil {
-		rs := fmt.Sprintf("%s: line %d -  error processing receipt: %s\n", funcname, lineno, err.Error())
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error processing receipt: %s\n", funcname, lineno, err.Error())
 	}
 
 	//-------------------------------------------------------------------
@@ -203,13 +196,13 @@ func CreateReceiptsFromCSV(sa []string, PmtTypes *map[int64]rlib.PaymentType, li
 	//-------------------------------------------------------------------
 	rlib.ProcessNewReceipt(Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, &r)
 
-	return rs, 0
+	return 0, nil
 }
 
 // LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadReceiptsCSV(fname string) string {
-	rs := ""
-	PmtTypes := rlib.GetPaymentTypes()
+func LoadReceiptsCSV(fname string) []error {
+	var m []error
+	pmtTypes = rlib.GetPaymentTypes()
 	t := rlib.LoadCSV(fname)
 	if len(t) > 1 {
 		//-------------------------------------------------------------------
@@ -219,22 +212,14 @@ func LoadReceiptsCSV(fname string) string {
 		if len(des) > 0 {
 			b := rlib.GetBusinessByDesignation(des)
 			if b.BID < 1 {
-				rs += fmt.Sprintf("LoadReceiptsCSV: rlib.Business named %s not found\n", des)
-				return rs
+				err := fmt.Errorf("LoadReceiptsCSV: rlib.Business named %s not found\n", des)
+				m = append(m, err)
+				return m
 			}
 			rlib.InitBusinessFields(b.BID)
 			rlib.GetDefaultLedgers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
 		}
 	}
-	for i := 0; i < len(t); i++ {
-		if t[i][0] == "#" {
-			continue
-		}
-		s, err := CreateReceiptsFromCSV(t[i], &PmtTypes, i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+
+	return LoadRentRollCSV(fname, CreateReceiptsFromCSV)
 }

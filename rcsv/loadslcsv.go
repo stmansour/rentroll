@@ -43,9 +43,8 @@ func writeStringList() error {
 }
 
 // CreateStringList creates a database record for the values supplied in sa[]
-func CreateStringList(sa []string, lineno int) (string, int) {
+func CreateStringList(sa []string, lineno int) (int, error) {
 	funcname := "CreateStringList"
-	rs := ""
 	const (
 		BUD   = 0
 		Name  = iota
@@ -59,12 +58,12 @@ func CreateStringList(sa []string, lineno int) (string, int) {
 		{"Value", Value},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -74,8 +73,7 @@ func CreateStringList(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {                                // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			rs += fmt.Sprintf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
 		}
 		// if business is changed, write the stringlist
 		if len(bud) > 0 && des != bud {
@@ -102,25 +100,20 @@ func CreateStringList(sa []string, lineno int) (string, int) {
 	var sls rlib.SLString
 	sls.Value = strings.TrimSpace(sa[2])
 	a.S = append(a.S, sls)
-	return rs, 0
+	return 0, nil
 }
 
 // LoadStringTablesCSV loads a csv file with assessment types and processes each one
-func LoadStringTablesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateStringList(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	if len(a.S) > 0 {
+func LoadStringTablesCSV(fname string) []error {
+	m := LoadRentRollCSV(fname, CreateStringList)
+
+	// write out whatever we got
+	if len(a.S) > 0 && len(m) == 0 {
 		err := writeStringList()
 		if err != nil {
-			rs += fmt.Sprintf("Error writing string list: %s\n", err.Error())
+			err := fmt.Errorf("Error writing string list: %s\n", err.Error())
+			m = append(m, err)
 		}
 	}
-	return rs
+	return m
 }

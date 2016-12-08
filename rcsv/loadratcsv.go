@@ -14,7 +14,7 @@ import (
 //        REX, RAT002.doc
 
 // CreateRentalAgreementTemplate creates a database record for the values supplied in sa[]
-func CreateRentalAgreementTemplate(sa []string, lineno int) (string, int) {
+func CreateRentalAgreementTemplate(sa []string, lineno int) (int, error) {
 	funcname := "CreateRentalAgreementTemplate"
 
 	const (
@@ -28,12 +28,12 @@ func CreateRentalAgreementTemplate(sa []string, lineno int) (string, int) {
 		{"RATemplateName", RATemplateName},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[0])) // this should be BUD
@@ -45,8 +45,7 @@ func CreateRentalAgreementTemplate(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {                  // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			rs += fmt.Sprintf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
 		}
 		a.BID = b1.BID
 	}
@@ -58,26 +57,16 @@ func CreateRentalAgreementTemplate(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		a1 := rlib.GetRentalAgreementByRATemplateName(des)
 		if len(a1.RATemplateName) > 0 {
-			rs += fmt.Sprintf("%s: line %d - RentalAgreementTemplate with RATemplateName %s already exists\n", funcname, lineno, des)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RentalAgreementTemplate with RATemplateName %s already exists\n", funcname, lineno, des)
 		}
 	}
 
 	a.RATemplateName = des
 	rlib.InsertRentalAgreementTemplate(&a)
-	return rs, 0
+	return 0, nil
 }
 
 // LoadRentalAgreementTemplatesCSV loads a csv file with assessment types and processes each one
-func LoadRentalAgreementTemplatesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateRentalAgreementTemplate(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadRentalAgreementTemplatesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateRentalAgreementTemplate)
 }

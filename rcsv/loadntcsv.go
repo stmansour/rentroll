@@ -12,7 +12,7 @@ import (
 // REX,Deposit
 
 // CreateNoteTypes reads a CustomAttributes string array and creates a database record
-func CreateNoteTypes(sa []string, lineno int) (string, int) {
+func CreateNoteTypes(sa []string, lineno int) (int, error) {
 	funcname := "CreateNoteTypes"
 	var nt rlib.NoteType
 	const (
@@ -26,12 +26,12 @@ func CreateNoteTypes(sa []string, lineno int) (string, int) {
 		{"Name", Name},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -41,34 +41,22 @@ func CreateNoteTypes(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			rlib.Ulog("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
 		}
 		nt.BID = b1.BID
 	}
 	nt.Name = strings.TrimSpace(sa[1])
 	if len(nt.Name) == 0 {
-		fmt.Printf("%s: line %d - No Name found for the NoteType\n", funcname, lineno)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No Name found for the NoteType\n", funcname, lineno)
 	}
-	_, err := rlib.InsertNoteType(&nt)
+	_, err = rlib.InsertNoteType(&nt)
 	if err != nil {
-		fmt.Printf("%s: line %d - Error inserting NoteType.  err = %s\n", funcname, lineno, err.Error())
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error inserting NoteType.  err = %s\n", funcname, lineno, err.Error())
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadNoteTypesCSV loads a csv file with note types
-func LoadNoteTypesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateNoteTypes(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadNoteTypesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateNoteTypes)
 }

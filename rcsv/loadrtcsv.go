@@ -32,7 +32,7 @@ func GetBusinessBID(des string) int64 {
 // REH,        "KDS",	"KD Suite",    	6,		       4,      4,     1,             2000.00,   1/1/2015, 1/1/2017
 // REH,        "VEH",	Vehicle,       	3,		       0,      4,     1,             10.0,   1/1/2015, 1/1/2017
 // REH,        "CPT",	Carport,       	6,		       4,      4,     1,             35.0,   1/1/2015, 1/1/2017
-func CreateRentableType(sa []string, lineno int) (string, int) {
+func CreateRentableType(sa []string, lineno int) (int, error) {
 	funcname := "CreateRentableType"
 	const (
 		BUD            = 0
@@ -61,12 +61,12 @@ func CreateRentableType(sa []string, lineno int) (string, int) {
 		{"DtStop", DtStop},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -76,7 +76,7 @@ func CreateRentableType(sa []string, lineno int) (string, int) {
 	var a rlib.RentableType
 	bid := GetBusinessBID(des)
 	if bid == 0 {
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - rlib.Business named %s not found\n", funcname, lineno, sa[0])
 	}
 
 	a.BID = bid
@@ -84,12 +84,10 @@ func CreateRentableType(sa []string, lineno int) (string, int) {
 	if len(a.Style) > 0 {
 		rt, err := rlib.GetRentableTypeByStyle(a.Style, bid)
 		if nil != err && !rlib.IsSQLNoResultsError(err) {
-			rs += fmt.Sprintf("%s: line %d - err = %v\n", funcname, lineno, err)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - err = %v\n", funcname, lineno, err)
 		}
 		if rt.RTID > 0 {
-			rs += fmt.Sprintf("%s: line %d - rlib.RentableType named %s already exists\n", funcname, lineno, a.Style)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.RentableType named %s already exists\n", funcname, lineno, a.Style)
 		}
 	}
 
@@ -100,33 +98,28 @@ func CreateRentableType(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	n, err := strconv.Atoi(strings.TrimSpace(sa[3])) // frequency
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
-		rs += fmt.Sprintf("%s: line %d - Invalid rental frequency: %s\n", funcname, lineno, sa[3])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental frequency: %s\n", funcname, lineno, sa[3])
 	}
 	a.RentCycle = int64(n)
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[4])) // Proration
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
-		rs += fmt.Sprintf("%s: line %d - Invalid rental proration frequency: %s\n", funcname, lineno, sa[4])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental proration frequency: %s\n", funcname, lineno, sa[4])
 	}
 	a.Proration = int64(n)
 	if a.Proration > a.RentCycle {
-		rs += fmt.Sprintf("%s: line %d - Proration frequency (%d) must be greater than rental frequency (%d)\n", funcname, lineno, a.Proration, a.RentCycle)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration frequency (%d) must be greater than rental frequency (%d)\n", funcname, lineno, a.Proration, a.RentCycle)
 	}
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[5])) // Proration
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
-		rs += fmt.Sprintf("%s: line %d - Invalid rental GSRPC: %s\n", funcname, lineno, sa[5])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental GSRPC: %s\n", funcname, lineno, sa[5])
 	}
 	a.GSRPC = int64(n)
 
 	n64, err := rlib.YesNoToInt(strings.TrimSpace(sa[6])) // manage to budget
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - Invalid manage to budget flag: %s\n", funcname, lineno, sa[6])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid manage to budget flag: %s\n", funcname, lineno, sa[6])
 	}
 	a.ManageToBudget = int64(n64)
 
@@ -143,42 +136,29 @@ func CreateRentableType(sa []string, lineno int) (string, int) {
 			var m rlib.RentableMarketRate
 			m.RTID = rtid
 			if x, err = strconv.ParseFloat(strings.TrimSpace(sa[i]), 64); err != nil {
-				rs += fmt.Sprintf("%s: line %d - Invalid floating point number: %s   err = %s\n", funcname, lineno, sa[i], err.Error())
-				return rs, CsvErrorSensitivity
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid floating point number: %s   err = %s\n", funcname, lineno, sa[i], err.Error())
 			}
 			m.MarketRate = x
 			DtStart, err := rlib.StringToDate(sa[i+1])
 			if err != nil {
-				rs += fmt.Sprintf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[i+1])
-				return rs, CsvErrorSensitivity
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[i+1])
 			}
 			m.DtStart = DtStart
 			DtStop, err := rlib.StringToDate(sa[i+2])
 			if err != nil {
-				rs += fmt.Sprintf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[i+2])
-				return rs, CsvErrorSensitivity
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[i+2])
 			}
 			m.DtStop = DtStop
 			if m.DtStart.After(m.DtStop) {
-				rs += fmt.Sprintf("%s: line %d - Stop date (%s) must be after Start date (%s)\n", funcname, lineno, m.DtStop, m.DtStart)
-				return rs, CsvErrorSensitivity
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Stop date (%s) must be after Start date (%s)\n", funcname, lineno, m.DtStop, m.DtStart)
 			}
 			rlib.InsertRentableMarketRates(&m)
 		}
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadRentableTypesCSV loads a csv file with rlib.Rentable types and processes each one
-func LoadRentableTypesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateRentableType(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadRentableTypesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateRentableType)
 }

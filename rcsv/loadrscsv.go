@@ -16,7 +16,7 @@ import (
 // REH,         "Fireplace",     20.0,  "Wood burning, gas fireplace"
 
 // CreateRentalSpecialty reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRentalSpecialty(sa []string, lineno int) (string, int) {
+func CreateRentalSpecialty(sa []string, lineno int) (int, error) {
 	funcname := "CreateRentalSpecialty"
 	const (
 		BUD         = 0
@@ -33,12 +33,12 @@ func CreateRentalSpecialty(sa []string, lineno int) (string, int) {
 		{"Description", Description},
 	}
 
-	rs, y := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if y > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
@@ -51,19 +51,16 @@ func CreateRentalSpecialty(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			rs += fmt.Sprintf("%s: lineno %d  - rlib.Business named %s not found\n", funcname, lineno, des)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - rlib.Business named %s not found\n", funcname, lineno, des)
 		}
 	}
 
 	var a rlib.RentableSpecialty
 	var x float64
-	var err error
 
 	a.Name = strings.TrimSpace(sa[Name])
 	if x, err = strconv.ParseFloat(strings.TrimSpace(sa[Fee]), 64); err != nil {
-		rs += fmt.Sprintf("%s: lineno %d  - Invalid floating point number: %s\n", funcname, lineno, sa[Fee])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - Invalid floating point number: %s\n", funcname, lineno, sa[Fee])
 	}
 	a.Fee = x
 	a.Description = strings.TrimSpace(sa[Description])
@@ -74,8 +71,7 @@ func CreateRentalSpecialty(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	rsp := rlib.GetRentableSpecialtyTypeByName(a.BID, a.Name)
 	if rsp.RSPID > 0 {
-		rs += fmt.Sprintf("%s: lineno %d  - rlib.Business %s already has a rlib.RentableSpecialty named %s\n", funcname, lineno, des, a.Name)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - rlib.Business %s already has a rlib.RentableSpecialty named %s\n", funcname, lineno, des, a.Name)
 	}
 
 	//-------------------------------------------------------------------
@@ -83,22 +79,12 @@ func CreateRentalSpecialty(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	err = rlib.InsertRentableSpecialty(&a)
 	if nil != err {
-		rs += fmt.Sprintf("%s: lineno %d  - error inserting RentalSpecialty = %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - error inserting RentalSpecialty = %v\n", funcname, lineno, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadRentalSpecialtiesCSV loads a csv file with rental specialty types and processes each one
-func LoadRentalSpecialtiesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateRentalSpecialty(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadRentalSpecialtiesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateRentalSpecialty)
 }

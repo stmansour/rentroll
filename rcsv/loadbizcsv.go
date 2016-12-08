@@ -25,14 +25,13 @@ func GetAccrual(s string) (int64, bool) {
 
 // CreatePhonebookLinkedBusiness creates a new rlib.Business in the
 // RentRoll database from the company in Phonebook with the supplied designation
-func CreatePhonebookLinkedBusiness(sa []string, lineno int) (string, int) {
+func CreatePhonebookLinkedBusiness(sa []string, lineno int) (int, error) {
 	funcname := "CreatePhonebookLinkedBusiness"
 	var b rlib.Business
 	des := strings.TrimSpace(sa[0])
 	found := true
 	var err error
 	var ok bool
-	rs := "" // return string
 
 	const (
 		BUD                   = 0
@@ -51,12 +50,12 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (string, int) {
 		{"DefaultGSRPC", DefaultGSRPC},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -65,8 +64,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) > 0 {
-			rs += fmt.Sprintf("%s: line %d -rs, rlib.Business Unit with designation %s already exists\n", funcname, lineno, des)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -rs, rlib.Business Unit with designation %s already exists\n", funcname, lineno, des)
 		}
 		found = false
 	}
@@ -78,8 +76,7 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (string, int) {
 		bu, err := rlib.GetBusinessUnitByDesignation(des)
 		if nil != err {
 			if !rlib.IsSQLNoResultsError(err) { // if the error is something other than "no match" then report and return CsvErrorSensitivity
-				rs += fmt.Sprintf("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v\n", funcname, lineno, des, err)
-				return rs, CsvErrorSensitivity
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v\n", funcname, lineno, des, err)
 			}
 		} else {
 			found = true
@@ -92,24 +89,21 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (string, int) {
 	// DefaultRentCycle
 	//-----------------------------------------
 	if b.DefaultRentCycle, ok = GetAccrual(strings.TrimSpace(sa[2])); !ok {
-		rs += fmt.Sprintf("%s: line %d - Invalid Rent Cycle: %s\n", funcname, lineno, sa[2])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Rent Cycle: %s\n", funcname, lineno, sa[2])
 	}
 
 	//-----------------------------------------
 	// DefaultProrationCycle
 	//-----------------------------------------
 	if b.DefaultProrationCycle, ok = GetAccrual(strings.TrimSpace(sa[3])); !ok {
-		rs += fmt.Sprintf("%s: line %d - Invalid Proration Cycle: %s\n", funcname, lineno, sa[3])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Proration Cycle: %s\n", funcname, lineno, sa[3])
 	}
 
 	//-----------------------------------------
 	// DefaultGSRPC
 	//-----------------------------------------
 	if b.DefaultGSRPC, ok = GetAccrual(strings.TrimSpace(sa[4])); !ok {
-		rs += fmt.Sprintf("%s: line %d - Invalid GSRPC: %s\n", funcname, lineno, sa[4])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid GSRPC: %s\n", funcname, lineno, sa[4])
 	}
 
 	//-------------------------------------------------------------------
@@ -124,26 +118,17 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (string, int) {
 	//fmt.Printf("Business to save:  %#v\n", b)
 	bid, err := rlib.InsertBusiness(&b)
 	if err != nil {
-		rs += fmt.Sprintf("CreatePhonebookLinkedBusiness: error inserting rlib.Business = %v\n", err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: error inserting rlib.Business = %v\n", funcname, err)
 	}
 	err = rlib.NewBusinessInit(bid)
 	if err != nil {
-		rs += fmt.Sprintf("CreatePhonebookLinkedBusiness: error from NewBusinessInit = %v\n", err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: error from NewBusinessInit = %v\n", funcname, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadBusinessCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadBusinessCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreatePhonebookLinkedBusiness(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadBusinessCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreatePhonebookLinkedBusiness)
 }

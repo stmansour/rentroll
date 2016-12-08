@@ -15,7 +15,7 @@ import (
 // REX, A2-LongTerm,  1/1/2016, 7/1/2016, 12,            2,             75.0,               25.00,                    ,
 
 // CreateRatePlanRef reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRatePlanRef(sa []string, lineno int) (string, int) {
+func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	funcname := "CreateRatePlanRef"
 	var b rlib.Business
 
@@ -46,12 +46,12 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 		{"Flags", Flags},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
@@ -62,8 +62,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			rs += fmt.Sprintf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
 		}
 	}
 
@@ -75,13 +74,11 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			rs += fmt.Sprintf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
 		}
 	}
 
 	var a rlib.RatePlanRef
-	var err error
 	var errmsg string
 
 	//-------------------------------------------------------------------
@@ -90,8 +87,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	dt := sa[DtStart]
 	a.DtStart, err = rlib.StringToDate(dt)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[DtStart])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[DtStart])
 	}
 
 	//-------------------------------------------------------------------
@@ -100,8 +96,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	dt = sa[DtStop]
 	a.DtStop, err = rlib.StringToDate(dt)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[DtStop])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[DtStop])
 	}
 
 	//-------------------------------------------------------------------
@@ -109,8 +104,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	a.FeeAppliesAge, errmsg = rlib.IntFromString(sa[FeeAppliesAge], "Invalid FeeAppliesAge")
 	if len(errmsg) > 0 {
-		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[FeeAppliesAge])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[FeeAppliesAge])
 	}
 
 	//-------------------------------------------------------------------
@@ -118,8 +112,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	a.MaxNoFeeUsers, errmsg = rlib.IntFromString(sa[MaxNoFeeUsers], "Invalid MaxNoFeeUsers")
 	if len(errmsg) > 0 {
-		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[MaxNoFeeUsers])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[MaxNoFeeUsers])
 	}
 
 	//-------------------------------------------------------------------
@@ -127,8 +120,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	a.AdditionalUserFee, errmsg = rlib.FloatFromString(sa[AdditionalUserFee], "Invalid Additional User Fee")
 	if len(errmsg) > 0 {
-		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[AdditionalUserFee])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[AdditionalUserFee])
 	}
 
 	//-------------------------------------------------------------------
@@ -136,8 +128,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	a.CancellationFee, errmsg = rlib.FloatFromString(sa[CancellationFee], "Invalid Cancellation Fee")
 	if len(errmsg) > 0 {
-		rs += fmt.Sprintf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[CancellationFee])
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[CancellationFee])
 	}
 
 	//-------------------------------------------------------------------
@@ -156,8 +147,7 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 			case "hide":
 				a.FLAGS |= rlib.FlRTRRefHide // do not show this rate plan to users
 			default:
-				rs += fmt.Sprintf("%s: line %d - Unrecognized export flag: %s\n", funcname, lineno, ssa[i])
-				return rs, CsvErrorSensitivity
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unrecognized export flag: %s\n", funcname, lineno, ssa[i])
 			}
 		}
 	}
@@ -168,22 +158,12 @@ func CreateRatePlanRef(sa []string, lineno int) (string, int) {
 	a.RPID = rp.RPID
 	_, err = rlib.InsertRatePlanRef(&a)
 	if nil != err {
-		rs += fmt.Sprintf("%s: lineno %d  - error inserting RatePlanRef = %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - error inserting RatePlanRef = %v\n", funcname, lineno, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadRatePlanRefsCSV loads a csv file with rental specialty types and processes each one
-func LoadRatePlanRefsCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateRatePlanRef(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadRatePlanRefsCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateRatePlanRef)
 }

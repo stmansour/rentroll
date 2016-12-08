@@ -186,6 +186,11 @@ type csvimporter struct {
 	Handler func(string) string
 }
 
+func rrDoLoad(fname string, handler func(string) []error) {
+	m := handler(fname)
+	fmt.Print(rcsv.ErrlistToString(&m))
+}
+
 func main() {
 	readCommandLineArgs()
 	rlib.RRReadConfig()
@@ -249,91 +254,89 @@ func main() {
 	// Now, on with the main portion of the program...
 	//----------------------------------------------------
 	if len(App.BizFile) > 0 {
-		fmt.Print(rcsv.LoadBusinessCSV(App.BizFile))
+		rrDoLoad(App.BizFile, rcsv.LoadBusinessCSV)
 	}
 	if len(App.SLFile) > 0 {
-		fmt.Print(rcsv.LoadStringTablesCSV(App.SLFile))
+		rrDoLoad(App.SLFile, rcsv.LoadStringTablesCSV)
 	}
 	if len(App.PmtTypeFile) > 0 {
-		fmt.Print(rcsv.LoadPaymentTypesCSV(App.PmtTypeFile))
+		rrDoLoad(App.PmtTypeFile, rcsv.LoadPaymentTypesCSV)
 	}
 	if len(App.DMFile) > 0 {
-		fmt.Print(rcsv.LoadDepositMethodsCSV(App.DMFile))
+		rrDoLoad(App.DMFile, rcsv.LoadDepositMethodsCSV)
 	}
 	if len(App.SrcFile) > 0 {
-		rcsv.LoadSourcesCSV(App.SrcFile)
+		rrDoLoad(App.SrcFile, rcsv.LoadSourcesCSV)
 	}
 	if len(App.RTFile) > 0 {
-		fmt.Print(rcsv.LoadRentableTypesCSV(App.RTFile))
+		rrDoLoad(App.RTFile, rcsv.LoadRentableTypesCSV)
 	}
 	if len(App.CustomFile) > 0 {
-		fmt.Print(rcsv.LoadCustomAttributesCSV(App.CustomFile))
+		rrDoLoad(App.CustomFile, rcsv.LoadCustomAttributesCSV)
 	}
 	if len(App.DepositoryFile) > 0 {
-		fmt.Print(rcsv.LoadDepositoryCSV(App.DepositoryFile))
+		rrDoLoad(App.DepositoryFile, rcsv.LoadDepositoryCSV)
 	}
 	if len(App.RSpFile) > 0 {
-		fmt.Print(rcsv.LoadRentalSpecialtiesCSV(App.RSpFile))
+		rrDoLoad(App.RSpFile, rcsv.LoadRentalSpecialtiesCSV)
 	}
 	if len(App.BldgFile) > 0 {
-		fmt.Print(rcsv.LoadBuildingCSV(App.BldgFile))
+		rrDoLoad(App.BldgFile, rcsv.LoadBuildingCSV)
 	}
 	if len(App.PplFile) > 0 {
-		fmt.Print(rcsv.LoadPeopleCSV(App.PplFile))
+		rrDoLoad(App.PplFile, rcsv.LoadPeopleCSV)
 	}
 	if len(App.VehicleFile) > 0 {
-		fmt.Print(rcsv.LoadVehicleCSV(App.VehicleFile))
+		rrDoLoad(App.VehicleFile, rcsv.LoadVehicleCSV)
 	}
 	if len(App.RFile) > 0 {
-		fmt.Print(rcsv.LoadRentablesCSV(App.RFile))
+		rrDoLoad(App.RFile, rcsv.LoadRentablesCSV)
 	}
 	if len(App.RspRefsFile) > 0 {
-		fmt.Print(rcsv.LoadRentableSpecialtyRefsCSV(App.RspRefsFile))
+		rrDoLoad(App.RspRefsFile, rcsv.LoadRentableSpecialtyRefsCSV)
 	}
 	if len(App.RatFile) > 0 {
-		fmt.Print(rcsv.LoadRentalAgreementTemplatesCSV(App.RatFile))
+		rrDoLoad(App.RatFile, rcsv.LoadRentalAgreementTemplatesCSV)
 	}
 	if len(App.RaFile) > 0 {
-		fmt.Print(rcsv.LoadRentalAgreementCSV(App.RaFile))
+		rrDoLoad(App.RaFile, rcsv.LoadRentalAgreementCSV)
 	}
 	if len(App.PetFile) > 0 {
-		fmt.Print(rcsv.LoadPetsCSV(App.PetFile))
+		rrDoLoad(App.PetFile, rcsv.LoadPetsCSV)
 	}
 	if len(App.CoaFile) > 0 {
-		fmt.Print(rcsv.LoadChartOfAccountsCSV(App.CoaFile))
+		rrDoLoad(App.CoaFile, rcsv.LoadChartOfAccountsCSV)
 	}
 	if len(App.RPFile) > 0 {
-		fmt.Print(rcsv.LoadRatePlansCSV(App.RPFile))
+		rrDoLoad(App.RPFile, rcsv.LoadRatePlansCSV)
 	}
 	if len(App.RPRefFile) > 0 {
-		fmt.Print(rcsv.LoadRatePlanRefsCSV(App.RPRefFile))
+		rrDoLoad(App.RPRefFile, rcsv.LoadRatePlanRefsCSV)
 	}
 	if len(App.RPRRTRateFile) > 0 {
-		fmt.Print(rcsv.LoadRatePlanRefRTRatesCSV(App.RPRRTRateFile))
+		rrDoLoad(App.RPRRTRateFile, rcsv.LoadRatePlanRefRTRatesCSV)
 	}
 	if len(App.RPRSPRateFile) > 0 {
-		fmt.Print(rcsv.LoadRatePlanRefSPRatesCSV(App.RPRSPRateFile))
+		rrDoLoad(App.RPRSPRateFile, rcsv.LoadRatePlanRefSPRatesCSV)
 	}
 	if len(App.AsmtFile) > 0 {
-		s := rcsv.LoadAssessmentsCSV(App.AsmtFile)
-		fmt.Print(s)
+		rrDoLoad(App.AsmtFile, rcsv.LoadAssessmentsCSV)
 	}
 	if len(App.RcptFile) > 0 {
 		App.PmtTypes = rlib.GetPaymentTypes()
-		s := rcsv.LoadReceiptsCSV(App.RcptFile)
-		fmt.Print(s)
+		rrDoLoad(App.RcptFile, rcsv.LoadReceiptsCSV)
 	}
 	if len(App.DepositFile) > 0 {
-		fmt.Print(rcsv.LoadDepositCSV(App.DepositFile))
+		rrDoLoad(App.DepositFile, rcsv.LoadDepositCSV)
 	}
 	if len(App.AssignFile) > 0 {
-		fmt.Print(rcsv.LoadCustomAttributeRefsCSV(App.AssignFile))
+		rrDoLoad(App.AssignFile, rcsv.LoadCustomAttributeRefsCSV)
 	}
 	if len(App.NoteTypeFile) > 0 {
-		fmt.Print(rcsv.LoadNoteTypesCSV(App.NoteTypeFile))
+		rrDoLoad(App.NoteTypeFile, rcsv.LoadNoteTypesCSV)
 	}
 	if len(App.InvoiceFile) > 0 {
-		fmt.Print(rcsv.LoadInvoicesCSV(App.InvoiceFile))
+		rrDoLoad(App.InvoiceFile, rcsv.LoadInvoicesCSV)
 	}
 
 	if len(App.Report) > 0 {

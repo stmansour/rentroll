@@ -11,7 +11,7 @@ import (
 // BUD, Name,       AccountNo
 
 // CreateDepositoriesFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateDepositoriesFromCSV(sa []string, lineno int) (string, int) {
+func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 	funcname := "CreateDepositoriesFromCSV"
 	var err error
 	var d rlib.Depository
@@ -28,12 +28,12 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (string, int) {
 		{"AccountNo", AccountNo},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	//-------------------------------------------------------------------
@@ -42,8 +42,7 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (string, int) {
 	if len(sa[BUD]) > 0 {
 		b1 := rlib.GetBusinessByDesignation(sa[BUD])
 		if len(b1.Designation) == 0 {
-			rs += fmt.Sprintf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
 		}
 		d.BID = b1.BID
 	}
@@ -53,8 +52,7 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	d.Name = strings.TrimSpace(sa[Name])
 	if len(d.Name) == 0 {
-		rs += fmt.Sprintf("%s: line %d - no name for Depository. Please supply a name\n", funcname, lineno)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no name for Depository. Please supply a name\n", funcname, lineno)
 	}
 
 	//-------------------------------------------------------------------
@@ -62,32 +60,21 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (string, int) {
 	//-------------------------------------------------------------------
 	d.AccountNo = strings.TrimSpace(sa[AccountNo])
 	if len(d.AccountNo) == 0 {
-		rs += fmt.Sprintf("%s: line %d - no AccountNo for Depository. Please supply AccountNo\n", funcname, lineno)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no AccountNo for Depository. Please supply AccountNo\n", funcname, lineno)
 	}
 	dup := rlib.GetDepositoryByAccount(d.BID, d.AccountNo)
 	if dup.DEPID != 0 {
-		rs += fmt.Sprintf("%s: line %d -  depository with account number %s already exists\n", funcname, lineno, d.AccountNo)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  depository with account number %s already exists\n", funcname, lineno, d.AccountNo)
 	}
 
 	_, err = rlib.InsertDepository(&d)
 	if err != nil {
-		rs += fmt.Sprintf("%s: line %d -  error inserting depository: %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting depository: %v\n", funcname, lineno, err)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadDepositoryCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadDepositoryCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateDepositoriesFromCSV(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadDepositoryCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateDepositoriesFromCSV)
 }

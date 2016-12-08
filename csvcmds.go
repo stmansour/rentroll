@@ -77,7 +77,8 @@ func CmdCsvAssess(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, 
 
 	if len(fname) > 0 {
 		rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
-		ui.ReportContent += rcsv.LoadAssessmentsCSV(path)
+		m := rcsv.LoadAssessmentsCSV(path)
+		ui.ReportContent += rcsv.ErrlistToString(&m)
 		t := rcsv.RRAssessmentsTable(xbiz.P.BID, &ui.D1, &ui.D2)
 		ui.ReportContent += fmt.Sprintf("\nAssessments\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
@@ -100,7 +101,8 @@ func CmdCsvRcpt(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 
 	if len(fname) > 0 {
 		rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
-		ui.ReportContent = rcsv.LoadReceiptsCSV(path)
+		m := rcsv.LoadReceiptsCSV(path)
+		ui.ReportContent = rcsv.ErrlistToString(&m)
 		t := rcsv.RRReceiptsTable(xbiz.P.BID, &ui.D1, &ui.D2)
 		ui.ReportContent += fmt.Sprintf("\nReceipts\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
@@ -146,22 +148,22 @@ type csvLoaderT struct {
 }
 
 var loaders = []csvLoaderT{
-	{prefix: "ASM", handler: rcsv.LoadAssessmentsCSV},
-	{prefix: "B", handler: rcsv.LoadBusinessCSV},
-	{prefix: "C", handler: rcsv.LoadCustomAttributesCSV},
-	{prefix: "CR", handler: rcsv.LoadCustomAttributeRefsCSV},
-	{prefix: "COA", handler: rcsv.LoadChartOfAccountsCSV},
-	{prefix: "DPM", handler: rcsv.LoadDepositMethodsCSV},
-	{prefix: "DEP", handler: rcsv.LoadDepositoryCSV},
-	{prefix: "RT", handler: rcsv.LoadRentableTypesCSV},
-	{prefix: "SL", handler: rcsv.LoadStringTablesCSV},
-	{prefix: "T", handler: rcsv.LoadPeopleCSV},
-	{prefix: "PMT", handler: rcsv.LoadPaymentTypesCSV},
-	{prefix: "R", handler: rcsv.LoadRentablesCSV},
-	{prefix: "RA", handler: rcsv.LoadRentalAgreementCSV},
-	{prefix: "RAT", handler: rcsv.LoadRentalAgreementTemplatesCSV},
-	{prefix: "RCPT", handler: rcsv.LoadReceiptsCSV},
-	// {prefix: "RSP", handler: rcsv.LoadRentalSpecialtiesCSV},
+//{prefix: "ASM", handler: rcsv.LoadAssessmentsCSV},
+// {prefix: "B", handler: rcsv.LoadBusinessCSV},
+// {prefix: "C", handler: rcsv.LoadCustomAttributesCSV},
+// {prefix: "CR", handler: rcsv.LoadCustomAttributeRefsCSV},
+// {prefix: "COA", handler: rcsv.LoadChartOfAccountsCSV},
+// {prefix: "DPM", handler: rcsv.LoadDepositMethodsCSV},
+// {prefix: "DEP", handler: rcsv.LoadDepositoryCSV},
+// {prefix: "RT", handler: rcsv.LoadRentableTypesCSV},
+// {prefix: "SL", handler: rcsv.LoadStringTablesCSV},
+// //{prefix: "T", handler: rcsv.LoadPeopleCSV},
+// {prefix: "PMT", handler: rcsv.LoadPaymentTypesCSV},
+// {prefix: "R", handler: rcsv.LoadRentablesCSV},
+// {prefix: "RA", handler: rcsv.LoadRentalAgreementCSV},
+// {prefix: "RAT", handler: rcsv.LoadRentalAgreementTemplatesCSV},
+// {prefix: "RCPT", handler: rcsv.LoadReceiptsCSV},
+// {prefix: "RSP", handler: rcsv.LoadRentalSpecialtiesCSV},
 }
 
 func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {

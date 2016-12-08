@@ -14,7 +14,7 @@ import (
 // REH,"Cash", "Cash"
 
 // CreatePaymentTypeFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
+func CreatePaymentTypeFromCSV(sa []string, lineno int) (int, error) {
 	funcname := "CreatePaymentTypeFromCSV"
 	var pt, dup rlib.PaymentType
 	const (
@@ -30,12 +30,12 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
 		{"Description", Description},
 	}
 
-	rs, x := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if x > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
@@ -46,8 +46,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
 	if len(des) > 0 {
 		b := rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			rs += fmt.Sprintf("%s: line %d - Business named %s not found\n", funcname, lineno, des)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business named %s not found\n", funcname, lineno, des)
 		}
 		pt.BID = b.BID
 	}
@@ -57,32 +56,21 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (string, int) {
 
 	rlib.GetPaymentTypeByName(pt.BID, pt.Name, &dup)
 	if dup.PMTID > 0 {
-		rs += fmt.Sprintf("%s: line %d - Payment type named %s already exists.  Skipping...\n", funcname, lineno, pt.Name)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Payment type named %s already exists.  Skipping...\n", funcname, lineno, pt.Name)
 	}
 
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	err := rlib.InsertPaymentType(&pt)
+	err = rlib.InsertPaymentType(&pt)
 	if nil != err {
-		rs += fmt.Sprintf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
 	}
 
-	return rs, 0
+	return 0, nil
 }
 
 // LoadPaymentTypesCSV loads a csv file with rental specialty types and processes each one
-func LoadPaymentTypesCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreatePaymentTypeFromCSV(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadPaymentTypesCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreatePaymentTypeFromCSV)
 }

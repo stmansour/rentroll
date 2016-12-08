@@ -20,7 +20,7 @@ import (
 
 // CreateVehicleFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
 // If the return value is not 0, abort the csv load
-func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
+func CreateVehicleFromCSV(sa []string, lineno int) (int, error) {
 	funcname := "CreateVehicleFromCSV"
 
 	var (
@@ -60,12 +60,12 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 		{"DtStop", DtStop},
 	}
 
-	rs, y := ValidateCSVColumns(csvCols, sa, funcname, lineno)
-	if y > 0 {
-		return rs, 1
+	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
+	if y {
+		return 1, err
 	}
 	if lineno == 1 {
-		return rs, 0
+		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
 	for i := 0; i < len(sa); i++ {
@@ -80,16 +80,14 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 			if len(des) > 0 { // make sure it's not empty
 				b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 				if len(b1.Designation) == 0 {
-					rs += fmt.Sprintf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
-					return rs, CsvErrorSensitivity
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
 				}
 				tr.BID = b1.BID
 			}
 		case TCID:
 			tr = rlib.GetTransactantByPhoneOrEmail(tr.BID, s)
 			if tr.TCID < 1 {
-				rs += fmt.Sprintf("%s: line %d, no Transactant found with %s listed as a phone or email\n", funcname, lineno, s)
-				return rs, CsvErrorSensitivity
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d, no Transactant found with %s listed as a phone or email\n", funcname, lineno, s)
 			}
 			t.TCID = tr.TCID
 		case VehicleType:
@@ -104,8 +102,7 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
-					rs += fmt.Sprintf("%s: line %d - VehicleYear value is invalid: %s\n", funcname, lineno, s)
-					return rs, CsvErrorSensitivity
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - VehicleYear value is invalid: %s\n", funcname, lineno, s)
 				}
 				t.VehicleYear = int64(i)
 			}
@@ -119,20 +116,18 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 			if len(s) > 0 {
 				t.DtStart, err = rlib.StringToDate(s) // required field
 				if err != nil {
-					rs += fmt.Sprintf("%s: line %d - invalid start date.  Error = %s\n", funcname, lineno, err.Error())
-					return rs, CsvErrorSensitivity
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date.  Error = %s\n", funcname, lineno, err.Error())
 				}
 			}
 		case DtStop:
 			if len(s) > 0 {
 				t.DtStop, err = rlib.StringToDate(s) // required field
 				if err != nil {
-					rs += fmt.Sprintf("%s: line %d - invalid start date.  Error = %s\n", funcname, lineno, err.Error())
-					return rs, CsvErrorSensitivity
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date.  Error = %s\n", funcname, lineno, err.Error())
 				}
 			}
 		default:
-			rs += fmt.Sprintf("i = %d, unknown field\n", i)
+			return CsvErrorSensitivity, fmt.Errorf("i = %d, unknown field\n", i)
 		}
 	}
 
@@ -142,8 +137,7 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 	tm := rlib.GetVehiclesByLicensePlate(t.LicensePlateNumber)
 	for i := 0; i < len(tm); i++ {
 		if t.LicensePlateNumber == tm[i].LicensePlateNumber && t.LicensePlateState == tm[i].LicensePlateState {
-			rs += fmt.Sprintf("%s: line %d - vehicle with License Plate %s in State = %s already exists\n", funcname, lineno, t.LicensePlateNumber, t.LicensePlateState)
-			return rs, CsvErrorSensitivity
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - vehicle with License Plate %s in State = %s already exists\n", funcname, lineno, t.LicensePlateNumber, t.LicensePlateState)
 		}
 	}
 
@@ -154,27 +148,16 @@ func CreateVehicleFromCSV(sa []string, lineno int) (string, int) {
 	t.BID = tr.BID
 	vid, err := rlib.InsertVehicle(&t)
 	if nil != err {
-		rs += fmt.Sprintf("%s: line %d - error inserting Vehicle = %v\n", funcname, lineno, err)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Vehicle = %v\n", funcname, lineno, err)
 	}
 
 	if vid == 0 {
-		rs += fmt.Sprintf("%s: line %d - after InsertVehicle vid = %d\n", funcname, lineno, vid)
-		return rs, CsvErrorSensitivity
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - after InsertVehicle vid = %d\n", funcname, lineno, vid)
 	}
-	return rs, 0
+	return 0, nil
 }
 
 // LoadVehicleCSV loads a csv file with vehicles
-func LoadVehicleCSV(fname string) string {
-	rs := ""
-	t := rlib.LoadCSV(fname)
-	for i := 0; i < len(t); i++ {
-		s, err := CreateVehicleFromCSV(t[i], i+1)
-		rs += s
-		if err > 0 {
-			break
-		}
-	}
-	return rs
+func LoadVehicleCSV(fname string) []error {
+	return LoadRentRollCSV(fname, CreateVehicleFromCSV)
 }

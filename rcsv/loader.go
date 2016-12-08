@@ -42,7 +42,7 @@ const (
 type CSVLoader struct {
 	Name   string
 	Index  int // which loader
-	Loader func(string) string
+	Loader func(string) []error
 }
 
 // CSVLoaders is an array of functions that load CSV files that are indexed
@@ -50,7 +50,7 @@ type CSVLoader struct {
 // by the associated Index value
 var CSVLoaders = []CSVLoader{
 	{Name: "Assessments", Index: CSVAssessments, Loader: LoadAssessmentsCSV},
-	{Name: "Receipts", Index: CSVReceipts, Loader: LoadReceiptsCSV},
+	//{Name: "Receipts", Index: CSVReceipts, Loader: LoadReceiptsCSV},
 	// {Name: "Business", Index: CSVBusiness, Loader: LoadBusinessCSV},
 	// {Name: "StringTables", Index: CSVStringTables, Loader: LoadStringTablesCSV},
 	// {Name: "PaymentTypes", Index: CSVPaymentTypes, Loader: LoadPaymentTypesCSV},
@@ -98,7 +98,8 @@ func InitRCSV(d1, d2 *time.Time, xbiz *rlib.XBusiness) {
 func DispatchCSV(index int, fname string) string {
 	for i := 0; i < len(CSVLoaders); i++ {
 		if CSVLoaders[i].Index == index {
-			return CSVLoaders[i].Loader(fname)
+			m := CSVLoaders[i].Loader(fname)
+			return ErrlistToString(&m)
 		}
 	}
 	return fmt.Sprintf("CSV Loader %d not found", index)
