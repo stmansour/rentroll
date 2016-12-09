@@ -530,7 +530,7 @@ type Payor struct {
 // XPerson of all person related attributes
 type XPerson struct {
 	Trn Transactant
-	Tnt User
+	Usr User
 	Psp Prospect
 	Pay Payor
 }
@@ -916,9 +916,11 @@ type RRprepSQL struct {
 	DeleteRentableStatus               *sql.Stmt
 	DeleteRentableTypeRef              *sql.Stmt
 	DeleteRentalAgreementPet           *sql.Stmt
+	DeleteRentalAgreementTax           *sql.Stmt
 	DeleteSLString                     *sql.Stmt
 	DeleteSLStrings                    *sql.Stmt
 	DeleteStringList                   *sql.Stmt
+	DeleteVehicle                      *sql.Stmt
 	FindAgreementByRentable            *sql.Stmt
 	FindTransactantByPhoneOrEmail      *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
@@ -965,6 +967,7 @@ type RRprepSQL struct {
 	GetBusiness                        *sql.Stmt
 	GetBusinessByDesignation           *sql.Stmt
 	GetCustomAttribute                 *sql.Stmt
+	GetCustomAttributeByVals           *sql.Stmt
 	GetCustomAttributeRef              *sql.Stmt
 	GetCustomAttributeRefs             *sql.Stmt
 	GetDefaultLedgers                  *sql.Stmt
@@ -1045,6 +1048,7 @@ type RRprepSQL struct {
 	GetRentalAgreementPet              *sql.Stmt
 	GetRentalAgreementRentables        *sql.Stmt
 	GetRentalAgreementsForRentable     *sql.Stmt
+	GetRentalAgreementTax              *sql.Stmt
 	GetRentalAgreementTemplate         *sql.Stmt
 	GetSecurityDepositAssessment       *sql.Stmt
 	GetSLString                        *sql.Stmt
@@ -1054,6 +1058,10 @@ type RRprepSQL struct {
 	GetTransactant                     *sql.Stmt
 	GetUnitAssessments                 *sql.Stmt
 	GetUser                            *sql.Stmt
+	GetVehicle                         *sql.Stmt
+	GetVehiclesByBID                   *sql.Stmt
+	GetVehiclesByLicensePlate          *sql.Stmt
+	GetVehiclesByTransactant           *sql.Stmt
 	InsertAssessment                   *sql.Stmt
 	InsertAssessmentType               *sql.Stmt
 	InsertBuilding                     *sql.Stmt
@@ -1100,11 +1108,13 @@ type RRprepSQL struct {
 	InsertRentalAgreementPayor         *sql.Stmt
 	InsertRentalAgreementPet           *sql.Stmt
 	InsertRentalAgreementRentable      *sql.Stmt
+	InsertRentalAgreementTax           *sql.Stmt
 	InsertRentalAgreementTemplate      *sql.Stmt
 	InsertSLString                     *sql.Stmt
 	InsertStringList                   *sql.Stmt
 	InsertTransactant                  *sql.Stmt
 	InsertUser                         *sql.Stmt
+	InsertVehicle                      *sql.Stmt
 	ReadRatePlan                       *sql.Stmt
 	ReadRatePlanRef                    *sql.Stmt
 	UpdateAssessment                   *sql.Stmt
@@ -1113,6 +1123,7 @@ type RRprepSQL struct {
 	UpdateDeposit                      *sql.Stmt
 	UpdateDepositMethod                *sql.Stmt
 	UpdateDepository                   *sql.Stmt
+	UpdateeRentalAgreementTax          *sql.Stmt
 	UpdateInvoice                      *sql.Stmt
 	UpdateLedger                       *sql.Stmt
 	UpdateLedgerMarker                 *sql.Stmt
@@ -1131,18 +1142,9 @@ type RRprepSQL struct {
 	UpdateSLString                     *sql.Stmt
 	UpdateStringList                   *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
-	GetCustomAttributeByVals           *sql.Stmt
-	InsertRentalAgreementTax           *sql.Stmt
-	GetRentalAgreementTax              *sql.Stmt
-	DeleteRentalAgreementTax           *sql.Stmt
-	UpdateeRentalAgreementTax          *sql.Stmt
-	GetVehicle                         *sql.Stmt
-	InsertVehicle                      *sql.Stmt
 	UpdateVehicle                      *sql.Stmt
-	DeleteVehicle                      *sql.Stmt
-	GetVehiclesByTransactant           *sql.Stmt
-	GetVehiclesByBID                   *sql.Stmt
-	GetVehiclesByLicensePlate          *sql.Stmt
+	UpdateUser                         *sql.Stmt
+	UpdatePayor                        *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

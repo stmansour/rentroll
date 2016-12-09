@@ -48,7 +48,10 @@ type W2uiGridRequest struct {
 // to get its unique data.
 type ServiceData struct {
 	BID  int64           // which business
+	TCID int64           // TCID if supplied
+	RAID int64           // RAID if supplied
 	greq W2uiGridRequest // what did the grid ask for
+	data string          // the raw unparsed data
 }
 
 // Svcs is the table of all service handlers
@@ -108,8 +111,9 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u = u[i+len(requestHeader):]
+	d.data = u
 
-	fmt.Printf("json.Unmarshal:  %s\n", u)
+	fmt.Printf("\njson.Unmarshal:  %s\n", u)
 
 	err = json.Unmarshal([]byte(u), &d.greq)
 	if err != nil {
@@ -250,6 +254,20 @@ func GetRowCount(table, where string) (int64, error) {
 	return count, err
 }
 
+// SvcWriteResponse finishes the transaction with the W2UI client
+func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
+	b, err := json.Marshal(g)
+	if err != nil {
+		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	// fmt.Printf("first 50 chars of response: %50.50s\n", string(b))
+	fmt.Printf("\nResponse Data:  %s\n\n", string(b))
+	w.Write(b)
+}
+
 // SvcGLAccounts generates a report of all GLAccounts for a the business unit
 // called out in d.BID
 func SvcGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -297,17 +315,7 @@ func SvcGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Errcheck(rows.Err())
 	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
-	b, err := json.Marshal(g)
-	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	bjson := string(b)
-	fmt.Printf("first 50 chars of response: %50.50s\n", bjson)
-	// fmt.Printf("Response Data:  %s\n", string(b))
-	w.Write(b)
+	SvcWriteResponse(&g, w)
 }
 
 // SvcTransactants generates a report of all Transactants defined business d.BID
@@ -324,16 +332,14 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	srch := fmt.Sprintf("BID=%d", d.BID)   // default WHERE clause
 	order := "LastName ASC, FirstName ASC" // default ORDER
 	q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
+	// fmt.Printf("db query = %s\n", q)
 
-	// set g.Total to the total number of rows of this data...
-	g.Total, err = GetRowCount("Transactant", qw)
+	g.Total, err = GetRowCount("Transactant", qw) // total number of rows that match the criteria
 	if err != nil {
 		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-
-	fmt.Printf("db query = %s\n", q)
 
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	rlib.Errcheck(err)
@@ -357,18 +363,7 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Errcheck(rows.Err())
 	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
-	b, err := json.Marshal(g)
-	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	bjson := string(b)
-	fmt.Printf("first 50 chars of response: %50.50s\n", bjson)
-	// fmt.Printf("Response Data:  %s\n", string(b))
-
-	w.Write(b)
+	SvcWriteResponse(&g, w)
 }
 
 // SvcRentables generates a report of all Rentables defined business d.BID
@@ -418,16 +413,5 @@ func SvcRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Errcheck(rows.Err())
 	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
-	b, err := json.Marshal(g)
-	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	bjson := string(b)
-	fmt.Printf("first 100 chars of response: %100.100s\n", bjson)
-	// fmt.Printf("Response Data:  %s\n", string(b))
-
-	w.Write(b)
+	SvcWriteResponse(&g, w)
 }

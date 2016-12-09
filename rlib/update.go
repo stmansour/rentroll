@@ -94,9 +94,19 @@ func UpdateLedger(l *GLAccount) error {
 	return err
 }
 
+// UpdatePayor updates a Payor record in the database
+func UpdatePayor(a *Payor) error {
+	_, err := RRdb.Prepstmt.UpdatePayor.Exec(a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.LastModBy, a.TCID)
+	if nil != err {
+		Ulog("UpdatePayor: error updating pet:  %v\n", err)
+		Ulog("Payor = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateProspect updates a Prospect record in the database
 func UpdateProspect(a *Prospect) error {
-	_, err := RRdb.Prepstmt.UpdateProspect.Exec(a.TCID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
+	_, err := RRdb.Prepstmt.UpdateProspect.Exec(a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
 		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
 		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy, a.TCID)
@@ -221,14 +231,14 @@ func UpdateTransactant(a *Transactant) error {
 }
 
 // UpdateUser updates a User record in the database
-// func UpdateUser(a *User) error {
-// 	_, err := RRdb.Prepstmt.UpdateUser.Exec(a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy, a.TCID)
-// 	if nil != err {
-// 		Ulog("UpdateUser: error updating User:  %v\n", err)
-// 		Ulog("User = %#v\n", *a)
-// 	}
-// 	return err
-// }
+func UpdateUser(a *User) error {
+	_, err := RRdb.Prepstmt.UpdateUser.Exec(a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy, a.TCID)
+	if nil != err {
+		Ulog("UpdateUser: error updating User:  %v\n", err)
+		Ulog("User = %#v\n", *a)
+	}
+	return err
+}
 
 // UpdateVehicle updates a Vehicle record in the database
 func UpdateVehicle(a *Vehicle) error {

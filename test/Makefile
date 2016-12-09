@@ -1,5 +1,4 @@
-#DIRS = setup engine newbiz rex rsp gsr gsr1 gsr2 notes rrr rr1 ccc
-DIRS = setup newbiz rrr rr1 jm1 notes ccc
+DIRS = setup newbiz rrr rr1 jm1 notes ccc upd
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done

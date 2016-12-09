@@ -331,7 +331,7 @@ var transactantGrid = {
     },        
     columns: [
         {field: 'FirstName',    caption: "First Name",    size: '10%', sortable: true, hidden: false},
-        {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: false},
+        {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: true},
         {field: 'LastName',     caption: "Last Name",     size: '10%', sortable: true, hidden: false},
         {field: 'PrimaryEmail', caption: "Primary Email", size: '10%', sortable: true, hidden: false},
         {field: 'WorkPhone',    caption: "Work Phone",    size: '10%', sortable: true, hidden: false},
@@ -459,7 +459,9 @@ var transactantForm = {
                     console.log('ERROR: '+ data.message);
                     return;
                 }
-                obj.clear();
+                // obj.clear();
+                w2ui['toplayout'].hide('right',true);
+                w2ui['transactantGrid'].reload();   
             });
         }
     }
@@ -476,7 +478,7 @@ var rentablesGrid = {
         lineNumbers: false,
         selectColumn: false,
         expandColumn: false
-    },        
+    },
     columns: [
         {field: 'recid', caption: 'recid', size: '50px', sortable: true},
         {field: 'RID', caption: 'RID', size: '50px', sortable: true},
