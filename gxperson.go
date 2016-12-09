@@ -9,7 +9,12 @@ import (
 	"time"
 )
 
-// JSONTime is a type for which we can control the JSON encoding format of the date
+// JSONTime is a wrapper around time.Time. We need it
+// in order to be able to control the formatting used
+// on the date values sent to the w2ui controls.  Without
+// this wrapper, the default time format used by the
+// JSON encoder / decoder does not work with the w2ui
+// controls
 type JSONTime time.Time
 
 // this is a structure specifically for the UI. It will be
@@ -73,12 +78,27 @@ type gxperson struct {
 	EligibleFuturePayor       int64
 }
 
-// MarshalJSON for time.Time values in JSON.  We need to override the default
-// format that Go's JSON Marshal routines use for time format.
-func (t JSONTime) MarshalJSON() ([]byte, error) {
-	//do your serializing here
-	stamp := fmt.Sprintf("\"%s\"", time.Time(t).Format("1/2/2006"))
-	return []byte(stamp), nil
+// MarshalJSON overrides the default time.Time handler and sends
+// date strings of the form YYYY-MM-DD.
+//--------------------------------------------------------------------
+func (t *JSONTime) MarshalJSON() ([]byte, error) {
+	ts := time.Time(*t)
+	val := fmt.Sprintf("\"%s\"", ts.Format("2006-01-02"))
+	return []byte(val), nil
+}
+
+// UnarshalJSON overrides the default time.Time handler and reads in
+// date strings of the form YYYY-MM-DD.
+//--------------------------------------------------------------------
+func (t *JSONTime) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	s = rlib.Stripchars(s, "\"")
+	x, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return err
+	}
+	*t = JSONTime(x)
+	return nil
 }
 
 // SvcXPerson formats a complete data record for a person suitable for use with the w2ui Form
@@ -145,15 +165,19 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var gxp gxperson
 	err := json.Unmarshal([]byte(s), &gxp)
 	if err != nil {
+		fmt.Printf("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
+	fmt.Printf("Begin struct data migration\n")
 	var xp rlib.XPerson
 	rlib.MigrateStructVals(&gxp, &xp.Trn)
 	rlib.MigrateStructVals(&gxp, &xp.Usr)
 	rlib.MigrateStructVals(&gxp, &xp.Psp)
 	rlib.MigrateStructVals(&gxp, &xp.Pay)
+	fmt.Printf("end migration\n")
 
 	err = rlib.UpdateTransactant(&xp.Trn)
 	if err != nil {
