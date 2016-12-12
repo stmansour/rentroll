@@ -65,7 +65,7 @@ func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, OneSiteCS
 		csvRow.Elem().Field(i).Set(reflect.ValueOf(data[i]))
 	}
 
-	// if blank data has been passed then need to return false
+	// if blank data has not been passed then only need to return true
 	if (OneSiteCSVRow{}) != csvRow.Elem().Interface().(OneSiteCSVRow) {
 		rowLoaded = true
 	}
