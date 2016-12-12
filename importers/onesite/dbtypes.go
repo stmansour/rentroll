@@ -56,12 +56,18 @@ type OneSiteCSVRow struct {
 
 // LoadOneSiteCSVRow used to load data from slice
 // into OneSiteCSVRow struct and return that struct
-func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) OneSiteCSVRow {
+func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, OneSiteCSVRow) {
 	csvRow := reflect.New(reflect.TypeOf(OneSiteCSVRow{}))
+	rowLoaded := false
 
 	// fill data according to headers length
 	for i := 0; i < len(csvCols); i++ {
 		csvRow.Elem().Field(i).Set(reflect.ValueOf(data[i]))
 	}
-	return csvRow.Elem().Interface().(OneSiteCSVRow)
+
+	// if blank data has been passed then need to return false
+	if (OneSiteCSVRow{}) != csvRow.Elem().Interface().(OneSiteCSVRow) {
+		rowLoaded = true
+	}
+	return rowLoaded, csvRow.Elem().Interface().(OneSiteCSVRow)
 }

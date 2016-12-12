@@ -165,14 +165,6 @@ func LoadOneSiteCSV(fname string) string {
 			fmt.Println(vrs)
 			return vrs.Error()
 		}
-		// if i == skipRowsCount {
-		// 	return vrs
-		// }
-		// s, err := CreatePhonebookLinkedBusiness(t[i], i+1)
-		// rs += s
-		// if err > 0 {
-		// 	break
-		// }
 	}
 
 	// ================================
@@ -228,7 +220,14 @@ func LoadOneSiteCSV(fname string) string {
 	avoidDuplicateRentableTypeData := []string{}
 
 	for i := skipRowsCount + 1; i < len(t); i++ {
-		csvRow := LoadOneSiteCSVRow(csvCols, t[i])
+		rowLoaded, csvRow := LoadOneSiteCSVRow(csvCols, t[i])
+
+		// NOTE: might need to change logic, if t[i] contains blank data that we should
+		// stop the loop as we have to skip rest of the rows (please look at onesite.csv)
+		if !rowLoaded {
+			fmt.Println("\nNo more data to parse")
+			break
+		}
 
 		checkRentableTypeStyle := csvRow.FloorPlan
 		Stylefound := core.StringInSlice(checkRentableTypeStyle, avoidDuplicateRentableTypeData)
