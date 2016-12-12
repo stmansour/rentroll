@@ -9,10 +9,11 @@ import (
 	"os"
 	"path"
 	"reflect"
-	"rentroll/importer/core"
+	"rentroll/importers/core"
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -23,7 +24,7 @@ const (
 
 // GetOneSiteMapping reads json file and loads
 // field mapping structure in go for further usage
-func GetOneSiteMapping(oneSiteMap *OneSiteJSON) error {
+func GetOneSiteMapping(OneSiteFieldMap *OneSiteMap) error {
 
 	// Caller returns program counter, filename, line no, ok
 	_, filename, _, ok := runtime.Caller(1)
@@ -37,8 +38,10 @@ func GetOneSiteMapping(oneSiteMap *OneSiteJSON) error {
 	if err != nil {
 		// fmt.Errorf("File error: %v\n", err)
 		panic(err)
+		// return err
+		// ???
 	}
-	err = json.Unmarshal(fieldmap, oneSiteMap)
+	err = json.Unmarshal(fieldmap, OneSiteFieldMap)
 	if err != nil {
 		// fmt.Errorf("%s", err)
 		panic(err)
@@ -190,13 +193,13 @@ func LoadOneSiteCSV(fname string) string {
 	currentTimeFormat := currentTime.Format(time.RFC3339Nano)
 
 	// get onesite mapping
-	var OneSiteMap OneSiteJSON
-	err := GetOneSiteMapping(&OneSiteMap)
+	var OneSiteFieldMap OneSiteMap
+	err := GetOneSiteMapping(&OneSiteFieldMap)
 	if err != nil {
 		fmt.Printf("Error: %s", err)
 		return err.Error()
 	}
-	fmt.Printf("%v", OneSiteMap)
+	fmt.Printf("%v", OneSiteFieldMap)
 
 	// ======================================
 	// create rentabletypes file with current time
@@ -213,26 +216,54 @@ func LoadOneSiteCSV(fname string) string {
 
 	// TODO: write headers from struct rather than provides hard coded values
 	rentableTypeCSVHeaders := []string{
-		"RTID", "BID", "Style", "Name",
-		"RentCycle", "Proration", "GSPRC",
-		"ManageToBudget", "MR", "CA",
-		"MRCurrent", "LastModTime", "LastModBy",
+		"BUD", "Style", "Name",
+		"RentCycle", "Proration",
+		"GSRPC", "ManageToBudget",
+		"MarketRate", "DtStart", "DtStop",
 	}
 	rentableTypeCSVWriter.Write(rentableTypeCSVHeaders)
+
+	// avoidDuplicateRentableTypeData used to keep track of rentableTypeData with Style field
+	// so that duplicate entries can be avoided while creating rentableType csv file
+	avoidDuplicateRentableTypeData := []string{}
 
 	for i := skipRowsCount + 1; i < len(t); i++ {
 		csvRow := LoadOneSiteCSVRow(csvCols, t[i])
 
+		checkRentableTypeStyle := csvRow.FloorPlan
+		Stylefound := core.StringInSlice(checkRentableTypeStyle, avoidDuplicateRentableTypeData)
+		if Stylefound {
+			// jump to next row
+			// TODO: remove this jump as in future we need to include
+			// other type of parsing to create csv files
+			continue
+		} else {
+			avoidDuplicateRentableTypeData = append(avoidDuplicateRentableTypeData, checkRentableTypeStyle)
+		}
+
+		currentYear, _, _ := currentTime.Date()
+		DtStart := "1/1/" + strconv.Itoa(currentYear)
+		DtStop := "1/1/" + strconv.Itoa(currentYear+1)
+		// DtStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentTime.Location())
+		// DtStop := time.Date(currentYear+1, 1, 1, 0, 0, 0, 0, currentTime.Location())
+
 		// Create rentabletype csv file
 		// takes csvRow data, rentableType mapping between fields, current time
+
+		// TODO: take values from user which have been supplied and for no values
+		// which have not been supplied take default values
 		userSuppliedValues := map[string]string{}
 		userSuppliedValues["BUD"] = "REX"
 		userSuppliedValues["RentCycle"] = "6"
 		userSuppliedValues["Proration"] = "4"
 		userSuppliedValues["GSRPC"] = "4"
 		userSuppliedValues["ManageToBudget"] = "1"
+		userSuppliedValues["DtStart"] = DtStart
+		userSuppliedValues["DtStop"] = DtStop
 		ok, rentableTypeInstance, rentableTypeData := GetRentableTypeCSVRow(
-			&csvRow, &OneSiteMap.RentableType, currentTimeFormat, userSuppliedValues)
+			&csvRow, &OneSiteFieldMap.RentableTypeCSV,
+			currentTimeFormat, userSuppliedValues,
+		)
 		fmt.Println(ok)
 		fmt.Println(rentableTypeInstance)
 		fmt.Println(rentableTypeData)
@@ -253,13 +284,13 @@ func RollBackSplitOperation(timestamp string) {
 // csv from onesite csv data to dump data via rcsv routine
 func GetRentableTypeCSVRow(
 	oneSiteRow *OneSiteCSVRow,
-	fieldMap *core.RentableTypeJSON,
+	fieldMap *core.RentableTypeCSV,
 	timestamp string,
 	userSuppliedValues map[string]string,
-) (bool, *core.RentableTypeJSON, []string) {
+) (bool, *core.RentableTypeCSV, []string) {
 
 	// take initial variable
-	var rentableType core.RentableTypeJSON
+	var rentableType core.RentableTypeCSV
 	ok := false
 
 	// ======================================
@@ -295,7 +326,6 @@ func GetRentableTypeCSVRow(
 
 		// if has not value then continue
 		if !reflectedOneSiteRow.FieldByName(MappedFieldName).IsValid() {
-			dataMap[i] = ""
 			continue
 		}
 

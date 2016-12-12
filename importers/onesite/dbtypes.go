@@ -2,14 +2,14 @@ package onesite
 
 import (
 	"reflect"
-	"rentroll/importer/core"
+	"rentroll/importers/core"
 	"rentroll/rcsv"
 )
 
-// OneSiteJSON this is struct which contains several categories
+// OneSiteMap is struct which contains several categories
 // used to store the data from onesite to rentroll system
-type OneSiteJSON struct {
-	RentableType core.RentableTypeJSON
+type OneSiteMap struct {
+	RentableTypeCSV core.RentableTypeCSV
 }
 
 // OneSiteCSVRow contains fields which represents value

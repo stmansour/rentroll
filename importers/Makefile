@@ -5,7 +5,7 @@ importer:
 
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
-	rm -f importer
+	rm -f importers
 
 test:
 	for dir in $(DIRS); do make -C $$dir test;done
@@ -13,5 +13,5 @@ test:
 
 package: importer
 	for dir in $(DIRS); do make -C $$dir package;done
-	cp importer ../tmp/rentroll/onesiteLoad
-	@echo "*** PACKAGING COMPLETE IN importer ***"
+	cp importers ../tmp/rentroll/onesiteLoad
+	@echo "*** PACKAGING COMPLETE IN importers ***"

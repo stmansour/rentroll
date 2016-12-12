@@ -1,0 +1,14 @@
+{
+    "RentableTypeCSV": {
+        "BUD": "",
+        "Style": "FloorPlan",
+        "Name": "FloorPlan",
+        "RentCycle": "",
+        "Proration": "",
+        "GSRPC": "",
+        "ManageToBudget": "",
+        "MarketRate": "MarketAddl",
+        "DtStart": "",
+        "DtStop": ""
+    }
+}
