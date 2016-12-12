@@ -52,13 +52,14 @@ func GetOneSiteMapping(OneSiteFieldMap *OneSiteMap) error {
 
 // LoadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadOneSiteCSV(fname string) string {
-	rs := ""
+func LoadOneSiteCSV(fname string) ([]error, string) {
+	// var errors
+	var errors []error
+	// msg to return
+	var msg string
 
 	// this count used to skip number of rows from the very top of csv
 	var skipRowsCount int
-
-	// TODO: dynamically detect to skip no of rows by checking headers value
 
 	// define column fields with order
 	const (
@@ -178,9 +179,8 @@ func LoadOneSiteCSV(fname string) string {
 		if skipRowsCount > 0 {
 			x, vrs := rcsv.ValidateCSVColumns(csvCols, t[i][:OneSiteColumnLength], funcname, i)
 			if x > 0 {
-				// return vrs, 1
-				fmt.Println(vrs)
-				return vrs.Error()
+				errors = append(errors, vrs)
+				return errors, msg
 			}
 		}
 	}
@@ -206,10 +206,10 @@ func LoadOneSiteCSV(fname string) string {
 	var OneSiteFieldMap OneSiteMap
 	err := GetOneSiteMapping(&OneSiteFieldMap)
 	if err != nil {
-		fmt.Printf("Error: %s", err)
-		return err.Error()
+		errors = append(errors, err)
+		msg = "Error while getting onesite field mapping"
+		return errors, msg
 	}
-	fmt.Printf("%v", OneSiteFieldMap)
 
 	// ======================================
 	// create rentabletypes file with current time
@@ -217,19 +217,21 @@ func LoadOneSiteCSV(fname string) string {
 	rentableTypeCSVFilePath := SplittedCSVStore + "/rentabletypes_" + currentTimeFormat + ".csv"
 	rentableTypeCSVFile, err := os.Create(rentableTypeCSVFilePath)
 	if err != nil {
-		panic(fmt.Sprintf("Error while creating file %s with error (%s)", rentableTypeCSVFilePath, err))
+		errors = append(errors, err)
+		msg = fmt.Sprintf("Error while creating file %s with error (%s)", rentableTypeCSVFilePath, err)
+		return errors, msg
 	}
 	defer rentableTypeCSVFile.Close()
 
 	// create csv writer
 	rentableTypeCSVWriter := csv.NewWriter(rentableTypeCSVFile)
 
-	// TODO: write headers from struct rather than provides hard coded values
-	rentableTypeCSVHeaders := []string{
-		"BUD", "Style", "Name",
-		"RentCycle", "Proration",
-		"GSRPC", "ManageToBudget",
-		"MarketRate", "DtStart", "DtStop",
+	// parse headers of rentableTypeCSV using reflect
+	rentableTypeCSVHeaders := []string{}
+	rentableTypeCSVHeaders, ok := core.GetStructFields(&OneSiteFieldMap.RentableTypeCSV)
+	if !ok {
+		msg = "Unable to get struct fields for rentableTypeCSV"
+		return errors, msg
 	}
 	rentableTypeCSVWriter.Write(rentableTypeCSVHeaders)
 
@@ -277,17 +279,16 @@ func LoadOneSiteCSV(fname string) string {
 		userSuppliedValues["ManageToBudget"] = "1"
 		userSuppliedValues["DtStart"] = DtStart
 		userSuppliedValues["DtStop"] = DtStop
-		ok, rentableTypeInstance, rentableTypeData := GetRentableTypeCSVRow(
+		ok, rentableTypeCSVRow := GetRentableTypeCSVRow(
 			&csvRow, &OneSiteFieldMap.RentableTypeCSV,
 			currentTimeFormat, userSuppliedValues,
 		)
 		fmt.Println(ok)
-		fmt.Println(rentableTypeInstance)
-		fmt.Println(rentableTypeData)
-		rentableTypeCSVWriter.Write(rentableTypeData)
+		fmt.Println(rentableTypeCSVRow)
+		rentableTypeCSVWriter.Write(rentableTypeCSVRow)
 	}
 	rentableTypeCSVWriter.Flush()
-	return rs
+	return errors, msg
 }
 
 // RollBackSplitOperation func used to clear out the things
@@ -304,42 +305,40 @@ func GetRentableTypeCSVRow(
 	fieldMap *core.RentableTypeCSV,
 	timestamp string,
 	userSuppliedValues map[string]string,
-) (bool, *core.RentableTypeCSV, []string) {
+) (bool, []string) {
 
 	// take initial variable
-	var rentableType core.RentableTypeCSV
 	ok := false
 
 	// ======================================
 	// Load rentableType's data from onesiterow data
 	// ======================================
-	reflectedRentableType := reflect.ValueOf(&rentableType).Elem()
 	reflectedOneSiteRow := reflect.ValueOf(oneSiteRow).Elem()
-	reflectedFieldMap := reflect.ValueOf(fieldMap).Elem()
+	reflectedRentableTypeFieldMap := reflect.ValueOf(fieldMap).Elem()
 
-	// length of reflectedRentableType
-	rRTLength := reflectedRentableType.NumField()
+	// length of RentableTypeCSV
+	rRTLength := reflectedRentableTypeFieldMap.NumField()
 
 	// return data array
 	dataMap := make(map[int]string)
 
 	for i := 0; i < rRTLength; i++ {
 		// get rentableType field
-		rentableTypeField := reflectedRentableType.Type().Field(i)
+		rentableTypeField := reflectedRentableTypeFieldMap.Type().Field(i)
 
 		// if rentableTypeField value exist in userSuppliedValues map
 		// then set it first
-		suppliedValue, ok := userSuppliedValues[rentableTypeField.Name]
-		if ok {
-			reflectedRentableType.Field(i).Set(reflect.ValueOf(suppliedValue))
+		suppliedValue, found := userSuppliedValues[rentableTypeField.Name]
+		if found {
 			dataMap[i] = suppliedValue
 		}
 
 		// get mapping field if not found then panic error
-		MappedFieldName, ok := reflectedFieldMap.FieldByName(rentableTypeField.Name).Interface().(string)
-		if !ok {
-			panic("coudln't get mapping field")
-		}
+		MappedFieldName := reflectedRentableTypeFieldMap.FieldByName(rentableTypeField.Name).Interface().(string)
+		// MappedFieldName, ok := reflectedRentableTypeFieldMap.FieldByName(rentableTypeField.Name).Interface().(string)
+		// if !ok {
+		// 	panic("coudln't get mapping field")
+		// }
 
 		// if has not value then continue
 		if !reflectedOneSiteRow.FieldByName(MappedFieldName).IsValid() {
@@ -348,18 +347,7 @@ func GetRentableTypeCSVRow(
 
 		// get field by mapping field name and then value
 		OneSiteFieldValue := reflectedOneSiteRow.FieldByName(MappedFieldName).Interface()
-
 		dataMap[i] = OneSiteFieldValue.(string)
-
-		// set the value if possible
-		if reflectedRentableType.FieldByName(rentableTypeField.Name).CanSet() {
-			reflectedRentableType.FieldByName(rentableTypeField.Name).Set(
-				reflect.ValueOf(OneSiteFieldValue))
-		}
-		fmt.Println("=======================")
-		fmt.Printf("RentableTypeFieldName: %s\t", rentableTypeField.Name)
-		fmt.Printf("MappedFieldName: %s\t", MappedFieldName)
-		fmt.Printf("Value: %s\n", OneSiteFieldValue)
 	}
 
 	dataArray := []string{}
@@ -368,7 +356,7 @@ func GetRentableTypeCSVRow(
 		dataArray = append(dataArray, dataMap[i])
 	}
 
-	return ok, &rentableType, dataArray
+	return ok, dataArray
 }
 
 // Init configure required settings

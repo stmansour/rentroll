@@ -20,6 +20,7 @@ func main() {
 	readCommandLineArgs()
 	onesite.Init()
 	// try to open sample.csv file
-	rs := onesite.LoadOneSiteCSV(oneSiteCSVFile)
+	errors, rs := onesite.LoadOneSiteCSV(oneSiteCSVFile)
 	fmt.Printf("%s", rs)
+	fmt.Printf("%v", errors)
 }
