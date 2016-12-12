@@ -25,7 +25,7 @@ const (
 
 // GetOneSiteMapping reads json file and loads
 // field mapping structure in go for further usage
-func GetOneSiteMapping(OneSiteFieldMap *OneSiteMap) error {
+func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
 	// Caller returns program counter, filename, line no, ok
 	_, filename, _, ok := runtime.Caller(1)
@@ -203,7 +203,7 @@ func LoadOneSiteCSV(fname string) ([]error, string) {
 	currentTimeFormat := currentTime.Format(time.RFC3339Nano)
 
 	// get onesite mapping
-	var OneSiteFieldMap OneSiteMap
+	var OneSiteFieldMap CSVFieldMap
 	err := GetOneSiteMapping(&OneSiteFieldMap)
 	if err != nil {
 		errors = append(errors, err)
@@ -243,7 +243,7 @@ func LoadOneSiteCSV(fname string) ([]error, string) {
 		rowLoaded, csvRow := LoadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
 
 		// NOTE: might need to change logic, if t[i] contains blank data that we should
-		// stop the loop as we have to skip rest of the rows (please look at onesite.csv)
+		// stop the loop as we have to skip rest of the rows (please look at onesite csv)
 		if !rowLoaded {
 			fmt.Println("\nNo more data to parse")
 			break
@@ -301,7 +301,7 @@ func RollBackSplitOperation(timestamp string) {
 // GetRentableTypeCSVRow used to create rentabletype
 // csv from onesite csv data to dump data via rcsv routine
 func GetRentableTypeCSVRow(
-	oneSiteRow *OneSiteCSVRow,
+	oneSiteRow *CSVRow,
 	fieldMap *core.RentableTypeCSV,
 	timestamp string,
 	userSuppliedValues map[string]string,

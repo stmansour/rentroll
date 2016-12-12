@@ -6,15 +6,15 @@ import (
 	"rentroll/rcsv"
 )
 
-// OneSiteMap is struct which contains several categories
+// CSVFieldMap is struct which contains several categories
 // used to store the data from onesite to rentroll system
-type OneSiteMap struct {
+type CSVFieldMap struct {
 	RentableTypeCSV core.RentableTypeCSV
 }
 
-// OneSiteCSVRow contains fields which represents value
+// CSVRow contains fields which represents value
 // exactly to the each raw of onesite input csv file
-type OneSiteCSVRow struct {
+type CSVRow struct {
 	Unit            string
 	FloorPlan       string
 	UnitDesignation string
@@ -55,9 +55,9 @@ type OneSiteCSVRow struct {
 }
 
 // LoadOneSiteCSVRow used to load data from slice
-// into OneSiteCSVRow struct and return that struct
-func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, OneSiteCSVRow) {
-	csvRow := reflect.New(reflect.TypeOf(OneSiteCSVRow{}))
+// into CSVRow struct and return that struct
+func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
+	csvRow := reflect.New(reflect.TypeOf(CSVRow{}))
 	rowLoaded := false
 
 	// fill data according to headers length
@@ -66,8 +66,8 @@ func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, OneSiteCS
 	}
 
 	// if blank data has not been passed then only need to return true
-	if (OneSiteCSVRow{}) != csvRow.Elem().Interface().(OneSiteCSVRow) {
+	if (CSVRow{}) != csvRow.Elem().Interface().(CSVRow) {
 		rowLoaded = true
 	}
-	return rowLoaded, csvRow.Elem().Interface().(OneSiteCSVRow)
+	return rowLoaded, csvRow.Elem().Interface().(CSVRow)
 }

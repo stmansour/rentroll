@@ -1,6 +1,6 @@
 package core
 
-// stringInSlice used to check whether string a
+// StringInSlice used to check whether string a
 // is present or not in slice list
 func StringInSlice(a string, list []string) bool {
 	for _, b := range list {
