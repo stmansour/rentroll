@@ -14,6 +14,7 @@ import (
 	"rentroll/rlib"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -54,10 +55,8 @@ func GetOneSiteMapping(OneSiteFieldMap *OneSiteMap) error {
 func LoadOneSiteCSV(fname string) string {
 	rs := ""
 
-	// this constant used to skip number of rows from the very top of csv
-	const (
-		skipRowsCount = 5
-	)
+	// this count used to skip number of rows from the very top of csv
+	var skipRowsCount int
 
 	// TODO: dynamically detect to skip no of rows by checking headers value
 
@@ -143,6 +142,13 @@ func LoadOneSiteCSV(fname string) string {
 		{Name: "REFERRAL", Index: Referral},
 	}
 
+	// Onesite csv headers slice and load it from csvCols
+	OneSiteCSVHeaders := []string{}
+	for _, header := range csvCols {
+		OneSiteCSVHeaders = append(OneSiteCSVHeaders, header.Name)
+	}
+	OneSiteColumnLength := len(OneSiteCSVHeaders)
+
 	// load csv file and get data from csv
 	t := rlib.LoadCSV(fname)
 
@@ -151,19 +157,31 @@ func LoadOneSiteCSV(fname string) string {
 	// ================================
 	funcname := "LoadOneSiteCSV"
 
-	// always start with next row as we have to
-	// skip no of rows assigned in constant
-	if len(t) <= skipRowsCount {
-		rs += fmt.Sprintf("No data in csv to parse")
-		return rs
-	}
+	for i := 0; i < len(t); i++ {
 
-	for i := skipRowsCount; i < len(t); i++ {
-		x, vrs := rcsv.ValidateCSVColumns(csvCols, t[i], funcname, i)
-		if x > 0 {
-			// return vrs, 1
-			fmt.Println(vrs)
-			return vrs.Error()
+		// Calculate SkipRowsCount in first loop
+		// if found then assign value in it and for rest of the rows
+		// do validate csv columns
+
+		CSVRowDataString := strings.Replace(
+			strings.Join(t[i][:OneSiteColumnLength], ","),
+			" ", "", -1)
+		CSVHeaderString := strings.Replace(
+			strings.Join(OneSiteCSVHeaders[:OneSiteColumnLength], ","),
+			" ", "", -1)
+
+		if CSVRowDataString == CSVHeaderString {
+			skipRowsCount = i
+		}
+
+		// if skipRowsCount found then do validation over csv rows
+		if skipRowsCount > 0 {
+			x, vrs := rcsv.ValidateCSVColumns(csvCols, t[i][:OneSiteColumnLength], funcname, i)
+			if x > 0 {
+				// return vrs, 1
+				fmt.Println(vrs)
+				return vrs.Error()
+			}
 		}
 	}
 
@@ -220,7 +238,7 @@ func LoadOneSiteCSV(fname string) string {
 	avoidDuplicateRentableTypeData := []string{}
 
 	for i := skipRowsCount + 1; i < len(t); i++ {
-		rowLoaded, csvRow := LoadOneSiteCSVRow(csvCols, t[i])
+		rowLoaded, csvRow := LoadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
 
 		// NOTE: might need to change logic, if t[i] contains blank data that we should
 		// stop the loop as we have to skip rest of the rows (please look at onesite.csv)
