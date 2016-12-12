@@ -1,4 +1,4 @@
-BUD,Style,Name,RentCycle,Proration,GSPRC,ManageToBudget,MarketRate,CA,MRCurrent
+BUD,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,MarketRate,DtStart,DtStop
 REX,A1-Corp,A1-Corp,6,4,4,1,700,1/1/16,1/1/17
 REX,A1-HOSP,A1-HOSP,6,4,4,1,700,1/1/16,1/1/17
 REX,A2-Corp,A2-Corp,6,4,4,1,700,1/1/16,1/1/17
