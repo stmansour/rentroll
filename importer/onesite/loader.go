@@ -9,7 +9,7 @@ import (
 	"os"
 	"path"
 	"reflect"
-	"rentroll/importers/core"
+	"rentroll/importer/core"
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"runtime"

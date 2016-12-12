@@ -2,7 +2,7 @@ package onesite
 
 import (
 	"reflect"
-	"rentroll/importers/core"
+	"rentroll/importer/core"
 	"rentroll/rcsv"
 )
 

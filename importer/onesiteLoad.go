@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"rentroll/importers/onesite"
+	"rentroll/importer/onesite"
 	"time"
 )
 

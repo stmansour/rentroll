@@ -1,17 +1,17 @@
 DIRS = core onesite
 
-importers:
+importer:
 	for dir in $(DIRS); do make -C $$dir; done
 
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
-	rm -f importers
+	rm -f importer
 
 test:
 	for dir in $(DIRS); do make -C $$dir test;done
 	@echo "*** ALL TESTS PASSED ***"
 
-package: importers
+package: importer
 	for dir in $(DIRS); do make -C $$dir package;done
-	cp importers ../tmp/rentroll/onesiteLoad
-	@echo "*** PACKAGING COMPLETE IN importers ***"
+	cp importer ../tmp/rentroll/onesiteLoad
+	@echo "*** PACKAGING COMPLETE IN importer ***"
