@@ -2,6 +2,7 @@ onesite: *.go
 	go vet
 	golint
 	go build
+	go install
 
 clean:
 	@echo "*** CLEAN completed in importer/onesite ***"
