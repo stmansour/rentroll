@@ -47,6 +47,7 @@ type W2uiGridRequest struct {
 // to be centrally parsed and passed to a specific handler, which may need to parse further
 // to get its unique data.
 type ServiceData struct {
+	UID  int64           // user id of requester
 	BID  int64           // which business
 	TCID int64           // TCID if supplied
 	RAID int64           // RAID if supplied
@@ -58,7 +59,7 @@ type ServiceData struct {
 var Svcs = []ServiceHandler{
 	{"transactants", SvcTransactants},
 	{"xperson", SvcXPerson},
-	{"GLAccounts", SvcGLAccounts},
+	{"accounts", SvcGLAccounts},
 	{"rentables", SvcRentables},
 }
 
@@ -101,8 +102,6 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("Unescaped data in message body:  %s\n", u)
-
 	requestHeader := "request=" // this is what w2ui starts all its grid requests with
 	i := strings.Index(u, requestHeader)
 	if i < 0 {
@@ -112,9 +111,6 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	u = u[i+len(requestHeader):]
 	d.data = u
-
-	fmt.Printf("\njson.Unmarshal:  %s\n", u)
-
 	err = json.Unmarshal([]byte(u), &d.greq)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
@@ -138,11 +134,18 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("URI info:  %s\n", cmdinfo) // print before we strip it off
 
 	sa := strings.Split(cmdinfo, "/")
+	for i := 0; i < len(sa); i++ {
+		fmt.Printf("%d. %s\n", i, sa[i])
+	}
 	cmdinfo = sa[0]
-
-	fmt.Printf("gridServiceHandler requested for \"%s\"\n", cmdinfo)
-
-	d.BID = int64(1) // temporary hack, TODO: generalize -- add to url
+	d.UID, err = rlib.IntFromString(sa[1], "bad request integer value")
+	if err != nil {
+		SvcGridErrorReturn(w, err)
+	}
+	d.BID, err = rlib.IntFromString(sa[2], "bad request integer value")
+	if err != nil {
+		SvcGridErrorReturn(w, err)
+	}
 
 	for i := 0; i < len(Svcs); i++ {
 		if Svcs[i].Cmd == cmdinfo {
@@ -262,9 +265,8 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-
 	// fmt.Printf("first 50 chars of response: %50.50s\n", string(b))
-	fmt.Printf("\nResponse Data:  %s\n\n", string(b))
+	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }
 

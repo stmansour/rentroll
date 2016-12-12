@@ -12,7 +12,6 @@ import (
 // CreateCustomAttributeRefs reads a rlib.CustomAttributeRefs string array and creates a database record
 func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 	funcname := "Createrlib.CustomAttributeRefs"
-	var errmsg string
 	var c rlib.CustomAttributeRef
 
 	const (
@@ -36,21 +35,21 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
-	c.ElementType, errmsg = rlib.IntFromString(sa[0], "ElementType is invalid")
-	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
+	c.ElementType, err = rlib.IntFromString(sa[0], "ElementType is invalid")
+	if err != nil {
+		return CsvErrorSensitivity, err
 	}
 	if c.ElementType < rlib.ELEMRENTABLETYPE || c.ElementType > rlib.ELEMLAST {
 		return CsvErrorSensitivity, fmt.Errorf("ElementType value must be a number from %d to %d\n", rlib.ELEMRENTABLETYPE, rlib.ELEMLAST)
 	}
 
-	c.ID, errmsg = rlib.IntFromString(sa[1], "ID value cannot be converted to an integer")
-	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
+	c.ID, err = rlib.IntFromString(sa[1], "ID value cannot be converted to an integer")
+	if err != nil {
+		return CsvErrorSensitivity, err
 	}
-	c.CID, errmsg = rlib.IntFromString(sa[2], "CID value cannot be converted to an integer")
-	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
+	c.CID, err = rlib.IntFromString(sa[2], "CID value cannot be converted to an integer")
+	if err != nil {
+		return CsvErrorSensitivity, err
 	}
 
 	switch c.ElementType {

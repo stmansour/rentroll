@@ -17,7 +17,12 @@ func readNumAndStatusFromExpr(sa, expr, errmsg string) (int64, string) {
 	if "" != errmsg {
 		s2 = errmsg + " is invalid"
 	}
-	return rlib.IntFromString(s, s2)
+	rs := ""
+	v, err := rlib.IntFromString(s, s2)
+	if err != nil {
+		rs = err.Error()
+	}
+	return v, rs
 }
 
 func readNumFromExpr(sa, expr, errmsg string) int64 {

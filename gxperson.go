@@ -87,7 +87,7 @@ func (t *JSONTime) MarshalJSON() ([]byte, error) {
 	return []byte(val), nil
 }
 
-// UnarshalJSON overrides the default time.Time handler and reads in
+// UnmarshalJSON overrides the default time.Time handler and reads in
 // date strings of the form YYYY-MM-DD.
 //--------------------------------------------------------------------
 func (t *JSONTime) UnmarshalJSON(b []byte) error {
@@ -103,7 +103,7 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 
 // SvcXPerson formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the TCID as follows:
-// 		/gsvc/xperson/BID/TCID
+// 		/gsvc/xperson/UID/BID/TCID
 // The server command can be:
 //      get
 //      save
@@ -111,30 +111,33 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 //-----------------------------------------------------------------------------------
 func SvcXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcXPerson\n")
-	var errstr string
+	var err error
 
 	path := "/gsvc/"                // this is the part of the URL that got us into this handler
 	uri := r.RequestURI[len(path):] // this pulls off the specific request
 	sa := strings.Split(uri, "/")
 	if len(sa) < 3 {
-		e := fmt.Errorf("Error in URI, expecting /gsv/xperson/BID/TCID but found: %s", uri)
+		e := fmt.Errorf("Error in URI, expecting /gsv/xperson/USRID/BID/TCID but found: %s", uri)
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	d.BID, errstr = rlib.IntFromString(sa[1], "not an integer number")
-	if len(errstr) > 0 {
-		e := fmt.Errorf("Error in URI, expecting /gsv/xperson/BID/TCID:  BID is incorrect: %s", errstr)
-		SvcGridErrorReturn(w, e)
+	d.UID, err = rlib.IntFromString(sa[1], "not an integer number")
+	if err != nil {
+		SvcGridErrorReturn(w, err)
 		return
 	}
-	d.TCID, errstr = rlib.IntFromString(sa[2], "not an integer number")
-	if len(errstr) > 0 {
-		e := fmt.Errorf("Error in URI, expecting /gsv/xperson/BID/TCID:  TCID is incorrect: %s", errstr)
-		SvcGridErrorReturn(w, e)
+	d.BID, err = rlib.IntFromString(sa[2], "not an integer number")
+	if err != nil {
+		SvcGridErrorReturn(w, err)
+		return
+	}
+	d.TCID, err = rlib.IntFromString(sa[3], "not an integer number")
+	if err != nil {
+		SvcGridErrorReturn(w, err)
 		return
 	}
 
-	fmt.Printf("BID = %d,  TCID = %d\n", d.BID, d.TCID)
+	fmt.Printf("Requester UID = %d, BID = %d,  TCID = %d\n", d.UID, d.BID, d.TCID)
 
 	switch d.greq.Cmd {
 	case "get":
