@@ -9,7 +9,7 @@ import (
 	"os"
 	"path"
 	"reflect"
-	"rentroll/importer/core"
+	"rentroll/importers/core"
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"runtime"
@@ -35,15 +35,13 @@ func GetOneSiteMapping(oneSiteMap *OneSiteJSON) error {
 	mapperFilePath := path.Join(path.Dir(filename), "mapper.json")
 	fieldmap, err := ioutil.ReadFile(mapperFilePath)
 	if err != nil {
-		fmt.Errorf("File error: %v\n", err)
+		// fmt.Errorf("File error: %v\n", err)
 		panic(err)
-		return err
-		// ???
 	}
 	err = json.Unmarshal(fieldmap, oneSiteMap)
 	if err != nil {
+		// fmt.Errorf("%s", err)
 		panic(err)
-		fmt.Errorf("%s", err)
 	}
 	return err
 }
@@ -103,43 +101,43 @@ func LoadOneSiteCSV(fname string) string {
 
 	// defined csv columns
 	var csvCols = []rcsv.CSVColumn{
-		{"Unit", Unit},
-		{"FloorPlan", FloorPlan},
-		{"UnitDesignation", UnitDesignation},
-		{"SQFT", Sqft},
-		{"Unit/LeaseStatus", UnitLeaseStatus},
-		{"Name", Name},
-		{"PhoneNumber", PhoneNumber},
-		{"Email", Email},
-		{"Move-In", MoveIn},
-		{"NoticeForDate", NoticeForDate},
-		{"Move-Out", MoveOut},
-		{"LeaseStart", LeaseStart},
-		{"LeaseEnd", LeaseEnd},
-		{"Market+Addl.", MarketAddl},
-		{"DepOnHand", DepOnHand},
-		{"Balance", Balance},
-		{"TotalCharges", TotalCharges},
-		{"RENT", Rent},
-		{"WATERREIMB", WaterReImb},
-		{"CORP", Corp},
-		{"DISCOUNT", Discount},
-		{"Platinum", Platinum},
-		{"TAX", Tax},
-		{"ELECTRICREIMB", ElectricReImb},
-		{"Fire", Fire},
-		{"CONC/SPECL", ConcSpecl},
-		{"WASH/DRY", WashDry},
-		{"EMPLCRED", EmplCred},
-		{"SHORT", Short},
-		{"PETFEE", PetFee},
-		{"TRASHREIMB", TrashReImb},
-		{"TERMFEE", TermFee},
-		{"Lakeview", LakeView},
-		{"UTILITY", Utility},
-		{"FURN", Furn},
-		{"MTOM", Mtom},
-		{"REFERRAL", Referral},
+		{Name: "Unit", Index: Unit},
+		{Name: "FloorPlan", Index: FloorPlan},
+		{Name: "UnitDesignation", Index: UnitDesignation},
+		{Name: "SQFT", Index: Sqft},
+		{Name: "Unit/LeaseStatus", Index: UnitLeaseStatus},
+		{Name: "Name", Index: Name},
+		{Name: "PhoneNumber", Index: PhoneNumber},
+		{Name: "Email", Index: Email},
+		{Name: "Move-In", Index: MoveIn},
+		{Name: "NoticeForDate", Index: NoticeForDate},
+		{Name: "Move-Out", Index: MoveOut},
+		{Name: "LeaseStart", Index: LeaseStart},
+		{Name: "LeaseEnd", Index: LeaseEnd},
+		{Name: "Market+Addl.", Index: MarketAddl},
+		{Name: "DepOnHand", Index: DepOnHand},
+		{Name: "Balance", Index: Balance},
+		{Name: "TotalCharges", Index: TotalCharges},
+		{Name: "RENT", Index: Rent},
+		{Name: "WATERREIMB", Index: WaterReImb},
+		{Name: "CORP", Index: Corp},
+		{Name: "DISCOUNT", Index: Discount},
+		{Name: "Platinum", Index: Platinum},
+		{Name: "TAX", Index: Tax},
+		{Name: "ELECTRICREIMB", Index: ElectricReImb},
+		{Name: "Fire", Index: Fire},
+		{Name: "CONC/SPECL", Index: ConcSpecl},
+		{Name: "WASH/DRY", Index: WashDry},
+		{Name: "EMPLCRED", Index: EmplCred},
+		{Name: "SHORT", Index: Short},
+		{Name: "PETFEE", Index: PetFee},
+		{Name: "TRASHREIMB", Index: TrashReImb},
+		{Name: "TERMFEE", Index: TermFee},
+		{Name: "Lakeview", Index: LakeView},
+		{Name: "UTILITY", Index: Utility},
+		{Name: "FURN", Index: Furn},
+		{Name: "MTOM", Index: Mtom},
+		{Name: "REFERRAL", Index: Referral},
 	}
 
 	// load csv file and get data from csv

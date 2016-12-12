@@ -1,0 +1,6 @@
+CreateRentableType: line 1 - Error at column heading 5, expected GSRPC, found GSPRC
+                                            Manage                         
+                   Rent   Proration         To                             
+RTID  Style  Name  Cycle  Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate
+----  -----  ----  -----  ---------  -----  ------  -----------------------
+
