@@ -19,6 +19,8 @@ import (
 )
 
 // constants used for onesite importer
+// TODO: change location to current working program dir
+// to manage splitted files
 const (
 	SplittedCSVStore = "/tmp/onesite"
 )
@@ -52,7 +54,7 @@ func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
 // LoadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadOneSiteCSV(fname string) ([]error, string) {
+func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	// var errors
 	var errors []error
 	// msg to return
@@ -151,7 +153,7 @@ func LoadOneSiteCSV(fname string) ([]error, string) {
 	OneSiteColumnLength := len(OneSiteCSVHeaders)
 
 	// load csv file and get data from csv
-	t := rlib.LoadCSV(fname)
+	t := rlib.LoadCSV(userSuppliedValues["OneSiteCSV"])
 
 	// ================================
 	// First loop for validation on csv
@@ -266,22 +268,18 @@ func LoadOneSiteCSV(fname string) ([]error, string) {
 		// DtStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentTime.Location())
 		// DtStop := time.Date(currentYear+1, 1, 1, 0, 0, 0, 0, currentTime.Location())
 
-		// Create rentabletype csv file
-		// takes csvRow data, rentableType mapping between fields, current time
+		// make rentableType data from userSuppliedValues and defaultValues
+		rentableTypeDefaultData := map[string]string{}
+		for k, v := range userSuppliedValues {
+			rentableTypeDefaultData[k] = v
+		}
+		rentableTypeDefaultData["DtStart"] = DtStart
+		rentableTypeDefaultData["DtStop"] = DtStop
 
-		// TODO: take values from user which have been supplied and for no values
-		// which have not been supplied take default values
-		userSuppliedValues := map[string]string{}
-		userSuppliedValues["BUD"] = "REX"
-		userSuppliedValues["RentCycle"] = "6"
-		userSuppliedValues["Proration"] = "4"
-		userSuppliedValues["GSRPC"] = "4"
-		userSuppliedValues["ManageToBudget"] = "1"
-		userSuppliedValues["DtStart"] = DtStart
-		userSuppliedValues["DtStop"] = DtStop
+		// get csv row data
 		ok, rentableTypeCSVRow := GetRentableTypeCSVRow(
 			&csvRow, &OneSiteFieldMap.RentableTypeCSV,
-			currentTimeFormat, userSuppliedValues,
+			currentTimeFormat, rentableTypeDefaultData,
 		)
 		fmt.Println(ok)
 		fmt.Println(rentableTypeCSVRow)
@@ -304,7 +302,7 @@ func GetRentableTypeCSVRow(
 	oneSiteRow *CSVRow,
 	fieldMap *core.RentableTypeCSV,
 	timestamp string,
-	userSuppliedValues map[string]string,
+	DefaultValues map[string]string,
 ) (bool, []string) {
 
 	// take initial variable
@@ -326,9 +324,9 @@ func GetRentableTypeCSVRow(
 		// get rentableType field
 		rentableTypeField := reflectedRentableTypeFieldMap.Type().Field(i)
 
-		// if rentableTypeField value exist in userSuppliedValues map
+		// if rentableTypeField value exist in DefaultValues map
 		// then set it first
-		suppliedValue, found := userSuppliedValues[rentableTypeField.Name]
+		suppliedValue, found := DefaultValues[rentableTypeField.Name]
 		if found {
 			dataMap[i] = suppliedValue
 		}

@@ -1,6 +1,6 @@
 DIRS = core onesite
 
-importer:
+importers:
 	for dir in $(DIRS); do make -C $$dir; done
 	go vet
 	golint
@@ -14,7 +14,7 @@ test:
 	for dir in $(DIRS); do make -C $$dir test;done
 	@echo "*** ALL TESTS PASSED ***"
 
-package: importer
+package: importers
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp importers ../tmp/rentroll/onesiteLoad
 	@echo "*** PACKAGING COMPLETE IN importers ***"

@@ -12,7 +12,7 @@ docsvtest "b" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
 # rework this code as needed so it is more production-ready
 rm -f /tmp/onesite/rentabletypes*.csv ./rentabletypes*.csv
 
-${RRBIN}/onesiteLoad -i ./onesite.csv >c 2>&1
+${RRBIN}/onesiteLoad -csv ./onesite.csv -bud ${BUD} >c 2>&1
 
 # Sudip  -- please update this code as needed.
 cp /tmp/onesite/*.csv .
@@ -22,7 +22,7 @@ cp /tmp/onesite/*.csv .
 
 # Sudip this is a quick hack to validate the file you're producing. Please
 # rework this code as needed so it is more production-ready
-mv rentabletypes_20* rt.csv
+mv rentabletypes_* rt.csv
 docsvtest "f" "-R rt.csv -L 5,${BUD}" "RentableTypes"
 
 # docsvtest "g" "-p people.csv  -L 7,${BUD}" "People"
