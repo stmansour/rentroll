@@ -11,6 +11,15 @@
 <body>
 
 <!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
+<!--
+
+mainlayout    - w2ui layout toptoolbar, toplayout, footer
+toplayout     - w2ui layout for sidebar, main, and right (Detail)
+reportslayout -
+toptoolbar    - w2ui toolbar
+sidebarL1     - w2ui sidebar
+
+-->
 
 <script>
 var businesses = []
@@ -296,8 +305,8 @@ var transactantForm = {
     formURL: '/html/formtc.html',
     fields: [
         { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-        { field: 'FirstName', type: 'text', required: true, html: { caption: 'First Name', page: 0, column: 0 } },
-        { field: 'LastName', type: 'text', required: true, html: { caption: 'Last Name', page: 0, column: 0 } },
+        { field: 'FirstName', type: 'text', required: false, html: { caption: 'First Name', page: 0, column: 0 } },
+        { field: 'LastName', type: 'text', required: false, html: { caption: 'Last Name', page: 0, column: 0 } },
         { field: 'MiddleName', type: 'text', required: false, html: { caption: 'Middle Name', page: 0, column: 0 } },
         { field: 'PreferredName', type: 'text', required: false, html: { caption: 'Preferred Name', page: 0, column: 0 } },
         { field: 'PrimaryEmail', type: 'email', required: false, html: { caption: 'Primary Email', page: 0, column: 0 } },
@@ -402,11 +411,54 @@ var rentablesGrid = {
         {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
     ],
     onClick: function(event) {
+        var sel = this.getSelection(true);
+        console.log('Current selection is ' + sel );
         event.onComplete = function () {
+            var x = this.get
+            // Object.getOwnPropertyNames(x).forEach(function(val, idx, array) {
+            //   console.log(val + ' -> ' + x[val]);
+            // });   
+            // console.log('*** onComplete handler ***')
             var sel = this.getSelection(true);
             console.log('Current selection is ' + sel );
+            var index, j;
+            var l = sel.length;
+            if (l > 0) {
+                for (index = 0; index < sel.length; ++index) {
+                    j = sel[index];
+                    console.log('sel[index] is ' + sel[index] + ' j = ' + j)
+                    var f = w2ui['rentablesForm'];
+                    w2ui['toplayout'].show('right',true);
+                    w2ui['toplayout'].content('right', f);
+                    w2ui['toplayout'].sizeTo('right', 400);
+                    ob = this.get(j)
+                    // f.record['recid'] = ob.TCID;
+                    console.log('ob.TCID = ' + ob.TCID)
+                    console.log('f.record[recid] = ' + f.record['recid'])
+                    // url format = /gsvc/xperson/uid/bid/tcid
+                    // uid = 211; // hardcoding for now
+                    // f.url = '/gsvc/xperson/' + uid + '/' + ob.BID + '/' + ob.TCID
+                    // console.log('f.url = ' + f.url)
+                    // f.request();
+                    }
+            } else {
+                console.log('*** NO SELECTION FOUND ***   So, select index 0')
+                this.select(1)
+            }
         }
     }
+}
+
+var rentablesForm = {
+    name: 'rentablesForm',
+    style: 'border: 0px; background-color: transparent;',
+    header: sRentable + ' Detail',
+    url: '/gsvc/xrentable',
+    fields: [
+        { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+        { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
+        { field: 'AssignmentTime', type: 'int', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+    ]
 }
 
 function getCurrentBusiness() {
@@ -451,8 +503,9 @@ $(function () {
     w2ui.reportslayout.content('top', $().w2toolbar(config.reportstoolbar));
     $().w2grid(accountsGrid);
     $().w2grid(transactantsGrid);
-    $().w2grid(rentablesGrid);
     $().w2form(transactantForm);
+    $().w2grid(rentablesGrid);
+    $().w2grid(rentablesForm);
     w2ui['toplayout'].content('left',$().w2sidebar(config.sidebarL1));
 
     var month = (new Date()).getMonth() + 1;

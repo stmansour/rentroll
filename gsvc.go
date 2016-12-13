@@ -51,6 +51,7 @@ type ServiceData struct {
 	BID  int64           // which business
 	TCID int64           // TCID if supplied
 	RAID int64           // RAID if supplied
+	RID  int64           // RAID if supplied
 	greq W2uiGridRequest // what did the grid ask for
 	data string          // the raw unparsed data
 }
@@ -61,6 +62,7 @@ var Svcs = []ServiceHandler{
 	{"xperson", SvcXPerson},
 	{"accounts", SvcGLAccounts},
 	{"rentables", SvcRentables},
+	{"rentable", SvcRentable},
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -361,56 +363,6 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		i++ // update the index no matter what
 	}
 	fmt.Printf("Loaded %d transactants\n", len(g.Records))
-	fmt.Printf("g.Total = %d\n", g.Total)
-	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
-	g.Status = "success"
-	SvcWriteResponse(&g, w)
-}
-
-// SvcRentables generates a report of all Rentables defined business d.BID
-func SvcRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcRentables")
-	var p rlib.Rentable
-	var err error
-	var g struct {
-		Status  string          `json:"status"`
-		Total   int64           `json:"total"`
-		Records []rlib.Rentable `json:"records"`
-	}
-
-	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "Name ASC"                  // default ORDER
-	q, qw := gridBuildQuery("Rentable", srch, order, d, &p)
-
-	// set g.Total to the total number of rows of this data...
-	g.Total, err = GetRowCount("Rentable", qw)
-	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
-	}
-
-	fmt.Printf("db query = %s\n", q)
-
-	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
-	defer rows.Close()
-
-	i := int64(d.greq.Offset)
-	count := 0
-	for rows.Next() {
-		var p rlib.Rentable
-		rlib.ReadRentables(rows, &p)
-		p.Recid = i
-		g.Records = append(g.Records, p)
-		count++ // update the count only after adding the record
-		if count >= d.greq.Limit {
-			break // if we've added the max number requested, then exit
-		}
-		i++ // update the index no matter what
-	}
-	fmt.Printf("Loaded %d rentables\n", len(g.Records))
 	fmt.Printf("g.Total = %d\n", g.Total)
 	rlib.Errcheck(rows.Err())
 	w.Header().Set("Content-Type", "application/json")

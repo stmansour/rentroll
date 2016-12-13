@@ -6,16 +6,7 @@ import (
 	"net/http"
 	"rentroll/rlib"
 	"strings"
-	"time"
 )
-
-// JSONTime is a wrapper around time.Time. We need it
-// in order to be able to control the formatting used
-// on the date values sent to the w2ui controls.  Without
-// this wrapper, the default time format used by the
-// JSON encoder / decoder does not work with the w2ui
-// controls
-type JSONTime time.Time
 
 // this is a structure specifically for the UI. It will be
 // automatically populated from an rlib.XPerson struct
@@ -48,22 +39,22 @@ type gxperson struct {
 	EmployerEmail             string
 	EmployerPhone             string
 	Occupation                string
-	ApplicationFee            float64  // if non-zero this Prospect is an applicant
-	DesiredUsageStartDate     JSONTime // predicted rent start date
-	RentableTypePreference    int64    // RentableType
-	FLAGS                     uint64   // 0 = Approved/NotApproved,
-	Approver                  int64    // UID from Directory
-	DeclineReasonSLSID        int64    // SLSid of reason
-	OtherPreferences          string   // arbitrary text
-	FollowUpDate              JSONTime // automatically fill out this date to sysdate + 24hrs
-	CSAgent                   int64    // Accord Directory UserID - for the CSAgent
-	OutcomeSLSID              int64    // id of string from a list of outcomes. Melissa to provide reasons
-	FloatingDeposit           float64  // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
-	RAID                      int64    // created to hold On Account amount of Floating Deposit
-	LastModTime               JSONTime
+	ApplicationFee            float64       // if non-zero this Prospect is an applicant
+	DesiredUsageStartDate     rlib.JSONTime // predicted rent start date
+	RentableTypePreference    int64         // RentableType
+	FLAGS                     uint64        // 0 = Approved/NotApproved,
+	Approver                  int64         // UID from Directory
+	DeclineReasonSLSID        int64         // SLSid of reason
+	OtherPreferences          string        // arbitrary text
+	FollowUpDate              rlib.JSONTime // automatically fill out this date to sysdate + 24hrs
+	CSAgent                   int64         // Accord Directory UserID - for the CSAgent
+	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
+	FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
+	RAID                      int64         // created to hold On Account amount of Floating Deposit
+	LastModTime               rlib.JSONTime
 	LastModBy                 int64
 	Points                    int64
-	DateofBirth               JSONTime
+	DateofBirth               rlib.JSONTime
 	EmergencyContactName      string
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
@@ -76,29 +67,6 @@ type gxperson struct {
 	TaxpayorID                string
 	AccountRep                int64
 	EligibleFuturePayor       int64
-}
-
-// MarshalJSON overrides the default time.Time handler and sends
-// date strings of the form YYYY-MM-DD.
-//--------------------------------------------------------------------
-func (t *JSONTime) MarshalJSON() ([]byte, error) {
-	ts := time.Time(*t)
-	val := fmt.Sprintf("\"%s\"", ts.Format("2006-01-02"))
-	return []byte(val), nil
-}
-
-// UnmarshalJSON overrides the default time.Time handler and reads in
-// date strings of the form YYYY-MM-DD.
-//--------------------------------------------------------------------
-func (t *JSONTime) UnmarshalJSON(b []byte) error {
-	s := string(b)
-	s = rlib.Stripchars(s, "\"")
-	x, err := time.Parse("2006-01-02", s)
-	if err != nil {
-		return err
-	}
-	*t = JSONTime(x)
-	return nil
 }
 
 // SvcXPerson formats a complete data record for a person suitable for use with the w2ui Form
@@ -217,15 +185,15 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("entered getXPerson\n")
+	// fmt.Printf("entered getXPerson\n")
 	var g struct {
 		Status string   `json:"status"`
 		Record gxperson `json:"record"`
 	}
 	var xp rlib.XPerson
-	fmt.Printf("GetXPerson( TCID = %d )\n", d.TCID)
+	// fmt.Printf("GetXPerson( TCID = %d )\n", d.TCID)
 	rlib.GetXPerson(d.TCID, &xp)
-	fmt.Printf("Begin migration to form struct\n")
+	// fmt.Printf("Begin migration to form struct\n")
 	if xp.Pay.TCID > 0 {
 		rlib.MigrateStructVals(&xp.Pay, &g.Record)
 	}
@@ -238,7 +206,7 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if xp.Trn.TCID > 0 {
 		rlib.MigrateStructVals(&xp.Trn, &g.Record)
 	}
-	fmt.Printf("End migration\n")
+	// fmt.Printf("End migration\n")
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }

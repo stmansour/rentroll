@@ -1,5 +1,5 @@
 #!/bin/bash
-TESTNAME="JM1"
+TESTNAME="JM1 - 9 months of books Rexford Properties"
 TESTSUMMARY="Setup and run JM1 company and the Rexford Properties"
 
 RRDATERANGE="-j 2016-01-01 -k 2016-02-01"
