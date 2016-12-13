@@ -8,19 +8,8 @@ import (
 
 var xjson = string("XJSON")
 
-// XJSONAssignmentTime is a UI converter: backend int64, Front End string
-type XJSONAssignmentTime string
-
-var assignmap = []struct {
-	a      string
-	b      string
-	mapper func(a, b *reflect.Value)
-}{
-	{a: "XJSONAssignmentTime", b: "int64", mapper: AssignmentTime2Int64},
-	{a: "int64", b: "XJSONAssignmentTime", mapper: Int642AssignmentTime},
-}
-
-// XJSONprocess attempts to map a to b.
+// XJSONprocess attempts to map a to b. If no converter can befound
+// a message will be printed, then it will panic!
 func XJSONprocess(a, b *reflect.Value) {
 	at := (*a).Type().String()
 	bt := (*b).Type().String()
@@ -35,37 +24,19 @@ func XJSONprocess(a, b *reflect.Value) {
 	panic(s)
 }
 
-// AssignmentTime2Int64 converter
-// a must be *AssignmentTime2Int64
-// b must be *int64
-func AssignmentTime2Int64(a, b *reflect.Value) {
-	s1 := (*a).Interface()
-	s := fmt.Sprintf("%v", s1)
-	var y int64
-	if s == "Pre-Assign" {
-		y = 1
-	} else if s == "Commencement" {
-		y = 2
-	} else {
-		y = 0
-	}
-	(*b).Set(reflect.ValueOf(y))
-}
+// Str2Int64Map is a generic type for mapping strings and int64s
+type Str2Int64Map map[string]int64
 
-// Int642AssignmentTime converter
-// a must be *int64
-// b must be *Int642AssignmentTime
-func Int642AssignmentTime(a, b *reflect.Value) {
-	var s XJSONAssignmentTime
-	switch (*a).Interface().(int64) {
-	case int64(1):
-		s = XJSONAssignmentTime("Pre-Assign")
-	case int64(2):
-		s = XJSONAssignmentTime("Commencement")
-	default:
-		s = XJSONAssignmentTime("unset")
+// ReverseMap takes a string-to-int64 map and does a search for the int64 val
+// and returns the string. The return value is the string along with an error.
+// The error is nil if the int64 was found, otherwise it indicates the problem.
+func (t *Str2Int64Map) ReverseMap(m int64) (string, error) {
+	for k, v := range *t {
+		if m == v {
+			return k, nil
+		}
 	}
-	(*b).Set(reflect.ValueOf(s))
+	return "", fmt.Errorf("%d not found", m)
 }
 
 // BuildFieldMap creates a map so that we can find
