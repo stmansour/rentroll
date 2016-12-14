@@ -18,12 +18,25 @@ import (
 	"time"
 )
 
-// constants used for onesite importer
-// TODO: change location to current working program dir
-// to manage splitted files
-const (
-	SplittedCSVStore = "/tmp/onesite"
-)
+// used to store temporary csv files
+var SplittedCSVStore string
+
+// Init configure required settings
+func Init() {
+	// Caller returns program counter, filename, line no, ok
+	_, filename, _, ok := runtime.Caller(1)
+	if ok == false {
+		panic("Unable to get current filename")
+	}
+
+	// get path of splitted csv store
+	SplittedCSVStore = path.Join(path.Dir(filename), "/tempCSVs")
+
+	// if splittedcsvstore not exist then create it
+	if _, err := os.Stat(SplittedCSVStore); os.IsNotExist(err) {
+		os.MkdirAll(SplittedCSVStore, 0700)
+	}
+}
 
 // GetOneSiteMapping reads json file and loads
 // field mapping structure in go for further usage
@@ -55,6 +68,7 @@ func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 // LoadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
 func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
+
 	// var errors
 	var errors []error
 	// msg to return
@@ -357,9 +371,9 @@ func GetRentableTypeCSVRow(
 	return ok, dataArray
 }
 
-// Init configure required settings
-func Init() {
-	if _, err := os.Stat(SplittedCSVStore); os.IsNotExist(err) {
-		os.MkdirAll(SplittedCSVStore, 0700)
-	}
+// CSVHandler is main function to handle user uploaded
+// csv and extract information
+func CSVHandler(userSuppliedValues map[string]string) ([]error, string) {
+	Init()
+	return LoadOneSiteCSV(userSuppliedValues)
 }

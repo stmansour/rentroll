@@ -111,8 +111,7 @@ func main() {
 	MergeSuppliedAndDefaultValues()
 
 	// call onesite loader
-	onesite.Init()
-	errors, rs := onesite.LoadOneSiteCSV(userSuppliedValues)
-	fmt.Printf("%s", rs)
-	fmt.Printf("%v", errors)
+	errors, msg := onesite.CSVHandler(userSuppliedValues)
+	fmt.Println(errors)
+	fmt.Println(msg)
 }
