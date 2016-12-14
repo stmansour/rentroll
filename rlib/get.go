@@ -1651,9 +1651,9 @@ func GetXPerson(tcid int64, x *XPerson) {
 	if 0 == x.Psp.TCID {
 		GetProspect(tcid, &x.Psp)
 	}
-	if 0 == x.Tnt.TCID {
-		GetUser(tcid, &x.Tnt)
-		x.Tnt.Vehicles = GetVehiclesByTransactant(tcid)
+	if 0 == x.Usr.TCID {
+		GetUser(tcid, &x.Usr)
+		x.Usr.Vehicles = GetVehiclesByTransactant(tcid)
 	}
 	if 0 == x.Pay.TCID {
 		GetPayor(tcid, &x.Pay)

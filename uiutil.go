@@ -22,6 +22,8 @@ type UILedger struct {
 // It is the responsibility of the page function to populate the data needed by
 // the page. The recommendation is to populate only the data needed.
 type RRuiSupport struct {
+	Lang          string          // what language
+	Tmpl          string          // which template
 	DtStart       string          // start of period of interest
 	D1            time.Time       // time.Time value for DtStart
 	DtStop        string          // end of period of interest

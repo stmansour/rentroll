@@ -26,7 +26,12 @@ if [ "x${RRPORT}" = "x" ]; then
 	RRPORT="8270"
 fi
 
-RRBIN="../../tmp/rentroll"
+if [ "x${RRBIN}" = "x" ]; then
+	RRBIN="../../tmp/rentroll"
+else
+	echo "RBIN was pre-set to:  \"${RRBIN}\""
+fi
+
 RENTROLL="${RRBIN}/rentroll -A"
 CSVLOAD="${RRBIN}/rrloadcsv"
 GOLD="./gold"
@@ -549,3 +554,4 @@ else
 	exit 1
 fi
 
+ 

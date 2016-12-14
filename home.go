@@ -5,15 +5,48 @@ import (
 	"html/template"
 	"net/http"
 	"rentroll/rlib"
+	"strings"
 )
 
 // HomeUIHandler sends the main UI to the browser
+// The forms of the url that are acceptable:
+//		/home/
+//		/home/<lang>
+//		/home/<lang>/<tmpl>
+//
+// <lang> specifies the language.  The default is us-en
+// <tmpl> specifies which template to use. The default is "dflt"
+//------------------------------------------------------------------
 func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
 	var ui RRuiSupport
+	var err error
 	funcname := "HomeUIHandler"
-	tmpl := "home.html"
+	appPage := "home.html"
+	lang := "us-en"
+	tmpl := "dflt"
 
-	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/home.html")
+	path := "/home/"                // this is the part of the URL that got us into this handler
+	uri := r.RequestURI[len(path):] // this pulls off the specific request
+
+	if len(uri) > 0 {
+		sa := strings.Split(uri, "/")
+		n := len(sa)
+		if n > 0 {
+			lang = sa[0]
+			if n > 1 {
+				tmpl = sa[1]
+			}
+		}
+	}
+
+	ui.Lang = lang
+	ui.Tmpl = tmpl
+	ui.BL, err = rlib.GetAllBusinesses()
+	if err != nil {
+		rlib.Ulog("GetAllBusinesses: err = %s\n", err.Error())
+	}
+
+	t, err := template.New(appPage).Funcs(RRfuncMap).ParseFiles("./html/home.html")
 	if nil != err {
 		s := fmt.Sprintf("%s: error loading template: %v\n", funcname, err)
 		ui.ReportContent += s

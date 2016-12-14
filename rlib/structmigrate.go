@@ -3,11 +3,44 @@ package rlib
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
-// BuildFieldMap build a map of the supplied struct pointer so that
-// you can index the map by a field name and the associated value is
-// the field's index within p
+var xjson = string("XJSON")
+
+// XJSONprocess attempts to map a to b. If no converter can befound
+// a message will be printed, then it will panic!
+func XJSONprocess(a, b *reflect.Value) {
+	at := (*a).Type().String()
+	bt := (*b).Type().String()
+	for i := 0; i < len(assignmap); i++ {
+		if strings.Index(at, assignmap[i].a) >= 0 && strings.Index(bt, assignmap[i].b) >= 0 {
+			assignmap[i].mapper(a, b)
+			return
+		}
+	}
+	s := fmt.Sprintf("XJSONmap - no conversion between: %s and %s\n", at, bt)
+	fmt.Printf(s)
+	panic(s)
+}
+
+// Str2Int64Map is a generic type for mapping strings and int64s
+type Str2Int64Map map[string]int64
+
+// ReverseMap takes a string-to-int64 map and does a search for the int64 val
+// and returns the string. The return value is the string along with an error.
+// The error is nil if the int64 was found, otherwise it indicates the problem.
+func (t *Str2Int64Map) ReverseMap(m int64) (string, error) {
+	for k, v := range *t {
+		if m == v {
+			return k, nil
+		}
+	}
+	return "", fmt.Errorf("%d not found", m)
+}
+
+// BuildFieldMap creates a map so that we can find
+// a field's index using its name as the map index
 //--------------------------------------------------------------------
 func BuildFieldMap(p interface{}) map[string]int {
 	var fmap = map[string]int{}
@@ -21,34 +54,38 @@ func BuildFieldMap(p interface{}) map[string]int {
 
 // MigrateStructVals copies values from pa to pb where the field
 // names for whatever pa is pointing to matches the field name in pb
-// TODO
+// There is a basic assumption that the data will either copy directly
+// or convert cleanly from one struct to another.
 //--------------------------------------------------------------------
 func MigrateStructVals(pa interface{}, pb interface{}) error {
-	m := BuildFieldMap(pb) // we'll map pb's fields, then process pa one field at a time
-
+	m := BuildFieldMap(pb)
 	ar := reflect.ValueOf(pa).Elem()
 	for i := 0; i < ar.NumField(); i++ {
-		afield := ar.Field(i)
+		fa := ar.Field(i)
 		afldname := ar.Type().Field(i).Name
-		if !afield.IsValid() { // skip fields in an invalid state, nil pointers, zero-valued lists, ...
+		if !fa.IsValid() {
 			continue
 		}
 		bdx, ok := m[afldname]
-		if !ok { // if pb doesn't have this field, move on
+		if !ok {
 			continue
 		}
 		br := reflect.ValueOf(pb).Elem()
-		bfield := br.Field(bdx)
-		if !bfield.CanSet() { // if it cannot be set then just move on
+		fb := br.Field(bdx)
+		if !fb.CanSet() {
 			continue
 		}
-		switch afield.Type().String() { // we need to copy things differently, depending on the data type
-		case "int", "int64", "float64", "time.Time", "[]int":
-			bfield.Set(reflect.ValueOf(afield.Interface()))
-		case "string":
-			bfield.Set(reflect.ValueOf(afield.Interface()))
-		default:
-			return fmt.Errorf("Unhandled data type: %s\n", afield.Type().String())
+		if fa.Type() == fb.Type() {
+			fb.Set(reflect.ValueOf(fa.Interface()))
+		} else {
+			ta := fa.Type().String()
+			tb := fb.Type().String()
+			if strings.Index(ta, xjson) >= 0 || strings.Index(tb, xjson) >= 0 {
+				XJSONprocess(&fa, &fb)
+			} else {
+				val := reflect.ValueOf(fa.Interface())
+				fb.Set(val.Convert(fb.Type()))
+			}
 		}
 	}
 	return nil

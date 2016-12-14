@@ -47,16 +47,22 @@ type W2uiGridRequest struct {
 // to be centrally parsed and passed to a specific handler, which may need to parse further
 // to get its unique data.
 type ServiceData struct {
+	UID  int64           // user id of requester
 	BID  int64           // which business
+	TCID int64           // TCID if supplied
+	RAID int64           // RAID if supplied
+	RID  int64           // RAID if supplied
 	greq W2uiGridRequest // what did the grid ask for
+	data string          // the raw unparsed data
 }
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
 	{"transactants", SvcTransactants},
 	{"xperson", SvcXPerson},
-	{"GLAccounts", SvcGLAccounts},
+	{"accounts", SvcGLAccounts},
 	{"rentables", SvcRentables},
+	{"rentable", SvcRentable},
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -98,8 +104,6 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("Unescaped data in message body:  %s\n", u)
-
 	requestHeader := "request=" // this is what w2ui starts all its grid requests with
 	i := strings.Index(u, requestHeader)
 	if i < 0 {
@@ -108,9 +112,7 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u = u[i+len(requestHeader):]
-
-	fmt.Printf("json.Unmarshal:  %s\n", u)
-
+	d.data = u
 	err = json.Unmarshal([]byte(u), &d.greq)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
@@ -134,11 +136,18 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("URI info:  %s\n", cmdinfo) // print before we strip it off
 
 	sa := strings.Split(cmdinfo, "/")
+	for i := 0; i < len(sa); i++ {
+		fmt.Printf("%d. %s\n", i, sa[i])
+	}
 	cmdinfo = sa[0]
-
-	fmt.Printf("gridServiceHandler requested for \"%s\"\n", cmdinfo)
-
-	d.BID = int64(1) // temporary hack, TODO: generalize -- add to url
+	d.UID, err = rlib.IntFromString(sa[1], "bad request integer value")
+	if err != nil {
+		SvcGridErrorReturn(w, err)
+	}
+	d.BID, err = rlib.IntFromString(sa[2], "bad request integer value")
+	if err != nil {
+		SvcGridErrorReturn(w, err)
+	}
 
 	for i := 0; i < len(Svcs); i++ {
 		if Svcs[i].Cmd == cmdinfo {
@@ -250,6 +259,19 @@ func GetRowCount(table, where string) (int64, error) {
 	return count, err
 }
 
+// SvcWriteResponse finishes the transaction with the W2UI client
+func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
+	b, err := json.Marshal(g)
+	if err != nil {
+		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	// fmt.Printf("first 50 chars of response: %50.50s\n", string(b))
+	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
+	w.Write(b)
+}
+
 // SvcGLAccounts generates a report of all GLAccounts for a the business unit
 // called out in d.BID
 func SvcGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -297,17 +319,7 @@ func SvcGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Errcheck(rows.Err())
 	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
-	b, err := json.Marshal(g)
-	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	bjson := string(b)
-	fmt.Printf("first 50 chars of response: %50.50s\n", bjson)
-	// fmt.Printf("Response Data:  %s\n", string(b))
-	w.Write(b)
+	SvcWriteResponse(&g, w)
 }
 
 // SvcTransactants generates a report of all Transactants defined business d.BID
@@ -324,16 +336,14 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	srch := fmt.Sprintf("BID=%d", d.BID)   // default WHERE clause
 	order := "LastName ASC, FirstName ASC" // default ORDER
 	q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
+	// fmt.Printf("db query = %s\n", q)
 
-	// set g.Total to the total number of rows of this data...
-	g.Total, err = GetRowCount("Transactant", qw)
+	g.Total, err = GetRowCount("Transactant", qw) // total number of rows that match the criteria
 	if err != nil {
 		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-
-	fmt.Printf("db query = %s\n", q)
 
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	rlib.Errcheck(err)
@@ -357,77 +367,5 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Errcheck(rows.Err())
 	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
-	b, err := json.Marshal(g)
-	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	bjson := string(b)
-	fmt.Printf("first 50 chars of response: %50.50s\n", bjson)
-	// fmt.Printf("Response Data:  %s\n", string(b))
-
-	w.Write(b)
-}
-
-// SvcRentables generates a report of all Rentables defined business d.BID
-func SvcRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcRentables")
-	var p rlib.Rentable
-	var err error
-	var g struct {
-		Status  string          `json:"status"`
-		Total   int64           `json:"total"`
-		Records []rlib.Rentable `json:"records"`
-	}
-
-	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "Name ASC"                  // default ORDER
-	q, qw := gridBuildQuery("Rentable", srch, order, d, &p)
-
-	// set g.Total to the total number of rows of this data...
-	g.Total, err = GetRowCount("Rentable", qw)
-	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
-	}
-
-	fmt.Printf("db query = %s\n", q)
-
-	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
-	defer rows.Close()
-
-	i := int64(d.greq.Offset)
-	count := 0
-	for rows.Next() {
-		var p rlib.Rentable
-		rlib.ReadRentables(rows, &p)
-		p.Recid = i
-		g.Records = append(g.Records, p)
-		count++ // update the count only after adding the record
-		if count >= d.greq.Limit {
-			break // if we've added the max number requested, then exit
-		}
-		i++ // update the index no matter what
-	}
-	fmt.Printf("Loaded %d rentables\n", len(g.Records))
-	fmt.Printf("g.Total = %d\n", g.Total)
-	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
-	g.Status = "success"
-	b, err := json.Marshal(g)
-	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	bjson := string(b)
-	fmt.Printf("first 100 chars of response: %100.100s\n", bjson)
-	// fmt.Printf("Response Data:  %s\n", string(b))
-
-	w.Write(b)
+	SvcWriteResponse(&g, w)
 }

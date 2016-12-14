@@ -487,6 +487,8 @@ func buildPreparedStatements() {
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(PAYORfields)
 	RRdb.Prepstmt.InsertPayor, err = RRdb.Dbrr.Prepare("INSERT INTO Payor (" + s4 + ") VALUES(" + s5 + ")")
 	Errcheck(err)
+	RRdb.Prepstmt.UpdatePayor, err = RRdb.Dbrr.Prepare("UPDATE Payor SET " + s3 + " WHERE TCID=?")
+	Errcheck(err)
 
 	//==========================================
 	// PROSPECT
@@ -496,6 +498,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertProspect, err = RRdb.Dbrr.Prepare("INSERT INTO Prospect (" + s4 + ") VALUES(" + s5 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateProspect, err = RRdb.Dbrr.Prepare("UPDATE Prospect SET " + s3 + " WHERE TCID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -804,13 +808,13 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetUser, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM User where TCID=?")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	// exceptional situation here - we want TCID to be the UserID - so, add them
+	// TCID is included as it needs to be the same as the TransactantID
 	s4 = "INSERT INTO User (" + "TCID," + s1 + ") VALUES(" + "?," + s2 + ")"
 	// fmt.Printf("Insert User SQL:  \"%s\"\n", s4)
 	RRdb.Prepstmt.InsertUser, err = RRdb.Dbrr.Prepare(s4)
 	Errcheck(err)
-	// RRdb.Prepstmt.UpdateUser, err = RRdb.Dbrr.Prepare("UPDATE User SET " + s3 + " WHERE TCID=?")
-	// Errcheck(err)
+	RRdb.Prepstmt.UpdateUser, err = RRdb.Dbrr.Prepare("UPDATE User SET " + s3 + " WHERE TCID=?")
+	Errcheck(err)
 	// RRdb.Prepstmt.DeleteUser, err = RRdb.Dbrr.Prepare("DELETE from User WHERE TCID=?")
 	// Errcheck(err)
 

@@ -5,12 +5,29 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script src="/js/w2ui-1.5.rc1.js"></script>
     <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script>
+    <script src="/html/{{.Lang}}/{{.Tmpl}}.js"></script>
+    <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
 <body>
 
 <!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
+<!--
+
+mainlayout    - w2ui layout toptoolbar, toplayout, footer
+toplayout     - w2ui layout for sidebar, main, and right (Detail)
+reportslayout -
+toptoolbar    - w2ui toolbar
+sidebarL1     - w2ui sidebar
+
+-->
 
 <script>
+var businesses = []
+{{range .BL}}
+var business = {BUD:"{{.Designation}}", BID:"{{.BID}}"};
+businesses.push(business);
+{{end}}
+
 var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
 var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
 var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 8pt; background-color: white;';
@@ -66,53 +83,7 @@ var config = {
                 { text: 'RentRoll',           icon: 'fa fa-building-o' }, 
                 { text: 'Forms & Procedures', icon: 'fa fa-book' }, 
             ]},
-            // { type: 'html', id: 'BUD',
-            //     html: '<select class="HR" name="CoCode">'+
-            //         '<option value="1" >REX</option>'+
-            //         '<option value="2" >401</option>'+
-            //         '<option value="3" >CCC</option></select>'
-            // },
-            { type: 'menu',    id: 'budMenu', caption: 'Select Business Unit',    icon: 'fa fa-building', items: [
-                { text: 'REX', icon: 'fa fa-building-o' }, 
-                { text: 'CCC', icon: 'fa fa-building-o' }, 
-                { text: '401', icon: 'fa fa-building-o' }, 
-            ]},
             { type: 'break', id: 'break2' },
-            { type: 'button',  id: 'goRentables',  caption: 'Rentables',  icon: 'fa fa-cube', hint: 'Rentables' },
-            { type: 'button',  id: 'goTransactants',  caption: 'Transactants',  icon: 'fa fa-users', hint: 'Transactants' },
-            { type: 'button',  id: 'goRentalAgreements',  caption: 'Rental<br>Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
-            { type: 'button',  id: 'goAssessments',  caption: 'Assessments',  icon: 'fa fa-star-o', hint: 'Assessments' },
-            { type: 'button',  id: 'goReceipts',  caption: 'Receipts',  icon: 'fa fa-star', hint: 'Receipts' },
-            { type: 'button',  id: 'goRatePlan',  caption: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
-            { type: 'button',  id: 'goServiceMenu',  caption: 'Service',  icon: 'fa fa-user', hint: 'Service' },
-            { type: 'menu',  id: 'goReports',  caption: 'Reports',  icon: 'fa fa-file-text-o', hint: 'Reports', items: [
-                { text: 'Assessments', icon: 'fa fa-file-text-o' },
-                { text: 'Business Units', icon: 'fa fa-file-text-o' },
-                { text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
-                { text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
-                { text: 'Depositories', icon: 'fa fa-file-text-o' },
-                { text: 'Delinquency', icon: 'fa fa-file-text-o' },
-                { text: 'GSR', icon: 'fa fa-file-text-o' },
-                { text: 'Journal', icon: 'fa fa-file-text-o' },
-                { text: 'Ledger', icon: 'fa fa-file-text-o' },
-                { text: 'Ledger Activity', icon: 'fa fa-file-text-o' },
-                { text: 'People', icon: 'fa fa-file-text-o' },
-                { text: 'Payment Types', icon: 'fa fa-file-text-o' },
-                { text: 'Receipts', icon: 'fa fa-file-text-o' },
-                { text: 'Count By Rentable Type', icon: 'fa fa-file-text-o' },
-                { text: 'Rentables', icon: 'fa fa-file-text-o' },
-                { text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
-                { text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
-                { text: 'Rentable Types', icon: 'fa fa-file-text-o' },
-                { text: 'RentRolls', icon: 'fa fa-file-text-o' },
-                { text: 'Statements', icon: 'fa fa-file-text-o' },
-                { text: 'String Lists', icon: 'fa fa-file-text-o' },
-                { text: 'Trial Balance', icon: 'fa fa-file-text-o' },
-            ]},
-            { type: 'menu',    id: 'goAdmin',  caption: 'Admin',  icon: 'fa fa-wrench', hint: 'GLAccounts, Transactants', items: [
-                { text: 'GLAccounts', icon: 'fa fa-folder-o' }, 
-                { text: 'Transactants', icon: 'fa fa-folder-o' }, 
-            ]},
             { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
                 { text: 'Messages', icon: 'fa fa-folder-o' }, 
                 { text: 'Sidebar', icon: 'fa fa-folder-o' }, 
@@ -124,15 +95,8 @@ var config = {
             ]},
         ],
         onClick: function (event) {
-            var s;
-            var found = false;
-            var x;
             console.log('target = ' + event.target)
             switch(event.target) {
-                case "goRentables":
-                console.log('process: goRentables')
-                    w2ui['toplayout'].content('main', w2ui['rentablesGrid']); 
-                    break;
                 case "moduleMenu:Directory":      window.location.href = 'https://directory.airoller.com/'; break;
                 case "moduleMenu:RentRoll":       window.location.href = 'https://rentroll.airoller.com/';  break;
                 case "menuButton:Messages":       w2ui['toplayout'].toggle('top',true);                     break;
@@ -142,60 +106,29 @@ var config = {
                 case "menuButton:Details":        w2ui['toplayout'].toggle('right',true);                   break;
                 case "menuButton:Footer":         w2ui['mainlayout'].toggle('bottom',true);                 break;
                 case "menuButton:topLayoutMain":  w2ui['toplayout'].toggle('main',true);                    break;
-                case "goAdmin:GLAccounts":
-                    w2ui['toplayout'].content('main', w2ui['accountsGrid']);
-                    w2ui['toplayout'].hide('right',true);
-                    break;
-                case "goAdmin:Transactants":
-                    w2ui['toplayout'].content('main', w2ui['transactantGrid']);
-                    w2ui['toplayout'].hide('right',true);
-                    break;
-                case "goReports:Assessments":                showReport("Assessments"); break;
-                case "goReports:Business Units":             showReport("Business"); break;
-                case "goReports:Assessments":                showReport("Assessments"); break;
-                case "goReports:Chart Of Accounts":          showReport("Chart Of Accounts"); break;
-                case "goReports:Custom Attributes":          showReport("Custom Attributes"); break;
-                case "goReports:Custom Attribute Refs":      showReport("Custom Attribute Refs"); break;
-                case "goReports:Deposit Methods":            showReport("Deposit Methods"); break;
-                case "goReports:Depositories":               showReport("Depositories"); break;
-                // case "goReports:Delinquency":                showReport("Delinquency"); break;
-                // case "goReports:GSR":                        showReport("GSR"); break;
-                // case "goReports:Journal":                    showReport("Journal"); break;
-                // case "goReports:Ledger":                     showReport("Ledger"); break;
-                // case "goReports:Ledger Activity":            showReport("Ledger Activity"); break;
-                case "goReports:People":                     showReport("People"); break;
-                case "goReports:Payment Types":              showReport("Payment Types"); break;
-                case "goReports:Receipts":                   showReport("Receipts"); break;
-                case "goReports:Rentable Count By Type":     showReport("Rentable Count By Type"); break;
-                case "goReports:Rentables":                  showReport("Rentables"); break;
-                case "goReports:Rental Agreements":          showReport("Rental Agreements"); break;
-                case "goReports:Rental Agreement Templates": showReport("Rental Agreement Templates"); break;
-                case "goReports:Rentable Types":             showReport("Rentable Types"); break;
-                case "goReports:RentRolls":                  showReport("RentRolls"); break;
-                case "goReports:Statements":                 showReport("Statements"); break;
-                case "goReports:String Lists":               showReport("String Lists"); break;
-                case "goReports:Trial Balance":              showReport("Trial Balance"); break;           }
-            if (found) {
-                x.toggle(s,true);
             }
         },
     },
     sidebarL1: {
         name: 'sidebarL1',
-        flatButton: true,
+        topHTML:  '<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">&nbsp;&nbsp;&nbsp;'+
+                    '<i class="fa fa-building-o"></i> &nbsp;' + sBusinessUnit + ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
+                    '{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}'+
+                    '</select>&nbsp;&nbsp;&nbsp;</div>',
+        //flatButton: true,
         nodes: [
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
-              nodes: [ { id: 'rentables', text: 'Rentables', icon: 'fa fa-cube' },
-                       { id: 'transactants', text: 'Transactants', icon: 'fa fa-users' },
-                       { id: 'goRentalAgreements',  text: 'Rental Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
-                       { id: 'goAssessments',  text: 'Assessments',  icon: 'fa fa-star-o', hint: 'Assessments' },
-                       { id: 'goReceipts',  text: 'Receipts',  icon: 'fa fa-star', hint: 'Receipts' },
-                       { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
-                       { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
-                     ]
+                nodes: [  { id: 'rentables', text: plural(sRentable), icon: 'fa fa-cube' },
+                        { id: 'transactants', text: plural(sTransactant), icon: 'fa fa-users' },
+                        { id: 'goRentalAgreements',  text: 'Rental Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
+                        { id: 'goAssessments',  text: 'Assessments',  icon: 'fa fa-star-o', hint: 'Assessments' },
+                        { id: 'goReceipts',  text: 'Receipts',  icon: 'fa fa-star', hint: 'Receipts' },
+                        { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
+                        { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
+                ]
             },
             { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
-              nodes: [ 
+                nodes: [ 
                        { id: 'assessments', text: 'Assessments', icon: 'fa fa-file-text-o' },
                        { id: 'businessUnits', text: 'Business Units', icon: 'fa fa-file-text-o' },
                        { id: 'chartOfAccounts', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
@@ -210,7 +143,7 @@ var config = {
                        { id: 'paymentTypes', text: 'Payment Types', icon: 'fa fa-file-text-o' },
                        { id: 'receipts', text: 'Receipts', icon: 'fa fa-file-text-o' },
                        { id: 'countByRentable Type', text: 'Count By Rentable Type', icon: 'fa fa-file-text-o' },
-                       { id: 'rentables', text: 'Rentables', icon: 'fa fa-file-text-o' },
+                       { id: 'rentables', text: plural(sRentable), icon: 'fa fa-file-text-o' },
                        { id: 'rentalAgreements', text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
                        { id: 'rentalAgreementTemplates', text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
                        { id: 'rentableTypes', text: 'Rentable Types', icon: 'fa fa-file-text-o' },
@@ -218,33 +151,19 @@ var config = {
                        { id: 'statements', text: 'Statements', icon: 'fa fa-file-text-o' },
                        { id: 'string Lists', text: 'String Lists', icon: 'fa fa-file-text-o' },
                        { id: 'trial Balance', text: 'Trial Balance', icon: 'fa fa-file-text-o' },
-                     ]
+                ]
             },
-            { id: 'admin', text: 'Admin', img: 'icon-folder', expanded: false, group: true,
-              nodes: [ { id: 'coa', text: 'Chart Of Accounts', icon: 'fa fa-folder-o' },
-                       { id: 'transactants', text: 'Transactants', icon: 'fa fa-star-o' },
-                     ]
+            { id: 'admin', text: 'Admin', img: 'icon-wrench', expanded: false, group: true,
+                nodes: [ { id: 'accounts', text: 'Chart Of Accounts', icon: 'fa fa-folder-o' },
+                ]
             },
-        ],
-        // onFlat: function (event) {
-        //     w2ui['toplayout'].size = event.goFlat ? '35px' : '200px';
-        // }
+       ],
+        onFlat: function (event) {
+            console.log('event.goFlat = ' + event.goFlat )
+            $('#sidebarL1').css('width', (event.goFlat ? '35px' : '200px'));
+        },
         onClick: function (event) {
-            console.log('Target: '+ event.target, event);
-            switch (event.target) {
-                case 'transactants':
-                    w2ui['toplayout'].content('main', w2ui['transactantGrid']);
-                    w2ui['toplayout'].hide('right',true);
-                    break;
-                case 'rentables':
-                    w2ui['toplayout'].content('main', w2ui['rentablesGrid']);
-                    w2ui['toplayout'].hide('right',true);
-                    break;
-                case 'coa':
-                    w2ui['toplayout'].content('main', w2ui['accountsGrid']);
-                    w2ui['toplayout'].hide('right',true);
-                    break;
-            }
+            switchToGrid(event.target)
         }
     },
     reportstoolbar: {
@@ -305,7 +224,6 @@ var accountsGrid = {
     ],
     onSelect:  function(event) {
         console.log(event);
-        console.log('**** SELECT EVENT CAUGHT *****')
     },
     onClick: function(event) {
         event.onComplete = function () {
@@ -318,8 +236,8 @@ var accountsGrid = {
     }
 }
 
-var transactantGrid = { 
-    name: 'transactantGrid', 
+var transactantsGrid = { 
+    name: 'transactantsGrid', 
     url: '/gsvc/transactants',
     show: {
         header: false,
@@ -331,8 +249,9 @@ var transactantGrid = {
     },        
     columns: [
         {field: 'FirstName',    caption: "First Name",    size: '10%', sortable: true, hidden: false},
-        {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: false},
+        {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: true},
         {field: 'LastName',     caption: "Last Name",     size: '10%', sortable: true, hidden: false},
+        {field: 'CompanyName',  caption: "Company Name",  size: '10%', sortable: true, hidden: false},
         {field: 'PrimaryEmail', caption: "Primary Email", size: '10%', sortable: true, hidden: false},
         {field: 'WorkPhone',    caption: "Work Phone",    size: '10%', sortable: true, hidden: false},
         {field: 'CellPhone',    caption: "Cell Phone",    size: '10%', sortable: true, hidden: false},
@@ -364,7 +283,9 @@ var transactantGrid = {
                     // f.record['recid'] = ob.TCID;
                     console.log('ob.TCID = ' + ob.TCID)
                     console.log('f.record[recid] = ' + f.record['recid'])
-                    f.url = '/gsvc/xperson/' + ob.BID + '/' + ob.TCID
+                    // url format = /gsvc/xperson/uid/bid/tcid
+                    uid = 211; // hardcoding for now
+                    f.url = '/gsvc/xperson/' + uid + '/' + ob.BID + '/' + ob.TCID
                     console.log('f.url = ' + f.url)
                     f.request();
                     }
@@ -379,13 +300,13 @@ var transactantGrid = {
 var transactantForm = {
     name: 'transactantForm',
     style: 'border: 0px; background-color: transparent;',
-    header: 'Transactant Detail',
+    header: sTransactant + ' Detail',
     url: '/gsvc/xperson',
     formURL: '/html/formtc.html',
     fields: [
         { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-        { field: 'FirstName', type: 'text', required: true, html: { caption: 'First Name', page: 0, column: 0 } },
-        { field: 'LastName', type: 'text', required: true, html: { caption: 'Last Name', page: 0, column: 0 } },
+        { field: 'FirstName', type: 'text', required: false, html: { caption: 'First Name', page: 0, column: 0 } },
+        { field: 'LastName', type: 'text', required: false, html: { caption: 'Last Name', page: 0, column: 0 } },
         { field: 'MiddleName', type: 'text', required: false, html: { caption: 'Middle Name', page: 0, column: 0 } },
         { field: 'PreferredName', type: 'text', required: false, html: { caption: 'Preferred Name', page: 0, column: 0 } },
         { field: 'PrimaryEmail', type: 'email', required: false, html: { caption: 'Primary Email', page: 0, column: 0 } },
@@ -408,9 +329,9 @@ var transactantForm = {
         { field: 'LastModBy', type: 'text', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
         { field: 'Points', type: 'text', required: false, html: { caption: 'Points', page: 1, column: 0 } },
         { field: 'DateofBirth', type: 'us-date', required: false, html: { caption: 'Date of Birth', page: 1, column: 0 } },
-        { field: 'EmergencyContactName', type: 'text', required: false, html: { caption: 'Emergency Contact Name', page: 1, column: 0 } },
-        { field: 'EmergencyContactAddress', type: 'text', required: false, html: { caption: 'Emergency Contact Address', page: 1, column: 0 } },
-        { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { caption: 'Emergency Contact Telephone', page: 1, column: 0 } },
+        { field: 'EmergencyContactName', type: 'text', required: false, html: { caption: 'Emerg Cntct Name', page: 1, column: 0 } },
+        { field: 'EmergencyContactAddress', type: 'text', required: false, html: { caption: 'Emerg Cntct Addr', page: 1, column: 0 } },
+        { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { caption: 'Emerg Cntct Tel', page: 1, column: 0 } },
         { field: 'EmergencyEmail', type: 'text', required: false, html: { caption: 'Emergency Email', page: 1, column: 0 } },
         { field: 'AlternateAddress', type: 'text', required: false, html: { caption: 'Alternate Address', page: 1, column: 0 } },
         { field: 'EligibleFutureUser', type: 'text', required: false, html: { caption: 'Eligible Future User', page: 1, column: 0 } },
@@ -443,10 +364,10 @@ var transactantForm = {
 
     ],
     tabs: [
-        { id: 'tab1', caption: 'Transactant' },
-        { id: 'tab2', caption: 'User'},
-        { id: 'tab3', caption: 'Payor' },
-        { id: 'tab4', caption: 'Prospect' },
+        { id: 'tab1', caption: sTransactant },
+        { id: 'tab2', caption: sUser },
+        { id: 'tab3', caption: sPayor },
+        { id: 'tab4', caption: sProspect },
     ],
     actions: {
         reset: function () {
@@ -454,12 +375,18 @@ var transactantForm = {
         },
         save: function () {
             var obj = this;
+            var tgrid = w2ui['transactantsGrid'];
+            var sel = tgrid.getSelection();
+            tgrid.unselect(sel);
+            console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
             this.save({}, function (data) { 
                 if (data.status == 'error') {
                     console.log('ERROR: '+ data.message);
                     return;
                 }
-                obj.clear();
+                // obj.clear();
+                w2ui['toplayout'].hide('right',true);
+                tgrid.reload();
             });
         }
     }
@@ -476,7 +403,7 @@ var rentablesGrid = {
         lineNumbers: false,
         selectColumn: false,
         expandColumn: false
-    },        
+    },
     columns: [
         {field: 'recid', caption: 'recid', size: '50px', sortable: true},
         {field: 'RID', caption: 'RID', size: '50px', sortable: true},
@@ -484,13 +411,89 @@ var rentablesGrid = {
         {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
     ],
     onClick: function(event) {
+        var sel = this.getSelection(true);
+        console.log('Current selection is ' + sel );
         event.onComplete = function () {
+            var x = this.get
+            // Object.getOwnPropertyNames(x).forEach(function(val, idx, array) {
+            //   console.log(val + ' -> ' + x[val]);
+            // });   
+            // console.log('*** onComplete handler ***')
             var sel = this.getSelection(true);
             console.log('Current selection is ' + sel );
+            var index, j;
+            var l = sel.length;
+            if (l > 0) {
+                for (index = 0; index < sel.length; ++index) {
+                    j = sel[index];
+                    console.log('sel[index] is ' + sel[index] + ' j = ' + j)
+                    var f = w2ui['rentablesForm'];
+                    w2ui['toplayout'].show('right',true);
+                    w2ui['toplayout'].content('right', f);
+                    w2ui['toplayout'].sizeTo('right', 400);
+                    ob = this.get(j)
+                    // f.record['recid'] = ob.TCID;
+                    console.log('ob.TCID = ' + ob.TCID)
+                    console.log('f.record[recid] = ' + f.record['recid'])
+                    // url format = /gsvc/xperson/uid/bid/tcid
+                    // uid = 211; // hardcoding for now
+                    // f.url = '/gsvc/xperson/' + uid + '/' + ob.BID + '/' + ob.TCID
+                    // console.log('f.url = ' + f.url)
+                    // f.request();
+                    }
+            } else {
+                console.log('*** NO SELECTION FOUND ***   So, select index 0')
+                this.select(1)
+            }
         }
     }
 }
 
+var rentablesForm = {
+    name: 'rentablesForm',
+    style: 'border: 0px; background-color: transparent;',
+    header: sRentable + ' Detail',
+    url: '/gsvc/xrentable',
+    fields: [
+        { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+        { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
+        { field: 'AssignmentTime', type: 'int', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+    ]
+}
+
+function getCurrentBusiness() {
+    var x = document.getElementsByName("BusinessSelect");
+    return x[0];
+}
+// urlPrefix returns the standard for values for the web services
+// url ending:  <userid>/<business id>
+function urlSuffix() {
+    user = "211" // hardcoded for now
+    return user+x[0].value;
+}
+
+// ChangeBusiness updates the UI to the newly selected business
+function ChangeBusiness() {
+    var x =document.getElementsByName("BusinessSelect");
+    w2ui['toplayout'].content('main', ' ');
+    w2ui['toplayout'].hide('right',true);
+    s = w2ui['sidebarL1'];
+    sel = s.selected;
+    if (sel != null) { 
+        s.unselect(sel);
+    }
+}
+
+function switchToGrid(svc) {
+    grid = svc + 'Grid' // this builds the name of the w2ui grid we want
+    var user = '211'    // user is hardcoded for now
+    var x = getCurrentBusiness();
+    var url = '/gsvc/' + svc + '/' + user + '/' + x.value;
+    w2ui[grid].url = url;
+    console.log('url = ' + url);
+    w2ui['toplayout'].content('main', w2ui[grid]);
+    w2ui['toplayout'].hide('right',true);
+}
 
 $(function () {
     $('#layout').w2layout(config.mainlayout);
@@ -499,11 +502,32 @@ $(function () {
     $().w2layout(config.reportslayout);
     w2ui.reportslayout.content('top', $().w2toolbar(config.reportstoolbar));
     $().w2grid(accountsGrid);
-    $().w2grid(transactantGrid);
-    $().w2grid(rentablesGrid);
+    $().w2grid(transactantsGrid);
     $().w2form(transactantForm);
+    $().w2grid(rentablesGrid);
+    $().w2grid(rentablesForm);
     w2ui['toplayout'].content('left',$().w2sidebar(config.sidebarL1));
 
+    var month = (new Date()).getMonth() + 1;
+    var year  = (new Date()).getFullYear();
+
+    // US Format
+    $('input[type=us-date]').w2field('date', { format: 'yyyy-mm-dd' });
+    $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
+    $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
+    $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });
+    $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
+    $('input[type=us-time]').w2field('time',  { format: 'h12' });
+    $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
+
+    // EU Common Format
+    $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
+    $('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
+    $('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blocked: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
+    $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]') });
+    $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
+    $('input[type=eu-time]').w2field('time',  { format: 'h24' });
+    $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
 });
 </script>
 

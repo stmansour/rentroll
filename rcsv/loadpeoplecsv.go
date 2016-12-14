@@ -253,7 +253,10 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 			}
 		case DateofBirth:
 			if len(s) > 0 {
-				t.DateofBirth, _ = time.Parse(dateform, s)
+				t.DateofBirth, err = rlib.StringToDate(s)
+				if err != nil {
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Bad date of birth: %s, error = %s\n", funcname, lineno, s, err.Error())
+				}
 			}
 		case EmergencyContactName:
 			t.EmergencyContactName = s

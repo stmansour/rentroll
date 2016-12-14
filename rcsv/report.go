@@ -187,7 +187,7 @@ func RRreportRentableTypes(ri *CSVReporterInfo) string {
 
 // RRreportPeople generates a report of all Businesses defined in the database.
 func RRreportPeople(ri *CSVReporterInfo) string {
-	rows, err := rlib.RRdb.Prepstmt.GetAllTransactants.Query()
+	rows, err := rlib.RRdb.Prepstmt.GetAllTransactantsForBID.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 

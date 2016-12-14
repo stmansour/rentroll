@@ -102,17 +102,17 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Fee Applies Age
 	//-------------------------------------------------------------------
-	a.FeeAppliesAge, errmsg = rlib.IntFromString(sa[FeeAppliesAge], "Invalid FeeAppliesAge")
-	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[FeeAppliesAge])
+	a.FeeAppliesAge, err = rlib.IntFromString(sa[FeeAppliesAge], "Invalid FeeAppliesAge")
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, err.Error())
 	}
 
 	//-------------------------------------------------------------------
 	// Max No Fee Users
 	//-------------------------------------------------------------------
-	a.MaxNoFeeUsers, errmsg = rlib.IntFromString(sa[MaxNoFeeUsers], "Invalid MaxNoFeeUsers")
-	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[MaxNoFeeUsers])
+	a.MaxNoFeeUsers, err = rlib.IntFromString(sa[MaxNoFeeUsers], "Invalid MaxNoFeeUsers")
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, err.Error())
 	}
 
 	//-------------------------------------------------------------------

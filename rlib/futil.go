@@ -152,20 +152,20 @@ func IsSQLNoResultsError(err error) bool {
 // IntFromString converts the supplied string to an int64 value. If there
 // is a problem in the conversion, it generates an error message. To suppress
 // the error message, pass in "" for errmsg.
-func IntFromString(sa string, errmsg string) (int64, string) {
+func IntFromString(sa string, errmsg string) (int64, error) {
 	var n = int64(0)
 	s := strings.TrimSpace(sa)
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
 			if "" != errmsg {
-				return 0, fmt.Sprintf("IntFromString: %s: %s\n", errmsg, s)
+				return 0, fmt.Errorf("IntFromString: %s: %s\n", errmsg, s)
 			}
-			return n, err.Error()
+			return n, err
 		}
 		n = int64(i)
 	}
-	return n, ""
+	return n, nil
 }
 
 // FloatFromString converts the supplied string to an int64 value. If there

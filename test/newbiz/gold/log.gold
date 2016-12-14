@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Wed Dec  7 18:14:48 PST 2016
+Date/Time:    Mon Dec 12 12:12:18 PST 2016
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2016/12/07 18:14:49 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2016/12/12 12:12:19 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -58,9 +58,7 @@ CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAlloca
 
 CreateCustomAttributes: line 6 - Type value must be a number from 0 to 4
 IntFromString: Value cannot be converted to an integer: ab827
-
 IntFromString: Value cannot be converted to an unsigned integer: ab827
-
 ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Wed Dec  7 18:14:51 PST 2016
+Test completed: Mon Dec 12 12:12:21 PST 2016
