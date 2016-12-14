@@ -14,6 +14,6 @@ test:
 #	cp importers/onesite.1 /usr/local/share/man/man1
 
 package:
-	mkdir -p ../../tmp/rentroll/onesite/
-	cp mapper.json ../../tmp/rentroll/onesite/
+	mkdir -p ../../tmp/rentroll/importers/onesite/
+	cp mapper.json ../../tmp/rentroll/importers/onesite/
 	@echo "*** PACKAGE completed in importers/onesite ***"
