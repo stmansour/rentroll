@@ -19,7 +19,6 @@ LOGFILE="log"
 MYSQLOPTS=""
 MYSQL=$(which mysql)
 TESTCOUNT=0			## this is an internal counter, your external script should not touch it
-TREPORT="../testreport.txt"
 SCRIPTPATH=$(pwd -P)
 
 if [ "x${RRPORT}" = "x" ]; then
@@ -31,6 +30,7 @@ if [ "x${RRBIN}" = "x" ]; then
 else
 	echo "RBIN was pre-set to:  \"${RRBIN}\""
 fi
+TREPORT="${RRBIN}/../../test/testreport.txt"
 
 RENTROLL="${RRBIN}/rentroll -A"
 CSVLOAD="${RRBIN}/rrloadcsv"

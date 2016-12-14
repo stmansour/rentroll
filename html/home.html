@@ -143,7 +143,7 @@ var config = {
                        { id: 'paymentTypes', text: 'Payment Types', icon: 'fa fa-file-text-o' },
                        { id: 'receipts', text: 'Receipts', icon: 'fa fa-file-text-o' },
                        { id: 'countByRentable Type', text: 'Count By Rentable Type', icon: 'fa fa-file-text-o' },
-                       { id: 'rentables', text: plural(sRentable), icon: 'fa fa-file-text-o' },
+                       { id: 'rentablesReport', text: plural(sRentable), icon: 'fa fa-file-text-o' },
                        { id: 'rentalAgreements', text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
                        { id: 'rentalAgreementTemplates', text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
                        { id: 'rentableTypes', text: 'Rentable Types', icon: 'fa fa-file-text-o' },
@@ -394,7 +394,8 @@ var transactantForm = {
 
 var rentablesGrid = {
     name: 'rentablesGrid',
-    url: '/gsvc/rentables',
+    url: '/gsvc/xrentable',
+    formURL: '/html/formr.html',
     show: {
         header: false,
         toolbar: true,
@@ -411,40 +412,28 @@ var rentablesGrid = {
         {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
     ],
     onClick: function(event) {
+        console.log('*******************************************************************************')
         var sel = this.getSelection(true);
-        console.log('Current selection is ' + sel );
+        if (sel.length == 0) {
+            console.log( 'Nothing selected.  returning')
+            return
+        }
+        console.log('sel = ' + sel)
         event.onComplete = function () {
-            var x = this.get
-            // Object.getOwnPropertyNames(x).forEach(function(val, idx, array) {
-            //   console.log(val + ' -> ' + x[val]);
-            // });   
-            // console.log('*** onComplete handler ***')
-            var sel = this.getSelection(true);
-            console.log('Current selection is ' + sel );
-            var index, j;
-            var l = sel.length;
-            if (l > 0) {
-                for (index = 0; index < sel.length; ++index) {
-                    j = sel[index];
-                    console.log('sel[index] is ' + sel[index] + ' j = ' + j)
-                    var f = w2ui['rentablesForm'];
-                    w2ui['toplayout'].show('right',true);
-                    w2ui['toplayout'].content('right', f);
-                    w2ui['toplayout'].sizeTo('right', 400);
-                    ob = this.get(j)
-                    // f.record['recid'] = ob.TCID;
-                    console.log('ob.TCID = ' + ob.TCID)
-                    console.log('f.record[recid] = ' + f.record['recid'])
-                    // url format = /gsvc/xperson/uid/bid/tcid
-                    // uid = 211; // hardcoding for now
-                    // f.url = '/gsvc/xperson/' + uid + '/' + ob.BID + '/' + ob.TCID
-                    // console.log('f.url = ' + f.url)
-                    // f.request();
-                    }
-            } else {
-                console.log('*** NO SELECTION FOUND ***   So, select index 0')
-                this.select(1)
-            }
+            console.log('*** ON COMPLETE ***')
+            console.log('sel = ' + sel)
+            if (sel.length == 0) { return }
+            rec = w2ui['rentablesGrid'].get(sel[0])
+            userid = 211
+            b = getCurrentBusiness();
+            url = '/gsvc/xrentable/' + userid + '/' + b.value + '/' + rec.RID;
+            console.log('url = ' + url)
+            var f = w2ui['rentablesForm'];
+            f.url = url;
+            w2ui['toplayout'].show('right',true);
+            w2ui['toplayout'].content('right', f);
+            w2ui['toplayout'].sizeTo('right', 400);
+            f.request();
         }
     }
 }
@@ -454,11 +443,25 @@ var rentablesForm = {
     style: 'border: 0px; background-color: transparent;',
     header: sRentable + ' Detail',
     url: '/gsvc/xrentable',
+    formURL: '/html/formr.html',
     fields: [
         { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
         { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
+        { field: 'BID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
         { field: 'AssignmentTime', type: 'int', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
-    ]
+    ],
+    actions: {
+        reset: function () {
+            this.clear();
+        },
+        save: function () {
+            var obj = this;
+            var tgrid = w2ui['rentablesGrid'];
+            var sel = tgrid.getSelection();
+            tgrid.unselect(sel);
+            console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+        }
+    }
 }
 
 function getCurrentBusiness() {

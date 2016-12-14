@@ -15,8 +15,8 @@ type gxrentable struct {
 	BID            int64
 	Name           string
 	AssignmentTime rlib.XJSONAssignmentTime
-	// User                string
-	// Payor               string
+	LastModTime    rlib.JSONTime
+	LastModBy      int64
 }
 
 // SvcRentables generates a report of all Rentables defined business d.BID
@@ -188,16 +188,18 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered getRentable\n")
 	var g struct {
-		Status string   `json:"status"`
-		Record gxperson `json:"record"`
+		Status string     `json:"status"`
+		Record gxrentable `json:"record"`
 	}
 	fmt.Printf("GetRentable( RID = %d )\n", d.RID)
-	a := rlib.GetRentable(d.TCID)
+	a := rlib.GetRentable(d.RID)
 	fmt.Printf("Begin migration to form struct\n")
 	if a.RID > 0 {
-		rlib.MigrateStructVals(&a, &g.Record)
+		var gg gxrentable
+		rlib.MigrateStructVals(&a, &gg)
+		g.Record = gg
 	}
-	fmt.Printf("End migration\n")
+	fmt.Printf("End migration.  g.Record = %#v\n", g.Record)
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }
