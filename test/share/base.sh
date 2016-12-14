@@ -251,13 +251,52 @@ tdir() {
 }
 
 
-########################################
-# docsvtest()
+#############################################################################
+# docsvtest()  
+#    The purpose of this routine is to call rrloadcsv with the 
+#     parameters supplied in $2 and send its output to a file
+#     named $1. After trrloadcsv completes, the output in $1 will
+#     be compared with the output in gold/$1.gold.  If there are
+#     no diffs, then the test passes.  If there are diffs, then 
+#     it terminates execution of the script after doing 
+#     the following:
+#
+#        (a) Displays the diffs
+#        (b) Displays the mv command to use if the newly generated
+#            output is now correct and the gold/$1.gold file needs
+#            to be updated.  You can just copy the command and paste
+#            it into your command line.  Very handy
+#        (c) Displays the full command it used to generate the output
+#            in $1. This is very handy for reproducing a problem.
+#
+#     Additionally, there are some Environment Variables that cause
+#     it to perform several functions that are very handy:
+#
+#        SKIPCOMPARE - ${SKIPCOMPARE} defaults to 0. As long as its
+#            value is 0 the output in $1 will be compared to
+#            gold/$1.gold .  However, there may be times where
+#            you want the script to run to completion even if the
+#            output miscompares with what is in gold/*  By convention,
+#            all of my "functest.sh" scripts use the -f option to
+#            set this value.
+#
+#        FORCEGOOD - ${FORCEGOOD} is set to 0 by default. If it is set
+#            set to 1 it means that the output generated and stored in
+#            $1 during this run is known to be "correct", even though
+#            it may be different than what is in gold/$1.gold.  It will
+#            automatically copy $1 to gold/$1.go. This is
+#            extremely handy if a change was made to the table output
+#            generator, or if any new fields were added to the database
+#            and you've validated in some other way that everything is
+#            working after such a change.  By convention, all of my
+#            "function.sh" scripts use the -o option to set FORCEGOOD
+#            to 1.    
+#                  
 #	Parameters:
 # 		$1 = base file name
 #		$2 = app options to reproduce
-# 		$3 = title
-########################################
+# 		$3 = title for reporting.  No spaces
+#############################################################################
 docsvtest () {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3

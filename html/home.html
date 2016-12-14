@@ -447,7 +447,8 @@ var rentablesForm = {
     fields: [
         { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
         { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
-        { field: 'BID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
+        { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
+        { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
         { field: 'AssignmentTime', type: 'int', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
     ],
     actions: {
@@ -508,7 +509,7 @@ $(function () {
     $().w2grid(transactantsGrid);
     $().w2form(transactantForm);
     $().w2grid(rentablesGrid);
-    $().w2grid(rentablesForm);
+    $().w2form(rentablesForm);
     w2ui['toplayout'].content('left',$().w2sidebar(config.sidebarL1));
 
     var month = (new Date()).getMonth() + 1;
