@@ -62,7 +62,7 @@ var Svcs = []ServiceHandler{
 	{"xperson", SvcXPerson},
 	{"accounts", SvcGLAccounts},
 	{"rentables", SvcRentables},
-	{"rentable", SvcRentable},
+	{"xrentable", SvcRentable},
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -131,9 +131,10 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("sort[%d] - Field = %s,  Direction = %s\n", i, d.greq.Sort[i].Field, d.greq.Sort[i].Direction)
 	}
 
-	path := "/gsvc/"                       // this is the part of the URL that got us into this handler
-	cmdinfo := r.RequestURI[len(path):]    // this pulls off the specific request
-	fmt.Printf("URI info:  %s\n", cmdinfo) // print before we strip it off
+	fmt.Printf("Full URI:  %s\n", r.RequestURI) // print before we strip it off
+	path := "/gsvc/"                            // this is the part of the URL that got us into this handler
+	cmdinfo := r.RequestURI[len(path):]         // this pulls off the specific request
+	fmt.Printf("URI info:  %s\n", cmdinfo)      // print before we strip it off
 
 	sa := strings.Split(cmdinfo, "/")
 	for i := 0; i < len(sa); i++ {
@@ -264,10 +265,11 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 	b, err := json.Marshal(g)
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+		rlib.Ulog("SvcWriteResponse: %s\n", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	// fmt.Printf("first 50 chars of response: %50.50s\n", string(b))
+	fmt.Printf("first 100 chars of response: %100.100s\n", string(b))
 	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }
