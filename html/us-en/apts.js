@@ -30,3 +30,5 @@ var sReceipt ="Payment";
 var sRatePlan ="Rate Plan";
 var sService ="Service";
 var sBusinessUnit="Business Unit";
+var sAssessment="Charge"
+var sReceipt="Payment"

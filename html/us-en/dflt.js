@@ -29,3 +29,5 @@ var sReceipt ="Receipt";
 var sRatePlan ="Rate Plan";
 var sService ="Service";
 var sBusinessUnit="Business Unit";
+var sAssessment="Assessment"
+var sReceipt="Receipt"

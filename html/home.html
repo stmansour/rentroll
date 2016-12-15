@@ -121,8 +121,8 @@ var config = {
                 nodes: [  { id: 'rentables', text: plural(sRentable), icon: 'fa fa-cube' },
                         { id: 'transactants', text: plural(sTransactant), icon: 'fa fa-users' },
                         { id: 'goRentalAgreements',  text: 'Rental Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
-                        { id: 'goAssessments',  text: 'Assessments',  icon: 'fa fa-star-o', hint: 'Assessments' },
-                        { id: 'goReceipts',  text: 'Receipts',  icon: 'fa fa-star', hint: 'Receipts' },
+                        { id: 'goAssessments',  text: plural(sAssessment),  icon: 'fa fa-star-o', hint: plural(sAssessment) },
+                        { id: 'goReceipts',  text: plural(sReceipt),  icon: 'fa fa-star', hint: plural(sReceipt) },
                         { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
                         { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
                 ]
@@ -406,7 +406,7 @@ var rentablesGrid = {
         expandColumn: false
     },
     columns: [
-        {field: 'recid', caption: 'recid', size: '50px', sortable: true},
+        {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
         {field: 'RID', caption: 'RID', size: '50px', sortable: true},
         {field: 'Name', caption: 'Name', size: '15%', sortable: true},
         {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
@@ -449,7 +449,7 @@ var rentablesForm = {
         { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
         { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
         { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
-        { field: 'AssignmentTime', type: 'int', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+        { field: 'AssignmentTime', type: 'text', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
     ],
     actions: {
         reset: function () {
