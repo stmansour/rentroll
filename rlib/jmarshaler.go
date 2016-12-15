@@ -35,24 +35,3 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 	*t = JSONTime(x)
 	return nil
 }
-
-// // MarshalJSON performs the complex marshal of this data type to a string
-// //--------------------------------------------------------------------
-// func (t *XJSONAssignmentTime) MarshalJSON() ([]byte, error) {
-// 	var s string
-// 	sr := reflect.ValueOf(&s).Elem()
-// 	tr := reflect.ValueOf(t).Elem()
-// 	Int642AssignmentTime(&tr, &sr)
-// 	return []byte(s), nil
-// }
-
-// // UnmarshalJSON performs the complex unmarshal of this data type to an int64
-// //--------------------------------------------------------------------
-// func (t *XJSONAssignmentTime) UnmarshalJSON(b []byte) error {
-// 	s := string(b)
-// 	s = Stripchars(s, "\"")
-// 	sr := reflect.ValueOf(&s).Elem()
-// 	tr := reflect.ValueOf(t).Elem()
-// 	AssignmentTime2Int64(&sr, &tr)
-// 	return nil
-// }

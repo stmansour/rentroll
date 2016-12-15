@@ -51,8 +51,6 @@ type gxperson struct {
 	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
 	FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
 	RAID                      int64         // created to hold On Account amount of Floating Deposit
-	LastModTime               rlib.JSONTime
-	LastModBy                 int64
 	Points                    int64
 	DateofBirth               rlib.JSONTime
 	EmergencyContactName      string
@@ -67,6 +65,8 @@ type gxperson struct {
 	TaxpayorID                string
 	AccountRep                int64
 	EligibleFuturePayor       int64
+	LastModTime               rlib.JSONTime
+	LastModBy                 int64
 }
 
 // SvcXPerson formats a complete data record for a person suitable for use with the w2ui Form
