@@ -320,9 +320,6 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		}
 	}
 
-	// rtErrors := rcsv.LoadRentableTypesCSV(rentableTypeCSVFile.Name())
-	// errorList = append(errorList, rtErrors...)
-
 	// ##################################
 	// # PHASE 3 : CLEAR THE TEMPORARY CSV FILES #
 	// ##################################
@@ -349,8 +346,9 @@ func RollBackSplitOperation(timestamp string) {
 // temporarily csv files created by program
 func ClearSplittedTempCSVFiles(timestamp string) {
 	for _, v := range prefixCSVFile {
-		fileName := v + timestamp
-		err := os.Remove(fileName)
+		fileName := v + timestamp + ".csv"
+		filePath := path.Join(SplittedCSVStore, fileName)
+		err := os.Remove(filePath)
 		fmt.Println(err)
 	}
 }
