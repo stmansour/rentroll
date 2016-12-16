@@ -169,6 +169,10 @@ func GetCustomAttribute(id int64) CustomAttribute {
 }
 
 // GetCustomAttributeByVals reads a CustomAttribute structure based on the supplied attributes
+// t = data type (CUSTSTRING, CUSTINT, CUSTUINT, CUSTFLOAT, CUSTDATE
+// n = name of this custom attribute
+// v = the value of this attribute
+// u = units (if not applicable then "")
 func GetCustomAttributeByVals(t int64, n, v, u string) CustomAttribute {
 	var a CustomAttribute
 	row := RRdb.Prepstmt.GetCustomAttributeByVals.QueryRow(t, n, v, u)
