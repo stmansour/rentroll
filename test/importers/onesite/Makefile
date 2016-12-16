@@ -2,7 +2,8 @@ onesite:
 	@echo "*** Completed in onesite ***"
 
 clean:
-	rm -f [a-z] rentroll.log log *.txt /tmp/onesite/*.csv rentabletypes_*.csv
+	TEMPCSVSTORE="../../../importers/onesite/tempCSVs"
+	rm -f [a-z] rentroll.log log *.txt ${TEMPCSVSTORE}/*.csv rt.csv people.csv rentable.csv ra.csv custom.csv
 	@echo "*** CLEAN completed in onesite ***"
 
 test:

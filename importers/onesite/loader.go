@@ -164,6 +164,10 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		{Name: "REFERRAL", Index: Referral},
 	}
 
+	// ###################################
+	// # INIT PHASE : LOAD FIELD MAP IN ONESITE MAP #
+	// ###################################
+
 	// Onesite csv headers slice and load it from csvCols
 	OneSiteCSVHeaders := []string{}
 	for _, header := range csvCols {
@@ -179,6 +183,10 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		msg = "Error while getting onesite field mapping"
 		return errorList, msg
 	}
+
+	// ##############################
+	// # PHASE 1 : SPLITTING DATA IN CSV FILES #
+	// ##############################
 
 	// get created rentabletype csv and writer pointer
 	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
@@ -373,19 +381,40 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	rentalAgreementCSVFile.Close()
 	customAttributeCSVFile.Close()
 
-	// #####################################
-	// RCSV LOADERS CALL
-	// #####################################
+	// ########################
+	// # PHASE 2 : RCSV LOADERS CALL #
+	// ########################
+	var h = []rcsv.CSVLoadHandler{
+		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV},
+		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV},
+		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV},
+		{Fname: rentableCSVFile.Name(), Handler: rcsv.LoadRentablesCSV},
+		{Fname: rentalAgreementCSVFile.Name(), Handler: rcsv.LoadRentalAgreementCSV},
+	}
+
+	for i := 0; i < len(h); i++ {
+		if len(h[i].Fname) > 0 {
+			Errs := rrDoLoad(h[i].Fname, h[i].Handler)
+			errorList = append(errorList, Errs...)
+		}
+	}
+
 	// rtErrors := rcsv.LoadRentableTypesCSV(rentableTypeCSVFile.Name())
 	// errorList = append(errorList, rtErrors...)
 	return errorList, msg
+}
+
+func rrDoLoad(fname string, handler func(string) []error) []error {
+	Errs := handler(fname)
+	return Errs
+	// fmt.Print(rcsv.ErrlistToString(&m))
 }
 
 // RollBackSplitOperation func used to clear out the things
 // that created by program temporarily while loading onesite data
 //  and if any error occurs
 func RollBackSplitOperation(timestamp string) {
-	panic("RollBackSplitOperation")
+
 }
 
 // CSVHandler is main function to handle user uploaded
