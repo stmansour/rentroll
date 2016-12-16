@@ -8,6 +8,113 @@ import (
 	"time"
 )
 
+// BUD et all are constants used by multiple programs
+// for the column headings in csv files.
+const (
+	BUD                       = 0
+	FirstName                 = iota
+	MiddleName                = iota
+	LastName                  = iota
+	CompanyName               = iota
+	IsCompany                 = iota
+	PrimaryEmail              = iota
+	SecondaryEmail            = iota
+	WorkPhone                 = iota
+	CellPhone                 = iota
+	Address                   = iota
+	Address2                  = iota
+	City                      = iota
+	State                     = iota
+	PostalCode                = iota
+	Country                   = iota
+	Points                    = iota
+	AccountRep                = iota
+	DateofBirth               = iota
+	EmergencyContactName      = iota
+	EmergencyContactAddress   = iota
+	EmergencyContactTelephone = iota
+	EmergencyEmail            = iota
+	AlternateAddress          = iota
+	EligibleFutureUser        = iota
+	Industry                  = iota
+	SourceSLSID               = iota
+	CreditLimit               = iota
+	TaxpayorID                = iota
+	EmployerName              = iota
+	EmployerStreetAddress     = iota
+	EmployerCity              = iota
+	EmployerState             = iota
+	EmployerPostalCode        = iota
+	EmployerEmail             = iota
+	EmployerPhone             = iota
+	Occupation                = iota
+	ApplicationFee            = iota
+	Notes                     = iota
+	DesiredUsageStartDate     = iota
+	RentableTypePreference    = iota
+	Approver                  = iota
+	DeclineReasonSLSID        = iota
+	OtherPreferences          = iota
+	FollowUpDate              = iota
+	CSAgent                   = iota
+	OutcomeSLSID              = iota
+	FloatingDeposit           = iota
+	RAID                      = iota
+)
+
+// csvCols is an array that defines all the columns that should be in this csv file
+var csvCols = []CSVColumn{
+	{"BUD", BUD},
+	{"FirstName", FirstName},
+	{"MiddleName", MiddleName},
+	{"LastName", LastName},
+	{"CompanyName", CompanyName},
+	{"IsCompany", IsCompany},
+	{"PrimaryEmail", PrimaryEmail},
+	{"SecondaryEmail", SecondaryEmail},
+	{"WorkPhone", WorkPhone},
+	{"CellPhone", CellPhone},
+	{"Address", Address},
+	{"Address2", Address2},
+	{"City", City},
+	{"State", State},
+	{"PostalCode", PostalCode},
+	{"Country", Country},
+	{"Points", Points},
+	{"AccountRep", AccountRep},
+	{"DateofBirth", DateofBirth},
+	{"EmergencyContactName", EmergencyContactName},
+	{"EmergencyContactAddress", EmergencyContactAddress},
+	{"EmergencyContactTelephone", EmergencyContactTelephone},
+	{"EmergencyEmail", EmergencyEmail},
+	{"AlternateAddress", AlternateAddress},
+	{"EligibleFutureUser", EligibleFutureUser},
+	{"Industry", Industry},
+	{"SourceSLSID", SourceSLSID},
+	{"CreditLimit", CreditLimit},
+	{"TaxpayorID", TaxpayorID},
+	{"EmployerName", EmployerName},
+	{"EmployerStreetAddress", EmployerStreetAddress},
+	{"EmployerCity", EmployerCity},
+	{"EmployerState", EmployerState},
+	{"EmployerPostalCode", EmployerPostalCode},
+	{"EmployerEmail", EmployerEmail},
+	{"EmployerPhone", EmployerPhone},
+	{"Occupation", Occupation},
+	{"ApplicationFee", ApplicationFee},
+	{"Notes", Notes},
+	{"DesiredUsageStartDate", DesiredUsageStartDate},
+	{"RentableTypePreference", RentableTypePreference},
+	{"Approver", Approver},
+	{"DeclineReasonSLSID", DeclineReasonSLSID},
+	{"OtherPreferences", OtherPreferences},
+	{"FollowUpDate", FollowUpDate},
+	{"CSAgent", CSAgent},
+	{"OutcomeSLSID", OutcomeSLSID},
+	{"FloatingDeposit", FloatingDeposit},
+	{"RAID", RAID},
+}
+
 // CSV file format:
 //  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------>|<----------------------------------------------------------------------------- rlib.Payor ------------------------------------------------->|
 //   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53            54               55
@@ -39,111 +146,6 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 		userNote string
 	)
 	ignoreDupPhone := false
-
-	const (
-		BUD                       = 0
-		FirstName                 = iota
-		MiddleName                = iota
-		LastName                  = iota
-		CompanyName               = iota
-		IsCompany                 = iota
-		PrimaryEmail              = iota
-		SecondaryEmail            = iota
-		WorkPhone                 = iota
-		CellPhone                 = iota
-		Address                   = iota
-		Address2                  = iota
-		City                      = iota
-		State                     = iota
-		PostalCode                = iota
-		Country                   = iota
-		Points                    = iota
-		AccountRep                = iota
-		DateofBirth               = iota
-		EmergencyContactName      = iota
-		EmergencyContactAddress   = iota
-		EmergencyContactTelephone = iota
-		EmergencyEmail            = iota
-		AlternateAddress          = iota
-		EligibleFutureUser        = iota
-		Industry                  = iota
-		SourceSLSID               = iota
-		CreditLimit               = iota
-		TaxpayorID                = iota
-		EmployerName              = iota
-		EmployerStreetAddress     = iota
-		EmployerCity              = iota
-		EmployerState             = iota
-		EmployerPostalCode        = iota
-		EmployerEmail             = iota
-		EmployerPhone             = iota
-		Occupation                = iota
-		ApplicationFee            = iota
-		Notes                     = iota
-		DesiredUsageStartDate     = iota
-		RentableTypePreference    = iota
-		Approver                  = iota
-		DeclineReasonSLSID        = iota
-		OtherPreferences          = iota
-		FollowUpDate              = iota
-		CSAgent                   = iota
-		OutcomeSLSID              = iota
-		FloatingDeposit           = iota
-		RAID                      = iota
-	)
-
-	// csvCols is an array that defines all the columns that should be in this csv file
-	var csvCols = []CSVColumn{
-		{"BUD", BUD},
-		{"FirstName", FirstName},
-		{"MiddleName", MiddleName},
-		{"LastName", LastName},
-		{"CompanyName", CompanyName},
-		{"IsCompany", IsCompany},
-		{"PrimaryEmail", PrimaryEmail},
-		{"SecondaryEmail", SecondaryEmail},
-		{"WorkPhone", WorkPhone},
-		{"CellPhone", CellPhone},
-		{"Address", Address},
-		{"Address2", Address2},
-		{"City", City},
-		{"State", State},
-		{"PostalCode", PostalCode},
-		{"Country", Country},
-		{"Points", Points},
-		{"AccountRep", AccountRep},
-		{"DateofBirth", DateofBirth},
-		{"EmergencyContactName", EmergencyContactName},
-		{"EmergencyContactAddress", EmergencyContactAddress},
-		{"EmergencyContactTelephone", EmergencyContactTelephone},
-		{"EmergencyEmail", EmergencyEmail},
-		{"AlternateAddress", AlternateAddress},
-		{"EligibleFutureUser", EligibleFutureUser},
-		{"Industry", Industry},
-		{"SourceSLSID", SourceSLSID},
-		{"CreditLimit", CreditLimit},
-		{"TaxpayorID", TaxpayorID},
-		{"EmployerName", EmployerName},
-		{"EmployerStreetAddress", EmployerStreetAddress},
-		{"EmployerCity", EmployerCity},
-		{"EmployerState", EmployerState},
-		{"EmployerPostalCode", EmployerPostalCode},
-		{"EmployerEmail", EmployerEmail},
-		{"EmployerPhone", EmployerPhone},
-		{"Occupation", Occupation},
-		{"ApplicationFee", ApplicationFee},
-		{"Notes", Notes},
-		{"DesiredUsageStartDate", DesiredUsageStartDate},
-		{"RentableTypePreference", RentableTypePreference},
-		{"Approver", Approver},
-		{"DeclineReasonSLSID", DeclineReasonSLSID},
-		{"OtherPreferences", OtherPreferences},
-		{"FollowUpDate", FollowUpDate},
-		{"CSAgent", CSAgent},
-		{"OutcomeSLSID", OutcomeSLSID},
-		{"FloatingDeposit", FloatingDeposit},
-		{"RAID", RAID},
-	}
 
 	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
 	if y {
