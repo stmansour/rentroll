@@ -20,7 +20,8 @@ func CreatePeopleCSV(
 	var done = false
 
 	// get path of people csv file
-	peopleCSVFilePath := CSVStore + "/people_" + timestamp + ".csv"
+	filePrefix := prefixCSVFile["people"]
+	peopleCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
 
 	// try to create file and return with error if occurs any
 	peopleCSVFile, err := os.Create(peopleCSVFilePath)

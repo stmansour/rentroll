@@ -20,7 +20,8 @@ func CreateRentalAgreementCSV(
 	var done = false
 
 	// get path of rentalAgreement csv file
-	rentalAgreementCSVFilePath := CSVStore + "/rentalAgreement_" + timestamp + ".csv"
+	filePrefix := prefixCSVFile["rental_agreement"]
+	rentalAgreementCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
 
 	// try to create file and return with error if occurs any
 	rentalAgreementCSVFile, err := os.Create(rentalAgreementCSVFilePath)

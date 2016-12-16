@@ -44,7 +44,8 @@ func CreateRentableCSV(
 	var done = false
 
 	// get path of rentable csv file
-	rentableCSVFilePath := CSVStore + "/rentable_" + timestamp + ".csv"
+	filePrefix := prefixCSVFile["rentable"]
+	rentableCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
 
 	// try to create file and return with error if occurs any
 	rentableCSVFile, err := os.Create(rentableCSVFilePath)

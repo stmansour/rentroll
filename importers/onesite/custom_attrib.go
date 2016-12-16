@@ -37,7 +37,8 @@ func CreateCustomAttibutesCSV(
 	var done = false
 
 	// get path of custom attribute csv file
-	customAttributeCSVFilePath := CSVStore + "/customAttribute_" + timestamp + ".csv"
+	filePrefix := prefixCSVFile["custom_attribute"]
+	customAttributeCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
 
 	// try to create file and return with error if occurs any
 	customAttributeCSVFile, err := os.Create(customAttributeCSVFilePath)
