@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"path"
 	"reflect"
 	"rentroll/importers/core"
 )
@@ -21,7 +22,8 @@ func CreatePeopleCSV(
 
 	// get path of people csv file
 	filePrefix := prefixCSVFile["people"]
-	peopleCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
+	fileName := filePrefix + timestamp + ".csv"
+	peopleCSVFilePath := path.Join(CSVStore, fileName)
 
 	// try to create file and return with error if occurs any
 	peopleCSVFile, err := os.Create(peopleCSVFilePath)

@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"path"
 	"reflect"
 	"rentroll/importers/core"
 )
@@ -21,7 +22,8 @@ func CreateRentalAgreementCSV(
 
 	// get path of rentalAgreement csv file
 	filePrefix := prefixCSVFile["rental_agreement"]
-	rentalAgreementCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
+	fileName := filePrefix + timestamp + ".csv"
+	rentalAgreementCSVFilePath := path.Join(CSVStore, fileName)
 
 	// try to create file and return with error if occurs any
 	rentalAgreementCSVFile, err := os.Create(rentalAgreementCSVFilePath)

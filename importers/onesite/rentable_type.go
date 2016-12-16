@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"path"
 	"reflect"
 	"rentroll/importers/core"
 	"strconv"
@@ -23,7 +24,8 @@ func CreateRentableTypeCSV(
 
 	// get path of rentable csv file
 	filePrefix := prefixCSVFile["rentable_types"]
-	rentableTypeCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
+	fileName := filePrefix + timestamp + ".csv"
+	rentableTypeCSVFilePath := path.Join(CSVStore, fileName)
 
 	// try to create file and return with error if occurs any
 	rentableTypeCSVFile, err := os.Create(rentableTypeCSVFilePath)

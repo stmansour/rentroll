@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"path"
 	"reflect"
 	"rentroll/importers/core"
 )
@@ -38,7 +39,8 @@ func CreateCustomAttibutesCSV(
 
 	// get path of custom attribute csv file
 	filePrefix := prefixCSVFile["custom_attribute"]
-	customAttributeCSVFilePath := CSVStore + "/" + filePrefix + timestamp + ".csv"
+	fileName := filePrefix + timestamp + ".csv"
+	customAttributeCSVFilePath := path.Join(CSVStore, fileName)
 
 	// try to create file and return with error if occurs any
 	customAttributeCSVFile, err := os.Create(customAttributeCSVFilePath)
