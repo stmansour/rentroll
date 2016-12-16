@@ -22,7 +22,7 @@ func CreateRentableTypeCSV(
 	var done = false
 
 	// get path of rentable csv file
-	rentableTypeCSVFilePath := CSVStore + "/rentabletypes_" + timestamp + ".csv"
+	rentableTypeCSVFilePath := CSVStore + "/rentableTypes_" + timestamp + ".csv"
 
 	// try to create file and return with error if occurs any
 	rentableTypeCSVFile, err := os.Create(rentableTypeCSVFilePath)
@@ -64,11 +64,13 @@ func WriteRentableTypeCSVData(
 	// get style
 	checkRentableTypeStyle := csvRow.FloorPlan
 	Stylefound := core.StringInSlice(checkRentableTypeStyle, *avoidData)
+
+	// if style found then simplay return otherwise continue
 	if Stylefound {
 		return
-	} else {
-		*avoidData = append(*avoidData, checkRentableTypeStyle)
 	}
+
+	*avoidData = append(*avoidData, checkRentableTypeStyle)
 
 	currentYear, _, _ := currentTime.Date()
 	DtStart := "1/1/" + strconv.Itoa(currentYear)
@@ -97,7 +99,7 @@ func WriteRentableTypeCSVData(
 }
 
 // GetRentableTypeCSVRow used to create rentabletype
-// csv from onesite csv data to dump data via rcsv routine
+// csv row from onesite csv
 func GetRentableTypeCSVRow(
 	oneSiteRow *CSVRow,
 	fieldMap *core.RentableTypeCSV,

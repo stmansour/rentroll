@@ -28,7 +28,7 @@ func MergeSuppliedAndDefaultValues() {
 
 	// override default values to userSuppliedValues map
 	// if not passed
-	for k, _ := range userSuppliedValues {
+	for k := range userSuppliedValues {
 		if userSuppliedValues[k] == "" {
 			if defaultVal, ok := defaults[k]; ok {
 				userSuppliedValues[k] = defaultVal
@@ -89,13 +89,14 @@ func readCommandLineArgs() (bool, []string) {
 	// if not ok then return with errors, otherwise fill up values in map
 	if !ok {
 		return ok, errors
-	} else {
-		userSuppliedValues["OneSiteCSV"] = *fp
-		userSuppliedValues["BUD"] = *bud
-		userSuppliedValues["RentCycle"] = *frequency
-		userSuppliedValues["Proration"] = *proration
-		userSuppliedValues["GSRPC"] = *gsrpc
 	}
+
+	userSuppliedValues["OneSiteCSV"] = *fp
+	userSuppliedValues["BUD"] = *bud
+	userSuppliedValues["RentCycle"] = *frequency
+	userSuppliedValues["Proration"] = *proration
+	userSuppliedValues["GSRPC"] = *gsrpc
+
 	return ok, errors
 }
 

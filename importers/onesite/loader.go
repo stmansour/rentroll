@@ -180,8 +180,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		return errorList, msg
 	}
 
-	// TODO: create all csv file here(rentable, custom attribute, people, rentable aggrement)
-
+	// get created rentabletype csv and writer pointer
 	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
 		CreateRentableTypeCSV(
 			SplittedCSVStore, currentTimeFormat,
@@ -189,17 +188,80 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		)
 	if !ok {
 		// TODO: create errorlist in errors.go file to get error from that
-		errorList = append(errorList, errors.New("Unable To create file"))
-		return errorList, "Unable to create file"
+		errorList = append(errorList, errors.New("Unable To create rentabletype csv file"))
+		return errorList, "Unable to create rentabletype file"
 	}
-	defer rentableTypeCSVFile.Close()
 
-	// TODO: make all structures for duplicate data to avoid while writing data
+	// get created people csv and writer pointer
+	peopleCSVFile, peopleCSVWriter, ok :=
+		CreatePeopleCSV(
+			SplittedCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.PeopleCSV,
+		)
+	if !ok {
+		// TODO: create errorlist in errors.go file to get error from that
+		errorList = append(errorList, errors.New("Unable To create people csv file"))
+		return errorList, "Unable to create people file"
+	}
+
+	// get created people csv and writer pointer
+	rentableCSVFile, rentableCSVWriter, ok :=
+		CreateRentableCSV(
+			SplittedCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.RentableCSV,
+		)
+	if !ok {
+		// TODO: create errorlist in errors.go file to get error from that
+		errorList = append(errorList, errors.New("Unable To create rentable csv file"))
+		return errorList, "Unable to create rentable file"
+	}
+
+	// get created rental agreement csv and writer pointer
+	rentalAgreementCSVFile, rentalAgreementCSVWriter, ok :=
+		CreateRentalAgreementCSV(
+			SplittedCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.RentalAgreementCSV,
+		)
+	if !ok {
+		// TODO: create errorlist in errors.go file to get error from that
+		errorList = append(errorList, errors.New("Unable To create rentalAgreement csv file"))
+		return errorList, "Unable to create rentalAgreement file"
+	}
+
+	// get created customAttibutes csv and writer pointer
+	customAttributeCSVFile, customAttributeCSVWriter, ok :=
+		CreateCustomAttibutesCSV(
+			SplittedCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.CustomAttributeCSV,
+		)
+	if !ok {
+		// TODO: create errorlist in errors.go file to get error from that
+		errorList = append(errorList, errors.New("Unable To create CustomAttribute csv file"))
+		return errorList, "Unable to create CustomAttribute file"
+	}
 
 	// avoidDuplicateRentableTypeData used to keep track of rentableTypeData with Style field
 	// so that duplicate entries can be avoided while creating rentableType csv file
 	avoidDuplicateRentableTypeData := []string{}
 
+	// TODO: decide which structure to avoid duplicate data of people
+	// while creating people csv file
+	avoidDuplicatePeopleData := []string{}
+
+	// TODO: decide which structure to avoid duplicate data of rentable
+	// while creating rentable csv file
+	avoidDuplicateRentableData := []string{}
+
+	// TODO: decide which structure to avoid duplicate data of rentalAgreement
+	// while creating rentalAgreement csv file
+	avoidDuplicateRentalAgreementData := []string{}
+
+	// avoidDuplicateCustomAttributeData is tricky map which holds the
+	// duplicate data in slice for each field defined in customAttributeMap
+	avoidDuplicateCustomAttributeData := map[string][]string{}
+	for k := range customAttributeMap {
+		avoidDuplicateCustomAttributeData[k] = []string{}
+	}
 	// ================================
 	// First loop for validation on csv
 	// ================================
@@ -264,7 +326,58 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&OneSiteFieldMap.RentableTypeCSV,
 		)
 
+		// Write data to file of people
+		WritePeopleCSVData(
+			peopleCSVWriter,
+			&csvRow,
+			&avoidDuplicatePeopleData,
+			currentTimeFormat,
+			&OneSiteFieldMap.PeopleCSV,
+		)
+
+		// Write data to file of rentable
+		WriteRentableData(
+			rentableCSVWriter,
+			&csvRow,
+			&avoidDuplicateRentableData,
+			currentTime,
+			currentTimeFormat,
+			userSuppliedValues,
+			&OneSiteFieldMap.RentableCSV,
+		)
+
+		// Write data to file of rentalAgreement
+		WriteRentalAgreementData(
+			rentalAgreementCSVWriter,
+			&csvRow,
+			&avoidDuplicateRentalAgreementData,
+			currentTimeFormat,
+			&OneSiteFieldMap.RentalAgreementCSV,
+		)
+
+		// Write data to file of CustomAttribute
+		WriteCustomAttributeData(
+			customAttributeCSVWriter,
+			&csvRow,
+			avoidDuplicateCustomAttributeData,
+			currentTimeFormat,
+			&OneSiteFieldMap.CustomAttributeCSV,
+		)
+
 	}
+
+	// Close all files as we are done here with writing data
+	rentableTypeCSVFile.Close()
+	peopleCSVFile.Close()
+	rentableCSVFile.Close()
+	rentalAgreementCSVFile.Close()
+	customAttributeCSVFile.Close()
+
+	// #####################################
+	// RCSV LOADERS CALL
+	// #####################################
+	// rtErrors := rcsv.LoadRentableTypesCSV(rentableTypeCSVFile.Name())
+	// errorList = append(errorList, rtErrors...)
 	return errorList, msg
 }
 

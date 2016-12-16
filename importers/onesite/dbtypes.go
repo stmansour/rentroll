@@ -9,7 +9,11 @@ import (
 // CSVFieldMap is struct which contains several categories
 // used to store the data from onesite to rentroll system
 type CSVFieldMap struct {
-	RentableTypeCSV core.RentableTypeCSV
+	RentableTypeCSV    core.RentableTypeCSV
+	PeopleCSV          core.PeopleCSV
+	RentableCSV        core.RentableCSV
+	RentalAgreementCSV core.RentalAgreementCSV
+	CustomAttributeCSV core.CustomAttributeCSV
 }
 
 // CSVRow contains fields which represents value
@@ -18,7 +22,7 @@ type CSVRow struct {
 	Unit            string
 	FloorPlan       string
 	UnitDesignation string
-	Sqft            string
+	SQFT            string
 	UnitLeaseStatus string
 	Name            string
 	PhoneNumber     string
