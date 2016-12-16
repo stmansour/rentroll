@@ -20,6 +20,9 @@ var SplittedCSVStore string
 
 // Init configure required settings
 func Init() {
+	// #############
+	// CSV STORE CHECK
+	// #############
 	// Caller returns program counter, filename, line no, ok
 	_, filename, _, ok := runtime.Caller(1)
 	if ok == false {
@@ -33,6 +36,7 @@ func Init() {
 	if _, err := os.Stat(SplittedCSVStore); os.IsNotExist(err) {
 		os.MkdirAll(SplittedCSVStore, 0700)
 	}
+
 }
 
 // GetOneSiteMapping reads json file and loads
