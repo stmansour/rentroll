@@ -167,12 +167,23 @@ func GetRentableCSVRow(
 				dataMap[i] = typeRef
 			} else {
 				// TODO: verify that what to do in false case
-				dataMap[i] = "FailedRentableTypeRef"
+				// dataMap[i] = "FailedRentableTypeRef"
+				dataMap[i] = ""
 			}
 		}
 		// if rentableField.Name == "RUserSpec" {
 		// 	// TODO
 		// }
+		if rentableField.Name == "RentableStatus" {
+			// but it format is status, startDate, stopDate
+			status, ok := GetRentableStatus(oneSiteRow)
+			if ok {
+				dataMap[i] = status
+			} else {
+				// TODO: verify that what to do in false case -> should return its original value or raise error
+				dataMap[i] = ""
+			}
+		}
 
 		// get mapping field
 		MappedFieldName := reflectedRentableFieldMap.FieldByName(rentableField.Name).Interface().(string)
@@ -188,17 +199,10 @@ func GetRentableCSVRow(
 		// ====================================================
 		// this condition has been put here because it's mapping field exists
 		// ====================================================
-		if rentableField.Name == "RentableStatus" {
-			status, ok := GetRentableStatus(OneSiteFieldValue.(string))
-			if ok {
-				dataMap[i] = status
-			} else {
-				// TODO: verify that what to do in false case -> should return its original value or raise error
-				dataMap[i] = OneSiteFieldValue.(string)
-			}
-		} else {
-			dataMap[i] = OneSiteFieldValue.(string)
-		}
+
+		// NOTE: do business logic here on field which has mapping field
+
+		dataMap[i] = OneSiteFieldValue.(string)
 	}
 
 	dataArray := []string{}
@@ -211,12 +215,13 @@ func GetRentableCSVRow(
 }
 
 // GetRentableStatus used to get rentable status in format of rentroll system
-func GetRentableStatus(s string) (string, bool) {
+func GetRentableStatus(csvRow *CSVRow) (string, bool) {
 	var tempRS, rRS string
 	found, ok := false, false
+	orderedFields := []string{}
 
 	// first find that passed string contains any status key
-	a := strings.ToLower(s)
+	a := strings.ToLower(csvRow.UnitLeaseStatus)
 	for k, v := range RentableStatusCSV {
 		if strings.ContainsAny(a, k) {
 			tempRS = v
@@ -232,9 +237,16 @@ func GetRentableStatus(s string) (string, bool) {
 
 	// return true if ok
 	if ok {
-		return rRS, true
+		// append unitleasestatus
+		orderedFields = append(orderedFields, rRS)
+		// append lease start
+		orderedFields = append(orderedFields, csvRow.LeaseStart)
+		// append lease end
+		orderedFields = append(orderedFields, csvRow.LeaseEnd)
+		return strings.Join(orderedFields, ","), ok
 	}
-	return s, false
+
+	return "", ok
 }
 
 // GetRentableTypeRef used to get rentable type ref in format of rentroll system

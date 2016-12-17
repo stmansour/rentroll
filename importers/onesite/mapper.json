@@ -67,7 +67,7 @@
         "Name": "Unit",
         "AssignmentTime": "",
         "RUserSpec": "",
-        "RentableStatus": "UnitLeaseStatus",
+        "RentableStatus": "",
         "RentableTypeRef": ""
     },
     "RentalAgreementCSV": {
