@@ -7,6 +7,7 @@ import (
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"strings"
 )
 
 // CreateRentalAgreementCSV create rental agreement csv temporarily
@@ -58,6 +59,7 @@ func WriteRentalAgreementData(
 	csvRow *CSVRow,
 	avoidData *[]string,
 	currentTimeFormat string,
+	suppliedValues map[string]string,
 	rentalAgreementStruct *core.RentalAgreementCSV,
 ) {
 	// TODO: need to decide how to avoid data
@@ -71,10 +73,16 @@ func WriteRentalAgreementData(
 
 	// *avoidData = append(*avoidData, checkRentableStyle)
 
+	// make rentable data from userSuppliedValues and defaultValues
+	rentableDefaultData := map[string]string{}
+	for k, v := range suppliedValues {
+		rentableDefaultData[k] = v
+	}
+
 	// get csv row data
 	ok, csvRowData := GetRentalAgreementCSVRow(
 		csvRow, rentalAgreementStruct,
-		currentTimeFormat,
+		currentTimeFormat, rentableDefaultData,
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
@@ -89,6 +97,7 @@ func GetRentalAgreementCSVRow(
 	oneSiteRow *CSVRow,
 	fieldMap *core.RentalAgreementCSV,
 	timestamp string,
+	DefaultValues map[string]string,
 ) (bool, []string) {
 
 	// take initial variable
@@ -110,6 +119,44 @@ func GetRentalAgreementCSVRow(
 		// get rentalAgreement field
 		rentalAgreementField := reflectedRentalAgreementFieldMap.Type().Field(i)
 
+		// if rentalAgreementField value exist in DefaultValues map
+		// then set it first
+		suppliedValue, found := DefaultValues[rentalAgreementField.Name]
+		if found {
+			dataMap[i] = suppliedValue
+		}
+
+		// =========================================================
+		// this condition has been put here because it's mapping field does not exist
+		// =========================================================
+		if rentalAgreementField.Name == "PayorSpec" {
+			payorSpec, ok := GetPayorSpec(oneSiteRow)
+			if ok {
+				dataMap[i] = payorSpec
+			} else {
+				// TODO: verify that what to do in false case
+				dataMap[i] = payorSpec
+			}
+		}
+		if rentalAgreementField.Name == "UserSpec" {
+			userSpec, ok := GetUserSpec(oneSiteRow)
+			if ok {
+				dataMap[i] = userSpec
+			} else {
+				// TODO: verify that what to do in false case
+				dataMap[i] = userSpec
+			}
+		}
+		if rentalAgreementField.Name == "RentableSpec" {
+			rentableSpec, ok := GetRentableSpec(oneSiteRow)
+			if ok {
+				dataMap[i] = rentableSpec
+			} else {
+				// TODO: verify that what to do in false case
+				dataMap[i] = rentableSpec
+			}
+		}
+
 		// get mapping field
 		MappedFieldName := reflectedRentalAgreementFieldMap.FieldByName(rentalAgreementField.Name).Interface().(string)
 
@@ -130,4 +177,80 @@ func GetRentalAgreementCSVRow(
 	}
 	ok = true
 	return ok, dataArray
+}
+
+// GetPayorSpec used to get payor spec in format of rentroll system
+func GetPayorSpec(
+	csvRow *CSVRow,
+) (string, bool) {
+
+	// TODO: verify if validation required here
+	ok := false
+
+	orderedFields := []string{}
+
+	// TODO: append absolute values
+	// append payor
+	orderedFields = append(orderedFields, "")
+	// append start date
+	orderedFields = append(orderedFields, "")
+	// append end date
+	orderedFields = append(orderedFields, "")
+
+	ok = true
+	if ok {
+		return strings.Join(orderedFields, ","), ok
+	}
+
+	return ",,", ok
+}
+
+// GetUserSpec used to get user spec in format of rentroll system
+func GetUserSpec(
+	csvRow *CSVRow,
+) (string, bool) {
+
+	// TODO: verify if validation required here
+	ok := false
+
+	orderedFields := []string{}
+
+	// TODO: append absolute values
+	// append user
+	orderedFields = append(orderedFields, "")
+	// append start date
+	orderedFields = append(orderedFields, "")
+	// append end date
+	orderedFields = append(orderedFields, "")
+
+	ok = true
+	if ok {
+		return strings.Join(orderedFields, ","), ok
+	}
+
+	return ",,", ok
+}
+
+// GetRentableSpec used to get rentable spec in format of rentroll system
+func GetRentableSpec(
+	csvRow *CSVRow,
+) (string, bool) {
+
+	// TODO: verify if validation required here
+	ok := false
+
+	orderedFields := []string{}
+
+	// TODO: append absolute values
+	// append rentable
+	orderedFields = append(orderedFields, "")
+	// append start contractrent
+	orderedFields = append(orderedFields, "")
+
+	ok = true
+	if ok {
+		return strings.Join(orderedFields, ","), ok
+	}
+
+	return ",", ok
 }

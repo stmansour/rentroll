@@ -168,7 +168,7 @@ func GetRentableCSVRow(
 			} else {
 				// TODO: verify that what to do in false case
 				// dataMap[i] = "FailedRentableTypeRef"
-				dataMap[i] = ""
+				dataMap[i] = typeRef
 			}
 		}
 		// if rentableField.Name == "RUserSpec" {
@@ -181,7 +181,7 @@ func GetRentableCSVRow(
 				dataMap[i] = status
 			} else {
 				// TODO: verify that what to do in false case -> should return its original value or raise error
-				dataMap[i] = ""
+				dataMap[i] = status
 			}
 		}
 
@@ -246,7 +246,7 @@ func GetRentableStatus(csvRow *CSVRow) (string, bool) {
 		return strings.Join(orderedFields, ","), ok
 	}
 
-	return "", ok
+	return ",,", ok
 }
 
 // GetRentableTypeRef used to get rentable type ref in format of rentroll system
@@ -267,6 +267,9 @@ func GetRentableTypeRef(
 	orderedFields = append(orderedFields, csvRow.LeaseEnd)
 
 	ok = true
-	return strings.Join(orderedFields, ","), ok
+	if ok {
+		return strings.Join(orderedFields, ","), ok
+	}
 
+	return ",,", ok
 }

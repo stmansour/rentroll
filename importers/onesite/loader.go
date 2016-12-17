@@ -285,6 +285,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&csvRow,
 			&avoidDuplicateRentalAgreementData,
 			currentTimeFormat,
+			userSuppliedValues,
 			&OneSiteFieldMap.RentalAgreementCSV,
 		)
 

@@ -31,6 +31,7 @@ func GetOneSiteFieldDefaultValues() map[string]string {
 	defaults["Proration"] = "4"
 	defaults["GSRPC"] = "4"
 	defaults["AssignmentTime"] = "1"
+	defaults["Renewal"] = "2"
 	return defaults
 }
 
