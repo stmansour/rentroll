@@ -349,11 +349,10 @@ func RollBackSplitOperation(timestamp string) {
 // ClearSplittedTempCSVFiles func used only to clear
 // temporarily csv files created by program
 func ClearSplittedTempCSVFiles(timestamp string) {
-	for _, v := range prefixCSVFile {
-		fileName := v + timestamp + ".csv"
+	for _, filePrefix := range prefixCSVFile {
+		fileName := filePrefix + timestamp + ".csv"
 		filePath := path.Join(SplittedCSVStore, fileName)
-		err := os.Remove(filePath)
-		fmt.Println(err)
+		os.Remove(filePath)
 	}
 }
 
