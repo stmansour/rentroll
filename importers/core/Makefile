@@ -2,12 +2,15 @@ core: *.go
 	go vet
 	golint
 	go build
+	go test
 	go install
 
 clean:
+	go clean
 	@echo "*** CLEAN completed in importers/core ***"
 
 test:
+	go test
 	@echo "*** TEST completed in importers/core ***"
 
 #man:
