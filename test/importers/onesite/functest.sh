@@ -19,6 +19,6 @@ rm -f ${TEMPCSVSTORE}/rentalAgreement_*.csv ./rentalAgreement_*.csv
 rm -f ${TEMPCSVSTORE}/customAttribute_*.csv ./customAttribute_*.csv
 
 # call loader
-${RRBIN}/onesiteload -csv ./onesite.csv -bud ${BUD} >c 2>&1
+${RRBIN}/onesiteload -csv ./onesite.csv -bud ${BUD} -testmode 1 >c 2>&1
 
 logcheck

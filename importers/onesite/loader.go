@@ -327,7 +327,11 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	// ##################################
 	// # PHASE 3 : CLEAR THE TEMPORARY CSV FILES #
 	// ##################################
-	ClearSplittedTempCSVFiles(currentTimeFormat)
+
+	// testmode is disabled then only remove temp files
+	if userSuppliedValues["testmode"] == "0" {
+		ClearSplittedTempCSVFiles(currentTimeFormat)
+	}
 
 	// RETURN
 	return errorList, msg

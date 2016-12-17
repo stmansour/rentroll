@@ -83,6 +83,8 @@ func readCommandLineArgs() (bool, []string) {
 	proration := flag.String("proration", "", "Proration Cycle")
 	// gsrpc should default to daily
 	gsrpc := flag.String("gsrpc", "", "GSRPC")
+	// is it for testing purpose
+	testmode := flag.String("testmode", "0", "testing")
 
 	// parse db options
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
@@ -119,6 +121,7 @@ func readCommandLineArgs() (bool, []string) {
 	userSuppliedValues["RentCycle"] = *frequency
 	userSuppliedValues["Proration"] = *proration
 	userSuppliedValues["GSRPC"] = *gsrpc
+	userSuppliedValues["testmode"] = *testmode
 
 	return ok, errors
 }
