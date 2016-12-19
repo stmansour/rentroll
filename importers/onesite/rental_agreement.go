@@ -191,11 +191,16 @@ func GetPayorSpec(
 
 	// TODO: append absolute values
 	// append payor
-	orderedFields = append(orderedFields, "")
+	// TODO: decide what to append here as payor
+	// NOTE: right now just going with email address
+	// orderedFields = append(orderedFields, "")
+	orderedFields = append(orderedFields, csvRow.Email)
 	// append start date
-	orderedFields = append(orderedFields, "")
+	// TODO: ask which date need to be set here
+	orderedFields = append(orderedFields, csvRow.LeaseStart)
 	// append end date
-	orderedFields = append(orderedFields, "")
+	// TODO: ask which date need to be set here
+	orderedFields = append(orderedFields, csvRow.LeaseEnd)
 
 	ok = true
 	if ok {

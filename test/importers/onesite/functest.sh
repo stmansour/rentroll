@@ -4,7 +4,7 @@ TESTNAME="Onesite Import"
 TESTSUMMARY="Tests initizing RentRoll DB from importing OneSite rentroll report."
 
 RRBIN="../../../tmp/rentroll"
-TEMPCSVSTORE="../../../importers/onesite/temp_CSVs"
+TEMPCSVSTORE="${RRBIN}/temp_CSVs"
 
 source ../../share/base.sh
 

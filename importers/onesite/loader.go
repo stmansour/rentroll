@@ -3,6 +3,7 @@ package onesite
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/kardianos/osext"
 	"io/ioutil"
 	// "log"
 	"errors"
@@ -23,14 +24,14 @@ func Init() {
 	// #############
 	// CSV STORE CHECK
 	// #############
-	// Caller returns program counter, filename, line no, ok
-	_, filename, _, ok := runtime.Caller(1)
-	if ok == false {
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		// log.Fatal(err)
 		panic("Unable to get current filename")
 	}
 
 	// get path of splitted csv store
-	SplittedCSVStore = path.Join(path.Dir(filename), "/"+splittedCSVStoreName)
+	SplittedCSVStore = path.Join(folderPath, splittedCSVStoreName)
 
 	// if splittedcsvstore not exist then create it
 	if _, err := os.Stat(SplittedCSVStore); os.IsNotExist(err) {
