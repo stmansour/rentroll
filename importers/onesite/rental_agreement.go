@@ -189,17 +189,13 @@ func GetPayorSpec(
 
 	orderedFields := []string{}
 
-	// TODO: append absolute values
-	// append payor
 	// TODO: decide what to append here as payor
 	// NOTE: right now just going with email address
-	// orderedFields = append(orderedFields, "")
+	// append payor
 	orderedFields = append(orderedFields, csvRow.Email)
 	// append start date
-	// TODO: ask which date need to be set here
 	orderedFields = append(orderedFields, csvRow.LeaseStart)
 	// append end date
-	// TODO: ask which date need to be set here
 	orderedFields = append(orderedFields, csvRow.LeaseEnd)
 
 	ok = true
@@ -220,13 +216,14 @@ func GetUserSpec(
 
 	orderedFields := []string{}
 
-	// TODO: append absolute values
+	// TODO: decide what to append here as user
+	// NOTE: right now just going with email address
 	// append user
-	orderedFields = append(orderedFields, "")
+	orderedFields = append(orderedFields, csvRow.Email)
 	// append start date
-	orderedFields = append(orderedFields, "")
+	orderedFields = append(orderedFields, csvRow.LeaseStart)
 	// append end date
-	orderedFields = append(orderedFields, "")
+	orderedFields = append(orderedFields, csvRow.LeaseEnd)
 
 	ok = true
 	if ok {
@@ -246,11 +243,10 @@ func GetRentableSpec(
 
 	orderedFields := []string{}
 
-	// TODO: append absolute values
 	// append rentable
-	orderedFields = append(orderedFields, "")
-	// append start contractrent
-	orderedFields = append(orderedFields, "")
+	orderedFields = append(orderedFields, csvRow.Unit)
+	// append contractrent
+	orderedFields = append(orderedFields, csvRow.Rent)
 
 	ok = true
 	if ok {
