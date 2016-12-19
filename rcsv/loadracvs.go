@@ -152,6 +152,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	//  The Payors
 	//-------------------------------------------------------------------
+	fmt.Printf("Build payor list for: BID = %d, Payor = %s\n", ra.BID, sa[PayorSpec])
 	payors, err := BuildPayorList(ra.BID, sa[PayorSpec], dfltStart, dfltStop, funcname, lineno)
 	if err != nil { // save the full list
 		return CsvErrorSensitivity, err
