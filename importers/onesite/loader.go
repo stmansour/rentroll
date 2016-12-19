@@ -266,6 +266,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&csvRow,
 			&avoidDuplicatePeopleData,
 			currentTimeFormat,
+			userSuppliedValues,
 			&OneSiteFieldMap.PeopleCSV,
 		)
 
@@ -296,6 +297,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&csvRow,
 			avoidDuplicateCustomAttributeData,
 			currentTimeFormat,
+			userSuppliedValues,
 			&OneSiteFieldMap.CustomAttributeCSV,
 		)
 

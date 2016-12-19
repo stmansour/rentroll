@@ -58,6 +58,7 @@ func WritePeopleCSVData(
 	csvRow *CSVRow,
 	avoidData *[]string,
 	currentTimeFormat string,
+	suppliedValues map[string]string,
 	peopleStruct *core.PeopleCSV,
 ) {
 	// TODO: need to decide how to avoid duplicate data
@@ -72,7 +73,7 @@ func WritePeopleCSVData(
 	// get csv row data
 	ok, csvRowData := GetPeopleCSVRow(
 		csvRow, peopleStruct,
-		currentTimeFormat,
+		currentTimeFormat, suppliedValues,
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
@@ -87,6 +88,7 @@ func GetPeopleCSVRow(
 	oneSiteRow *CSVRow,
 	fieldMap *core.PeopleCSV,
 	timestamp string,
+	DefaultValues map[string]string,
 ) (bool, []string) {
 
 	// take initial variable
@@ -107,6 +109,13 @@ func GetPeopleCSVRow(
 	for i := 0; i < pplLength; i++ {
 		// get people field
 		peopleField := reflectedPeopleFieldMap.Type().Field(i)
+
+		// if peopleField value exist in DefaultValues map
+		// then set it first
+		suppliedValue, found := DefaultValues[peopleField.Name]
+		if found {
+			dataMap[i] = suppliedValue
+		}
 
 		// get mapping field
 		MappedFieldName := reflectedPeopleFieldMap.FieldByName(peopleField.Name).Interface().(string)

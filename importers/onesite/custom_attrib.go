@@ -75,6 +75,7 @@ func WriteCustomAttributeData(
 	csvRow *CSVRow,
 	avoidData map[string][]string,
 	currentTimeFormat string,
+	suppliedValues map[string]string,
 	customAttributeStruct *core.CustomAttributeCSV,
 ) {
 	for customAttributeField, customAttributeConfig := range customAttributeMap {
