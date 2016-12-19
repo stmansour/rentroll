@@ -165,15 +165,20 @@ func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname st
 	var m []rlib.RentalAgreementPayor
 	// var noerr error
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
+	if len(s2) == 0 {
+		return m, fmt.Errorf("%s: lineno %d - Required Payor field is blank\n", funcname, lineno)
+	}
 	s1 := strings.Split(s2, ";")
 	for i := 0; i < len(s1); i++ {
 		ss := strings.Split(s1[i], ",")
 		if len(ss) != 3 {
-			return m, fmt.Errorf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+			return m, fmt.Errorf("%s: lineno %d - invalid Payor Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 				funcname, lineno, len(ss), ss)
 		}
 		s = strings.TrimSpace(ss[0]) // either the email address or the phone number or TransactantID (TC0003234)
-
+		if len(s) == 0 {
+			return m, fmt.Errorf("%s: lineno %d - Required Payor field is blank\n", funcname, lineno)
+		}
 		n, _ := CSVLoaderTransactantList(BID, s)
 		if len(n) == 0 {
 			return m, fmt.Errorf("%s:  lineno %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, s)
@@ -198,9 +203,12 @@ func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname st
 
 // BuildUserList parses a UserSpec and returns an array of RentableUser structs
 func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentableUser, error) {
-	s2 := strings.TrimSpace(sa) // TCID, email address, or the phone number
-	s1 := strings.Split(s2, ";")
 	var m []rlib.RentableUser
+	s2 := strings.TrimSpace(sa) // TCID, email address, or the phone number
+	if len(s2) == 0 {
+		return m, fmt.Errorf("%s: lineno %d - Required User field is blank\n", funcname, lineno)
+	}
+	s1 := strings.Split(s2, ";")
 	var noerr error
 	for i := 0; i < len(s1); i++ {
 		ss := strings.Split(s1[i], ",")
@@ -210,6 +218,9 @@ func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, l
 			return m, err
 		}
 		s := strings.TrimSpace(ss[0]) // TCID, email address, or the phone number
+		if len(s) == 0 {
+			return m, fmt.Errorf("%s: lineno %d - Required User field is blank\n", funcname, lineno)
+		}
 		n, err := CSVLoaderTransactantList(BID, s)
 		if err != nil {
 			return m, fmt.Errorf("%s: lineno %d - invalid person identifier: %s. Error = %s\n", funcname, lineno, s, err.Error())

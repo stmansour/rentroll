@@ -10,18 +10,19 @@ var xjson = string("XJSON")
 
 // XJSONprocess attempts to map a to b. If no converter can befound
 // a message will be printed, then it will panic!
-func XJSONprocess(a, b *reflect.Value) {
+func XJSONprocess(a, b *reflect.Value) error {
 	at := (*a).Type().String()
 	bt := (*b).Type().String()
 	for i := 0; i < len(assignmap); i++ {
 		if strings.Index(at, assignmap[i].a) >= 0 && strings.Index(bt, assignmap[i].b) >= 0 {
 			assignmap[i].mapper(a, b)
-			return
+			return nil
 		}
 	}
-	s := fmt.Sprintf("XJSONmap - no conversion between: %s and %s\n", at, bt)
-	fmt.Printf(s)
-	panic(s)
+	return fmt.Errorf("XJSONmap - no conversion between: %s and %s\n", at, bt)
+
+	// fmt.Printf(s)
+	// panic(s)
 }
 
 // Str2Int64Map is a generic type for mapping strings and int64s
@@ -78,11 +79,9 @@ func MigrateStructVals(pa interface{}, pb interface{}) error {
 		if fa.Type() == fb.Type() {
 			fb.Set(reflect.ValueOf(fa.Interface()))
 		} else {
-			ta := fa.Type().String()
-			tb := fb.Type().String()
-			if strings.Index(ta, xjson) >= 0 || strings.Index(tb, xjson) >= 0 {
-				XJSONprocess(&fa, &fb)
-			} else {
+			// if strings.Index(ta, xjson) >= 0 || strings.Index(tb, xjson) >= 0 {
+			err := XJSONprocess(&fa, &fb)
+			if err != nil {
 				val := reflect.ValueOf(fa.Interface())
 				fb.Set(val.Convert(fb.Type()))
 			}

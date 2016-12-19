@@ -11,7 +11,7 @@ type StrToInt64MapList struct {
 }
 
 var maps = []StrToInt64MapList{
-	{"AssignmentTimeMap", AssignmentTimeMap},
+	{"AssignmentTimeList", AssignmentTimeMap},
 }
 
 // MapsToJS writes to stdout the javascript code that creates string arrays

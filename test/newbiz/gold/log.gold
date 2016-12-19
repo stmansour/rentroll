@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Mon Dec 12 12:12:18 PST 2016
+Date/Time:    Mon Dec 19 12:15:43 PST 2016
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2016/12/12 12:12:19 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2016/12/19 12:15:44 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -18,8 +18,8 @@ CreateRentableType: line 16 - Stop date (2014-01-01 00:00:00 +0000 UTC) must be 
 CreateRentalSpecialty: lineno 3  - rlib.Business rex already has a rlib.RentableSpecialty named Lake View
 CreateBuilding: line 5 - rlib.Business with designation bug does not exist
 CreateBuilding: line 6 - invalid rlib.Building number: qe
-CreatePeopleFromCSV: line 12 - rlib.Transactant with PrimaryEmail address = homerj@springfield.com already exists
-CreatePeopleFromCSV: line 13 - rlib.Transactant with PrimaryEmail address = sskinner@sfelementary.com already exists
+CreatePeopleFromCSV: line 12 - Transactant with PrimaryEmail address = homerj@springfield.com already exists
+CreatePeopleFromCSV: line 13 - Transactant with PrimaryEmail address = sskinner@sfelementary.com already exists
 CreatePeopleFromCSV: line 14 - IsCompany value is invalid: 99
 CreateVehicleFromCSV: line 10 - vehicle with License Plate BR549 in State = MO already exists
 CreateVehicleFromCSV: line 12 - vehicle with License Plate BR549 in State = MO already exists
@@ -35,6 +35,10 @@ CreateRentables: lineno 17 - Could not load rentable type with style name: XXX  
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
+CreateRentalAgreement: lineno 13 - Required Payor field is blank
+CreateRentalAgreement: lineno 14 - Required User field is blank
+CreateRentalAgreement: lineno 15 - Required Payor field is blank
+CreateRentalAgreement: lineno 16 - Required User field is blank
 CreateLedgerMarkers: line 29 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
 CreateLedgerMarkers: line 30 - Account already exists: 42999
 CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
@@ -61,4 +65,4 @@ IntFromString: Value cannot be converted to an integer: ab827
 IntFromString: Value cannot be converted to an unsigned integer: ab827
 ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Mon Dec 12 12:12:21 PST 2016
+Test completed: Mon Dec 19 12:15:45 PST 2016
