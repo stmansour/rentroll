@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script src="/js/w2ui-1.5.rc1.js"></script>
+    <script src="/js/lists.js"></script>
     <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script>
     <script src="/html/{{.Lang}}/{{.Tmpl}}.js"></script>
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
@@ -314,7 +315,7 @@ var transactantForm = {
         { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
         { field: 'NLID', type: 'int', required: false, html: { caption: 'NLID', page: 0, column: 0 } },
         { field: 'CompanyName', type: 'text', required: false, html: { caption: 'Company Name', page: 0, column: 0 } },
-        { field: 'IsCompany', type: 'text', required: false, html: { caption: 'Is Company', page: 0, column: 0 } },
+        { field: 'IsCompany', type: 'checkbox', required: false, html: { caption: 'Is Company', page: 0, column: 0 } },
         { field: 'SecondaryEmail', type: 'email', required: false, html: { caption: 'Secondary Email', page: 0, column: 0 } },
         { field: 'WorkPhone', type: 'phone', required: false, html: { caption: 'Work Phone', page: 0, column: 0 } },
         { field: 'CellPhone', type: 'phone', required: false, html: { caption: 'Cell Phone', page: 0, column: 0 } },
@@ -449,7 +450,7 @@ var rentablesForm = {
         { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
         { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
         { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
-        { field: 'AssignmentTime', type: 'text', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+        { field: 'AssignmentTime', type: 'list', options: {items: AssignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
     ],
     actions: {
         reset: function () {

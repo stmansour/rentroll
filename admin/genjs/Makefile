@@ -3,6 +3,7 @@ genjs: *.go
 	go vet
 	golint
 	go build
+	../../tmp/rentroll/genjs > ../../js/lists.js
 
 clean:
 	rm -f genjs conf.json genjs
@@ -17,6 +18,5 @@ man:
 
 package:
 	cp genjs ../../tmp/rentroll/genjs
-	../../tmp/rentroll/genjs > ../../js/lists.js
 	# cp genjs.1 ../../tmp/rentroll/man/man1
 	@echo "*** PACKAGE completed in genjs ***"

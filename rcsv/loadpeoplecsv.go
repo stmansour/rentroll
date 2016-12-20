@@ -399,19 +399,27 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 			return CsvErrorSensitivity, fmt.Errorf("i = %d, unknown field\n", i)
 		}
 	}
+
+	//-------------------------------------------------------------------
+	// Make sure BID is not 0
+	//-------------------------------------------------------------------
+	if tr.BID == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No Business found for BUD = %s\n", funcname, lineno, sa[BUD])
+	}
+
 	//-------------------------------------------------------------------
 	// Make sure this person doesn't already exist...
 	//-------------------------------------------------------------------
 	if len(tr.PrimaryEmail) > 0 {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.PrimaryEmail)
 		if t1.TCID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
 		}
 	}
 	if len(tr.CellPhone) > 0 && !ignoreDupPhone {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.CellPhone)
 		if t1.TCID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
 		}
 	}
 

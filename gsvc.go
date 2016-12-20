@@ -169,7 +169,10 @@ func gridHandleField(q, logic, field, value, format string, count *int) string {
 }
 
 // gridBuildQuery builds a query from the supplied base and the sort / search parameters
-// in the supplied w2ui grid structure.
+// in the supplied w2ui grid structure.  To play with this routine in isolation
+// use this:
+//				https://play.golang.org/p/HOkP77h0Ts
+//
 // Parameters:
 // 		table - the name of the table to query
 // 		srch  - the default where clause. Used if the Search info is empty. Does not require
@@ -186,6 +189,7 @@ func gridHandleField(q, logic, field, value, format string, count *int) string {
 //----------------------------------------------------------------------------------------------
 func gridBuildQuery(table, srch, order string, d *ServiceData, p interface{}) (string, string) {
 	// Handle Search
+	// q := fmt.Sprintf("SELECT * FROM "+table+" WHERE BID=%d AND (", d.BID)
 	q := "SELECT * FROM " + table + " WHERE"
 	qw := ""
 	if len(d.greq.Search) > 0 {
@@ -219,6 +223,9 @@ func gridBuildQuery(table, srch, order string, d *ServiceData, p interface{}) (s
 					fmt.Printf("Unhandled search operator: %s\n", d.greq.Search[i].Operator)
 				}
 			}
+		}
+		if len(qw) > 0 {
+			qw = fmt.Sprintf(" BID=%d AND (%s)", d.BID, qw)
 		}
 		q += qw         // add the WHERE information
 		if count == 0 { // if we didn't match any of the search criteria...
@@ -338,7 +345,7 @@ func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	srch := fmt.Sprintf("BID=%d", d.BID)   // default WHERE clause
 	order := "LastName ASC, FirstName ASC" // default ORDER
 	q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
-	// fmt.Printf("db query = %s\n", q)
+	fmt.Printf("db query = %s\n", q)
 
 	g.Total, err = GetRowCount("Transactant", qw) // total number of rows that match the criteria
 	if err != nil {

@@ -1,4 +1,4 @@
-DIRS = rrbkup rrnewdb rrrestore rrloadcsv rrimporters
+DIRS = rrbkup rrnewdb rrrestore rrloadcsv genjs rrimporters
 
 admin:
 	for dir in $(DIRS); do make -C $$dir; done
