@@ -1,15 +1,16 @@
-DIRS = rrbkup rrnewdb rrrestore rrloadcsv genjs rrimporters
+DIRS = core onesite
 
-admin:
+importers:
 	for dir in $(DIRS); do make -C $$dir; done
 
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
+	rm -f importers
 
 test:
 	for dir in $(DIRS); do make -C $$dir test;done
-	@echo "*** ALL TESTS PASSED ***"
+	@echo "*** ALL TESTS PASSED in importers ***"
 
-package:
+package: importers
 	for dir in $(DIRS); do make -C $$dir package;done
-	cp installman.sh ../tmp/rentroll/
+	@echo "*** PACKAGING COMPLETE in importers ***"

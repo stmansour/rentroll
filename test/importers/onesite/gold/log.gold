@@ -1,0 +1,6 @@
+Test Name:    Onesite Import
+Test Purpose: Tests initizing RentRoll DB from importing OneSite rentroll report.
+Date/Time:    Mon Dec 12 11:08:46 PST 2016
+
+Create new database...  successful
+Test completed: Mon Dec 12 11:08:47 PST 2016

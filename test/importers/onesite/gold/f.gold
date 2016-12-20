@@ -1,0 +1,36 @@
+                                                             Manage                                  
+                                  Rent     Proration         To                                      
+RTID        Style      Name       Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
+----------  ---------  ---------  -------  ---------  -----  ------  --------------------------------
+RT00000001  A1-Corp    A1-Corp    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000002  A1-HOSP    A1-HOSP    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000003  HRP1       HRP1       monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  790.00
+RT00000004  A2-Corp    A2-Corp    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000005  B1 - Corp  B1 - Corp  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000006  HRP2       HRP2       monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  940.00
+RT00000007  A3 - Corp  A3 - Corp  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000008  A6 - Corp  A6 - Corp  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000009  B3 - Corp  B3 - Corp  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000010  A2-HOSP    A2-HOSP    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000011  B2 - Corp  B2 - Corp  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000012  B2-HOSP    B2-HOSP    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000013  B1-HOSP    B1-HOSP    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000014  A3-HOSP    A3-HOSP    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000015  B3-HOSP    B3-HOSP    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000016  A6-HOSP    A6-HOSP    monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000017  B4 - Corp  B4 - Corp  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  825.00
+RT00000018  HRPD       HRPD       monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $ 1800.00
+RT00000019  A4P        A4P        monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  625.00
+RT00000020  B5         B5         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  765.00
+RT00000021  A4L        A4L        monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  585.00
+RT00000022  V2         V2         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $ 1000.00
+RT00000023  V1         V1         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  900.00
+RT00000024  HRP3       HRP3       monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $ 1200.00
+RT00000025  V5         V5         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $ 1400.00
+RT00000026  V4         V4         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+RT00000027  HRP4       HRP4       monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $ 1475.00
+RT00000028  V3         V3         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $ 1200.00
+RT00000029  A5         A5         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  625.00
+RT00000030  B6         B6         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  895.00
+RT00000031  B7         B7         monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  895.00
+
