@@ -223,7 +223,7 @@ func GetRentableStatus(csvRow *CSVRow) (string, bool) {
 	// first find that passed string contains any status key
 	a := strings.ToLower(csvRow.UnitLeaseStatus)
 	for k, v := range RentableStatusCSV {
-		if strings.ContainsAny(a, k) {
+		if strings.Contains(a, k) {
 			tempRS = v
 			found = true
 			break
