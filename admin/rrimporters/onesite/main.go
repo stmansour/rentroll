@@ -182,6 +182,6 @@ func main() {
 
 	// call onesite loader
 	errors, msg := onesite.CSVHandler(userSuppliedValues)
-	fmt.Println(errors)
-	fmt.Println(msg)
+	fmt.Printf("\nONESITE ERRORS:= %v", errors)
+	fmt.Printf("\nONESITE MSG:= %v", msg)
 }

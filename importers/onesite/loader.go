@@ -12,6 +12,7 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -78,6 +79,17 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	// funcname
 	funcname := "LoadOneSiteCSV"
 
+	// ===============================
+	// validation on user supplied values
+	// ===============================
+	var BUD = userSuppliedValues["BUD"]
+	var business = rlib.GetBusinessByDesignation(BUD)
+	if business.BID == 0 {
+		e := errors.New("Supplied Business Unit Designation does not exists")
+		errorList = append(errorList, e)
+		return errorList, "BUD does not exists"
+	}
+
 	// get current timestamp used for creating csv files unique way
 	currentTime := time.Now()
 
@@ -113,6 +125,84 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	// ##############################
 	// # PHASE 1 : SPLITTING DATA IN CSV FILES #
 	// ##############################
+
+	// if dataValidationError is true throughout rows
+	// do not perform any furter operation
+	dataValidationError := false
+
+	// ================================
+	// First loop for validation on csv
+	// ================================
+
+	// load csv file and get data from csv
+	t := rlib.LoadCSV(userSuppliedValues["OneSiteCSV"])
+
+	// this count used to skip number of rows from the very top of csv
+	var skipRowsCount int
+
+	for i := 0; i < len(t); i++ {
+
+		// Calculate SkipRowsCount in first loop
+		// if found then assign value in it and for rest of the rows
+		// do validate csv columns
+
+		if skipRowsCount == 0 {
+			CSVRowDataString := strings.Replace(
+				strings.Join(t[i][:OneSiteColumnLength], ","),
+				" ", "", -1)
+			CSVHeaderString := strings.Replace(
+				strings.Join(OneSiteCSVHeaders[:OneSiteColumnLength], ","),
+				" ", "", -1)
+
+			if CSVRowDataString == CSVHeaderString {
+				skipRowsCount = i
+
+				// if skipRowsCount found then jump to next rows
+				// because headers don't have to be validate
+				continue
+			}
+		} else {
+			// if skipRowsCount found then do validation over csv rows
+
+			x, err := rcsv.ValidateCSVColumns(csvCols, t[i][:OneSiteColumnLength], funcname, i)
+			if x > 0 {
+				errorList = append(errorList, err)
+				return errorList, msg
+			}
+
+			// ######################
+			// VALIDATION on data value, type
+			// ######################
+			rowLoaded, csvRow := LoadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
+
+			// NOTE: might need to change logic, if t[i] contains blank data that we should
+			// stop the loop as we have to skip rest of the rows (please look at onesite csv)
+			if !rowLoaded {
+				fmt.Println("No more data to validate")
+				break
+			}
+
+			_, err = strconv.Atoi(csvRow.SQFT)
+			if err != nil {
+				dataValidationError = true
+				errorList = append(
+					errorList,
+					fmt.Errorf("SQFT column has no integer value in row %d", i),
+				)
+			}
+		}
+	}
+
+	// if there is any error in data validation then return from here
+	// do not perform any further action
+	if dataValidationError {
+		return errorList, msg
+	}
+
+	// ====================================
+	// BEFORE GOES TO SECOND LOOP
+	// PERFORM REQUIRED OPERATIONS HERE
+	// ====================================
 
 	// get created rentabletype csv and writer pointer
 	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
@@ -196,42 +286,11 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	for k := range customAttributeMap {
 		avoidDuplicateCustomAttributeData[k] = []string{}
 	}
-	// ================================
-	// First loop for validation on csv
-	// ================================
 
-	// load csv file and get data from csv
-	t := rlib.LoadCSV(userSuppliedValues["OneSiteCSV"])
-
-	// this count used to skip number of rows from the very top of csv
-	var skipRowsCount int
-
-	for i := 0; i < len(t); i++ {
-
-		// Calculate SkipRowsCount in first loop
-		// if found then assign value in it and for rest of the rows
-		// do validate csv columns
-
-		CSVRowDataString := strings.Replace(
-			strings.Join(t[i][:OneSiteColumnLength], ","),
-			" ", "", -1)
-		CSVHeaderString := strings.Replace(
-			strings.Join(OneSiteCSVHeaders[:OneSiteColumnLength], ","),
-			" ", "", -1)
-
-		if CSVRowDataString == CSVHeaderString {
-			skipRowsCount = i
-		}
-
-		// if skipRowsCount found then do validation over csv rows
-		if skipRowsCount > 0 {
-			x, vrs := rcsv.ValidateCSVColumns(csvCols, t[i][:OneSiteColumnLength], funcname, i)
-			if x > 0 {
-				errorList = append(errorList, vrs)
-				return errorList, msg
-			}
-		}
-	}
+	// customAttributesRefData holds the data for future operation to insert
+	// custom attribute ref in system for each rentableType
+	// so we identify each element in this list via Style value
+	customAttributesRefData := map[string]CARD{}
 
 	// ================================
 	// Second loop for splitting data of csv
@@ -245,7 +304,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		// NOTE: might need to change logic, if t[i] contains blank data that we should
 		// stop the loop as we have to skip rest of the rows (please look at onesite csv)
 		if !rowLoaded {
-			fmt.Println("\nNo more data to parse")
+			fmt.Println("No more data to parse")
 			break
 		}
 
@@ -258,6 +317,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			currentTimeFormat,
 			userSuppliedValues,
 			&OneSiteFieldMap.RentableTypeCSV,
+			customAttributesRefData,
+			&business,
 		)
 
 		// Write data to file of people
@@ -328,6 +389,42 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		}
 	}
 
+	// =======================================
+	// INSERT CUSTOM ATTRIBUTE REF
+	// =======================================
+	for _, refData := range customAttributesRefData {
+		// find rentableType
+		rt, err := rlib.GetRentableTypeByStyle(refData.Style, refData.BID)
+		if err != nil {
+			errorList = append(errorList, err)
+			continue
+		}
+
+		// for all custom attribute defined in custom_attrib.go
+		// find custom attribute ID
+		for _, customAttributeConfig := range customAttributeMap {
+			t, _ := strconv.ParseInt(customAttributeConfig["ValueType"], 10, 64)
+			n := customAttributeConfig["Name"]
+			v := strconv.Itoa(int(refData.SqFt))
+			u := customAttributeConfig["Units"]
+			ca := rlib.GetCustomAttributeByVals(t, n, v, u)
+			if ca.CID == 0 {
+				errorList = append(errorList, err)
+				continue
+			}
+
+			// insert custom attribute ref in system
+			var a rlib.CustomAttributeRef
+			a.ElementType = rlib.ELEMRENTABLETYPE
+			a.ID = rt.RTID
+			a.CID = ca.CID
+			err = rlib.InsertCustomAttributeRef(&a)
+			if err != nil {
+				errorList = append(errorList, err)
+				continue
+			}
+		}
+	}
 	// ##################################
 	// # PHASE 3 : CLEAR THE TEMPORARY CSV FILES #
 	// ##################################
@@ -338,6 +435,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	}
 
 	// RETURN
+	fmt.Println("ONESITE CSV HAS SUCCESSFULLY LOADED!")
 	return errorList, msg
 }
 

@@ -7,6 +7,7 @@ import (
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"rentroll/rlib"
 	"strconv"
 	"time"
 )
@@ -63,6 +64,8 @@ func WriteRentableTypeCSVData(
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	rt *core.RentableTypeCSV,
+	customAttributesRefData map[string]CARD,
+	business *rlib.Business,
 ) {
 	// get style
 	checkRentableTypeStyle := csvRow.FloorPlan
@@ -74,6 +77,17 @@ func WriteRentableTypeCSVData(
 	}
 
 	*avoidData = append(*avoidData, checkRentableTypeStyle)
+
+	// insert CARD for this style in customAttributesRefData
+	// no need to verify err, it has been passed already
+	// through first loop in main program
+	sqft, _ := strconv.ParseInt(csvRow.SQFT, 10, 64)
+	tempCard := CARD{
+		BID:   business.BID,
+		Style: checkRentableTypeStyle,
+		SqFt:  sqft,
+	}
+	customAttributesRefData[checkRentableTypeStyle] = tempCard
 
 	currentYear, _, _ := currentTime.Date()
 	DtStart := "1/1/" + strconv.Itoa(currentYear)
