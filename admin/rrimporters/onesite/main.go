@@ -104,13 +104,13 @@ func readCommandLineArgs() (bool, []string) {
 	// ================================
 	if *fp == "" {
 		ok = false
+		errors = append(errors, "Please, pass onesite csv input file")
 	}
-	errors = append(errors, "Please, pass onesite csv input file")
 
 	if *bud == "" {
 		ok = false
+		errors = append(errors, "Please, pass business unit designation")
 	}
-	errors = append(errors, "Please, pass business unit designation")
 
 	// if not ok then return with errors, otherwise fill up values in map
 	if !ok {
