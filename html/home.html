@@ -31,7 +31,7 @@ businesses.push(business);
 
 var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
 var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
-var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 8pt; background-color: white;';
+var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;';
 var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777'
 var config = {
     mainlayout: {
@@ -60,10 +60,10 @@ var config = {
     },
     reportslayout: {
         name: 'reportslayout',
-        padding: 1,
+        padding: 0,
         panels: [
             { type: 'top',size: 40, style: pstyle2, content: 'reports toolbar'},
-            { type: 'left', size: 200, hidden: true, content: 'sidebar' },
+            { type: 'left', size: 20, style: prefmt, hidden: false },
             { type: 'main',  size: 100, style: prefmt, content: 'reports main window' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, content: 'reports preview' },
             { type: 'right', size: 200, resizable: true, hidden: true, content: 'reports - detail' },
@@ -130,18 +130,18 @@ var config = {
             },
             { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                 nodes: [ 
-                       { id: 'assessments', text: 'Assessments', icon: 'fa fa-file-text-o' },
-                       { id: 'businessUnits', text: 'Business Units', icon: 'fa fa-file-text-o' },
-                       { id: 'chartOfAccounts', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
-                       { id: 'depositMethods', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
-                       { id: 'depositories', text: 'Depositories', icon: 'fa fa-file-text-o' },
+                       { id: 'asm', text: 'Assessments', icon: 'fa fa-file-text-o' },
+                       { id: 'b', text: 'Business Units', icon: 'fa fa-file-text-o' },
+                       { id: 'coa', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
+                       { id: 'dpm', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
+                       { id: 'dep', text: 'Depositories', icon: 'fa fa-file-text-o' },
                        { id: 'delinquency', text: 'Delinquency', icon: 'fa fa-file-text-o' },
                        { id: 'gsr', text: 'GSR', icon: 'fa fa-file-text-o' },
                        { id: 'journal', text: 'Journal', icon: 'fa fa-file-text-o' },
                        { id: 'ledger', text: 'Ledger', icon: 'fa fa-file-text-o' },
                        { id: 'ledgerActivity', text: 'Ledger Activity', icon: 'fa fa-file-text-o' },
                        { id: 'people', text: 'People', icon: 'fa fa-file-text-o' },
-                       { id: 'paymentTypes', text: 'Payment Types', icon: 'fa fa-file-text-o' },
+                       { id: 'pmt', text: 'Payment Types', icon: 'fa fa-file-text-o' },
                        { id: 'receipts', text: 'Receipts', icon: 'fa fa-file-text-o' },
                        { id: 'countByRentable Type', text: 'Count By Rentable Type', icon: 'fa fa-file-text-o' },
                        { id: 'rentablesReport', text: plural(sRentable), icon: 'fa fa-file-text-o' },
@@ -164,7 +164,24 @@ var config = {
             $('#sidebarL1').css('width', (event.goFlat ? '35px' : '200px'));
         },
         onClick: function (event) {
-            switchToGrid(event.target)
+            console.log('event.target = ' + event.target)
+            // switch( event.target ) 
+            switch(event.target) {
+                case 'accounts':
+                case 'rentables':
+                case 'transactants':
+                    switchToGrid(event.target);
+                    break;
+                case 'b':
+                case 'coa':
+                case 'dep':
+                case 'dpm':
+                    showReport(event.target)
+                     break;
+
+                default:
+                    console.log('unhandled event: ' + event.target)
+            }
         }
     },
     reportstoolbar: {
@@ -196,9 +213,14 @@ var config = {
 }
 
 function showReport(rptname) {
-    w2ui['toplayout'].content('main', w2ui['reportslayout']);
-    w2ui['toplayout'].hide('right');
-    w2ui['reportslayout'].load('main', '/wsvc/' + rptname);
+    var w = w2ui['reportslayout']
+    var x = getCurrentBusiness();
+    var userid = 211;
+    var url = '/wsvc/' + '/' + userid + '/' + x.value + '?r=' + rptname
+    console.log('url = ' + url);
+    w.load('main', url);
+    w2ui['toplayout'].content('main', w);
+    w2ui['toplayout'].hide('right',true);
 }
 
 var accountsGrid = {

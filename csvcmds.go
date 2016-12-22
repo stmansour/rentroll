@@ -8,6 +8,7 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
+	"strings"
 	"time"
 )
 
@@ -172,41 +173,41 @@ func csvloadReporter(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) strin
 	// fmt.Printf("csvloadReporter: prefix=%s, BID=%d\n", prefix, xbiz.P.BID)
 	var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
 
-	switch prefix {
-	case "ASM", "Assessments":
+	switch strings.ToLower(prefix) {
+	case "asm", "assessments":
 		return rcsv.RRreportAssessments(&ri)
-	case "B", "Business":
+	case "b", "business":
 		return rcsv.RRreportBusiness(&ri)
-	case "COA", "Chart Of Accounts":
+	case "coa", "chart of accounts":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		return rcsv.RRreportChartOfAccounts(&ri)
-	case "C", "Custom Attributes":
+	case "c", "custom attributes":
 		return rcsv.RRreportCustomAttributes(&ri)
-	case "CR", "Custom Attribute Refs":
+	case "cr", "custom attribute refs":
 		return rcsv.RRreportCustomAttributeRefs(&ri)
-	case "DPM", "Deposit Methods":
+	case "dpm", "deposit methods":
 		return rcsv.RRreportDepositMethods(&ri)
-	case "DEP", "Depositories":
+	case "dep", "depositories":
 		return rcsv.RRreportDepository(&ri)
-	case "PMT", "Payment Types":
+	case "pmt", "payment types":
 		return rcsv.RRreportPaymentTypes(&ri)
-	case "R", "Rentables":
+	case "r", "rentables":
 		return rcsv.RRreportRentables(&ri)
-	case "RA", "Rental Agreements":
+	case "ra", "rental agreements":
 		return rcsv.RRreportRentalAgreements(&ri)
-	case "RAT", "Rental Agreement Templates":
+	case "rat", "rental agreement templates":
 		return rcsv.RRreportRentalAgreementTemplates(&ri)
-	case "RCPT", "Receipts":
+	case "rcpt", "receipts":
 		return rcsv.RRreportReceipts(&ri)
-	case "RT", "Rentable Types":
+	case "rt", "rentable types":
 		return rcsv.RRreportRentableTypes(&ri)
-	case "Rentable Count By Type":
+	case "rentable Count By Type":
 		return rrpt.RentableCountByRentableTypeReport(ri.OutputFormat, xbiz, &ri.D1, &ri.D2)
-	case "SL", "String Lists":
+	case "sl", "string lists":
 		return rcsv.RRreportStringLists(&ri)
-	case "Statements":
+	case "statements":
 		return rrpt.RptStatementTextReport(xbiz, &ri.D1, &ri.D2)
-	case "T", "People":
+	case "t", "people":
 		return rcsv.RRreportPeople(&ri)
 	}
 	return "unhandled loader type: " + prefix
