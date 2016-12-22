@@ -11,7 +11,6 @@ import (
 	"path"
 	"rentroll/rcsv"
 	"rentroll/rlib"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -45,14 +44,15 @@ func Init() {
 // field mapping structure in go for further usage
 func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
-	// Caller returns program counter, filename, line no, ok
-	_, filename, _, ok := runtime.Caller(1)
-	if ok == false {
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		// log.Fatal(err)
 		panic("Unable to get current filename")
 	}
 
 	// read json file which contains mapping of onesite fields
-	mapperFilePath := path.Join(path.Dir(filename), "mapper.json")
+	mapperFilePath := path.Join(folderPath, "mapper.json")
+
 	fieldmap, err := ioutil.ReadFile(mapperFilePath)
 	if err != nil {
 		// fmt.Errorf("File error: %v\n", err)
@@ -182,6 +182,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 				break
 			}
 
+			// sqft validation
 			_, err = strconv.Atoi(csvRow.SQFT)
 			if err != nil {
 				dataValidationError = true
@@ -190,6 +191,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 					fmt.Errorf("SQFT column has no integer value in row %d", i),
 				)
 			}
+
+			// NOTE: put validations of fields from here
 		}
 	}
 

@@ -171,11 +171,18 @@ func GetRentableCSVRow(
 				dataMap[i] = typeRef
 			}
 		}
-		// if rentableField.Name == "RUserSpec" {
-		// 	// TODO
-		// }
+		if rentableField.Name == "RUserSpec" {
+			// format is user, startDate, stopDate
+			rUserSpec, ok := GetRUserSpec(oneSiteRow)
+			if ok {
+				dataMap[i] = rUserSpec
+			} else {
+				// TODO: verify that what to do in false case -> should return its original value or raise error
+				dataMap[i] = rUserSpec
+			}
+		}
 		if rentableField.Name == "RentableStatus" {
-			// but it format is status, startDate, stopDate
+			// format is status, startDate, stopDate
 			status, ok := GetRentableStatus(oneSiteRow)
 			if ok {
 				dataMap[i] = status
@@ -212,6 +219,33 @@ func GetRentableCSVRow(
 	}
 	ok = true
 	return ok, dataArray
+}
+
+// GetRUserSpec used to get ruser spec in format of rentroll system
+func GetRUserSpec(
+	csvRow *CSVRow,
+) (string, bool) {
+
+	// TODO: verify if validation required here
+	ok := false
+
+	orderedFields := []string{}
+
+	// TODO: decide what to append here as ruser
+	// NOTE: right now just going with email address
+	// append ruser
+	orderedFields = append(orderedFields, csvRow.Email)
+	// append start date
+	orderedFields = append(orderedFields, csvRow.LeaseStart)
+	// append end date
+	orderedFields = append(orderedFields, csvRow.LeaseEnd)
+
+	ok = true
+	if ok {
+		return strings.Join(orderedFields, ","), ok
+	}
+
+	return ",,", ok
 }
 
 // GetRentableStatus used to get rentable status in format of rentroll system

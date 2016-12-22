@@ -344,7 +344,7 @@ doOnesiteTest () {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
-		${RRBIN}/onesiteload $2 >${1} 2>&1
+		${RRBIN}/importers/onesite/onesiteload $2 >${1} 2>&1
 	fi
 
 	if [ "${FORCEGOOD}" = "1" ]; then
