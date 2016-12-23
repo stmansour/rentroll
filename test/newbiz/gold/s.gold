@@ -1,9 +1,9 @@
-RAID	RATID	BID	AgreementStart	AgreementStop	Renewal	SpecialProvisions	LastModBy
-1	1	1	2004-01-01	2015-11-08	1	Some Special Provisions	0
-2	1	1	2004-01-01	2017-07-04	1	I am a special provision	0
-3	1	1	2004-01-01	2017-07-04	1		0
-4	1	1	2004-01-01	2017-07-04	1		0
-5	1	1	2004-01-01	2017-07-04	1		0
-6	1	1	2004-01-01	2017-07-04	1		0
-7	1	1	2004-01-01	2017-07-04	1		0
-8	1	1	2015-11-21	2016-11-21	1		0
+RAID	RATID	BID	AgreementStart	AgreementStop	Renewal	SpecialProvisions	UnspecifiedAdults	UnspecifiedChildren	LastModBy
+1	1	1	2004-01-01	2015-11-08	1	Some Special Provisions	0	0	0
+2	1	1	2004-01-01	2017-07-04	1	I am a special provision	0	0	0
+3	1	1	2004-01-01	2017-07-04	1		0	0	0
+4	1	1	2004-01-01	2017-07-04	1		0	0	0
+5	1	1	2004-01-01	2017-07-04	1		0	0	0
+6	1	1	2004-01-01	2017-07-04	1		0	0	0
+7	1	1	2004-01-01	2017-07-04	1		0	0	0
+8	1	1	2015-11-21	2016-11-21	1		2	3	0

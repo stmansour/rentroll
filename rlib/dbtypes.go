@@ -335,9 +335,11 @@ type RentalAgreement struct {
 	RentStart              time.Time   // start date for Rent
 	RentStop               time.Time   // stop date for Rent
 	RentCycleEpoch         time.Time   // Date on which rent cycle recurs. Start date for the recurring rent assessment
+	UnspecifiedAdults      int64       // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
+	UnspecifiedChildren    int64       // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
 	Renewal                int64       // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 	SpecialProvisions      string      // free-form text
-	LeaseType              int64       //Full Service Gross, Gross, ModifiedGross, Tripple Net
+	LeaseType              int64       // Full Service Gross, Gross, ModifiedGross, Tripple Net
 	ExpenseAdjustmentType  int64       // Base Year, No Base Year, Pass Through
 	ExpensesStop           float64     // cap on the amount of oexpenses that can be passed through to the tenant
 	ExpenseStopCalculation string      // note on how to determine the expense stop
@@ -345,19 +347,19 @@ type RentalAgreement struct {
 	ExpenseAdjustment      time.Time   // the next date on which an expense adjustment is due
 	EstimatedCharges       float64     // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
 	RateChange             float64     // predetermined amount of rent increase, expressed as a percentage
-	NextRateChange         time.Time   //the next date on which a RateChange will occur
+	NextRateChange         time.Time   // he next date on which a RateChange will occur
 	PermittedUses          string      // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
 	ExclusiveUses          string      // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
 	ExtensionOption        string      // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
 	ExtensionOptionNotice  time.Time   // the last dade by wich a Tenant can give notice of their intention to exercise the right to an extension option period
 	ExpansionOption        string      // the right to expand to certanin spaces that are typically contiguous to their primary space
 	ExpansionOptionNotice  time.Time   // the last dade by wich a Tenant can give notice of their intention to exercise the right to an Expansion Option
-	RightOfFirstRefusal    string      //Tenant may have the right to purchase their premises if LL chooses to sell
-	LastModTime            time.Time   //	-- when was this record last written
+	RightOfFirstRefusal    string      // Tenant may have the right to purchase their premises if LL chooses to sell
+	LastModTime            time.Time   // when was this record last written
 	LastModBy              int64       // employee UID (from phonebook) that modified it
 	R                      []XRentable // all the rentables
 	P                      []XPerson   // all the payors
-	T                      []XPerson   // all the renters
+	T                      []XPerson   // all the users
 }
 
 // RentalAgreementRentable describes a Rentable associated with a rental agreement

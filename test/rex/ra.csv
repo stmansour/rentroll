@@ -1,4 +1,4 @@
-BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,Renewal,Special Provisions,RentableSpec,Notes
-REX,RAT001,1/1/2004,6/1/2018,,,,,,"aaron@rexford.com,,;kirsten@rexford.com,,","aaron@rexford.com,,;kirsten@rexford.com,,",1,No brown m&ms,"309 Rexford,3750",A note for Aaron
-REX,RAT001,1/1/2004,6/1/2018,,,,,,"123-456-7892,,;123-456-7893,,","123-456-7892,,;123-456-7893,,",1,Shaken but not stirred,"309 1/2 Rexford,3550",A note for 123-456-7892
-REX,RAT001,1/2/2004,2/8/2016,,,,,2/1/2004,"123-456-7894,,","123-456-7894,,",1,,"311 Rexford,4400",A note for this RA
+BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,UnspecifiedAdults,UnspecifiedChildren,Renewal,Special Provisions,RentableSpec,Notes
+REX,RAT001,1/1/2004,6/1/2018,,,,,,"aaron@rexford.com,,;kirsten@rexford.com,,","aaron@rexford.com,,;kirsten@rexford.com,,",,,1,No brown m&ms,"309 Rexford,3750",A note for Aaron
+REX,RAT001,1/1/2004,6/1/2018,,,,,,"123-456-7892,,;123-456-7893,,","123-456-7892,,;123-456-7893,,",,,1,Shaken but not stirred,"309 1/2 Rexford,3550",A note for 123-456-7892
+REX,RAT001,1/2/2004,2/8/2016,,,,,2/1/2004,"123-456-7894,,","123-456-7894,,",,,1,,"311 Rexford,4400",A note for this RA

@@ -82,6 +82,8 @@
         "RentCycleEpoch": "",
         "PayorSpec": "",
         "UserSpec": "",
+        "UnspecifiedAdults": "",
+        "UnspecifiedChildren": "",
         "Renewal": "",
         "SpecialProvisions": "",
         "RentableSpec": "",

@@ -131,7 +131,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(r.URL.Path, ".") {
 		Chttp.ServeHTTP(w, r)
 	} else {
-		http.Redirect(w, r, "/dispatch/", http.StatusFound)
+		http.Redirect(w, r, "/home/", http.StatusFound)
 	}
 }
 

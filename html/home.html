@@ -64,7 +64,7 @@ var config = {
         panels: [
             { type: 'top',size: 40, style: pstyle2, content: 'reports toolbar'},
             { type: 'left', size: 20, style: prefmt, hidden: false },
-            { type: 'main',  size: 100, style: prefmt, content: 'reports main window' },
+            { type: 'main',  size: 100, style: prefmt},
             { type: 'preview', size: '50%', resizable: true, hidden: true, content: 'reports preview' },
             { type: 'right', size: 200, resizable: true, hidden: true, content: 'reports - detail' },
             { type: 'bottom', size: 20, resizable: true, hidden: true, content: 'reports - bottom' }
@@ -158,14 +158,27 @@ var config = {
                 nodes: [ { id: 'accounts', text: 'Chart Of Accounts', icon: 'fa fa-folder-o' },
                 ]
             },
-       ],
+        ],
+        onExpand: function(event) {
+            
+            var x = getCurrentBusiness();
+            console.log('current biz = ' + x.value + '  name = ' + x.name );
+
+            switch (event.target) {
+                case 'reports':
+                    var w = w2ui['reportslayout']
+                    w2ui['toplayout'].content('main', w);
+                    w2ui['toplayout'].hide('right',true);
+                    break;
+            }
+
+        },
         onFlat: function (event) {
             console.log('event.goFlat = ' + event.goFlat )
             $('#sidebarL1').css('width', (event.goFlat ? '35px' : '200px'));
         },
         onClick: function (event) {
             console.log('event.target = ' + event.target)
-            // switch( event.target ) 
             switch(event.target) {
                 case 'accounts':
                 case 'rentables':
@@ -207,20 +220,36 @@ var config = {
             },
             { type: 'button',  id: 'monthfwd', icon: 'fa fa-angle-right' },
             { type: 'button',  id: 'dayfwd', icon: 'fa fa-angle-double-right' },
-        ]
+        ],
+        onClick: function (event) {
+            console.log('event = ' + event)
+        }
     }
  
 }
+
+// function myEventHndlr() {
+//     var x = document.getElementsByName("dateD1")
+//     console.log(x[0].value)
+// }
 
 function showReport(rptname) {
     var w = w2ui['reportslayout']
     var x = getCurrentBusiness();
     var userid = 211;
-    var url = '/wsvc/' + '/' + userid + '/' + x.value + '?r=' + rptname
-    console.log('url = ' + url);
-    w.load('main', url);
+    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname
     w2ui['toplayout'].content('main', w);
     w2ui['toplayout'].hide('right',true);
+    var y = document.getElementsByName("dateD1")
+    var d = y[0].value
+    url += '&dtstart=' + d
+    console.log('d1 = ' + d)
+    y = document.getElementsByName("dateD2")
+    d = y[0].value
+    console.log('d2 = ' + d)
+    url += '&dtstop=' + d
+    console.log('url = ' + url);
+    w.load('main', url);
 }
 
 var accountsGrid = {
@@ -501,7 +530,9 @@ function urlSuffix() {
 
 // ChangeBusiness updates the UI to the newly selected business
 function ChangeBusiness() {
-    var x =document.getElementsByName("BusinessSelect");
+    var x = getCurrentBusiness();
+    console.log('current biz = ' + x.value + '  name = ' + x.name );
+    var cb = x.value
     w2ui['toplayout'].content('main', ' ');
     w2ui['toplayout'].hide('right',true);
     s = w2ui['sidebarL1'];
@@ -509,6 +540,13 @@ function ChangeBusiness() {
     if (sel != null) { 
         s.unselect(sel);
     }
+    // s.collapse('reports');
+    // s.collapse('admin');
+
+    y = getCurrentBusiness();
+    console.log('completed.  current business = ' + y.value + '   name = ' + y.name );
+    // y.value = cb;
+
 }
 
 function switchToGrid(svc) {

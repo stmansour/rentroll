@@ -1,5 +1,5 @@
-BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,Renewal,Special Provisions,RentableSpec,Notes
-REX,Agreement3722.1.doc,3/1/14,3/1/16,,,,,,"aaron@rexford.com,,;kirsten@rexford.com,,","aaron@rexford.com,,;kirsten@rexford.com,,",1,,"309 Rexford,3500",This is a note for Kirsten and Aaron
-REX,Agreement4980.3.doc,4/1/11,8/28/16,,,,,,"123-456-7892,,;123-456-7893,,","123-456-7892,,;123-456-7893,,;TC00000005,,",1,,"309 1/2 Rexford,3550",This is a note for Costea's
-REX,Agreement5342.7.doc,8/12/10,2/8/16,,,,,,"gagik@rexford.com,,","gagik@rexford.com,,",1,,"311 Rexford,4400",This is a gagik note
-REX,Agreement5342.7.doc,7/1/16,7/1/18,,,,,,"lauren@rexford.com,,;kevin@rexford.com,,","lauren@rexford.com,,;kevin@rexford.com,,;123-456-7896a,,;TC10,,",1,,"311 Rexford,4150",This is a Mills note
+BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,UnspecifiedAdults,UnspecifiedChildren,Renewal,Special Provisions,RentableSpec,Notes
+REX,Agreement3722.1.doc,3/1/14,3/1/16,,,,,,"aaron@rexford.com,,;kirsten@rexford.com,,","aaron@rexford.com,,;kirsten@rexford.com,,",,,1,,"309 Rexford,3500",This is a note for Kirsten and Aaron
+REX,Agreement4980.3.doc,4/1/11,8/28/16,,,,,,"123-456-7892,,;123-456-7893,,","123-456-7892,,;123-456-7893,,;TC00000005,,",,,1,,"309 1/2 Rexford,3550",This is a note for Costea's
+REX,Agreement5342.7.doc,8/12/10,2/8/16,,,,,,"gagik@rexford.com,,","gagik@rexford.com,,",,,1,,"311 Rexford,4400",This is a gagik note
+REX,Agreement5342.7.doc,7/1/16,7/1/18,,,,,,"lauren@rexford.com,,;kevin@rexford.com,,","lauren@rexford.com,,;kevin@rexford.com,,;123-456-7896a,,;TC10,,",,,1,,"311 Rexford,4150",This is a Mills note

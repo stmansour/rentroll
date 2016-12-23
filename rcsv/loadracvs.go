@@ -23,21 +23,23 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	var m []rlib.RentalAgreementRentable
 
 	const (
-		BUD               = 0
-		RATemplateName    = iota
-		AgreementStart    = iota
-		AgreementStop     = iota
-		PossessionStart   = iota
-		PossessionStop    = iota
-		RentStart         = iota
-		RentStop          = iota
-		RentCycleEpoch    = iota
-		PayorSpec         = iota
-		UserSpec          = iota
-		Renewal           = iota
-		SpecialProvisions = iota
-		RentableSpec      = iota
-		Notes             = iota
+		BUD                 = 0
+		RATemplateName      = iota
+		AgreementStart      = iota
+		AgreementStop       = iota
+		PossessionStart     = iota
+		PossessionStop      = iota
+		RentStart           = iota
+		RentStop            = iota
+		RentCycleEpoch      = iota
+		PayorSpec           = iota
+		UserSpec            = iota
+		UnspecifiedAdults   = iota
+		UnspecifiedChildren = iota
+		Renewal             = iota
+		SpecialProvisions   = iota
+		RentableSpec        = iota
+		Notes               = iota
 	)
 
 	// csvCols is an array that defines all the columns that should be in this csv file
@@ -53,6 +55,8 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 		{"RentCycleEpoch", RentCycleEpoch},
 		{"PayorSpec", PayorSpec},
 		{"UserSpec", UserSpec},
+		{"UnspecifiedAdults", UnspecifiedAdults},
+		{"UnspecifiedChildren", UnspecifiedChildren},
 		{"Renewal", Renewal},
 		{"SpecialProvisions", SpecialProvisions},
 		{"RentableSpec", RentableSpec},
@@ -164,11 +168,30 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	if err != nil { // save the full list
 		return CsvErrorSensitivity, err
 	}
+	//-------------------------------------------------------------------
+	//  The Unspecified Adults and Children
+	//-------------------------------------------------------------------
+	s := strings.TrimSpace(sa[UnspecifiedAdults])
+	if len(s) > 0 {
+		i, err := strconv.Atoi(s)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - UnspecifiedAdults value is invalid: %s\n", funcname, lineno, s)
+		}
+		ra.UnspecifiedAdults = int64(i)
+	}
+	s = strings.TrimSpace(sa[UnspecifiedChildren])
+	if len(s) > 0 {
+		i, err := strconv.Atoi(s)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - UnspecifiedChildren value is invalid: %s\n", funcname, lineno, s)
+		}
+		ra.UnspecifiedChildren = int64(i)
+	}
 
 	//-------------------------------------------------------------------
 	// Renewal
 	//-------------------------------------------------------------------
-	s := strings.TrimSpace(sa[Renewal])
+	s = strings.TrimSpace(sa[Renewal])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {

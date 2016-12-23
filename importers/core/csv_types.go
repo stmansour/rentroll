@@ -91,21 +91,23 @@ type RentableCSV struct {
 // temporary file to import the data using rcsv
 // routine in rental agreement db
 type RentalAgreementCSV struct {
-	BUD               string
-	RATemplateName    string
-	AgreementStart    string
-	AgreementStop     string
-	PossessionStart   string
-	PossessionStop    string
-	RentStart         string
-	RentStop          string
-	RentCycleEpoch    string
-	PayorSpec         string
-	UserSpec          string
-	Renewal           string
-	SpecialProvisions string
-	RentableSpec      string
-	Notes             string
+	BUD                 string
+	RATemplateName      string
+	AgreementStart      string
+	AgreementStop       string
+	PossessionStart     string
+	PossessionStop      string
+	RentStart           string
+	RentStop            string
+	RentCycleEpoch      string
+	PayorSpec           string
+	UserSpec            string
+	UnspecifiedAdults   string
+	UnspecifiedChildren string
+	Renewal             string
+	SpecialProvisions   string
+	RentableSpec        string
+	Notes               string
 }
 
 // CustomAttributeCSV is struct that is used

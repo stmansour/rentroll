@@ -35,6 +35,8 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 //    http://x.y.z/wsvc/<uid>/<BID>?[params]
 // where params can be:
 //	  r=<reportname>
+//    dtstart=<date>
+//    dtstop=<date>
 //
 func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "webServiceHandler"

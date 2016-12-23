@@ -244,7 +244,8 @@ func ReadRentables(rows *sql.Rows, a *Rentable) error {
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Row pointer.
 func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 	return row.Scan(&a.RAID, &a.RATID, &a.BID, &a.NLID, &a.AgreementStart, &a.AgreementStop, &a.PossessionStart,
-		&a.PossessionStop, &a.RentStart, &a.RentStop, &a.RentCycleEpoch, &a.Renewal, &a.SpecialProvisions,
+		&a.PossessionStop, &a.RentStart, &a.RentStop, &a.RentCycleEpoch, &a.UnspecifiedAdults, &a.UnspecifiedChildren,
+		&a.Renewal, &a.SpecialProvisions,
 		&a.LeaseType, &a.ExpenseAdjustmentType, &a.ExpensesStop, &a.ExpenseStopCalculation, &a.BaseYearEnd,
 		&a.ExpenseAdjustment, &a.EstimatedCharges, &a.RateChange, &a.NextRateChange, &a.PermittedUses, &a.ExclusiveUses,
 		&a.ExtensionOption, &a.ExtensionOptionNotice, &a.ExpansionOption, &a.ExpansionOptionNotice, &a.RightOfFirstRefusal,
@@ -254,7 +255,8 @@ func ReadRentalAgreement(row *sql.Row, a *RentalAgreement) error {
 // ReadRentalAgreements reads a full RentalAgreement structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 	return rows.Scan(&a.RAID, &a.RATID, &a.BID, &a.NLID, &a.AgreementStart, &a.AgreementStop, &a.PossessionStart,
-		&a.PossessionStop, &a.RentStart, &a.RentStop, &a.RentCycleEpoch, &a.Renewal, &a.SpecialProvisions,
+		&a.PossessionStop, &a.RentStart, &a.RentStop, &a.RentCycleEpoch, &a.UnspecifiedAdults, &a.UnspecifiedChildren,
+		&a.Renewal, &a.SpecialProvisions,
 		&a.LeaseType, &a.ExpenseAdjustmentType, &a.ExpensesStop, &a.ExpenseStopCalculation, &a.BaseYearEnd,
 		&a.ExpenseAdjustment, &a.EstimatedCharges, &a.RateChange, &a.NextRateChange, &a.PermittedUses, &a.ExclusiveUses,
 		&a.ExtensionOption, &a.ExtensionOptionNotice, &a.ExpansionOption, &a.ExpansionOptionNotice, &a.RightOfFirstRefusal,

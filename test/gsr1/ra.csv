@@ -1,2 +1,2 @@
-BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,Renewal,Special Provisions,RentableSpec,Notes
-DHR,RAT001,1/1/04,6/1/18,,,,,,"aaron@rexford.com,,;kirsten@rexford.com,,","aaron@rexford.com,,;kirsten@rexford.com,,",1,,"309 Rexford,3750",
+BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,UnspecifiedAdults,UnspecifiedChildren,Renewal,Special Provisions,RentableSpec,Notes
+DHR,RAT001,1/1/04,6/1/18,,,,,,"aaron@rexford.com,,;kirsten@rexford.com,,","aaron@rexford.com,,;kirsten@rexford.com,,",,,1,,"309 Rexford,3750",

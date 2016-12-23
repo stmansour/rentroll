@@ -34,7 +34,6 @@
 DROP DATABASE IF EXISTS rentroll;
 CREATE DATABASE rentroll;
 USE rentroll;
-GRANT ALL PRIVILEGES ON rentroll TO 'ec2-user'@'localhost';
 GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
 SET GLOBAL sql_mode='';
 
@@ -174,6 +173,8 @@ CREATE TABLE RentalAgreement (
     RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when Rent stops    (may be blank if RA initiated for floating deposit)
     RentCycleEpoch DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Date on which rent cycle recurs. Start date for the recurring rent assessment
     -- FloatingDepositAssessment DATE NOT NULL DEFAULT '1970-01-01 00:00:00'  -- Date on which floating deposit was assessed.
+    UnspecifiedAdults SMALLINT NOT NULL DEFAULT 0,               -- # of Adults who are NOT accounted for in RentalAgreementPayor and RentableUser entries. Useful in hotels
+    UnspecifiedChildren SMALLINT NOT NULL DEFAULT 0,             -- # of Children who are NOT transactants that will participate in the possession of the rentable
     Renewal SMALLINT NOT NULL DEFAULT 0,                         -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
     SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',         -- free-form text
     LeaseType BIGINT NOT NULL DEFAULT 0,                                -- Full Service Gross, Gross, ModifiedGross, Tripple Net

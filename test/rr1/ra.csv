@@ -1,4 +1,4 @@
-BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,Renewal,Special Provisions,RentableSpec,Notes
-REX,6958795,7/1/16,7/4/16,,,,,,"betty@diddit.com,,","betty@diddit.com,,",1,,"6323-303,2000.00",
-REX,9554338,7/5/16,7/9/16,,,,,8/1/16,"betty@diddent.com,,","betty@diddent.com,,",1,,"6323-303,3000.00",
-REX,9955663,7/11/16,8/1/17,,,,,8/1/16,"leeloo@kaixin.com,,","leeloo@kaixin.com,,",1,,"6323-303,4000",
+BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,UnspecifiedAdults,UnspecifiedChildren,Renewal,Special Provisions,RentableSpec,Notes
+REX,6958795,7/1/16,7/4/16,,,,,,"betty@diddit.com,,","betty@diddit.com,,",,,1,,"6323-303,2000.00",
+REX,9554338,7/5/16,7/9/16,,,,,8/1/16,"betty@diddent.com,,","betty@diddent.com,,",,,1,,"6323-303,3000.00",
+REX,9955663,7/11/16,8/1/17,,,,,8/1/16,"leeloo@kaixin.com,,","leeloo@kaixin.com,,",,,1,,"6323-303,4000",

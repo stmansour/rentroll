@@ -27,7 +27,7 @@ mysqlverify "k"  "-r rentable.csv"     		"Rentables"	            		"select RID,B
 mysqlverify "l"  " "                   		"RentableTypeRef"	    		"select RID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 mysqlverify "m"  " "                   		"RentableStatus"	            "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
 mysqlverify "r"  "-T rat.csv"          		"RentalAgreementTemplates"   	"select RATID,BID,RATemplateName,LastModBy from RentalAgreementTemplate;"
-mysqlverify "s"  "-C ra.csv"           		"RentalAgreements"	    		"select RAID,RATID,BID,AgreementStart,AgreementStop,Renewal,SpecialProvisions,LastModBy from RentalAgreement;"
+mysqlverify "s"  "-C ra.csv"           		"RentalAgreements"	    		"select RAID,RATID,BID,AgreementStart,AgreementStop,Renewal,SpecialProvisions,UnspecifiedAdults,UnspecifiedChildren,LastModBy from RentalAgreement;"
 mysqlverify "t"  "-E pets.csv"         		"Pets"	                    	"select PETID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from RentalAgreementPets;"
 mysqlverify "u"  ""           		   		"Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  " "                   		"AgreementRentables"	    	"select * from RentalAgreementRentables;"

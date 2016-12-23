@@ -1,5 +1,5 @@
-BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,Renewal,Special Provisions,RentableSpec,Notes
-CCC,2008-09-22 CCC CC&R's,9/22/08,12/31/00,,,9/22/08,12/31/00,10/1/08,"ellabond@newhaven-usa.com,,","ellabond@newhaven-usa.com,,",1,,"Unit E, 6857.01",
-CCC,2008-09-22 CCC CC&R's,9/22/08,12/31/00,,,9/22/08,12/31/00,10/1/08,"accounting@accordinterests.com,,","accounting@accordinterests.com,,",1,,"Unit A, 660.31;Unit B,3932.99;Unit C, 1533.57;Unit D, 2818.62",
-CCC,2009-12-31 CCC Parcels A & B CC&R's,1/1/10,12/31/00,,,1/1/10,12/31/00,1/1/10,"hasmik.aslaian@brightview.com,,","hasmik.aslaian@brightview.com,,",1,,"Parcel B,1023.71",
-CCC,2016-03-14 CCC Roof Maintenance Agreement,3/1/16,12/31/00,,,3/1/16,12/31/00,3/1/16,"jon.harrison@hdsupply.com,,","jon.harrison@hdsupply.com,,",1,,"Roof,1500",
+BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,UnspecifiedAdults,UnspecifiedChildren,Renewal,Special Provisions,RentableSpec,Notes
+CCC,2008-09-22 CCC CC&R's,9/22/08,12/31/00,,,9/22/08,12/31/00,10/1/08,"ellabond@newhaven-usa.com,,","ellabond@newhaven-usa.com,,",,,1,,"Unit E, 6857.01",
+CCC,2008-09-22 CCC CC&R's,9/22/08,12/31/00,,,9/22/08,12/31/00,10/1/08,"accounting@accordinterests.com,,","accounting@accordinterests.com,,",,,1,,"Unit A, 660.31;Unit B,3932.99;Unit C, 1533.57;Unit D, 2818.62",
+CCC,2009-12-31 CCC Parcels A & B CC&R's,1/1/10,12/31/00,,,1/1/10,12/31/00,1/1/10,"hasmik.aslaian@brightview.com,,","hasmik.aslaian@brightview.com,,",,,1,,"Parcel B,1023.71",
+CCC,2016-03-14 CCC Roof Maintenance Agreement,3/1/16,12/31/00,,,3/1/16,12/31/00,3/1/16,"jon.harrison@hdsupply.com,,","jon.harrison@hdsupply.com,,",,,1,,"Roof,1500",
