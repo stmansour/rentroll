@@ -349,6 +349,8 @@ func RRreportRentalAgreements(ri *CSVReporterInfo) string {
 	t.AddColumn("Rent Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Rent Cycle Epoch", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Renewal", 2, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Unspecified Adults", 6, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Unspecified Children", 6, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
 	t.AddColumn("Special Provisions", 40, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Notes", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
@@ -382,8 +384,10 @@ func RRreportRentalAgreements(ri *CSVReporterInfo) string {
 		t.Putd(-1, 8, p.RentStop)
 		t.Putd(-1, 9, p.RentCycleEpoch)
 		t.Puti(-1, 10, p.Renewal)
-		t.Puts(-1, 11, p.SpecialProvisions)
-		t.Puts(-1, 12, note)
+		t.Puti(-1, 11, p.UnspecifiedAdults)
+		t.Puti(-1, 12, p.UnspecifiedChildren)
+		t.Puts(-1, 13, p.SpecialProvisions)
+		t.Puts(-1, 14, note)
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()

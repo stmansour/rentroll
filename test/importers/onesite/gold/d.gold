@@ -1,0 +1,9 @@
+                                                         Manage                                  
+                              Rent     Proration         To                                      
+RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
+----------  -------  -------  -------  ---------  -----  ------  --------------------------------
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |    1/1/16 -   1/1/17 $  800.00
+
