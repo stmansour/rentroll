@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"rentroll/rcsv"
 	"rentroll/rlib"
 	"sort"
 	"time"
@@ -102,9 +103,9 @@ func (a int64arr) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
 
 // LedgerActivityReport generates a Table Ledger for active accounts during the supplied time range
-func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) []rlib.Table {
+func LedgerActivityReport(ri *rcsv.CSVReporterInfo) []rlib.Table {
 	var m []rlib.Table
-	// get the ids of the distinct ledgers that have been updated during d1-d2
+	// get the ids of the distinct ledgers that have been updated during &ri.D1-&ri.D2
 	// that is, only 1 occurrence of each LID
 	var t int64arr
 	rows, err := rlib.RRdb.Dbrr.Query("SELECT DISTINCT LID FROM LedgerEntry ORDER BY Dt,RAID ASC")
@@ -120,14 +121,14 @@ func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) []rlib.Table 
 	// fmt.Printf("Sorted t:  %v\n", t)
 
 	for i := 0; i < len(t); i++ {
-		lm := rlib.GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i], d1)
+		lm := rlib.GetLedgerMarkerOnOrBefore(ri.Xbiz.P.BID, t[i], &ri.D1)
 		if lm.LMID < 1 {
-			fmt.Printf("LedgerActivityReport: GLAccount %d -- no LedgerMarker on or before: %s\n", t[i], d1.Format(rlib.RRDATEFMT))
+			fmt.Printf("LedgerActivityReport: GLAccount %d -- no LedgerMarker on or before: %s\n", t[i], ri.D1.Format(rlib.RRDATEFMT))
 		} else {
 			var tbl rlib.Table
 			tbl.Init()
 			initTableColumns(&tbl)
-			reportTextProcessLedgerMarker(&tbl, xbiz, &lm, d1, d2)
+			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
 			m = append(m, tbl)
 		}
 	}
@@ -135,18 +136,18 @@ func LedgerActivityReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) []rlib.Table 
 }
 
 // LedgerReport generates a Table Ledger for the supplied Business and time range
-func LedgerReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) []rlib.Table {
+func LedgerReport(ri *rcsv.CSVReporterInfo) []rlib.Table {
 	var m []rlib.Table
-	t := rlib.GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
+	t := rlib.GetLedgerList(ri.Xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {
-		lm := rlib.GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i].LID, d1)
+		lm := rlib.GetLedgerMarkerOnOrBefore(ri.Xbiz.P.BID, t[i].LID, &ri.D1)
 		if lm.LMID < 1 {
-			fmt.Printf("LedgerReport: GLNumber %s -- no LedgerMarker on or before: %s\n", t[i].GLNumber, d1.Format(rlib.RRDATEFMT))
+			fmt.Printf("LedgerReport: GLNumber %s -- no LedgerMarker on or before: %s\n", t[i].GLNumber, ri.D1.Format(rlib.RRDATEFMT))
 		} else {
 			var tbl rlib.Table
 			tbl.Init()
 			initTableColumns(&tbl)
-			reportTextProcessLedgerMarker(&tbl, xbiz, &lm, d1, d2)
+			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
 			m = append(m, tbl)
 		}
 	}

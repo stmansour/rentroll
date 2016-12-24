@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -32,25 +33,31 @@ func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rl
 	return x, gsrRate
 }
 
-// RentRollTextReport generates a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
-func RentRollTextReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) error {
-	tbl, err := RentRollReport(xbiz, d1, d2)
-	if err == nil {
-		fmt.Print(tbl.Title)
-		fmt.Print(tbl.SprintRowText(len(tbl.Row) - 1))
-		fmt.Print(tbl.SprintLineText())
-		fmt.Print(tbl.SprintTable(rlib.TABLEOUTTEXT))
-	}
-	return err
+// RentRollTextReport prints a text-based RentRoll report for the business in xbiz and timeframe d1 to d2 to stdout
+func RentRollTextReport(ri *rcsv.CSVReporterInfo) {
+	fmt.Print(RentRollReportString(ri))
 }
 
-// RentRollReport generates a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
-func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error) {
+// RentRollReportString returns a string containin a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
+func RentRollReportString(ri *rcsv.CSVReporterInfo) string {
+	tbl, err := RentRollReport(ri)
+	if err == nil {
+		return tbl.Title + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
+	}
+	return err.Error()
+}
+
+// RentRollReport generates a text-based RentRoll report for the business in ri.Xbiz and timeframe d1 to d2.
+func RentRollReport(ri *rcsv.CSVReporterInfo) (rlib.Table, error) {
 	funcname := "RentRollReport"
+	var d1, d2 *time.Time
 	var tbl rlib.Table
+	d1 = &ri.D1
+	d2 = &ri.D2
+
 	custom := "Square Feet"
 	var noerr error
-	bu, err := rlib.GetBusinessUnitByDesignation(xbiz.P.Designation)
+	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
 		return tbl, e
@@ -123,7 +130,7 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 	)
 
 	// loop through the Rentables...
-	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
@@ -138,9 +145,9 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 		payornames := ""     // this will be the list of Payors
 		rentCycle := ""
 
-		if len(xbiz.RT[rtid].CA) > 0 { // if there are custom attributes
-			c, ok := xbiz.RT[rtid].CA[custom] // see if Square Feet is among them
-			if ok {                           // if it is...
+		if len(ri.Xbiz.RT[rtid].CA) > 0 { // if there are custom attributes
+			c, ok := ri.Xbiz.RT[rtid].CA[custom] // see if Square Feet is among them
+			if ok {                              // if it is...
 				sqft, _ = rlib.IntFromString(c.Value, "invalid sqft of custom attribute")
 			}
 		}
@@ -155,7 +162,7 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 		// if len(rra) == 0 {                                  // if there are none...
 		// 	tbl.AddRow() // puts to row -1 will go to the newly added row
 		// 	tbl.Puts(-1, RName, "vacant")
-		// 	tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
+		// 	tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)
 		// 	tbl.Puti(-1, RTSqFt, sqft)
 		// }
 
@@ -174,10 +181,10 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			// Get the rent cycle.  If there's an override in the RentableTypeRef, use the override. Otherwise the
 			// rent cycle comes from the RentableType.
 			//-------------------------------------------------------------------------------------------------------
-			rcl := rlib.GetRentCycleRefList(&p, d1, d2, xbiz) // this sets r.RT to the RentableTypeRef list for d1-d2
-			cycleval := rcl[len(rcl)-1].RentCycle             // save for proration use below
-			prorateval := rcl[len(rcl)-1].ProrationCycle      // save for proration use below
-			rentCycle = rlib.RentalPeriodToString(cycleval)   // use the rentCycle for the last day of the month
+			rcl := rlib.GetRentCycleRefList(&p, d1, d2, ri.Xbiz) // this sets r.RT to the RentableTypeRef list for d1-d2
+			cycleval := rcl[len(rcl)-1].RentCycle                // save for proration use below
+			prorateval := rcl[len(rcl)-1].ProrationCycle         // save for proration use below
+			rentCycle = rlib.RentalPeriodToString(cycleval)      // use the rentCycle for the last day of the month
 
 			//-------------------------------------------------------------------------------------------------------
 			// Adjust the period as needed.  The request is to cover d1 - d2.  We start by setting dtstart and dtstop
@@ -192,7 +199,7 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			if ra.RentStop.Before(dtstop) {
 				dtstop = ra.RentStop
 			}
-			gsr, gsrRate := ComputeGSRandGSRRate(&p, &dtstart, &dtstop, xbiz)
+			gsr, gsrRate := ComputeGSRandGSRRate(&p, &dtstart, &dtstop, ri.Xbiz)
 
 			//-------------------------------------------------------------------------------------------------------
 			// Get the contract rent
@@ -224,23 +231,23 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			// Determine the LID of "Income Offsets" and "Other Income" accounts...
 			//-------------------------------------------------------------------------------------------------------
 			icos := float64(0)
-			incOffsetAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, IncomeOffsetGLAccountName)
+			incOffsetAcct := rlib.GetLIDFromGLAccountName(ri.Xbiz.P.BID, IncomeOffsetGLAccountName)
 			if incOffsetAcct == 0 {
 				rlib.Ulog("RentRollTextReport: WARNING. IncomeOffsetGLAccountName = %q was not found in the GLAccounts\n", IncomeOffsetGLAccountName)
 			}
 			if incOffsetAcct > 0 {
-				icosd1 := rlib.GetRAAccountBalance(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstart)
-				icosd2 := rlib.GetRAAccountBalance(xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
+				icosd1 := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstart)
+				icosd2 := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, incOffsetAcct, ra.RAID, &dtstop)
 				icos = icosd2 - icosd1
 			}
 			oic := float64(0)
-			otherIncomeAcct := rlib.GetLIDFromGLAccountName(xbiz.P.BID, OtherIncomeGLAccountName)
+			otherIncomeAcct := rlib.GetLIDFromGLAccountName(ri.Xbiz.P.BID, OtherIncomeGLAccountName)
 			if otherIncomeAcct == 0 {
 				rlib.Ulog("RentRollTextReport: WARNING. OtherIncomeGLAccountName = %q was not found in the GLAccounts\n", OtherIncomeGLAccountName)
 			}
 			if otherIncomeAcct > 0 {
-				oicd1 := rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstart)
-				oicd2 := rlib.GetRAAccountBalance(xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
+				oicd1 := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstart)
+				oicd2 := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, otherIncomeAcct, ra.RAID, &dtstop)
 				oic = oicd1 - oicd2 // I know this looks backwards. But in the report we want this number to show up as positive (normally), so we want -1 * (oicd2-oicd1)
 			}
 
@@ -266,14 +273,14 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			//-------------------------------------------------------------------------------------------------------
 			// Compute account balances...   begin, delta, and end for  RAbalance and Security Deposit
 			//-------------------------------------------------------------------------------------------------------
-			raStartBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d1)
-			raEndBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d2)
-			secdepStartBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d1)
-			secdepEndBal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d2)
+			raStartBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d1)
+			raEndBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d2)
+			secdepStartBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d1)
+			secdepEndBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d2)
 
 			tbl.AddRow()
 			tbl.Puts(-1, RName, p.Name)
-			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
+			tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)
 			tbl.Puti(-1, RTSqFt, sqft)
 			tbl.Puts(-1, RUsers, usernames)
 			tbl.Puts(-1, RPayors, payornames)
@@ -303,17 +310,17 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 		//-------------------------------------------------------------------------------------------------------
 		// All rental agreements have been process.  Look for vacancies
 		//-------------------------------------------------------------------------------------------------------
-		v := rlib.VacancyDetect(xbiz, d1, d2, &p)
+		v := rlib.VacancyDetect(ri.Xbiz, d1, d2, &p)
 		for i := 0; i < len(v); i++ {
-			gsr, gsrRate := ComputeGSRandGSRRate(&p, &v[i].DtStart, &v[i].DtStop, xbiz)
+			gsr, gsrRate := ComputeGSRandGSRRate(&p, &v[i].DtStart, &v[i].DtStop, ri.Xbiz)
 
 			icos := float64(0)
 			incOffsetAcct := rlib.GetLIDFromGLAccountName(p.BID, IncomeOffsetGLAccountName)
 			if incOffsetAcct == 0 {
 				rlib.Ulog("RentRollTextReport: WARNING. IncomeOffsetGLAccountName = %q was not found in the GLAccounts\n", IncomeOffsetGLAccountName)
 			} else {
-				icosd1 := rlib.GetRentableAccountBalance(xbiz.P.BID, incOffsetAcct, p.RID, d1)
-				icosd2 := rlib.GetRentableAccountBalance(xbiz.P.BID, incOffsetAcct, p.RID, d2)
+				icosd1 := rlib.GetRentableAccountBalance(ri.Xbiz.P.BID, incOffsetAcct, p.RID, d1)
+				icosd2 := rlib.GetRentableAccountBalance(ri.Xbiz.P.BID, incOffsetAcct, p.RID, d2)
 				icos = icosd2 - icosd1
 			}
 
@@ -321,7 +328,7 @@ func RentRollReport(xbiz *rlib.XBusiness, d1, d2 *time.Time) (rlib.Table, error)
 			lastRStat := m[len(m)-1].Status
 			tbl.AddRow()
 			tbl.Puts(-1, RName, p.Name)
-			tbl.Puts(-1, RType, xbiz.RT[rtid].Style)
+			tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)
 			tbl.Puti(-1, RTSqFt, sqft)
 			tbl.Puts(-1, RUsers, rlib.RentableStatusToString(lastRStat))
 			tbl.Puts(-1, RPayors, "vacant")

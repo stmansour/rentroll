@@ -32,30 +32,6 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 	}
 }
 
-// {"Assessments", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Business", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Chart Of Accounts", "coa.html", CmdSimpleReport, RRPHrpt},
-// {"Custom Attributes", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Custom Attribute Refs", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Deposit Methods", "dpm.html", CmdSimpleReport, RRPHrpt},
-// {"Depositories", "dep.html", CmdSimpleReport, RRPHrpt},
-// {"Delinquency", "rptdelinq.html", RptDelinq, RRPHrpt},
-// {"GSR", "rptgsr.html", RptGSR, RRPHrpt},
-// {"Journal", "rptjournal.html", RptJournal, RRPHrpt},
-// {"Ledger", "rptledger.html", RptLedger, RRPHrpt},
-// {"Ledger Activity", "rptledgeract.html", RptLedgerActivity, RRPHrpt},
-// {"People", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Payment Types", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Receipts", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Rentable Count By Type", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Rentables", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Rental Agreements", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Rental Agreement Templates", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Rentable Types", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"RentRolls", "rptrentroll.html", RptRentRoll, RRPHrpt},
-// {"Statements", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"String Lists", "rt.html", CmdSimpleReport, RRPHrpt},
-// {"Trial Balance", "rpttrialbal.html", RptTrialBalance, RRPHrpt},
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	fmt.Printf("websvcReportHandler: prefix=%s, BID=%d,  d1 = %s, d2 = %s\n", prefix, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 	var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz}
@@ -90,8 +66,26 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		}
 		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
 	case "j":
+		rlib.InitBizInternals(ri.Bid, xbiz)
 		t := rrpt.JournalReport(&ri)
 		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
+	case "l", "la":
+		if xbiz.P.BID > 0 {
+			var m []rlib.Table
+			rlib.InitBizInternals(ri.Bid, xbiz)
+			s := ""
+			switch prefix {
+			case "l": // all ledgers
+				m = rrpt.LedgerReport(&ri)
+			case "la": // ledger activity
+				m = rrpt.LedgerActivityReport(&ri)
+			}
+			for i := 0; i < len(m); i++ {
+				s += m[i].Title + m[i].SprintTable(rlib.TABLEOUTTEXT) + "\n\n"
+			}
+			return s
+		}
+
 	case "pmt", "payment types":
 		return rcsv.RRreportPaymentTypes(&ri)
 	case "r", "rentables":
@@ -102,6 +96,9 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportRentalAgreementTemplates(&ri)
 	case "rcpt", "receipts":
 		return rcsv.RRreportReceipts(&ri)
+	case "rr":
+		rlib.InitBizInternals(ri.Bid, xbiz)
+		return rrpt.RentRollReportString(&ri)
 	case "rt", "rentable types":
 		return rcsv.RRreportRentableTypes(&ri)
 	case "rcbt", "rentable Count By Type":
@@ -110,8 +107,10 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportStringLists(&ri)
 	case "statements":
 		return rrpt.RptStatementTextReport(xbiz, &ri.D1, &ri.D2)
-	case "t", "people":
+	case "t", "people": // t = transactant
 		return rcsv.RRreportPeople(&ri)
+	case "tb":
+		return rrpt.PrintLedgerBalanceReportString(&ri)
 	}
 	return "unhandled loader type: " + prefix
 }
@@ -193,6 +192,5 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
-	fmt.Printf("ReportContent = \n%s\n", ui.ReportContent)
 	SendWebSvcPage(w, r, &ui)
 }

@@ -200,24 +200,22 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 
 // RunCommandLine runs a series of commands to handle command line run requests
 func RunCommandLine(ctx *DispatchCtx) {
-	var err error
-
 	rlib.InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
 	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
+	var ri rcsv.CSVReporterInfo
+	ri.Xbiz = &ctx.xbiz
+	ri.D1 = ctx.DtStart
+	ri.D2 = ctx.DtStop
 
 	switch ctx.Report {
 	case 1: // JOURNAL
 		// JournalReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-		var ri rcsv.CSVReporterInfo
-		ri.Xbiz = &ctx.xbiz
-		ri.D1 = ctx.DtStart
-		ri.D2 = ctx.DtStop
 		tbl := rrpt.JournalReport(&ri)
 		fmt.Print(tbl)
 
 	case 2: // LEDGER
 		// LedgerReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-		m := rrpt.LedgerReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		m := rrpt.LedgerReport(&ri)
 		for i := 0; i < len(m); i++ {
 			fmt.Print(m[i])
 			fmt.Printf("\n\n")
@@ -225,10 +223,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 	case 3: // INTERNAL ACCT RULE TEST
 		intTest(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 4: // RENTROLL REPORT
-		err = rrpt.RentRollTextReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-		if err != nil {
-			fmt.Printf("RentRoll text report error: %s\n", err.Error())
-		}
+		rrpt.RentRollTextReport(&ri)
 	case 5: // ASSESSMENT CHECK REPORT
 		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 6: // available
@@ -247,17 +242,12 @@ func RunCommandLine(ctx *DispatchCtx) {
 		invoiceno := rcsv.CSVLoaderGetInvoiceNo(sa[1])
 		rrpt.InvoiceTextReport(invoiceno)
 	case 10: // LEDGER ACTIVITY
-		// LedgerActivityReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-		m := rrpt.LedgerActivityReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		m := rrpt.LedgerActivityReport(&ri)
 		for i := 0; i < len(m); i++ {
 			fmt.Print(m[i])
 			fmt.Printf("\n\n")
 		}
 	case 11: // RENTABLE GSR
-		var ri rcsv.CSVReporterInfo
-		ri.Xbiz = &ctx.xbiz
-		ri.D1 = ctx.DtStart
-		ri.D2 = ctx.DtStop
 		rrpt.GSRTextReport(&ri)
 	case 12: // LEDGERBALANCE ON DATE
 		// ctx.Report format:  12,LID,RAID,date
@@ -297,8 +287,6 @@ func RunCommandLine(ctx *DispatchCtx) {
 			fmt.Printf("Bad date string: %s\n", sa[1])
 			os.Exit(1)
 		}
-		var ri rcsv.CSVReporterInfo
-		ri.Xbiz = &ctx.xbiz
 		ri.D2 = dt
 		err = rrpt.DelinquencyTextReport(&ri)
 		if err != nil {
@@ -309,7 +297,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 	case 16: // Process LedgerMarkers Only
 		rlib.GenerateLedgerMarkers(&ctx.xbiz, &ctx.DtStop)
 	case 17: // LEDGER BALANCE REPORT
-		rrpt.PrintLedgerBalanceReport(&ctx.xbiz, &ctx.DtStop)
+		rrpt.PrintLedgerBalanceReport(&ri)
 	case 18: // Process Journal Entries only
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 	case 19: // process Ledgers

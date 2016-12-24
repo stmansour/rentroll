@@ -2,13 +2,13 @@ package rrpt
 
 import (
 	"fmt"
+	"rentroll/rcsv"
 	"rentroll/rlib"
-	"time"
 )
 
 // LedgerBalanceReport builds a table of trial balance information
-func LedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) rlib.Table {
-	bid := xbiz.P.BID
+func LedgerBalanceReport(ri *rcsv.CSVReporterInfo) rlib.Table {
+	bid := ri.Xbiz.P.BID
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("LID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -25,9 +25,9 @@ func LedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) rlib.Table {
 			tbl.Puts(-1, 1, acct.GLNumber)
 			tbl.Puts(-1, 2, acct.Name)
 			if rlib.RRdb.BizTypes[bid].GLAccounts[i].AllowPost != 0 {
-				tbl.Putf(-1, 4, rlib.GetAccountBalance(bid, acct.LID, dt))
+				tbl.Putf(-1, 4, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
 			} else {
-				tbl.Putf(-1, 3, rlib.GetAccountBalance(bid, acct.LID, dt))
+				tbl.Putf(-1, 3, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
 			}
 		}
 	}
@@ -39,9 +39,14 @@ func LedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) rlib.Table {
 
 //PrintLedgerBalanceReport prints a report of data that will be used to format a ledger UI.
 // This routine is primarily for testing
-func PrintLedgerBalanceReport(xbiz *rlib.XBusiness, dt *time.Time) {
-	fmt.Printf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", xbiz.P.Name, dt.Format("January 2, 2006"))
-	tbl := LedgerBalanceReport(xbiz, dt)
+func PrintLedgerBalanceReport(ri *rcsv.CSVReporterInfo) {
+	fmt.Print(PrintLedgerBalanceReportString(ri))
+}
+
+//PrintLedgerBalanceReportString returns a string showing the balance of all ledgers as of ri.D2
+func PrintLedgerBalanceReportString(ri *rcsv.CSVReporterInfo) string {
+	s := fmt.Sprintf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ri.Xbiz.P.Name, ri.D2.Format("January 2, 2006"))
+	tbl := LedgerBalanceReport(ri)
 	tbl.TightenColumns()
-	fmt.Print(tbl.SprintTable(rlib.TABLEOUTTEXT))
+	return s + tbl.SprintTable(rlib.TABLEOUTTEXT)
 }
