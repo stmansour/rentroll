@@ -208,7 +208,11 @@ func RunCommandLine(ctx *DispatchCtx) {
 	switch ctx.Report {
 	case 1: // JOURNAL
 		// JournalReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-		tbl := rrpt.JournalReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		var ri rcsv.CSVReporterInfo
+		ri.Xbiz = &ctx.xbiz
+		ri.D1 = ctx.DtStart
+		ri.D2 = ctx.DtStop
+		tbl := rrpt.JournalReport(&ri)
 		fmt.Print(tbl)
 
 	case 2: // LEDGER
@@ -250,7 +254,11 @@ func RunCommandLine(ctx *DispatchCtx) {
 			fmt.Printf("\n\n")
 		}
 	case 11: // RENTABLE GSR
-		rrpt.GSRTextReport(&ctx.xbiz, &ctx.DtStart)
+		var ri rcsv.CSVReporterInfo
+		ri.Xbiz = &ctx.xbiz
+		ri.D1 = ctx.DtStart
+		ri.D2 = ctx.DtStop
+		rrpt.GSRTextReport(&ri)
 	case 12: // LEDGERBALANCE ON DATE
 		// ctx.Report format:  12,LID,RAID,date
 		sa := strings.Split(ctx.Args, ",")
@@ -289,7 +297,10 @@ func RunCommandLine(ctx *DispatchCtx) {
 			fmt.Printf("Bad date string: %s\n", sa[1])
 			os.Exit(1)
 		}
-		err = rrpt.DelinquencyTextReport(&ctx.xbiz, &dt)
+		var ri rcsv.CSVReporterInfo
+		ri.Xbiz = &ctx.xbiz
+		ri.D2 = dt
+		err = rrpt.DelinquencyTextReport(&ri)
 		if err != nil {
 			fmt.Printf("Delinquency text report error: %s\n", err.Error())
 		}

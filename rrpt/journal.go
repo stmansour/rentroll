@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -234,7 +235,7 @@ func textReportJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 }
 
 // JournalReport returns a Journal report in an rlib.Table for the supplied Business and time range
-func JournalReport(xbiz *rlib.XBusiness, reportDtStart, reportDtStop *time.Time) rlib.Table {
+func JournalReport(ri *rcsv.CSVReporterInfo) rlib.Table {
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("Journal ID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // 0
@@ -245,9 +246,9 @@ func JournalReport(xbiz *rlib.XBusiness, reportDtStart, reportDtStop *time.Time)
 	tbl.AddColumn("GLAccount", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)    // 5
 	tbl.AddColumn("Amount", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)      // 6
 
-	jctx := jprintctx{*reportDtStart, *reportDtStop}
-	setTitle(&tbl, xbiz, reportDtStart, reportDtStop)
-	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(xbiz.P.BID, reportDtStart, reportDtStop)
+	jctx := jprintctx{ri.D1, ri.D2}
+	setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
+	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -255,7 +256,7 @@ func JournalReport(xbiz *rlib.XBusiness, reportDtStart, reportDtStop *time.Time)
 		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
 		// fmt.Printf("JournalReportText: JID = %d\n", j.JID)
 		rlib.GetJournalAllocations(j.JID, &j)
-		textReportJournalEntry(&tbl, xbiz, &j, &jctx)
+		textReportJournalEntry(&tbl, ri.Xbiz, &j, &jctx)
 	}
 	rlib.Errcheck(rows.Err())
 	return tbl

@@ -45,6 +45,7 @@ type CSVReporterInfo struct {
 	NeedsRAID    bool      // true if RAID is needed for this report
 	NeedsDt      bool      // true if a Date is needed for this report
 	Handler      func(*CSVReporterInfo) string
+	Xbiz         *rlib.XBusiness // may not be set in all cases
 }
 
 // LoadRentRollCSV performs a general purpose load.  It opens the supplied file name, and processes

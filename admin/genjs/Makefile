@@ -16,7 +16,6 @@ man:
 	cp genjs.1 /usr/local/share/man/man1
 
 package:
-	cp genjs ../../tmp/rentroll/genjs
-	../../tmp/rentroll/genjs > ../../js/lists.js
+	./genjs > ../../js/lists.js
 	# cp genjs.1 ../../tmp/rentroll/man/man1
 	@echo "*** PACKAGE completed in genjs ***"

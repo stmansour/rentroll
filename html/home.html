@@ -52,9 +52,9 @@ var config = {
         panels: [
             { type: 'top', hidden: true, size: 60, resizable: true, style: pstyle2, content: '<p align="center">**** Accord NEWS FLASH ****</p>'},
             { type: 'left', size: 200, style: pstyle2, resizable: true, content: 'sidebar' },
-            { type: 'main',  size: 100, style: pstyle2, content: 'toplayout - main' },
+            { type: 'main',  size: 100, style: pstyle2 },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle2, content: 'preview' },
-            { type: 'right', size: 200, resizable: true, style: pstyle2, content: 'detail' },
+            { type: 'right', size: 200, resizable: true, style: pstyle2, hidden: true },
             { type: 'bottom', size: 20, resizable: true, style: pstyle2, hidden: true, content: 'toplayout - bottom' }
         ]
     },
@@ -84,6 +84,13 @@ var config = {
                 { text: 'RentRoll',           icon: 'fa fa-building-o' }, 
                 { text: 'Forms & Procedures', icon: 'fa fa-book' }, 
             ]},
+             { type: 'html',  id: 'BUD',
+                html: //'<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">'+
+                    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-building-o"></i> &nbsp;' + sBusinessUnit +
+                    ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
+                    '{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}'+
+                    '</select>&nbsp;&nbsp;&nbsp;' //+ '</div>'
+            },
             { type: 'break', id: 'break2' },
             { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
                 { text: 'Messages', icon: 'fa fa-folder-o' }, 
@@ -99,7 +106,7 @@ var config = {
             console.log('target = ' + event.target)
             switch(event.target) {
                 case "moduleMenu:Directory":      window.location.href = 'https://directory.airoller.com/'; break;
-                case "moduleMenu:RentRoll":       window.location.href = 'https://rentroll.airoller.com/';  break;
+                case "moduleMenu:RentRoll":       window.location.href = '/';                               break;
                 case "menuButton:Messages":       w2ui['toplayout'].toggle('top',true);                     break;
                 case "menuButton:Sidebar":        w2ui['toplayout'].toggle('left',true);                    break;
                 case "menuButton:mainLayoutMain": w2ui['mainlayout'].toggle('main',true);                   break;
@@ -112,10 +119,10 @@ var config = {
     },
     sidebarL1: {
         name: 'sidebarL1',
-        topHTML:  '<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">&nbsp;&nbsp;&nbsp;'+
-                    '<i class="fa fa-building-o"></i> &nbsp;' + sBusinessUnit + ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
-                    '{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}'+
-                    '</select>&nbsp;&nbsp;&nbsp;</div>',
+        // topHTML:  '<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">&nbsp;&nbsp;&nbsp;'+
+        //             '<i class="fa fa-building-o"></i> &nbsp;' + sBusinessUnit + ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
+        //             '{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}'+
+        //             '</select>&nbsp;&nbsp;&nbsp;</div>',
         //flatButton: true,
         nodes: [
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
@@ -135,19 +142,19 @@ var config = {
                        { id: 'coa', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
                        { id: 'dpm', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
                        { id: 'dep', text: 'Depositories', icon: 'fa fa-file-text-o' },
-                       { id: 'delinquency', text: 'Delinquency', icon: 'fa fa-file-text-o' },
+                       { id: 'delinq', text: 'Delinquency', icon: 'fa fa-file-text-o' },
                        { id: 'gsr', text: 'GSR', icon: 'fa fa-file-text-o' },
-                       { id: 'journal', text: 'Journal', icon: 'fa fa-file-text-o' },
+                       { id: 'j', text: 'Journal', icon: 'fa fa-file-text-o' },
                        { id: 'ledger', text: 'Ledger', icon: 'fa fa-file-text-o' },
                        { id: 'ledgerActivity', text: 'Ledger Activity', icon: 'fa fa-file-text-o' },
                        { id: 'people', text: 'People', icon: 'fa fa-file-text-o' },
                        { id: 'pmt', text: 'Payment Types', icon: 'fa fa-file-text-o' },
                        { id: 'receipts', text: 'Receipts', icon: 'fa fa-file-text-o' },
-                       { id: 'countByRentable Type', text: 'Count By Rentable Type', icon: 'fa fa-file-text-o' },
-                       { id: 'rentablesReport', text: plural(sRentable), icon: 'fa fa-file-text-o' },
-                       { id: 'rentalAgreements', text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
-                       { id: 'rentalAgreementTemplates', text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
-                       { id: 'rentableTypes', text: 'Rentable Types', icon: 'fa fa-file-text-o' },
+                       { id: 'rcbt', text: 'Count By Rentable Type', icon: 'fa fa-file-text-o' },
+                       { id: 'r', text: plural(sRentable), icon: 'fa fa-file-text-o' },
+                       { id: 'ra', text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
+                       { id: 'rat', text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
+                       { id: 'rt', text: 'Rentable Types', icon: 'fa fa-file-text-o' },
                        { id: 'rentrolls', text: 'RentRolls', icon: 'fa fa-file-text-o' },
                        { id: 'statements', text: 'Statements', icon: 'fa fa-file-text-o' },
                        { id: 'string Lists', text: 'String Lists', icon: 'fa fa-file-text-o' },
@@ -160,10 +167,8 @@ var config = {
             },
         ],
         onExpand: function(event) {
-            
             var x = getCurrentBusiness();
-            console.log('current biz = ' + x.value + '  name = ' + x.name );
-
+            //console.log('current biz = ' + x.value + '  name = ' + x.name );
             switch (event.target) {
                 case 'reports':
                     var w = w2ui['reportslayout']
@@ -185,12 +190,26 @@ var config = {
                 case 'transactants':
                     switchToGrid(event.target);
                     break;
+                case 'asm':
                 case 'b':
                 case 'coa':
+                case 'delinq':
                 case 'dep':
                 case 'dpm':
+                case 'gsr':
+                case 'j':
+                case 'pmt':
+                case 'r':
+                case 'ra':
+                case 'rat':
+                case 'rcbt':  // rentable count by type
+                case 'rcpt':
+                case 'rt':
+                case 'sl':
+                case 'statements':
+                case 'people':
                     showReport(event.target)
-                     break;
+                    break;
 
                 default:
                     console.log('unhandled event: ' + event.target)
@@ -521,6 +540,7 @@ function getCurrentBusiness() {
     var x = document.getElementsByName("BusinessSelect");
     return x[0];
 }
+
 // urlPrefix returns the standard for values for the web services
 // url ending:  <userid>/<business id>
 function urlSuffix() {
@@ -530,9 +550,6 @@ function urlSuffix() {
 
 // ChangeBusiness updates the UI to the newly selected business
 function ChangeBusiness() {
-    var x = getCurrentBusiness();
-    console.log('current biz = ' + x.value + '  name = ' + x.name );
-    var cb = x.value
     w2ui['toplayout'].content('main', ' ');
     w2ui['toplayout'].hide('right',true);
     s = w2ui['sidebarL1'];
@@ -540,13 +557,10 @@ function ChangeBusiness() {
     if (sel != null) { 
         s.unselect(sel);
     }
-    // s.collapse('reports');
-    // s.collapse('admin');
-
-    y = getCurrentBusiness();
-    console.log('completed.  current business = ' + y.value + '   name = ' + y.name );
-    // y.value = cb;
-
+    w2ui['reportslayout'].url = ''
+    
+    s.collapse('reports');
+    s.collapse('admin');
 }
 
 function switchToGrid(svc) {

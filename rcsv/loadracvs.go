@@ -269,9 +269,9 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//-----------------------------------------------
 	// Validate that we have at least one payor...
 	//-----------------------------------------------
-	// if len(payors) == 0 {
-	// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d - There are no valid Payors for this Rental Agreement.\n", funcname, lineno)
-	// }
+	if len(payors) == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - There are no valid Payors for this Rental Agreement.\n", funcname, lineno)
+	}
 
 	//------------------------------------
 	// Write the rental agreement record
