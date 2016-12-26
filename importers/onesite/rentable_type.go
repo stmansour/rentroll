@@ -2,6 +2,7 @@ package onesite
 
 import (
 	"encoding/csv"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -89,9 +90,11 @@ func WriteRentableTypeCSVData(
 	}
 	customAttributesRefData[checkRentableTypeStyle] = tempCard
 
-	currentYear, _, _ := currentTime.Date()
-	DtStart := "1/1/" + strconv.Itoa(currentYear)
-	DtStop := "1/1/" + strconv.Itoa(currentYear+1)
+	currentYear, currentMonth, currentDate := currentTime.Date()
+	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
+	DtStop := "12/31/9999" // no end date
+	// DtStart := "1/1/" + strconv.Itoa(currentYear)
+	// DtStop := "1/1/" + strconv.Itoa(currentYear+1)
 	// DtStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentTime.Location())
 	// DtStop := time.Date(currentYear+1, 1, 1, 0, 0, 0, 0, currentTime.Location())
 
