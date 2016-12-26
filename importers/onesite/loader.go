@@ -11,6 +11,7 @@ import (
 	"path"
 	"rentroll/rcsv"
 	"rentroll/rlib"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -395,8 +396,17 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	// =======================================
 	// INSERT CUSTOM ATTRIBUTE REF
 	// =======================================
-	for _, refData := range customAttributesRefData {
+
+	// always sort keys
+	var customAttributesRefDataKeys []string
+	for k := range customAttributesRefData {
+		customAttributesRefDataKeys = append(customAttributesRefDataKeys, k)
+	}
+	customAttributesRefDataKeys = sort.StringSlice(customAttributesRefDataKeys)
+
+	for _, key := range customAttributesRefDataKeys {
 		// find rentableType
+		refData := customAttributesRefData[key]
 		rt, err := rlib.GetRentableTypeByStyle(refData.Style, refData.BID)
 		if err != nil {
 			errorList = append(errorList, err)
