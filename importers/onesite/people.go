@@ -7,6 +7,7 @@ import (
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"strings"
 )
 
 // CreatePeopleCSV create people csv temporarily
@@ -115,6 +116,22 @@ func GetPeopleCSVRow(
 		suppliedValue, found := DefaultValues[peopleField.Name]
 		if found {
 			dataMap[i] = suppliedValue
+		}
+
+		// =========================================================
+		// this condition has been put here because it's mapping field does not exist
+		// =========================================================
+		if peopleField.Name == "FirstName" {
+			nameSlice := strings.Split(oneSiteRow.Name, ",")
+			dataMap[i] = strings.TrimSpace(nameSlice[0])
+		}
+		if peopleField.Name == "LastName" {
+			nameSlice := strings.Split(oneSiteRow.Name, ",")
+			if len(nameSlice) > 1 {
+				dataMap[i] = strings.TrimSpace(nameSlice[1])
+			} else {
+				dataMap[i] = ""
+			}
 		}
 
 		// get mapping field
