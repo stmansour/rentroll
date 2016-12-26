@@ -402,7 +402,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	for k := range customAttributesRefData {
 		customAttributesRefDataKeys = append(customAttributesRefDataKeys, k)
 	}
-	customAttributesRefDataKeys = sort.StringSlice(customAttributesRefDataKeys)
+	sort.Strings(customAttributesRefDataKeys)
 
 	for _, key := range customAttributesRefDataKeys {
 		// find rentableType
