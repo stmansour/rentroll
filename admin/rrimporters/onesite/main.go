@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"phonebook/lib"
 	"rentroll/importers/onesite"
 	"rentroll/rlib"
 
@@ -13,11 +15,12 @@ import (
 
 // App is the global application structure
 var App struct {
-	dbdir  *sql.DB // phonebook db
-	dbrr   *sql.DB //rentroll db
-	DBDir  string  // phonebook database
-	DBRR   string  //rentroll database
-	DBUser string  // user for all databases
+	dbdir   *sql.DB  // phonebook db
+	dbrr    *sql.DB  //rentroll db
+	DBDir   string   // phonebook database
+	DBRR    string   //rentroll database
+	DBUser  string   // user for all databases
+	LogFile *os.File // where to log messages
 }
 
 var userSuppliedValues = make(map[string]string)
@@ -128,6 +131,16 @@ func readCommandLineArgs() (bool, []string) {
 }
 
 func main() {
+	var err error
+
+	// setup log file
+	App.LogFile, err = os.OpenFile("onesite.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	lib.Errcheck(err)
+	defer App.LogFile.Close()
+	log.SetOutput(App.LogFile)
+	rlib.Ulog("IMPORTERS started\n")
+
 	// read command line argument first
 	ok, inputErrors := readCommandLineArgs()
 	if !ok {
@@ -137,7 +150,6 @@ func main() {
 
 	// db initialization
 	rlib.RRReadConfig()
-	var err error
 
 	//----------------------------
 	// Open RentRoll database

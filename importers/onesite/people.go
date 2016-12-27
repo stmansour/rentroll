@@ -2,11 +2,11 @@ package onesite
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -29,7 +29,7 @@ func CreatePeopleCSV(
 	// try to create file and return with error if occurs any
 	peopleCSVFile, err := os.Create(peopleCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <PEOPLE CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -40,7 +40,7 @@ func CreatePeopleCSV(
 	peopleCSVHeaders := []string{}
 	peopleCSVHeaders, ok := core.GetStructFields(peopleCSVStruct)
 	if !ok {
-		log.Println("Unable to get struct fields for peopleCSV")
+		rlib.Ulog("Error <PEOPLE CSV>: Unable to get struct fields for peopleCSV\n")
 		return nil, nil, done
 	}
 

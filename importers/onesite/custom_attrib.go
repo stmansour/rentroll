@@ -2,11 +2,11 @@ package onesite
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"rentroll/rlib"
 )
 
 // =========
@@ -45,7 +45,7 @@ func CreateCustomAttibutesCSV(
 	// try to create file and return with error if occurs any
 	customAttributeCSVFile, err := os.Create(customAttributeCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <CUSTOM ATTRIBUTES CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -56,7 +56,7 @@ func CreateCustomAttibutesCSV(
 	customAttributeCSVHeaders := []string{}
 	customAttributeCSVHeaders, ok := core.GetStructFields(customAttributeStruct)
 	if !ok {
-		log.Println("Unable to get struct fields for customAttributeCSV")
+		rlib.Ulog("Error <CUSTOM ATTRIBUTES CSV>: Unable to get struct fields for customAttributeCSV\n")
 		return nil, nil, done
 	}
 

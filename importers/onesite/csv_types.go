@@ -121,7 +121,7 @@ func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
 	return rowLoaded, csvRow.Elem().Interface().(CSVRow)
 }
 
-// ValidateCSVField validates csv field of onesite
+// ValidateOneSiteCSVRow validates csv field of onesite
 // Dont perform validation while loading data in CSVRow struct
 // (in LoadOneSiteCSVRow function as it decides when to stop parsing)
 func ValidateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {

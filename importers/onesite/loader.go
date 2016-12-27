@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"github.com/kardianos/osext"
 	"io/ioutil"
-	// "log"
-	"errors"
 	"os"
 	"path"
+	"rentroll/importers/core"
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"sort"
@@ -21,14 +20,13 @@ import (
 var SplittedCSVStore string
 
 // Init configure required settings
-func Init() {
+func Init() error {
 	// #############
 	// CSV STORE CHECK
 	// #############
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
-		// log.Fatal(err)
-		panic("Unable to get current filename")
+		return err
 	}
 
 	// get path of splitted csv store
@@ -38,7 +36,7 @@ func Init() {
 	if _, err := os.Stat(SplittedCSVStore); os.IsNotExist(err) {
 		os.MkdirAll(SplittedCSVStore, 0700)
 	}
-
+	return err
 }
 
 // GetOneSiteMapping reads json file and loads
@@ -47,8 +45,7 @@ func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
-		// log.Fatal(err)
-		panic("Unable to get current filename")
+		return err
 	}
 
 	// read json file which contains mapping of onesite fields
@@ -56,26 +53,25 @@ func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
 	fieldmap, err := ioutil.ReadFile(mapperFilePath)
 	if err != nil {
-		// fmt.Errorf("File error: %v\n", err)
-		panic(err)
-		// return err
-		// ???
+		return err
 	}
 	err = json.Unmarshal(fieldmap, OneSiteFieldMap)
 	if err != nil {
-		// fmt.Errorf("%s", err)
-		panic(err)
+		return err
 	}
+
 	return err
 }
 
 // LoadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
+func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 
-	// var errors and msg to return
-	var errorList []error
-	var msg string
+	// vars
+	var (
+		errorList []error
+		csvErrors []error
+	)
 
 	// funcname
 	funcname := "LoadOneSiteCSV"
@@ -86,9 +82,9 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	var BUD = userSuppliedValues["BUD"]
 	var business = rlib.GetBusinessByDesignation(BUD)
 	if business.BID == 0 {
-		e := errors.New("Supplied Business Unit Designation does not exists")
-		errorList = append(errorList, e)
-		return errorList, "BUD does not exists"
+		errorList = append(errorList,
+			fmt.Errorf("Supplied Business Unit Designation does not exists"))
+		return errorList, csvErrors
 	}
 
 	// get current timestamp used for creating csv files unique way
@@ -118,9 +114,9 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	var OneSiteFieldMap CSVFieldMap
 	err := GetOneSiteMapping(&OneSiteFieldMap)
 	if err != nil {
-		errorList = append(errorList, err)
-		msg = "Error while getting onesite field mapping"
-		return errorList, msg
+		errorList = append(errorList, core.ErrInternal)
+		rlib.Ulog("Error <ONESITE FIELD MAPPING>: %s\n", err.Error())
+		return errorList, csvErrors
 	}
 
 	// ##############################
@@ -168,7 +164,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			x, err := rcsv.ValidateCSVColumns(csvCols, t[i][:OneSiteColumnLength], funcname, i)
 			if x > 0 {
 				errorList = append(errorList, err)
-				return errorList, msg
+				rlib.Ulog("Error <ONESITE CSV COLUMN VALIDATION>: %s\n", err.Error())
+				return errorList, csvErrors
 			}
 
 			// ######################
@@ -179,7 +176,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			// NOTE: might need to change logic, if t[i] contains blank data that we should
 			// stop the loop as we have to skip rest of the rows (please look at onesite csv)
 			if !rowLoaded {
-				fmt.Println("No more data to validate")
+				rlib.Ulog("No more data for onesite csv loading\n")
 				break
 			}
 
@@ -187,7 +184,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			rowErrs := ValidateOneSiteCSVRow(&csvRow, i)
 			if len(rowErrs) > 0 {
 				dataValidationError = true
-				errorList = append(errorList, rowErrs...)
+				csvErrors = append(csvErrors, rowErrs...)
 			}
 		}
 	}
@@ -195,7 +192,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 	// if there is any error in data validation then return from here
 	// do not perform any further action
 	if dataValidationError {
-		return errorList, msg
+		return errorList, csvErrors
 	}
 
 	// ====================================
@@ -210,9 +207,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&OneSiteFieldMap.RentableTypeCSV,
 		)
 	if !ok {
-		// TODO: create errorlist in errors.go file to get error from that
-		errorList = append(errorList, errors.New("Unable To create rentabletype csv file"))
-		return errorList, "Unable to create rentabletype file"
+		errorList = append(errorList, core.ErrInternal)
+		return errorList, csvErrors
 	}
 
 	// get created people csv and writer pointer
@@ -222,9 +218,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&OneSiteFieldMap.PeopleCSV,
 		)
 	if !ok {
-		// TODO: create errorlist in errors.go file to get error from that
-		errorList = append(errorList, errors.New("Unable To create people csv file"))
-		return errorList, "Unable to create people file"
+		errorList = append(errorList, core.ErrInternal)
+		return errorList, csvErrors
 	}
 
 	// get created people csv and writer pointer
@@ -234,9 +229,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&OneSiteFieldMap.RentableCSV,
 		)
 	if !ok {
-		// TODO: create errorlist in errors.go file to get error from that
-		errorList = append(errorList, errors.New("Unable To create rentable csv file"))
-		return errorList, "Unable to create rentable file"
+		errorList = append(errorList, core.ErrInternal)
+		return errorList, csvErrors
 	}
 
 	// get created rental agreement csv and writer pointer
@@ -246,9 +240,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&OneSiteFieldMap.RentalAgreementCSV,
 		)
 	if !ok {
-		// TODO: create errorlist in errors.go file to get error from that
-		errorList = append(errorList, errors.New("Unable To create rentalAgreement csv file"))
-		return errorList, "Unable to create rentalAgreement file"
+		errorList = append(errorList, core.ErrInternal)
+		return errorList, csvErrors
 	}
 
 	// get created customAttibutes csv and writer pointer
@@ -258,9 +251,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 			&OneSiteFieldMap.CustomAttributeCSV,
 		)
 	if !ok {
-		// TODO: create errorlist in errors.go file to get error from that
-		errorList = append(errorList, errors.New("Unable To create CustomAttribute csv file"))
-		return errorList, "Unable to create CustomAttribute file"
+		errorList = append(errorList, core.ErrInternal)
+		return errorList, csvErrors
 	}
 
 	// avoidDuplicateRentableTypeData used to keep track of rentableTypeData with Style field
@@ -303,7 +295,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 		// NOTE: might need to change logic, if t[i] contains blank data that we should
 		// stop the loop as we have to skip rest of the rows (please look at onesite csv)
 		if !rowLoaded {
-			fmt.Println("No more data to parse")
+			rlib.Ulog("No more data to parse\n")
 			break
 		}
 
@@ -444,7 +436,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 
 	// RETURN
 	fmt.Println("ONESITE CSV HAS SUCCESSFULLY LOADED!")
-	return errorList, msg
+	return errorList, csvErrors
 }
 
 func rrDoLoad(fname string, handler func(string) []error) []error {
@@ -473,6 +465,28 @@ func ClearSplittedTempCSVFiles(timestamp string) {
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
 func CSVHandler(userSuppliedValues map[string]string) ([]error, string) {
-	Init()
-	return LoadOneSiteCSV(userSuppliedValues)
+	initErr := Init()
+	fmt.Println("Error <ONESITE INIT>:", initErr)
+	// rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
+	errorList, CSVErrs := LoadOneSiteCSV(userSuppliedValues)
+	csvErrorFlag := false
+	if len(CSVErrs) > 0 {
+		csvErrorFlag = true
+	}
+	if csvErrorFlag {
+		fmt.Println(ErrorReporting(&CSVErrs))
+	}
+	return errorList, "DOne"
+}
+
+func ErrorReporting(csvErrors *[]error) string {
+	var tbl rlib.Table
+	tbl.Init()
+	tbl.AddColumn("Error", 150, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	for _, err := range *csvErrors {
+		tbl.AddRow()
+		tbl.Puts(-1, 0, err.Error())
+	}
+	return tbl.SprintTable(rlib.RPTTEXT)
 }

@@ -2,11 +2,11 @@ package onesite
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"rentroll/rlib"
 	"strconv"
 	"strings"
 	"time"
@@ -52,7 +52,7 @@ func CreateRentableCSV(
 	// try to create file and return with error if occurs any
 	rentableCSVFile, err := os.Create(rentableCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <RENTABLE CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -63,7 +63,7 @@ func CreateRentableCSV(
 	rentableCSVHeaders := []string{}
 	rentableCSVHeaders, ok := core.GetStructFields(rentableStruct)
 	if !ok {
-		log.Println("Unable to get struct fields for rentableCSV")
+		rlib.Ulog("Error <RENTABLE CSV>: Unable to get struct fields for rentableCSV\n")
 		return nil, nil, done
 	}
 

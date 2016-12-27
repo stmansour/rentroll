@@ -3,7 +3,6 @@ package onesite
 import (
 	"encoding/csv"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"reflect"
@@ -32,7 +31,7 @@ func CreateRentableTypeCSV(
 	// try to create file and return with error if occurs any
 	rentableTypeCSVFile, err := os.Create(rentableTypeCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <RENTABLE TYPE CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -43,7 +42,7 @@ func CreateRentableTypeCSV(
 	rentableTypeCSVHeaders := []string{}
 	rentableTypeCSVHeaders, ok := core.GetStructFields(rt)
 	if !ok {
-		log.Println("Unable to get struct fields for rentableTypeCSV")
+		rlib.Ulog("Error <RENTABLE TYPE CSV>: Unable to get struct fields for rentableTypeCSV\n")
 		return nil, nil, done
 	}
 
