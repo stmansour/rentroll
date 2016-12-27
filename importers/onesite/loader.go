@@ -183,17 +183,12 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, string) {
 				break
 			}
 
-			// sqft validation
-			_, err = strconv.Atoi(csvRow.SQFT)
-			if err != nil {
+			// if row is loaded successfully then do validation over fields
+			rowErrs := ValidateOneSiteCSVRow(&csvRow, i)
+			if len(rowErrs) > 0 {
 				dataValidationError = true
-				errorList = append(
-					errorList,
-					fmt.Errorf("SQFT column has no integer value in row %d", i),
-				)
+				errorList = append(errorList, rowErrs...)
 			}
-
-			// NOTE: put validations of fields from here
 		}
 	}
 
