@@ -123,6 +123,10 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	// # PHASE 1 : SPLITTING DATA IN CSV FILES #
 	// ##############################
 
+	// this map is used to hold csvRow typed struct after data has been loaded in it from first loop iteration
+	// so we have not to iteration over onesite csv again and can be re-used in second loop
+	csvRowDataMap := map[int]*CSVRow{}
+
 	// if dataValidationError is true throughout rows
 	// do not perform any furter operation
 	dataValidationError := false
@@ -185,6 +189,15 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			if len(rowErrs) > 0 {
 				dataValidationError = true
 				csvErrors = append(csvErrors, rowErrs...)
+			}
+
+			// if dataValidationError is false then only fill data into map
+			// because anyways the program will return and rest of operation will not be performed
+			// csvRowDataMap is only used for second iteration
+			// so no need to dump it in the map if validation fails from any row
+			if !dataValidationError {
+				// index increased to one as in to match with csv row number
+				csvRowDataMap[i+1] = &csvRow
 			}
 		}
 	}
@@ -289,15 +302,17 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	// ================================
 	// in second round do split
 
-	for i := skipRowsCount + 1; i < len(t); i++ {
-		rowLoaded, csvRow := LoadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
+	// always sort keys
+	var csvRowDataMapKeys []int
+	for k := range csvRowDataMap {
+		csvRowDataMapKeys = append(csvRowDataMapKeys, k)
+	}
+	sort.Ints(csvRowDataMapKeys)
 
-		// NOTE: might need to change logic, if t[i] contains blank data that we should
-		// stop the loop as we have to skip rest of the rows (please look at onesite csv)
-		if !rowLoaded {
-			rlib.Ulog("No more data to parse\n")
-			break
-		}
+	for _, csvRowIndexKey := range csvRowDataMapKeys {
+
+		// load csvRow from dataMap
+		csvRow := *csvRowDataMap[csvRowIndexKey]
 
 		// Write data to file of rentabletype
 		WriteRentableTypeCSVData(
@@ -435,7 +450,6 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	}
 
 	// RETURN
-	fmt.Println("ONESITE CSV HAS SUCCESSFULLY LOADED!")
 	return errorList, csvErrors
 }
 

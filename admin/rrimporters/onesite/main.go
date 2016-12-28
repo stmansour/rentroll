@@ -144,8 +144,8 @@ func main() {
 	// read command line argument first
 	ok, inputErrors := readCommandLineArgs()
 	if !ok {
-		fmt.Printf("%v\n", inputErrors)
-		return
+		fmt.Printf("Input Errors: %v\n", inputErrors)
+		os.Exit(1)
 	}
 
 	// db initialization
@@ -194,6 +194,6 @@ func main() {
 
 	// call onesite loader
 	errors, msg := onesite.CSVHandler(userSuppliedValues)
-	fmt.Printf("\nONESITE ERRORS:= %v", errors)
-	fmt.Printf("\nONESITE MSG:= %v", msg)
+	fmt.Printf("\nONESITE ERRORS:= %v\n", errors)
+	fmt.Printf("ONESITE MSG:= %v\n", msg)
 }
