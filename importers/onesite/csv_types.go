@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rcsv"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -133,7 +134,7 @@ func ValidateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 	for i := 0; i < len(csvCols); i++ {
 		fieldName := reflect.TypeOf(*oneSiteCSVRow).Field(i).Name
 		fieldValue := reflectedOneSiteCSVRow.Field(i).Interface().(string)
-		err := ValidateCSVField(fieldName, fieldValue, rowIndex)
+		err := ValidateCSVField(fieldName, fieldValue, rowIndex+1)
 		if err != nil {
 			rowErrs = append(rowErrs, err)
 		}
@@ -193,6 +194,12 @@ func ValidateCSVField(field string, value string, rowIndex int) error {
 		ok := core.IsValidPhone(value)
 		if !ok {
 			return fmt.Errorf("\"%s\" has no valid phone number value at row \"%d\"", field, rowIndex)
+		}
+		return nil
+	case "date":
+		_, err := rlib.StringToDate(value)
+		if err != nil {
+			return fmt.Errorf("\"%s\" has no valid date value at row \"%d\"", field, rowIndex)
 		}
 		return nil
 	default:

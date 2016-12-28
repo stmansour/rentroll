@@ -466,7 +466,7 @@ func ClearSplittedTempCSVFiles(timestamp string) {
 // csv and extract information
 func CSVHandler(userSuppliedValues map[string]string) ([]error, string) {
 	initErr := Init()
-	fmt.Println("Error <ONESITE INIT>:", initErr)
+	rlib.Errcheck(initErr)
 	// rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
 	errorList, CSVErrs := LoadOneSiteCSV(userSuppliedValues)
 	csvErrorFlag := false
