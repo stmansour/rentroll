@@ -479,7 +479,7 @@ func CSVHandler(userSuppliedValues map[string]string) ([]error, string) {
 	return errorList, "DOne"
 }
 
-// ErrorReporting used to generate errors for onesite csv
+// ErrorReporting used to report the errors for onesite csv
 func ErrorReporting(csvErrors *[]error) string {
 	var tbl rlib.Table
 	tbl.Init()
