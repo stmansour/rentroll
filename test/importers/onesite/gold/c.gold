@@ -1,6 +1,3 @@
-No more data to validate
-No more data to parse
-ONESITE CSV HAS SUCCESSFULLY LOADED!
 
-ONESITE ERRORS:= []
-ONESITE MSG:= 
+ONESITE ERRORS = []
+ONESITE IMPORTING DONE? = true

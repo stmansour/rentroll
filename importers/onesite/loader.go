@@ -478,10 +478,12 @@ func ClearSplittedTempCSVFiles(timestamp string) {
 
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
-func CSVHandler(userSuppliedValues map[string]string) ([]error, string) {
+func CSVHandler(userSuppliedValues map[string]string) ([]error, bool) {
 	initErr := Init()
+	if initErr != nil {
+		rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
+	}
 	rlib.Errcheck(initErr)
-	// rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
 	errorList, CSVErrs := LoadOneSiteCSV(userSuppliedValues)
 	csvErrorFlag := false
 	if len(CSVErrs) > 0 {
@@ -490,7 +492,7 @@ func CSVHandler(userSuppliedValues map[string]string) ([]error, string) {
 	if csvErrorFlag {
 		fmt.Println(ErrorReporting(&CSVErrs))
 	}
-	return errorList, "DOne"
+	return errorList, true
 }
 
 // ErrorReporting used to report the errors for onesite csv

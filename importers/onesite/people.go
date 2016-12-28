@@ -121,11 +121,11 @@ func GetPeopleCSVRow(
 		// =========================================================
 		// this condition has been put here because it's mapping field does not exist
 		// =========================================================
-		if peopleField.Name == "FirstName" {
+		if peopleField.Name == "LastName" {
 			nameSlice := strings.Split(oneSiteRow.Name, ",")
 			dataMap[i] = strings.TrimSpace(nameSlice[0])
 		}
-		if peopleField.Name == "LastName" {
+		if peopleField.Name == "FirstName" {
 			nameSlice := strings.Split(oneSiteRow.Name, ",")
 			if len(nameSlice) > 1 {
 				dataMap[i] = strings.TrimSpace(nameSlice[1])
