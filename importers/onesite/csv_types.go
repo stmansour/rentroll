@@ -67,7 +67,7 @@ var CSVRowFieldRules = map[string]map[string]string{
 	"FloorPlan":       {"type": "string", "blank": "false"},
 	"UnitDesignation": {"type": "string", "blank": "true"},
 	"SQFT":            {"type": "uint", "blank": "false"},
-	"UnitLeaseStatus": {"type": "string", "blank": "true"},
+	"UnitLeaseStatus": {"type": "rentable_status", "blank": "true"},
 	"Name":            {"type": "string", "blank": "false"},
 	"PhoneNumber":     {"type": "phone", "blank": "true"},
 	"Email":           {"type": "email", "blank": "true"},
@@ -200,6 +200,12 @@ func ValidateCSVField(field string, value string, rowIndex int) error {
 		_, err := rlib.StringToDate(value)
 		if err != nil {
 			return fmt.Errorf("\"%s\" has no valid date value at row \"%d\"", field, rowIndex)
+		}
+		return nil
+	case "rentable_status":
+		ok, _ := IsValidRentableStatus(value)
+		if !ok {
+			return fmt.Errorf("\"%s\" has no valid rentable status value at row \"%d\"", field, rowIndex)
 		}
 		return nil
 	default:

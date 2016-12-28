@@ -248,14 +248,13 @@ func GetRUserSpec(
 	return ",,", ok
 }
 
-// GetRentableStatus used to get rentable status in format of rentroll system
-func GetRentableStatus(csvRow *CSVRow) (string, bool) {
-	var tempRS, rRS string
-	found, ok := false, false
-	orderedFields := []string{}
-
+// IsValidRentableStatus checks that passed string contains valid rentable status
+// acoording to rentroll system
+func IsValidRentableStatus(s string) (bool, string) {
+	found := false
+	var tempRS string
 	// first find that passed string contains any status key
-	a := strings.ToLower(csvRow.UnitLeaseStatus)
+	a := strings.ToLower(s)
 	for k, v := range RentableStatusCSV {
 		if strings.Contains(a, k) {
 			tempRS = v
@@ -263,9 +262,20 @@ func GetRentableStatus(csvRow *CSVRow) (string, bool) {
 			break
 		}
 	}
+	return found, tempRS
+}
+
+// GetRentableStatus used to get rentable status in format of rentroll system
+func GetRentableStatus(csvRow *CSVRow) (string, bool) {
+	var tempRS, rRS string
+	ok := false
+	orderedFields := []string{}
+
+	// first find that passed string contains any status key
+	validStatus, tempRS := IsValidRentableStatus(csvRow.UnitLeaseStatus)
 
 	// if contains then try to get status according rentroll system
-	if found {
+	if validStatus {
 		rRS, ok = RRRentableStatus[tempRS]
 	}
 
