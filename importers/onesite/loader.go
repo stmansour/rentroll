@@ -192,11 +192,11 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			}
 
 			// if dataValidationError is false then only fill data into map
-			// because anyways the program will return and rest of operation will not be performed
+			// because anyways the program will return and rest of operation will not be performed if dataValidationError is true
 			// csvRowDataMap is only used for second iteration
 			// so no need to dump it in the map if validation fails from any row
 			if !dataValidationError {
-				// index increased to one as in to match with csv row number
+				// index increased by one as in to be matched with csv row number
 				csvRowDataMap[i+1] = &csvRow
 			}
 		}
