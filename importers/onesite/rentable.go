@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rlib"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -97,19 +96,11 @@ func WriteRentableData(
 
 	// *avoidData = append(*avoidData, checkRentableStyle)
 
-	currentYear, _, _ := currentTime.Date()
-	DtStart := "1/1/" + strconv.Itoa(currentYear)
-	DtStop := "1/1/" + strconv.Itoa(currentYear+1)
-	// DtStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentTime.Location())
-	// DtStop := time.Date(currentYear+1, 1, 1, 0, 0, 0, 0, currentTime.Location())
-
 	// make rentable data from userSuppliedValues and defaultValues
 	rentableDefaultData := map[string]string{}
 	for k, v := range suppliedValues {
 		rentableDefaultData[k] = v
 	}
-	rentableDefaultData["DtStart"] = DtStart
-	rentableDefaultData["DtStop"] = DtStop
 
 	// get csv row data
 	ok, csvRowData := GetRentableCSVRow(
