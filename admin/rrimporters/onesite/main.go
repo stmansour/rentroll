@@ -9,6 +9,7 @@ import (
 	"phonebook/lib"
 	"rentroll/importers/onesite"
 	"rentroll/rlib"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -193,7 +194,17 @@ func main() {
 	MergeSuppliedAndDefaultValues()
 
 	// call onesite loader
-	errors, done := onesite.CSVHandler(userSuppliedValues)
-	fmt.Printf("\nONESITE ERRORS = %v\n", errors)
-	fmt.Printf("ONESITE IMPORTING DONE? = %v\n", done)
+	oneSiteErr, ErrReport, done := onesite.CSVHandler(userSuppliedValues)
+
+	var oneSiteErrText string
+	if oneSiteErr != nil {
+		oneSiteErrText = oneSiteErr.Error()
+	}
+	fmt.Printf("\nONESITE ERRORS = %v", oneSiteErrText)
+	fmt.Printf("\n\n\n%s", strings.Repeat("=", 65))
+	fmt.Printf("\nONESITE CSV ERROR REPORT")
+	fmt.Printf("\n%s", strings.Repeat("=", 65))
+	fmt.Printf("\n%s", ErrReport)
+	fmt.Printf("%s", strings.Repeat("=", 65))
+	fmt.Printf("\n\n\nONESITE IMPORTING DONE? = %v\n", done)
 }

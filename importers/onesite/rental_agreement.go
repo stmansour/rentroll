@@ -55,6 +55,9 @@ func CreateRentalAgreementCSV(
 // WriteRentalAgreementData used to write the data to csv file
 // with avoiding duplicate data
 func WriteRentalAgreementData(
+	recordCount *int,
+	rowIndex int,
+	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
 	avoidData *[]string,
@@ -86,8 +89,12 @@ func WriteRentalAgreementData(
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
-		// TODO: make sure to verify the usage of flush is correct or not
 		csvWriter.Flush()
+
+		// after write operation to csv,
+		// entry this rowindex with unit value in the map
+		*recordCount = *recordCount + 1
+		traceCSVData[*recordCount] = rowIndex
 	}
 }
 

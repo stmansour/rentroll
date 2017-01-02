@@ -65,27 +65,26 @@ func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
 // LoadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
+func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 
 	// vars
 	var (
-		errorList []error
-		csvErrors []error
+		loadOneSiteError error
+		csvErrors        []error
 	)
 
 	// funcname
 	funcname := "LoadOneSiteCSV"
 
-	// ===============================
-	// validation on user supplied values
-	// ===============================
+	// ---------------------- validation on user supplied values ------------------
 	var BUD = userSuppliedValues["BUD"]
 	var business = rlib.GetBusinessByDesignation(BUD)
 	if business.BID == 0 {
-		errorList = append(errorList,
+		csvErrors = append(csvErrors,
 			fmt.Errorf("Supplied Business Unit Designation does not exists"))
-		return errorList, csvErrors
+		return loadOneSiteError, csvErrors
 	}
+	// --------------------------------------------------------------------------------------------------------- //
 
 	// get current timestamp used for creating csv files unique way
 	currentTime := time.Now()
@@ -114,9 +113,9 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	var OneSiteFieldMap CSVFieldMap
 	err := GetOneSiteMapping(&OneSiteFieldMap)
 	if err != nil {
-		errorList = append(errorList, core.ErrInternal)
+		loadOneSiteError = core.ErrInternal
 		rlib.Ulog("Error <ONESITE FIELD MAPPING>: %s\n", err.Error())
-		return errorList, csvErrors
+		return loadOneSiteError, csvErrors
 	}
 
 	// ##############################
@@ -167,9 +166,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 
 			x, err := rcsv.ValidateCSVColumns(csvCols, t[i][:OneSiteColumnLength], funcname, i)
 			if x > 0 {
-				errorList = append(errorList, err)
+				csvErrors = append(csvErrors, err)
 				rlib.Ulog("Error <ONESITE CSV COLUMN VALIDATION>: %s\n", err.Error())
-				return errorList, csvErrors
 			}
 
 			// ######################
@@ -205,7 +203,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	// if there is any error in data validation then return from here
 	// do not perform any further action
 	if dataValidationError {
-		return errorList, csvErrors
+		return loadOneSiteError, csvErrors
 	}
 
 	// ====================================
@@ -213,6 +211,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	// PERFORM REQUIRED OPERATIONS HERE
 	// ====================================
 
+	// ----------------------- create files and get csv writer object -----------------------
 	// get created rentabletype csv and writer pointer
 	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
 		CreateRentableTypeCSV(
@@ -220,8 +219,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			&OneSiteFieldMap.RentableTypeCSV,
 		)
 	if !ok {
-		errorList = append(errorList, core.ErrInternal)
-		return errorList, csvErrors
+		loadOneSiteError = core.ErrInternal
+		return loadOneSiteError, csvErrors
 	}
 
 	// get created people csv and writer pointer
@@ -231,8 +230,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			&OneSiteFieldMap.PeopleCSV,
 		)
 	if !ok {
-		errorList = append(errorList, core.ErrInternal)
-		return errorList, csvErrors
+		loadOneSiteError = core.ErrInternal
+		return loadOneSiteError, csvErrors
 	}
 
 	// get created people csv and writer pointer
@@ -242,8 +241,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			&OneSiteFieldMap.RentableCSV,
 		)
 	if !ok {
-		errorList = append(errorList, core.ErrInternal)
-		return errorList, csvErrors
+		loadOneSiteError = core.ErrInternal
+		return loadOneSiteError, csvErrors
 	}
 
 	// get created rental agreement csv and writer pointer
@@ -253,8 +252,8 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			&OneSiteFieldMap.RentalAgreementCSV,
 		)
 	if !ok {
-		errorList = append(errorList, core.ErrInternal)
-		return errorList, csvErrors
+		loadOneSiteError = core.ErrInternal
+		return loadOneSiteError, csvErrors
 	}
 
 	// get created customAttibutes csv and writer pointer
@@ -264,10 +263,12 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			&OneSiteFieldMap.CustomAttributeCSV,
 		)
 	if !ok {
-		errorList = append(errorList, core.ErrInternal)
-		return errorList, csvErrors
+		loadOneSiteError = core.ErrInternal
+		return loadOneSiteError, csvErrors
 	}
+	// --------------------------------------------------------------------------------------------------------- //
 
+	// --------------------- avoid duplicate data structures --------------------
 	// avoidDuplicateRentableTypeData used to keep track of rentableTypeData with Style field
 	// so that duplicate entries can be avoided while creating rentableType csv file
 	avoidDuplicateRentableTypeData := []string{}
@@ -290,6 +291,33 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	for k := range customAttributeMap {
 		avoidDuplicateCustomAttributeData[k] = []string{}
 	}
+	// --------------------------------------------------------------------------------------------------------- //
+
+	// traceUnitMap holds records by which we can trace the unit with row index of csv
+	// Unit would be unique in onesite imported csv
+	// key: rowIndex of onesite csv, value: Unit value of each row of onesite csv
+	traceUnitMap := map[int]string{}
+
+	// --------------------------- trace csv records map ----------------------------
+	// trace<TYPE>CSVMap used to hold records
+	// by which we can traceout which records has been writtern to csv
+	// with key of row index of <TARGET_TYPE> CSV, value of original's imported csv rowNumber
+	traceRentableTypeCSVMap := map[int]int{}
+	traceRentableCSVMap := map[int]int{}
+	tracePeopleCSVMap := map[int]int{}
+	traceRentalAgreementCSVMap := map[int]int{}
+	traceCustomAttributeCSVMap := map[int]int{}
+	// --------------------------------------------------------------------------------------------------------- //
+
+	// --------------------------- csv record count ----------------------------
+	// <TYPE>CSVRecordCount used to hold records count inserted in csv
+	// initialize with 1 because first row contains headers in target generated csv
+	RentableTypeCSVRecordCount := 1
+	RentableCSVRecordCount := 1
+	PeopleCSVRecordCount := 1
+	RentalAgreementCSVRecordCount := 1
+	CustomAttributeCSVRecordCount := 1
+	// --------------------------------------------------------------------------------------------------------- //
 
 	// customAttributesRefData holds the data for future operation to insert
 	// custom attribute ref in system for each rentableType
@@ -309,13 +337,19 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	}
 	sort.Ints(csvRowDataMapKeys)
 
-	for _, csvRowIndexKey := range csvRowDataMapKeys {
+	for _, csvRowIndex := range csvRowDataMapKeys {
 
 		// load csvRow from dataMap
-		csvRow := *csvRowDataMap[csvRowIndexKey]
+		csvRow := *csvRowDataMap[csvRowIndex]
+
+		// mark Unit value with row index value
+		traceUnitMap[csvRowIndex] = csvRow.Unit
 
 		// Write data to file of rentabletype
 		WriteRentableTypeCSVData(
+			&RentableTypeCSVRecordCount,
+			csvRowIndex,
+			traceRentableTypeCSVMap,
 			rentableTypeCSVWriter,
 			&csvRow,
 			&avoidDuplicateRentableTypeData,
@@ -329,6 +363,9 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 
 		// Write data to file of people
 		WritePeopleCSVData(
+			&PeopleCSVRecordCount,
+			csvRowIndex,
+			tracePeopleCSVMap,
 			peopleCSVWriter,
 			&csvRow,
 			&avoidDuplicatePeopleData,
@@ -339,6 +376,9 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 
 		// Write data to file of rentable
 		WriteRentableData(
+			&RentableCSVRecordCount,
+			csvRowIndex,
+			traceRentableCSVMap,
 			rentableCSVWriter,
 			&csvRow,
 			&avoidDuplicateRentableData,
@@ -350,6 +390,9 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 
 		// Write data to file of rentalAgreement
 		WriteRentalAgreementData(
+			&RentalAgreementCSVRecordCount,
+			csvRowIndex,
+			traceRentalAgreementCSVMap,
 			rentalAgreementCSVWriter,
 			&csvRow,
 			&avoidDuplicateRentalAgreementData,
@@ -360,6 +403,9 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 
 		// Write data to file of CustomAttribute
 		WriteCustomAttributeData(
+			&CustomAttributeCSVRecordCount,
+			csvRowIndex,
+			traceCustomAttributeCSVMap,
 			customAttributeCSVWriter,
 			&csvRow,
 			avoidDuplicateCustomAttributeData,
@@ -370,28 +416,130 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 
 	}
 
+	// ---------------------------- closing files -------------------------- //
 	// Close all files as we are done here with writing data
 	rentableTypeCSVFile.Close()
 	peopleCSVFile.Close()
 	rentableCSVFile.Close()
 	rentalAgreementCSVFile.Close()
 	customAttributeCSVFile.Close()
+	// --------------------------------------------------------------------------------------------------------- //
 
 	// ########################
 	// # PHASE 2 : RCSV LOADERS CALL #
 	// ########################
-	var h = []rcsv.CSVLoadHandler{
-		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV},
-		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV},
-		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV},
-		{Fname: rentableCSVFile.Name(), Handler: rcsv.LoadRentablesCSV},
-		{Fname: rentalAgreementCSVFile.Name(), Handler: rcsv.LoadRentalAgreementCSV},
+	// CSVLoadHandler struct is for routines that want to table-ize their loading.
+	type csvLoadHandler struct {
+		Fname        string
+		Handler      func(string) []error
+		TraceDataMap string
+	}
+
+	// csv load handler
+	var h = []csvLoadHandler{
+		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV, TraceDataMap: "traceCustomAttributeCSVMap"},
+		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV, TraceDataMap: "traceRentableTypeCSVMap"},
+		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
+		{Fname: rentableCSVFile.Name(), Handler: rcsv.LoadRentablesCSV, TraceDataMap: "traceRentableCSVMap"},
+		{Fname: rentalAgreementCSVFile.Name(), Handler: rcsv.LoadRentalAgreementCSV, TraceDataMap: "traceRentalAgreementCSVMap"},
+	}
+
+	// getIndexAndUnit used to get index and unit value from trace<TYPE>CSVMap map
+	getIndexAndUnit := func(traceDataMap string, index int) (int, string) {
+		var onesiteIndex int
+		var unit string
+		switch traceDataMap {
+		case "traceCustomAttributeCSVMap":
+			if onesiteIndex, ok := traceCustomAttributeCSVMap[index]; ok {
+				if unit, ok := traceUnitMap[onesiteIndex]; ok {
+					return onesiteIndex, unit
+				}
+				return onesiteIndex, unit
+			}
+			return onesiteIndex, unit
+		case "traceRentableTypeCSVMap":
+			if onesiteIndex, ok := traceRentableTypeCSVMap[index]; ok {
+				if unit, ok := traceUnitMap[onesiteIndex]; ok {
+					return onesiteIndex, unit
+				}
+				return onesiteIndex, unit
+			}
+			return onesiteIndex, unit
+		case "tracePeopleCSVMap":
+			if onesiteIndex, ok := tracePeopleCSVMap[index]; ok {
+				if unit, ok := traceUnitMap[onesiteIndex]; ok {
+					return onesiteIndex, unit
+				}
+				return onesiteIndex, unit
+			}
+			return onesiteIndex, unit
+		case "traceRentableCSVMap":
+			if onesiteIndex, ok := traceRentableCSVMap[index]; ok {
+				if unit, ok := traceUnitMap[onesiteIndex]; ok {
+					return onesiteIndex, unit
+				}
+				return onesiteIndex, unit
+			}
+			return onesiteIndex, unit
+		case "traceRentalAgreementCSVMap":
+			if onesiteIndex, ok := traceRentalAgreementCSVMap[index]; ok {
+				if unit, ok := traceUnitMap[onesiteIndex]; ok {
+					return onesiteIndex, unit
+				}
+				return onesiteIndex, unit
+			}
+			return onesiteIndex, unit
+		default:
+			return onesiteIndex, unit
+		}
 	}
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
 			Errs := rrDoLoad(h[i].Fname, h[i].Handler)
-			errorList = append(errorList, Errs...)
+			for _, err := range Errs {
+				fmt.Println(err.Error())
+				// skip warnings about already existing records
+				if !strings.Contains(err.Error(), "already exists") {
+					errText := err.Error()
+					// split with separator `:`
+					s := strings.Split(errText, ":")
+					// remove first element from slice
+					s = append(s[:0], s[1:]...)
+					// now join with separator
+					errText = strings.Join(s, "|")
+					// split with separator `-`
+					s = strings.Split(errText, "-")
+					// get line number string
+					lineNoStr := s[0]
+					// remove space from lineNoStr string
+					lineNoStr = strings.Replace(lineNoStr, " ", "", -1)
+					// remove `lineno` text from lineNoStr string
+					lineNoStr = strings.Replace(lineNoStr, "lineno", "", -1)
+					// remove `line` text from lineNoStr string
+					lineNoStr = strings.Replace(lineNoStr, "line", "", -1)
+					// now it should contain number in string
+					lineNo, err := strconv.Atoi(lineNoStr)
+					if err != nil {
+						// CRITICAL
+						panic("rcsv loaders should do something about returning error format")
+					}
+					// remove first element from slice
+					s = append(s[:0], s[1:]...)
+					// now join with separator
+					errText = strings.Join(s, "")
+					// replace new line broker
+					errText = strings.Replace(errText, "\n", "", -1)
+					// now get the original row index of imported onesite csv and Unit value
+					onesiteIndex, unit := getIndexAndUnit(h[i].TraceDataMap, lineNo)
+					// generate new error
+					err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
+					// append it into csvErrors
+					csvErrors = append(csvErrors, err)
+				} else {
+					rlib.Ulog(fmt.Sprintf("Error <%s>: %s", h[i].Fname, err.Error()))
+				}
+			}
 		}
 	}
 
@@ -411,7 +559,10 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 		refData := customAttributesRefData[key]
 		rt, err := rlib.GetRentableTypeByStyle(refData.Style, refData.BID)
 		if err != nil {
-			errorList = append(errorList, err)
+			unit, _ := traceUnitMap[refData.RowIndex]
+			rlib.Ulog("Error <CUSTOMREF INSERTION>: %s", err)
+			err = fmt.Errorf("Error while inserting custom attribute ref data at row \"%d\" with unit \"%s\"", refData.RowIndex, unit)
+			csvErrors = append(csvErrors, err)
 			continue
 		}
 
@@ -424,7 +575,10 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			u := customAttributeConfig["Units"]
 			ca := rlib.GetCustomAttributeByVals(t, n, v, u)
 			if ca.CID == 0 {
-				errorList = append(errorList, err)
+				unit, _ := traceUnitMap[refData.RowIndex]
+				rlib.Ulog("Error <CUSTOMREF INSERTION>: %s", "CUSTOM ATTRIBUTE NOT FOUND IN DB")
+				err := fmt.Errorf("Error while inserting custom attribute ref data at row \"%d\" with unit \"%s\"", refData.RowIndex, unit)
+				csvErrors = append(csvErrors, err)
 				continue
 			}
 
@@ -433,9 +587,25 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 			a.ElementType = rlib.ELEMRENTABLETYPE
 			a.ID = rt.RTID
 			a.CID = ca.CID
-			err = rlib.InsertCustomAttributeRef(&a)
+
+			// check that record already exists, if yes then just continue
+			// without accounting it as an error
+			ref := rlib.GetCustomAttributeRef(a.ElementType, a.ID, a.CID)
+			if ref.ElementType == a.ElementType && ref.CID == a.CID && ref.ID == a.ID {
+				unit, _ := traceUnitMap[refData.RowIndex]
+				errText := fmt.Sprintf(
+					"This reference already exists. No changes were made. at row \"%d\" with unit \"%s\"",
+					refData.RowIndex, unit)
+				rlib.Ulog("Error <CUSTOMREF INSERTION>: %s", errText)
+				continue
+			}
+
+			err := rlib.InsertCustomAttributeRef(&a)
 			if err != nil {
-				errorList = append(errorList, err)
+				unit, _ := traceUnitMap[refData.RowIndex]
+				rlib.Ulog("Error <CUSTOMREF INSERTION>: %s", err)
+				err = fmt.Errorf("Error while inserting custom attribute ref data at row \"%d\" with unit \"%s\"", refData.RowIndex, unit)
+				csvErrors = append(csvErrors, err)
 				continue
 			}
 		}
@@ -450,7 +620,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) ([]error, []error) {
 	}
 
 	// RETURN
-	return errorList, csvErrors
+	return loadOneSiteError, csvErrors
 }
 
 func rrDoLoad(fname string, handler func(string) []error) []error {
@@ -478,21 +648,31 @@ func ClearSplittedTempCSVFiles(timestamp string) {
 
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
-func CSVHandler(userSuppliedValues map[string]string) ([]error, bool) {
+func CSVHandler(userSuppliedValues map[string]string) (error, string, bool) {
+	// return vars
+	ErrReport, CSVLoaded := "", true
+
 	initErr := Init()
 	if initErr != nil {
 		rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
 	}
 	rlib.Errcheck(initErr)
-	errorList, CSVErrs := LoadOneSiteCSV(userSuppliedValues)
+
+	// call onesite loader
+	loadOneSiteError, CSVErrs := LoadOneSiteCSV(userSuppliedValues)
+
+	// check error
 	csvErrorFlag := false
 	if len(CSVErrs) > 0 {
 		csvErrorFlag = true
 	}
+
+	// Error Reporting
 	if csvErrorFlag {
-		fmt.Println(ErrorReporting(&CSVErrs))
+		CSVLoaded = false
+		ErrReport = ErrorReporting(&CSVErrs)
 	}
-	return errorList, true
+	return loadOneSiteError, ErrReport, CSVLoaded
 }
 
 // ErrorReporting used to report the errors for onesite csv

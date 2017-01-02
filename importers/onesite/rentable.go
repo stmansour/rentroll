@@ -77,6 +77,9 @@ func CreateRentableCSV(
 // WriteRentableData used to write the data to csv file
 // with avoiding duplicate data
 func WriteRentableData(
+	recordCount *int,
+	rowIndex int,
+	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
 	avoidData *[]string,
@@ -109,8 +112,12 @@ func WriteRentableData(
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
-		// TODO: make sure to verify the usage of flush is correct or not
 		csvWriter.Flush()
+
+		// after write operation to csv,
+		// entry this rowindex with unit value in the map
+		*recordCount = *recordCount + 1
+		traceCSVData[*recordCount] = rowIndex
 	}
 }
 
