@@ -95,11 +95,8 @@ func WriteRentableTypeCSVData(
 
 	currentYear, currentMonth, currentDate := currentTime.Date()
 	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
+	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
 	DtStop := "12/31/9999" // no end date
-	// DtStart := "1/1/" + strconv.Itoa(currentYear)
-	// DtStop := "1/1/" + strconv.Itoa(currentYear+1)
-	// DtStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentTime.Location())
-	// DtStop := time.Date(currentYear+1, 1, 1, 0, 0, 0, 0, currentTime.Location())
 
 	// make rentableType data from userSuppliedValues and defaultValues
 	rentableTypeDefaultData := map[string]string{}

@@ -65,7 +65,12 @@ func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
 // LoadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
+func LoadOneSiteCSV(
+	oneSiteCSV string,
+	testMode int,
+	userRRValues map[string]string,
+	business *rlib.Business,
+) ([]error, error) {
 
 	// vars
 	var (
@@ -75,16 +80,6 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 
 	// funcname
 	funcname := "LoadOneSiteCSV"
-
-	// ---------------------- validation on user supplied values ------------------
-	var BUD = userSuppliedValues["BUD"]
-	var business = rlib.GetBusinessByDesignation(BUD)
-	if business.BID == 0 {
-		csvErrors = append(csvErrors,
-			fmt.Errorf("Supplied Business Unit Designation does not exists"))
-		return loadOneSiteError, csvErrors
-	}
-	// --------------------------------------------------------------------------------------------------------- //
 
 	// get current timestamp used for creating csv files unique way
 	currentTime := time.Now()
@@ -115,7 +110,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 	if err != nil {
 		loadOneSiteError = core.ErrInternal
 		rlib.Ulog("Error <ONESITE FIELD MAPPING>: %s\n", err.Error())
-		return loadOneSiteError, csvErrors
+		return csvErrors, loadOneSiteError
 	}
 
 	// ##############################
@@ -135,7 +130,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 	// ================================
 
 	// load csv file and get data from csv
-	t := rlib.LoadCSV(userSuppliedValues["OneSiteCSV"])
+	t := rlib.LoadCSV(oneSiteCSV)
 
 	// this count used to skip number of rows from the very top of csv
 	var skipRowsCount int
@@ -203,7 +198,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 	// if there is any error in data validation then return from here
 	// do not perform any further action
 	if dataValidationError {
-		return loadOneSiteError, csvErrors
+		return csvErrors, loadOneSiteError
 	}
 
 	// ====================================
@@ -220,7 +215,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 		)
 	if !ok {
 		loadOneSiteError = core.ErrInternal
-		return loadOneSiteError, csvErrors
+		return csvErrors, loadOneSiteError
 	}
 
 	// get created people csv and writer pointer
@@ -231,7 +226,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 		)
 	if !ok {
 		loadOneSiteError = core.ErrInternal
-		return loadOneSiteError, csvErrors
+		return csvErrors, loadOneSiteError
 	}
 
 	// get created people csv and writer pointer
@@ -242,7 +237,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 		)
 	if !ok {
 		loadOneSiteError = core.ErrInternal
-		return loadOneSiteError, csvErrors
+		return csvErrors, loadOneSiteError
 	}
 
 	// get created rental agreement csv and writer pointer
@@ -253,7 +248,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 		)
 	if !ok {
 		loadOneSiteError = core.ErrInternal
-		return loadOneSiteError, csvErrors
+		return csvErrors, loadOneSiteError
 	}
 
 	// get created customAttibutes csv and writer pointer
@@ -264,7 +259,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 		)
 	if !ok {
 		loadOneSiteError = core.ErrInternal
-		return loadOneSiteError, csvErrors
+		return csvErrors, loadOneSiteError
 	}
 	// --------------------------------------------------------------------------------------------------------- //
 
@@ -355,10 +350,10 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 			&avoidDuplicateRentableTypeData,
 			currentTime,
 			currentTimeFormat,
-			userSuppliedValues,
+			userRRValues,
 			&OneSiteFieldMap.RentableTypeCSV,
 			customAttributesRefData,
-			&business,
+			business,
 		)
 
 		// Write data to file of people
@@ -370,7 +365,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 			&csvRow,
 			&avoidDuplicatePeopleData,
 			currentTimeFormat,
-			userSuppliedValues,
+			userRRValues,
 			&OneSiteFieldMap.PeopleCSV,
 		)
 
@@ -384,7 +379,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 			&avoidDuplicateRentableData,
 			currentTime,
 			currentTimeFormat,
-			userSuppliedValues,
+			userRRValues,
 			&OneSiteFieldMap.RentableCSV,
 		)
 
@@ -397,7 +392,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 			&csvRow,
 			&avoidDuplicateRentalAgreementData,
 			currentTimeFormat,
-			userSuppliedValues,
+			userRRValues,
 			&OneSiteFieldMap.RentalAgreementCSV,
 		)
 
@@ -410,7 +405,7 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 			&csvRow,
 			avoidDuplicateCustomAttributeData,
 			currentTimeFormat,
-			userSuppliedValues,
+			userRRValues,
 			&OneSiteFieldMap.CustomAttributeCSV,
 		)
 
@@ -613,14 +608,13 @@ func LoadOneSiteCSV(userSuppliedValues map[string]string) (error, []error) {
 	// ##################################
 	// # PHASE 3 : CLEAR THE TEMPORARY CSV FILES #
 	// ##################################
-
-	// testmode is disabled then only remove temp files
-	if userSuppliedValues["testmode"] == "0" {
+	// testmode is not enabled then only remove temp files
+	if testMode != 1 {
 		ClearSplittedTempCSVFiles(currentTimeFormat)
 	}
 
 	// RETURN
-	return loadOneSiteError, csvErrors
+	return csvErrors, loadOneSiteError
 }
 
 func rrDoLoad(fname string, handler func(string) []error) []error {
@@ -648,31 +642,74 @@ func ClearSplittedTempCSVFiles(timestamp string) {
 
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
-func CSVHandler(userSuppliedValues map[string]string) (error, string, bool) {
-	// return vars
-	ErrReport, CSVLoaded := "", true
+func CSVHandler(
+	CSV string,
+	TestMode int,
+	userRRValues map[string]string,
+) (bool, string, error) {
 
+	// vars
+	var (
+		CSVReport        string
+		CSVLoaded        bool
+		CSVErrs          []error
+		loadOneSiteError error
+	)
+
+	// init values
+	CSVLoaded = true
+
+	// ---------------------- some initialization for loadonesitecsv function ------------------
 	initErr := Init()
 	if initErr != nil {
 		rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
 	}
 	rlib.Errcheck(initErr)
+	// --------------------------------------------------------------------------------------------------------- //
 
-	// call onesite loader
-	loadOneSiteError, CSVErrs := LoadOneSiteCSV(userSuppliedValues)
-
-	// check error
-	csvErrorFlag := false
-	if len(CSVErrs) > 0 {
-		csvErrorFlag = true
-	}
-
-	// Error Reporting
-	if csvErrorFlag {
+	// ---------------------- validation on user supplied values ------------------
+	BUD := userRRValues["BUD"]
+	business := rlib.GetBusinessByDesignation(BUD)
+	if business.BID == 0 {
 		CSVLoaded = false
-		ErrReport = ErrorReporting(&CSVErrs)
+		CSVErrs = append(CSVErrs,
+			fmt.Errorf("Supplied Business Unit Designation does not exists"))
+		CSVReport = ErrorReporting(&CSVErrs)
+		return CSVLoaded, CSVReport, loadOneSiteError
 	}
-	return loadOneSiteError, ErrReport, CSVLoaded
+	// --------------------------------------------------------------------------------------------------------- //
+
+	// ---------------------- call onesite loader ----------------------------------------
+	CSVErrs, loadOneSiteError = LoadOneSiteCSV(CSV, TestMode, userRRValues, &business)
+
+	// check if there any errors from onesite loader
+	if len(CSVErrs) > 0 {
+		CSVLoaded = false
+		CSVReport = ErrorReporting(&CSVErrs)
+		return CSVLoaded, CSVReport, loadOneSiteError
+	}
+	// --------------------------------------------------------------------------------------------------------- //
+
+	//------------------------ Now do all the reporting ----------------------------
+	var r = []rcsv.CSVReporterInfo{
+		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
+		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
+		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
+		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
+		{ReportNo: 14, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportCustomAttributes, Bid: business.BID},
+		{ReportNo: 15, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportCustomAttributeRefs, Bid: business.BID},
+	}
+
+	for i := 0; i < len(r); i++ {
+		CSVReport += r[i].Handler(&r[i])
+		CSVReport += strings.Repeat("-", 80)
+		CSVReport += "\n"
+	}
+	// --------------------------------------------------------------------------------------------------------- //
+
+	// RETURN
+	return CSVLoaded, CSVReport, loadOneSiteError
+
 }
 
 // ErrorReporting used to report the errors for onesite csv
