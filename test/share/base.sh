@@ -314,9 +314,9 @@ docsvtest () {
 			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
 		declare -a out_filters=(
-			's/[0-1][0-9]\/[0-3][0-9]\/20[0-9][0-9]//g'
-			's/[0-1][0-9]\/[0-3][0-9]\/[0-9][0-9]//g'
-			's/[0-9]\/[0-9]\/[0-9][0-9]//g'
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/20[0-9][0-9]//g'
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/[0-9][0-9]//g'
+			's/\s+[0-9]\/[0-9]\/[0-9][0-9]//g'
 		)
 		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
 		cp ${1} ${1}.g
@@ -371,9 +371,9 @@ doOnesiteTest () {
 			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
 		declare -a out_filters=(
-			's/[0-1][0-9]\/[0-3][0-9]\/20[0-9][0-9]//g'
-			's/[0-1][0-9]\/[0-3][0-9]\/[0-9][0-9]//g'
-			's/[0-9]\/[0-9]\/[0-9][0-9]//g'
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/20[0-9][0-9]//g'
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/[0-9][0-9]//g'
+			's/\s+[0-9]\/[0-9]\/[0-9][0-9]//g'
 		)
 		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
 		cp ${1} ${1}.g
