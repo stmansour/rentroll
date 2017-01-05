@@ -18,10 +18,10 @@ It handles imported csv via `CSVhandler` function.
 CSVHandler accepts csv file path, testmode and user supplied values.
 It initializes config first for onesite loader via init() call.
 All user's passed values should be validated in it first.
-After that it calls main function `LoadOneSiteCSV` and
-then creates a report based on response of `LoadOneSiteCSV` call.
+After that it calls main function `loadOneSiteCSV` and
+then creates a report based on response of `loadOneSiteCSV` call.
 
-LoadOneSiteCSV first loads field mapping defined from mapper.json in struct.
+loadOneSiteCSV first loads field mapping defined from mapper.json in struct.
 Then after loading csv data, in first loop it skips rows that are meant for
 onesite data to import and then performs data validation on onesite csv data.
 If there is any error in validation then it just simply returns.
@@ -76,9 +76,9 @@ func Init() error {
 	return err
 }
 
-// GetOneSiteMapping reads json file and loads
+// getOneSiteMapping reads json file and loads
 // field mapping structure in go for further usage
-func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
+func getOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
@@ -100,9 +100,9 @@ func GetOneSiteMapping(OneSiteFieldMap *CSVFieldMap) error {
 	return err
 }
 
-// LoadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
+// loadOneSiteCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadOneSiteCSV(
+func loadOneSiteCSV(
 	oneSiteCSV string,
 	testMode int,
 	userRRValues map[string]string,
@@ -116,7 +116,7 @@ func LoadOneSiteCSV(
 	)
 
 	// funcname
-	funcname := "LoadOneSiteCSV"
+	funcname := "loadOneSiteCSV"
 
 	// get current timestamp used for creating csv files unique way
 	currentTime := time.Now()
@@ -143,7 +143,7 @@ func LoadOneSiteCSV(
 
 	// load onesite mapping
 	var OneSiteFieldMap CSVFieldMap
-	err := GetOneSiteMapping(&OneSiteFieldMap)
+	err := getOneSiteMapping(&OneSiteFieldMap)
 	if err != nil {
 		loadOneSiteError = core.ErrInternal
 		rlib.Ulog("Error <ONESITE FIELD MAPPING>: %s\n", err.Error())
@@ -205,7 +205,7 @@ func LoadOneSiteCSV(
 			// ######################
 			// VALIDATION on data value, type
 			// ######################
-			rowLoaded, csvRow := LoadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
+			rowLoaded, csvRow := loadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
 
 			// NOTE: might need to change logic, if t[i] contains blank data that we should
 			// stop the loop as we have to skip rest of the rows (please look at onesite csv)
@@ -215,7 +215,7 @@ func LoadOneSiteCSV(
 			}
 
 			// if row is loaded successfully then do validation over fields
-			rowErrs := ValidateOneSiteCSVRow(&csvRow, i)
+			rowErrs := validateOneSiteCSVRow(&csvRow, i)
 			if len(rowErrs) > 0 {
 				dataValidationError = true
 				csvErrors = append(csvErrors, rowErrs...)
@@ -647,7 +647,7 @@ func LoadOneSiteCSV(
 	// ##################################
 	// testmode is not enabled then only remove temp files
 	if testMode != 1 {
-		ClearSplittedTempCSVFiles(currentTimeFormat)
+		clearSplittedTempCSVFiles(currentTimeFormat)
 	}
 
 	// RETURN
@@ -660,16 +660,16 @@ func rrDoLoad(fname string, handler func(string) []error) []error {
 	// fmt.Print(rcsv.ErrlistToString(&m))
 }
 
-// RollBackSplitOperation func used to clear out the things
+// rollBackImportOperation func used to clear out the things
 // that created by program temporarily while loading onesite data
 //  and if any error occurs
-func RollBackSplitOperation(timestamp string) {
-	ClearSplittedTempCSVFiles(timestamp)
+func rollBackImportOperation(timestamp string) {
+	// TODO
 }
 
-// ClearSplittedTempCSVFiles func used only to clear
+// clearSplittedTempCSVFiles func used only to clear
 // temporarily csv files created by program
-func ClearSplittedTempCSVFiles(timestamp string) {
+func clearSplittedTempCSVFiles(timestamp string) {
 	for _, filePrefix := range prefixCSVFile {
 		fileName := filePrefix + timestamp + ".csv"
 		filePath := path.Join(SplittedCSVStore, fileName)
@@ -696,7 +696,7 @@ func CSVHandler(
 	// init values
 	CSVLoaded = true
 
-	// ---------------------- some initialization for loadonesitecsv function ------------------
+	// ---------------------- some initialization for loadOneSiteCSV function ------------------
 	initErr := Init()
 	if initErr != nil {
 		rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
@@ -711,18 +711,26 @@ func CSVHandler(
 		CSVLoaded = false
 		CSVErrs = append(CSVErrs,
 			fmt.Errorf("Supplied Business Unit Designation does not exists"))
-		CSVReport = ErrorReporting(&CSVErrs)
+		CSVReport = errorReporting(&CSVErrs)
 		return CSVLoaded, CSVReport, loadOneSiteError
 	}
 	// --------------------------------------------------------------------------------------------------------- //
 
 	// ---------------------- call onesite loader ----------------------------------------
-	CSVErrs, loadOneSiteError = LoadOneSiteCSV(CSV, TestMode, userRRValues, &business)
+	CSVErrs, loadOneSiteError = loadOneSiteCSV(CSV, TestMode, userRRValues, &business)
 
 	// check if there any errors from onesite loader
 	if len(CSVErrs) > 0 {
 		CSVLoaded = false
-		CSVReport = ErrorReporting(&CSVErrs)
+		CSVReport = errorReporting(&CSVErrs)
+	}
+	if loadOneSiteError != nil {
+		CSVLoaded = false
+	}
+	// if csv is not loaded properly then do rollbackoperation
+	// and return with errors
+	if !CSVLoaded {
+		// TODO: rollBackImportOperation
 		return CSVLoaded, CSVReport, loadOneSiteError
 	}
 	// --------------------------------------------------------------------------------------------------------- //
@@ -749,8 +757,8 @@ func CSVHandler(
 
 }
 
-// ErrorReporting used to report the errors for onesite csv
-func ErrorReporting(csvErrors *[]error) string {
+// errorReporting used to report the errors for onesite csv
+func errorReporting(csvErrors *[]error) string {
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("Error", 150, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)

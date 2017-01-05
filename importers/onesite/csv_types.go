@@ -61,8 +61,8 @@ type CSVRow struct {
 	Referral        string
 }
 
-// CSVRowFieldRules is map contains rules for specific fields in onesite
-var CSVRowFieldRules = map[string]map[string]string{
+// csvRowFieldRules is map contains rules for specific fields in onesite
+var csvRowFieldRules = map[string]map[string]string{
 	"Unit":            {"type": "string", "blank": "false"},
 	"FloorPlan":       {"type": "string", "blank": "false"},
 	"UnitDesignation": {"type": "string", "blank": "true"},
@@ -102,9 +102,16 @@ var CSVRowFieldRules = map[string]map[string]string{
 	"Referral":        {"type": "float", "blank": "true"},
 }
 
-// LoadOneSiteCSVRow used to load data from slice
+// unOccupiedRentableBlankField holds the list of fields which maybe
+// allowed to be blank if rentable is unoccupied
+var unOccupiedRentableBlankField = []string{
+	"Name", "MoveIn", "MoveOut",
+	"LeaseStart", "LeaseEnd", "Rent",
+}
+
+// loadOneSiteCSVRow used to load data from slice
 // into CSVRow struct and return that struct
-func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
+func loadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
 	csvRow := reflect.New(reflect.TypeOf(CSVRow{}))
 	rowLoaded := false
 
@@ -122,10 +129,10 @@ func LoadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
 	return rowLoaded, csvRow.Elem().Interface().(CSVRow)
 }
 
-// ValidateOneSiteCSVRow validates csv field of onesite
+// validateOneSiteCSVRow validates csv field of onesite
 // Dont perform validation while loading data in CSVRow struct
-// (in LoadOneSiteCSVRow function as it decides when to stop parsing)
-func ValidateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
+// (in loadOneSiteCSVRow function as it decides when to stop parsing)
+func validateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 	rowErrs := []error{}
 
 	// fill data according to headers length
@@ -134,7 +141,7 @@ func ValidateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 	for i := 0; i < len(csvCols); i++ {
 		fieldName := reflect.TypeOf(*oneSiteCSVRow).Field(i).Name
 		fieldValue := reflectedOneSiteCSVRow.Field(i).Interface().(string)
-		err := ValidateCSVField(fieldName, fieldValue, rowIndex+1)
+		err := validateCSVField(oneSiteCSVRow, fieldName, fieldValue, rowIndex+1)
 		if err != nil {
 			rowErrs = append(rowErrs, err)
 		}
@@ -143,9 +150,9 @@ func ValidateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 	return rowErrs
 }
 
-// ValidateCSVField validates csv field of onesite
-func ValidateCSVField(field string, value string, rowIndex int) error {
-	rule, ok := CSVRowFieldRules[field]
+// validateCSVField validates csv field of onesite
+func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowIndex int) error {
+	rule, ok := csvRowFieldRules[field]
 
 	// if not found then simple return
 	if !ok {
@@ -154,8 +161,27 @@ func ValidateCSVField(field string, value string, rowIndex int) error {
 
 	fieldType, fieldBlankAllow := rule["type"], rule["blank"]
 
-	// check with blank rule
-	if fieldBlankAllow == "true" && value == "" {
+	// ----------------- special rules comes first -----------------
+	//
+	// if status is not occupied then entry for name, phone, email, movein,
+	// lease start, lease end, rent would be null otherwise throw an error
+	if core.StringInSlice(field, unOccupiedRentableBlankField) {
+		if value == "" {
+			// check first rentable status is valid or not
+			// if not valid then just skip it
+			// for rentable status field, error will be count
+			ok, _ := IsValidRentableStatus(oneSiteCSVRow.UnitLeaseStatus)
+			if !ok {
+				return nil
+			}
+			// if status occupied and value is blank then throw an error
+			if strings.Contains(oneSiteCSVRow.UnitLeaseStatus, "occupied") {
+				return fmt.Errorf("\"%s\" has blank value at row \"%d\"", field, rowIndex)
+			}
+			return nil
+		}
+	} else if fieldBlankAllow == "true" && value == "" {
+		// check with blank rule
 		return nil
 	}
 
