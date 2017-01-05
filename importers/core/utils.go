@@ -49,7 +49,7 @@ func IsFloatString(a string) bool {
 // IsValidEmail used to check valid email or not
 func IsValidEmail(email string) bool {
 	// Re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	Re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+$`)
+	Re := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-z0-9.\-]+$`)
 	return Re.MatchString(email)
 }
 
