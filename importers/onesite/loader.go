@@ -35,7 +35,6 @@ customAttribRefs in rentroll in a manual way rather than importing via temp csv 
 At last, after all things done, it clears out all temp files from `temp_CSVs` dir and
 returns the response.
 */
-
 package onesite
 
 import (
