@@ -111,7 +111,7 @@ func loadOneSiteCSV(
 
 	// vars
 	var (
-		loadOneSiteError error
+		LoadOneSiteError error
 		csvErrors        []error
 	)
 
@@ -145,9 +145,9 @@ func loadOneSiteCSV(
 	var OneSiteFieldMap CSVFieldMap
 	err := getOneSiteMapping(&OneSiteFieldMap)
 	if err != nil {
-		loadOneSiteError = core.ErrInternal
+		LoadOneSiteError = core.ErrInternal
 		rlib.Ulog("Error <ONESITE FIELD MAPPING>: %s\n", err.Error())
-		return csvErrors, loadOneSiteError
+		return csvErrors, LoadOneSiteError
 	}
 
 	// ##############################
@@ -235,7 +235,7 @@ func loadOneSiteCSV(
 	// if there is any error in data validation then return from here
 	// do not perform any further action
 	if dataValidationError {
-		return csvErrors, loadOneSiteError
+		return csvErrors, LoadOneSiteError
 	}
 
 	// ====================================
@@ -251,8 +251,8 @@ func loadOneSiteCSV(
 			&OneSiteFieldMap.RentableTypeCSV,
 		)
 	if !ok {
-		loadOneSiteError = core.ErrInternal
-		return csvErrors, loadOneSiteError
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
 	}
 
 	// get created people csv and writer pointer
@@ -262,8 +262,8 @@ func loadOneSiteCSV(
 			&OneSiteFieldMap.PeopleCSV,
 		)
 	if !ok {
-		loadOneSiteError = core.ErrInternal
-		return csvErrors, loadOneSiteError
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
 	}
 
 	// get created people csv and writer pointer
@@ -273,8 +273,8 @@ func loadOneSiteCSV(
 			&OneSiteFieldMap.RentableCSV,
 		)
 	if !ok {
-		loadOneSiteError = core.ErrInternal
-		return csvErrors, loadOneSiteError
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
 	}
 
 	// get created rental agreement csv and writer pointer
@@ -284,8 +284,8 @@ func loadOneSiteCSV(
 			&OneSiteFieldMap.RentalAgreementCSV,
 		)
 	if !ok {
-		loadOneSiteError = core.ErrInternal
-		return csvErrors, loadOneSiteError
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
 	}
 
 	// get created customAttibutes csv and writer pointer
@@ -295,8 +295,8 @@ func loadOneSiteCSV(
 			&OneSiteFieldMap.CustomAttributeCSV,
 		)
 	if !ok {
-		loadOneSiteError = core.ErrInternal
-		return csvErrors, loadOneSiteError
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
 	}
 	// --------------------------------------------------------------------------------------------------------- //
 
@@ -530,7 +530,6 @@ func loadOneSiteCSV(
 		if len(h[i].Fname) > 0 {
 			Errs := rrDoLoad(h[i].Fname, h[i].Handler)
 			for _, err := range Errs {
-				fmt.Println(err.Error())
 				// skip warnings about already existing records
 				if !strings.Contains(err.Error(), "already exists") {
 					errText := err.Error()
@@ -651,7 +650,7 @@ func loadOneSiteCSV(
 	}
 
 	// RETURN
-	return csvErrors, loadOneSiteError
+	return csvErrors, LoadOneSiteError
 }
 
 func rrDoLoad(fname string, handler func(string) []error) []error {
@@ -690,7 +689,7 @@ func CSVHandler(
 		CSVReport        string
 		CSVLoaded        bool
 		CSVErrs          []error
-		loadOneSiteError error
+		LoadOneSiteError error
 	)
 
 	// init values
@@ -712,26 +711,26 @@ func CSVHandler(
 		CSVErrs = append(CSVErrs,
 			fmt.Errorf("Supplied Business Unit Designation does not exists"))
 		CSVReport = errorReporting(&CSVErrs)
-		return CSVLoaded, CSVReport, loadOneSiteError
+		return CSVLoaded, CSVReport, LoadOneSiteError
 	}
 	// --------------------------------------------------------------------------------------------------------- //
 
 	// ---------------------- call onesite loader ----------------------------------------
-	CSVErrs, loadOneSiteError = loadOneSiteCSV(CSV, TestMode, userRRValues, &business)
+	CSVErrs, LoadOneSiteError = loadOneSiteCSV(CSV, TestMode, userRRValues, &business)
 
 	// check if there any errors from onesite loader
 	if len(CSVErrs) > 0 {
 		CSVLoaded = false
 		CSVReport = errorReporting(&CSVErrs)
 	}
-	if loadOneSiteError != nil {
+	if LoadOneSiteError != nil {
 		CSVLoaded = false
 	}
 	// if csv is not loaded properly then do rollbackoperation
 	// and return with errors
 	if !CSVLoaded {
 		// TODO: rollBackImportOperation
-		return CSVLoaded, CSVReport, loadOneSiteError
+		return CSVLoaded, CSVReport, LoadOneSiteError
 	}
 	// --------------------------------------------------------------------------------------------------------- //
 
@@ -753,7 +752,7 @@ func CSVHandler(
 	// --------------------------------------------------------------------------------------------------------- //
 
 	// RETURN
-	return CSVLoaded, CSVReport, loadOneSiteError
+	return CSVLoaded, CSVReport, LoadOneSiteError
 
 }
 
