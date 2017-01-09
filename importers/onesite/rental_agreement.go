@@ -2,11 +2,11 @@ package onesite
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"rentroll/rlib"
 	"strings"
 )
 
@@ -29,7 +29,7 @@ func CreateRentalAgreementCSV(
 	// try to create file and return with error if occurs any
 	rentalAgreementCSVFile, err := os.Create(rentalAgreementCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <RENTAL AGREEMENT CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -40,7 +40,7 @@ func CreateRentalAgreementCSV(
 	rentalAgreementCSVHeaders := []string{}
 	rentalAgreementCSVHeaders, ok := core.GetStructFields(rentalAgreementStruct)
 	if !ok {
-		log.Println("Unable to get struct fields for rentalAgreementCSV")
+		rlib.Ulog("Error <RENTAL AGREEMENT CSV>: Unable to get struct fields for rentalAgreementCSV\n")
 		return nil, nil, done
 	}
 
@@ -55,6 +55,9 @@ func CreateRentalAgreementCSV(
 // WriteRentalAgreementData used to write the data to csv file
 // with avoiding duplicate data
 func WriteRentalAgreementData(
+	recordCount *int,
+	rowIndex int,
+	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
 	avoidData *[]string,
@@ -86,8 +89,12 @@ func WriteRentalAgreementData(
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
-		// TODO: make sure to verify the usage of flush is correct or not
 		csvWriter.Flush()
+
+		// after write operation to csv,
+		// entry this rowindex with unit value in the map
+		*recordCount = *recordCount + 1
+		traceCSVData[*recordCount] = rowIndex
 	}
 }
 

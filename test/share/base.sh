@@ -313,14 +313,29 @@ docsvtest () {
 			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
 			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
-		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
+		declare -a out_filters=(
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/20[0-9][0-9]//g'
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/[0-9][0-9]//g'
+			's/\s+[0-9]\/[0-9]\/[0-9][0-9]//g'
+		)
+		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
+		cp ${1} ${1}.g
+		for f in "${out_filters[@]}"
+		do
+			perl -pe "$f" ${GOLD}/${1}.g > ${GOLD}/${1}.t; mv ${GOLD}/${1}.t ${GOLD}/${1}.g
+			perl -pe "$f" ${1}.g > ${1}.t; mv ${1}.t ${1}.g
+		done
+		UDIFFS=$(diff ${1}.g ${GOLD}/${1}.g | wc -l)
+		# UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
+			rm -f ${1}.g ${GOLD}/${1}.g
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
+			# diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
+			diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1
@@ -355,14 +370,29 @@ doOnesiteTest () {
 			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
 			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
-		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
+		declare -a out_filters=(
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/20[0-9][0-9]//g'
+			's/\s+[0-1][0-9]\/[0-3][0-9]\/[0-9][0-9]//g'
+			's/\s+[0-9]\/[0-9]\/[0-9][0-9]//g'
+		)
+		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
+		cp ${1} ${1}.g
+		for f in "${out_filters[@]}"
+		do
+			perl -pe "$f" ${GOLD}/${1}.g > ${GOLD}/${1}.t; mv ${GOLD}/${1}.t ${GOLD}/${1}.g
+			perl -pe "$f" ${1}.g > ${1}.t; mv ${1}.t ${1}.g
+		done
+		UDIFFS=$(diff ${1}.g ${GOLD}/${1}.g | wc -l)
+		# UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
+			rm -f ${1}.g ${GOLD}/${1}.g
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
+			# diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
+			diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1

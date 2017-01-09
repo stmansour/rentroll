@@ -2,11 +2,11 @@ package onesite
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"path"
 	"reflect"
 	"rentroll/importers/core"
+	"rentroll/rlib"
 )
 
 // =========
@@ -45,7 +45,7 @@ func CreateCustomAttibutesCSV(
 	// try to create file and return with error if occurs any
 	customAttributeCSVFile, err := os.Create(customAttributeCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <CUSTOM ATTRIBUTES CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -56,7 +56,7 @@ func CreateCustomAttibutesCSV(
 	customAttributeCSVHeaders := []string{}
 	customAttributeCSVHeaders, ok := core.GetStructFields(customAttributeStruct)
 	if !ok {
-		log.Println("Unable to get struct fields for customAttributeCSV")
+		rlib.Ulog("Error <CUSTOM ATTRIBUTES CSV>: Unable to get struct fields for customAttributeCSV\n")
 		return nil, nil, done
 	}
 
@@ -71,6 +71,9 @@ func CreateCustomAttibutesCSV(
 // WriteCustomAttributeData used to write the data to csv file
 // with avoiding duplicate data
 func WriteCustomAttributeData(
+	recordCount *int,
+	rowIndex int,
+	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
 	avoidData map[string][]string,
@@ -92,15 +95,19 @@ func WriteCustomAttributeData(
 		}
 		avoidData[customAttributeField] = append(avoidData[customAttributeField], value)
 
-		// csv row rowData used to write data it holds
-		rowData := []string{}
-		rowData = append(rowData, customAttributeConfig["Name"])
-		rowData = append(rowData, customAttributeConfig["ValueType"])
-		rowData = append(rowData, value)
-		rowData = append(rowData, customAttributeConfig["Units"])
+		// csv row csvRowData used to write data it holds
+		csvRowData := []string{}
+		csvRowData = append(csvRowData, customAttributeConfig["Name"])
+		csvRowData = append(csvRowData, customAttributeConfig["ValueType"])
+		csvRowData = append(csvRowData, value)
+		csvRowData = append(csvRowData, customAttributeConfig["Units"])
 
-		csvWriter.Write(rowData)
-		// TODO: make sure to verify the usage of flush is correct or not
+		csvWriter.Write(csvRowData)
 		csvWriter.Flush()
+
+		// after write operation to csv,
+		// entry this rowindex with unit value in the map
+		*recordCount = *recordCount + 1
+		traceCSVData[*recordCount] = rowIndex
 	}
 }

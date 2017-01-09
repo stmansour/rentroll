@@ -26,5 +26,8 @@ docsvtest "d" "-L 5,${BUD}" "RentableTypes"
 docsvtest "e" "-L 7,${BUD}" "People"
 docsvtest "f" "-L 6,${BUD}" "Rentables"
 docsvtest "h" "-L 9,${BUD}" "RentalAgreements"
+docsvtest "k" "-L 14,${BUD}" "CustomAttribute"
+docsvtest "l" "-L 15,${BUD}" "CustomAttributeRef"
 
 logcheck
+
