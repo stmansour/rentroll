@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"rentroll/rlib"
 	"strings"
-	"time"
 )
 
 // CSVColumn defines a column of the CSV file
@@ -33,22 +32,6 @@ var CsvErrorSensitivity = int(CsvErrLoose)
 type CSVLoadHandler struct {
 	Fname   string
 	Handler func(string) []error
-}
-
-// CSVReporterInfo is for routines that want to table-ize their reporting using
-// the CSV library's simple report routines.
-type CSVReporterInfo struct {
-	ReportNo     int       // index number of the report
-	OutputFormat int       // text, html, maybe more in the future
-	Bid          int64     // associated business
-	Raid         int64     // associated Rental Agreement if needed
-	D1           time.Time // associated date if needed
-	D2           time.Time // associated date if needed
-	NeedsBID     bool      // true if BID is needed for this report
-	NeedsRAID    bool      // true if RAID is needed for this report
-	NeedsDt      bool      // true if a Date is needed for this report
-	Handler      func(*CSVReporterInfo) string
-	Xbiz         *rlib.XBusiness // may not be set in all cases
 }
 
 // LoadRentRollCSV performs a general purpose load.  It opens the supplied file name, and processes

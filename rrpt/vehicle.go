@@ -1,9 +1,6 @@
 package rrpt
 
-import (
-	"rentroll/rcsv"
-	"rentroll/rlib"
-)
+import "rentroll/rlib"
 
 // VehicleReportTable returns a table containing a report of all
 // vehicles in the supplied business
@@ -82,7 +79,7 @@ func VehicleReportTable(bid int64) rlib.Table {
 
 // VehicleReport returns a text report for vehicles
 // ri contains the BID needed by this report
-func VehicleReport(ri *rcsv.CSVReporterInfo) string {
+func VehicleReport(ri *ReporterInfo) string {
 	t := VehicleReportTable(ri.Bid)
 	return t.SprintTable(ri.OutputFormat)
 }

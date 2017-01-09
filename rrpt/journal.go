@@ -2,7 +2,6 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -235,7 +234,7 @@ func textReportJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 }
 
 // JournalReport returns a Journal report in an rlib.Table for the supplied Business and time range
-func JournalReport(ri *rcsv.CSVReporterInfo) rlib.Table {
+func JournalReport(ri *ReporterInfo) rlib.Table {
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("Journal ID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // 0

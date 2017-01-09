@@ -34,7 +34,7 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	fmt.Printf("websvcReportHandler: prefix=%s, BID=%d,  d1 = %s, d2 = %s\n", prefix, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-	var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz}
+	var ri = rrpt.ReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz}
 
 	switch strings.ToLower(prefix) {
 	case "asm", "assessments":

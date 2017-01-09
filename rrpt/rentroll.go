@@ -2,7 +2,6 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -34,12 +33,12 @@ func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rl
 }
 
 // RentRollTextReport prints a text-based RentRoll report for the business in xbiz and timeframe d1 to d2 to stdout
-func RentRollTextReport(ri *rcsv.CSVReporterInfo) {
+func RentRollTextReport(ri *ReporterInfo) {
 	fmt.Print(RentRollReportString(ri))
 }
 
 // RentRollReportString returns a string containin a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
-func RentRollReportString(ri *rcsv.CSVReporterInfo) string {
+func RentRollReportString(ri *ReporterInfo) string {
 	tbl, err := RentRollReport(ri)
 	if err == nil {
 		return tbl.Title + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
@@ -48,7 +47,7 @@ func RentRollReportString(ri *rcsv.CSVReporterInfo) string {
 }
 
 // RentRollReport generates a text-based RentRoll report for the business in ri.Xbiz and timeframe d1 to d2.
-func RentRollReport(ri *rcsv.CSVReporterInfo) (rlib.Table, error) {
+func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 	funcname := "RentRollReport"
 	var d1, d2 *time.Time
 	var tbl rlib.Table

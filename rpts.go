@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
 )
@@ -11,7 +10,7 @@ import (
 // RptDelinq is the HTTP handler for the RentRoll report request
 func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	if xbiz.P.BID > 0 {
-		var ri rcsv.CSVReporterInfo
+		var ri rrpt.ReporterInfo
 		ri.Xbiz = xbiz
 		ri.D2 = ui.D2
 		tbl, err := rrpt.DelinquencyReport(&ri)
@@ -26,7 +25,7 @@ func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 // RptGSR is the http handler routine for the Trial Balance report.
 func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	if xbiz.P.BID > 0 {
-		var ri rcsv.CSVReporterInfo
+		var ri rrpt.ReporterInfo
 		ri.Xbiz = xbiz
 		ri.D1 = ui.D2 // set both dates to the range end
 		ri.D2 = ui.D2
@@ -40,7 +39,7 @@ func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RR
 // RptJournal is the HTTP handler for the Journal report request
 func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	if xbiz.P.BID > 0 {
-		var ri = rcsv.CSVReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
+		var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 		tbl := rrpt.JournalReport(&ri)
 		ui.ReportContent = tbl.Title + tbl.SprintTable(rlib.TABLEOUTTEXT)
 	}
@@ -48,7 +47,7 @@ func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 
 // RptLedgerHandler is the HTTP handler for the Ledger report request
 func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport, sel int) {
-	var ri = rcsv.CSVReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
+	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	var m []rlib.Table
 	if xbiz.P.BID > 0 {
 		switch sel {
@@ -76,7 +75,7 @@ func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusin
 
 // RptRentRoll is the HTTP handler for the RentRoll report request
 func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
-	var ri = rcsv.CSVReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
+	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
 		tbl, err := rrpt.RentRollReport(&ri)
 		if err == nil {
@@ -90,7 +89,7 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, u
 // RptTrialBalance is the http handler routine for the Trial Balance report.
 func RptTrialBalance(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	var err error
-	var ri = rcsv.CSVReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
+	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
 		tbl := rrpt.LedgerBalanceReport(&ri)
 		if err == nil {

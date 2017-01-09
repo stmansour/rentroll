@@ -79,7 +79,7 @@ func CmdCsvAssess(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, 
 		rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
 		m := rcsv.LoadAssessmentsCSV(path)
 		ui.ReportContent += rcsv.ErrlistToString(&m)
-		var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
+		var ri = rrpt.ReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
 		t := rcsv.RRAssessmentsTable(&ri)
 		ui.ReportContent += fmt.Sprintf("\nAssessments\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
@@ -104,7 +104,7 @@ func CmdCsvRcpt(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 		rcsv.InitRCSV(&ui.D1, &ui.D2, xbiz)
 		m := rcsv.LoadReceiptsCSV(path)
 		ui.ReportContent = rcsv.ErrlistToString(&m)
-		var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
+		var ri = rrpt.ReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
 		t := rcsv.RRReceiptsTable(&ri)
 		ui.ReportContent += fmt.Sprintf("\nReceipts\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
@@ -122,7 +122,7 @@ func CmdGenJnl(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 	rlib.GenerateRecurInstances(xbiz, &ui.D1, &ui.D2) // generate and process assessment instances in this range
 	rlib.ProcessReceiptRange(xbiz, &ui.D1, &ui.D2)    // process receipts in this range
 	ui.ReportContent += fmt.Sprintf("\nJournal\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-	var ri rcsv.CSVReporterInfo
+	var ri rrpt.ReporterInfo
 	ri.Xbiz = xbiz
 	ri.D1 = ui.D1
 	ri.D2 = ui.D2

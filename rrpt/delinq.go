@@ -2,14 +2,13 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
 )
 
 // DelinquencyTextReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyTextReport(ri *rcsv.CSVReporterInfo) error {
+func DelinquencyTextReport(ri *ReporterInfo) error {
 	tbl, err := DelinquencyReport(ri)
 	if err == nil {
 		fmt.Print(tbl)
@@ -18,7 +17,7 @@ func DelinquencyTextReport(ri *rcsv.CSVReporterInfo) error {
 }
 
 // DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyReport(ri *rcsv.CSVReporterInfo) (rlib.Table, error) {
+func DelinquencyReport(ri *ReporterInfo) (rlib.Table, error) {
 	funcname := "DelinquencyReport"
 	var tbl rlib.Table
 	var noerr error

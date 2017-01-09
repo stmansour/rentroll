@@ -298,7 +298,7 @@ func main() {
 	//----------------------------------------------------
 	// Now do all the reporting
 	//----------------------------------------------------
-	var r = []rcsv.CSVReporterInfo{
+	var r = []rrpt.ReporterInfo{
 		{ReportNo: 3, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportBusiness},
 		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentableTypes},
 		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentables},

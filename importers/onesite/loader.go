@@ -46,6 +46,7 @@ import (
 	"rentroll/importers/core"
 	"rentroll/rcsv"
 	"rentroll/rlib"
+	"rentroll/rrpt"
 	"sort"
 	"strconv"
 	"strings"
@@ -736,7 +737,7 @@ func CSVHandler(
 	// --------------------------------------------------------------------------------------------------------- //
 
 	//------------------------ Now do all the reporting ----------------------------
-	var r = []rcsv.CSVReporterInfo{
+	var r = []rrpt.ReporterInfo{
 		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
 		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
 		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
