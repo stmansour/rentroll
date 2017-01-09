@@ -20,6 +20,9 @@ type CSVColumn struct {
 const (
 	CsvErrLoose  = 0
 	CsvErrStrict = 1
+
+	// DupTransactant et al., are error identfiers for the CSV Loader
+	DupTransactant = "DuplicateTransactant"
 )
 
 // CsvErrorSensitivity is the error return value used by all the loadXYZcsv.go routines. We

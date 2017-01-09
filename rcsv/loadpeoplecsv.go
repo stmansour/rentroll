@@ -410,13 +410,13 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	if len(tr.PrimaryEmail) > 0 {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.PrimaryEmail)
 		if t1.TCID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Transactant with PrimaryEmail address = %s \n", funcname, lineno, DupTransactant, tr.PrimaryEmail)
 		}
 	}
 	if len(tr.CellPhone) > 0 && !ignoreDupPhone {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.CellPhone)
 		if t1.TCID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Transactant with CellPhone number = %s already exists\n", funcname, lineno, DupTransactant, tr.CellPhone)
 		}
 	}
 

@@ -40,7 +40,6 @@ package onesite
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/kardianos/osext"
 	"io/ioutil"
 	"os"
 	"path"
@@ -51,6 +50,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/kardianos/osext"
 )
 
 // used to store temporary csv files
@@ -531,7 +532,7 @@ func loadOneSiteCSV(
 			Errs := rrDoLoad(h[i].Fname, h[i].Handler)
 			for _, err := range Errs {
 				// skip warnings about already existing records
-				if !strings.Contains(err.Error(), "already exists") {
+				if !strings.Contains(err.Error(), rcsv.DupTransactant) {
 					errText := err.Error()
 					// split with separator `:`
 					s := strings.Split(errText, ":")
