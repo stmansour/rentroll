@@ -199,7 +199,7 @@ func main() {
 		Dispatch(&ctx)
 	} else {
 		initHTTP()
-		rlib.Ulog("RentRoll initiating HTTP service on port %d\n", App.PortRR)
+		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)
 		initPageHandlers()
 		go http.ListenAndServeTLS(fmt.Sprintf(":%d", App.PortRR+1), App.CertFile, App.KeyFile, nil)
 		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)

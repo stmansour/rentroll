@@ -49,6 +49,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 	case "cr", "custom attribute refs":
 		return rcsv.RRreportCustomAttributeRefs(&ri)
 	case "delinq":
+		rlib.InitBizInternals(ri.Bid, xbiz)
 		t, err := rrpt.DelinquencyReport(&ri)
 		if err != nil {
 			return err.Error()

@@ -69,7 +69,55 @@ type gxperson struct {
 	LastModBy                 int64
 }
 
-// SvcXPerson formats a complete data record for a person suitable for use with the w2ui Form
+// SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
+func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Printf("Entered SvcSearchHandlerTransactants")
+	var p rlib.Transactant
+	var err error
+	var g struct {
+		Status  string             `json:"status"`
+		Total   int64              `json:"total"`
+		Records []rlib.Transactant `json:"records"`
+	}
+
+	srch := fmt.Sprintf("BID=%d", d.BID)   // default WHERE clause
+	order := "LastName ASC, FirstName ASC" // default ORDER
+	q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
+	fmt.Printf("db query = %s\n", q)
+
+	g.Total, err = GetRowCount("Transactant", qw) // total number of rows that match the criteria
+	if err != nil {
+		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+
+	rows, err := rlib.RRdb.Dbrr.Query(q)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	i := int64(d.greq.Offset)
+	count := 0
+	for rows.Next() {
+		var p rlib.Transactant
+		rlib.ReadTransactants(rows, &p)
+		p.Recid = i
+		g.Records = append(g.Records, p)
+		count++ // update the count only after adding the record
+		if count >= d.greq.Limit {
+			break // if we've added the max number requested, then exit
+		}
+		i++ // update the index no matter what
+	}
+	fmt.Printf("Loaded %d transactants\n", len(g.Records))
+	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Errcheck(rows.Err())
+	w.Header().Set("Content-Type", "application/json")
+	g.Status = "success"
+	SvcWriteResponse(&g, w)
+}
+
+// SvcFormHandlerXPerson formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the TCID as follows:
 // 		/gsvc/xperson/UID/BID/TCID
 // The server command can be:
@@ -77,8 +125,8 @@ type gxperson struct {
 //      save
 //      delete
 //-----------------------------------------------------------------------------------
-func SvcXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcXPerson\n")
+func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Printf("Entered SvcFormHandlerXPerson\n")
 	var err error
 
 	path := "/gsvc/"                // this is the part of the URL that got us into this handler
@@ -117,10 +165,11 @@ func SvcXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 }
 
+// saveXPerson handles the Save action from the Transactant Form
 func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveXPerson"
 	target := `"record":`
-	fmt.Printf("SvcXPerson save\n")
+	fmt.Printf("SvcFormHandlerXPerson save\n")
 	fmt.Printf("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
 	fmt.Printf("record is at index = %d\n", i)
@@ -184,6 +233,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(&g, w)
 }
 
+// getXPerson handles the request for an XPerson from the Transactant Form
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// fmt.Printf("entered getXPerson\n")
 	var g struct {
