@@ -76,14 +76,14 @@ func TestStringInSlice(t *testing.T) {
 	sampleSlice := []string{"a", "b", "c"}
 
 	// CASE: POSITIVE
-	var a string = "a"
+	var a = "a"
 	ok := StringInSlice(a, sampleSlice)
 	if !ok {
 		t.Errorf("[TestStringInSlice] Expected `true`, but it returned `%v` for `%v` in slice `%v`", ok, a, sampleSlice)
 	}
 
 	// CASE: NEGATIVE
-	var z string = "z"
+	var z = "z"
 	ok = StringInSlice(z, sampleSlice)
 	if ok {
 		t.Errorf("[TestStringInSlice] Expected `false`, but it returned `%v` for `%v` in slice `%v`", ok, a, sampleSlice)
