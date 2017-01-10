@@ -1,9 +1,9 @@
 #!/bin/bash
 TESTNAME="CCC"
-TESTSUMMARY="Setup and run CCC company and the Rexford Properties"
+TESTSUMMARY="Setup a database with multiple businesses for testing purposes"
 
 RRDATERANGE="-j 2016-01-01 -k 2016-02-01"
-BUD="ISO"
+BUD="OKC"
 
 source ../share/base.sh
 
@@ -22,10 +22,9 @@ docsvtest "g1" "-p cccpeeps.csv  -L 7,CCC" "People"
 #docsvtest "h" "-r rentable.csv -L 6,${BUD}" "Rentables"
 docsvtest "h1" "-r cccrentable.csv -L 6,CCC" "Rentables"
 doOnesiteTest "g" "-csv ./onesite-RentRoll-Isola.csv -bud ${BUD} -testmode 1" "OnesiteRentrollCSV"
-exit 0
+
 # docsvtest "i" "-u custom.csv -L 14" "CustomAttributes"
 # docsvtest "j" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
-docsvtest "k" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
-docsvtest "l" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
+# docsvtest "k" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
+# docsvtest "l" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
 # docsvtest "m" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
-

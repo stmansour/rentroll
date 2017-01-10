@@ -3,7 +3,7 @@ CreatePhonebookLinkedBusiness: line 3 -rs, rlib.Business Unit with designation C
                                             Default     Proration   GSRPC     
 BID        BUD        Name                  Rent Cycle  Cycle       Cycle     
 ---------  ---------  --------------------  ----------  ----------  ----------
-B00000004  ISO                              monthly     daily       daily     
+B00000004  OKC        Accord/OKC Members,   monthly     daily       daily     
 B00000002  CCC        California Commerce   monthly     daily       daily     
 B00000001  REX        JGM First, LLC        monthly     daily       daily     
 B00000003  401        JGM First, LLC        monthly     daily       daily     

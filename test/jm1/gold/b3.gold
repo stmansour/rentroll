@@ -1,7 +1,15 @@
 CreateAssessmentsFromCSV: line 3 - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: 0
 Rental Agreement start/stop: 8/12/2010 - 2/8/2016 
       Assessment start/stop: 3/2/2016 - 3/3/2016 
-Assessments:  BID = B00000001, from 12/31/1969 up to 12/31/9998
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+Assessments
+12/31/1969 - 12/31/9998
+
+
                                                            Proration                                                                                                            
 ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType                       Account Rule                                                
 -----------  ------  ----------  ---------  -------------  -------------  ----------  ----------------------------  ------------------------------------------------------------

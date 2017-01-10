@@ -8,6 +8,7 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
+	"strings"
 	"time"
 )
 
@@ -80,9 +81,16 @@ func CmdCsvAssess(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, 
 		m := rcsv.LoadAssessmentsCSV(path)
 		ui.ReportContent += rcsv.ErrlistToString(&m)
 		var ri = rrpt.ReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
-		t := rcsv.RRAssessmentsTable(&ri)
-		ui.ReportContent += fmt.Sprintf("\nAssessments\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
+		t, err := rcsv.RRAssessmentsTable(&ri)
+		if err == nil || strings.Contains(err.Error(), "no rows in result set") {
+			// ui.ReportContent += fmt.Sprintf("\nAssessments\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
+			ui.ReportContent += t.GetTitle() + t.SprintTable(rlib.RPTTEXT)
+			if err != nil {
+				ui.ReportContent += "\nNo assessments found during this period\n"
+			}
+		} else {
+			ui.ReportContent += err.Error()
+		}
 		removeUploadFile(path, ui)
 	}
 }

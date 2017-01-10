@@ -428,13 +428,25 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 func RRreportAssessments(ri *rrpt.ReporterInfo) string {
 	ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	var xbiz rlib.XBusiness
+	ri.Xbiz = &xbiz
+	rlib.GetXBusiness(ri.Bid, ri.Xbiz)
 
-	t := RRAssessmentsTable(ri)
+	t, err := RRAssessmentsTable(ri)
+	if err != nil {
+		if rlib.IsSQLNoResultsError(err) {
+			return "\nNo assessments found\n"
+		}
+		return err.Error()
+	}
 	return t.GetTitle() + "\n" + t.SprintTable(ri.OutputFormat)
 }
 
 // RRAssessmentsTable generates a report of all rlib.GLAccount accounts
-func RRAssessmentsTable(ri *rrpt.ReporterInfo) rlib.Table {
+func RRAssessmentsTable(ri *rrpt.ReporterInfo) (rlib.Table, error) {
+	var t rlib.Table
+	t.Init()
+	funcname := "RRAssessmentsTable"
 	bid := ri.Bid
 	d1 := ri.D1
 	d2 := ri.D2
@@ -442,11 +454,20 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) rlib.Table {
 	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		return t, err
+	}
 	defer rows.Close()
 
-	var t rlib.Table
-	t.SetTitle(fmt.Sprintf("Assessments:  BID = %s, from %s up to %s", rlib.IDtoString("B", bid), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4)))
-	t.Init()
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+	s, err := rrpt.ReportHeader("Assessments", funcname, ri)
+	if err != nil {
+		return t, err
+	}
+	t.SetTitle(s)
+	//t.SetTitle(fmt.Sprintf("Assessments:  BID = %s, from %s up to %s", rlib.IDtoString("B", bid), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4)))
+
 	t.AddColumn("ASMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("PASMID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -472,7 +493,7 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) rlib.Table {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t
+	return t, nil
 }
 
 // RRreportReceipts generates a report of all rlib.GLAccount accounts
