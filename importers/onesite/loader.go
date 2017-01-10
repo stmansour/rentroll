@@ -55,9 +55,6 @@ import (
 	"github.com/kardianos/osext"
 )
 
-// used to store temporary csv files
-var SplittedCSVStore string
-
 // Init configure required settings
 func Init() error {
 	// #############
@@ -69,11 +66,11 @@ func Init() error {
 	}
 
 	// get path of splitted csv store
-	SplittedCSVStore = path.Join(folderPath, splittedCSVStoreName)
+	tempCSVStore = path.Join(folderPath, tempCSVStoreName)
 
-	// if splittedcsvstore not exist then create it
-	if _, err := os.Stat(SplittedCSVStore); os.IsNotExist(err) {
-		os.MkdirAll(SplittedCSVStore, 0700)
+	// if tempCSVStore not exist then create it
+	if _, err := os.Stat(tempCSVStore); os.IsNotExist(err) {
+		os.MkdirAll(tempCSVStore, 0700)
 	}
 	return err
 }
@@ -249,7 +246,7 @@ func loadOneSiteCSV(
 	// get created rentabletype csv and writer pointer
 	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
 		CreateRentableTypeCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.RentableTypeCSV,
 		)
 	if !ok {
@@ -260,7 +257,7 @@ func loadOneSiteCSV(
 	// get created people csv and writer pointer
 	peopleCSVFile, peopleCSVWriter, ok :=
 		CreatePeopleCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.PeopleCSV,
 		)
 	if !ok {
@@ -271,7 +268,7 @@ func loadOneSiteCSV(
 	// get created people csv and writer pointer
 	rentableCSVFile, rentableCSVWriter, ok :=
 		CreateRentableCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.RentableCSV,
 		)
 	if !ok {
@@ -282,7 +279,7 @@ func loadOneSiteCSV(
 	// get created rental agreement csv and writer pointer
 	rentalAgreementCSVFile, rentalAgreementCSVWriter, ok :=
 		CreateRentalAgreementCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.RentalAgreementCSV,
 		)
 	if !ok {
@@ -293,7 +290,7 @@ func loadOneSiteCSV(
 	// get created customAttibutes csv and writer pointer
 	customAttributeCSVFile, customAttributeCSVWriter, ok :=
 		CreateCustomAttibutesCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.CustomAttributeCSV,
 		)
 	if !ok {
@@ -462,12 +459,6 @@ func loadOneSiteCSV(
 	// ########################
 	// # PHASE 2 : RCSV LOADERS CALL #
 	// ########################
-	// CSVLoadHandler struct is for routines that want to table-ize their loading.
-	type csvLoadHandler struct {
-		Fname        string
-		Handler      func(string) []error
-		TraceDataMap string
-	}
 
 	// csv load handler
 	var h = []csvLoadHandler{
@@ -673,7 +664,7 @@ func rollBackImportOperation(timestamp string) {
 func clearSplittedTempCSVFiles(timestamp string) {
 	for _, filePrefix := range prefixCSVFile {
 		fileName := filePrefix + timestamp + ".csv"
-		filePath := path.Join(SplittedCSVStore, fileName)
+		filePath := path.Join(tempCSVStore, fileName)
 		os.Remove(filePath)
 	}
 }

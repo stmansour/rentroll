@@ -4,6 +4,12 @@ import (
 	"rentroll/rcsv"
 )
 
+// tempCSVStoreName holds the name of csvstore folder
+var tempCSVStoreName = "temp_CSVs"
+
+// used to store temporary csv files
+var tempCSVStore string
+
 // CARD Custom Attriute Ref Data struct, holds data
 // from which we'll insert customAttributeRef in system
 type CARD struct {
@@ -14,9 +20,6 @@ type CARD struct {
 	CID      string
 	RowIndex int
 }
-
-// splittedCSVStoreName holds the name of csvstore folder
-var splittedCSVStoreName = "temp_CSVs"
 
 // prefixCSVFile is a map which holds the prefix of csv files
 // so that temporarily program can create csv files with this
@@ -108,4 +111,30 @@ var csvCols = []rcsv.CSVColumn{
 	{Name: "FURN", Index: Furn},
 	{Name: "MTOM", Index: Mtom},
 	{Name: "REFERRAL", Index: Referral},
+}
+
+// // this structure used as table-driven approach
+// // to write data in csv
+// type oneSiteCSVWriter struct {
+// 	handler                 func(string)
+// 	csvTypeNo               int
+// 	recordCount             *int
+// 	rowIndex                int
+// 	traceDataMap            map[int]int
+// 	csvWriter               *csv.Writer
+// 	csvRow                  *CSVRow
+// 	avoidData               interface{}
+// 	currentTime             time.Time
+// 	currentTimeFormat       string
+// 	userRRValues            map[string]string
+// 	dbTypeCSV               interface{}
+// 	customAttributesRefData map[string]CARD
+// 	business                *rlib.Business
+// }
+
+// CSVLoadHandler struct is for routines that want to table-ize their loading.
+type csvLoadHandler struct {
+	Fname        string
+	Handler      func(string) []error
+	TraceDataMap string
 }
