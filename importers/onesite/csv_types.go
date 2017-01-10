@@ -147,7 +147,7 @@ func validateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 	// right now we are just throwing an error of bad value
 	if !ok {
 		statusErr := fmt.Errorf("\"%s\" has no valid rentable status value at row \"%d\" with unit \"%s\"",
-			"UnitDesignation", rowIndex, oneSiteCSVRow.Unit)
+			"UnitLeaseStatus", rowIndex, oneSiteCSVRow.Unit)
 		rowErrs = append(rowErrs, statusErr)
 		return rowErrs
 	}
