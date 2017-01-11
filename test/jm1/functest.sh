@@ -172,7 +172,6 @@ dorrtest  "n4" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 dorrtest  "o4" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p4" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q4" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
-
 #========================================================================================
 # MAY 2016
 #    GSR and Contract rent change to 3800 for 309.5 Rexford
@@ -262,10 +261,19 @@ dorrtest  "p8" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q8" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 #========================================================================================
-# AUGUST 2016
+# SEPT 2016
 #========================================================================================
 RRDATERANGE="-j 2016-09-01 -k 2016-10-01"
 CSVLOADRANGE="-G ${BUD} -g 9/1/16,10/1/16"
 dorrtest  "a9" "${RRDATERANGE} -b ${BUD}" "Process-2016-Sep"
+docsvtest "i9" "-e rcpt2016-09.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Sep"
+docsvtest "j9" "-y deposit-2016-09.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Sep"
+dorrtest  "k9" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Sep"
+dorrtest  "l9" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m9" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n9" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o9" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p9" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q9" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck

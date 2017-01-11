@@ -344,9 +344,14 @@ func main() {
 			fmt.Printf("unimplemented report type: %s\n", App.Report)
 			os.Exit(1)
 		}
+		r[idx].D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC) // init
+		r[idx].D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC) // init
 		if r[idx].NeedsBID {
 			bizErrCheck(sa)
 			r[idx].Bid = loaderGetBiz(sa[1])
+			var xbiz rlib.XBusiness
+			rlib.GetXBusiness(r[idx].Bid, &xbiz)
+			r[idx].Xbiz = &xbiz
 		}
 		if r[idx].NeedsRAID {
 			r[idx].Raid = rcsv.CSVLoaderGetRAID(sa[1])

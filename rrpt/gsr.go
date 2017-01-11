@@ -12,45 +12,6 @@ func GSRTextReport(ri *ReporterInfo) error {
 	return err
 }
 
-// ReportHeader returns a title block of text for a report.
-// @params
-//		  rn = Report Name
-//	funcname = name of calling routine in case of error
-//        ri = reporter info struct, please ensure RptHeaderD1 and RptHeaderD2 are set correctly
-//
-// @return
-//		string = title string
-//         err = any problem that occurred
-func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
-	s := ""
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
-	if err != nil {
-		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
-		return s, e
-	}
-	c, err := rlib.GetCompany(int64(bu.CoCode))
-	if err != nil {
-		e := fmt.Errorf("%s: error getting Company - %s\n", funcname, err.Error())
-		return s, e
-	}
-	s += fmt.Sprintf("%s\n", c.LegalName)
-	s += fmt.Sprintf("%s\n", c.Address)
-	if len(c.Address2) > 0 {
-		s += fmt.Sprintf("%s\n", c.Address2)
-	}
-	s += fmt.Sprintf("%s, %s %s %s\n\n", c.City, c.State, c.PostalCode, c.Country)
-	s += rn + "\n"
-	if ri.RptHeaderD1 {
-		s += ri.D1.Format(rlib.RRDATEFMT4)
-		if ri.RptHeaderD2 {
-			s += " - " + ri.D2.Format(rlib.RRDATEFMT4)
-		}
-		s += "\n"
-	}
-	s += "\n"
-	return s, nil
-}
-
 // GSRReport generates a list of GSR values for all rentables on the specified date
 func GSRReport(ri *ReporterInfo) (rlib.Table, error) {
 	funcname := "GSRTextReport"
@@ -58,11 +19,7 @@ func GSRReport(ri *ReporterInfo) (rlib.Table, error) {
 	tbl.Init() //sets column spacing and date format to default
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = false
-	s, err := ReportHeader("Gross Scheduled Rent", funcname, ri)
-	if err != nil {
-		return tbl, err
-	}
-	tbl.SetTitle(s)
+	tbl.SetTitle(ReportHeaderBlock("Gross Scheduled Rent", funcname, ri))
 	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)        // column for the Rentable name
 	tbl.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)           // Rentable name
 	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // Rentable Type

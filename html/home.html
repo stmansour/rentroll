@@ -600,7 +600,7 @@ function ChangeBusiness() {
     if (sel != null) { 
         s.unselect(sel);
     }
-    w2ui['reportslayout'].url = ''
+    w2ui['reportslayout'].load('main','/html/blank.html');
     app.lastCmd = '';
     s.collapse('reports');
     s.collapse('admin');
