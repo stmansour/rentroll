@@ -90,6 +90,26 @@ func TestStringInSlice(t *testing.T) {
 	}
 }
 
+// Testing for `string in slice`
+func TestIntegerInSlice(t *testing.T) {
+
+	sampleSlice := []int{1, 2, 3}
+
+	// CASE: POSITIVE
+	var a = 1
+	ok := IntegerInSlice(a, sampleSlice)
+	if !ok {
+		t.Errorf("[TestIntegerInSlice] Expected `true`, but it returned `%v` for `%v` in slice `%v`", ok, a, sampleSlice)
+	}
+
+	// CASE: NEGATIVE
+	var z = 8
+	ok = IntegerInSlice(z, sampleSlice)
+	if ok {
+		t.Errorf("[TestIntegerInSlice] Expected `false`, but it returned `%v` for `%v` in slice `%v`", ok, a, sampleSlice)
+	}
+}
+
 // Testing for `string is integer value?`
 func TestIsIntString(t *testing.T) {
 
