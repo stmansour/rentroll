@@ -2,12 +2,14 @@ package onesite
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"path"
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rlib"
 	"strings"
+	"time"
 )
 
 // CreateRentalAgreementCSV create rental agreement csv temporarily
@@ -61,6 +63,7 @@ func WriteRentalAgreementData(
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
 	avoidData *[]string,
+	currentTime time.Time,
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	rentalAgreementStruct *core.RentalAgreementCSV,
@@ -76,11 +79,21 @@ func WriteRentalAgreementData(
 
 	// *avoidData = append(*avoidData, checkRentableStyle)
 
+	// TODO: generate error here for RentableTypeRef
+	// to let endusers know that least start/end dates don't exists so we are taking
+	// defaults
+	currentYear, currentMonth, currentDate := currentTime.Date()
+	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
+	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
+	DtStop := "12/31/9999" // no end date
+
 	// make rentable data from userSuppliedValues and defaultValues
 	rentableDefaultData := map[string]string{}
 	for k, v := range suppliedValues {
 		rentableDefaultData[k] = v
 	}
+	rentableDefaultData["DtStart"] = DtStart
+	rentableDefaultData["DtStop"] = DtStop
 
 	// get csv row data
 	ok, csvRowData := GetRentalAgreementCSVRow(
@@ -137,7 +150,7 @@ func GetRentalAgreementCSVRow(
 		// this condition has been put here because it's mapping field does not exist
 		// =========================================================
 		if rentalAgreementField.Name == "PayorSpec" {
-			payorSpec, ok := GetPayorSpec(oneSiteRow)
+			payorSpec, ok := GetPayorSpec(oneSiteRow, DefaultValues)
 			if ok {
 				dataMap[i] = payorSpec
 			} else {
@@ -146,7 +159,7 @@ func GetRentalAgreementCSVRow(
 			}
 		}
 		if rentalAgreementField.Name == "UserSpec" {
-			userSpec, ok := GetUserSpec(oneSiteRow)
+			userSpec, ok := GetUserSpec(oneSiteRow, DefaultValues)
 			if ok {
 				dataMap[i] = userSpec
 			} else {
@@ -189,6 +202,7 @@ func GetRentalAgreementCSVRow(
 // GetPayorSpec used to get payor spec in format of rentroll system
 func GetPayorSpec(
 	csvRow *CSVRow,
+	defaults map[string]string,
 ) (string, bool) {
 
 	// TODO: verify if validation required here
@@ -196,14 +210,33 @@ func GetPayorSpec(
 
 	orderedFields := []string{}
 
-	// TODO: decide what to append here as payor
+	// TODO: decide what to append here as ruser
 	// NOTE: right now just going with email address
-	// append payor
-	orderedFields = append(orderedFields, csvRow.Email)
-	// append start date
-	orderedFields = append(orderedFields, csvRow.LeaseStart)
-	// append end date
-	orderedFields = append(orderedFields, csvRow.LeaseEnd)
+	// append ruser
+	userFound := false
+	if csvRow.Email != "" {
+		userFound = true
+		orderedFields = append(orderedFields, csvRow.Email)
+	} else if csvRow.PhoneNumber != "" {
+		userFound = true
+		orderedFields = append(orderedFields, csvRow.PhoneNumber)
+	}
+
+	if userFound {
+		// append lease start
+		if csvRow.LeaseStart == "" {
+			orderedFields = append(orderedFields, defaults["DtStart"])
+		} else {
+			orderedFields = append(orderedFields, csvRow.LeaseStart)
+		}
+
+		// append lease end
+		if csvRow.LeaseEnd == "" {
+			orderedFields = append(orderedFields, defaults["DtStop"])
+		} else {
+			orderedFields = append(orderedFields, csvRow.LeaseEnd)
+		}
+	}
 
 	ok = true
 	if ok {
@@ -216,6 +249,7 @@ func GetPayorSpec(
 // GetUserSpec used to get user spec in format of rentroll system
 func GetUserSpec(
 	csvRow *CSVRow,
+	defaults map[string]string,
 ) (string, bool) {
 
 	// TODO: verify if validation required here
@@ -223,14 +257,33 @@ func GetUserSpec(
 
 	orderedFields := []string{}
 
-	// TODO: decide what to append here as user
+	// TODO: decide what to append here as ruser
 	// NOTE: right now just going with email address
-	// append user
-	orderedFields = append(orderedFields, csvRow.Email)
-	// append start date
-	orderedFields = append(orderedFields, csvRow.LeaseStart)
-	// append end date
-	orderedFields = append(orderedFields, csvRow.LeaseEnd)
+	// append ruser
+	userFound := false
+	if csvRow.Email != "" {
+		userFound = true
+		orderedFields = append(orderedFields, csvRow.Email)
+	} else if csvRow.PhoneNumber != "" {
+		userFound = true
+		orderedFields = append(orderedFields, csvRow.PhoneNumber)
+	}
+
+	if userFound {
+		// append lease start
+		if csvRow.LeaseStart == "" {
+			orderedFields = append(orderedFields, defaults["DtStart"])
+		} else {
+			orderedFields = append(orderedFields, csvRow.LeaseStart)
+		}
+
+		// append lease end
+		if csvRow.LeaseEnd == "" {
+			orderedFields = append(orderedFields, defaults["DtStop"])
+		} else {
+			orderedFields = append(orderedFields, csvRow.LeaseEnd)
+		}
+	}
 
 	ok = true
 	if ok {
