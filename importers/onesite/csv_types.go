@@ -140,7 +140,7 @@ func validateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 	reflectedOneSiteCSVRow := reflect.ValueOf(oneSiteCSVRow).Elem()
 
 	// perform validation based on rentable status
-	ok, _ := IsValidRentableStatus(oneSiteCSVRow.UnitLeaseStatus)
+	ok, _, _ := IsValidRentableStatus(oneSiteCSVRow.UnitLeaseStatus)
 
 	// TODO: need to clear on this what should importers do
 	// when it encounters other type of rentablestatus
@@ -237,7 +237,7 @@ func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowInde
 		}
 		return nil
 	case "rentable_status":
-		ok, _ := IsValidRentableStatus(value)
+		ok, _, _ := IsValidRentableStatus(value)
 		if !ok {
 			return fmt.Errorf("\"%s\" has no valid rentable status value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
 		}

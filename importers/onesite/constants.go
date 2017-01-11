@@ -1,6 +1,7 @@
 package onesite
 
 import (
+	"rentroll/importers/core"
 	"rentroll/rcsv"
 )
 
@@ -29,6 +30,23 @@ var prefixCSVFile = map[string]string{
 	"rental_agreement": "rentalAgreement_",
 	"rentable":         "rentable_",
 	"custom_attribute": "customAttribute_",
+}
+
+// RRRentableStatus is status for rentable in rentroll system
+var RRRentableStatus = map[string]string{
+	"unknown":        "0",
+	"online":         "1",
+	"admin":          "2",
+	"employee":       "3",
+	"owner occupied": "4",
+	"offline":        "5",
+}
+
+// RentableStatusCSV is mapping for rentable status between onesite and rentroll
+var RentableStatusCSV = map[string]string{
+	"vacant":   "online",
+	"occupied": "online",
+	"model":    "admin",
 }
 
 // define column fields with order
@@ -137,4 +155,27 @@ type csvLoadHandler struct {
 	Fname        string
 	Handler      func(string) []error
 	TraceDataMap string
+}
+
+// canWriteCSVStatusMap holds the set of csv types with key of status value
+// used in checking if csv file for db type is able to perform write operation
+// for the given status value
+var canWriteCSVStatusMap = map[string][]int{
+	"occupied": []int{
+		core.RENTABLETYPECSV,
+		core.PEOPLECSV,
+		core.RENTABLECSV,
+		core.RENTALAGREEMENTCSV,
+		core.CUSTOMATTRIUTESCSV,
+	},
+	"model": []int{
+		core.RENTABLETYPECSV,
+		core.RENTABLECSV,
+		core.CUSTOMATTRIUTESCSV,
+	},
+	"vacant": []int{
+		core.RENTABLETYPECSV,
+		core.RENTABLECSV,
+		core.CUSTOMATTRIUTESCSV,
+	},
 }

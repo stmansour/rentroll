@@ -376,74 +376,101 @@ func loadOneSiteCSV(
 		// mark Unit value with row index value
 		traceUnitMap[csvRowIndex] = csvRow.Unit
 
-		// Write data to file of rentabletype
-		WriteRentableTypeCSVData(
-			&RentableTypeCSVRecordCount,
-			csvRowIndex,
-			traceRentableTypeCSVMap,
-			rentableTypeCSVWriter,
-			&csvRow,
-			&avoidDuplicateRentableTypeData,
-			currentTime,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.RentableTypeCSV,
-			customAttributesRefData,
-			business,
-		)
+		// for rentable status exists in csvRow, get set of csv types which can be allowed
+		// to perform write data for csv
+		// need to call validation function as in get values
+		_, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrStatus]
+		var canWriteData bool
 
-		// Write data to file of people
-		WritePeopleCSVData(
-			&PeopleCSVRecordCount,
-			csvRowIndex,
-			tracePeopleCSVMap,
-			peopleCSVWriter,
-			&csvRow,
-			&avoidDuplicatePeopleData,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.PeopleCSV,
-		)
+		// check first that for this row's status rentableType data can be written
+		canWriteData = core.IntegerInSlice(core.RENTABLETYPECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentabletype
+			WriteRentableTypeCSVData(
+				&RentableTypeCSVRecordCount,
+				csvRowIndex,
+				traceRentableTypeCSVMap,
+				rentableTypeCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentableTypeData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentableTypeCSV,
+				customAttributesRefData,
+				business,
+			)
+		}
+		// check first that for this row's status people data can be written
+		canWriteData = core.IntegerInSlice(core.PEOPLECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of people
+			WritePeopleCSVData(
+				&PeopleCSVRecordCount,
+				csvRowIndex,
+				tracePeopleCSVMap,
+				peopleCSVWriter,
+				&csvRow,
+				&avoidDuplicatePeopleData,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.PeopleCSV,
+			)
+		}
 
-		// Write data to file of rentable
-		WriteRentableData(
-			&RentableCSVRecordCount,
-			csvRowIndex,
-			traceRentableCSVMap,
-			rentableCSVWriter,
-			&csvRow,
-			&avoidDuplicateRentableData,
-			currentTime,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.RentableCSV,
-		)
+		// check first that for this row's status rentable data can be written
+		canWriteData = core.IntegerInSlice(core.RENTABLECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentable
+			WriteRentableData(
+				&RentableCSVRecordCount,
+				csvRowIndex,
+				traceRentableCSVMap,
+				rentableCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentableData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentableCSV,
+			)
+		}
 
-		// Write data to file of rentalAgreement
-		WriteRentalAgreementData(
-			&RentalAgreementCSVRecordCount,
-			csvRowIndex,
-			traceRentalAgreementCSVMap,
-			rentalAgreementCSVWriter,
-			&csvRow,
-			&avoidDuplicateRentalAgreementData,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.RentalAgreementCSV,
-		)
+		// check first that for this row's status rental agreement data can be written
+		canWriteData = core.IntegerInSlice(core.RENTALAGREEMENTCSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentalAgreement
+			WriteRentalAgreementData(
+				&RentalAgreementCSVRecordCount,
+				csvRowIndex,
+				traceRentalAgreementCSVMap,
+				rentalAgreementCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentalAgreementData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentalAgreementCSV,
+			)
+		}
 
-		// Write data to file of CustomAttribute
-		WriteCustomAttributeData(
-			&CustomAttributeCSVRecordCount,
-			csvRowIndex,
-			traceCustomAttributeCSVMap,
-			customAttributeCSVWriter,
-			&csvRow,
-			avoidDuplicateCustomAttributeData,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.CustomAttributeCSV,
-		)
+		// check first that for this row's status custom attributes data can be written
+		canWriteData = core.IntegerInSlice(core.CUSTOMATTRIUTESCSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of CustomAttribute
+			WriteCustomAttributeData(
+				&CustomAttributeCSVRecordCount,
+				csvRowIndex,
+				traceCustomAttributeCSVMap,
+				customAttributeCSVWriter,
+				&csvRow,
+				avoidDuplicateCustomAttributeData,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.CustomAttributeCSV,
+			)
+		}
 
 	}
 
