@@ -184,14 +184,11 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 			tr.CompanyName = s
 		case IsCompany:
 			if len(s) > 0 {
-				i, err := strconv.Atoi(strings.TrimSpace(s))
+				ic, err := rlib.YesNoToInt(s)
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
 				}
-				if i < 0 || i > 1 {
-					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
-				}
-				tr.IsCompany = i
+				tr.IsCompany = int(ic)
 			}
 		case PrimaryEmail:
 			tr.PrimaryEmail = s
@@ -413,14 +410,26 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	if len(tr.PrimaryEmail) > 0 {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.PrimaryEmail)
 		if t1.TCID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Transactant with PrimaryEmail address = %s already exists\n", funcname, lineno, tr.PrimaryEmail)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Transactant with PrimaryEmail address = %s \n", funcname, lineno, DupTransactant, tr.PrimaryEmail)
 		}
 	}
 	if len(tr.CellPhone) > 0 && !ignoreDupPhone {
 		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.CellPhone)
 		if t1.TCID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Transactant with CellPhone number = %s already exists\n", funcname, lineno, tr.CellPhone)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Transactant with CellPhone number = %s already exists\n", funcname, lineno, DupTransactant, tr.CellPhone)
 		}
+	}
+
+	//-------------------------------------------------------------------
+	// Make sure there's a name... if it's not a Company, then it needs
+	// a first & last name.  If it is a company, then it needs a Company
+	// name.
+	//-------------------------------------------------------------------
+	if tr.IsCompany == 0 && len(tr.FirstName) == 0 && len(tr.LastName) == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - FirstName and LastName are required for a person\n", funcname, lineno)
+	}
+	if tr.IsCompany == 1 && len(tr.CompanyName) == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - CompanyName is required for a company\n", funcname, lineno)
 	}
 
 	//-------------------------------------------------------------------

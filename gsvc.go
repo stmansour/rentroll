@@ -1,5 +1,7 @@
 package main
 
+// These are general utilty routines to support w2ui grid components.
+
 import (
 	"encoding/json"
 	"fmt"
@@ -58,11 +60,11 @@ type ServiceData struct {
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
-	{"transactants", SvcTransactants},
-	{"xperson", SvcXPerson},
-	{"accounts", SvcGLAccounts},
-	{"rentables", SvcRentables},
-	{"xrentable", SvcRentable},
+	{"transactants", SvcSearchHandlerTransactants},
+	{"xperson", SvcFormHandlerXPerson},
+	{"accounts", SvcSearchHandlerGLAccounts},
+	{"rentables", SvcSearchHandlerRentables},
+	{"xrentable", SvcFormHandlerRentable},
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -279,102 +281,4 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 	fmt.Printf("first 100 chars of response: %100.100s\n", string(b))
 	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
-}
-
-// SvcGLAccounts generates a report of all GLAccounts for a the business unit
-// called out in d.BID
-func SvcGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcGLAccounts\n")
-	var p rlib.GLAccount
-	var err error
-	var g struct {
-		Status  string           `json:"status"`
-		Total   int64            `json:"total"`
-		Records []rlib.GLAccount `json:"records"`
-	}
-
-	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "GLNumber ASC, Name ASC"    // default ORDER
-	q, qw := gridBuildQuery("GLAccount", srch, order, d, &p)
-
-	// set g.Total to the total number of rows of this data...
-	g.Total, err = GetRowCount("GLAccount", qw)
-	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
-	}
-
-	fmt.Printf("db query = %s\n", q)
-
-	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
-	defer rows.Close()
-
-	i := d.greq.Offset
-	count := 0
-	for rows.Next() {
-		var p rlib.GLAccount
-		rlib.ReadGLAccounts(rows, &p)
-		p.Recid = i
-		g.Records = append(g.Records, p)
-		count++ // update the count only after adding the record
-		if count >= d.greq.Limit {
-			break // if we've added the max number requested, then exit
-		}
-		i++ // update the index no matter what
-	}
-
-	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
-	g.Status = "success"
-	SvcWriteResponse(&g, w)
-}
-
-// SvcTransactants generates a report of all Transactants defined business d.BID
-func SvcTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcTransactants")
-	var p rlib.Transactant
-	var err error
-	var g struct {
-		Status  string             `json:"status"`
-		Total   int64              `json:"total"`
-		Records []rlib.Transactant `json:"records"`
-	}
-
-	srch := fmt.Sprintf("BID=%d", d.BID)   // default WHERE clause
-	order := "LastName ASC, FirstName ASC" // default ORDER
-	q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
-	fmt.Printf("db query = %s\n", q)
-
-	g.Total, err = GetRowCount("Transactant", qw) // total number of rows that match the criteria
-	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
-	}
-
-	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
-	defer rows.Close()
-
-	i := int64(d.greq.Offset)
-	count := 0
-	for rows.Next() {
-		var p rlib.Transactant
-		rlib.ReadTransactants(rows, &p)
-		p.Recid = i
-		g.Records = append(g.Records, p)
-		count++ // update the count only after adding the record
-		if count >= d.greq.Limit {
-			break // if we've added the max number requested, then exit
-		}
-		i++ // update the index no matter what
-	}
-	fmt.Printf("Loaded %d transactants\n", len(g.Records))
-	fmt.Printf("g.Total = %d\n", g.Total)
-	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
-	g.Status = "success"
-	SvcWriteResponse(&g, w)
 }

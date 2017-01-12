@@ -1,6 +1,6 @@
 #!/bin/bash
-TESTNAME="JM1 - 9 months of books Rexford Properties"
-TESTSUMMARY="Setup and run JM1 company and the Rexford Properties"
+TESTNAME="JM1 - 12 months of books on the Rexford Properties"
+TESTSUMMARY="Setup and run JM1 company and the Rexford Properties for 1 year"
 
 RRDATERANGE="-j 2016-01-01 -k 2016-02-01"
 
@@ -172,7 +172,6 @@ dorrtest  "n4" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 dorrtest  "o4" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p4" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q4" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
-
 #========================================================================================
 # MAY 2016
 #    GSR and Contract rent change to 3800 for 309.5 Rexford
@@ -184,8 +183,8 @@ dorrtest  "q4" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 ##----------------------------------------------------------
 cat >xxyyzz <<EOF
 use rentroll
-INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(2,3800,"2016-05-01 00:00:00","2018-01-01 00:00:00");
-INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(2,2,0,3800,"2016-05-01 00:00:00","2018-03-01 00:00:00");
+INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(2,3800,"2016-05-01 00:00:00","2016-10-01 00:00:00");
+INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(2,2,0,3800,"2016-05-01 00:00:00","2016-08-28 00:00:00");
 UPDATE RentalAgreementRentables SET DtStop="2016-05-01" WHERE ContractRent=3550 AND RID=2;
 EOF
 ${MYSQL} --no-defaults <xxyyzz
@@ -262,10 +261,81 @@ dorrtest  "p8" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q8" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 #========================================================================================
-# AUGUST 2016
+# SEPTEMBER 2016
 #========================================================================================
 RRDATERANGE="-j 2016-09-01 -k 2016-10-01"
 CSVLOADRANGE="-G ${BUD} -g 9/1/16,10/1/16"
 dorrtest  "a9" "${RRDATERANGE} -b ${BUD}" "Process-2016-Sep"
+docsvtest "i9" "-e rcpt2016-09.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Sep"
+docsvtest "j9" "-y deposit-2016-09.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Sep"
+dorrtest  "k9" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Sep"
+dorrtest  "l9" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m9" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n9" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o9" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p9" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q9" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
+##----------------------------------------------------------
+##  1. Update MarketRate for RentableType 2 to $4000/month
+##  2. Set contract rent for Rentable 2 to $4000/month
+##----------------------------------------------------------
+cat >xxyyzz <<EOF
+use rentroll
+INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(2,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
+INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(2,2,0,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
+EOF
+${MYSQL} --no-defaults <xxyyzz
+rm -f xxyyzz
+#========================================================================================
+# OCTOBER 2016
+#========================================================================================
+RRDATERANGE="-j 2016-10-01 -k 2016-11-01"
+CSVLOADRANGE="-G ${BUD} -g 10/1/16,11/1/16"
+docsvtest "b10" "-A asm2016-10.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Oct"
+dorrtest  "a10" "${RRDATERANGE} -b ${BUD}" "Process-2016-Oct"
+docsvtest "i10" "-e rcpt2016-10.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Oct"
+docsvtest "j10" "-y deposit-2016-10.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Oct"
+dorrtest  "k10" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Oct"
+dorrtest  "l10" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m10" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n10" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o10" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p10" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q10" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
+#========================================================================================
+# NOVEMBER 2016
+#========================================================================================
+RRDATERANGE="-j 2016-11-01 -k 2016-12-01"
+CSVLOADRANGE="-G ${BUD} -g 11/1/16,12/1/16"
+docsvtest "b11" "-A asm2016-11.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2016-Nov"
+dorrtest  "a11" "${RRDATERANGE} -b ${BUD}" "Process-2016-Nov"
+docsvtest "i11" "-e rcpt2016-11.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Nov"
+docsvtest "j11" "-y deposit-2016-11.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Nov"
+dorrtest  "k11" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Nov"
+dorrtest  "l11" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m11" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n11" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o11" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p11" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q11" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
+#========================================================================================
+# DECEMBER 2016
+#========================================================================================
+RRDATERANGE="-j 2016-12-01 -k 2017-01-01"
+CSVLOADRANGE="-G ${BUD} -g 12/1/16,1/1/17"
+# docsvtest "b12" "-A asm2016-12.csv ${CSVLOADRANGE} -L 12,${BUD}" "Assessments-2016-Dec"
+dorrtest  "a12" "${RRDATERANGE} -b ${BUD}" "Process-2016-Dec"
+docsvtest "i12" "-e rcpt2016-12.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Dec"
+docsvtest "j12" "-y deposit-2016-12.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Dec"
+dorrtest  "k12" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Dec"
+dorrtest  "l12" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m12" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n12" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o12" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p12" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q12" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck

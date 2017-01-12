@@ -1,33 +1,49 @@
-JOURNAL
-Business: JGM First, LLC
-Period:   07/01/16 - 07/31/16
+REX
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+Journal
+07/01/2016 - 08/01/2016
 
 Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
-J00000039   Gross Scheduled Rent-Taxable  311 Rexford [Rex3, monthly]                                                                             
+J00000047   Gross Scheduled Rent-Taxable  311 Rexford [Rex3, monthly]                                                                             
             Accounts Receivable                                                     07/01/20  RA00000004  311 Rexford      12000          4,150.00
             Gross Scheduled Rent-Taxable                                            07/01/20  RA00000004  311 Rexford      41000         -4,150.00
                                                                                                                                                   
-J00000040   Security Deposits  311 Rexford [Rex3]                                                                                                 
+J00000048   Security Deposits  311 Rexford [Rex3]                                                                                                 
             Accounts Receivable                                                     07/01/20  RA00000004  311 Rexford      12000          8,300.00
             Security Deposits                                                       07/01/20  RA00000004  311 Rexford      30000         -8,300.00
                                                                                                                                                   
-J00000041   Gross Scheduled Rent-Taxable  309 Rexford [Rex1, monthly]                                                                             
+J00000049   Gross Scheduled Rent-Taxable  309 Rexford [Rex1, monthly]                                                                             
             Accounts Receivable                                                     07/01/20  RA00000001  309 Rexford      12000          3,750.00
             Gross Scheduled Rent-Taxable                                            07/01/20  RA00000001  309 Rexford      41000         -3,750.00
                                                                                                                                                   
-J00000042   Gross Scheduled Rent-Taxable  309 1/2 Rexford [Rex2, monthly]                                                                         
+J00000050   Gross Scheduled Rent-Taxable  309 1/2 Rexford [Rex2, monthly]                                                                         
             Accounts Receivable                                                     07/01/20  RA00000002  309 1/2 Rexford  12000          3,800.00
             Gross Scheduled Rent-Taxable                                            07/01/20  RA00000002  309 1/2 Rexford  41000         -3,800.00
                                                                                                                                                   
-J00000043   Payment - Beck,Mills   #8733  12450.00                                                                                                
+J00000051   Payment -    #2153  3750.00                                                                                                           
             Gross Scheduled Rent-Taxable                                                                                                          
-            Accounts Receivable                                                     07/01/20  RA00000002  309 1/2 Rexford  12000         -8,300.00
-            Cash                                                                    07/01/20  RA00000002  309 1/2 Rexford  10000          8,300.00
-            Gross Scheduled Rent-Taxable                                                                                                          
-            Accounts Receivable                                                     07/01/20  RA00000001  309 Rexford      12000         -4,150.00
-            Cash                                                                    07/01/20  RA00000001  309 Rexford      10000          4,150.00
+            Accounts Receivable                                                     07/01/20  RA00000001  309 Rexford      12000         -3,750.00
+            Cash                                                                    07/01/20  RA00000001  309 Rexford      10000          3,750.00
                                                                                                                                                   
-J00000044   Unassociated: 311 1/2 Rexford vacant Jul 1 - Aug 1                                                                                    
+J00000052   Payment - Costea,Costea   #1948  3800.00                                                                                              
+            Gross Scheduled Rent-Taxable                                                                                                          
+            Accounts Receivable                                                     07/11/20  RA00000002  309 1/2 Rexford  12000         -3,800.00
+            Cash                                                                    07/11/20  RA00000002  309 1/2 Rexford  10000          3,800.00
+                                                                                                                                                  
+J00000053   Payment - Beck,Mills   #8733  12450.00                                                                                                
+            Security Deposits                                                                                                                     
+            Accounts Receivable                                                     07/01/20  RA00000004  311 Rexford      12000         -8,300.00
+            Cash                                                                    07/01/20  RA00000004  311 Rexford      10000          8,300.00
+            Gross Scheduled Rent-Taxable                                                                                                          
+            Accounts Receivable                                                     07/01/20  RA00000004  311 Rexford      12000         -4,150.00
+            Cash                                                                    07/01/20  RA00000004  311 Rexford      10000          4,150.00
+                                                                                                                                                  
+J00000054   Unassociated: 311 1/2 Rexford vacant Jul 1 - Aug 1                                                                                    
             Gross Scheduled Rent-Taxable                                            07/31/20  0           311 1/2 Rexford  41000         -2,500.00
             Vacancy                                                                 07/31/20  0           311 1/2 Rexford  41101          2,500.00
+                                                                                                                                                  

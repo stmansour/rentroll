@@ -202,7 +202,7 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 func RunCommandLine(ctx *DispatchCtx) {
 	rlib.InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
 	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-	var ri rcsv.CSVReporterInfo
+	var ri rrpt.ReporterInfo
 	ri.Xbiz = &ctx.xbiz
 	ri.D1 = ctx.DtStart
 	ri.D2 = ctx.DtStop

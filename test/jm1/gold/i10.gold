@@ -1,0 +1,32 @@
+                          Parent                                                                                                                                        
+Date        RCPTID        RCPTID  RAID        PMTID        Doc No      Amount  Account Rule                                        Comment                              
+----------  ------------  ------  ----------  -----------  ------  ----------  --------------------------------------------------  -------------------------------------
+12/02/2015  RCPT00000001  0       RA00000001  PMT00000001  1126      7,000.00  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _        Get the Security Deposit on the books
+12/03/2015  RCPT00000002  0       RA00000002  PMT00000002  1597      3,000.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _        Get the Security Deposit on the books
+12/04/2015  RCPT00000003  0       RA00000003  PMT00000003  237       3,300.00  ASM(3) c ${GLGENRCV} _, ASM(3) d ${GLCASH} _        Get the Security Deposit on the books
+01/02/2016  RCPT00000004  0       RA00000001  PMT00000001  1183      3,500.00  ASM(5) c ${GLGENRCV} _, ASM(5) d ${GLCASH} _                                             
+01/04/2016  RCPT00000005  0       RA00000002  PMT00000002  1631      3,550.00  ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _                                             
+01/31/2016  RCPT00000006  0       RA00000003  PMT00000003  258       4,400.00  ASM(9) c ${GLGENRCV} _, ASM(9) d ${GLCASH} _                                             
+02/01/2016  RCPT00000007  0       RA00000001  PMT00000001  1193      3,500.00  ASM(5) c ${GLGENRCV} _, ASM(5) d ${GLCASH} _                                             
+02/02/2016  RCPT00000008  0       RA00000002  PMT00000002  1652      3,550.00  ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _                                             
+02/16/2016  RCPT00000009  0       RA00000003  PMT00000003  268       1,173.33  ASM(9) c ${GLGENRCV} 1062.07,ASM(9) d ${GLCASH} 10                                       
+03/01/2016  RCPT00000010  0       RA00000001  PMT00000001  2003      3,750.00  ASM(14) c ${GLGENRCV} _, ASM(14) d ${GLCASH} _                                           
+03/05/2016  RCPT00000011  0       RA00000002  PMT00000002  1924      3,550.00  ASM(6) c ${GLGENRCV} _, ASM(6) d ${GLCASH} _                                             
+04/01/2016  RCPT00000012  0       RA00000001  PMT00000001  2003      3,750.00  ASM(18) c ${GLGENRCV} _, ASM(18) d ${GLCASH} _                                           
+04/02/2016  RCPT00000013  0       RA00000002  PMT00000002  1924      3,550.00  ASM(17) c ${GLGENRCV} _, ASM(17) d ${GLCASH} _                                           
+05/01/2016  RCPT00000014  0       RA00000001  PMT00000001  2003      3,750.00  ASM(21) c ${GLGENRCV} _, ASM(21) d ${GLCASH} _                                           
+05/02/2016  RCPT00000015  0       RA00000002  PMT00000002  1924      3,800.00  ASM(20) c ${GLGENRCV} _, ASM(20) d ${GLCASH} _                                           
+06/01/2016  RCPT00000016  0       RA00000001  PMT00000001  2005      3,750.00  ASM(22) c ${GLGENRCV} _, ASM(22) d ${GLCASH} _                                           
+06/08/2016  RCPT00000017  0       RA00000002  PMT00000002  1926      3,800.00  ASM(23) c ${GLGENRCV} _, ASM(23) d ${GLCASH} _                                           
+07/01/2016  RCPT00000018  0       RA00000001  PMT00000001  2153      3,750.00  ASM(27) c ${GLGENRCV} _, ASM(27) d ${GLCASH} _                                           
+07/11/2016  RCPT00000019  0       RA00000002  PMT00000002  1948      3,800.00  ASM(28) c ${GLGENRCV} _, ASM(28) d ${GLCASH} _                                           
+07/01/2016  RCPT00000020  0       RA00000004  PMT00000004  8733     12,450.00  ASM(25) c ${GLGENRCV} 4150, ASM(25) d ${GLCASH} 41                                       
+08/01/2016  RCPT00000021  0       RA00000001  PMT00000001  2153      3,750.00  ASM(29) c ${GLGENRCV} _, ASM(29) d ${GLCASH} _                                           
+08/05/2016  RCPT00000022  0       RA00000002  PMT00000002  1948      3,309.68  ASM(30) c ${GLGENRCV} _, ASM(30) d ${GLCASH} _                                           
+08/01/2016  RCPT00000023  0       RA00000004  PMT00000004  8733      4,150.00  ASM(31) c ${GLGENRCV} 4150, ASM(31) d ${GLCASH} 41                                       
+09/01/2016  RCPT00000024  0       RA00000001  PMT00000001  2157      3,750.00  ASM(32) c ${GLGENRCV} _, ASM(32) d ${GLCASH} _                                           
+09/01/2016  RCPT00000025  0       RA00000004  PMT00000004  8736      4,150.00  ASM(33) c ${GLGENRCV} 4150, ASM(33) d ${GLCASH} 41                                       
+10/01/2016  RCPT00000026  0       RA00000001  PMT00000001  2160      3,750.00  ASM(36) c ${GLGENRCV} _, ASM(36) d ${GLCASH} _                                           
+10/02/2016  RCPT00000027  0       RA00000004  PMT00000004  8739      4,150.00  ASM(37) c ${GLGENRCV} _, ASM(37) d ${GLCASH} _                                           
+10/03/2016  RCPT00000028  0       RA00000005  PMT00000005  3274      4,000.00  ASM(35) c ${GLGENRCV} _, ASM(35) d ${GLCASH} _                                           
+

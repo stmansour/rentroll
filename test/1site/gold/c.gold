@@ -1,0 +1,7 @@
+DPMID        BID        Name                    
+-----------  ---------  ------------------------
+DPM00000005  B00000004  Hand Delivery           
+DPM00000006  B00000004  Scanned/Electronic Batch
+DPM00000007  B00000004  ACH                     
+DPM00000008  B00000004  US Mail                 
+

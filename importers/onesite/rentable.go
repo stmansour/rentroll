@@ -2,12 +2,11 @@ package onesite
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"path"
 	"reflect"
 	"rentroll/importers/core"
-	"strconv"
+	"rentroll/rlib"
 	"strings"
 	"time"
 )
@@ -52,7 +51,7 @@ func CreateRentableCSV(
 	// try to create file and return with error if occurs any
 	rentableCSVFile, err := os.Create(rentableCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <RENTABLE CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -63,7 +62,7 @@ func CreateRentableCSV(
 	rentableCSVHeaders := []string{}
 	rentableCSVHeaders, ok := core.GetStructFields(rentableStruct)
 	if !ok {
-		log.Println("Unable to get struct fields for rentableCSV")
+		rlib.Ulog("Error <RENTABLE CSV>: Unable to get struct fields for rentableCSV\n")
 		return nil, nil, done
 	}
 
@@ -78,6 +77,9 @@ func CreateRentableCSV(
 // WriteRentableData used to write the data to csv file
 // with avoiding duplicate data
 func WriteRentableData(
+	recordCount *int,
+	rowIndex int,
+	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
 	avoidData *[]string,
@@ -97,19 +99,11 @@ func WriteRentableData(
 
 	// *avoidData = append(*avoidData, checkRentableStyle)
 
-	currentYear, _, _ := currentTime.Date()
-	DtStart := "1/1/" + strconv.Itoa(currentYear)
-	DtStop := "1/1/" + strconv.Itoa(currentYear+1)
-	// DtStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentTime.Location())
-	// DtStop := time.Date(currentYear+1, 1, 1, 0, 0, 0, 0, currentTime.Location())
-
 	// make rentable data from userSuppliedValues and defaultValues
 	rentableDefaultData := map[string]string{}
 	for k, v := range suppliedValues {
 		rentableDefaultData[k] = v
 	}
-	rentableDefaultData["DtStart"] = DtStart
-	rentableDefaultData["DtStop"] = DtStop
 
 	// get csv row data
 	ok, csvRowData := GetRentableCSVRow(
@@ -118,8 +112,12 @@ func WriteRentableData(
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
-		// TODO: make sure to verify the usage of flush is correct or not
 		csvWriter.Flush()
+
+		// after write operation to csv,
+		// entry this rowindex with unit value in the map
+		*recordCount = *recordCount + 1
+		traceCSVData[*recordCount] = rowIndex
 	}
 }
 
@@ -248,14 +246,13 @@ func GetRUserSpec(
 	return ",,", ok
 }
 
-// GetRentableStatus used to get rentable status in format of rentroll system
-func GetRentableStatus(csvRow *CSVRow) (string, bool) {
-	var tempRS, rRS string
-	found, ok := false, false
-	orderedFields := []string{}
-
+// IsValidRentableStatus checks that passed string contains valid rentable status
+// acoording to rentroll system
+func IsValidRentableStatus(s string) (bool, string) {
+	found := false
+	var tempRS string
 	// first find that passed string contains any status key
-	a := strings.ToLower(csvRow.UnitLeaseStatus)
+	a := strings.ToLower(s)
 	for k, v := range RentableStatusCSV {
 		if strings.Contains(a, k) {
 			tempRS = v
@@ -263,9 +260,20 @@ func GetRentableStatus(csvRow *CSVRow) (string, bool) {
 			break
 		}
 	}
+	return found, tempRS
+}
+
+// GetRentableStatus used to get rentable status in format of rentroll system
+func GetRentableStatus(csvRow *CSVRow) (string, bool) {
+	var tempRS, rRS string
+	ok := false
+	orderedFields := []string{}
+
+	// first find that passed string contains any status key
+	validStatus, tempRS := IsValidRentableStatus(csvRow.UnitLeaseStatus)
 
 	// if contains then try to get status according rentroll system
-	if found {
+	if validStatus {
 		rRS, ok = RRRentableStatus[tempRS]
 	}
 

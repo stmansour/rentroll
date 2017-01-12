@@ -2,7 +2,6 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"sort"
 	"time"
@@ -11,11 +10,12 @@ import (
 func printLedgerHeader(tbl *rlib.Table, xbiz *rlib.XBusiness, l *rlib.GLAccount, d1, d2 *time.Time) {
 	// printTReportDoubleLine()
 	// tbl.AddLineBefore(0)
-	s := "LEDGER\n"
-	s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
-	s += fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name)
-	s += fmt.Sprintf("Period:   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
-	tbl.SetTitle(s)
+	// s := "LEDGER\n"
+	// s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
+	// s += fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name)
+	// s += fmt.Sprintf("Period:   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
+	// tbl.SetTitle(s)
+	tbl.SetTitle(fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name))
 }
 
 // returns the payment/accessment reason, Rentable name
@@ -103,7 +103,7 @@ func (a int64arr) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
 
 // LedgerActivityReport generates a Table Ledger for active accounts during the supplied time range
-func LedgerActivityReport(ri *rcsv.CSVReporterInfo) []rlib.Table {
+func LedgerActivityReport(ri *ReporterInfo) []rlib.Table {
 	var m []rlib.Table
 	// get the ids of the distinct ledgers that have been updated during &ri.D1-&ri.D2
 	// that is, only 1 occurrence of each LID
@@ -136,7 +136,7 @@ func LedgerActivityReport(ri *rcsv.CSVReporterInfo) []rlib.Table {
 }
 
 // LedgerReport generates a Table Ledger for the supplied Business and time range
-func LedgerReport(ri *rcsv.CSVReporterInfo) []rlib.Table {
+func LedgerReport(ri *ReporterInfo) []rlib.Table {
 	var m []rlib.Table
 	t := rlib.GetLedgerList(ri.Xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {

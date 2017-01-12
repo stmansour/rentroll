@@ -2,7 +2,6 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -13,12 +12,12 @@ type jprintctx struct {
 	ReportStop  time.Time
 }
 
-func setTitle(tbl *rlib.Table, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
-	s := "JOURNAL\n"
-	s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
-	s += fmt.Sprintf("Period:   %s - %s\n\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
-	tbl.SetTitle(s)
-}
+// func setTitle(tbl *rlib.Table, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+// 	s := "JOURNAL\n"
+// 	s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
+// 	s += fmt.Sprintf("Period:   %s - %s\n\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
+// 	tbl.SetTitle(s)
+// }
 
 func processAcctRuleAmount(tbl *rlib.Table, xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) {
 	funcname := "processAcctRuleAmount"
@@ -185,8 +184,8 @@ func textPrintJournalUnassociated(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *j
 	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.Name, j.Comment))
 	for i := 0; i < len(j.JA); i++ {
 		processAcctRuleAmount(tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
-
 	}
+	tbl.AddRow() // separater line
 }
 
 func textPrintJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
@@ -235,7 +234,7 @@ func textReportJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 }
 
 // JournalReport returns a Journal report in an rlib.Table for the supplied Business and time range
-func JournalReport(ri *rcsv.CSVReporterInfo) rlib.Table {
+func JournalReport(ri *ReporterInfo) rlib.Table {
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("Journal ID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // 0
@@ -247,7 +246,12 @@ func JournalReport(ri *rcsv.CSVReporterInfo) rlib.Table {
 	tbl.AddColumn("Amount", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)      // 6
 
 	jctx := jprintctx{ri.D1, ri.D2}
-	setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
+	// setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
+
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+	tbl.SetTitle(ReportHeaderBlock("Journal", "JournalReport", ri))
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
 	rlib.Errcheck(err)
 	defer rows.Close()

@@ -1,7 +1,4 @@
-LEDGER
-Business: JGM First, LLC
 Account:   - Security Deposit Receivable
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -10,22 +7,18 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  10000 - Cash
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               39,100.00
+Opening Balance                                                                                                               40,273.33
+Payment #2003 - Gross Scheduled Rent-Taxable             04/01/2016  J00000031          1   309 Rexford          3,750.00     44,023.33
+Payment #1924 - Gross Scheduled Rent-Taxable             04/02/2016  J00000032          2   309 1/2 Rexford      3,550.00     47,573.33
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                           39,100.00
+Closing Balance                                          04/30/2016                                                           47,573.33
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  11000 - Credit Card Clearing
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -34,24 +27,20 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  12000 - Accounts Receivable
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                1,062.07
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000028          1   309 Rexford          3,750.00      4,812.07
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000027          2   309 1/2 Rexford      3,550.00      8,362.07
+Opening Balance                                                                                                                    0.00
+Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000030          1   309 Rexford          3,750.00      3,750.00
+Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000029          2   309 1/2 Rexford      3,550.00      7,300.00
+Payment #1924 - Gross Scheduled Rent-Taxable             04/02/2016  J00000032          2   309 1/2 Rexford     -3,550.00      3,750.00
+Payment #2003 - Gross Scheduled Rent-Taxable             04/01/2016  J00000031          1   309 Rexford         -3,750.00          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                            8,362.07
+Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  30000 - Security Deposits
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -60,10 +49,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                          -13,300.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  30100 - Accrued Taxes
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -72,10 +58,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  30101 - Sales Taxes
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -84,10 +67,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  30102 - Transient Occupancy Taxes
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -96,10 +76,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  30199 - Other Accrued Taxes
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -108,10 +85,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  39000 - Owners' Equity
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -120,26 +94,20 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41000 - Gross Scheduled Rent-Taxable
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              -42,100.00
-Unassociated                                             04/30/2016  J00000030          0   311 1/2 Rexford     -2,500.00    -44,600.00
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000027          2   309 1/2 Rexford     -3,550.00    -48,150.00
-Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000028          1   309 Rexford         -3,750.00    -51,900.00
-Unassociated                                             04/30/2016  J00000029          0   311 Rexford         -4,150.00    -56,050.00
+Unassociated                                             04/30/2016  J00000034          0   311 1/2 Rexford     -2,500.00    -44,600.00
+Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000029          2   309 1/2 Rexford     -3,550.00    -48,150.00
+Assessment - Gross Scheduled Rent-Taxable                04/01/2016  J00000030          1   309 Rexford         -3,750.00    -51,900.00
+Unassociated                                             04/30/2016  J00000033          0   311 Rexford         -4,150.00    -56,050.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          04/30/2016                                                          -56,050.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41001 - Gross Scheduled Rent-Not Taxable
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -148,10 +116,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41002 - Income Offsets
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -160,22 +125,16 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                           15,237.93
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41003 - Other Income
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                    0.00
+Opening Balance                                                                                                                 -111.26
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                                0.00
+Closing Balance                                          04/30/2016                                                             -111.26
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41100 - Unit Income Offsets
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -184,24 +143,18 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                           15,237.93
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41101 - Vacancy
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               15,237.93
-Unassociated                                             04/30/2016  J00000029          0   311 Rexford          4,150.00     19,387.93
-Unassociated                                             04/30/2016  J00000030          0   311 1/2 Rexford      2,500.00     21,887.93
+Unassociated                                             04/30/2016  J00000033          0   311 Rexford          4,150.00     19,387.93
+Unassociated                                             04/30/2016  J00000034          0   311 1/2 Rexford      2,500.00     21,887.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          04/30/2016                                                           21,887.93
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41102 - Loss (Gain) to Lease
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -210,10 +163,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41103 - Employee Concessions
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -222,10 +172,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41104 - Resident Concessions
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -234,10 +181,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41105 - Owner Concession
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -246,10 +190,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41106 - Administrative Concession
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -258,10 +199,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41107 - Off Line Renovations
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -270,10 +208,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41108 - Off Line Maintenance
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -282,10 +217,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41199 - Othe Income Offsets
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -294,22 +226,16 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41200 - Serviced Fees
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                    0.00
+Opening Balance                                                                                                                 -111.26
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                                0.00
+Closing Balance                                          04/30/2016                                                             -111.26
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41201 - Broadcast and IT Services
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -318,22 +244,16 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41202 - Food Services
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                    0.00
+Opening Balance                                                                                                                 -111.26
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          04/30/2016                                                                0.00
+Closing Balance                                          04/30/2016                                                             -111.26
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41203 - Linen Services
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -342,10 +262,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41204 - Wash N Fold Services
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -354,10 +271,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41299 - Other Service Fees
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -366,10 +280,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41300 - Utility Fees
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -378,10 +289,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41301 - Electric Base Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -390,10 +298,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41302 - Electric Overage
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -402,10 +307,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41303 - Water and Sewer Base Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -414,10 +316,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41304 - Water and Sewer Overage
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -426,10 +325,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41305 - Gas Base Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -438,10 +334,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41306 - Gas Overage
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -450,10 +343,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41307 - Trash Collection Base Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -462,10 +352,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41308 - Trash Collection Overage
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -474,10 +361,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41399 - Other Utility Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -486,10 +370,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41400 - Miscellaneous Income
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -498,10 +379,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41401 - Application Fees
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -510,10 +388,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41402 - Late Fees
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -522,10 +397,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41403 - Insufficient Funds Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -534,10 +406,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41404 - Month to Month Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -546,10 +415,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41405 - Premium Upgrades
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -558,10 +424,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41406 - No Show or Termination Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -570,10 +433,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41407 - Pet Fees
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -582,10 +442,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41408 - Pet Rent
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -594,10 +451,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41409 - Expense Reimbursement
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -606,10 +460,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41410 - Special Cleaning Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -618,10 +469,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41411 - Eviction Fee Reimbursement
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -630,10 +478,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41412 - Extra Person Charge
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -642,10 +487,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41413 - Forfeited Security Deposit
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -654,10 +496,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41414 - Damage Fee
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -666,10 +505,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41415 - CAM Fees
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -678,10 +514,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41499 - Other Miscellaneous Income
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -690,10 +523,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41500 - Taxes Collected in Trust
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -702,10 +532,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41501 - Sales Taxes
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -714,10 +541,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41502 - Transient Occupancy Taxes
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -726,10 +550,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  42000 - Business Income
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -738,10 +559,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  42100 - Convenience Store
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -750,10 +568,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  42200 - Fitness Center Revenue
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -762,10 +577,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  42300 - Vending Income
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -774,10 +586,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  42400 - Restaurant Sales
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -786,10 +595,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  42500 - Bar Sales
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -798,10 +604,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  42600 - Spa Sales
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -810,10 +613,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  49991 - Cash Over/Short
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -822,10 +622,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  49992 - Bad Debt
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -834,10 +631,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  49998 - Income Suspense
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -846,10 +640,7 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  49999 - Other Business Income
-Period:   04/01/16 - 04/30/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------

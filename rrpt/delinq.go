@@ -2,14 +2,13 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 	"time"
 )
 
 // DelinquencyTextReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyTextReport(ri *rcsv.CSVReporterInfo) error {
+func DelinquencyTextReport(ri *ReporterInfo) error {
 	tbl, err := DelinquencyReport(ri)
 	if err == nil {
 		fmt.Print(tbl)
@@ -18,27 +17,16 @@ func DelinquencyTextReport(ri *rcsv.CSVReporterInfo) error {
 }
 
 // DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyReport(ri *rcsv.CSVReporterInfo) (rlib.Table, error) {
+func DelinquencyReport(ri *ReporterInfo) (rlib.Table, error) {
 	funcname := "DelinquencyReport"
 	var tbl rlib.Table
-	var noerr error
 
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
-	if err != nil {
-		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
-		return tbl, e
-	}
-	c, err := rlib.GetCompany(int64(bu.CoCode))
-	if err != nil {
-		e := fmt.Errorf("%s: error getting Company - %s\n", funcname, err.Error())
-		return tbl, e
-	}
-	s := fmt.Sprintf("%s\n", strings.ToUpper(c.LegalName))
-	s += fmt.Sprintf("DELINQUENCY REPORT\nReport Date: %s\n\n", ri.D2.Format(rlib.RRDATEFMT3))
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = false
+	tbl.SetTitle(ReportHeaderBlock("Delinquency Report", funcname, ri))
 
-	tbl.Init() //sets column spacing and date format to default
-	tbl.SetTitle(s)
+	tbl.Init()                                                                                      //sets column spacing and date format to default
 	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                              // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                        // RentableType name
 	tbl.AddColumn("Rentable Agreement", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // RentableType name
@@ -110,5 +98,5 @@ func DelinquencyReport(ri *rcsv.CSVReporterInfo) (rlib.Table, error) {
 	}
 	rlib.Errcheck(rows.Err())
 
-	return tbl, noerr
+	return tbl, nil
 }

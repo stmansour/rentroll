@@ -1,0 +1,103 @@
+CreateLedgerMarkers: line 3 - Account already exists: 11000
+CreateLedgerMarkers: line 6 - Account already exists: 30100
+CreateLedgerMarkers: line 7 - Account already exists: 30101
+CreateLedgerMarkers: line 8 - Account already exists: 30199
+CreateLedgerMarkers: line 10 - Account already exists: 41001
+CreateLedgerMarkers: line 11 - Account already exists: 41002
+CreateLedgerMarkers: line 12 - Account already exists: 41003
+CreateLedgerMarkers: line 13 - Account already exists: 41100
+CreateLedgerMarkers: line 16 - Account already exists: 41103
+CreateLedgerMarkers: line 17 - Account already exists: 41104
+CreateLedgerMarkers: line 18 - Account already exists: 41105
+CreateLedgerMarkers: line 19 - Account already exists: 41106
+CreateLedgerMarkers: line 20 - Account already exists: 41107
+CreateLedgerMarkers: line 21 - Account already exists: 41108
+CreateLedgerMarkers: line 22 - Account already exists: 41199
+CreateLedgerMarkers: line 23 - Account already exists: 41200
+CreateLedgerMarkers: line 24 - Account already exists: 41201
+CreateLedgerMarkers: line 25 - Account already exists: 41202
+CreateLedgerMarkers: line 26 - Account already exists: 41203
+CreateLedgerMarkers: line 27 - Account already exists: 41204
+CreateLedgerMarkers: line 28 - Account already exists: 41205
+CreateLedgerMarkers: line 29 - Account already exists: 41206
+CreateLedgerMarkers: line 30 - Account already exists: 41207
+CreateLedgerMarkers: line 31 - Account already exists: 41299
+CreateLedgerMarkers: line 32 - Account already exists: 49992
+CreateLedgerMarkers: line 33 - Account already exists: 49998
+CreateLedgerMarkers: line 34 - Account already exists: 49999
+                                                                                                                                                                                    Rental           Rental                           
+                                                                                                                                                Quick Books Account                 Agreement     Agreement                           
+BID        LID        PLID       LMID        Type      GLNumber  Name                                      Parent                               Type                       Balance  Associated     Required  Description              
+---------  ---------  ---------  ----------  --------  --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ------------  ---------  -------------------------
+B00000004  L00000120             LM00000901  15                  Security Deposit Receivable                                                                                  0.00  unknown               0                           
+B00000004  L00000115             LM00000896  10           10000  Cash                                                                           Bank Account                  0.00  Associated            3  Main cash account        
+B00000004  L00000123             LM00000904               11000  Credit Card Clearing                                                           Current Asset                 0.00  Associated            0                           
+B00000004  L00000116             LM00000897  11           12000  Accounts Receivable                                                            Current Asset                 0.00  Associated            0                           
+B00000004  L00000121             LM00000902  16           30000  Security Deposits                                                              Current Liabilities           0.00  Unassociated          3                           
+B00000004  L00000124             LM00000905               30100  Accrued Taxes                                                                  Current Liabilities           0.00  Unassociated          0                           
+B00000004  L00000125  L00000124  LM00000906               30101  Sales Taxes                               Accrued Taxes                        Current Liabilities           0.00  Unassociated          0                           
+B00000004  L00000126  L00000124  LM00000907               30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities           0.00  Unassociated          0                           
+B00000004  L00000127  L00000124  LM00000908               30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities           0.00  Unassociated          0                           
+B00000004  L00000122             LM00000903  17           39000  Owners' Equity                                                                 Equity                        0.00  Associated            0                           
+B00000004  L00000117             LM00000898  12           41000  Gross Scheduled Rent-Taxable                                                   Income                        0.00  Associated            0                           
+B00000004  L00000128             LM00000909               41001  Gross Scheduled Rent-Not Taxable                                               Income                        0.00  Associated            0                           
+B00000004  L00000129             LM00000910               41002  Income Offsets                                                                 Income                        0.00  Unassociated          0                           
+B00000004  L00000138             LM00000919               41003  Other Income                                                                   Income                        0.00  Unassociated          0                           
+B00000004  L00000130  L00000129  LM00000911               41100  Unit Income Offsets                       Income Offsets                       Income                        0.00  Unassociated          0                           
+B00000004  L00000119  L00000130  LM00000900  14           41101  Vacancy                                   Unit Income Offsets                  Income                        0.00  Associated            0                           
+B00000004  L00000118  L00000130  LM00000899  13           41102  Loss (Gain) to Lease                      Unit Income Offsets                  Income                        0.00  Unassociated          0                           
+B00000004  L00000131  L00000130  LM00000912               41103  Employee Concessions                      Unit Income Offsets                  Income                        0.00  Unassociated          0                           
+B00000004  L00000132  L00000130  LM00000913               41104  Resident Concessions                      Unit Income Offsets                  Income                        0.00  Unassociated          0                           
+B00000004  L00000133  L00000130  LM00000914               41105  Owner Concession                          Unit Income Offsets                  Income                        0.00  Associated            0                           
+B00000004  L00000134  L00000130  LM00000915               41106  Administrative Concession                 Unit Income Offsets                  Income                        0.00  Associated            0                           
+B00000004  L00000135  L00000130  LM00000916               41107  Off Line Renovations                      Unit Income Offsets                  Income                        0.00  Associated            0                           
+B00000004  L00000136  L00000130  LM00000917               41108  Off Line Maintenance                      Unit Income Offsets                  Income                        0.00  Associated            0                           
+B00000004  L00000137  L00000130  LM00000918               41199  Othe Income Offsets                       Unit Income Offsets                  Income                        0.00  Unassociated          0                           
+B00000004  L00000139  L00000138  LM00000920               41200  Serviced Fees                             Other Income                         Income                        0.00  Unassociated          0                           
+B00000004  L00000140  L00000139  LM00000921               41201  Broadcast and IT Services                 Serviced Fees                        Income                        0.00  Unassociated          0                           
+B00000004  L00000141  L00000139  LM00000922               41202  Food Services                             Serviced Fees                        Income                        0.00  Unassociated          0                           
+B00000004  L00000142  L00000139  LM00000923               41203  Linen Services                            Serviced Fees                        Income                        0.00  Unassociated          0                           
+B00000004  L00000143  L00000139  LM00000924               41204  Wash N Fold Services                      Serviced Fees                        Income                        0.00  Unassociated          0                           
+B00000004  L00000144  L00000139  LM00000925               41299  Other Service Fees                        Serviced Fees                        Income                        0.00  Unassociated          0                           
+B00000004  L00000145  L00000138  LM00000926               41300  Utility Fees                              Other Income                         Income                        0.00  Unassociated          0                           
+B00000004  L00000146  L00000145  LM00000927               41301  Electric Base Fee                         Utility Fees                         Income                        0.00  Unassociated          0                           
+B00000004  L00000147  L00000145  LM00000928               41302  Electric Overage                          Utility Fees                         Income                        0.00  Unassociated          0                           
+B00000004  L00000148  L00000145  LM00000929               41303  Water and Sewer Base Fee                  Utility Fees                         Income                        0.00  Unassociated          1                           
+B00000004  L00000149  L00000145  LM00000930               41304  Water and Sewer Overage                   Utility Fees                         Income                        0.00  Unassociated          1                           
+B00000004  L00000150  L00000145  LM00000931               41305  Gas Base Fee                              Utility Fees                         Income                        0.00  Unassociated          1                           
+B00000004  L00000151  L00000145  LM00000932               41306  Gas Overage                               Utility Fees                         Income                        0.00  Unassociated          1                           
+B00000004  L00000152  L00000145  LM00000933               41307  Trash Collection Base Fee                 Utility Fees                         Income                        0.00  Unassociated          1                           
+B00000004  L00000153  L00000145  LM00000934               41308  Trash Collection Overage                  Utility Fees                         Income                        0.00  Unassociated          1                           
+B00000004  L00000154  L00000145  LM00000935               41399  Other Utility Fee                         Utility Fees                         Income                        0.00  Unassociated          1                           
+B00000004  L00000155  L00000138  LM00000936               41400  Miscellaneous Income                      Other Income                         Income                        0.00  Unassociated          0                           
+B00000004  L00000156  L00000155  LM00000937               41401  Application Fees                          Miscellaneous Income                 Income                        0.00  Associated            1                           
+B00000004  L00000157  L00000155  LM00000938               41402  Late Fees                                 Miscellaneous Income                 Income                        0.00  Unassociated          1                           
+B00000004  L00000158  L00000155  LM00000939               41403  Insufficient Funds Fee                    Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000159  L00000155  LM00000940               41404  Month to Month Fee                        Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000160  L00000155  LM00000941               41405  Premium Upgrades                          Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000161  L00000155  LM00000942               41406  No Show or Termination Fee                Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000162  L00000155  LM00000943               41407  Pet Fees                                  Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000163  L00000155  LM00000944               41408  Pet Rent                                  Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000164  L00000155  LM00000945               41409  Expense Reimbursement                     Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000165  L00000155  LM00000946               41410  Special Cleaning Fee                      Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000166  L00000155  LM00000947               41411  Eviction Fee Reimbursement                Miscellaneous Income                 Income                        0.00  Unassociated          1                           
+B00000004  L00000167  L00000155  LM00000948               41412  Extra Person Charge                       Miscellaneous Income                 Income                        0.00  Unassociated          0                           
+B00000004  L00000168  L00000155  LM00000949               41413  Forfeited Security Deposit                Miscellaneous Income                 Income                        0.00  Unassociated          2                           
+B00000004  L00000169  L00000155  LM00000950               41414  Damage Fee                                Miscellaneous Income                 Income                        0.00  Unassociated          1                           
+B00000004  L00000170             LM00000951               41415  CAM Fees                                                                       Income                        0.00  Unassociated          1                           
+B00000004  L00000171  L00000155  LM00000952               41499  Other Miscellaneous Income                Miscellaneous Income                 Income                        0.00  Unassociated          1                           
+B00000004  L00000172  L00000138  LM00000953               41500  Taxes Collected in Trust                  Other Income                         Income                        0.00  Unassociated          1                           
+B00000004  L00000173  L00000172  LM00000954               41501  Sales Taxes                               Taxes Collected in Trust             Income                        0.00  Unassociated          1                           
+B00000004  L00000174  L00000172  LM00000955               41502  Transient Occupancy Taxes                 Taxes Collected in Trust             Income                        0.00  Unassociated          1                           
+B00000004  L00000175  L00000138  LM00000956               42000  Business Income                           Other Income                         Income                        0.00  Associated            0                           
+B00000004  L00000176  L00000175  LM00000957               42100  Convenience Store                         Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000177  L00000175  LM00000958               42200  Fitness Center Revenue                    Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000178  L00000175  LM00000959               42300  Vending Income                            Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000179  L00000175  LM00000960               42400  Restaurant Sales                          Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000180  L00000175  LM00000961               42500  Bar Sales                                 Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000181  L00000175  LM00000962               42600  Spa Sales                                 Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000182  L00000175  LM00000963               49991  Cash Over/Short                           Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000183  L00000175  LM00000964               49992  Bad Debt                                  Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000184  L00000175  LM00000965               49998  Income Suspense                           Business Income                      Income                        0.00  Associated            0                           
+B00000004  L00000185  L00000175  LM00000966               49999  Other Business Income                     Business Income                      Income                        0.00  Associated            0                           
+

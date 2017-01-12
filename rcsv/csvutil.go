@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"rentroll/rlib"
 	"strings"
-	"time"
 )
 
 // CSVColumn defines a column of the CSV file
@@ -20,6 +19,9 @@ type CSVColumn struct {
 const (
 	CsvErrLoose  = 0
 	CsvErrStrict = 1
+
+	// DupTransactant et al., are error identfiers for the CSV Loader
+	DupTransactant = "DuplicateTransactant"
 )
 
 // CsvErrorSensitivity is the error return value used by all the loadXYZcsv.go routines. We
@@ -32,22 +34,6 @@ type CSVLoadHandler struct {
 	Handler func(string) []error
 }
 
-// CSVReporterInfo is for routines that want to table-ize their reporting using
-// the CSV library's simple report routines.
-type CSVReporterInfo struct {
-	ReportNo     int       // index number of the report
-	OutputFormat int       // text, html, maybe more in the future
-	Bid          int64     // associated business
-	Raid         int64     // associated Rental Agreement if needed
-	D1           time.Time // associated date if needed
-	D2           time.Time // associated date if needed
-	NeedsBID     bool      // true if BID is needed for this report
-	NeedsRAID    bool      // true if RAID is needed for this report
-	NeedsDt      bool      // true if a Date is needed for this report
-	Handler      func(*CSVReporterInfo) string
-	Xbiz         *rlib.XBusiness // may not be set in all cases
-}
-
 // LoadRentRollCSV performs a general purpose load.  It opens the supplied file name, and processes
 // it line-by-line by calling the supplied handler function.
 // Return Values
@@ -57,7 +43,7 @@ func LoadRentRollCSV(fname string, handler func([]string, int) (int, error)) []e
 	var m []error
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-		if t[i][0] == "#" { // if it's a comment line, don't process it, just move on
+		if t[i][0][0] == '#' { // if it's a comment line, don't process it, just move on
 			continue
 		}
 		s, err := handler(t[i], i+1)

@@ -7,11 +7,12 @@ import (
 // CARD Custom Attriute Ref Data struct, holds data
 // from which we'll insert customAttributeRef in system
 type CARD struct {
-	BID   int64
-	RTID  string
-	Style string
-	SqFt  int64
-	CID   string
+	BID      int64
+	RTID     string
+	Style    string
+	SqFt     int64
+	CID      string
+	RowIndex int
 }
 
 // splittedCSVStoreName holds the name of csvstore folder

@@ -1,4 +1,4 @@
-DIRS = db rlib rcsv rrpt admin importers test
+DIRS = db rlib rrpt rcsv admin importers test
 .PHONY:  test
 
 rentroll: *.go ver.go

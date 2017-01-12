@@ -2,46 +2,24 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 )
 
 // GSRTextReport generates a list of GSR values for all rentables on the specified date
-func GSRTextReport(ri *rcsv.CSVReporterInfo) error {
+func GSRTextReport(ri *ReporterInfo) error {
 	tbl, err := GSRReport(ri)
 	fmt.Print(tbl)
 	return err
 }
 
 // GSRReport generates a list of GSR values for all rentables on the specified date
-func GSRReport(ri *rcsv.CSVReporterInfo) (rlib.Table, error) {
+func GSRReport(ri *ReporterInfo) (rlib.Table, error) {
 	funcname := "GSRTextReport"
 	var tbl rlib.Table
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
-	if err != nil {
-		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
-		return tbl, e
-	}
-	c, err := rlib.GetCompany(int64(bu.CoCode))
-	if err != nil {
-		e := fmt.Errorf("%s: error getting Company - %s\n", funcname, err.Error())
-		return tbl, e
-	}
-
 	tbl.Init() //sets column spacing and date format to default
-
-	s := fmt.Sprintf("%s\n", c.LegalName)
-	s += fmt.Sprintf("%s\n", c.Address)
-	if len(c.Address2) > 0 {
-		s += fmt.Sprintf("%s\n", c.Address2)
-	}
-	s += fmt.Sprintf("%s, %s %s %s\n\n", c.City, c.State, c.PostalCode, c.Country)
-	s += fmt.Sprintf("Gross Scheduled Rent for all rentables for one full cycle as of %s\n\n", ri.D1.Format(rlib.RRDATEFMT4))
-	tbl.SetTitle(s)
-
-	// fmt.Printf("%-9s  %-15s  %-15s  %-15s  %-8s  %-13s  %-13s\n", "Rentable", "Name", "Rentable Type", "Rentable Style", "GSR", "Rent Cycle", "Prorate Cycle")
-	// fmt.Printf("%-9s  %-15s  %-15s  %-15s  %-8s  %-13s  %-13s\n", "---------", "---------------", "---------------", "---------------", "--------", "-------------", "-------------")
-
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = false
+	tbl.SetTitle(ReportHeaderBlock("Gross Scheduled Rent", funcname, ri))
 	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)        // column for the Rentable name
 	tbl.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)           // Rentable name
 	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // Rentable Type
@@ -71,9 +49,6 @@ func GSRReport(ri *rcsv.CSVReporterInfo) (rlib.Table, error) {
 		if err != nil {
 			fmt.Printf("%s: Rentable %d, error calculating GSR: %s\n", funcname, r.RID, err.Error())
 		}
-		// fmt.Printf("%9s  %-15s  %-15s  %-15s  %8s  %-13s  %-13s\n",
-		// 	r.IDtoString(), r.Name, ri.Xbiz.RT[rtr.RTID].Name, ri.Xbiz.RT[rtr.RTID].Style,
-		// rlib.RRCommaf(amt), rlib.RentalPeriodToString(rc), rlib.RentalPeriodToString(pc))
 		tbl.AddRow()
 		tbl.Puts(-1, 0, r.IDtoString())
 		tbl.Puts(-1, 1, r.Name)

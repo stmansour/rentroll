@@ -19,9 +19,9 @@ type gxrentable struct {
 	LastModBy      int64
 }
 
-// SvcRentables generates a report of all Rentables defined business d.BID
-func SvcRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcRentables\n")
+// SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
+func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Printf("Entered SvcSearchHandlerRentables\n")
 	var p rlib.Rentable
 	var err error
 	var g struct {
@@ -70,7 +70,7 @@ func SvcRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(&g, w)
 }
 
-// SvcRentable formats a complete data record for a person suitable for use with the w2ui Form
+// SvcFormHandlerRentable formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the TCID as follows:
 // 		/gsvc/xperson/UID/BID/TCID
 // The server command can be:
@@ -78,8 +78,8 @@ func SvcRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //      save
 //      delete
 //-----------------------------------------------------------------------------------
-func SvcRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcRentable\n")
+func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Printf("Entered SvcFormHandlerRentable\n")
 	var err error
 
 	path := "/gsvc/"                // this is the part of the URL that got us into this handler
@@ -121,7 +121,7 @@ func SvcRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// funcname := "saveRentable"
 	target := `"record":`
-	fmt.Printf("SvcRentable save\n")
+	fmt.Printf("SvcFormHandlerRentable save\n")
 	fmt.Printf("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
 	fmt.Printf("record is at index = %d\n", i)
@@ -133,56 +133,6 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
 	fmt.Printf("data to unmarshal is:  %s\n", s)
-
-	// var gxp gxperson
-	// err := json.Unmarshal([]byte(s), &gxp)
-	// if err != nil {
-	// 	fmt.Printf("Data unmarshal error: %s\n", err.Error())
-	// 	e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-
-	// fmt.Printf("Begin struct data migration\n")
-	// var xp rlib.Rentable
-	// rlib.MigrateStructVals(&gxp, &xp.Trn)
-	// rlib.MigrateStructVals(&gxp, &xp.Usr)
-	// rlib.MigrateStructVals(&gxp, &xp.Psp)
-	// rlib.MigrateStructVals(&gxp, &xp.Pay)
-	// fmt.Printf("end migration\n")
-
-	// err = rlib.UpdateTransactant(&xp.Trn)
-	// if err != nil {
-	// 	e := fmt.Errorf("%s: UpdateTransactant error:  %s\n", funcname, err.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-	// err = rlib.UpdateUser(&xp.Usr)
-	// if err != nil {
-	// 	e := fmt.Errorf("%s: UpdateUser error:  %s\n", funcname, err.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-
-	// err = rlib.UpdateProspect(&xp.Psp)
-	// if err != nil {
-	// 	e := fmt.Errorf("%s: UpdateProspect error:  %s\n", funcname, err.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-
-	// err = rlib.UpdatePayor(&xp.Pay)
-	// if err != nil {
-	// 	e := fmt.Errorf("%s: UpdatePayor err.Pay %s\n", funcname, err.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-
-	// var g struct {
-	// 	Status string `json:"status"`
-	// }
-	// g.Status = "success"
-	// SvcWriteResponse(&g, w)
 }
 
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {

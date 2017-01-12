@@ -7,6 +7,7 @@ db:
 clean:
 	rm -f testreport.txt
 	for dir in $(DIRS); do make -C $$dir clean;done
+	cd ./1site;make clean
 	@echo "*** CLEAN completed in test ***"
 	
 test:

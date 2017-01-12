@@ -1,0 +1,9 @@
+CreatePeopleFromCSV: line 2 - FirstName and LastName are required for a person
+CreatePeopleFromCSV: line 3 - FirstName and LastName are required for a person
+CreatePeopleFromCSV: line 4 - FirstName and LastName are required for a person
+CreatePeopleFromCSV: line 5 - FirstName and LastName are required for a person
+CreatePeopleFromCSV: line 6 - FirstName and LastName are required for a person
+                  Middle                      Is                                
+TCID  First Name  Name    Last Name  Company  Company  Cell Phone  Primary Email
+----  ----------  ------  ---------  -------  -------  ----------  -------------
+

@@ -1,0 +1,68 @@
+Account:  10000 - Cash
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               93,883.01
+Payment #8739 - Gross Scheduled Rent-Taxable             10/02/2016  J00000074          4   311 Rexford          4,150.00     98,033.01
+Payment #3274 - Gross Scheduled Rent-Taxable             10/03/2016  J00000075          5   309 1/2 Rexford      4,000.00    102,033.01
+Payment #2160 - Gross Scheduled Rent-Taxable             10/01/2016  J00000073          1   309 Rexford          3,750.00    105,783.01
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          10/31/2016                                                          105,783.01
+
+
+Account:  12000 - Accounts Receivable
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                7,900.00
+Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000071          4   311 Rexford          4,150.00     12,050.00
+Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000069          5   309 1/2 Rexford      4,000.00     16,050.00
+Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000070          1   309 Rexford          3,750.00     19,800.00
+Payment #2160 - Gross Scheduled Rent-Taxable             10/01/2016  J00000073          1   309 Rexford         -3,750.00     16,050.00
+Payment #3274 - Gross Scheduled Rent-Taxable             10/03/2016  J00000075          5   309 1/2 Rexford     -4,000.00     12,050.00
+Payment #8739 - Gross Scheduled Rent-Taxable             10/02/2016  J00000074          4   311 Rexford         -4,150.00      7,900.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          10/31/2016                                                            7,900.00
+
+
+Account:  41000 - Gross Scheduled Rent-Taxable
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                             -127,050.00
+Unassociated                                             10/31/2016  J00000072          0   311 1/2 Rexford     -2,500.00   -129,550.00
+Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000070          1   309 Rexford         -3,750.00   -133,300.00
+Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000069          5   309 1/2 Rexford     -4,000.00   -137,300.00
+Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000071          4   311 Rexford         -4,150.00   -141,450.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          10/31/2016                                                         -141,450.00
+
+
+Account:  41101 - Vacancy
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               46,978.25
+Unassociated                                             10/31/2016  J00000072          0   311 1/2 Rexford      2,500.00     49,478.25
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          10/31/2016                                                           49,478.25
+
+
+Account:  30000 - Security Deposits
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                              -21,600.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          10/31/2016                                                          -21,600.00
+
+
+Account:  41202 - Food Services
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                 -111.26
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          10/31/2016                                                             -111.26
+
+

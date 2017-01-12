@@ -2,12 +2,11 @@ package rrpt
 
 import (
 	"fmt"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 )
 
 // LedgerBalanceReport builds a table of trial balance information
-func LedgerBalanceReport(ri *rcsv.CSVReporterInfo) rlib.Table {
+func LedgerBalanceReport(ri *ReporterInfo) rlib.Table {
 	bid := ri.Xbiz.P.BID
 	var tbl rlib.Table
 	tbl.Init()
@@ -39,12 +38,12 @@ func LedgerBalanceReport(ri *rcsv.CSVReporterInfo) rlib.Table {
 
 //PrintLedgerBalanceReport prints a report of data that will be used to format a ledger UI.
 // This routine is primarily for testing
-func PrintLedgerBalanceReport(ri *rcsv.CSVReporterInfo) {
+func PrintLedgerBalanceReport(ri *ReporterInfo) {
 	fmt.Print(PrintLedgerBalanceReportString(ri))
 }
 
 //PrintLedgerBalanceReportString returns a string showing the balance of all ledgers as of ri.D2
-func PrintLedgerBalanceReportString(ri *rcsv.CSVReporterInfo) string {
+func PrintLedgerBalanceReportString(ri *ReporterInfo) string {
 	s := fmt.Sprintf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ri.Xbiz.P.Name, ri.D2.Format("January 2, 2006"))
 	tbl := LedgerBalanceReport(ri)
 	tbl.TightenColumns()

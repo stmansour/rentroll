@@ -2,7 +2,7 @@ package onesite
 
 import (
 	"encoding/csv"
-	"log"
+	"fmt"
 	"os"
 	"path"
 	"reflect"
@@ -31,7 +31,7 @@ func CreateRentableTypeCSV(
 	// try to create file and return with error if occurs any
 	rentableTypeCSVFile, err := os.Create(rentableTypeCSVFilePath)
 	if err != nil {
-		log.Println(err)
+		rlib.Ulog("Error <RENTABLE TYPE CSV>: %s\n", err.Error())
 		return nil, nil, done
 	}
 
@@ -42,7 +42,7 @@ func CreateRentableTypeCSV(
 	rentableTypeCSVHeaders := []string{}
 	rentableTypeCSVHeaders, ok := core.GetStructFields(rt)
 	if !ok {
-		log.Println("Unable to get struct fields for rentableTypeCSV")
+		rlib.Ulog("Error <RENTABLE TYPE CSV>: Unable to get struct fields for rentableTypeCSV\n")
 		return nil, nil, done
 	}
 
@@ -57,6 +57,9 @@ func CreateRentableTypeCSV(
 // WriteRentableTypeCSVData used to write the data to csv file
 // with avoiding duplicate data
 func WriteRentableTypeCSVData(
+	recordCount *int,
+	rowIndex int,
+	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
 	avoidData *[]string,
@@ -83,17 +86,17 @@ func WriteRentableTypeCSVData(
 	// through first loop in main program
 	sqft, _ := strconv.ParseInt(csvRow.SQFT, 10, 64)
 	tempCard := CARD{
-		BID:   business.BID,
-		Style: checkRentableTypeStyle,
-		SqFt:  sqft,
+		BID:      business.BID,
+		Style:    checkRentableTypeStyle,
+		SqFt:     sqft,
+		RowIndex: rowIndex,
 	}
 	customAttributesRefData[checkRentableTypeStyle] = tempCard
 
-	currentYear, _, _ := currentTime.Date()
-	DtStart := "1/1/" + strconv.Itoa(currentYear)
-	DtStop := "1/1/" + strconv.Itoa(currentYear+1)
-	// DtStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentTime.Location())
-	// DtStop := time.Date(currentYear+1, 1, 1, 0, 0, 0, 0, currentTime.Location())
+	currentYear, currentMonth, currentDate := currentTime.Date()
+	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
+	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
+	DtStop := "12/31/9999" // no end date
 
 	// make rentableType data from userSuppliedValues and defaultValues
 	rentableTypeDefaultData := map[string]string{}
@@ -110,8 +113,12 @@ func WriteRentableTypeCSVData(
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
-		// TODO: make sure to verify the usage of flush is correct or not
 		csvWriter.Flush()
+
+		// after write operation to csv,
+		// entry this rowindex with unit value in the map
+		*recordCount = *recordCount + 1
+		traceCSVData[*recordCount] = rowIndex
 	}
 }
 

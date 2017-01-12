@@ -34,13 +34,14 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	fmt.Printf("websvcReportHandler: prefix=%s, BID=%d,  d1 = %s, d2 = %s\n", prefix, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-	var ri = rcsv.CSVReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz}
+	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true}
 
 	switch strings.ToLower(prefix) {
 	case "asm", "assessments":
 		return rcsv.RRreportAssessments(&ri)
 	case "b", "business":
-		return rcsv.RRreportBusiness(&ri)
+		t := rcsv.RRreportBusinessTable(&ri)
+		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
 	case "coa", "chart of accounts":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		return rcsv.RRreportChartOfAccounts(&ri)
@@ -49,6 +50,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 	case "cr", "custom attribute refs":
 		return rcsv.RRreportCustomAttributeRefs(&ri)
 	case "delinq":
+		rlib.InitBizInternals(ri.Bid, xbiz)
 		t, err := rrpt.DelinquencyReport(&ri)
 		if err != nil {
 			return err.Error()
@@ -67,13 +69,24 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
 	case "j":
 		rlib.InitBizInternals(ri.Bid, xbiz)
+		ri.RptHeaderD1 = true
+		ri.RptHeaderD2 = true
 		t := rrpt.JournalReport(&ri)
-		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
+		return rrpt.ReportToString(&t, &ri)
 	case "l", "la":
 		if xbiz.P.BID > 0 {
 			var m []rlib.Table
 			rlib.InitBizInternals(ri.Bid, xbiz)
-			s := ""
+			var rn string
+			if prefix == "l" {
+				rn = "Ledgers"
+			} else {
+				rn = "Ledger Activity"
+			}
+			s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
+			if err != nil {
+				s += "\n" + err.Error()
+			}
 			switch prefix {
 			case "l": // all ledgers
 				m = rrpt.LedgerReport(&ri)

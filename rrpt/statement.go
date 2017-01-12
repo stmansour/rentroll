@@ -216,7 +216,7 @@ func RptStatementForRA(xbiz *rlib.XBusiness, d1, d2 *time.Time, ra *rlib.RentalA
 			d += amt
 			b += amt
 			// fmt.Printf("%10s  R%010d  %-40.40s  %12s  %12s  %12s\n", m[i].dt.Format(rlib.RRDATEINPFMT), m[i].id, "Payment received", " ", rlib.RRCommaf(m[i].amt), rlib.RRCommaf(b))
-			t.Puts(-1, 1, rlib.IDtoString("ASM", m[i].id))
+			t.Puts(-1, 1, rlib.IDtoString("RCPT", m[i].id))
 			t.Puts(-1, 2, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[m[i].asmtlid].Name)
 			t.Putf(-1, 4, amt)
 		case 3: // opening balance

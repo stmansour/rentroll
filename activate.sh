@@ -83,10 +83,10 @@ setupAppNode() {
 }
 
 start() {
-	# Handle first time run.  
+	# Create a database if this is a localhost instance  
 	if [ ${IAM} == "root" ]; then
-		x=$(grep prmysql ~/.bashrc | grep -v grep | wc -l)
-		if (( x == 0 )); then
+		x=$(grep RRDbhost conf.json | grep localhost | wc -l)
+		if (( x == 1 )); then
 			setupAppNode
 		fi
 	fi
