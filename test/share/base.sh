@@ -19,6 +19,7 @@ LOGFILE="log"
 MYSQLOPTS=""
 MYSQL=$(which mysql)
 TESTCOUNT=0			## this is an internal counter, your external script should not touch it
+SHOWCOMMAND=0
 SCRIPTPATH=$(pwd -P)
 
 if [ "x${RRPORT}" = "x" ]; then
@@ -193,13 +194,15 @@ usage() {
 	cat <<EOF
 
 SYNOPSIS
-	$0 [-f -o -r]
+	$0 [-c -f -o -r]
 
 	Rentroll test script. Compare the output of each step to its associated
 	.gold known-good output. If they miscompare, fail and stop the script.
 	If they match, keep going until all tasks are completed.
 
 OPTIONS
+	-c  Show each command that was executed.
+
 	-f  Executes all the steps of the test but does not compare the output
 	    to the known-good files. This is useful when making a slight change
 	    to something just to see how it will work.
@@ -327,7 +330,11 @@ docsvtest () {
 		UDIFFS=$(diff ${1}.g ${GOLD}/${1}.g | wc -l)
 		# UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
-			echo "PASSED"
+			if [ ${SHOWCOMMAND} -eq 1 ]; then
+				echo "PASSED	cmd: ${CSVLOAD} ${2}"
+			else
+				echo "PASSED"
+			fi
 			rm -f ${1}.g ${GOLD}/${1}.g
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
@@ -383,7 +390,11 @@ doOnesiteTest () {
 		UDIFFS=$(diff ${1}.g ${GOLD}/${1}.g | wc -l)
 		# UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
-			echo "PASSED"
+			if [ ${SHOWCOMMAND} -eq 1 ]; then
+				echo "PASSED	cmd: ${CSVLOAD} ${2}"
+			else
+				echo "PASSED"
+			fi
 			rm -f ${1}.g ${GOLD}/${1}.g
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
@@ -430,7 +441,11 @@ EOF
 		fi
 		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
-			echo "PASSED"
+			if [ ${SHOWCOMMAND} -eq 1 ]; then
+				echo "PASSED	cmd: ${CSVLOAD} ${2}"
+			else
+				echo "PASSED"
+			fi
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
@@ -467,7 +482,11 @@ dorrtest () {
 		fi
 		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
-			echo "PASSED"
+			if [ ${SHOWCOMMAND} -eq 1 ]; then
+				echo "PASSED	cmd: ${CSVLOAD} ${2}"
+			else
+				echo "PASSED"
+			fi
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
@@ -624,9 +643,13 @@ dojsonPOST () {
 #  Handle command line options...
 #--------------------------------------------------------------------------
 tdir
-while getopts "forR:" o; do
+while getopts "cforR:" o; do
 	echo "o = ${o}"
 	case "${o}" in
+		c | C)
+			SHOWCOMMAND=1
+			echo "SHOWCOMMAND"
+			;;
 		r | R)
 			doReport
 			exit 0

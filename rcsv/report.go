@@ -9,14 +9,15 @@ import (
 	"time"
 )
 
-// RRreportBusiness generates a report of all Businesses defined in the database.
-func RRreportBusiness(ri *rrpt.ReporterInfo) string {
+// RRreportBusinessTable generates a Table of all Businesses defined in the database.
+func RRreportBusinessTable(ri *rrpt.ReporterInfo) rlib.Table {
 	rows, err := rlib.RRdb.Prepstmt.GetAllBusinesses.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
 
 	var tbl rlib.Table
 	tbl.Init()
+	tbl.SetTitle("Business Units\n\n")
 	tbl.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	tbl.AddColumn("BUD", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -36,6 +37,12 @@ func RRreportBusiness(ri *rrpt.ReporterInfo) string {
 		tbl.Puts(-1, 5, rlib.RentalPeriodToString(p.DefaultGSRPC))
 	}
 	rlib.Errcheck(rows.Err())
+	return tbl
+}
+
+// RRreportBusiness generates a String Report of all Businesses defined in the database.
+func RRreportBusiness(ri *rrpt.ReporterInfo) string {
+	tbl := RRreportBusinessTable(ri)
 	return tbl.SprintTable(ri.OutputFormat)
 }
 
@@ -103,6 +110,7 @@ func ReportCOA(p rlib.GLAccount, t *rlib.Table) {
 
 // RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
 func RRreportChartOfAccounts(ri *rrpt.ReporterInfo) string {
+	funcname := "RRreportChartOfAccounts"
 	rlib.InitBusinessFields(ri.Bid)
 	rlib.RRdb.BizTypes[ri.Bid].GLAccounts = rlib.GetGLAccountMap(ri.Bid)
 
@@ -124,6 +132,10 @@ func RRreportChartOfAccounts(ri *rrpt.ReporterInfo) string {
 
 	var t rlib.Table
 	t.Init()
+
+	ri.RptHeaderD1 = false
+	ri.RptHeaderD2 = false
+	t.SetTitle(rrpt.ReportHeaderBlock("Chart of Accounts", funcname, ri))
 	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("LID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("PLID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -141,7 +153,7 @@ func RRreportChartOfAccounts(ri *rrpt.ReporterInfo) string {
 	for i := 0; i < len(a); i++ {
 		ReportCOA(m[a[i]], &t)
 	}
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
@@ -219,7 +231,7 @@ func RRreportPeople(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportRentables generates a report of all Businesses defined in the database.
@@ -426,20 +438,16 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 
 // RRreportAssessments generates a report of all rlib.GLAccount accounts
 func RRreportAssessments(ri *rrpt.ReporterInfo) string {
-	ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
-	ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	var xbiz rlib.XBusiness
-	ri.Xbiz = &xbiz
-	rlib.GetXBusiness(ri.Bid, ri.Xbiz)
-
 	t, err := RRAssessmentsTable(ri)
+	s := t.GetTitle()
 	if err != nil {
 		if rlib.IsSQLNoResultsError(err) {
-			return "\nNo assessments found\n"
+			s += "\nNo assessments found in this period\n"
+		} else {
+			s += err.Error()
 		}
-		return err.Error()
 	}
-	return t.GetTitle() + "\n" + t.SprintTable(ri.OutputFormat)
+	return s + "\n" + t.SprintTable(ri.OutputFormat)
 }
 
 // RRAssessmentsTable generates a report of all rlib.GLAccount accounts
@@ -452,21 +460,10 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (rlib.Table, error) {
 	d2 := ri.D2
 	rlib.InitBusinessFields(bid)
 	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
-	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
-		return t, err
-	}
-	defer rows.Close()
 
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
-	s, err := rrpt.ReportHeader("Assessments", funcname, ri)
-	if err != nil {
-		return t, err
-	}
-	t.SetTitle(s)
-	//t.SetTitle(fmt.Sprintf("Assessments:  BID = %s, from %s up to %s", rlib.IDtoString("B", bid), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4)))
+	t.SetTitle(rrpt.ReportHeaderBlock("Assessments", funcname, ri))
 
 	t.AddColumn("ASMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("PASMID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -477,6 +474,14 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (rlib.Table, error) {
 	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
 	t.AddColumn("AsmType", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Account Rule", 80, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
+	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		return t, err
+	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var a rlib.Assessment
 		rlib.ReadAssessments(rows, &a)
@@ -564,6 +569,7 @@ func RRreportInvoices(ri *rrpt.ReporterInfo) string {
 func RRreportDepository(ri *rrpt.ReporterInfo) string {
 	m := rlib.GetAllDepositories(ri.Bid)
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Depositories", "RRreportDepository", ri))
 	t.Init()
 	t.AddColumn("DEPID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -577,17 +583,19 @@ func RRreportDepository(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 3, m[i].Name)
 	}
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportDepositMethods generates a report of all rlib.GLAccount accounts
 func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
-	m := rlib.GetAllDepositMethods(ri.Bid)
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Deposit Methods", "RRreportDepositMethods", ri))
 	t.Init()
 	t.AddColumn("DPMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+
+	m := rlib.GetAllDepositMethods(ri.Bid)
 	for i := 0; i < len(m); i++ {
 		t.AddRow()
 		t.Puts(-1, 0, rlib.IDtoString("DPM", m[i].DPMID))
@@ -595,7 +603,7 @@ func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 2, m[i].Name)
 	}
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportDeposits generates a report of all rlib.GLAccount accounts

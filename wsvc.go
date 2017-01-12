@@ -34,13 +34,14 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	fmt.Printf("websvcReportHandler: prefix=%s, BID=%d,  d1 = %s, d2 = %s\n", prefix, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz}
+	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true}
 
 	switch strings.ToLower(prefix) {
 	case "asm", "assessments":
 		return rcsv.RRreportAssessments(&ri)
 	case "b", "business":
-		return rcsv.RRreportBusiness(&ri)
+		t := rcsv.RRreportBusinessTable(&ri)
+		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
 	case "coa", "chart of accounts":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		return rcsv.RRreportChartOfAccounts(&ri)
@@ -68,8 +69,10 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
 	case "j":
 		rlib.InitBizInternals(ri.Bid, xbiz)
+		ri.RptHeaderD1 = true
+		ri.RptHeaderD2 = true
 		t := rrpt.JournalReport(&ri)
-		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
+		return rrpt.ReportToString(&t, &ri)
 	case "l", "la":
 		if xbiz.P.BID > 0 {
 			var m []rlib.Table

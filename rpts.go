@@ -39,9 +39,14 @@ func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RR
 // RptJournal is the HTTP handler for the Journal report request
 func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	if xbiz.P.BID > 0 {
-		var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
+		var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2, OutputFormat: rlib.TABLEOUTTEXT}
+		ri.OutputFormat = rlib.TABLEOUTTEXT
 		tbl := rrpt.JournalReport(&ri)
-		ui.ReportContent = tbl.Title + tbl.SprintTable(rlib.TABLEOUTTEXT)
+		ri.RptHeader = true
+		ri.RptHeaderD1 = true
+		ri.RptHeaderD2 = true
+		// ui.ReportContent = tbl.Title + tbl.SprintTable(rlib.TABLEOUTTEXT)
+		ui.ReportContent = rrpt.ReportToString(&tbl, &ri)
 	}
 }
 

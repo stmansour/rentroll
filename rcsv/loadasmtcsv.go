@@ -110,7 +110,6 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 		r, err = rlib.GetRentableByName(s, a.BID)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s.  Error = %v\n", funcname, lineno, s, err)
-
 		}
 		a.RID = r.RID
 	}
@@ -146,7 +145,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Rental Agreement ID
 	//-------------------------------------------------------------------
-	a.RAID, _ = rlib.IntFromString(sa[6], "Assessment type is invalid")
+	a.RAID, _ = rlib.IntFromString(sa[6], "Rental Agreement ID is invalid")
 	if a.RAID > 0 {
 		ra, err := rlib.GetRentalAgreement(a.RAID) // for the call to ValidAssessmentDate, we need the entire agreement start/stop period
 		if err != nil {

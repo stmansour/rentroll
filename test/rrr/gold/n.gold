@@ -1,6 +1,11 @@
-JOURNAL
-Business: JGM First, LLC
-Period:   07/01/16 - 07/31/16
+REX
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+Journal
+07/01/2016 - 08/01/2016
 
 Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
@@ -302,15 +307,20 @@ J00000072   Payment -    #6430  4200.00
 J00000075   Unassociated: 6303-231 vacant Jul 4 - Jul 5                                                                                           
             Unit Gross Scheduled Rent-Taxable                                       07/04/20  0           6303-231         41000            -76.00
             Vacancy                                                                 07/04/20  0           6303-231         41101             76.00
+                                                                                                                                                  
 J00000076   Unassociated: 6303-231 vacant Jul 7 - Jul 10                                                                                          
             Unit Gross Scheduled Rent-Taxable                                       07/09/20  0           6303-231         41000           -276.00
             Vacancy                                                                 07/09/20  0           6303-231         41101            276.00
+                                                                                                                                                  
 J00000077   Unassociated: 6303-231 vacant Jul 31 - Aug 1                                                                                          
             Unit Gross Scheduled Rent-Taxable                                       07/31/20  0           6303-231         41000            -56.87
             Vacancy                                                                 07/31/20  0           6303-231         41101             56.87
+                                                                                                                                                  
 J00000078   Unassociated: 6323-303 vacant Jul 4 - Jul 6                                                                                           
             Unit Gross Scheduled Rent-Taxable                                       07/05/20  0           6323-303         41000           -258.06
             Vacancy                                                                 07/05/20  0           6323-303         41101            258.06
+                                                                                                                                                  
 J00000079   Unassociated: 6323-303 vacant Jul 9 - Jul 12                                                                                          
             Unit Gross Scheduled Rent-Taxable                                       07/11/20  0           6323-303         41000           -309.68
             Vacancy                                                                 07/11/20  0           6323-303         41101            309.68
+                                                                                                                                                  
