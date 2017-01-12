@@ -199,6 +199,7 @@ func LoadCSV(fname string) [][]string {
 		defer f.Close()
 		reader := csv.NewReader(f)
 		reader.FieldsPerRecord = -1
+		reader.LazyQuotes = true
 		rawCSVdata, err := reader.ReadAll()
 		if err != nil {
 			fmt.Println(err)
