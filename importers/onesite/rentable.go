@@ -12,10 +12,6 @@ import (
 	"time"
 )
 
-// ===========
-// CONSTANTS
-// ===========
-
 // CreateRentableCSV create rentable csv temporarily
 // write headers, used to load data from onesite csv
 // return file pointer to call program
@@ -251,11 +247,14 @@ func GetRUserSpec(
 		}
 
 		// append lease end
-		if csvRow.LeaseEnd == "" {
-			orderedFields = append(orderedFields, defaults["DtStop"])
-		} else {
-			orderedFields = append(orderedFields, csvRow.LeaseEnd)
-		}
+		// if csvRow.LeaseEnd == "" {
+		// 	orderedFields = append(orderedFields, defaults["DtStop"])
+		// } else {
+		// 	orderedFields = append(orderedFields, csvRow.LeaseEnd)
+		// }
+
+		// even if it is blank then we might just leave it as blank
+		orderedFields = append(orderedFields, csvRow.LeaseEnd)
 	}
 
 	ok = true
