@@ -1,6 +1,11 @@
-JOURNAL
-Business: JGM First, LLC
-Period:   07/01/16 - 07/31/16
+REX
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+Journal
+07/01/2016 - 08/01/2016
 
 Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
@@ -24,6 +29,8 @@ J00000004   Payment - Diddit   #3383  735.35
 J00000005   Unassociated: 6323-303 vacant Jul 4 - Jul 5                                                                                           
             Unit Gross Scheduled Rent-Taxable                                       07/04/20  0           6323-303         41000           -100.00
             Vacancy                                                                 07/04/20  0           6323-303         41101            100.00
+                                                                                                                                                  
 J00000006   Unassociated: 6323-303 vacant Jul 9 - Jul 11                                                                                          
             Unit Gross Scheduled Rent-Taxable                                       07/10/20  0           6323-303         41000           -232.26
             Vacancy                                                                 07/10/20  0           6323-303         41101            232.26
+                                                                                                                                                  

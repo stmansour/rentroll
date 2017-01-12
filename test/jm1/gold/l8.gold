@@ -1,6 +1,11 @@
-JOURNAL
-Business: JGM First, LLC
-Period:   08/01/16 - 08/31/16
+REX
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+Journal
+08/01/2016 - 09/01/2016
 
 Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
@@ -31,6 +36,11 @@ J00000060   Payment - Beck,Mills   #8733  4150.00
             Accounts Receivable                                                     08/01/20  RA00000004  311 Rexford      12000         -4,150.00
             Cash                                                                    08/01/20  RA00000004  311 Rexford      10000          4,150.00
                                                                                                                                                   
-J00000061   Unassociated: 311 1/2 Rexford vacant Aug 1 - Sep 1                                                                                    
+J00000061   Unassociated: 309 1/2 Rexford vacant Aug 28 - Sep 1                                                                                   
+            Gross Scheduled Rent-Taxable                                            08/31/20  0           309 1/2 Rexford  41000           -490.32
+            Vacancy                                                                 08/31/20  0           309 1/2 Rexford  41101            490.32
+                                                                                                                                                  
+J00000062   Unassociated: 311 1/2 Rexford vacant Aug 1 - Sep 1                                                                                    
             Gross Scheduled Rent-Taxable                                            08/31/20  0           311 1/2 Rexford  41000         -2,500.00
             Vacancy                                                                 08/31/20  0           311 1/2 Rexford  41101          2,500.00
+                                                                                                                                                  

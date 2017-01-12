@@ -1,6 +1,11 @@
-JOURNAL
-Business: JGM First, LLC
-Period:   05/01/16 - 05/31/16
+REX
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+Journal
+05/01/2016 - 06/01/2016
 
 Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
@@ -25,6 +30,8 @@ J00000038   Payment - Costea,Costea   #1924  3800.00
 J00000039   Unassociated: 311 Rexford vacant May 1 - Jun 1                                                                                        
             Gross Scheduled Rent-Taxable                                            05/31/20  0           311 Rexford      41000         -4,150.00
             Vacancy                                                                 05/31/20  0           311 Rexford      41101          4,150.00
+                                                                                                                                                  
 J00000040   Unassociated: 311 1/2 Rexford vacant May 1 - Jun 1                                                                                    
             Gross Scheduled Rent-Taxable                                            05/31/20  0           311 1/2 Rexford  41000         -2,500.00
             Vacancy                                                                 05/31/20  0           311 1/2 Rexford  41101          2,500.00
+                                                                                                                                                  

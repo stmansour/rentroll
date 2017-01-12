@@ -69,8 +69,10 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
 	case "j":
 		rlib.InitBizInternals(ri.Bid, xbiz)
+		ri.RptHeaderD1 = true
+		ri.RptHeaderD2 = true
 		t := rrpt.JournalReport(&ri)
-		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
+		return rrpt.ReportToString(&t, &ri)
 	case "l", "la":
 		if xbiz.P.BID > 0 {
 			var m []rlib.Table

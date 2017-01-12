@@ -110,7 +110,6 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 		r, err = rlib.GetRentableByName(s, a.BID)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s.  Error = %v\n", funcname, lineno, s, err)
-
 		}
 		a.RID = r.RID
 	}

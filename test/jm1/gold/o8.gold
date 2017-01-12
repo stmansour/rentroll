@@ -15,12 +15,12 @@ L00000027  30101     Sales Taxes                                             0.0
 L00000028  30102     Transient Occupancy Taxes                               0.00
 L00000029  30199     Other Accrued Taxes                                     0.00
 L00000008  39000     Owners' Equity                                          0.00
-L00000003  41000     Gross Scheduled Rent-Taxable                     -112,359.68
+L00000003  41000     Gross Scheduled Rent-Taxable                     -112,850.00
 L00000030  41001     Gross Scheduled Rent-Not Taxable                        0.00
-L00000031  41002     Income Offsets                       40,187.93              
+L00000031  41002     Income Offsets                       40,678.25              
 L00000040  41003     Other Income                           -111.26              
-L00000032  41100     Unit Income Offsets                  40,187.93              
-L00000005  41101     Vacancy                                            40,187.93
+L00000032  41100     Unit Income Offsets                  40,678.25              
+L00000005  41101     Vacancy                                            40,678.25
 L00000004  41102     Loss (Gain) to Lease                                    0.00
 L00000033  41103     Employee Concessions                                    0.00
 L00000034  41104     Resident Concessions                                    0.00

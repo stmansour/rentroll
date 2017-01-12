@@ -39,12 +39,13 @@ Period:   08/01/16 - 08/31/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              -98,650.00
-Unassociated                                             08/31/2016  J00000061          0   311 1/2 Rexford     -2,500.00   -101,150.00
-Assessment - Gross Scheduled Rent-Taxable                08/01/2016  J00000056          2   309 1/2 Rexford     -3,309.68   -104,459.68
-Assessment - Gross Scheduled Rent-Taxable                08/01/2016  J00000055          1   309 Rexford         -3,750.00   -108,209.68
-Assessment - Gross Scheduled Rent-Taxable                08/01/2016  J00000057          4   311 Rexford         -4,150.00   -112,359.68
+Unassociated                                             08/31/2016  J00000061          0   309 1/2 Rexford       -490.32    -99,140.32
+Unassociated                                             08/31/2016  J00000062          0   311 1/2 Rexford     -2,500.00   -101,640.32
+Assessment - Gross Scheduled Rent-Taxable                08/01/2016  J00000056          2   309 1/2 Rexford     -3,309.68   -104,950.00
+Assessment - Gross Scheduled Rent-Taxable                08/01/2016  J00000055          1   309 Rexford         -3,750.00   -108,700.00
+Assessment - Gross Scheduled Rent-Taxable                08/01/2016  J00000057          4   311 Rexford         -4,150.00   -112,850.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          08/31/2016                                                         -112,359.68
+Closing Balance                                          08/31/2016                                                         -112,850.00
 
 
 LEDGER
@@ -55,9 +56,10 @@ Period:   08/01/16 - 08/31/16
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               37,687.93
-Unassociated                                             08/31/2016  J00000061          0   311 1/2 Rexford      2,500.00     40,187.93
+Unassociated                                             08/31/2016  J00000062          0   311 1/2 Rexford      2,500.00     40,187.93
+Unassociated                                             08/31/2016  J00000061          0   309 1/2 Rexford        490.32     40,678.25
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          08/31/2016                                                           40,187.93
+Closing Balance                                          08/31/2016                                                           40,678.25
 
 
 LEDGER

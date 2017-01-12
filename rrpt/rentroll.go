@@ -158,22 +158,15 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 		// Note that this could result in multiple rental agreements.
 		//------------------------------------------------------------------------------
 		rra := rlib.GetAgreementsForRentable(p.RID, d1, d2) // get all rental agreements for this period
-		// if len(rra) == 0 {                                  // if there are none...
-		// 	tbl.AddRow() // puts to row -1 will go to the newly added row
-		// 	tbl.Puts(-1, RName, "vacant")
-		// 	tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)
-		// 	tbl.Puti(-1, RTSqFt, sqft)
-		// }
-
-		for i := 0; i < len(rra); i++ { //for each rental agreement id
+		for i := 0; i < len(rra); i++ {                     // for each rental agreement id
 			ra, err := rlib.GetRentalAgreement(rra[i].RAID) // load the agreement
 			if err != nil {
-				fmt.Printf("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
+				rlib.Ulog("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
 				continue
 			}
 			na := p.GetUserNameList(&ra.PossessionStart, &ra.PossessionStop) // get the list of user names for this time period
 			usernames = strings.Join(na, ",")                                // concatenate with a comma separator
-			pa := ra.GetPayorNameList(&ra.RentStart, &ra.RentStart)          // get the payors for this time period
+			pa := ra.GetPayorNameList(&ra.RentStart, &ra.RentStop)           // get the payors for this time period
 			payornames = strings.Join(pa, ", ")                              // concatenate with comma
 
 			//-------------------------------------------------------------------------------------------------------
@@ -208,7 +201,7 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 			//-------------------------------------------------------------------------------------------------------
 			rar, err := rlib.FindAgreementByRentable(p.RID, &dtstart, &dtstop)
 			if err != nil {
-				fmt.Printf("Error getting RentalAgreementRentable for RID = %d, period = %s - %s: err = %s\n",
+				rlib.Ulog("Error getting RentalAgreementRentable for RID = %d, period = %s - %s: err = %s\n",
 					p.RID, dtstart.Format(rlib.RRDATEFMT3), dtstop.Format(rlib.RRDATEFMT3), err.Error())
 				continue
 			}

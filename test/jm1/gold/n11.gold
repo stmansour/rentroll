@@ -1,0 +1,102 @@
+LEDGER
+Business: JGM First, LLC
+Account:  10000 - Cash
+Period:   11/01/16 - 11/30/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               93,883.01
+Payment #8745 - Gross Scheduled Rent-Taxable             11/02/2016  J00000084          5   309 1/2 Rexford     11,985.00    105,868.01
+Payment #3279 - Gross Scheduled Rent-Taxable             11/01/2016  J00000083          4   311 Rexford          4,150.00    110,018.01
+Payment #2163 - Gross Scheduled Rent-Taxable             11/01/2016  J00000082          1   309 Rexford          3,750.00    113,768.01
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2016                                                          113,768.01
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  12000 - Accounts Receivable
+Period:   11/01/16 - 11/30/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               19,800.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000079          4   311 Rexford          4,150.00     23,950.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000080          5   309 1/2 Rexford      4,000.00     27,950.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000078          1   309 Rexford          3,750.00     31,700.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000077          5   309 1/2 Rexford         15.00     31,715.00
+Assessment - Bad Debt                                    11/01/2016  J00000076          5   309 1/2 Rexford        -15.00     31,700.00
+Payment #2163 - Gross Scheduled Rent-Taxable             11/01/2016  J00000082          1   309 Rexford         -3,750.00     27,950.00
+Payment #3279 - Gross Scheduled Rent-Taxable             11/01/2016  J00000083          4   311 Rexford         -4,150.00     23,800.00
+Payment #8745 - Gross Scheduled Rent-Taxable             11/02/2016  J00000084          5   309 1/2 Rexford    -11,985.00     11,815.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2016                                                           11,815.00
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  41000 - Gross Scheduled Rent-Taxable
+Period:   11/01/16 - 11/30/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                             -141,450.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000077          5   309 1/2 Rexford        -15.00   -141,465.00
+Unassociated                                             11/30/2016  J00000081          0   311 1/2 Rexford     -2,500.00   -143,965.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000078          1   309 Rexford         -3,750.00   -147,715.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000080          5   309 1/2 Rexford     -4,000.00   -151,715.00
+Assessment - Gross Scheduled Rent-Taxable                11/01/2016  J00000079          4   311 Rexford         -4,150.00   -155,865.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2016                                                         -155,865.00
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  41101 - Vacancy
+Period:   11/01/16 - 11/30/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                               49,478.25
+Unassociated                                             11/30/2016  J00000081          0   311 1/2 Rexford      2,500.00     51,978.25
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2016                                                           51,978.25
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  30000 - Security Deposits
+Period:   11/01/16 - 11/30/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                              -21,600.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2016                                                          -21,600.00
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  41202 - Food Services
+Period:   11/01/16 - 11/30/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                 -111.26
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2016                                                             -111.26
+
+
+LEDGER
+Business: JGM First, LLC
+Account:  49992 - Bad Debt
+Period:   11/01/16 - 11/30/16
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Bad Debt                                    11/01/2016  J00000076          5   309 1/2 Rexford         15.00         15.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2016                                                               15.00
+
+
