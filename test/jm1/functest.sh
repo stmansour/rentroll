@@ -321,4 +321,21 @@ dorrtest  "o11" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p11" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q11" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
+#========================================================================================
+# DECEMBER 2016
+#========================================================================================
+RRDATERANGE="-j 2016-12-01 -k 2017-01-01"
+CSVLOADRANGE="-G ${BUD} -g 12/1/16,1/1/17"
+# docsvtest "b12" "-A asm2016-12.csv ${CSVLOADRANGE} -L 12,${BUD}" "Assessments-2016-Dec"
+dorrtest  "a12" "${RRDATERANGE} -b ${BUD}" "Process-2016-Dec"
+docsvtest "i12" "-e rcpt2016-12.csv ${CSVLOADRANGE} -L 13,${BUD}" "Receipts-2016-Dec"
+docsvtest "j12" "-y deposit-2016-12.csv ${CSVLOADRANGE} -L 19,${BUD}" "Deposits-2016-Dec"
+dorrtest  "k12" "${RRDATERANGE} -b ${BUD}" "Finish-2016-Dec"
+dorrtest  "l12" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest  "m12" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
+dorrtest  "n12" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
+dorrtest  "o12" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
+dorrtest  "p12" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
+dorrtest  "q12" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
 logcheck

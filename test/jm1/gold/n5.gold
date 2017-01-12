@@ -1,7 +1,4 @@
-LEDGER
-Business: JGM First, LLC
 Account:  10000 - Cash
-Period:   05/01/16 - 05/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -12,10 +9,7 @@ Payment #2003 - Gross Scheduled Rent-Taxable             05/01/2016  J00000037  
 Closing Balance                                          05/31/2016                                                           55,123.33
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  12000 - Accounts Receivable
-Period:   05/01/16 - 05/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -28,10 +22,7 @@ Payment #1924 - Gross Scheduled Rent-Taxable             05/02/2016  J00000038  
 Closing Balance                                          05/31/2016                                                                0.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41000 - Gross Scheduled Rent-Taxable
-Period:   05/01/16 - 05/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -44,10 +35,7 @@ Unassociated                                             05/31/2016  J00000039  
 Closing Balance                                          05/31/2016                                                          -70,250.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41101 - Vacancy
-Period:   05/01/16 - 05/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -58,10 +46,7 @@ Unassociated                                             05/31/2016  J00000040  
 Closing Balance                                          05/31/2016                                                           28,537.93
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  30000 - Security Deposits
-Period:   05/01/16 - 05/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -70,10 +55,7 @@ Opening Balance                                                                 
 Closing Balance                                          05/31/2016                                                          -13,300.00
 
 
-LEDGER
-Business: JGM First, LLC
 Account:  41202 - Food Services
-Period:   05/01/16 - 05/31/16
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------

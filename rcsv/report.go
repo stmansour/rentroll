@@ -166,6 +166,7 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 	sort.Ints(keys)
 
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Rentable Types", "RRreportPeople", ri))
 	t.Init()
 	t.AddColumn("RTID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // 0
 	t.AddColumn("Style", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // 1
@@ -195,7 +196,7 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 7, s)
 	}
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
@@ -205,6 +206,7 @@ func RRreportPeople(ri *rrpt.ReporterInfo) string {
 	defer rows.Close()
 
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("People", "RRreportPeople", ri))
 	t.Init()
 	t.AddColumn("TCID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("First Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -241,6 +243,7 @@ func RRreportRentables(ri *rrpt.ReporterInfo) string {
 	defer rows.Close()
 
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Rentables", "RRreportRentables", ri))
 	t.Init()
 	t.AddColumn("RID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -265,7 +268,7 @@ func RRreportRentables(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
@@ -276,6 +279,7 @@ func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
 
 	var t rlib.Table
 	t.Init()
+	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes", "RRreportCustomAttributes", ri))
 	t.AddColumn("CID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Value Type", 6, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -294,7 +298,7 @@ func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
@@ -303,6 +307,7 @@ func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
 	rlib.Errcheck(err)
 	defer rows.Close()
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes References", "RRreportCustomAttributeRefs", ri))
 	t.Init()
 	t.AddColumn("Element Type", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
 	t.AddColumn("ID", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
@@ -317,7 +322,7 @@ func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
@@ -326,6 +331,7 @@ func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
 	rlib.Errcheck(err)
 	defer rows.Close()
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement Templates", "RRreportRentalAgreementTemplates", ri))
 	t.Init()
 	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("RA Template ID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -340,7 +346,7 @@ func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
@@ -350,6 +356,7 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 	rlib.Errcheck(err)
 	defer rows.Close()
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement", "RRreportRentalAgreements", ri))
 	t.Init()
 	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Payor", 60, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -404,7 +411,7 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return rs + t.SprintTable(ri.OutputFormat)
+	return rs + rrpt.ReportToString(&t, ri)
 }
 
 // RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
@@ -417,6 +424,7 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 	sort.Ints(keys)
 
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Payment Types", "RRreportPaymentTypes", ri))
 	t.Init()
 	t.AddColumn("PMTID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -433,7 +441,7 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 3, v.Description)
 	}
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportAssessments generates a report of all rlib.GLAccount accounts
@@ -506,13 +514,14 @@ func RRreportReceipts(ri *rrpt.ReporterInfo) string {
 	ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
 	t := RRReceiptsTable(ri)
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRReceiptsTable generates a report of all rlib.GLAccount accounts
 func RRReceiptsTable(ri *rrpt.ReporterInfo) rlib.Table {
 	m := rlib.GetReceipts(ri.Bid, &ri.D1, &ri.D2)
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("Receipts", "RRReceiptsTable", ri))
 	t.Init()
 	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("RCPTID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -544,6 +553,7 @@ func RRReceiptsTable(ri *rrpt.ReporterInfo) rlib.Table {
 func RRreportInvoices(ri *rrpt.ReporterInfo) string {
 	var t rlib.Table
 	t.Init()
+	t.SetTitle(rrpt.ReportHeaderBlock("Invoices", "RRreportInvoices", ri))
 	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("InvoiceNo", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -562,7 +572,7 @@ func RRreportInvoices(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 5, m[i].DeliveredBy)
 	}
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportDepository generates a report of all rlib.GLAccount accounts
@@ -658,6 +668,7 @@ func RRreportStringLists(ri *rrpt.ReporterInfo) string {
 	m := rlib.GetAllStringLists(ri.Bid)
 
 	var t rlib.Table
+	t.SetTitle(rrpt.ReportHeaderBlock("String Lists", "RRreportStringLists", ri))
 	t.Init()
 	t.AddColumn("SLSID", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	t.AddColumn("Category", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -674,7 +685,7 @@ func RRreportStringLists(ri *rrpt.ReporterInfo) string {
 			t.Puts(-1, 2, val)
 		}
 	}
-	return t.SprintTable(ri.OutputFormat)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // ReportRentalAgreementPetToText returns a string representation of the chart of accts

@@ -1,34 +1,32 @@
 Statement  -  Rental Agreement RA00000001   Payor(s): 
-Period  Nov 1, 2016 - Nov 30, 2016
+Period  Dec 1, 2016 - Dec 31, 2016
 
 Date      ID           Description                                     Charge       Payment       Balance
 --------  -----------  ----------------------------------------  ------------  ------------  ------------
-11/01/20               Opening Balance                                                               0.00
-11/01/20  ASM00000039  Gross Scheduled Rent-Taxable                  3,750.00                    3,750.00
-11/01/20  RCPT0000002                                                             -3,750.00          0.00
+12/01/20               Opening Balance                                                               0.00
+12/01/20  ASM00000042  Gross Scheduled Rent-Taxable                  3,750.00                    3,750.00
+12/01/20  RCPT0000003                                                             -3,750.00          0.00
 --------  -----------  ----------------------------------------  ------------  ------------  ------------
                                                                      3,750.00     -3,750.00          0.00
 
 Statement  -  Rental Agreement RA00000004   Payor(s): Lauren Beck, Kevin Mills
-Period  Nov 1, 2016 - Nov 30, 2016
+Period  Dec 1, 2016 - Dec 31, 2016
 
 Date      ID           Description                                     Charge       Payment       Balance
 --------  -----------  ----------------------------------------  ------------  ------------  ------------
-11/01/20               Opening Balance                                                               0.00
-11/01/20  ASM00000040  Gross Scheduled Rent-Taxable                  4,150.00                    4,150.00
-11/01/20  RCPT0000003                                                             -4,150.00          0.00
+12/01/20               Opening Balance                                                               0.00
+12/01/20  ASM00000043  Gross Scheduled Rent-Taxable                  4,150.00                    4,150.00
+12/01/20  RCPT0000003                                                             -4,150.00          0.00
 --------  -----------  ----------------------------------------  ------------  ------------  ------------
                                                                      4,150.00     -4,150.00          0.00
 
 Statement  -  Rental Agreement RA00000005   Payor(s): Alex Vahabzadeh
-Period  Nov 1, 2016 - Nov 30, 2016
+Period  Dec 1, 2016 - Dec 31, 2016
 
 Date      ID           Description                                     Charge       Payment       Balance
 --------  -----------  ----------------------------------------  ------------  ------------  ------------
-11/01/20               Opening Balance                                                               0.00
-11/01/20  ASM00000038  Bad Debt                                        -15.00                      -15.00
-11/01/20  ASM00000041  Gross Scheduled Rent-Taxable                  4,000.00                    3,985.00
-11/02/20  RCPT0000003                                                            -11,985.00     -8,000.00
+12/01/20               Opening Balance                                                          -8,000.00
+12/01/20  ASM00000044  Gross Scheduled Rent-Taxable                  4,000.00                   -4,000.00
 --------  -----------  ----------------------------------------  ------------  ------------  ------------
-                                                                     3,985.00    -11,985.00     -8,000.00
+                                                                     4,000.00          0.00     -4,000.00
 

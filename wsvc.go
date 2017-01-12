@@ -77,7 +77,16 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		if xbiz.P.BID > 0 {
 			var m []rlib.Table
 			rlib.InitBizInternals(ri.Bid, xbiz)
-			s := ""
+			var rn string
+			if prefix == "l" {
+				rn = "Ledgers"
+			} else {
+				rn = "Ledger Activity"
+			}
+			s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
+			if err != nil {
+				s += "\n" + err.Error()
+			}
 			switch prefix {
 			case "l": // all ledgers
 				m = rrpt.LedgerReport(&ri)
