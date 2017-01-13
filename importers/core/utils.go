@@ -16,6 +16,17 @@ func StringInSlice(a string, list []string) bool {
 	return false
 }
 
+// IntegerInSlice used to check whether int a
+// is present or not in slice list
+func IntegerInSlice(a int, list []int) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 // IsIntString used to check whether string a
 // contains integer type value
 func IsIntString(a string) bool {

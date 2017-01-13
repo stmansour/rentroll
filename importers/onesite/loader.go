@@ -55,9 +55,6 @@ import (
 	"github.com/kardianos/osext"
 )
 
-// used to store temporary csv files
-var SplittedCSVStore string
-
 // Init configure required settings
 func Init() error {
 	// #############
@@ -69,11 +66,11 @@ func Init() error {
 	}
 
 	// get path of splitted csv store
-	SplittedCSVStore = path.Join(folderPath, splittedCSVStoreName)
+	tempCSVStore = path.Join(folderPath, tempCSVStoreName)
 
-	// if splittedcsvstore not exist then create it
-	if _, err := os.Stat(SplittedCSVStore); os.IsNotExist(err) {
-		os.MkdirAll(SplittedCSVStore, 0700)
+	// if tempCSVStore not exist then create it
+	if _, err := os.Stat(tempCSVStore); os.IsNotExist(err) {
+		os.MkdirAll(tempCSVStore, 0700)
 	}
 	return err
 }
@@ -249,7 +246,7 @@ func loadOneSiteCSV(
 	// get created rentabletype csv and writer pointer
 	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
 		CreateRentableTypeCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.RentableTypeCSV,
 		)
 	if !ok {
@@ -260,7 +257,7 @@ func loadOneSiteCSV(
 	// get created people csv and writer pointer
 	peopleCSVFile, peopleCSVWriter, ok :=
 		CreatePeopleCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.PeopleCSV,
 		)
 	if !ok {
@@ -271,7 +268,7 @@ func loadOneSiteCSV(
 	// get created people csv and writer pointer
 	rentableCSVFile, rentableCSVWriter, ok :=
 		CreateRentableCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.RentableCSV,
 		)
 	if !ok {
@@ -282,7 +279,7 @@ func loadOneSiteCSV(
 	// get created rental agreement csv and writer pointer
 	rentalAgreementCSVFile, rentalAgreementCSVWriter, ok :=
 		CreateRentalAgreementCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.RentalAgreementCSV,
 		)
 	if !ok {
@@ -293,7 +290,7 @@ func loadOneSiteCSV(
 	// get created customAttibutes csv and writer pointer
 	customAttributeCSVFile, customAttributeCSVWriter, ok :=
 		CreateCustomAttibutesCSV(
-			SplittedCSVStore, currentTimeFormat,
+			tempCSVStore, currentTimeFormat,
 			&OneSiteFieldMap.CustomAttributeCSV,
 		)
 	if !ok {
@@ -379,74 +376,101 @@ func loadOneSiteCSV(
 		// mark Unit value with row index value
 		traceUnitMap[csvRowIndex] = csvRow.Unit
 
-		// Write data to file of rentabletype
-		WriteRentableTypeCSVData(
-			&RentableTypeCSVRecordCount,
-			csvRowIndex,
-			traceRentableTypeCSVMap,
-			rentableTypeCSVWriter,
-			&csvRow,
-			&avoidDuplicateRentableTypeData,
-			currentTime,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.RentableTypeCSV,
-			customAttributesRefData,
-			business,
-		)
+		// for rentable status exists in csvRow, get set of csv types which can be allowed
+		// to perform write data for csv
+		// need to call validation function as in get values
+		_, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrStatus]
+		var canWriteData bool
 
-		// Write data to file of people
-		WritePeopleCSVData(
-			&PeopleCSVRecordCount,
-			csvRowIndex,
-			tracePeopleCSVMap,
-			peopleCSVWriter,
-			&csvRow,
-			&avoidDuplicatePeopleData,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.PeopleCSV,
-		)
+		// check first that for this row's status rentableType data can be written
+		canWriteData = core.IntegerInSlice(core.RENTABLETYPECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentabletype
+			WriteRentableTypeCSVData(
+				&RentableTypeCSVRecordCount,
+				csvRowIndex,
+				traceRentableTypeCSVMap,
+				rentableTypeCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentableTypeData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentableTypeCSV,
+				customAttributesRefData,
+				business,
+			)
+		}
+		// check first that for this row's status people data can be written
+		canWriteData = core.IntegerInSlice(core.PEOPLECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of people
+			WritePeopleCSVData(
+				&PeopleCSVRecordCount,
+				csvRowIndex,
+				tracePeopleCSVMap,
+				peopleCSVWriter,
+				&csvRow,
+				&avoidDuplicatePeopleData,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.PeopleCSV,
+			)
+		}
 
-		// Write data to file of rentable
-		WriteRentableData(
-			&RentableCSVRecordCount,
-			csvRowIndex,
-			traceRentableCSVMap,
-			rentableCSVWriter,
-			&csvRow,
-			&avoidDuplicateRentableData,
-			currentTime,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.RentableCSV,
-		)
+		// check first that for this row's status rentable data can be written
+		canWriteData = core.IntegerInSlice(core.RENTABLECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentable
+			WriteRentableData(
+				&RentableCSVRecordCount,
+				csvRowIndex,
+				traceRentableCSVMap,
+				rentableCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentableData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentableCSV,
+			)
+		}
 
-		// Write data to file of rentalAgreement
-		WriteRentalAgreementData(
-			&RentalAgreementCSVRecordCount,
-			csvRowIndex,
-			traceRentalAgreementCSVMap,
-			rentalAgreementCSVWriter,
-			&csvRow,
-			&avoidDuplicateRentalAgreementData,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.RentalAgreementCSV,
-		)
+		// check first that for this row's status rental agreement data can be written
+		canWriteData = core.IntegerInSlice(core.RENTALAGREEMENTCSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentalAgreement
+			WriteRentalAgreementData(
+				&RentalAgreementCSVRecordCount,
+				csvRowIndex,
+				traceRentalAgreementCSVMap,
+				rentalAgreementCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentalAgreementData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentalAgreementCSV,
+			)
+		}
 
-		// Write data to file of CustomAttribute
-		WriteCustomAttributeData(
-			&CustomAttributeCSVRecordCount,
-			csvRowIndex,
-			traceCustomAttributeCSVMap,
-			customAttributeCSVWriter,
-			&csvRow,
-			avoidDuplicateCustomAttributeData,
-			currentTimeFormat,
-			userRRValues,
-			&OneSiteFieldMap.CustomAttributeCSV,
-		)
+		// check first that for this row's status custom attributes data can be written
+		canWriteData = core.IntegerInSlice(core.CUSTOMATTRIUTESCSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of CustomAttribute
+			WriteCustomAttributeData(
+				&CustomAttributeCSVRecordCount,
+				csvRowIndex,
+				traceCustomAttributeCSVMap,
+				customAttributeCSVWriter,
+				&csvRow,
+				avoidDuplicateCustomAttributeData,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.CustomAttributeCSV,
+			)
+		}
 
 	}
 
@@ -462,12 +486,6 @@ func loadOneSiteCSV(
 	// ########################
 	// # PHASE 2 : RCSV LOADERS CALL #
 	// ########################
-	// CSVLoadHandler struct is for routines that want to table-ize their loading.
-	type csvLoadHandler struct {
-		Fname        string
-		Handler      func(string) []error
-		TraceDataMap string
-	}
 
 	// csv load handler
 	var h = []csvLoadHandler{
@@ -673,7 +691,7 @@ func rollBackImportOperation(timestamp string) {
 func clearSplittedTempCSVFiles(timestamp string) {
 	for _, filePrefix := range prefixCSVFile {
 		fileName := filePrefix + timestamp + ".csv"
-		filePath := path.Join(SplittedCSVStore, fileName)
+		filePath := path.Join(tempCSVStore, fileName)
 		os.Remove(filePath)
 	}
 }

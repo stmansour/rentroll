@@ -17,5 +17,5 @@ test:
 #	nroff -man importers/core.1
 #	cp importers/core.1 /usr/local/share/man/man1
 
-package:
+package: core
 	@echo "*** PACKAGE completed in importers/core ***"
