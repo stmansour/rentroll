@@ -122,6 +122,8 @@ use rentroll
 update RentalAgreement SET AgreementStop="2018-03-01",PossessionStop="2018-03-01",RentStop="2018-03-01" WHERE RAID=1;
 INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(1,1,0,3750,"2016-03-01 00:00:00","2018-03-01 00:00:00");
 INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(1,3750,"2016-03-01 00:00:00","2018-03-01 00:00:00");
+INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop) VALUES(1,1,"2016-03-01 00:00:00","2018-03-01 00:00:00");
+INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop) VALUES(1,2,"2016-03-01 00:00:00","2018-03-01 00:00:00");
 EOF
 ${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz

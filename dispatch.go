@@ -202,10 +202,7 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 func RunCommandLine(ctx *DispatchCtx) {
 	rlib.InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
 	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-	var ri rrpt.ReporterInfo
-	ri.Xbiz = &ctx.xbiz
-	ri.D1 = ctx.DtStart
-	ri.D2 = ctx.DtStop
+	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: ctx.xbiz.P.BID, D1: ctx.DtStart, D2: ctx.DtStop, Xbiz: &ctx.xbiz, RptHeader: true, BlankLineAfterRptName: true}
 
 	switch ctx.Report {
 	case 1: // JOURNAL
@@ -228,10 +225,10 @@ func RunCommandLine(ctx *DispatchCtx) {
 		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 6: // available
 	case 7: // RENTABLE COUNT BY TYPE
-		t := rrpt.RentableCountByRentableTypeReportTbl(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		t := rrpt.RentableCountByRentableTypeReportTbl(&ri)
 		fmt.Print(t.String())
 	case 8: // STATEMENT
-		fmt.Print(rrpt.RptStatementTextReport(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop))
+		fmt.Print(rrpt.RptStatementTextReport(&ri))
 	case 9: // Invoice
 		// ctx.Report format:  9,IN0001  or  9,1   -- both say that we want Invoice 1 to be printed
 		sa := strings.Split(ctx.Args, ",")

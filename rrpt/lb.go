@@ -9,6 +9,9 @@ import (
 func LedgerBalanceReport(ri *ReporterInfo) rlib.Table {
 	bid := ri.Xbiz.P.BID
 	var tbl rlib.Table
+	ri.RptHeaderD2 = true
+	ri.BlankLineAfterRptName = true
+	tbl.SetTitle(ReportHeaderBlock("Trial Balance", "RRreportRentalAgreements", ri))
 	tbl.Init()
 	tbl.AddColumn("LID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	tbl.AddColumn("GLNumber", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -44,8 +47,9 @@ func PrintLedgerBalanceReport(ri *ReporterInfo) {
 
 //PrintLedgerBalanceReportString returns a string showing the balance of all ledgers as of ri.D2
 func PrintLedgerBalanceReportString(ri *ReporterInfo) string {
-	s := fmt.Sprintf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ri.Xbiz.P.Name, ri.D2.Format("January 2, 2006"))
+	//s := fmt.Sprintf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ri.Xbiz.P.Name, ri.D2.Format("January 2, 2006"))
 	tbl := LedgerBalanceReport(ri)
 	tbl.TightenColumns()
-	return s + tbl.SprintTable(rlib.TABLEOUTTEXT)
+	// return s + tbl.SprintTable(rlib.TABLEOUTTEXT)
+	return ReportToString(&tbl, ri)
 }

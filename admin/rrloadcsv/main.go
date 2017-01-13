@@ -306,9 +306,9 @@ func main() {
 		{ReportNo: 8, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementTemplates},
 		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreements},
 		{ReportNo: 10, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportChartOfAccounts},
-		{ReportNo: 11, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportAssessments},
+		{ReportNo: 11, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportAssessments},
 		{ReportNo: 12, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPaymentTypes},
-		{ReportNo: 13, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportReceipts},
+		{ReportNo: 13, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportReceipts},
 		{ReportNo: 14, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributes},
 		{ReportNo: 15, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributeRefs},
 		{ReportNo: 16, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementPets},
@@ -352,6 +352,10 @@ func main() {
 			var xbiz rlib.XBusiness
 			rlib.GetXBusiness(r[idx].Bid, &xbiz)
 			r[idx].Xbiz = &xbiz
+		}
+		if r[idx].NeedsDt {
+			r[idx].D1 = App.DtStart
+			r[idx].D2 = App.DtStop
 		}
 		if r[idx].NeedsRAID {
 			r[idx].Raid = rcsv.CSVLoaderGetRAID(sa[1])

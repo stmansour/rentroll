@@ -471,6 +471,7 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (rlib.Table, error) {
 
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
+	ri.BlankLineAfterRptName = true
 	t.SetTitle(rrpt.ReportHeaderBlock("Assessments", funcname, ri))
 
 	t.AddColumn("ASMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -511,8 +512,8 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (rlib.Table, error) {
 
 // RRreportReceipts generates a report of all rlib.GLAccount accounts
 func RRreportReceipts(ri *rrpt.ReporterInfo) string {
-	ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
-	ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
+	// ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
+	// ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
 	t := RRReceiptsTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
@@ -521,6 +522,9 @@ func RRreportReceipts(ri *rrpt.ReporterInfo) string {
 func RRReceiptsTable(ri *rrpt.ReporterInfo) rlib.Table {
 	m := rlib.GetReceipts(ri.Bid, &ri.D1, &ri.D2)
 	var t rlib.Table
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+	ri.BlankLineAfterRptName = true
 	t.SetTitle(rrpt.ReportHeaderBlock("Receipts", "RRReceiptsTable", ri))
 	t.Init()
 	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)

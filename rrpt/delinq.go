@@ -22,8 +22,8 @@ func DelinquencyReport(ri *ReporterInfo) (rlib.Table, error) {
 	var tbl rlib.Table
 
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
-	ri.RptHeaderD1 = true
-	ri.RptHeaderD2 = false
+	ri.RptHeaderD1 = false
+	ri.RptHeaderD2 = true
 	tbl.SetTitle(ReportHeaderBlock("Delinquency Report", funcname, ri))
 
 	tbl.Init()                                                                                      //sets column spacing and date format to default

@@ -55,23 +55,11 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 	d2 = &ri.D2
 
 	custom := "Square Feet"
-	var noerr error
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
-	if err != nil {
-		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
-		return tbl, e
-	}
-	c, err := rlib.GetCompany(int64(bu.CoCode))
-	if err != nil {
-		e := fmt.Errorf("%s: GetCompany(%d) returned error getting Company: %s\n", funcname, bu.CoCode, err.Error())
-		return tbl, e
-	}
-
 	tbl.Init() //sets column spacing and date format to default
-
-	s := fmt.Sprintf("%s\n", strings.ToUpper(c.LegalName))
-	s += fmt.Sprintf("Rentroll report for period beginning %s up to and including %s\n\n", d1.Format(rlib.RRDATEFMT3), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT4))
-	tbl.SetTitle(s)
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+	ri.BlankLineAfterRptName = true
+	tbl.SetTitle(ReportHeaderBlock("Rentroll", funcname, ri))
 
 	totalsRSet := tbl.CreateRowset()                                                      // a rowset to sum for totals
 	tbl.AddColumn("Rentable", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // column for the Rentable name
@@ -369,5 +357,5 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 		tbl.TightenColumns()
 	}
 
-	return tbl, noerr
+	return tbl, nil
 }

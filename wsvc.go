@@ -34,7 +34,8 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	fmt.Printf("websvcReportHandler: prefix=%s, BID=%d,  d1 = %s, d2 = %s\n", prefix, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true}
+	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
+	rlib.InitBizInternals(ri.Bid, xbiz)
 
 	switch strings.ToLower(prefix) {
 	case "asm", "assessments":
@@ -76,13 +77,14 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 	case "l", "la":
 		if xbiz.P.BID > 0 {
 			var m []rlib.Table
-			rlib.InitBizInternals(ri.Bid, xbiz)
 			var rn string
 			if prefix == "l" {
 				rn = "Ledgers"
 			} else {
 				rn = "Ledger Activity"
 			}
+			ri.RptHeaderD1 = true
+			ri.RptHeaderD2 = true
 			s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
 			if err != nil {
 				s += "\n" + err.Error()
@@ -115,11 +117,11 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 	case "rt", "rentable types":
 		return rcsv.RRreportRentableTypes(&ri)
 	case "rcbt", "rentable Count By Type":
-		return rrpt.RentableCountByRentableTypeReport(ri.OutputFormat, xbiz, &ri.D1, &ri.D2)
+		return rrpt.RentableCountByRentableTypeReport(&ri)
 	case "sl", "string lists":
 		return rcsv.RRreportStringLists(&ri)
 	case "statements":
-		return rrpt.RptStatementTextReport(xbiz, &ri.D1, &ri.D2)
+		return rrpt.RptStatementTextReport(&ri)
 	case "t", "people": // t = transactant
 		return rcsv.RRreportPeople(&ri)
 	case "tb":

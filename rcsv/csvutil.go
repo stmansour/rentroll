@@ -226,3 +226,16 @@ func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, l
 	}
 	return m, noerr
 }
+
+// BID is the business id of the business unit to which the people belong
+func x(BID int64) {
+	rows, err := rlib.RRdb.Prepstmt.GetAllTransactantsForBID.Query(BID)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var tr rlib.Transactant
+		rlib.ReadTransactants(rows, &tr)
+		// Now dow whatever you need to do with the information in the transactant tr
+	}
+	rlib.Errcheck(rows.Err())
+}

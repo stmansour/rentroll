@@ -235,8 +235,8 @@ var config = {
     reportstoolbar: {
         name: 'reportstoolbar',
         items: [
-            { type: 'button',  id: 'monthback', icon: 'fa fa-backward' },
-            { type: 'button',  id: 'dayback', icon: 'fa fa-chevron-left' },
+            { type: 'button',  id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
+            { type: 'button',  id: 'dayback', icon: 'fa fa-chevron-left', tooltip: 'day back' },
             { type: 'html',    id: 'reportsD1', html: function (item) {
                     var html =
                       '<div style="padding: 3px 10px;">'+
@@ -253,8 +253,8 @@ var config = {
                     return html;
                 }
             },
-            { type: 'button',  id: 'dayfwd', icon: 'fa fa-chevron-right' },
-            { type: 'button',  id: 'monthfwd', icon: 'fa fa-forward' },
+            { type: 'button',  id: 'dayfwd', icon: 'fa fa-chevron-right', tooltip: 'day forward' },
+            { type: 'button',  id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
         ],
         onClick: function (event) {
             var xd1 = document.getElementsByName("dateD1")[0];

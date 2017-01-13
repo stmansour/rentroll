@@ -5,7 +5,7 @@ Suite 301
 Austin, TX 78738 USA
 
 Journal
-08/01/2016 - 09/01/2016
+Aug 1, 2016 - Sep 1, 2016
 
 Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
@@ -21,7 +21,7 @@ J00000057   Gross Scheduled Rent-Taxable  311 Rexford [Rex3, monthly]
             Accounts Receivable                                                     08/01/20  RA00000004  311 Rexford      12000          4,150.00
             Gross Scheduled Rent-Taxable                                            08/01/20  RA00000004  311 Rexford      41000         -4,150.00
                                                                                                                                                   
-J00000058   Payment -    #2153  3750.00                                                                                                           
+J00000058   Payment - Read,Read   #2153  3750.00                                                                                                  
             Gross Scheduled Rent-Taxable                                                                                                          
             Accounts Receivable                                                     08/01/20  RA00000001  309 Rexford      12000         -3,750.00
             Cash                                                                    08/01/20  RA00000001  309 Rexford      10000          3,750.00

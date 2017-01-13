@@ -113,6 +113,7 @@ const (
 	RRDATEFMT4       = "01/02/2006"
 	RRDATEINPFMT     = "2006-01-02"
 	RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
+	RRDATEREPORTFMT  = "Jan 2, 2006"
 )
 
 //==========================================
