@@ -411,6 +411,48 @@ doOnesiteTest () {
 	fi
 }
 
+#############################################################################
+# doRoomKeyTest()
+#	just like docsvtest only for RoomKey
+#
+#	Parameters:
+# 		$1 = base file name
+#		$2 = app options to reproduce
+# 		$3 = title for reporting.  No spaces
+#############################################################################
+doRoomKeyTest () {
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
+
+	if [ "x${2}" != "x" ]; then
+		${RRBIN}/importers/roomkey/roomkeyload $2 >${1} 2>&1
+	fi
+
+	if [ "${FORCEGOOD}" = "1" ]; then
+		cp ${1} ${GOLD}/${1}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f ${GOLD}/${1}.gold ]; then
+			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
+			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
+		fi
+		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			echo "PASSED"
+		else
+			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
+			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
+			cat ${ERRFILE}
+			failmsg
+			exit 1
+		fi
+	else
+		echo
+	fi
+}
+
 
 ########################################
 # mysqlverify()

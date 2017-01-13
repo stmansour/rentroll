@@ -346,7 +346,7 @@ CREATE TABLE Business (
 CREATE TABLE RentableTypes (
     RTID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                          -- associated Business id
-    Style CHAR(15) NOT NULL DEFAULT '',                     -- need not be unique
+    Style CHAR(255) NOT NULL DEFAULT '',                    -- need not be unique
     Name VARCHAR(256) NOT NULL DEFAULT '',                  -- must be unique
     RentCycle BIGINT NOT NULL DEFAULT 0,                    -- rent accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                    -- prorate frequency
