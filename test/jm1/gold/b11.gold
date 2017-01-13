@@ -23,6 +23,5 @@ ASM00000019  0       RA00000002  R00000002  monthly        daily            3,80
 ASM00000024  0       RA00000004  R00000003  monthly        daily            4,150.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
 ASM00000026  0       RA00000004  R00000003  non-recurring  non-recurring    8,300.00  Security Deposits             d ${GLGENRCV} _, c ${GLSECDEP} _                            
 ASM00000034  0       RA00000005  R00000002  monthly        daily            4,000.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000038  0       RA00000005  R00000002  non-recurring  non-recurring       15.00  Bad Debt                      c ${GLGENRCV} _, d 49992 _                                  
-ASM00000039  0       RA00000005  R00000002  non-recurring  non-recurring       15.00  Gross Scheduled Rent-Taxable  c ${GLGSRENT} _, d ${GLGENRCV} _                            
+ASM00000038  0       RA00000005  R00000002  non-recurring  non-recurring       15.00  Bad Debt                      c ${GLGENRCV} _, d 41199 _                                  
 

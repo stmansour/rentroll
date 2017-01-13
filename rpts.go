@@ -54,6 +54,18 @@ func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport, sel int) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	var m []rlib.Table
+	var rn string
+	if sel == 0 {
+		rn = "Ledgers"
+	} else {
+		rn = "Ledger Activity"
+	}
+	s, err := rrpt.ReportHeader(rn, "RptLedgerHandler", &ri)
+	if err != nil {
+		s += "\n" + err.Error()
+	}
+	ui.ReportContent += s
+
 	if xbiz.P.BID > 0 {
 		switch sel {
 		case 0: // all ledgers

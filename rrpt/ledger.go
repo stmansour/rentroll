@@ -10,11 +10,12 @@ import (
 func printLedgerHeader(tbl *rlib.Table, xbiz *rlib.XBusiness, l *rlib.GLAccount, d1, d2 *time.Time) {
 	// printTReportDoubleLine()
 	// tbl.AddLineBefore(0)
-	s := "LEDGER\n"
-	s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
-	s += fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name)
-	s += fmt.Sprintf("Period:   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
-	tbl.SetTitle(s)
+	// s := "LEDGER\n"
+	// s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
+	// s += fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name)
+	// s += fmt.Sprintf("Period:   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
+	// tbl.SetTitle(s)
+	tbl.SetTitle(fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name))
 }
 
 // returns the payment/accessment reason, Rentable name

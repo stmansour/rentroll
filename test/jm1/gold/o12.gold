@@ -1,6 +1,6 @@
 LEDGER MARKERS
 JGM First, LLC
-Balances as of:  December 1, 2016
+Balances as of:  January 1, 2017
 
                                                             Summary              
 LID        GLNumber  Name                                   Balance       Balance
@@ -8,19 +8,19 @@ LID        GLNumber  Name                                   Balance       Balanc
 L00000006            Security Deposit Receivable               0.00              
 L00000001  10000     Cash                                               93,883.01
 L00000025  11000     Credit Card Clearing                                    0.00
-L00000002  12000     Accounts Receivable                                31,685.00
+L00000002  12000     Accounts Receivable                                43,585.00
 L00000007  30000     Security Deposits                                 -21,600.00
 L00000026  30100     Accrued Taxes                             0.00              
 L00000027  30101     Sales Taxes                                             0.00
 L00000028  30102     Transient Occupancy Taxes                               0.00
 L00000029  30199     Other Accrued Taxes                                     0.00
 L00000008  39000     Owners' Equity                                          0.00
-L00000003  41000     Gross Scheduled Rent-Taxable                     -155,850.00
+L00000003  41000     Gross Scheduled Rent-Taxable                     -170,250.00
 L00000030  41001     Gross Scheduled Rent-Not Taxable                        0.00
-L00000031  41002     Income Offsets                       51,993.25              
+L00000031  41002     Income Offsets                       54,493.25              
 L00000040  41003     Other Income                           -111.26              
-L00000032  41100     Unit Income Offsets                  51,993.25              
-L00000005  41101     Vacancy                                            51,978.25
+L00000032  41100     Unit Income Offsets                  54,493.25              
+L00000005  41101     Vacancy                                            54,478.25
 L00000004  41102     Loss (Gain) to Lease                                    0.00
 L00000033  41103     Employee Concessions                                    0.00
 L00000034  41104     Resident Concessions                                    0.00
