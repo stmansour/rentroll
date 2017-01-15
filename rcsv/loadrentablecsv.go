@@ -101,7 +101,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		}
 	}
 	if r1.RID > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, r.Name)
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - %s:: Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, DupRentable, r.Name)
 	}
 
 	//-------------------------------------------------------------------
