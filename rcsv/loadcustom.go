@@ -70,7 +70,7 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 
 	dup := rlib.GetCustomAttributeByVals(c.Type, c.Name, c.Value, c.Units)
 	if dup.CID > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - A custom attribute with Type = %d, Name = %s, Value = %s, Units = %s already exists.  Skipped.\n", funcname, lineno, c.Type, c.Name, c.Value, c.Units)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: A custom attribute with Type = %d, Name = %s, Value = %s, Units = %s already exists.  Skipped.\n", funcname, lineno, DupCustomAttribute, c.Type, c.Name, c.Value, c.Units)
 	}
 
 	_, err = rlib.InsertCustomAttribute(&c)

@@ -259,8 +259,8 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	for i := 0; i < len(m); i++ {
 		rra := rlib.GetAgreementsForRentable(m[i].RID, &ra.AgreementStart, &ra.AgreementStop)
 		for j := 0; j < len(rra); j++ {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Rentable %s is already included in Rental Agreement %s from %s to %s\n",
-				funcname, lineno,
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Rentable %s is already included in Rental Agreement %s from %s to %s\n",
+				funcname, lineno, RentableAlreadyRented,
 				rlib.IDtoString("R", rra[j].RID), rlib.IDtoString("RA", rra[j].RAID),
 				rra[j].DtStart.Format(rlib.RRDATEFMT4), rra[j].DtStop.Format(rlib.RRDATEFMT4))
 		}

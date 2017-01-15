@@ -21,7 +21,11 @@ const (
 	CsvErrStrict = 1
 
 	// DupTransactant et al., are error identfiers for the CSV Loader
-	DupTransactant = "DuplicateTransactant"
+	DupTransactant        = "DuplicateTransactant"
+	DupRentableType       = "DuplicateRentableType"
+	DupCustomAttribute    = "DuplicateCustomAttribute"
+	DupRentable           = "DuplicateRentable"
+	RentableAlreadyRented = "RentableAlreadyRented"
 )
 
 // CsvErrorSensitivity is the error return value used by all the loadXYZcsv.go routines. We

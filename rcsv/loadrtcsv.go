@@ -87,7 +87,7 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - err = %v\n", funcname, lineno, err)
 		}
 		if rt.RTID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.RentableType named %s already exists\n", funcname, lineno, a.Style)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: rlib.RentableType named %s already exists\n", funcname, lineno, DupRentableType, a.Style)
 		}
 	}
 

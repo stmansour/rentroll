@@ -1,13 +1,13 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Tue Jan 10 09:58:46 PST 2017
+Date/Time:    Sat Jan 14 19:39:25 PST 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/01/10 09:58:47 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2017/01/14 19:39:26 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
-CreateRentableType: line 9 - rlib.RentableType named CPT already exists
+CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
 CreateRentableType: line 11 - Invalid rental proration frequency: 99
 CreateRentableType: line 12 - Proration frequency (7) must be greater than rental frequency (6)
@@ -65,4 +65,4 @@ IntFromString: Value cannot be converted to an integer: ab827
 IntFromString: Value cannot be converted to an unsigned integer: ab827
 ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Tue Jan 10 09:58:49 PST 2017
+Test completed: Sat Jan 14 19:39:28 PST 2017
