@@ -551,7 +551,8 @@ func loadOneSiteCSV(
 			Errs := rrDoLoad(h[i].Fname, h[i].Handler)
 			for _, err := range Errs {
 				// skip warnings about already existing records
-				if !strings.Contains(err.Error(), rcsv.DupTransactant) {
+				// if it's not kind of to skip then process it and count in error report
+				if !csvRecordsToSkip(err) {
 					errText := err.Error()
 					// split with separator `:`
 					s := strings.Split(errText, ":")

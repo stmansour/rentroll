@@ -179,3 +179,13 @@ var canWriteCSVStatusMap = map[string][]int{
 		core.CUSTOMATTRIUTESCSV,
 	},
 }
+
+// this slice contains list of strings which should be discarded
+// used in csvRecordsToSkip function
+var csvRecordsSkipList = []string{
+	rcsv.DupTransactant,
+	rcsv.DupRentableType,
+	rcsv.DupCustomAttribute,
+	rcsv.DupRentable,
+	rcsv.RentableAlreadyRented,
+}
