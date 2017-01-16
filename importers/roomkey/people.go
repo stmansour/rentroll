@@ -65,14 +65,6 @@ func WritePeopleCSVData(
 	suppliedValues map[string]string,
 	peopleStruct *core.PeopleCSV,
 ) {
-	// TODO: need to decide how to avoid duplicate data
-	// checkRentableTypeStyle := csvRow.FloorPlan
-	// Stylefound := core.StringInSlice(checkRentableTypeStyle, *avoidData)
-	// if Stylefound {
-	// 	return
-	// } else {
-	// 	*avoidData = append(*avoidData, checkRentableTypeStyle)
-	// }
 
 	// get csv row data
 	ok, csvRowData := GetPeopleCSVRow(
@@ -114,12 +106,6 @@ func GetPeopleCSVRow(
 	// return data array
 	dataMap := make(map[int]string)
 
-	// Mark isCompany field 1 if company name is provided
-	isCompany := ""
-	if strings.TrimSpace(roomKeyRow.GroupCorporate) != "" {
-		isCompany = "1"
-	}
-
 	for i := 0; i < pplLength; i++ {
 		// get people field
 		peopleField := reflectedPeopleFieldMap.Type().Field(i)
@@ -152,11 +138,6 @@ func GetPeopleCSVRow(
 			des := "Res. Id:" + roomKeyRow.ResID
 			des += "\n" + strings.TrimSpace(roomKeyRow.Description)
 			dataMap[i] = des
-		}
-
-		// Add isCompany field value
-		if peopleField.Name == "IsCompany" {
-			dataMap[i] = isCompany
 		}
 
 		// get mapping field

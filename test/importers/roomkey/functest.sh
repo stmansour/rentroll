@@ -2,6 +2,7 @@
 
 TESTNAME="RoomKey Import"
 TESTSUMMARY="Tests initizing RentRoll DB from importing RoomKey rentroll report."
+BUD="ISO"
 
 RRBIN="../../../tmp/rentroll"
 TEMPCSVSTORE="${RRBIN}/importers/roomkey/temp_CSVs"
