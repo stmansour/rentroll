@@ -45,24 +45,24 @@ R00000021  6343172  pre-assign
                          Middle                               Is                                
 TCID        First Name   Name    Last Name   Company          Company  Cell Phone  Primary Email
 ----------  -----------  ------  ----------  ---------------  -------  ----------  -------------
-TC00000001  adams                brandon     OK College Of C  Yes                               
-TC00000002  Adkins               Chris       Pilgrim Films    Yes                               
-TC00000003  Aleson               Zane        Pilgrim Films    Yes                               
+TC00000001  adams                brandon     OK College Of C  No                                
+TC00000002  Adkins               Chris       Pilgrim Films    No                                
+TC00000003  Aleson               Zane        Pilgrim Films    No                                
 TC00000004  Alfailakawi          Mohammed                     No                                
-TC00000005  Almannaei            Abdulaziz   Delex            Yes                               
+TC00000005  Almannaei            Abdulaziz   Delex            No                                
 TC00000006  Alrashedi            Abdulaziz                    No                                
-TC00000007  Alvarez              Abigail     Sooner Care Lod  Yes                               
-TC00000008  Alvarez              Victor      Pilgrim Films    Yes                               
-TC00000009  Anderson             Daniel      Diversified Ser  Yes                               
+TC00000007  Alvarez              Abigail     Sooner Care Lod  No                                
+TC00000008  Alvarez              Victor      Pilgrim Films    No                                
+TC00000009  Anderson             Daniel      Diversified Ser  No                                
 TC00000010  Andrade              Kenneth                      No                                
 TC00000011  Aragon               Sabrina                      No                                
-TC00000012  Arroliga             Carlos      Sooner Care Lod  Yes                               
+TC00000012  Arroliga             Carlos      Sooner Care Lod  No                                
 TC00000013  Arroyo               Karianie                     No                                
 TC00000014  Arthur               Kyle                         No                                
 TC00000015  Austrino             James                        No                                
 TC00000016  Aviles               Jonathan                     No                                
 TC00000017  Azaceta              Nicolas                      No                                
-TC00000018  Baker                Zachary     Elliot Services  Yes                               
+TC00000018  Baker                Zachary     Elliot Services  No                                
 TC00000019  Barletta             Giovanni                     No                                
 TC00000020  Barta                Josiah                       No                                
 TC00000021  Baussan              Bernadette                   No                                
