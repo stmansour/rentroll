@@ -1,11 +1,11 @@
 Test Name:    Business Delete Test
 Test Purpose: Creates many records for a business, then tests DeleteBusinessFromDB to remove them
-Date/Time:    Wed Jan 18 11:43:37 PST 2017
+Date/Time:    Wed Jan 18 13:48:17 PST 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/01/18 11:43:38 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2017/01/18 13:48:19 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -16,8 +16,10 @@ CreateRentableType: line 14 - Invalid manage to budget flag: nyet
 CreateRentableType: line 15 - Invalid manage to budget flag: 3
 CreateRentableType: line 16 - Stop date (2014-01-01 00:00:00 +0000 UTC) must be after Start date (2016-01-01 00:00:00 +0000 UTC)
 CreateCustomAttributes: line 6 - Type value must be a number from 0 to 4
-IntFromString: Value cannot be converted to an integer: ab827
-IntFromString: Value cannot be converted to an unsigned integer: ab827
+CreateCustomAttributes: line 7 - IntFromString: Value cannot be converted to an integer: ab827
+
+CreateCustomAttributes: line 8 - IntFromString: Value cannot be converted to an unsigned integer: ab827
+
 CreateRentalSpecialty: lineno 3  - rlib.Business rex already has a rlib.RentableSpecialty named Lake View
 CreateBuilding: line 5 - rlib.Business with designation bug does not exist
 CreateBuilding: line 6 - invalid rlib.Building number: qe
@@ -25,12 +27,12 @@ CreatePeopleFromCSV: line 12 - DuplicateTransactant:: Transactant with PrimaryEm
 CreatePeopleFromCSV: line 13 - DuplicateTransactant:: Transactant with PrimaryEmail address = sskinner@sfelementary.com 
 CreatePeopleFromCSV: line 14 - IsCompany value is invalid: 99
 CreateRentables: line 2 - Business with bud aaa does not exist
-CreateRentables: lineno 3 - Could not load rentable type with style name: QYX  -- error = sql: no rows in result set
-CreateRentables: lineno 14 - invalid AssignmentTime number: 9
-CreateRentables: lineno 15 - invalid AssignmentTime number: 9
-CreateRentables: lineno 16 - invalid AssignmentTime number: 9
-CreateRentables: lineno 17 - DuplicateRentable:: Rentable with name "107" already exists. Skipping. 
-CreateRentables: lineno 18 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
+CreateRentables: line 3 - Could not load rentable type with style name: QYX  -- error = sql: no rows in result set
+CreateRentables: line 14 - invalid AssignmentTime number: 9
+CreateRentables: line 15 - invalid AssignmentTime number: 9
+CreateRentables: line 16 - invalid AssignmentTime number: 9
+CreateRentables: line 17 - DuplicateRentable:: Rentable with name "107" already exists. Skipping. 
+CreateRentables: line 18 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
@@ -99,4 +101,4 @@ Could not find Business Unit named REX
 Could not find Business Unit named REX
 Could not find Business Unit named REX
 Could not find Business Unit named REX
-Test completed: Wed Jan 18 11:43:41 PST 2017
+Test completed: Wed Jan 18 13:48:21 PST 2017

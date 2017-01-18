@@ -55,7 +55,7 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 
 	c.Type, err = rlib.IntFromString(sa[ValueType], "Type is invalid")
 	if err != nil {
-		return CsvErrorSensitivity, err
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, err.Error())
 	}
 	if c.Type < rlib.CUSTSTRING || c.Type > rlib.CUSTLAST {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value must be a number from %d to %d\n", funcname, lineno, rlib.CUSTSTRING, rlib.CUSTLAST)
@@ -68,17 +68,17 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 	case rlib.CUSTINT:
 		_, err = rlib.IntFromString(c.Value, "Value cannot be converted to an integer")
 		if err != nil {
-			return CsvErrorSensitivity, err
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, err.Error())
 		}
 	case rlib.CUSTUINT:
 		_, err = rlib.IntFromString(c.Value, "Value cannot be converted to an unsigned integer")
 		if err != nil {
-			return CsvErrorSensitivity, err
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, err.Error())
 		}
 	case rlib.CUSTFLOAT:
 		_, errmsg = rlib.FloatFromString(c.Value, "Value cannot be converted to an float")
 		if len(errmsg) > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s\n", errmsg)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, errmsg)
 		}
 	}
 
