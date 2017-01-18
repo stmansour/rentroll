@@ -145,7 +145,7 @@ func GetPeopleCSVRow(
 		}
 		// Special notes for people to get TCID in future with below value
 		if peopleField.Name == "Notes" {
-			dataMap[i] = "onesite:" + strconv.Itoa(rowIndex)
+			dataMap[i] = onesiteNotesPrefix + strconv.Itoa(rowIndex)
 		}
 
 		// get mapping field

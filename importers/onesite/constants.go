@@ -189,3 +189,6 @@ var csvRecordsSkipList = []string{
 	rcsv.DupRentable,
 	rcsv.RentableAlreadyRented,
 }
+
+// will be used exact before rowIndex to format Notes in people csv "onesite:<rowIndex>"
+var onesiteNotesPrefix = "onesite:"
