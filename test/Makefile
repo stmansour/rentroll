@@ -1,4 +1,4 @@
-DIRS = setup newbiz rrr rr1 jm1 notes ccc upd
+DIRS = setup newbiz rrr rr1 jm1 notes ccc upd importers
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done

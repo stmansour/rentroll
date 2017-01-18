@@ -62,22 +62,14 @@ func WriteRentalAgreementData(
 	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
-	avoidData *[]string,
+	// avoidData *[]string,
 	currentTime time.Time,
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	rentalAgreementStruct *core.RentalAgreementCSV,
+	traceTCIDMap map[int]string,
 ) {
 	// TODO: need to decide how to avoid data
-	// checkRentableStyle := csvRow.FloorPlan
-	// Stylefound := core.StringInSlice(checkRentableStyle, *avoidData)
-
-	// // if style found then simplay return otherwise continue
-	// if Stylefound {
-	//  return
-	// }
-
-	// *avoidData = append(*avoidData, checkRentableStyle)
 
 	// TODO: generate error here for RentableTypeRef
 	// to let endusers know that least start/end dates don't exists so we are taking
@@ -94,6 +86,7 @@ func WriteRentalAgreementData(
 	}
 	rentableDefaultData["DtStart"] = DtStart
 	rentableDefaultData["DtStop"] = DtStop
+	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
 
 	// get csv row data
 	ok, csvRowData := GetRentalAgreementCSVRow(
@@ -210,32 +203,21 @@ func GetPayorSpec(
 
 	orderedFields := []string{}
 
-	// TODO: decide what to append here as ruser
-	// NOTE: right now just going with email address
-	// append ruser
-	userFound := false
-	if csvRow.Email != "" {
-		userFound = true
-		orderedFields = append(orderedFields, csvRow.Email)
-	} else if csvRow.PhoneNumber != "" {
-		userFound = true
-		orderedFields = append(orderedFields, csvRow.PhoneNumber)
+	// append TCID for user identification
+	orderedFields = append(orderedFields, defaults["TCID"])
+
+	// append lease start
+	if csvRow.LeaseStart == "" {
+		orderedFields = append(orderedFields, defaults["DtStart"])
+	} else {
+		orderedFields = append(orderedFields, csvRow.LeaseStart)
 	}
 
-	if userFound {
-		// append lease start
-		if csvRow.LeaseStart == "" {
-			orderedFields = append(orderedFields, defaults["DtStart"])
-		} else {
-			orderedFields = append(orderedFields, csvRow.LeaseStart)
-		}
-
-		// append lease end
-		if csvRow.LeaseEnd == "" {
-			orderedFields = append(orderedFields, defaults["DtStop"])
-		} else {
-			orderedFields = append(orderedFields, csvRow.LeaseEnd)
-		}
+	// append lease end
+	if csvRow.LeaseEnd == "" {
+		orderedFields = append(orderedFields, defaults["DtStop"])
+	} else {
+		orderedFields = append(orderedFields, csvRow.LeaseEnd)
 	}
 
 	ok = true
@@ -257,32 +239,21 @@ func GetUserSpec(
 
 	orderedFields := []string{}
 
-	// TODO: decide what to append here as ruser
-	// NOTE: right now just going with email address
-	// append ruser
-	userFound := false
-	if csvRow.Email != "" {
-		userFound = true
-		orderedFields = append(orderedFields, csvRow.Email)
-	} else if csvRow.PhoneNumber != "" {
-		userFound = true
-		orderedFields = append(orderedFields, csvRow.PhoneNumber)
+	// append TCID for user identification
+	orderedFields = append(orderedFields, defaults["TCID"])
+
+	// append lease start
+	if csvRow.LeaseStart == "" {
+		orderedFields = append(orderedFields, defaults["DtStart"])
+	} else {
+		orderedFields = append(orderedFields, csvRow.LeaseStart)
 	}
 
-	if userFound {
-		// append lease start
-		if csvRow.LeaseStart == "" {
-			orderedFields = append(orderedFields, defaults["DtStart"])
-		} else {
-			orderedFields = append(orderedFields, csvRow.LeaseStart)
-		}
-
-		// append lease end
-		if csvRow.LeaseEnd == "" {
-			orderedFields = append(orderedFields, defaults["DtStop"])
-		} else {
-			orderedFields = append(orderedFields, csvRow.LeaseEnd)
-		}
+	// append lease end
+	if csvRow.LeaseEnd == "" {
+		orderedFields = append(orderedFields, defaults["DtStop"])
+	} else {
+		orderedFields = append(orderedFields, csvRow.LeaseEnd)
 	}
 
 	ok = true

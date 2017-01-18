@@ -179,3 +179,19 @@ var canWriteCSVStatusMap = map[string][]int{
 		core.CUSTOMATTRIUTESCSV,
 	},
 }
+
+// this slice contains list of strings which should be discarded
+// used in csvRecordsToSkip function
+var csvRecordsSkipList = []string{
+	rcsv.DupTransactant,
+	rcsv.DupRentableType,
+	rcsv.DupCustomAttribute,
+	rcsv.DupRentable,
+	rcsv.RentableAlreadyRented,
+}
+
+// will be used exact before rowIndex to format Notes in people csv "onesite:<rowIndex>"
+const (
+	onesiteNotesPrefix = "onesite:"
+	tcidPrefix         = "TC000"
+)
