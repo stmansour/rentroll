@@ -67,18 +67,6 @@ func MergeSuppliedAndDefaultValues() {
 	}
 }
 
-// TODO: remove this accrual rate later
-// Rental accrual rate
-// 0 = one time only
-// 1 = secondly
-// 2 = minutely
-// 3 = hourly
-// 4 = daily
-// 5 = weekly
-// 6 = monthly
-// 7 = quarterly
-// 8 = yearly
-
 func readCommandLineArgs() (bool, []string) {
 	ok, errors := true, []string{}
 	// a csv file must be passed
