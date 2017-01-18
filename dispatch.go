@@ -310,6 +310,12 @@ func RunCommandLine(ctx *DispatchCtx) {
 		rrpt.RentableMarketRates(&ctx.xbiz, rid, &ctx.DtStart, &ctx.DtStop)
 	case 21: // backup file list
 		fmt.Print(CreateDBBackupFileList())
+	case 22: // delete business
+		ri := rrpt.ReporterInfo{Xbiz: &ctx.xbiz, OutputFormat: rlib.TABLEOUTTEXT}
+		rcsv.RRreportBusiness(&ri)
+		fmt.Printf("Deleting business: %d\n", ctx.xbiz.P.BID)
+		rlib.DeleteBusinessFromDB(ctx.xbiz.P.BID)
+
 	default:
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)

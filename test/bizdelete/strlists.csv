@@ -1,0 +1,171 @@
+BUD,Name,Value
+REX,ApplDeny,Criminal background
+REX,ApplDeny,No credit history
+REX,ApplDeny,No employment history
+REX,ApplDeny,No rental history
+REX,ApplDeny,No rental history
+REX,ApplDeny,No poor credit history
+REX,ApplDeny,No poor employment history
+REX,ApplDeny,No poor rental history
+REX,ApplDeny,Other
+REX,WhyLeavingIB,Abandoned Apartment
+REX,WhyLeavingIB,Acquired a pet
+REX,WhyLeavingIB,Added a roommate
+REX,WhyLeavingIB,Amenities lacking
+REX,WhyLeavingIB,Bought condominium
+REX,WhyLeavingIB,Bought home
+REX,WhyLeavingIB,Bought townhome
+REX,WhyLeavingIB,Changed jobs
+REX,WhyLeavingIB,Closer to airport
+REX,WhyLeavingIB,Closer to town/city
+REX,WhyLeavingIB,Closer to work
+REX,WhyLeavingIB,Corporate or short term lease only
+REX,WhyLeavingIB,Death or illness
+REX,WhyLeavingIB,Dissatisfied for another reason
+REX,WhyLeavingIB,Divorce
+REX,WhyLeavingIB,Employment transfer
+REX,WhyLeavingIB,Evicted for another reason
+REX,WhyLeavingIB,Evicted for criminal reasons
+REX,WhyLeavingIB,Evicted for non-compliance with community policies
+REX,WhyLeavingIB,Evicted for non-payment of rent
+REX,WhyLeavingIB,Generally unhappy with property
+REX,WhyLeavingIB,Getting married
+REX,WhyLeavingIB,High utility costs
+REX,WhyLeavingIB,Leaving/graduating school
+REX,WhyLeavingIB,Lifestyle change for another reason
+REX,WhyLeavingIB,Loss of employment from the PMC
+REX,WhyLeavingIB,Lost a job
+REX,WhyLeavingIB,Lost a roommate
+REX,WhyLeavingIB,Marital status change
+REX,WhyLeavingIB,Military transfer
+REX,WhyLeavingIB,Money problems
+REX,WhyLeavingIB,Moving closer to home
+REX,WhyLeavingIB,Moving home
+REX,WhyLeavingIB,No reason given
+REX,WhyLeavingIB,Noise problem
+REX,WhyLeavingIB,Non-renewal of lease
+REX,WhyLeavingIB,Other
+REX,WhyLeavingIB,Parking problems
+REX,WhyLeavingIB,Personal reasons/concerns
+REX,WhyLeavingIB,Property disaster
+REX,WhyLeavingIB,Rental increase
+REX,WhyLeavingIB,Rentin home
+REX,WhyLeavingIB,Returning/going to school
+REX,WhyLeavingIB,Road construction
+REX,WhyLeavingIB,Selling/old house
+REX,WhyLeavingIB,Skipped during eviction process
+REX,WhyLeavingIB,Skipped without notice
+REX,WhyChooseIB,ADA accessible
+REX,WhyChooseIB,Amenities lacking
+REX,WhyChooseIB,Color palette
+REX,WhyChooseIB,Drive up appeal
+REX,WhyChooseIB,Furniture
+REX,WhyChooseIB,Lease term
+REX,WhyChooseIB,Location to employment
+REX,WhyChooseIB,Location to family
+REX,WhyChooseIB,Location to shopping and entertainment
+REX,WhyChooseIB,Meets square footage needs
+REX,WhyChooseIB,Personnel
+REX,WhyChooseIB,Pet allowances
+REX,WhyChooseIB,Point of lease e-commerce offers
+REX,WhyChooseIB,Priing
+REX,WhyChooseIB,Public transportation
+REX,WhyChooseIB,School district
+REX,WhyChooseIB,Special
+REX,HowFound,Apartment Finder Blue Book
+REX,HowFound,Apartment Guide
+REX,HowFound,Apartment Locator
+REX,HowFound,Apartment Map
+REX,HowFound,ApartmentFinder.com
+REX,HowFound,ApartmentGuide.com
+REX,HowFound,ApartmentLints.com
+REX,HowFound,ApartmentMatching.com
+REX,HowFound,ApartmentRatings.com
+REX,HowFound,Apartments.com
+REX,HowFound,ApartmentsNationwide.com
+REX,HowFound,ApartmentsPlus.com
+REX,HowFound,Brochure/Flyer
+REX,HowFound,CitySearch.com
+REX,HowFound,CraigsList.com
+REX,HowFound,Current resident
+REX,HowFound,Direct Mail - Conventional
+REX,HowFound,Direct Mail - FullService
+REX,HowFound,Drive by
+REX,HowFound,EasyRent.com
+REX,HowFound,El Nacional
+REX,HowFound,For Rent Magazine
+REX,HowFound,ForRent.com
+REX,HowFound,Google Internet Program
+REX,HowFound,Google.com
+REX,HowFound,LivingChoices.com
+REX,HowFound,Local Line Rolloer
+REX,HowFound,Locator Service
+REX,HowFound,Move.com
+REX,HowFound,MoveForFree.com
+REX,HowFound,MyNewPlace.com
+REX,HowFound,Oklahoma Gazette
+REX,HowFound,Other
+REX,HowFound,Other OneSite property
+REX,HowFound,Other property
+REX,HowFound,Other publication
+REX,HowFound,Other site
+REX,HowFound,Preferred employer program
+REX,HowFound,Prior resident
+REX,HowFound,Property website
+REX,HowFound,Radio Advertising
+REX,HowFound,Referral companies/merchants
+REX,HowFound,Rent.com
+REX,HowFound,Rentals.com
+REX,HowFound,RentAndMove.com
+REX,HowFound,RentClicks.com
+REX,HowFound,RentNet.com
+REX,HowFound,Senior Living Magazine
+REX,HowFound,Site-owned website
+REX,HowFound,Tinker Take Off
+REX,HowFound,TV Advertising
+REX,HowFound,UMoveFree.com
+REX,HowFound,Unknown/Would not give
+REX,HowFound,Yahoo.com
+REX,HowFound,4Walls
+REX,HowFound,ApartmentGuyze.com
+REX,HowFound,ApartmentHomeLiving.com
+REX,HowFound,ApartmentMag.com
+REX,HowFound,ApartmentMarketer.com
+REX,HowFound,Apartments24-7.com
+REX,HowFound,ApartmentSearch.com
+REX,HowFound,ApartmentShowcase.com
+REX,HowFound,CollegeRentals.com
+REX,HowFound,EliteRenting.com
+REX,HowFound,HotPads.com
+REX,HowFound,Oodle.com
+REX,HowFound,Other
+REX,HowFound,PeopleWithPets.com
+REX,HowFound,PMC-owned Website
+REX,HowFound,RentJungle.com
+REX,HowFound,Rentping.com
+REX,HowFound,RentWiki.com
+REX,HowFound,Roomster.net
+REX,HowFound,Yellow pages
+REX,ProspectLost,Amenities ^ Amenities lacking
+REX,ProspectLost,Amenities ^ Bedroom size
+REX,ProspectLost,Amenities ^ Color scheme
+REX,ProspectLost,Amenities ^ Competition has better amenities
+REX,ProspectLost,Amenities ^ Objection to floor plan
+REX,ProspectLost,Cost ^ Competition is less expensive
+REX,ProspectLost,Cost ^ No specials/concessions
+REX,ProspectLost,Cost ^ Too expensive
+REX,ProspectLost,Inactive ^ Inactive
+REX,ProspectLost,Location ^ Location
+REX,ProspectLost,Location ^ Road construction
+REX,ProspectLost,Location ^ Too close to highway
+REX,ProspectLost,Not available ^ Unit/floor plan not available
+REX,ProspectLost,Not interested ^ Bought/rented house instead
+REX,ProspectLost,Not interested ^ Changed their mind
+REX,ProspectLost,Not interested ^ Not interested
+REX,ProspectLost,Not qualified ^ Credit rating below standard
+REX,ProspectLost,Not qualified ^ Criminal history not allowed
+REX,ProspectLost,Not qualified ^ Does not meet property criteria
+REX,ProspectLost,Not qualified ^ Oversized/unallowable pet
+REX,ProspectLost,Not qualified ^ Rental history not allowed
+REX,ProspectLost,Not qualified ^ Roommate/spouse unqualified
+REX,ProspectLost,Not qualified ^ Too many occupants

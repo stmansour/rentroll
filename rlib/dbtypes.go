@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -1250,6 +1251,7 @@ func InitBizInternals(bid int64, xbiz *XBusiness) {
 	LoadRentableTypeCustomaAttributes(xbiz)
 }
 
+// AllTables is an array of strings containing the names of every table in the RentRoll database
 var AllTables = []string{
 	"AssessmentTax",
 	"Assessments",
@@ -1318,12 +1320,19 @@ var AllTables = []string{
 	"Vehicle",
 }
 
-// DeleteBusiness deletes information from all tables if it is part of the supplied BID.
+// DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
 // Use this call with extreme caution. There's no recovery.
-// func DeleteBusinessFromDB(BID int64) error {
-// 	for i := 0; i < len(AllTables); i++ {
-// 		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", AllTables[i], BID)
-// 		result := RRdb.Dbrr.Exec(s)
-// 	}
-// 	return nil
-// }
+func DeleteBusinessFromDB(BID int64) (int64, error) {
+	noRecs := int64(0)
+	for i := 0; i < len(AllTables); i++ {
+		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", AllTables[i], BID)
+		result, err := RRdb.Dbrr.Exec(s)
+		if err != nil {
+			Ulog("DeleteBusinessFromDB: error executing %q   -- err = %s\n", s, err.Error())
+		} else {
+			x, _ := result.RowsAffected()
+			noRecs += x
+		}
+	}
+	return noRecs, nil
+}

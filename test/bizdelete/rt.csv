@@ -1,0 +1,16 @@
+BUD,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,MarketRate,DtStart,DtStop
+REX,GM,Geezer Miser,6,4,4,1,1100,1/1/2014,10/31/2015,1200,11/1/15,10/31/17
+REX,FS,Flat Studio,6,4,4,1,1500,1/1/2014,1/1/2199,,,
+REX,SBL,Scratchy Bart Loft,6,4,4,1,1750,1/1/2014,1/1/2199,,,
+REX,KDS,Krusty Deluxe Suite,6,4,4,1,2000,1/1/2014,1/1/2199,,,
+REX,VEH,Vehicle,3,0,4,1,10,1/1/2014,1/1/2199,,,
+REX,CPT,Carport,6,4,4,no,35,1/1/2014,1/1/2199,,,
+QQQ,CPT,Carport,6,4,4,1,35,1/1/2014,1/1/2016,,,
+REX,CPT,Carport,6,4,4,1,35,1/1/2014,1/1/2016,,,
+REX,CAR,Car,99,4,4,1,35,1/1/2014,1/1/2016,,,
+REX,CAR,Car,6,99,4,1,35,1/1/2014,1/1/2016,,,
+REX,CAR,Car,6,7,4,1,35,1/1/2014,1/1/2016,,,
+REX,CAR,Car,6,4,4,nyet,35,1/1/2014,1/1/2016,,,
+REX,CAR,Car,6,4,4,nyet,35,1/1/2014,1/1/2016,,,
+REX,CAR,Car,6,4,4,3,35,1/1/2016,1/1/2014,,,
+REX,CAR,Car,6,4,4,0,35,1/1/2016,1/1/2014,,,

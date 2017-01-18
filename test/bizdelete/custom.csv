@@ -1,0 +1,8 @@
+BUD,Name,Value Type,Value,Units
+REX,"Square Feet",1,"1215","sqft"
+REX,"Square Feet",1,"1239","sqft"
+REX,"Square Feet",1,"1638","sqft"
+REX,"Square Feet",1,"827","sqft"
+REX,"Square Feet",99,"827","sqft"
+REX,"I'm an error",1,"ab827","sqft"
+REX,"I'm an error",2,"ab827","sqft"
