@@ -147,6 +147,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 		var a rlib.InvoiceAssessment
 		a.InvoiceNo = id
 		a.ASMID = asmts[i]
+		a.BID = inv.BID
 		err = rlib.InsertInvoiceAssessment(&a)
 		if nil != err {
 			rlib.DeleteInvoice(id)
@@ -157,6 +158,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 	for i := 0; i < len(m); i++ {
 		var a rlib.InvoicePayor
 		a.InvoiceNo = id
+		a.BID = inv.BID
 		a.PID = m[i].TCID
 		err = rlib.InsertInvoicePayor(&a)
 		if nil != err {

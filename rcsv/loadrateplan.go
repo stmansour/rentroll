@@ -86,6 +86,7 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 	var c rlib.CustomAttribute     // This is the custom attribute
 	var cr rlib.CustomAttributeRef // This is the reference that binds it to an object
 	c.Name = "FLAGS"
+	c.BID = rp.BID
 	c.Type = rlib.CUSTUINT
 	c.Value = fmt.Sprintf("%d", FLAGS)
 	cid, err := rlib.InsertCustomAttribute(&c)
@@ -94,6 +95,7 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 	}
 	cr.ElementType = rlib.ELEMRATEPLAN
 	cr.ID = rpid
+	cr.BID = rp.BID
 	cr.CID = cid
 	err = rlib.InsertCustomAttributeRef(&cr)
 	if err != nil {

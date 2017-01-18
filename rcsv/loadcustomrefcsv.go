@@ -3,11 +3,12 @@ package rcsv
 import (
 	"fmt"
 	"rentroll/rlib"
+	"strings"
 )
 
-// 0            1        2
-// ElementType  ID       CID
-//  5 ,         123,     456
+//  0     1            2        3
+//  BUD,  ElementType, ID,      CID
+//  REX,  5 ,          123,     456
 
 // CreateCustomAttributeRefs reads a rlib.CustomAttributeRefs string array and creates a database record
 func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
@@ -15,13 +16,15 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 	var c rlib.CustomAttributeRef
 
 	const (
-		ElementType = 0
+		BUD         = 0
+		ElementType = iota
 		ID          = iota
 		CID         = iota
 	)
 
 	// csvCols is an array that defines all the columns that should be in this csv file
 	var csvCols = []CSVColumn{
+		{"BUD", BUD},
 		{"ElementType", ElementType},
 		{"ID", ID},
 		{"CID", CID},
@@ -35,7 +38,19 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
-	c.ElementType, err = rlib.IntFromString(sa[0], "ElementType is invalid")
+	//-------------------------------------------------------------------
+	// BUD
+	//-------------------------------------------------------------------
+	cmpdes := strings.TrimSpace(sa[BUD])
+	if len(cmpdes) > 0 {
+		b2 := rlib.GetBusinessByDesignation(cmpdes)
+		if b2.BID == 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Business named %s\n", funcname, lineno, cmpdes)
+		}
+		c.BID = b2.BID
+	}
+
+	c.ElementType, err = rlib.IntFromString(sa[ElementType], "ElementType is invalid")
 	if err != nil {
 		return CsvErrorSensitivity, err
 	}
@@ -43,11 +58,11 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("ElementType value must be a number from %d to %d\n", rlib.ELEMRENTABLETYPE, rlib.ELEMLAST)
 	}
 
-	c.ID, err = rlib.IntFromString(sa[1], "ID value cannot be converted to an integer")
+	c.ID, err = rlib.IntFromString(sa[ID], "ID value cannot be converted to an integer")
 	if err != nil {
 		return CsvErrorSensitivity, err
 	}
-	c.CID, err = rlib.IntFromString(sa[2], "CID value cannot be converted to an integer")
+	c.CID, err = rlib.IntFromString(sa[CID], "CID value cannot be converted to an integer")
 	if err != nil {
 		return CsvErrorSensitivity, err
 	}

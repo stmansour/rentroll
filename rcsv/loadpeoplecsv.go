@@ -437,6 +437,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	if len(userNote) > 0 {
 		var nl rlib.NoteList
+		nl.BID = tr.BID
 		nl.NLID, err = rlib.InsertNoteList(&nl)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
@@ -445,6 +446,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 		n.Comment = userNote
 		n.NTID = 1 // first comment type
 		n.NLID = nl.NLID
+		n.BID = nl.BID
 		_, err = rlib.InsertNote(&n)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
@@ -461,8 +463,11 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	}
 	tr.TCID = tcid
 	t.TCID = tcid
+	t.BID = tr.BID
 	p.TCID = tcid
+	p.BID = tr.BID
 	pr.TCID = tcid
+	pr.BID = tr.BID
 
 	if tcid == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - after InsertTransactant tcid = %d\n", funcname, lineno, tcid)

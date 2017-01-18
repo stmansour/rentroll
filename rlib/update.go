@@ -20,6 +20,16 @@ func UpdateBusiness(a *Business) error {
 	return err
 }
 
+// UpdateCustomAttribute updates an CustomAttribute record
+func UpdateCustomAttribute(a *CustomAttribute) error {
+	_, err := RRdb.Prepstmt.UpdateCustomAttribute.Exec(a.BID, a.Type, a.Name, a.Value, a.Units, a.LastModBy, a.CID)
+	if nil != err {
+		Ulog("UpdateCustomAttribute: error updating CustomAttribute:  %v\n", err)
+		Ulog("CustomAttribute = %#v\n", *a)
+	}
+	return err
+}
+
 // UpdateDemandSource updates a DemandSource record in the database
 func UpdateDemandSource(a *DemandSource) error {
 	_, err := RRdb.Prepstmt.UpdateDemandSource.Exec(a.Name, a.Industry, a.LastModBy, a.SourceSLSID)
@@ -96,7 +106,7 @@ func UpdateLedger(l *GLAccount) error {
 
 // UpdatePayor updates a Payor record in the database
 func UpdatePayor(a *Payor) error {
-	_, err := RRdb.Prepstmt.UpdatePayor.Exec(a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.LastModBy, a.TCID)
+	_, err := RRdb.Prepstmt.UpdatePayor.Exec(a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.LastModBy, a.TCID)
 	if nil != err {
 		Ulog("UpdatePayor: error updating pet:  %v\n", err)
 		Ulog("Payor = %#v\n", *a)
@@ -106,13 +116,23 @@ func UpdatePayor(a *Payor) error {
 
 // UpdateProspect updates a Prospect record in the database
 func UpdateProspect(a *Prospect) error {
-	_, err := RRdb.Prepstmt.UpdateProspect.Exec(a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
+	_, err := RRdb.Prepstmt.UpdateProspect.Exec(a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
 		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
 		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy, a.TCID)
 	if nil != err {
 		Ulog("UpdateProspect: error updating pet:  %v\n", err)
 		Ulog("Prospect = %#v\n", *a)
+	}
+	return err
+}
+
+// UpdateRentableStatus updates a RentableStatus record in the database
+func UpdateRentableStatus(a *RentableStatus) error {
+	_, err := RRdb.Prepstmt.UpdateRentableStatus.Exec(a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+	if nil != err {
+		Ulog("UpdateRentableStatus: error:  %v\n", err)
+		Ulog("RentableStatus = %#v\n", *a)
 	}
 	return err
 }
@@ -129,7 +149,7 @@ func UpdateRatePlan(a *RatePlan) error {
 
 // UpdateRatePlanRef updates a RatePlanRef record in the database
 func UpdateRatePlanRef(a *RatePlanRef) error {
-	_, err := RRdb.Prepstmt.UpdateRatePlanRef.Exec(a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.LastModBy, a.RPRID)
+	_, err := RRdb.Prepstmt.UpdateRatePlanRef.Exec(a.BID, a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.LastModBy, a.RPRID)
 	if nil != err {
 		Ulog("UpdateRatePlanRef: error:  %v\n", err)
 		Ulog("RatePlanRef = %#v\n", *a)
@@ -139,7 +159,7 @@ func UpdateRatePlanRef(a *RatePlanRef) error {
 
 // UpdateRatePlanRefRTRate updates a RatePlanRefRTRate record in the database
 func UpdateRatePlanRefRTRate(a *RatePlanRefRTRate) error {
-	_, err := RRdb.Prepstmt.UpdateRatePlanRefRTRate.Exec(a.FLAGS, a.Val, a.RPRID, a.RTID)
+	_, err := RRdb.Prepstmt.UpdateRatePlanRefRTRate.Exec(a.BID, a.FLAGS, a.Val, a.RPRID, a.RTID)
 	if nil != err {
 		Ulog("UpdateRatePlanRefRTRate: error:  %v\n", err)
 		Ulog("RatePlanRefRTRate = %#v\n", *a)
@@ -149,7 +169,7 @@ func UpdateRatePlanRefRTRate(a *RatePlanRefRTRate) error {
 
 // UpdateRatePlanRefSPRate updates a RatePlanRefSPRate record in the database
 func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
-	_, err := RRdb.Prepstmt.UpdateRatePlanRefSPRate.Exec(a.FLAGS, a.Val, a.RPRID, a.RTID, a.RSPID)
+	_, err := RRdb.Prepstmt.UpdateRatePlanRefSPRate.Exec(a.BID, a.FLAGS, a.Val, a.RPRID, a.RTID, a.RSPID)
 	if nil != err {
 		Ulog("UpdateRatePlanRefSPRate: error:  %v\n", err)
 		Ulog("RatePlanRefSPRate = %#v\n", *a)
@@ -169,7 +189,7 @@ func UpdateRentalAgreement(a *RentalAgreement) error {
 
 // UpdateRentalAgreementPet updates a RentalAgreementPet record in the database
 func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
-	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
+	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
 	if nil != err {
 		Ulog("UpdateRentalAgreementPet: error updating pet:  %v\n", err)
 		Ulog("RentalAgreementPet = %#v\n", *a)
@@ -189,7 +209,8 @@ func UpdateRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 
 // UpdateRentableTypeRef updates a RentableTypeRef record in the database
 func UpdateRentableTypeRef(a *RentableTypeRef) error {
-	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+	//  SET BID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?"
+	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.LastModBy, a.RID, a.DtStart, a.DtStop)
 	if nil != err {
 		Ulog("UpdateRentableTypeRef: error updating RentableTypeRef:  %v\n", err)
 		Ulog("RentableTypeRef = %#v\n", *a)
@@ -232,7 +253,7 @@ func UpdateTransactant(a *Transactant) error {
 
 // UpdateUser updates a User record in the database
 func UpdateUser(a *User) error {
-	_, err := RRdb.Prepstmt.UpdateUser.Exec(a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy, a.TCID)
+	_, err := RRdb.Prepstmt.UpdateUser.Exec(a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy, a.TCID)
 	if nil != err {
 		Ulog("UpdateUser: error updating User:  %v\n", err)
 		Ulog("User = %#v\n", *a)

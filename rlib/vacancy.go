@@ -53,6 +53,7 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 			ja.ASMID = 0 // it's unassociated
 			ja.AcctRule = "c ${GLGSRENT} _,d ${GLVAC} _"
 			ja.RID = r.RID
+			ja.BID = r.BID
 			// fmt.Printf("VACANCY: inserting journalAllocation entry: %#v\n", ja)
 			InsertJournalAllocationEntry(&ja)
 			j.JA = append(j.JA, ja)

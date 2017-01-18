@@ -68,7 +68,7 @@ func InsertBusiness(b *Business) (int64, error) {
 // InsertCustomAttribute writes a new User record to the database
 func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertCustomAttribute.Exec(a.Type, a.Name, a.Value, a.Units, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertCustomAttribute.Exec(a.BID, a.Type, a.Name, a.Value, a.Units, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -83,7 +83,7 @@ func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
 
 // InsertCustomAttributeRef writes a new assessmenttype record to the database
 func InsertCustomAttributeRef(a *CustomAttributeRef) error {
-	_, err := RRdb.Prepstmt.InsertCustomAttributeRef.Exec(a.ElementType, a.ID, a.CID)
+	_, err := RRdb.Prepstmt.InsertCustomAttributeRef.Exec(a.ElementType, a.BID, a.ID, a.CID)
 	return err
 }
 
@@ -131,7 +131,7 @@ func InsertDepositMethod(a *DepositMethod) error {
 
 // InsertDepositPart writes a new DepositPart record to the database
 func InsertDepositPart(a *DepositPart) error {
-	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.RCPTID)
+	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.BID, a.RCPTID)
 	if nil != err {
 		Ulog("Error inserting DepositPart:  %v\n", err)
 		Ulog("DepositPart = %#v\n", *a)
@@ -177,7 +177,7 @@ func InsertInvoice(a *Invoice) (int64, error) {
 
 // InsertInvoiceAssessment writes a new InvoiceAssessment record to the database
 func InsertInvoiceAssessment(a *InvoiceAssessment) error {
-	_, err := RRdb.Prepstmt.InsertInvoiceAssessment.Exec(a.InvoiceNo, a.ASMID)
+	_, err := RRdb.Prepstmt.InsertInvoiceAssessment.Exec(a.InvoiceNo, a.BID, a.ASMID)
 	if nil != err {
 		Ulog("Error inserting InvoiceAssessment:  %v\n", err)
 		Ulog("DepositPart = %#v\n", *a)
@@ -187,7 +187,7 @@ func InsertInvoiceAssessment(a *InvoiceAssessment) error {
 
 // InsertInvoicePayor writes a new InvoicePayor record to the database
 func InsertInvoicePayor(a *InvoicePayor) error {
-	_, err := RRdb.Prepstmt.InsertInvoicePayor.Exec(a.InvoiceNo, a.PID)
+	_, err := RRdb.Prepstmt.InsertInvoicePayor.Exec(a.InvoiceNo, a.BID, a.PID)
 	if nil != err {
 		Ulog("Error inserting InvoicePayor:  %v\n", err)
 		Ulog("DepositPayor = %#v\n", *a)
@@ -211,7 +211,7 @@ func InsertJournalEntry(j *Journal) (int64, error) {
 
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
-	_, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.JID, ja.RID, ja.Amount, ja.ASMID, ja.AcctRule)
+	_, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.Amount, ja.ASMID, ja.AcctRule)
 	return err
 }
 
@@ -277,7 +277,7 @@ func InsertLedger(l *GLAccount) (int64, error) {
 // InsertNote writes a new Note to the database
 func InsertNote(a *Note) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertNote.Exec(a.NLID, a.PNID, a.NTID, a.RID, a.RAID, a.TCID, a.Comment, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertNote.Exec(a.BID, a.NLID, a.PNID, a.NTID, a.RID, a.RAID, a.TCID, a.Comment, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -296,7 +296,7 @@ func InsertNote(a *Note) (int64, error) {
 // InsertNoteList inserts a new wrapper for a notelist into the database
 func InsertNoteList(a *NoteList) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertNoteList.Exec(a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertNoteList.Exec(a.BID, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -351,7 +351,7 @@ func InsertRatePlan(a *RatePlan) (int64, error) {
 // InsertRatePlanRef writes a new RatePlanRef record to the database
 func InsertRatePlanRef(a *RatePlanRef) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRatePlanRef.Exec(a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRatePlanRef.Exec(a.BID, a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -367,7 +367,7 @@ func InsertRatePlanRef(a *RatePlanRef) (int64, error) {
 
 // InsertRatePlanRefRTRate writes a new RatePlanRefRTRate record to the database
 func InsertRatePlanRefRTRate(a *RatePlanRefRTRate) error {
-	_, err := RRdb.Prepstmt.InsertRatePlanRefRTRate.Exec(a.RPRID, a.RTID, a.FLAGS, a.Val)
+	_, err := RRdb.Prepstmt.InsertRatePlanRefRTRate.Exec(a.RPRID, a.BID, a.RTID, a.FLAGS, a.Val)
 	if nil != err {
 		Ulog("InsertRatePlanRefRTRate: error inserting RatePlanRefRTRate:  %v\n", err)
 		Ulog("RatePlanRefRTRate = %#v\n", *a)
@@ -377,7 +377,7 @@ func InsertRatePlanRefRTRate(a *RatePlanRefRTRate) error {
 
 // InsertRatePlanRefSPRate writes a new RatePlanRefSPRate record to the database
 func InsertRatePlanRefSPRate(a *RatePlanRefSPRate) error {
-	_, err := RRdb.Prepstmt.InsertRatePlanRefSPRate.Exec(a.RPRID, a.RTID, a.RSPID, a.FLAGS, a.Val)
+	_, err := RRdb.Prepstmt.InsertRatePlanRefSPRate.Exec(a.RPRID, a.BID, a.RTID, a.RSPID, a.FLAGS, a.Val)
 	if nil != err {
 		Ulog("InsertRatePlanRefSPRate: error inserting RatePlanRefSPRate:  %v\n", err)
 		Ulog("RatePlanRefSPRate = %#v\n", *a)
@@ -398,7 +398,7 @@ func InsertPaymentType(a *PaymentType) error {
 // InsertPayor writes a new User record to the database
 func InsertPayor(a *Payor) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertPayor.Exec(a.TCID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertPayor.Exec(a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -414,7 +414,7 @@ func InsertPayor(a *Payor) (int64, error) {
 // InsertProspect writes a new User record to the database
 func InsertProspect(a *Prospect) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertProspect.Exec(a.TCID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
+	res, err := RRdb.Prepstmt.InsertProspect.Exec(a.TCID, a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
 		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
 		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
 		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy)
@@ -471,7 +471,7 @@ func InsertReceipt(r *Receipt) (int64, error) {
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
 func InsertReceiptAllocation(r *ReceiptAllocation) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(r.RCPTID, r.Amount, r.ASMID, r.AcctRule)
+	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(r.RCPTID, r.BID, r.Amount, r.ASMID, r.AcctRule)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -503,14 +503,14 @@ func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
 // InsertRentalAgreementPayor writes a new User record to the database
 func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementPayor.Exec(a.RAID, a.TCID, a.DtStart, a.DtStop, a.FLAGS)
+	res, err := RRdb.Prepstmt.InsertRentalAgreementPayor.Exec(a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertRentalAgreementPayor: error inserting RentalAgreementRentable:  %v\n", err)
+		Ulog("InsertRentalAgreementPayor: error inserting RentalAgreementPayor:  %v\n", err)
 		Ulog("RentalAgreementPayor = %#v\n", *a)
 	}
 	return tid, err
@@ -519,14 +519,14 @@ func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
 // InsertRentalAgreementPet writes a new User record to the database
 func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementPet.Exec(a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentalAgreementPet.Exec(a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertRentalAgreementPet: error inserting RentalAgreementRentable:  %v\n", err)
+		Ulog("InsertRentalAgreementPet: error inserting RentalAgreementPet:  %v\n", err)
 		Ulog("RentalAgreementPet = %#v\n", *a)
 	}
 	return tid, err
@@ -535,7 +535,7 @@ func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
 // InsertRentalAgreementRentable writes a new User record to the database
 func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(a.RAID, a.RID, a.CLID, a.ContractRent, a.DtStart, a.DtStop)
+	res, err := RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.DtStart, a.DtStop)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -576,7 +576,7 @@ func InsertRentableSpecialty(a *RentableSpecialty) error {
 
 // InsertRentableMarketRates writes a new marketrate record to the database
 func InsertRentableMarketRates(r *RentableMarketRate) error {
-	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.RTID, r.MarketRate, r.DtStart, r.DtStop)
+	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.RTID, r.BID, r.MarketRate, r.DtStart, r.DtStop)
 	return err
 }
 
@@ -603,20 +603,20 @@ func InsertRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 
 // InsertRentableStatus writes a new RentableStatus record to the database
 func InsertRentableStatus(a *RentableStatus) error {
-	_, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy)
 	return err
 }
 
 // InsertRentableTypeRef writes a new RentableTypeRef record to the database
 func InsertRentableTypeRef(a *RentableTypeRef) error {
-	_, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.LastModBy)
+	_, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.LastModBy)
 	return err
 }
 
 // InsertRentableUser writes a new User record to the database
 func InsertRentableUser(a *RentableUser) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.TCID, a.DtStart, a.DtStop)
+	res, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -653,7 +653,7 @@ func InsertSLStrings(a *StringList) {
 	// DeleteSLStrings(a.SLID)
 	for i := 0; i < len(a.S); i++ {
 		a.S[i].SLID = a.SLID
-		_, err := RRdb.Prepstmt.InsertSLString.Exec(a.SLID, a.S[i].Value, a.S[i].LastModBy)
+		_, err := RRdb.Prepstmt.InsertSLString.Exec(a.BID, a.SLID, a.S[i].Value, a.S[i].LastModBy)
 		if nil != err {
 			Ulog("InsertSLString: error:  %v\n", err)
 		}
@@ -679,7 +679,7 @@ func InsertTransactant(a *Transactant) (int64, error) {
 // InsertUser writes a new User record to the database
 func InsertUser(a *User) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

@@ -115,6 +115,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 	for i := 0; i < len(rcpts); i++ {
 		var a rlib.DepositPart
 		a.DID = id
+		a.BID = d.BID
 		a.RCPTID = rcpts[i]
 		err = rlib.InsertDepositPart(&a)
 		if nil != err {

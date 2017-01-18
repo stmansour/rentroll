@@ -71,6 +71,8 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 	var err error
 	var errmsg string
 
+	a.BID = b.BID
+
 	//-------------------------------------------------------------------
 	// RPRef
 	//-------------------------------------------------------------------

@@ -158,6 +158,7 @@ type StringList struct {
 // SLString defines an individual string member of a StringList
 type SLString struct {
 	SLSID       int64     // unique id of this string
+	BID         int64     // the business to which this stringlist belongs
 	SLID        int64     // to which stringlist does this string belong?
 	Value       string    // value of this string
 	LastModTime time.Time // when was this record last written
@@ -176,6 +177,7 @@ type NoteType struct {
 // Note is dated comment from a user
 type Note struct {
 	NID         int64     // unique ID for this note
+	BID         int64     // business associated with this note type
 	NLID        int64     // notelist to which this note belongs
 	PNID        int64     // NID of parent note
 	NTID        int64     // note type id
@@ -191,6 +193,7 @@ type Note struct {
 // NoteList is a collection of Notes (NIDs)
 type NoteList struct {
 	NLID        int64     // unique id for the notelist
+	BID         int64     // business associated with this notelist
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	N           []Note    // the list of notes
@@ -199,6 +202,7 @@ type NoteList struct {
 // CustomAttribute is a struct containing user-defined custom attributes for objects
 type CustomAttribute struct {
 	CID         int64     // unique id
+	BID         int64     // business associated with this CustomAttribute
 	Type        int64     // what type of value: 0 = string, 1 = int64, 2 = float64
 	Name        string    // what its called
 	Value       string    // string value -- will be xlated on load / store
@@ -213,6 +217,7 @@ type CustomAttribute struct {
 //		SELECT CID FROM CustomAttributeRef
 type CustomAttributeRef struct {
 	ElementType int64 // what type of element:  1=person, 2=company, 3=Business-unit, 4 = executable service, 5=RentableType
+	BID         int64 // business associated with this CustomAttributeRef
 	ID          int64 // the UID of the element type. That is, if ElementType == 5, the ID is the RTID (Rentable type id)
 	CID         int64 // uid of the custom attribute
 }
@@ -258,6 +263,7 @@ const (
 // RatePlanRef contains the time sensitive attributes of a RatePlan
 type RatePlanRef struct {
 	RPRID             int64               // unique id for this ref
+	BID               int64               // Business
 	RPID              int64               // which rate plan
 	DtStart           time.Time           // when does it go into effect
 	DtStop            time.Time           // when does it stop
@@ -281,6 +287,7 @@ const (
 // RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 type RatePlanRefRTRate struct {
 	RPRID int64   // which RatePlanRef is this
+	BID   int64   // Business
 	RTID  int64   // which RentableType
 	FLAGS uint64  // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
 	Val   float64 // Val
@@ -295,6 +302,7 @@ const (
 // RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 type RatePlanRefSPRate struct {
 	RPRID int64   // which RatePlanRef is this
+	BID   int64   // Business
 	RTID  int64   // which RentableType
 	RSPID int64   // which Specialty
 	FLAGS uint64  // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
@@ -311,6 +319,7 @@ const (
 // A RatePlan can refer to multiple OtherDeliverables.
 type RatePlanOD struct {
 	RPRID int64 // with which RatePlan is this OtherDeliverable associated?
+	BID   int64 // Business
 	ODID  int64 // points to an OtherDeliverables
 }
 
@@ -319,6 +328,7 @@ type RatePlanOD struct {
 // Multiple RatePlanRefs can refer to the same OtherDeliverables.
 type OtherDeliverables struct {
 	ODID   int64  // Unique ID for this OtherDeliverables
+	BID    int64  // Business
 	Name   string // Description of the other deliverables. Ex: 2 Seaworld tickets
 	Active int64  // Flag: Is this list still active?  dropdown interface lists only the active ones
 }
@@ -366,6 +376,7 @@ type RentalAgreement struct {
 // RentalAgreementRentable describes a Rentable associated with a rental agreement
 type RentalAgreementRentable struct {
 	RAID         int64     // associated rental agreement
+	BID          int64     // Business
 	RID          int64     // the Rentable
 	CLID         int64     // commission ledger -- applies if outside sales rented this rentable
 	ContractRent float64   // the rent
@@ -376,6 +387,7 @@ type RentalAgreementRentable struct {
 // RentalAgreementPayor describes a Payor associated with a rental agreement
 type RentalAgreementPayor struct {
 	RAID    int64
+	BID     int64     // Business
 	TCID    int64     // the payor's transactant id
 	DtStart time.Time // start date/time for this Payor
 	DtStop  time.Time // stop date/time
@@ -385,14 +397,25 @@ type RentalAgreementPayor struct {
 // RentalAgreementTax - the time based attribute for whether the rental agreement is taxable
 type RentalAgreementTax struct {
 	RAID    int64     //associated rental agreement
+	BID     int64     // Business
 	DtStart time.Time // start date/time for this Payor
 	DtStop  time.Time // stop date/time
 	FLAGS   uint64    // 1<<0 is whether the agreement is taxable
 }
 
+// RentableTypeTax - the time based attribute for whether the rental agreement is taxable
+type RentableTypeTax struct {
+	RAID    int64     //associated rental agreement
+	BID     int64     // Business
+	DtStart time.Time // start date/time for this Payor
+	DtStop  time.Time // stop date/time
+	TAXID   int64     // which tax in the Tax Table
+}
+
 // RentableUser describes a User associated with a rental agreement
 type RentableUser struct {
 	RID     int64     // associated Rentable
+	BID     int64     // associated business
 	TCID    int64     // pointer to Transactant
 	DtStart time.Time // start date/time for this User
 	DtStop  time.Time // stop date/time (when this person stopped being a User)
@@ -401,6 +424,7 @@ type RentableUser struct {
 // RentalAgreementPet describes a pet associated with a rental agreement. There can be as many as needed.
 type RentalAgreementPet struct {
 	PETID       int64
+	BID         int64 // associated business
 	RAID        int64
 	Type        string
 	Breed       string
@@ -455,6 +479,7 @@ type Transactant struct {
 type Prospect struct {
 	// PRSPID                 int64
 	TCID                   int64
+	BID                    int64
 	EmployerName           string
 	EmployerStreetAddress  string
 	EmployerCity           string
@@ -483,6 +508,7 @@ type Prospect struct {
 type User struct {
 	// USERID                    int64
 	TCID                      int64
+	BID                       int64
 	Points                    int64
 	DateofBirth               time.Time
 	EmergencyContactName      string
@@ -522,6 +548,7 @@ type Vehicle struct {
 type Payor struct {
 	// PID                 int64
 	TCID                int64
+	BID                 int64
 	CreditLimit         float64
 	TaxpayorID          string
 	AccountRep          int64
@@ -616,6 +643,7 @@ type Receipt struct {
 // ReceiptAllocation defines an allocation of a Receipt amount.
 type ReceiptAllocation struct {
 	RCPTID   int64
+	BID      int64
 	Amount   float64
 	ASMID    int64
 	AcctRule string
@@ -650,6 +678,7 @@ type Deposit struct {
 //		SELECT RCPTID WHERE DIP=someDID
 type DepositPart struct {
 	DID    int64 // deposit id
+	BID    int64 // business id
 	RCPTID int64 // receipt id
 }
 
@@ -679,6 +708,7 @@ type Invoice struct {
 //		SELECT ASMID WHERE InvoiceNo=somenumber
 type InvoiceAssessment struct {
 	InvoiceNo int64 // the invoice number
+	BID       int64 // bid
 	ASMID     int64 // assessment
 }
 
@@ -687,6 +717,7 @@ type InvoiceAssessment struct {
 //		SELECT PID WHERE InvoiceNo=somenumber
 type InvoicePayor struct {
 	InvoiceNo int64 // the invoice number
+	BID       int64 // bid
 	PID       int64 // Payor ID
 }
 
@@ -719,6 +750,7 @@ type RentableType struct {
 // RentableMarketRate describes the market rate rent for a Rentable type over a time period
 type RentableMarketRate struct {
 	RTID       int64
+	BID        int64 // the business unit
 	MarketRate float64
 	DtStart    time.Time
 	DtStop     time.Time
@@ -741,6 +773,7 @@ type Rentable struct {
 // RentableTypeRef is the time-based Rentable type attribute
 type RentableTypeRef struct {
 	RID                    int64     // the Rentable to which this record belongs
+	BID                    int64     // Business
 	RTID                   int64     // the Rentable's type during this time range
 	OverrideRentCycle      int64     // Override Rent Cycle.  0 =unset,  otherwise same values as RentableType.RentCycle
 	OverrideProrationCycle int64     // Override Proration. 0 = unset, otherwise the same values as RentableType.Proration
@@ -776,6 +809,7 @@ type RentableSpecialtyRef struct {
 // RentableStatus archives the state of a Rentable during the specified period of time
 type RentableStatus struct {
 	RID              int64     // associated Rentable
+	BID              int64     // associated business
 	DtStart          time.Time // start of period
 	DtStop           time.Time // end of period
 	DtNoticeToVacate time.Time // user has indicated they will vacate on this date
@@ -817,6 +851,7 @@ type Journal struct {
 // JournalAllocation describes how the associated Journal amount is allocated
 type JournalAllocation struct {
 	JAID     int64   // unique id for this allocation
+	BID      int64   // unique id of Business
 	JID      int64   // associated Journal entry
 	RID      int64   // associated Rentable
 	Amount   float64 // amount of this allocation
@@ -1122,6 +1157,7 @@ type RRprepSQL struct {
 	ReadRatePlanRef                    *sql.Stmt
 	UpdateAssessment                   *sql.Stmt
 	UpdateBusiness                     *sql.Stmt
+	UpdateCustomAttribute              *sql.Stmt
 	UpdateDemandSource                 *sql.Stmt
 	UpdateDeposit                      *sql.Stmt
 	UpdateDepositMethod                *sql.Stmt

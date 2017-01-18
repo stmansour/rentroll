@@ -14,8 +14,8 @@ import (
 // GetRentalAgreementPet reads a Pet the structure for the supplied PETID
 func GetRentalAgreementPet(petid int64) (RentalAgreementPet, error) {
 	var a RentalAgreementPet
-
-	err := RRdb.Prepstmt.GetRentalAgreementPet.QueryRow(petid).Scan(&a.PETID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
+	row := RRdb.Prepstmt.GetRentalAgreementPet.QueryRow(petid)
+	err := ReadRentalAgreementPet(row, &a)
 	return a, err
 }
 
@@ -27,7 +27,8 @@ func GetAllRentalAgreementPets(raid int64) []RentalAgreementPet {
 	var t []RentalAgreementPet
 	for i := 0; rows.Next(); i++ {
 		var a RentalAgreementPet
-		Errcheck(rows.Scan(&a.PETID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+		// Errcheck(rows.Scan(&a.PETID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+		ReadRentalAgreementPets(rows, &a)
 		t = append(t, a)
 	}
 	return t
@@ -41,9 +42,9 @@ func GetAllRentalAgreementPets(raid int64) []RentalAgreementPet {
 func FindAgreementByRentable(rid int64, d1, d2 *time.Time) (RentalAgreementRentable, error) {
 	var a RentalAgreementRentable
 
-	// SELECT RAID,RID,DtStart,DtStop from RentalAgreementRentables where RID=? and DtStop>=? and DtStart<=?
+	// SELECT RAID,BID,RID,DtStart,DtStop from RentalAgreementRentables where RID=? and DtStop>=? and DtStart<=?
 
-	err := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2).Scan(&a.RAID, &a.RID, &a.CLID, &a.ContractRent, &a.DtStart, &a.DtStop)
+	err := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2).Scan(&a.RAID, &a.BID, &a.RID, &a.CLID, &a.ContractRent, &a.DtStart, &a.DtStop)
 	return a, err
 }
 
@@ -323,7 +324,7 @@ func GetDepositParts(id int64) ([]DepositPart, error) {
 
 	for rows.Next() {
 		var a DepositPart
-		Errcheck(rows.Scan(&a.DID, &a.RCPTID))
+		ReadDepositParts(rows, &a)
 		m = append(m, a)
 	}
 	Errcheck(rows.Err())
@@ -406,7 +407,7 @@ func GetInvoiceAssessments(id int64) ([]InvoiceAssessment, error) {
 
 	for rows.Next() {
 		var a InvoiceAssessment
-		Errcheck(rows.Scan(&a.InvoiceNo, &a.ASMID))
+		ReadInvoiceAssessments(rows, &a)
 		m = append(m, a)
 	}
 	Errcheck(rows.Err())
@@ -422,7 +423,7 @@ func GetInvoicePayors(id int64) ([]InvoicePayor, error) {
 
 	for rows.Next() {
 		var a InvoicePayor
-		Errcheck(rows.Scan(&a.InvoiceNo, &a.PID))
+		ReadInvoicePayors(rows, &a)
 		m = append(m, a)
 	}
 	Errcheck(rows.Err())
@@ -496,13 +497,11 @@ func GetLastJournalMarker() JournalMarker {
 }
 
 // GetJournalAllocation returns the Journal allocation for the supplied JAID
-func GetJournalAllocation(jaid int64) (JournalAllocation, error) {
+func GetJournalAllocation(jaid int64) JournalAllocation {
 	var a JournalAllocation
-	err := RRdb.Prepstmt.GetJournalAllocation.QueryRow(jaid).Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule)
-	if err != nil {
-		Ulog("Error getting JournalAllocation jaid = %d:  error = %v\n", jaid, err)
-	}
-	return a, err
+	row := RRdb.Prepstmt.GetJournalAllocation.QueryRow(jaid)
+	ReadJournalAllocation(row, &a)
+	return a
 }
 
 // GetJournalAllocations loads all Journal allocations associated with the supplied Journal id into
@@ -514,16 +513,9 @@ func GetJournalAllocations(jid int64, j *Journal) {
 	j.JA = make([]JournalAllocation, 0)
 	for rows.Next() {
 		var a JournalAllocation
-		Errcheck(rows.Scan(&a.JAID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
+		ReadJournalAllocations(rows, &a)
 		j.JA = append(j.JA, a)
 	}
-	// for i := 0; i < len(j.JA)-1; i++ {
-	// 	for k := i + 1; k < len(j.JA); k++ {
-	// 		if j.JA[i].Amount < j.JA[k].Amount {
-	// 			j.JA[i].Amount, j.JA[k].Amount = j.JA[k].Amount, j.JA[i].Amount
-	// 		}
-	// 	}
-	// }
 }
 
 //=======================================================
@@ -833,7 +825,7 @@ func GetNoteAndChildNotes(nid int64) Note {
 // GetNoteList reads a NoteList structure based on the supplied NoteList id
 func GetNoteList(nlid int64) NoteList {
 	var m NoteList
-	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.LastModTime, &m.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.BID, &m.LastModTime, &m.LastModBy))
 	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
 	Errcheck(err)
 	defer rows.Close()
@@ -1071,7 +1063,8 @@ func GetReceiptAllocations(rcptid int64, r *Receipt) {
 	r.RA = make([]ReceiptAllocation, 0)
 	for rows.Next() {
 		var a ReceiptAllocation
-		Errcheck(rows.Scan(&a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule))
+		ReadReceiptAllocations(rows, &a)
+		// Errcheck(rows.Scan(&a.RCPTID, &a.BID, &a.Amount, &a.ASMID, &a.AcctRule))
 		r.RA = append(r.RA, a)
 	}
 }
@@ -1241,7 +1234,7 @@ func GetRentableTypeRefsByRange(RID int64, d1, d2 *time.Time) []RentableTypeRef 
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableTypeRef
-		Errcheck(rows.Scan(&a.RID, &a.RTID, &a.OverrideRentCycle, &a.OverrideProrationCycle, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.RID, &a.BID, &a.RTID, &a.OverrideRentCycle, &a.OverrideProrationCycle, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 		rs = append(rs, a)
 	}
 	Errcheck(rows.Err())
@@ -1278,7 +1271,7 @@ func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableStatus
-		Errcheck(rows.Scan(&a.RID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status, &a.LastModTime, &a.LastModBy))
+		ReadRentableStatus(rows, &a)
 		rs = append(rs, a)
 	}
 	Errcheck(rows.Err())
@@ -1338,7 +1331,8 @@ func GetRentableMarketRates(rt *RentableType) {
 	LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
 	for rows.Next() {
 		var a RentableMarketRate
-		Errcheck(rows.Scan(&a.RTID, &a.MarketRate, &a.DtStart, &a.DtStop))
+		// Errcheck(rows.Scan(&a.RTID, &a.MarketRate, &a.DtStart, &a.DtStop))
+		ReadRentableMarketRates(rows, &a)
 		if a.DtStart.After(LatestMRDTStart) {
 			LatestMRDTStart = a.DtStart
 			rt.MRCurrent = a.MarketRate
@@ -1372,7 +1366,8 @@ func GetRentableUsers(rid int64, d1, d2 *time.Time) []RentableUser {
 	// t = make([]RentableUser, 0)
 	for rows.Next() {
 		var r RentableUser
-		Errcheck(rows.Scan(&r.RID, &r.TCID, &r.DtStart, &r.DtStop))
+		ReadRentableUsers(rows, &r)
+		// Errcheck(rows.Scan(&r.RID, &r.TCID, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t
@@ -1455,7 +1450,8 @@ func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []RentalAgreementRen
 	var t []RentalAgreementRentable
 	for rows.Next() {
 		var r RentalAgreementRentable
-		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.CLID, &r.ContractRent, &r.DtStart, &r.DtStop))
+		ReadRentalAgreementRentables(rows, &r)
+		// Errcheck(rows.Scan(&r.RAID, &r.BID, &r.RID, &r.CLID, &r.ContractRent, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t
@@ -1470,7 +1466,8 @@ func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreemen
 	var t []RentalAgreementRentable
 	for rows.Next() {
 		var r RentalAgreementRentable
-		Errcheck(rows.Scan(&r.RAID, &r.RID, &r.CLID, &r.ContractRent, &r.DtStart, &r.DtStop))
+		ReadRentalAgreementRentables(rows, &r)
+		// Errcheck(rows.Scan(&r.RAID, &r.BID, &r.RID, &r.CLID, &r.ContractRent, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t

@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-//    0  1                 2     3         4      5       6,       7
-// RAID, Name,             Type, Breed,    Color, Weight, DtStart, DtStop
-// 8,Santa's Little Helper,Dog,  Greyhound,gray,  34.5,  2014-01-01,
+// 0     1     2                     3         4      5       6,       7
+// BUD,  RAID, Name,                 Type, Breed,    Color, Weight, DtStart, DtStop
+// REX,  8,    Santa's Little Helper,Dog,  Greyhound,gray,  34.5,  2014-01-01,
 
 // CreateRentalAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
 func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
@@ -17,6 +17,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	var errmsg string
 
 	const (
+		BUD    = 0
 		RAID   = iota
 		Name   = iota
 		Type   = iota
@@ -29,6 +30,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 
 	// csvCols is an array that defines all the columns that should be in this csv file
 	var csvCols = []CSVColumn{
+		{"BUD", BUD},
 		{"RAID", RAID},
 		{"Name", Name},
 		{"Type", Type},
@@ -45,6 +47,18 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	}
 	if lineno == 1 {
 		return 0, nil // we've validated the col headings, all is good, send the next line
+	}
+
+	//-------------------------------------------------------------------
+	// BUD
+	//-------------------------------------------------------------------
+	cmpdes := strings.TrimSpace(sa[BUD])
+	if len(cmpdes) > 0 {
+		b2 := rlib.GetBusinessByDesignation(cmpdes)
+		if b2.BID == 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find rlib.Business named %s\n", funcname, lineno, cmpdes)
+		}
+		pet.BID = b2.BID
 	}
 
 	//-------------------------------------------------------------------

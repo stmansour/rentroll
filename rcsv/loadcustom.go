@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-// 0              1       	   2		3
-// Name, 	      ValueType,    Value,	Units
-// "Square Feet", 0-2 , 	   "1638",  "sqft"
+// 0    1              2       	   3		4
+// BUD, Name, 	      ValueType,  Value,	Units
+// REX, "Square Feet", 0-2 , 	   "1638",  "sqft"
 
 // CreateCustomAttributes reads a CustomAttributes string array and creates a database record
 func CreateCustomAttributes(sa []string, lineno int) (int, error) {
@@ -17,7 +17,8 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 	var c rlib.CustomAttribute
 
 	const (
-		Name      = 0
+		BUD       = 0
+		Name      = iota
 		ValueType = iota
 		Value     = iota
 		Units     = iota
@@ -25,6 +26,7 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 
 	// csvCols is an array that defines all the columns that should be in this csv file
 	var csvCols = []CSVColumn{
+		{"BUD", BUD},
 		{"Name", Name},
 		{"ValueType", ValueType},
 		{"Value", Value},
@@ -39,7 +41,19 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 		return 0, nil // we've validated the col headings, all is good, send the next line
 	}
 
-	c.Type, err = rlib.IntFromString(sa[1], "Type is invalid")
+	//-------------------------------------------------------------------
+	// BUD
+	//-------------------------------------------------------------------
+	cmpdes := strings.TrimSpace(sa[BUD])
+	if len(cmpdes) > 0 {
+		b2 := rlib.GetBusinessByDesignation(cmpdes)
+		if b2.BID == 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Business named %s\n", funcname, lineno, cmpdes)
+		}
+		c.BID = b2.BID
+	}
+
+	c.Type, err = rlib.IntFromString(sa[ValueType], "Type is invalid")
 	if err != nil {
 		return CsvErrorSensitivity, err
 	}
@@ -47,9 +61,9 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value must be a number from %d to %d\n", funcname, lineno, rlib.CUSTSTRING, rlib.CUSTLAST)
 	}
 
-	c.Name = strings.TrimSpace(sa[0])
-	c.Value = strings.TrimSpace(sa[2])
-	c.Units = strings.TrimSpace(sa[3])
+	c.Name = strings.TrimSpace(sa[Name])
+	c.Value = strings.TrimSpace(sa[Value])
+	c.Units = strings.TrimSpace(sa[Units])
 	switch c.Type {
 	case rlib.CUSTINT:
 		_, err = rlib.IntFromString(c.Value, "Value cannot be converted to an integer")
