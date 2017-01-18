@@ -106,6 +106,8 @@ func loadOneSiteCSV(
 	testMode int,
 	userRRValues map[string]string,
 	business *rlib.Business,
+	currentTime time.Time,
+	currentTimeFormat string,
 ) ([]error, error) {
 
 	// vars
@@ -116,15 +118,6 @@ func loadOneSiteCSV(
 
 	// funcname
 	funcname := "loadOneSiteCSV"
-
-	// get current timestamp used for creating csv files unique way
-	currentTime := time.Now()
-
-	// RFC3339Nano is const format defined in time package
-	// <FORMAT> = <SAMPLE>
-	// RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
-	// it is helpful while creating unique files
-	currentTimeFormat := currentTime.Format(time.RFC3339Nano)
 
 	// ###################################
 	// # INIT PHASE : LOAD FIELD MAP IN ONESITE MAP #
@@ -368,6 +361,7 @@ func loadOneSiteCSV(
 	}
 	sort.Ints(csvRowDataMapKeys)
 
+	// first create only custom attribute, rentable type, people data from onesite csv
 	for _, csvRowIndex := range csvRowDataMapKeys {
 
 		// load csvRow from dataMap
@@ -471,7 +465,6 @@ func loadOneSiteCSV(
 				&OneSiteFieldMap.CustomAttributeCSV,
 			)
 		}
-
 	}
 
 	// ---------------------------- closing files -------------------------- //
@@ -487,16 +480,12 @@ func loadOneSiteCSV(
 	// # PHASE 2 : RCSV LOADERS CALL #
 	// ########################
 
-	// csv load handler
-	var h = []csvLoadHandler{
-		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV, TraceDataMap: "traceCustomAttributeCSVMap"},
-		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV, TraceDataMap: "traceRentableTypeCSVMap"},
-		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
-		{Fname: rentableCSVFile.Name(), Handler: rcsv.LoadRentablesCSV, TraceDataMap: "traceRentableCSVMap"},
-		{Fname: rentalAgreementCSVFile.Name(), Handler: rcsv.LoadRentalAgreementCSV, TraceDataMap: "traceRentalAgreementCSVMap"},
-	}
+	// =======================================
+	// Nested functions
+	// =======================================
 
-	// getIndexAndUnit used to get index and unit value from trace<TYPE>CSVMap map
+	// getIndexAndUnit is a nested function
+	// used to get index and unit value from trace<TYPE>CSVMap map
 	getIndexAndUnit := func(traceDataMap string, index int) (int, string) {
 		var onesiteIndex int
 		var unit string
@@ -546,59 +535,81 @@ func loadOneSiteCSV(
 		}
 	}
 
+	// rrDoLoad is a nested function
+	// used to get index and unit value from trace<TYPE>CSVMap map
+	rrDoLoad := func(fname string, handler func(string) []error, traceDataMap string) bool {
+		Errs := handler(fname)
+		// fmt.Print(rcsv.ErrlistToString(&Errs))
+
+		for _, err := range Errs {
+			// skip warnings about already existing records
+			// if it's not kind of to skip then process it and count in error report
+			if !csvRecordsToSkip(err) {
+				errText := err.Error()
+				// split with separator `:`
+				s := strings.Split(errText, ":")
+				// remove first element from slice
+				s = append(s[:0], s[1:]...)
+				// now join with separator
+				errText = strings.Join(s, "|")
+				// split with separator `-`
+				s = strings.Split(errText, "-")
+				// get line number string
+				lineNoStr := s[0]
+				// remove space from lineNoStr string
+				lineNoStr = strings.Replace(lineNoStr, " ", "", -1)
+				// remove `lineno` text from lineNoStr string
+				lineNoStr = strings.Replace(lineNoStr, "lineno", "", -1)
+				// remove `line` text from lineNoStr string
+				lineNoStr = strings.Replace(lineNoStr, "line", "", -1)
+				// now it should contain number in string
+				lineNo, err := strconv.Atoi(lineNoStr)
+				if err != nil {
+					// CRITICAL
+					rlib.Ulog("rcsv loaders should do something about returning error format")
+					return false
+				}
+				// remove first element from slice
+				s = append(s[:0], s[1:]...)
+				// now join with separator
+				errText = strings.Join(s, "")
+				// replace new line broker
+				errText = strings.Replace(errText, "\n", "", -1)
+				// now get the original row index of imported onesite csv and Unit value
+				onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
+				// generate new error
+				err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
+				// append it into csvErrors
+				csvErrors = append(csvErrors, err)
+			} else {
+				rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, err.Error()))
+			}
+		}
+		// return with success
+		return true
+	}
+
+	// =========================================
+	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV
+	// =========================================
+	var h = []csvLoadHandler{
+		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV, TraceDataMap: "traceCustomAttributeCSVMap"},
+		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV, TraceDataMap: "traceRentableTypeCSVMap"},
+	}
+
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			Errs := rrDoLoad(h[i].Fname, h[i].Handler)
-			for _, err := range Errs {
-				// skip warnings about already existing records
-				// if it's not kind of to skip then process it and count in error report
-				if !csvRecordsToSkip(err) {
-					errText := err.Error()
-					// split with separator `:`
-					s := strings.Split(errText, ":")
-					// remove first element from slice
-					s = append(s[:0], s[1:]...)
-					// now join with separator
-					errText = strings.Join(s, "|")
-					// split with separator `-`
-					s = strings.Split(errText, "-")
-					// get line number string
-					lineNoStr := s[0]
-					// remove space from lineNoStr string
-					lineNoStr = strings.Replace(lineNoStr, " ", "", -1)
-					// remove `lineno` text from lineNoStr string
-					lineNoStr = strings.Replace(lineNoStr, "lineno", "", -1)
-					// remove `line` text from lineNoStr string
-					lineNoStr = strings.Replace(lineNoStr, "line", "", -1)
-					// now it should contain number in string
-					lineNo, err := strconv.Atoi(lineNoStr)
-					if err != nil {
-						// CRITICAL
-						panic("rcsv loaders should do something about returning error format")
-					}
-					// remove first element from slice
-					s = append(s[:0], s[1:]...)
-					// now join with separator
-					errText = strings.Join(s, "")
-					// replace new line broker
-					errText = strings.Replace(errText, "\n", "", -1)
-					// now get the original row index of imported onesite csv and Unit value
-					onesiteIndex, unit := getIndexAndUnit(h[i].TraceDataMap, lineNo)
-					// generate new error
-					err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
-					// append it into csvErrors
-					csvErrors = append(csvErrors, err)
-				} else {
-					rlib.Ulog(fmt.Sprintf("Error <%s>: %s", h[i].Fname, err.Error()))
-				}
+			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
+				// if any error then simple return with internal error
+				LoadOneSiteError = core.ErrInternal
+				return csvErrors, LoadOneSiteError
 			}
 		}
 	}
 
 	// =======================================
-	// INSERT CUSTOM ATTRIBUTE REF
+	// INSERT CUSTOM ATTRIBUTE REF MANUALLY
 	// =======================================
-
 	// always sort keys
 	var customAttributesRefDataKeys []string
 	for k := range customAttributesRefData {
@@ -662,6 +673,42 @@ func loadOneSiteCSV(
 			}
 		}
 	}
+
+	// =======================================
+	// LOAD PEOPLE CSV
+	// =======================================
+	h = []csvLoadHandler{
+		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
+	}
+
+	for i := 0; i < len(h); i++ {
+		if len(h[i].Fname) > 0 {
+			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
+				// if any error then simple return with internal error
+				LoadOneSiteError = core.ErrInternal
+				return csvErrors, LoadOneSiteError
+			}
+		}
+	}
+
+	// =======================================
+	// LOAD RENTABLE & RENTAL AGREEMENT CSV
+	// =======================================
+	h = []csvLoadHandler{
+		{Fname: rentableCSVFile.Name(), Handler: rcsv.LoadRentablesCSV, TraceDataMap: "traceRentableCSVMap"},
+		{Fname: rentalAgreementCSVFile.Name(), Handler: rcsv.LoadRentalAgreementCSV, TraceDataMap: "traceRentalAgreementCSVMap"},
+	}
+
+	for i := 0; i < len(h); i++ {
+		if len(h[i].Fname) > 0 {
+			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
+				// if any error then simple return with internal error
+				LoadOneSiteError = core.ErrInternal
+				return csvErrors, LoadOneSiteError
+			}
+		}
+	}
+
 	// ##################################
 	// # PHASE 3 : CLEAR THE TEMPORARY CSV FILES #
 	// ##################################
@@ -674,17 +721,11 @@ func loadOneSiteCSV(
 	return csvErrors, LoadOneSiteError
 }
 
-func rrDoLoad(fname string, handler func(string) []error) []error {
-	Errs := handler(fname)
-	return Errs
-	// fmt.Print(rcsv.ErrlistToString(&m))
-}
-
 // rollBackImportOperation func used to clear out the things
 // that created by program temporarily while loading onesite data
 //  and if any error occurs
 func rollBackImportOperation(timestamp string) {
-	// TODO
+	clearSplittedTempCSVFiles(timestamp)
 }
 
 // clearSplittedTempCSVFiles func used only to clear
@@ -697,6 +738,45 @@ func clearSplittedTempCSVFiles(timestamp string) {
 	}
 }
 
+// validateUserSuppliedValues validates all user supplied values
+// return error list and also business unit
+func validateUserSuppliedValues(userValues map[string]string) ([]error, rlib.Business) {
+	var errorList []error
+	var accrualRateOptText = `| 0: one time only | 1: secondly | 2: minutely | 3: hourly | 4: daily | 5: weekly | 6: monthly | 7: quarterly | 8: yearly |`
+
+	// --------------------- BUD validation ------------------------
+	BUD := userValues["BUD"]
+	business := rlib.GetBusinessByDesignation(BUD)
+	if business.BID == 0 {
+		errorList = append(errorList,
+			fmt.Errorf("Supplied Business Unit Designation does not exists"))
+	}
+
+	// --------------------- RentCycle validation ------------------------
+	RentCycle, err := strconv.Atoi(userValues["RentCycle"])
+	if err != nil || RentCycle < 0 || RentCycle > 8 {
+		errorList = append(errorList,
+			fmt.Errorf("Please, choose Frequency value from this\n%s", accrualRateOptText))
+	}
+
+	// --------------------- Proration validation ------------------------
+	Proration, err := strconv.Atoi(userValues["Proration"])
+	if err != nil || Proration < 0 || Proration > 8 {
+		errorList = append(errorList,
+			fmt.Errorf("Please, choose Proration value from this\n%s", accrualRateOptText))
+	}
+
+	// --------------------- GSRPC validation ------------------------
+	GSRPC, err := strconv.Atoi(userValues["GSRPC"])
+	if err != nil || GSRPC < 0 || GSRPC > 8 {
+		errorList = append(errorList,
+			fmt.Errorf("Please, choose GSRPC value from this\n%s", accrualRateOptText))
+	}
+
+	// finally return error list
+	return errorList, business
+}
+
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
 func CSVHandler(
@@ -705,57 +785,73 @@ func CSVHandler(
 	userRRValues map[string]string,
 ) (bool, string, error) {
 
-	// vars
-	var (
-		CSVReport        string
-		CSVLoaded        bool
-		CSVErrs          []error
-		LoadOneSiteError error
-	)
+	// ###########
+	// # VARIABLES #
+	// ###########
+	// CSVReport will hold whole report for onesite imported csv
+	CSVReport := ""
 
-	// init values
-	CSVLoaded = true
+	// holds the error text for onesite imported csv
+	CSVErrs := []error{}
 
-	// ---------------------- some initialization for loadOneSiteCSV function ------------------
+	// to catch error from onesite loader
+	var LoadOneSiteError error
+
+	// flag to mark that csv loading done successfully
+	CSVLoaded := true
+
+	// get current timestamp used for creating csv files unique way
+	currentTime := time.Now()
+
+	// RFC3339Nano is const format defined in time package
+	// <FORMAT> = <SAMPLE>
+	// RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
+	// it is helpful while creating unique files
+	currentTimeFormat := currentTime.Format(time.RFC3339Nano)
+
+	// #######
+	// # STEPS #
+	// #######
+	// ===== 1. Call Init() first for onesite =====
 	initErr := Init()
 	if initErr != nil {
 		rlib.Ulog("Error <ONESITE INIT>: %s\n", initErr.Error())
-	}
-	rlib.Errcheck(initErr)
-	// --------------------------------------------------------------------------------------------------------- //
-
-	// ---------------------- validation on user supplied values ------------------
-	BUD := userRRValues["BUD"]
-	business := rlib.GetBusinessByDesignation(BUD)
-	if business.BID == 0 {
 		CSVLoaded = false
-		CSVErrs = append(CSVErrs,
-			fmt.Errorf("Supplied Business Unit Designation does not exists"))
+		return CSVLoaded, CSVReport, LoadOneSiteError
+	}
+
+	// ===== 2. Validate all user supplied values =====
+	userValueErrors, business := validateUserSuppliedValues(userRRValues)
+	if len(userValueErrors) > 0 {
+		CSVLoaded = false
+		CSVErrs = append(CSVErrs, userValueErrors...)
 		CSVReport = errorReporting(&CSVErrs)
 		return CSVLoaded, CSVReport, LoadOneSiteError
 	}
-	// --------------------------------------------------------------------------------------------------------- //
 
-	// ---------------------- call onesite loader ----------------------------------------
-	CSVErrs, LoadOneSiteError = loadOneSiteCSV(CSV, TestMode, userRRValues, &business)
+	// ===== 3. Call onesite loader =====
+	CSVErrs, LoadOneSiteError = loadOneSiteCSV(
+		CSV, TestMode, userRRValues, &business,
+		currentTime, currentTimeFormat)
 
 	// check if there any errors from onesite loader
-	if len(CSVErrs) > 0 {
+	if len(CSVErrs) > 0 || LoadOneSiteError != nil {
 		CSVLoaded = false
 		CSVReport = errorReporting(&CSVErrs)
-	}
-	if LoadOneSiteError != nil {
-		CSVLoaded = false
-	}
-	// if csv is not loaded properly then do rollbackoperation
-	// and return with errors
-	if !CSVLoaded {
-		// TODO: rollBackImportOperation
+		rollBackImportOperation(currentTimeFormat)
 		return CSVLoaded, CSVReport, LoadOneSiteError
 	}
-	// --------------------------------------------------------------------------------------------------------- //
 
-	//------------------------ Now do all the reporting ----------------------------
+	// ===== 4. Geneate Report =====
+	CSVReport = generateCSVReport(&business)
+
+	// ===== 5. Return =====
+	return CSVLoaded, CSVReport, LoadOneSiteError
+}
+
+// generateCSVReport return report for all type of csv defined here
+func generateCSVReport(business *rlib.Business) string {
+	var report string
 	var r = []rrpt.ReporterInfo{
 		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
 		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
@@ -766,22 +862,25 @@ func CSVHandler(
 	}
 
 	for i := 0; i < len(r); i++ {
-		CSVReport += r[i].Handler(&r[i])
-		CSVReport += strings.Repeat("-", 80)
-		CSVReport += "\n"
+		report += r[i].Handler(&r[i])
+		report += strings.Repeat("=", 80)
+		report += "\n"
 	}
-	// --------------------------------------------------------------------------------------------------------- //
 
-	// RETURN
-	return CSVLoaded, CSVReport, LoadOneSiteError
-
+	return report
 }
 
 // errorReporting used to report the errors for onesite csv
 func errorReporting(csvErrors *[]error) string {
+
+	// check the length of errors
+	if len(*csvErrors) == 0 {
+		return ""
+	}
+
 	var tbl rlib.Table
 	tbl.Init()
-	tbl.AddColumn("Error", 150, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Error", 180, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	for _, err := range *csvErrors {
 		tbl.AddRow()
