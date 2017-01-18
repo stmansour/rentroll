@@ -2,7 +2,6 @@ package rlib
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 )
 
@@ -1321,10 +1320,10 @@ var AllTables = []string{
 
 // DeleteBusiness deletes information from all tables if it is part of the supplied BID.
 // Use this call with extreme caution. There's no recovery.
-func DeleteBusinessFromDB(BID int64) error {
-	for i := 0; i < len(AllTables); i++ {
-		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", AllTables[i], BID)
-		result := RRdb.Dbrr.Exec(s)
-	}
-
-}
+// func DeleteBusinessFromDB(BID int64) error {
+// 	for i := 0; i < len(AllTables); i++ {
+// 		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", AllTables[i], BID)
+// 		result := RRdb.Dbrr.Exec(s)
+// 	}
+// 	return nil
+// }
