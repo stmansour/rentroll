@@ -1,8 +1,8 @@
-           Value                           
-CID        Type   Name         Value  Units
----------  -----  -----------  -----  -----
-C00000001  int    Square Feet    656  sqft 
-C00000002  int    Square Feet    840  sqft 
-C00000003  int    Square Feet    852  sqft 
-C00000004  int    Square Feet    657  sqft 
+                      Value                           
+CID        BID        Type   Name         Value  Units
+---------  ---------  -----  -----------  -----  -----
+C00000001  B00000001  int    Square Feet    656  sqft 
+C00000002  B00000001  int    Square Feet    840  sqft 
+C00000003  B00000001  int    Square Feet    852  sqft 
+C00000004  B00000001  int    Square Feet    657  sqft 
 
