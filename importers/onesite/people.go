@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
@@ -78,6 +79,7 @@ func WritePeopleCSVData(
 	ok, csvRowData := GetPeopleCSVRow(
 		csvRow, peopleStruct,
 		currentTimeFormat, suppliedValues,
+		rowIndex,
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
@@ -97,6 +99,7 @@ func GetPeopleCSVRow(
 	fieldMap *core.PeopleCSV,
 	timestamp string,
 	DefaultValues map[string]string,
+	rowIndex int,
 ) (bool, []string) {
 
 	// take initial variable
@@ -139,6 +142,10 @@ func GetPeopleCSVRow(
 			} else {
 				dataMap[i] = ""
 			}
+		}
+		// Special notes for people to get TCID in future with below value
+		if peopleField.Name == "Notes" {
+			dataMap[i] = "onesite:" + strconv.Itoa(rowIndex)
 		}
 
 		// get mapping field
