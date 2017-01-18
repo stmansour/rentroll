@@ -237,6 +237,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	note := strings.TrimSpace(sa[Notes])
 	if len(note) > 0 {
 		var nl rlib.NoteList
+		nl.BID = ra.BID
 		nl.NLID, err = rlib.InsertNoteList(&nl)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s\n", funcname, lineno, err.Error())
@@ -244,6 +245,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 		var n rlib.Note
 		n.Comment = note
 		n.NTID = 1 // first comment type
+		n.BID = nl.BID
 		n.NLID = nl.NLID
 		_, err = rlib.InsertNote(&n)
 		if err != nil {
@@ -286,9 +288,11 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//------------------------------------------------------------
 	for i := 0; i < len(m); i++ {
 		m[i].RAID = RAID
+		m[i].BID = ra.BID
 		rlib.InsertRentalAgreementRentable(&m[i])
 		for j := 0; j < len(users); j++ {
 			users[j].RID = m[i].RID
+			users[j].BID = ra.BID
 			rlib.InsertRentableUser(&users[j])
 		}
 	}
@@ -298,6 +302,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//------------------------------
 	for i := 0; i < len(payors); i++ {
 		payors[i].RAID = RAID
+		payors[i].BID = ra.BID
 		rlib.InsertRentalAgreementPayor(&payors[i])
 	}
 	return 0, nil

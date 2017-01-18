@@ -31,22 +31,22 @@ func ReadBusinesses(rows *sql.Rows, a *Business) {
 
 // ReadCustomAttribute reads a full CustomAttribute structure from the database based on the supplied row object
 func ReadCustomAttribute(row *sql.Row, a *CustomAttribute) {
-	Errcheck(row.Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.CID, &a.BID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadCustomAttributes reads a full CustomAttribute structure from the database based on the supplied rows object
 func ReadCustomAttributes(rows *sql.Rows, a *CustomAttribute) {
-	Errcheck(rows.Scan(&a.CID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.CID, &a.BID, &a.Type, &a.Name, &a.Value, &a.Units, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadCustomAttributeRef reads a full CustomAttributeRef structure from the database based on the supplied row object
 func ReadCustomAttributeRef(row *sql.Row, a *CustomAttributeRef) {
-	Errcheck(row.Scan(&a.ElementType, &a.ID, &a.CID))
+	Errcheck(row.Scan(&a.ElementType, &a.BID, &a.ID, &a.CID))
 }
 
 // ReadCustomAttributeRefs reads a full CustomAttributeRef structure from the database based on the supplied rows object
 func ReadCustomAttributeRefs(rows *sql.Rows, a *CustomAttributeRef) {
-	Errcheck(rows.Scan(&a.ElementType, &a.ID, &a.CID))
+	Errcheck(rows.Scan(&a.ElementType, &a.BID, &a.ID, &a.CID))
 }
 
 // ReadDemandSource reads a full DemandSource structure from the database based on the supplied row object
@@ -69,11 +69,15 @@ func ReadDepositories(rows *sql.Rows, a *Depository) {
 	Errcheck(rows.Scan(&a.DEPID, &a.BID, &a.Name, &a.AccountNo, &a.LastModTime, &a.LastModBy))
 }
 
-// // ReadGLAccounts reads a full GLAccount structure of data from the database based on the supplied Rows pointer.
-// func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
-// 	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber, &a.Status, &a.Type, &a.Name, &a.AcctType,
-// 		&a.RAAssociated, &a.AllowPost, &a.RARequired, &a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy))
-// }
+// ReadDepositPart reads a full DepositPart structure from the database based on the supplied row object
+func ReadDepositPart(row *sql.Row, a *DepositPart) {
+	Errcheck(row.Scan(&a.DID, &a.BID, &a.RCPTID))
+}
+
+// ReadDepositParts reads a full DepositPart structure from the database based on the supplied row object
+func ReadDepositParts(rows *sql.Rows, a *DepositPart) {
+	Errcheck(rows.Scan(&a.DID, &a.BID, &a.RCPTID))
+}
 
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) {
@@ -99,6 +103,16 @@ func ReadInvoices(rows *sql.Rows, a *Invoice) {
 	Errcheck(rows.Scan(&a.InvoiceNo, &a.BID, &a.Dt, &a.DtDue, &a.Amount, &a.DeliveredBy, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadInvoiceAssessments reads a full InvoiceAssessment structure of data from the database based on the supplied Rows pointer.
+func ReadInvoiceAssessments(rows *sql.Rows, a *InvoiceAssessment) {
+	Errcheck(rows.Scan(&a.InvoiceNo, &a.BID, &a.ASMID))
+}
+
+// ReadInvoicePayors reads a full InvoicePayor structure of data from the database based on the supplied Rows pointer.
+func ReadInvoicePayors(rows *sql.Rows, a *InvoicePayor) {
+	Errcheck(rows.Scan(&a.InvoiceNo, &a.BID, &a.PID))
+}
+
 // ReadJournal reads a full Journal structure of data from the database based on the supplied Rows pointer.
 func ReadJournal(row *sql.Row, a *Journal) {
 	Errcheck(row.Scan(&a.JID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
@@ -109,6 +123,16 @@ func ReadJournals(rows *sql.Rows, a *Journal) {
 	Errcheck(rows.Scan(&a.JID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadJournalAllocation reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
+func ReadJournalAllocation(row *sql.Row, a *JournalAllocation) {
+	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
+}
+
+// ReadJournalAllocations reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
+func ReadJournalAllocations(rows *sql.Rows, a *JournalAllocation) {
+	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
+}
+
 // ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerEntry(row *sql.Row, a *LedgerEntry) {
 	Errcheck(row.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
@@ -117,6 +141,16 @@ func ReadLedgerEntry(row *sql.Row, a *LedgerEntry) {
 // ReadLedgerEntries reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerEntries(rows *sql.Rows, a *LedgerEntry) {
 	Errcheck(rows.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadRentableMarketRate reads a full RentableMarketRate structure of data from the database based on the supplied Rows pointer.
+func ReadRentableMarketRate(row *sql.Row, a *RentableMarketRate) {
+	Errcheck(row.Scan(&a.RTID, &a.BID, &a.MarketRate, &a.DtStart, &a.DtStop))
+}
+
+// ReadRentableMarketRates reads a full RentableMarketRate structure of data from the database based on the supplied Rows pointer.
+func ReadRentableMarketRates(rows *sql.Rows, a *RentableMarketRate) {
+	Errcheck(rows.Scan(&a.RTID, &a.BID, &a.MarketRate, &a.DtStart, &a.DtStop))
 }
 
 // ReadLedgerMarker reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.
@@ -131,12 +165,12 @@ func ReadLedgerMarkers(rows *sql.Rows, a *LedgerMarker) {
 
 // ReadNote reads a full Note structure from the database based on the supplied row object
 func ReadNote(row *sql.Row, a *Note) {
-	Errcheck(row.Scan(&a.NID, &a.NLID, &a.PNID, &a.NTID, &a.RID, &a.RAID, &a.TCID, &a.Comment, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.NID, &a.BID, &a.NLID, &a.PNID, &a.NTID, &a.RID, &a.RAID, &a.TCID, &a.Comment, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadNotes reads a full Note structure from the database based on the supplied row object
 func ReadNotes(rows *sql.Rows, a *Note) {
-	Errcheck(rows.Scan(&a.NID, &a.NLID, &a.PNID, &a.NTID, &a.RID, &a.RAID, &a.TCID, &a.Comment, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.NID, &a.BID, &a.NLID, &a.PNID, &a.NTID, &a.RID, &a.RAID, &a.TCID, &a.Comment, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadPaymentType reads a full PaymentType structure from the database based on the supplied row object
@@ -151,17 +185,17 @@ func ReadPaymentTypes(rows *sql.Rows, a *PaymentType) {
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) {
-	Errcheck(row.Scan(&a.TCID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
 func ReadPayors(rows *sql.Rows, a *Payor) {
-	Errcheck(rows.Scan(&a.TCID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadProspect reads a full Prospect structure from the database based on the supplied row object
 func ReadProspect(row *sql.Row, a *Prospect) {
-	Errcheck(row.Scan(&a.TCID, &a.EmployerName, &a.EmployerStreetAddress,
+	Errcheck(row.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.EmployerStreetAddress,
 		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
 		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
@@ -170,7 +204,7 @@ func ReadProspect(row *sql.Row, a *Prospect) {
 
 // ReadProspects reads a full Prospect structure from the database based on the supplied rows object
 func ReadProspects(rows *sql.Rows, a *Prospect) {
-	Errcheck(rows.Scan(&a.TCID, &a.EmployerName, &a.EmployerStreetAddress,
+	Errcheck(rows.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.EmployerStreetAddress,
 		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
 		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
@@ -189,34 +223,34 @@ func ReadRatePlans(rows *sql.Rows, a *RatePlan) {
 
 // ReadRatePlanRef reads a full RatePlanRef structure from the database based on the supplied row object
 func ReadRatePlanRef(row *sql.Row, a *RatePlanRef) {
-	Errcheck(row.Scan(&a.RPRID, &a.RPID, &a.DtStart, &a.DtStop, &a.FeeAppliesAge, &a.MaxNoFeeUsers,
+	Errcheck(row.Scan(&a.RPRID, &a.BID, &a.RPID, &a.DtStart, &a.DtStop, &a.FeeAppliesAge, &a.MaxNoFeeUsers,
 		&a.AdditionalUserFee, &a.PromoCode, &a.CancellationFee, &a.FLAGS, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadRatePlanRefs reads a full RatePlanRef structure from the database based on the supplied row object
 func ReadRatePlanRefs(rows *sql.Rows, a *RatePlanRef) {
-	Errcheck(rows.Scan(&a.RPRID, &a.RPID, &a.DtStart, &a.DtStop, &a.FeeAppliesAge, &a.MaxNoFeeUsers,
+	Errcheck(rows.Scan(&a.RPRID, &a.BID, &a.RPID, &a.DtStart, &a.DtStop, &a.FeeAppliesAge, &a.MaxNoFeeUsers,
 		&a.AdditionalUserFee, &a.PromoCode, &a.CancellationFee, &a.FLAGS, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadRatePlanRefRTRate reads a full RatePlanRefRTRate structure from the database based on the supplied row object
 func ReadRatePlanRefRTRate(row *sql.Row, a *RatePlanRefRTRate) {
-	Errcheck(row.Scan(&a.RPRID, &a.RTID, &a.FLAGS, &a.Val))
+	Errcheck(row.Scan(&a.RPRID, &a.BID, &a.RTID, &a.FLAGS, &a.Val))
 }
 
 // ReadRatePlanRefRTRates reads a full RatePlanRefRTRate structure from the database based on the supplied row object
 func ReadRatePlanRefRTRates(rows *sql.Rows, a *RatePlanRefRTRate) {
-	Errcheck(rows.Scan(&a.RPRID, &a.RTID, &a.FLAGS, &a.Val))
+	Errcheck(rows.Scan(&a.RPRID, &a.BID, &a.RTID, &a.FLAGS, &a.Val))
 }
 
 // ReadRatePlanRefSPRate reads a full RatePlanRefSPRate structure from the database based on the supplied row object
 func ReadRatePlanRefSPRate(row *sql.Row, a *RatePlanRefSPRate) {
-	Errcheck(row.Scan(&a.RPRID, &a.RTID, &a.RSPID, &a.FLAGS, &a.Val))
+	Errcheck(row.Scan(&a.RPRID, &a.BID, &a.RTID, &a.RSPID, &a.FLAGS, &a.Val))
 }
 
 // ReadRatePlanRefSPRates reads a full RatePlanRefSPRate structure from the database based on the supplied row object
 func ReadRatePlanRefSPRates(rows *sql.Rows, a *RatePlanRefSPRate) {
-	Errcheck(rows.Scan(&a.RPRID, &a.RTID, &a.RSPID, &a.FLAGS, &a.Val))
+	Errcheck(rows.Scan(&a.RPRID, &a.BID, &a.RTID, &a.RSPID, &a.FLAGS, &a.Val))
 }
 
 // ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.
@@ -231,6 +265,11 @@ func ReadReceipts(rows *sql.Rows, a *Receipt) {
 		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadReceiptAllocations reads a full ReceiptAllocation structure of data from the database based on the supplied Rows pointer.
+func ReadReceiptAllocations(rows *sql.Rows, a *ReceiptAllocation) {
+	Errcheck(rows.Scan(&a.RCPTID, &a.BID, &a.Amount, &a.ASMID, &a.AcctRule))
+}
+
 // ReadRentable reads a full Rentable structure of data from the database based on the supplied Row pointer.
 func ReadRentable(row *sql.Row, a *Rentable) error {
 	return row.Scan(&a.RID, &a.BID, &a.Name, &a.AssignmentTime, &a.LastModTime, &a.LastModBy)
@@ -239,6 +278,16 @@ func ReadRentable(row *sql.Row, a *Rentable) error {
 // ReadRentables reads a full Rentable structure of data from the database based on the supplied Rows pointer.
 func ReadRentables(rows *sql.Rows, a *Rentable) error {
 	return rows.Scan(&a.RID, &a.BID, &a.Name, &a.AssignmentTime, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentableStatus reads a full RentableStatus structure of data from the database based on the supplied Row pointer.
+func ReadRentableStatus(row *sql.Rows, a *RentableStatus) error {
+	return row.Scan(&a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentableStatuss reads a full RentableStatus structure of data from the database based on the supplied Rows pointer.
+func ReadRentableStatuss(rows *sql.Rows, a *RentableStatus) error {
+	return rows.Scan(&a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Row pointer.
@@ -265,12 +314,27 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 
 // ReadRentalAgreementPayor reads a full RentalAgreementPayor structure of data from the database based on the supplied Row pointer.
 func ReadRentalAgreementPayor(row *sql.Row, a *RentalAgreementPayor) error {
-	return row.Scan(&a.RAID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS)
+	return row.Scan(&a.RAID, &a.BID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS)
 }
 
 // ReadRentalAgreementPayors reads a full RentalAgreementPayor structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreementPayors(rows *sql.Rows, a *RentalAgreementPayor) error {
-	return rows.Scan(&a.RAID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS)
+	return rows.Scan(&a.RAID, &a.BID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS)
+}
+
+// ReadRentalAgreementPet reads a full RentalAgreementPet structure of data from the database based on the supplied Row pointer.
+func ReadRentalAgreementPet(row *sql.Row, a *RentalAgreementPet) error {
+	return row.Scan(&a.PETID, &a.BID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentalAgreementPets reads a full RentalAgreementPet structure of data from the database based on the supplied Rows pointer.
+func ReadRentalAgreementPets(rows *sql.Rows, a *RentalAgreementPet) error {
+	return rows.Scan(&a.PETID, &a.BID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentalAgreementRentables reads a full RentalAgreementRentable structure of data from the database based on the supplied Rows pointer.
+func ReadRentalAgreementRentables(rows *sql.Rows, a *RentalAgreementRentable) error {
+	return rows.Scan(&a.RAID, &a.BID, &a.RID, &a.CLID, &a.ContractRent, &a.DtStart, &a.DtStop)
 }
 
 // ReadRentalAgreementTemplate reads a full RentalAgreementTemplate structure of data from the database based on the supplied Row pointer.
@@ -281,6 +345,11 @@ func ReadRentalAgreementTemplate(row *sql.Row, a *RentalAgreementTemplate) error
 // ReadRentalAgreementTemplates reads a full RentalAgreementTemplate structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreementTemplates(rows *sql.Rows, a *RentalAgreementTemplate) error {
 	return rows.Scan(&a.RATID, &a.BID, &a.RATemplateName, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentableUsers reads a full RentableUser structure of data from the database based on the supplied Rows pointer.
+func ReadRentableUsers(rows *sql.Rows, a *RentableUser) error {
+	return rows.Scan(&a.RID, &a.BID, &a.TCID, &a.DtStart, &a.DtStop)
 }
 
 // ReadStringList reads a full StringList structure from the database based on the supplied row object
@@ -295,12 +364,12 @@ func ReadStringLists(rows *sql.Rows, a *StringList) {
 
 // ReadSLString reads a full SLString structure from the database based on the supplied row object
 func ReadSLString(row *sql.Row, a *SLString) {
-	Errcheck(row.Scan(&a.SLSID, &a.SLID, &a.Value, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.SLSID, &a.BID, &a.SLID, &a.Value, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadSLStrings reads a full SLString structure from the database based on the supplied rows object
 func ReadSLStrings(rows *sql.Rows, a *SLString) {
-	Errcheck(rows.Scan(&a.SLSID, &a.SLID, &a.Value, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.SLSID, &a.BID, &a.SLID, &a.Value, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadTransactant reads a full Transactant structure from the database based on the supplied row object
@@ -315,12 +384,12 @@ func ReadTransactants(rows *sql.Rows, a *Transactant) {
 
 // ReadUser reads a full User structure from the database based on the supplied row object
 func ReadUser(row *sql.Row, a *User) {
-	Errcheck(row.Scan(&a.TCID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadUsers reads a full User structure from the database based on the supplied rows object
 func ReadUsers(rows *sql.Rows, a *User) {
-	Errcheck(rows.Scan(&a.TCID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress, &a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadVehicle reads a full Vehicle structure from the database based on the supplied row object

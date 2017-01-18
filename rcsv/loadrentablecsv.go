@@ -227,10 +227,12 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	if rid > 0 {
 		for i := 0; i < len(rul); i++ {
 			rul[i].RID = rid
+			rul[i].BID = r.BID
 			rlib.InsertRentableUser(&rul[i])
 		}
 		for i := 0; i < len(m); i++ {
 			m[i].RID = rid
+			m[i].BID = r.BID
 			err := rlib.InsertRentableStatus(&m[i])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())
@@ -238,6 +240,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		}
 		for i := 0; i < len(n); i++ {
 			n[i].RID = rid
+			n[i].BID = r.BID
 			err := rlib.InsertRentableTypeRef(&n[i])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())

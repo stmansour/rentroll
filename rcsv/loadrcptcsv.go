@@ -55,6 +55,7 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 				a.AcctRule += ","
 			}
 		}
+		a.BID = rcpt.BID
 		rlib.InsertReceiptAllocation(&a)
 		rcpt.RA = append(rcpt.RA, a)
 	}

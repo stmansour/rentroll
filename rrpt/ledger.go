@@ -27,7 +27,7 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 		r := rlib.GetRentable(j.ID) // j.ID is set to RID when the type is unassociated
 		return "Unassociated", r.Name, sra
 	case rlib.JNLTYPERCPT:
-		ja, _ := rlib.GetJournalAllocation(l.JAID)
+		ja := rlib.GetJournalAllocation(l.JAID)
 		a, _ := rlib.GetAssessment(ja.ASMID)
 		r := rlib.GetRentable(a.RID)
 		rcpt := rlib.GetReceipt(j.ID) // ID is the receipt id

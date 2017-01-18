@@ -182,6 +182,7 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 			ja.ASMID = a.ASMID
 			ja.Amount = RoundToCent(j.Amount)
 			ja.AcctRule = s
+			ja.BID = a.BID
 			InsertJournalAllocationEntry(&ja)
 		}
 	}
@@ -269,6 +270,7 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
 			ja.AcctRule = r.RA[j].AcctRule
 			a, _ := GetAssessment(ja.ASMID)
 			ja.RID = a.RID
+			ja.BID = a.BID
 			InsertJournalAllocationEntry(&ja)
 		}
 	}

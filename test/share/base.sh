@@ -599,6 +599,42 @@ logcheck() {
 	elapsedtime
 }
 
+##########################################################################
+# genericlogcheck()
+#   Compares the supplied file $1 to gold/$1.gold 
+#	Parameters:
+# 		$1 = base file name
+#		$2 = app options to reproduce
+# 		$3 = title
+##########################################################################
+genericlogcheck() {
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
+	if [ "${FORCEGOOD}" = "1" ]; then
+		cp ${1} ${GOLD}/${1}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f ${GOLD}/${1}.gold -o ! -f ${1} ]; then
+			echo "Missing file -- Required files for this check: ${1} and ${GOLD}/${1}.gold"
+			failmsg
+			exit 1
+		fi
+		UDIFFS=$(diff ${1} gold/${1}.gold | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			echo "PASSED"
+		else
+			echo "FAILED:  differences are as follows:" >> ${ERRFILE}
+			diff gold/${1}.gold ${1} >> ${ERRFILE}
+			echo >> ${ERRFILE}
+			echo "If the new output is correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
+			cat ${ERRFILE}
+			exit 1
+		fi
+	else
+		echo 
+	fi
+}
+
 #########################################################
 # startRentRollServer()
 #	Kills any currently running instances of the server

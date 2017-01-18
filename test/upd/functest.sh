@@ -10,7 +10,7 @@ source ../share/base.sh
 cp ../../conf.json .
 
 docsvtest "a" "-b business.csv -L 3" "Business"
-#docsvtest "b" "-u custom.csv -L 14" "CustomAttributes"
+docsvtest "b" "-u custom.csv -L 14" "CustomAttributes"
 #docsvtest "c" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
 #docsvtest "d" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "e" "-p people.csv  -L 7,${BUD}" "People"
@@ -33,15 +33,9 @@ docsvtest "e" "-p people.csv  -L 7,${BUD}" "People"
 #dorrtest "q1" "-r 12,9,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
 #dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
+./upd > z
+genericlogcheck "z"  ""  "DBUpdaterChecks"
+
 logcheck
 
-RES=$(./upd)
-echo ${RES}
-COUNT=$(echo "${RES}" | grep "Success" | wc -l)
-if [ ${COUNT} -ne "1" ]; then
-	echo "FAIL"
-	exit 1
-fi
-
-echo "Success"
 exit 0

@@ -81,6 +81,8 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	var a rlib.RatePlanRef
 	var errmsg string
 
+	a.BID = b.BID
+
 	//-------------------------------------------------------------------
 	// DtStart
 	//-------------------------------------------------------------------

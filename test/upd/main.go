@@ -77,9 +77,31 @@ func main() {
 	}
 	rlib.GetXBusiness(biz.BID, &App.Xbiz)
 
+	updatePerson(&biz)
+	updateCustomAttr(&biz)
+
+}
+
+func updateCustomAttr(biz *rlib.Business) {
+	ca := rlib.GetCustomAttribute(1)
+	ca.Value = "5000"
+	err := rlib.UpdateCustomAttribute(&ca)
+	if err != nil {
+		fmt.Printf("Error updating CustomAttribute: %s\n", err.Error())
+		os.Exit(1)
+	}
+	ca1 := rlib.GetCustomAttribute(1)
+	if ca.Value != ca1.Value {
+		fmt.Printf("CustomAttribute update failed.  Expected %s, found %s\n", ca.Value, ca1.Value)
+	}
+	fmt.Print("CustomAttribute updates successful\n")
+}
+
+func updatePerson(biz *rlib.Business) {
 	// Update a person...
 	//----------------------------------------------------
 	var xp rlib.XPerson
+	var err error
 	TCID := int64(1)
 	rlib.GetXPerson(TCID, &xp)
 

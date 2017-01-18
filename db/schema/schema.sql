@@ -41,9 +41,9 @@ SET GLOBAL sql_mode='';
 --   ID COUNTERS
 --  may not need this
 -- ===========================================
-CREATE TABLE IDCounters (
-    InvoiceNo BIGINT NOT NULL DEFAULT 0                     -- unique number for invoices
-);
+-- CREATE TABLE IDCounters (
+--     InvoiceNo BIGINT NOT NULL DEFAULT 0                     -- unique number for invoices
+-- );
 
 -- ===========================================
 --   TAXES
@@ -64,6 +64,7 @@ CREATE TABLE Tax (
 
 CREATE TABLE TaxRate (
     TAXID BIGINT NOT NULL DEFAULT 0,                        -- reference to which tax this table represents
+    BID BIGINT NOT NULL DEFAULT 0,                          -- what business is this tax associated with
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- date when this tax rate goes into effect
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- date when this tax rate is no longer applicable
     Rate DECIMAL(19,4) NOT NULL DEFAULT 0,                  -- floating point number representing the rate. Set to 0 if not applicable.
@@ -72,8 +73,6 @@ CREATE TABLE TaxRate (
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0                  -- employee UID (from phonebook) that modified it 
 );
-
-
 
 CREATE TABLE StringList (
     SLID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id for this stringlist
@@ -86,6 +85,7 @@ CREATE TABLE StringList (
 
 CREATE TABLE SLString (
     SLSID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for this string
+    BID BIGINT NOT NULL DEFAULT 0,                          -- the business to which this stringlist belongs
     SLID BIGINT NOT NULL DEFAULT 0,                         -- to which stringlist does this string belong?
     Value VARCHAR(256) NOT NULL DEFAULT '',                 -- value of this string
     LastModTime TIMESTAMP,                                  -- when was this record last written
@@ -104,6 +104,7 @@ CREATE TABLE NoteType (
 
 CREATE TABLE Notes (
     NID BIGINT NOT NULL AUTO_INCREMENT,                     -- ID for this note
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
     NLID BIGINT NOT NULL DEFAULT 0,                         -- note list containing this note
     PNID BIGINT NOT NULL DEFAULT 0,                         -- NID of parent not
     NTID BIGINT NOT NULL DEFAULT 0,                         -- What type of note is this
@@ -118,6 +119,7 @@ CREATE TABLE Notes (
 
 CREATE TABLE NoteList (
     NLID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id for this notelist
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
     LastModTime TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (NLID)     
@@ -130,6 +132,7 @@ CREATE TABLE NoteList (
 -- ************************************** 
 CREATE TABLE CustomAttr (
     CID BIGINT NOT NULL AUTO_INCREMENT,        -- unique identifer for this custom attribute
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
     Type SMALLINT NOT NULL DEFAULT 0,          -- 0 = string, 1 = int64, 2 = float64
     Name VARCHAR (100) NOT NULL DEFAULT '',    -- a name
     Value VARCHAR (256) NOT NULL DEFAULT '',   -- its value in string form
@@ -140,21 +143,22 @@ CREATE TABLE CustomAttr (
 );
 
 CREATE TABLE CustomAttrRef (
-    ElementType BIGINT NOT NULL,   -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
-    ID          BIGINT NOT NULL,   -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
-    CID         BIGINT NOT NULL    -- uid of the custom attribute
+    ElementType BIGINT NOT NULL,                -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
+    BID         BIGINT NOT NULL DEFAULT 0,      -- Business associated with this NoteType
+    ID          BIGINT NOT NULL,                -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
+    CID         BIGINT NOT NULL                 -- uid of the custom attribute
 );
 
 -- ===========================================
 --   RENTAL AGREEMENT TEMPLATE
 -- ===========================================
 CREATE TABLE RentalAgreementTemplate (
-    RATID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
-    BID BIGINT NOT NULL DEFAULT 0,                            -- BizUnit Reference
-    RATemplateName VARCHAR(100) DEFAULT '',             -- Rental Agreement Template Name
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
-    PRIMARY KEY (RATID)     
+    RATID BIGINT NOT NULL AUTO_INCREMENT,       -- internal unique id
+    BID BIGINT NOT NULL DEFAULT 0,              -- BizUnit Reference
+    RATemplateName VARCHAR(100) DEFAULT '',     -- Rental Agreement Template Name
+    LastModTime TIMESTAMP,                      -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,     -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (RATID)         
 );      
         
 -- ===========================================
@@ -200,6 +204,7 @@ CREATE TABLE RentalAgreement (
 
 CREATE TABLE RentalAgreementRentables (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
     CLID BIGINT NOT NULL DEFAULT 0,                           -- Commission Ledger (for outside salespeople to get a commission)
     ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
@@ -209,14 +214,24 @@ CREATE TABLE RentalAgreementRentables (
 
 CREATE TABLE RentalAgreementPayors (
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     TCID BIGINT NOT NULL DEFAULT 0,                           -- who is the Payor for this agreement
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this Payor was no longer being billed to this agreement
     FLAGS BIGINT NOT NULL DEFAULT 0                           -- 1 << 0 is the bit that indicates this payor is a 'guarantor'
 );
 
+CREATE TABLE RentalAgreementTax (
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this flag went into effect
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this flag was no longer in effect
+    FLAGS BIGINT NOT NULL DEFAULT 0                           -- 1 << 0 is the bit that indicates whether or not the rental agreement is taxable
+);
+
 CREATE TABLE RentableUsers (
     RID BIGINT NOT NULL DEFAULT 0,                            -- the associated Rentable
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     TCID BIGINT NOT NULL DEFAULT 0,                           -- the Users of the rentable
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this User was no longer being billed to this agreement
@@ -224,6 +239,7 @@ CREATE TABLE RentableUsers (
 
 CREATE TABLE RentalAgreementPets (
     PETID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal id for this pet
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
     Type VARCHAR(100) NOT NULL DEFAULT '',                    -- type of animal, ex: dog, cat, ...
     Breed VARCHAR(100) NOT NULL DEFAULT '',                   -- breed.  example Beagle, German Shephard, Siamese, etc.
@@ -240,6 +256,7 @@ CREATE TABLE RentalAgreementPets (
 -- Referenced by a Rentable associated with a RentalAgreement  (RentalAgreementRentables)
 CREATE TABLE CommissionLedger (
     CLID BIGINT NOT NULL AUTO_INCREMENT,            -- unique id for this Commission Ledger
+    BID BIGINT NOT NULL DEFAULT 0,                  -- Business (so that we can process by Business)
     RAID BIGINT NOT NULL DEFAULT 0,                 -- associated with this RAID
     RID BIGINT NOT NULL DEFAULT 0,                  -- associated with this rentable??????
     Salesperson  VARCHAR(100) NOT NULL DEFAULT '',  -- who referred
@@ -270,6 +287,7 @@ CREATE TABLE RatePlan (
 -- RatePlanRef contains the time sensitive attributes of a RatePlan
 CREATE TABLE RatePlanRef (
     RPRID BIGINT NOT NULL AUTO_INCREMENT,               -- unique id for this rate plan
+    BID BIGINT NOT NULL DEFAULT 0,                      -- Business
     RPID BIGINT NOT NULL DEFAULT 0,                     -- which rateplan
     DtStart DATE NULL DEFAULT '1970-01-01 00:00:00',    -- when does it go into effect
     DtStop DATE NULL DEFAULT '1970-01-01 00:00:00',     -- when does it stop
@@ -287,6 +305,7 @@ CREATE TABLE RatePlanRef (
 -- RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 CREATE TABLE RatePlanRefRTRate (
     RPRID BIGINT NOT NULL DEFAULT 0,        -- which RatePlanRef is this
+    BID BIGINT NOT NULL DEFAULT 0,          -- Business
     RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
     FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate, 
     Val DECIMAL(19,4) NOT NULL DEFAULT 0    -- Val 
@@ -294,6 +313,7 @@ CREATE TABLE RatePlanRefRTRate (
 -- RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 CREATE TABLE RatePlanRefSPRate (
     RPRID BIGINT NOT NULL DEFAULT 0,        -- which RatePlanRef is this
+    BID BIGINT NOT NULL DEFAULT 0,          -- Business
     RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
     RSPID BIGINT NOT NULL DEFAULT 0,        -- which Specialty
     FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate, 
@@ -305,6 +325,7 @@ CREATE TABLE RatePlanRefSPRate (
 -- the OtherDeliverables associated with MyRatePlan
 CREATE TABLE RatePlanOD (
     RPRID BIGINT NOT NULL DEFAULT 0,        -- with which RatePlanRef is this OtherDeliverable associated?
+    BID BIGINT NOT NULL DEFAULT 0,          -- Business
     ODID BIGINT NOT NULL DEFAULT 0          -- points to an OtherDeliverables 
 );
 
@@ -312,6 +333,7 @@ CREATE TABLE RatePlanOD (
 -- Multiple rate plans can refer to the same OtherDeliverables. 
 CREATE TABLE OtherDeliverables (
     ODID BIGINT NOT NULL AUTO_INCREMENT,    -- Unique ID for this OtherDeliverables
+    BID BIGINT NOT NULL DEFAULT 0,          -- Business
     Name VARCHAR(256),                      -- Description of the other deliverables. Ex: 2 Seaworld tickets 
     Active SMALLINT NOT NULL DEFAULT 0,     -- Flag: Is this list still active?  0 = not active, 1 = active
     PRIMARY KEY(ODID)
@@ -359,6 +381,7 @@ CREATE TABLE RentableTypes (
 
 CREATE TABLE RentableMarketRate (
     RTID BIGINT NOT NULL DEFAULT 0,                             -- associated Rentable type
+    BID BIGINT NOT NULL DEFAULT 0,                              -- associated Business id
     MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',    
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
@@ -366,9 +389,12 @@ CREATE TABLE RentableMarketRate (
 
 -- RentableType RTID needs to have tax TAXID applied to rental assessments.
 -- There can be as many of these records as needed per rentable type.
-CREATE TABLE RentableTaxes (
+CREATE TABLE RentableTypeTax (
     RTID BIGINT NOT NULL DEFAULT 0,                             -- associated Rentable type
-    TAXID BIGINT NOT NULL DEFAULT 0                             -- which tax
+    BID BIGINT NOT NULL DEFAULT 0,                              -- associated Business id
+    TAXID BIGINT NOT NULL DEFAULT 0,                            -- which tax
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',    
+    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
 );
 
 -- ===========================================
@@ -393,7 +419,7 @@ CREATE TABLE RentableSpecialty (
 -- ===========================================
 CREATE TABLE PaymentTypes (
     PMTID MEDIUMINT NOT NULL AUTO_INCREMENT,
-    BID MEDIUMINT NOT NULL DEFAULT 0,
+    BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
     Description VARCHAR(256) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP,                                      -- when was this record last written
@@ -409,6 +435,7 @@ CREATE TABLE PaymentTypes (
 -- Custom values will be added with their own uniq AVAILID
 CREATE TABLE AvailabilityTypes (
     AVAILID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
     PRIMARY KEY (AVAILID)
 );
@@ -472,6 +499,7 @@ CREATE TABLE Rentable (
 
 CREATE TABLE RentableTypeRef (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- the Rentable this record belongs to
+    BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
     RTID BIGINT NOT NULL DEFAULT 0,                                 -- the Rentable type for this period
     OverrideRentCycle BIGINT NOT NULL DEFAULT 0,                    -- RentCycle override. 0 = unset (use RentableType.RentCycle), > 0 means the override frequency
     OverrideProrationCycle BIGINT NOT NULL DEFAULT 0,               -- Proration override. 0 = unset (use RentableType.Proration), > 0 means the override proration
@@ -483,6 +511,7 @@ CREATE TABLE RentableTypeRef (
 
 CREATE TABLE RentableStatus (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
+    BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
     Status SMALLINT NOT NULL DEFAULT 0,                             -- 0 = UNKNOWN -- 1 = ONLINE, 2 = ADMIN, 3 = EMPLOYEE, 4 = OWNEROCC, 5 = OFFLINE, 
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
@@ -532,6 +561,7 @@ CREATE TABLE Assessments (
 -- the actual tax rate or fee will be read from the TaxRate table based on the instance date of the assessment
 CREATE TABLE AssessmentTax (
     ASMID BIGINT NOT NULL DEFAULT 0,                        -- the assessment to which this tax is bound
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     TAXID BIGINT NOT NULL DEFAULT 0,                        -- what type of tax.
     FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 0 = override this tax -- do not apply, bit 1 - override and use OverrideAmount
     OverrideTaxApprover MEDIUMINT NOT NULL DEFAULT 0,       -- if tax is overridden, who approved it
@@ -596,11 +626,11 @@ CREATE TABLE Transactant (
     PRIMARY KEY (TCID)
 );
 
---    UseCount BIGINT NOT NULL DEFAULT 0,            -- This count is incremented each time a transactant enters into a RentalAgreement.  Count > 1 means it's a ReturnUser 
---    Flags BIGINT NOT NULL DEFAULT 0,                -- For flags as described below:
---        --   1<<0 OptIntoMarketingCampaign          -- Does the user want to receive mkting info
---        --   1<<1 AcceptGeneralEmail                -- Will user accept email
---        --   1<<2 VIP                               -- Is this person a VIP 
+--    UseCount BIGINT NOT NULL DEFAULT 0,               -- This count is incremented each time a transactant enters into a RentalAgreement.  Count > 1 means it's a ReturnUser 
+--    Flags BIGINT NOT NULL DEFAULT 0,                  -- For flags as described below:
+--        --   1<<0 OptIntoMarketingCampaign            -- Does the user want to receive mkting info
+--        --   1<<1 AcceptGeneralEmail                  -- Will user accept email
+--        --   1<<2 VIP                                 -- Is this person a VIP 
 
 -- ===========================================
 --   PROSPECT
@@ -608,8 +638,9 @@ CREATE TABLE Transactant (
 
 -- website
 CREATE TABLE Prospect (
-    -- PRSPID BIGINT NOT NULL DEFAULT 0,                 -- unique id of this Prospect
-    TCID BIGINT NOT NULL DEFAULT 0,                        -- associated Transactant (has Name and all contact info)
+    -- PRSPID BIGINT NOT NULL DEFAULT 0,                    -- unique id of this Prospect
+    TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant (has Name and all contact info)
+    BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
     EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
     EmployerCity VARCHAR(100) NOT NULL DEFAULT '',
@@ -647,6 +678,7 @@ CREATE TABLE Prospect (
 -- ===========================================
 CREATE TABLE User (
     TCID BIGINT NOT NULL DEFAULT 0,                             -- associated Transactant
+    BID BIGINT NOT NULL DEFAULT 0,                              -- which business
     Points BIGINT NOT NULL DEFAULT 0,                           -- bonus points for this User
     DateofBirth DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     EmergencyContactName VARCHAR(100) NOT NULL DEFAULT '',
@@ -687,8 +719,9 @@ CREATE TABLE Vehicle (
 --   PAYOR
 -- ===========================================
 CREATE TABLE Payor  (
-    -- PID BIGINT NOT NULL DEFAULT 0,                         -- unique id of this Payor 
-    TCID BIGINT NOT NULL DEFAULT 0,                                       -- associated Transactant
+    -- PID BIGINT NOT NULL DEFAULT 0,                           -- unique id of this Payor 
+    TCID BIGINT NOT NULL DEFAULT 0,                             -- associated Transactant
+    BID BIGINT NOT NULL DEFAULT 0,                              -- which business
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AccountRep BIGINT NOT NULL DEFAULT 0,                       -- Accord (renting company) Phonebook UID of account rep
@@ -724,6 +757,7 @@ CREATE TABLE Receipt (
 
 CREATE TABLE ReceiptAllocation (
     RCPTID BIGINT NOT NULL DEFAULT 0,                              -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
+    BID BIGINT NOT NULL DEFAULT 0,
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- the id of the assessment that caused this payment
     AcctRule VARCHAR(150)
@@ -765,6 +799,7 @@ CREATE TABLE Deposit (
 
 CREATE TABLE DepositPart (
     DID BIGINT NOT NULL DEFAULT 0,
+    BID BIGINT NOT NULL DEFAULT 0,                              -- business id
     RCPTID BIGINT NOT NULL DEFAULT 0
 );
 
@@ -788,11 +823,13 @@ CREATE TABLE Invoice (
 
 CREATE TABLE InvoiceAssessment (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
+    BID BIGINT NOT NULL DEFAULT 0,                              -- bid 
     ASMID BIGINT NOT NULL DEFAULT 0                             -- assessment id
 );
 
 CREATE TABLE InvoicePayor (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
+    BID BIGINT NOT NULL DEFAULT 0,                              -- bid 
     PID BIGINT NOT NULL DEFAULT 0                               -- Payor id
 );
 
@@ -819,6 +856,7 @@ CREATE TABLE Journal (
 
 CREATE TABLE JournalAllocation (
     JAID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                                 -- Business id
     JID BIGINT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
     RID BIGINT NOT NULL DEFAULT 0,                                 -- associated Rentable
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
