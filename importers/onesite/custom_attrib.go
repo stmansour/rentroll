@@ -81,6 +81,7 @@ func WriteCustomAttributeData(
 	suppliedValues map[string]string,
 	customAttributeStruct *core.CustomAttributeCSV,
 ) {
+
 	for customAttributeField, customAttributeConfig := range customAttributeMap {
 
 		reflectedOneSiteRow := reflect.ValueOf(csvRow).Elem()
@@ -97,6 +98,7 @@ func WriteCustomAttributeData(
 
 		// csv row csvRowData used to write data it holds
 		csvRowData := []string{}
+		csvRowData = append(csvRowData, suppliedValues["BUD"])
 		csvRowData = append(csvRowData, customAttributeConfig["Name"])
 		csvRowData = append(csvRowData, customAttributeConfig["ValueType"])
 		csvRowData = append(csvRowData, value)

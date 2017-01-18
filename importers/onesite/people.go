@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
@@ -60,24 +61,18 @@ func WritePeopleCSVData(
 	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
-	avoidData *[]string,
+	// avoidData *[]string,
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	peopleStruct *core.PeopleCSV,
 ) {
 	// TODO: need to decide how to avoid duplicate data
-	// checkRentableTypeStyle := csvRow.FloorPlan
-	// Stylefound := core.StringInSlice(checkRentableTypeStyle, *avoidData)
-	// if Stylefound {
-	// 	return
-	// } else {
-	// 	*avoidData = append(*avoidData, checkRentableTypeStyle)
-	// }
 
 	// get csv row data
 	ok, csvRowData := GetPeopleCSVRow(
 		csvRow, peopleStruct,
 		currentTimeFormat, suppliedValues,
+		rowIndex,
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
@@ -97,6 +92,7 @@ func GetPeopleCSVRow(
 	fieldMap *core.PeopleCSV,
 	timestamp string,
 	DefaultValues map[string]string,
+	rowIndex int,
 ) (bool, []string) {
 
 	// take initial variable
@@ -139,6 +135,10 @@ func GetPeopleCSVRow(
 			} else {
 				dataMap[i] = ""
 			}
+		}
+		// Special notes for people to get TCID in future with below value
+		if peopleField.Name == "Notes" {
+			dataMap[i] = onesiteNotesPrefix + strconv.Itoa(rowIndex)
 		}
 
 		// get mapping field

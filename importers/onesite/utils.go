@@ -21,3 +21,15 @@ func IsValidRentableStatus(s string) (bool, string, string) {
 	}
 	return found, rentRollStatus, tempRS
 }
+
+// csvRecordsToSkip function that should check an error
+// which contains such a thing that needs to be discard
+// such as. already exists, already done. etc. . . .
+func csvRecordsToSkip(err error) bool {
+	for _, dup := range csvRecordsSkipList {
+		if strings.Contains(err.Error(), dup) {
+			return true
+		}
+	}
+	return false
+}

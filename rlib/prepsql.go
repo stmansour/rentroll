@@ -793,6 +793,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.FindTransactantByPhoneOrEmail, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant where WorkPhone=? OR CellPhone=? or PrimaryEmail=? or SecondaryEmail=?")
 	Errcheck(err)
+	RRdb.Prepstmt.FindTCIDByNote, err = RRdb.Dbrr.Prepare("SELECT t.TCID FROM Transactant t, Notes n WHERE t.NLID = n.NLID AND n.Comment=?")
+	Errcheck(err)
 
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(TRNSfields)
 	RRdb.Prepstmt.InsertTransactant, err = RRdb.Dbrr.Prepare("INSERT INTO Transactant (" + s1 + ") VALUES(" + s2 + ")")

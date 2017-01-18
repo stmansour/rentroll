@@ -1564,6 +1564,23 @@ func GetSLStrings(id int64, a *StringList) {
 //  Transactant, Prospect, User, Payor, XPerson
 //=======================================================
 
+// GetTCIDByNote used to get TCID from Note Comment
+// originally to get it from people csv Notes field
+func GetTCIDByNote(cmt string) int {
+	var id int
+	rows, err := RRdb.Prepstmt.FindTCIDByNote.Query(cmt)
+	Errcheck(err)
+	defer rows.Close()
+
+	// just return first, in case of duplicate
+	// TODO: need to verify
+	for rows.Next() {
+		ReadTCIDByNote(rows, &id)
+		return id
+	}
+	return id
+}
+
 // GetTransactantByPhoneOrEmail searches for a transactoant match on the phone number or email
 func GetTransactantByPhoneOrEmail(BID int64, s string) Transactant {
 	var t Transactant

@@ -7,11 +7,11 @@
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   1/11/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   1/11/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   1/11/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   1/11/17 - 12/31/99 $  800.00
---------------------------------------------------------------------------------
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  800.00
+================================================================================
 RID        Name      Assignment Time
 ---------  --------  ---------------
 R00000001  6303-016  pre-assign     
@@ -20,7 +20,7 @@ R00000003  6313-052  pre-assign
 R00000004  6339-156  pre-assign     
 R00000005  6343-165  pre-assign     
 R00000006  6343-166  pre-assign     
---------------------------------------------------------------------------------
+================================================================================
                         Middle                      Is                                            
 TCID        First Name  Name    Last Name  Company  Company  Cell Phone  Primary Email            
 ----------  ----------  ------  ---------  -------  -------  ----------  -------------------------
@@ -29,7 +29,7 @@ TC00000002  Diane               Hire                No                   diane_h
 TC00000003  Mercedes            White               No                   mercedeswhite843@gmail.co
 TC00000004  Fawad               Kahn                No                   fawadkhan405@gmail.com   
 TC00000005  Crescent            Clark               No                                            
---------------------------------------------------------------------------------
+================================================================================
                                             Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
 RAID        Payor           User            Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
 ----------  --------------  --------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
@@ -38,20 +38,20 @@ RA00000002  Diane Hire      Diane Hire      02/17/2016  02/28/2017  02/17/2016  
 RA00000003  Mercedes White  Mercedes White  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  2                  0            0                           
 RA00000004  Fawad Kahn      Fawad Kahn      02/01/2016  01/31/2017  12/05/2010  01/31/2017  02/01/2016  01/31/2017  02/01/2016  2                  0            0                           
 RA00000005  Crescent Clark  Crescent Clark  02/01/2016  07/31/2016  07/11/2014  07/31/2016  02/01/2016  07/31/2016  02/01/2016  2                  0            0                           
---------------------------------------------------------------------------------
-           Value                           
-CID        Type   Name         Value  Units
----------  -----  -----------  -----  -----
-C00000001  int    Square Feet    656  sqft 
-C00000002  int    Square Feet    840  sqft 
-C00000003  int    Square Feet    852  sqft 
-C00000004  int    Square Feet    657  sqft 
---------------------------------------------------------------------------------
-Element            
-   Type    ID   CID
--------  ----  ----
-      5     1     1
-      5     3     1
-      5     4     3
-      5     2     2
---------------------------------------------------------------------------------
+================================================================================
+                      Value                           
+CID        BID        Type   Name         Value  Units
+---------  ---------  -----  -----------  -----  -----
+C00000001  B00000001  int    Square Feet    656  sqft 
+C00000002  B00000001  int    Square Feet    840  sqft 
+C00000003  B00000001  int    Square Feet    852  sqft 
+C00000004  B00000001  int    Square Feet    657  sqft 
+================================================================================
+Element                       
+   Type  BID          ID   CID
+-------  ---------  ----  ----
+      5  B00000001     1     1
+      5  B00000001     3     1
+      5  B00000001     4     3
+      5  B00000001     2     2
+================================================================================
