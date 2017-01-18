@@ -348,6 +348,10 @@ func loadOneSiteCSV(
 	// so we identify each element in this list via Style value
 	customAttributesRefData := map[string]CARD{}
 
+	// traceTCIDMap hold TCID for each people to be loaded via people csv
+	// with reference of original onesite csv
+	traceTCIDMap := map[int]string{}
+
 	// ================================
 	// Second loop for splitting data of csv
 	// Create csv files required for rentroll
@@ -369,6 +373,9 @@ func loadOneSiteCSV(
 
 		// mark Unit value with row index value
 		traceUnitMap[csvRowIndex] = csvRow.Unit
+
+		// fill with blank string as of now in traceTCIDMap
+		traceTCIDMap[csvRowIndex] = ""
 
 		// for rentable status exists in csvRow, get set of csv types which can be allowed
 		// to perform write data for csv
@@ -589,12 +596,13 @@ func loadOneSiteCSV(
 		return true
 	}
 
-	// =========================================
-	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV
-	// =========================================
+	// =====================================================
+	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV & PEOPLE CSV
+	// =====================================================
 	var h = []csvLoadHandler{
 		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV, TraceDataMap: "traceCustomAttributeCSVMap"},
 		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV, TraceDataMap: "traceRentableTypeCSVMap"},
+		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
 	}
 
 	for i := 0; i < len(h); i++ {
@@ -636,6 +644,7 @@ func loadOneSiteCSV(
 			n := customAttributeConfig["Name"]
 			v := strconv.Itoa(int(refData.SqFt))
 			u := customAttributeConfig["Units"]
+			// TODO: add BID param in below method
 			ca := rlib.GetCustomAttributeByVals(t, n, v, u)
 			if ca.CID == 0 {
 				unit, _ := traceUnitMap[refData.RowIndex]
@@ -648,11 +657,13 @@ func loadOneSiteCSV(
 			// insert custom attribute ref in system
 			var a rlib.CustomAttributeRef
 			a.ElementType = rlib.ELEMRENTABLETYPE
+			a.BID = business.BID
 			a.ID = rt.RTID
 			a.CID = ca.CID
 
 			// check that record already exists, if yes then just continue
 			// without accounting it as an error
+			// TODO: add BID param in below method
 			ref := rlib.GetCustomAttributeRef(a.ElementType, a.ID, a.CID)
 			if ref.ElementType == a.ElementType && ref.CID == a.CID && ref.ID == a.ID {
 				unit, _ := traceUnitMap[refData.RowIndex]
@@ -675,21 +686,9 @@ func loadOneSiteCSV(
 	}
 
 	// =======================================
-	// LOAD PEOPLE CSV
+	// GET TCID FOR EACH ROW FROM PEOPLE CSV
 	// =======================================
-	h = []csvLoadHandler{
-		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
-	}
-
-	for i := 0; i < len(h); i++ {
-		if len(h[i].Fname) > 0 {
-			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
-				// if any error then simple return with internal error
-				LoadOneSiteError = core.ErrInternal
-				return csvErrors, LoadOneSiteError
-			}
-		}
-	}
+	// TODO: get tcid from traceMap
 
 	// =======================================
 	// LOAD RENTABLE & RENTAL AGREEMENT CSV
@@ -838,7 +837,12 @@ func CSVHandler(
 	if len(CSVErrs) > 0 || LoadOneSiteError != nil {
 		CSVLoaded = false
 		CSVReport = errorReporting(&CSVErrs)
-		rollBackImportOperation(currentTimeFormat)
+
+		// if not testmode then only do rollback
+		if TestMode != 1 {
+			rollBackImportOperation(currentTimeFormat)
+		}
+
 		return CSVLoaded, CSVReport, LoadOneSiteError
 	}
 
