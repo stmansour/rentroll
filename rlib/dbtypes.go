@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -1247,4 +1248,82 @@ func InitBizInternals(bid int64, xbiz *XBusiness) {
 	RRdb.BizTypes[bid].GLAccounts = GetGLAccountMap(bid)
 	GetAllNoteTypes(bid)
 	LoadRentableTypeCustomaAttributes(xbiz)
+}
+
+var AllTables = []string{
+	"AssessmentTax",
+	"Assessments",
+	"AvailabilityTypes",
+	"Building",
+	"Business",
+	"BusinessAssessments",
+	"BusinessPaymentTypes",
+	"CommissionLedger",
+	"CustomAttr",
+	"CustomAttrRef",
+	"DemandSource",
+	"Deposit",
+	"DepositMethod",
+	"DepositPart",
+	"Depository",
+	"GLAccount",
+	"Invoice",
+	"InvoiceAssessment",
+	"InvoicePayor",
+	"Journal",
+	"JournalAllocation",
+	"JournalAudit",
+	"JournalMarker",
+	"JournalMarkerAudit",
+	"LeadSource",
+	"LedgerAudit",
+	"LedgerEntry",
+	"LedgerMarker",
+	"LedgerMarkerAudit",
+	"NoteList",
+	"NoteType",
+	"Notes",
+	"OtherDeliverables",
+	"PaymentTypes",
+	"Payor",
+	"Prospect",
+	"RatePlan",
+	"RatePlanOD",
+	"RatePlanRef",
+	"RatePlanRefRTRate",
+	"RatePlanRefSPRate",
+	"Receipt",
+	"ReceiptAllocation",
+	"Rentable",
+	"RentableMarketRate",
+	"RentableSpecialty",
+	"RentableSpecialtyRef",
+	"RentableStatus",
+	"RentableTypeRef",
+	"RentableTypeTax",
+	"RentableTypes",
+	"RentableUsers",
+	"RentalAgreement",
+	"RentalAgreementPayors",
+	"RentalAgreementPets",
+	"RentalAgreementRentables",
+	"RentalAgreementTax",
+	"RentalAgreementTemplate",
+	"SLString",
+	"StringList",
+	"Tax",
+	"TaxRate",
+	"Transactant",
+	"User",
+	"Vehicle",
+}
+
+// DeleteBusiness deletes information from all tables if it is part of the supplied BID.
+// Use this call with extreme caution. There's no recovery.
+func DeleteBusinessFromDB(BID int64) error {
+	for i := 0; i < len(AllTables); i++ {
+		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", AllTables[i], BID)
+		result := RRdb.Dbrr.Exec(s)
+	}
+
 }
