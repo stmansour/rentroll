@@ -961,6 +961,7 @@ type RRprepSQL struct {
 	DeleteVehicle                      *sql.Stmt
 	FindAgreementByRentable            *sql.Stmt
 	FindTransactantByPhoneOrEmail      *sql.Stmt
+	FindTCIDByNote                     *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
 	GetAllAssessmentsByBusiness        *sql.Stmt
 	GetAllAssessmentsByRAID            *sql.Stmt

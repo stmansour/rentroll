@@ -61,19 +61,12 @@ func WritePeopleCSVData(
 	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
-	avoidData *[]string,
+	// avoidData *[]string,
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	peopleStruct *core.PeopleCSV,
 ) {
 	// TODO: need to decide how to avoid duplicate data
-	// checkRentableTypeStyle := csvRow.FloorPlan
-	// Stylefound := core.StringInSlice(checkRentableTypeStyle, *avoidData)
-	// if Stylefound {
-	// 	return
-	// } else {
-	// 	*avoidData = append(*avoidData, checkRentableTypeStyle)
-	// }
 
 	// get csv row data
 	ok, csvRowData := GetPeopleCSVRow(

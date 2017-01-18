@@ -401,3 +401,8 @@ func ReadVehicle(row *sql.Row, a *Vehicle) {
 func ReadVehicles(rows *sql.Rows, a *Vehicle) {
 	Errcheck(rows.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear, &a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 }
+
+// ReadTCIDByNote reads TCID, got from Transactant record
+func ReadTCIDByNote(rows *sql.Rows, id *int) {
+	Errcheck(rows.Scan(id))
+}

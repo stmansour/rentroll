@@ -119,9 +119,9 @@ func loadOneSiteCSV(
 	// funcname
 	funcname := "loadOneSiteCSV"
 
-	// ###################################
-	// # INIT PHASE : LOAD FIELD MAP IN ONESITE MAP #
-	// ###################################
+	// ================================================
+	// LOAD FIELD MAP AND GET HEADERS, LENGTH OF HEADERS
+	// ================================================
 
 	// csvCols and consts for all onesite csv fields are defined in
 	// constant.go file
@@ -142,9 +142,9 @@ func loadOneSiteCSV(
 		return csvErrors, LoadOneSiteError
 	}
 
-	// ##############################
-	// # PHASE 1 : SPLITTING DATA IN CSV FILES #
-	// ##############################
+	// ================================================
+	// CSV DATA VALIDATION AND HOLD THE DATA OF CSV ROW
+	// ================================================
 
 	// this map is used to hold csvRow typed struct after data has been loaded in it from first loop iteration
 	// so we have not to iteration over onesite csv again and can be re-used in second loop
@@ -153,10 +153,6 @@ func loadOneSiteCSV(
 	// if dataValidationError is true throughout rows
 	// do not perform any furter operation
 	dataValidationError := false
-
-	// ================================
-	// First loop for validation on csv
-	// ================================
 
 	// load csv file and get data from csv
 	t := rlib.LoadCSV(oneSiteCSV)
@@ -230,84 +226,33 @@ func loadOneSiteCSV(
 		return csvErrors, LoadOneSiteError
 	}
 
-	// ====================================
-	// BEFORE GOES TO SECOND LOOP
-	// PERFORM REQUIRED OPERATIONS HERE
-	// ====================================
-
-	// ----------------------- create files and get csv writer object -----------------------
-	// get created rentabletype csv and writer pointer
-	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
-		CreateRentableTypeCSV(
-			tempCSVStore, currentTimeFormat,
-			&OneSiteFieldMap.RentableTypeCSV,
-		)
-	if !ok {
-		LoadOneSiteError = core.ErrInternal
-		return csvErrors, LoadOneSiteError
+	// always sort keys to iterate over csv rows in proper manner (from top to bottom)
+	var csvRowDataMapKeys []int
+	for k := range csvRowDataMap {
+		csvRowDataMapKeys = append(csvRowDataMapKeys, k)
 	}
+	sort.Ints(csvRowDataMapKeys)
 
-	// get created people csv and writer pointer
-	peopleCSVFile, peopleCSVWriter, ok :=
-		CreatePeopleCSV(
-			tempCSVStore, currentTimeFormat,
-			&OneSiteFieldMap.PeopleCSV,
-		)
-	if !ok {
-		LoadOneSiteError = core.ErrInternal
-		return csvErrors, LoadOneSiteError
-	}
+	// =========================
+	// DATA STRUCTURES AND VARS
+	// =========================
 
-	// get created people csv and writer pointer
-	rentableCSVFile, rentableCSVWriter, ok :=
-		CreateRentableCSV(
-			tempCSVStore, currentTimeFormat,
-			&OneSiteFieldMap.RentableCSV,
-		)
-	if !ok {
-		LoadOneSiteError = core.ErrInternal
-		return csvErrors, LoadOneSiteError
-	}
-
-	// get created rental agreement csv and writer pointer
-	rentalAgreementCSVFile, rentalAgreementCSVWriter, ok :=
-		CreateRentalAgreementCSV(
-			tempCSVStore, currentTimeFormat,
-			&OneSiteFieldMap.RentalAgreementCSV,
-		)
-	if !ok {
-		LoadOneSiteError = core.ErrInternal
-		return csvErrors, LoadOneSiteError
-	}
-
-	// get created customAttibutes csv and writer pointer
-	customAttributeCSVFile, customAttributeCSVWriter, ok :=
-		CreateCustomAttibutesCSV(
-			tempCSVStore, currentTimeFormat,
-			&OneSiteFieldMap.CustomAttributeCSV,
-		)
-	if !ok {
-		LoadOneSiteError = core.ErrInternal
-		return csvErrors, LoadOneSiteError
-	}
-	// --------------------------------------------------------------------------------------------------------- //
-
-	// --------------------- avoid duplicate data structures --------------------
+	// --------------------- avoid duplicate data structures -------------------- //
 	// avoidDuplicateRentableTypeData used to keep track of rentableTypeData with Style field
 	// so that duplicate entries can be avoided while creating rentableType csv file
 	avoidDuplicateRentableTypeData := []string{}
 
 	// TODO: decide which structure to avoid duplicate data of people
 	// while creating people csv file
-	avoidDuplicatePeopleData := []string{}
+	// avoidDuplicatePeopleData := []string{}
 
 	// TODO: decide which structure to avoid duplicate data of rentable
 	// while creating rentable csv file
-	avoidDuplicateRentableData := []string{}
+	// avoidDuplicateRentableData := []string{}
 
 	// TODO: decide which structure to avoid duplicate data of rentalAgreement
 	// while creating rentalAgreement csv file
-	avoidDuplicateRentalAgreementData := []string{}
+	// avoidDuplicateRentalAgreementData := []string{}
 
 	// avoidDuplicateCustomAttributeData is tricky map which holds the
 	// duplicate data in slice for each field defined in customAttributeMap
@@ -315,14 +260,8 @@ func loadOneSiteCSV(
 	for k := range customAttributeMap {
 		avoidDuplicateCustomAttributeData[k] = []string{}
 	}
-	// --------------------------------------------------------------------------------------------------------- //
 
-	// traceUnitMap holds records by which we can trace the unit with row index of csv
-	// Unit would be unique in onesite imported csv
-	// key: rowIndex of onesite csv, value: Unit value of each row of onesite csv
-	traceUnitMap := map[int]string{}
-
-	// --------------------------- trace csv records map ----------------------------
+	// --------------------------- trace data map ---------------------------- //
 	// trace<TYPE>CSVMap used to hold records
 	// by which we can traceout which records has been writtern to csv
 	// with key of row index of <TARGET_TYPE> CSV, value of original's imported csv rowNumber
@@ -331,7 +270,15 @@ func loadOneSiteCSV(
 	tracePeopleCSVMap := map[int]int{}
 	traceRentalAgreementCSVMap := map[int]int{}
 	traceCustomAttributeCSVMap := map[int]int{}
-	// --------------------------------------------------------------------------------------------------------- //
+
+	// traceTCIDMap hold TCID for each people to be loaded via people csv
+	// with reference of original onesite csv
+	traceTCIDMap := map[int]string{}
+
+	// traceUnitMap holds records by which we can trace the unit with row index of csv
+	// Unit would be unique in onesite imported csv
+	// key: rowIndex of onesite csv, value: Unit value of each row of onesite csv
+	traceUnitMap := map[int]string{}
 
 	// --------------------------- csv record count ----------------------------
 	// <TYPE>CSVRecordCount used to hold records count inserted in csv
@@ -341,155 +288,15 @@ func loadOneSiteCSV(
 	PeopleCSVRecordCount := 1
 	RentalAgreementCSVRecordCount := 1
 	CustomAttributeCSVRecordCount := 1
-	// --------------------------------------------------------------------------------------------------------- //
 
 	// customAttributesRefData holds the data for future operation to insert
 	// custom attribute ref in system for each rentableType
 	// so we identify each element in this list via Style value
 	customAttributesRefData := map[string]CARD{}
 
-	// traceTCIDMap hold TCID for each people to be loaded via people csv
-	// with reference of original onesite csv
-	traceTCIDMap := map[int]string{}
-
-	// ================================
-	// Second loop for splitting data of csv
-	// Create csv files required for rentroll
-	// ================================
-	// in second round do split
-
-	// always sort keys
-	var csvRowDataMapKeys []int
-	for k := range csvRowDataMap {
-		csvRowDataMapKeys = append(csvRowDataMapKeys, k)
-	}
-	sort.Ints(csvRowDataMapKeys)
-
-	// first create only custom attribute, rentable type, people data from onesite csv
-	for _, csvRowIndex := range csvRowDataMapKeys {
-
-		// load csvRow from dataMap
-		csvRow := *csvRowDataMap[csvRowIndex]
-
-		// mark Unit value with row index value
-		traceUnitMap[csvRowIndex] = csvRow.Unit
-
-		// fill with blank string as of now in traceTCIDMap
-		traceTCIDMap[csvRowIndex] = ""
-
-		// for rentable status exists in csvRow, get set of csv types which can be allowed
-		// to perform write data for csv
-		// need to call validation function as in get values
-		_, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus)
-		csvTypesSet := canWriteCSVStatusMap[rrStatus]
-		var canWriteData bool
-
-		// check first that for this row's status rentableType data can be written
-		canWriteData = core.IntegerInSlice(core.RENTABLETYPECSV, csvTypesSet)
-		if canWriteData {
-			// Write data to file of rentabletype
-			WriteRentableTypeCSVData(
-				&RentableTypeCSVRecordCount,
-				csvRowIndex,
-				traceRentableTypeCSVMap,
-				rentableTypeCSVWriter,
-				&csvRow,
-				&avoidDuplicateRentableTypeData,
-				currentTime,
-				currentTimeFormat,
-				userRRValues,
-				&OneSiteFieldMap.RentableTypeCSV,
-				customAttributesRefData,
-				business,
-			)
-		}
-		// check first that for this row's status people data can be written
-		canWriteData = core.IntegerInSlice(core.PEOPLECSV, csvTypesSet)
-		if canWriteData {
-			// Write data to file of people
-			WritePeopleCSVData(
-				&PeopleCSVRecordCount,
-				csvRowIndex,
-				tracePeopleCSVMap,
-				peopleCSVWriter,
-				&csvRow,
-				&avoidDuplicatePeopleData,
-				currentTimeFormat,
-				userRRValues,
-				&OneSiteFieldMap.PeopleCSV,
-			)
-		}
-
-		// check first that for this row's status rentable data can be written
-		canWriteData = core.IntegerInSlice(core.RENTABLECSV, csvTypesSet)
-		if canWriteData {
-			// Write data to file of rentable
-			WriteRentableData(
-				&RentableCSVRecordCount,
-				csvRowIndex,
-				traceRentableCSVMap,
-				rentableCSVWriter,
-				&csvRow,
-				&avoidDuplicateRentableData,
-				currentTime,
-				currentTimeFormat,
-				userRRValues,
-				&OneSiteFieldMap.RentableCSV,
-			)
-		}
-
-		// check first that for this row's status rental agreement data can be written
-		canWriteData = core.IntegerInSlice(core.RENTALAGREEMENTCSV, csvTypesSet)
-		if canWriteData {
-			// Write data to file of rentalAgreement
-			WriteRentalAgreementData(
-				&RentalAgreementCSVRecordCount,
-				csvRowIndex,
-				traceRentalAgreementCSVMap,
-				rentalAgreementCSVWriter,
-				&csvRow,
-				&avoidDuplicateRentalAgreementData,
-				currentTime,
-				currentTimeFormat,
-				userRRValues,
-				&OneSiteFieldMap.RentalAgreementCSV,
-			)
-		}
-
-		// check first that for this row's status custom attributes data can be written
-		canWriteData = core.IntegerInSlice(core.CUSTOMATTRIUTESCSV, csvTypesSet)
-		if canWriteData {
-			// Write data to file of CustomAttribute
-			WriteCustomAttributeData(
-				&CustomAttributeCSVRecordCount,
-				csvRowIndex,
-				traceCustomAttributeCSVMap,
-				customAttributeCSVWriter,
-				&csvRow,
-				avoidDuplicateCustomAttributeData,
-				currentTimeFormat,
-				userRRValues,
-				&OneSiteFieldMap.CustomAttributeCSV,
-			)
-		}
-	}
-
-	// ---------------------------- closing files -------------------------- //
-	// Close all files as we are done here with writing data
-	rentableTypeCSVFile.Close()
-	peopleCSVFile.Close()
-	rentableCSVFile.Close()
-	rentalAgreementCSVFile.Close()
-	customAttributeCSVFile.Close()
-	// --------------------------------------------------------------------------------------------------------- //
-
-	// ########################
-	// # PHASE 2 : RCSV LOADERS CALL #
-	// ########################
-
-	// =======================================
-	// Nested functions
-	// =======================================
+	// =======================
+	// NESTED UTILITY FUNCTIONS
+	// =======================
 
 	// getIndexAndUnit is a nested function
 	// used to get index and unit value from trace<TYPE>CSVMap map
@@ -596,9 +403,124 @@ func loadOneSiteCSV(
 		return true
 	}
 
-	// =====================================================
+	// ========================================================
+	// WRITE DATA FOR CUSTOM ATTRIBUTE, RENTABLE TYPE, PEOPLE CSV
+	// ========================================================
+
+	// get created customAttibutes csv and writer pointer
+	customAttributeCSVFile, customAttributeCSVWriter, ok :=
+		CreateCustomAttibutesCSV(
+			tempCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.CustomAttributeCSV,
+		)
+	if !ok {
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
+	}
+
+	// ----------------------- create files and get csv writer object -----------------------
+	// get created rentabletype csv and writer pointer
+	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
+		CreateRentableTypeCSV(
+			tempCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.RentableTypeCSV,
+		)
+	if !ok {
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
+	}
+
+	// get created people csv and writer pointer
+	peopleCSVFile, peopleCSVWriter, ok :=
+		CreatePeopleCSV(
+			tempCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.PeopleCSV,
+		)
+	if !ok {
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
+	}
+
+	// iteration over csv row data structure and write data to csv
+	for _, csvRowIndex := range csvRowDataMapKeys {
+
+		// load csvRow from dataMap
+		csvRow := *csvRowDataMap[csvRowIndex]
+
+		// mark Unit value with row index value
+		traceUnitMap[csvRowIndex] = csvRow.Unit
+
+		// for rentable status exists in csvRow, get set of csv types which can be allowed
+		// to perform write data for csv
+		// need to call validation function as in get values
+		_, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrStatus]
+		var canWriteData bool
+
+		// check first that for this row's status custom attributes data can be written
+		canWriteData = core.IntegerInSlice(core.CUSTOMATTRIUTESCSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of CustomAttribute
+			WriteCustomAttributeData(
+				&CustomAttributeCSVRecordCount,
+				csvRowIndex,
+				traceCustomAttributeCSVMap,
+				customAttributeCSVWriter,
+				&csvRow,
+				avoidDuplicateCustomAttributeData,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.CustomAttributeCSV,
+			)
+		}
+
+		// check first that for this row's status rentableType data can be written
+		canWriteData = core.IntegerInSlice(core.RENTABLETYPECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentabletype
+			WriteRentableTypeCSVData(
+				&RentableTypeCSVRecordCount,
+				csvRowIndex,
+				traceRentableTypeCSVMap,
+				rentableTypeCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentableTypeData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentableTypeCSV,
+				customAttributesRefData,
+				business,
+			)
+		}
+		// check first that for this row's status people data can be written
+		canWriteData = core.IntegerInSlice(core.PEOPLECSV, csvTypesSet)
+		if canWriteData {
+			// fill with blank string as of now in traceTCIDMap
+			traceTCIDMap[csvRowIndex] = ""
+
+			// Write data to file of people
+			WritePeopleCSVData(
+				&PeopleCSVRecordCount,
+				csvRowIndex,
+				tracePeopleCSVMap,
+				peopleCSVWriter,
+				&csvRow,
+				// &avoidDuplicatePeopleData,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.PeopleCSV,
+			)
+		}
+
+	}
+
+	// Close all files as we are done here with writing data
+	rentableTypeCSVFile.Close()
+	peopleCSVFile.Close()
+	customAttributeCSVFile.Close()
+
 	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV & PEOPLE CSV
-	// =====================================================
 	var h = []csvLoadHandler{
 		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV, TraceDataMap: "traceCustomAttributeCSVMap"},
 		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV, TraceDataMap: "traceRentableTypeCSVMap"},
@@ -615,9 +537,10 @@ func loadOneSiteCSV(
 		}
 	}
 
-	// =======================================
+	// ====================================
 	// INSERT CUSTOM ATTRIBUTE REF MANUALLY
-	// =======================================
+	// ====================================
+
 	// always sort keys
 	var customAttributesRefDataKeys []string
 	for k := range customAttributesRefData {
@@ -685,14 +608,98 @@ func loadOneSiteCSV(
 		}
 	}
 
-	// =======================================
+	// =====================================
 	// GET TCID FOR EACH ROW FROM PEOPLE CSV
-	// =======================================
-	// TODO: get tcid from traceMap
+	// =====================================
 
-	// =======================================
+	// get TCID and update traceTCIDMap
+	for onesiteIndex := range traceTCIDMap {
+		traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(rlib.GetTCIDByNote(onesiteNotesPrefix+strconv.Itoa(onesiteIndex)))
+	}
+
+	// ======================================================
+	// AFTER TCID FOUND, WRITE RENTABLE & RENTAL AGREEMENT CSV
+	// ======================================================
+
+	// get created people csv and writer pointer
+	rentableCSVFile, rentableCSVWriter, ok :=
+		CreateRentableCSV(
+			tempCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.RentableCSV,
+		)
+	if !ok {
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
+	}
+
+	// get created rental agreement csv and writer pointer
+	rentalAgreementCSVFile, rentalAgreementCSVWriter, ok :=
+		CreateRentalAgreementCSV(
+			tempCSVStore, currentTimeFormat,
+			&OneSiteFieldMap.RentalAgreementCSV,
+		)
+	if !ok {
+		LoadOneSiteError = core.ErrInternal
+		return csvErrors, LoadOneSiteError
+	}
+
+	// iteration over csv row data structure and write data to csv
+	for _, csvRowIndex := range csvRowDataMapKeys {
+
+		// load csvRow from dataMap
+		csvRow := *csvRowDataMap[csvRowIndex]
+
+		// for rentable status exists in csvRow, get set of csv types which can be allowed
+		// to perform write data for csv
+		// need to call validation function as in get values
+		_, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrStatus]
+		var canWriteData bool
+
+		// check first that for this row's status rentable data can be written
+		canWriteData = core.IntegerInSlice(core.RENTABLECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentable
+			WriteRentableData(
+				&RentableCSVRecordCount,
+				csvRowIndex,
+				traceRentableCSVMap,
+				rentableCSVWriter,
+				&csvRow,
+				// &avoidDuplicateRentableData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentableCSV,
+				traceTCIDMap,
+			)
+		}
+
+		// check first that for this row's status rental agreement data can be written
+		canWriteData = core.IntegerInSlice(core.RENTALAGREEMENTCSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentalAgreement
+			WriteRentalAgreementData(
+				&RentalAgreementCSVRecordCount,
+				csvRowIndex,
+				traceRentalAgreementCSVMap,
+				rentalAgreementCSVWriter,
+				&csvRow,
+				// &avoidDuplicateRentalAgreementData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&OneSiteFieldMap.RentalAgreementCSV,
+				traceTCIDMap,
+			)
+		}
+	}
+
+	// closing files
+	rentableCSVFile.Close()
+	rentalAgreementCSVFile.Close()
+
 	// LOAD RENTABLE & RENTAL AGREEMENT CSV
-	// =======================================
 	h = []csvLoadHandler{
 		{Fname: rentableCSVFile.Name(), Handler: rcsv.LoadRentablesCSV, TraceDataMap: "traceRentableCSVMap"},
 		{Fname: rentalAgreementCSVFile.Name(), Handler: rcsv.LoadRentalAgreementCSV, TraceDataMap: "traceRentalAgreementCSVMap"},
@@ -708,15 +715,17 @@ func loadOneSiteCSV(
 		}
 	}
 
-	// ##################################
-	// # PHASE 3 : CLEAR THE TEMPORARY CSV FILES #
-	// ##################################
+	// ============================
+	// CLEAR THE TEMPORARY CSV FILES
+	// ============================
 	// testmode is not enabled then only remove temp files
 	if testMode != 1 {
 		clearSplittedTempCSVFiles(currentTimeFormat)
 	}
 
+	// =======
 	// RETURN
+	// =======
 	return csvErrors, LoadOneSiteError
 }
 

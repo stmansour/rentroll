@@ -115,6 +115,7 @@ type RentalAgreementCSV struct {
 // temporary file to import the data using rcsv
 // routine in custom attribute db
 type CustomAttributeCSV struct {
+	BUD       string
 	Name      string
 	ValueType string
 	Value     string
