@@ -52,7 +52,7 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 
 	c.ElementType, err = rlib.IntFromString(sa[ElementType], "ElementType is invalid")
 	if err != nil {
-		return CsvErrorSensitivity, err
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, err.Error())
 	}
 	if c.ElementType < rlib.ELEMRENTABLETYPE || c.ElementType > rlib.ELEMLAST {
 		return CsvErrorSensitivity, fmt.Errorf("ElementType value must be a number from %d to %d\n", rlib.ELEMRENTABLETYPE, rlib.ELEMLAST)
@@ -60,11 +60,11 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 
 	c.ID, err = rlib.IntFromString(sa[ID], "ID value cannot be converted to an integer")
 	if err != nil {
-		return CsvErrorSensitivity, err
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, err.Error())
 	}
 	c.CID, err = rlib.IntFromString(sa[CID], "CID value cannot be converted to an integer")
 	if err != nil {
-		return CsvErrorSensitivity, err
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, err.Error())
 	}
 
 	switch c.ElementType {
