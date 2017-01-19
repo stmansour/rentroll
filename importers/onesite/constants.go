@@ -190,6 +190,9 @@ var csvRecordsSkipList = []string{
 	rcsv.RentableAlreadyRented,
 }
 
+var DupTransactantWithPrimaryEmail = "PrimaryEmail"
+var DupTransactantWithCellPhone = "CellPhone"
+
 // will be used exact before rowIndex to format Notes in people csv "onesite:<rowIndex>"
 const (
 	onesiteNotesPrefix = "onesite:"

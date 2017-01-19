@@ -350,7 +350,7 @@ func loadOneSiteCSV(
 	}
 
 	// rrDoLoad is a nested function
-	// used to get index and unit value from trace<TYPE>CSVMap map
+	// used to load data from csv with help of rcsv loaders
 	rrDoLoad := func(fname string, handler func(string) []error, traceDataMap string) bool {
 		Errs := handler(fname)
 		// fmt.Print(rcsv.ErrlistToString(&Errs))
@@ -358,8 +358,8 @@ func loadOneSiteCSV(
 		for _, err := range Errs {
 			// skip warnings about already existing records
 			// if it's not kind of to skip then process it and count in error report
+			errText := err.Error()
 			if !csvRecordsToSkip(err) {
-				errText := err.Error()
 				// split with separator `:`
 				s := strings.Split(errText, ":")
 				// remove first element from slice
@@ -396,7 +396,7 @@ func loadOneSiteCSV(
 				// append it into csvErrors
 				csvErrors = append(csvErrors, err)
 			} else {
-				rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, err.Error()))
+				rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, errText))
 			}
 		}
 		// return with success
@@ -520,16 +520,102 @@ func loadOneSiteCSV(
 	peopleCSVFile.Close()
 	customAttributeCSVFile.Close()
 
-	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV & PEOPLE CSV
+	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV
 	var h = []csvLoadHandler{
 		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV, TraceDataMap: "traceCustomAttributeCSVMap"},
 		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV, TraceDataMap: "traceRentableTypeCSVMap"},
-		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
 	}
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
 			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
+				// if any error then simple return with internal error
+				LoadOneSiteError = core.ErrInternal
+				return csvErrors, LoadOneSiteError
+			}
+		}
+	}
+
+	// LOAD PEOPLE CSV
+
+	// *****************************************************
+	// rrPeopleDoLoad (SPECIAL METHOD TO LOAD PEOPLE)
+	// *****************************************************
+	rrPeopleDoLoad := func(fname string, handler func(string) []error, traceDataMap string) bool {
+		Errs := handler(fname)
+		// fmt.Print(rcsv.ErrlistToString(&Errs))
+
+		for _, err := range Errs {
+			// skip warnings about already existing records
+			// if it's not kind of to skip then process it and count in error report
+			errText := err.Error()
+			if !csvRecordsToSkip(err) {
+				// split with separator `:`
+				s := strings.Split(errText, ":")
+				// remove first element from slice
+				s = append(s[:0], s[1:]...)
+				// now join with separator
+				errText = strings.Join(s, "|")
+				// split with separator `-`
+				s = strings.Split(errText, "-")
+				// get line number string
+				lineNoStr := s[0]
+				// remove space from lineNoStr string
+				lineNoStr = strings.Replace(lineNoStr, " ", "", -1)
+				// remove `lineno` text from lineNoStr string
+				lineNoStr = strings.Replace(lineNoStr, "lineno", "", -1)
+				// remove `line` text from lineNoStr string
+				lineNoStr = strings.Replace(lineNoStr, "line", "", -1)
+				// now it should contain number in string
+				lineNo, err := strconv.Atoi(lineNoStr)
+				if err != nil {
+					// CRITICAL
+					rlib.Ulog("rcsv loaders should do something about returning error format")
+					return false
+				}
+				// remove first element from slice
+				s = append(s[:0], s[1:]...)
+				// now join with separator
+				errText = strings.Join(s, "")
+				// replace new line broker
+				errText = strings.Replace(errText, "\n", "", -1)
+				// now get the original row index of imported onesite csv and Unit value
+				onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
+				// generate new error
+				err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
+				// append it into csvErrors
+				csvErrors = append(csvErrors, err)
+			} else {
+				// if duplicate people found then get TCID for original Transactant
+				rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, errText))
+				if strings.Contains(errText, DupTransactantWithPrimaryEmail) {
+					pEmail := ""
+					t := rlib.GetTransactantByPhoneOrEmail(business.BID, pEmail)
+					if t.TCID == 0 {
+						// TODO: count error
+						// csvErrors = append(csvErrors, err)
+					}
+				} else if strings.Contains(errText, DupTransactantWithCellPhone) {
+					pCellNo := ""
+					t := rlib.GetTransactantByPhoneOrEmail(business.BID, pCellNo)
+					if t.TCID == 0 {
+						// TODO: count error
+						// csvErrors = append(csvErrors, err)
+					}
+				}
+			}
+		}
+		// return with success
+		return true
+	}
+
+	h = []csvLoadHandler{
+		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
+	}
+
+	for i := 0; i < len(h); i++ {
+		if len(h[i].Fname) > 0 {
+			if !rrPeopleDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
 				// if any error then simple return with internal error
 				LoadOneSiteError = core.ErrInternal
 				return csvErrors, LoadOneSiteError
@@ -613,6 +699,7 @@ func loadOneSiteCSV(
 	// =====================================
 
 	// get TCID and update traceTCIDMap
+	// TODO: handle dupTransactant case to get reference of TCID
 	for onesiteIndex := range traceTCIDMap {
 		traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(rlib.GetTCIDByNote(onesiteNotesPrefix+strconv.Itoa(onesiteIndex)))
 	}
@@ -893,11 +980,20 @@ func errorReporting(csvErrors *[]error) string {
 
 	var tbl rlib.Table
 	tbl.Init()
+	tbl.AddColumn("Input Line", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Unit Name", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	tbl.AddColumn("Error", 180, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	for _, err := range *csvErrors {
 		tbl.AddRow()
-		tbl.Puts(-1, 0, err.Error())
+		errText := err.Error()
+		reason := strings.Split(errText, " at row ")[0]
+		rowIndex := strings.Split(strings.Split(errText, " at row ")[1], " with unit ")[0]
+		unitName := strings.Split(strings.Split(errText, " at row ")[1], " with unit ")[1]
+
+		tbl.Puts(-1, 0, rowIndex)
+		tbl.Puts(-1, 1, unitName)
+		tbl.Puts(-1, 2, reason)
 	}
 	return tbl.SprintTable(rlib.RPTTEXT)
 }
