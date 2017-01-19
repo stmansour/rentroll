@@ -1024,6 +1024,9 @@ func errorReporting(csvErrors *[]error) string {
 		reason := strings.Split(errText, " at row ")[0]
 		rowIndex := strings.Split(strings.Split(errText, " at row ")[1], " with unit ")[0]
 		unitName := strings.Split(strings.Split(errText, " at row ")[1], " with unit ")[1]
+		if unitName == "" {
+			unitName = "NOT FOUND"
+		}
 
 		tbl.Puts(-1, 0, rowIndex)
 		tbl.Puts(-1, 1, unitName)
