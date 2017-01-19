@@ -108,12 +108,17 @@ func loadOneSiteCSV(
 	business *rlib.Business,
 	currentTime time.Time,
 	currentTimeFormat string,
-) ([]error, error) {
+) (map[int][]string, error) {
+
+	// returned errors should be in format
+	// {
+	// 	"rowIndex": ["UnitName", "ErrorReason/Warning"]
+	// }
 
 	// vars
 	var (
 		LoadOneSiteError error
-		csvErrors        []error
+		csvErrors        map[int][]string
 	)
 
 	// funcname
@@ -153,6 +158,7 @@ func loadOneSiteCSV(
 	// if dataValidationError is true throughout rows
 	// do not perform any furter operation
 	dataValidationError := false
+	csvColumnsValidationError := false
 
 	// load csv file and get data from csv
 	t := rlib.LoadCSV(oneSiteCSV)
@@ -176,7 +182,6 @@ func loadOneSiteCSV(
 
 			if CSVRowDataString == CSVHeaderString {
 				skipRowsCount = i
-
 				// if skipRowsCount found then jump to next rows
 				// because headers don't have to be validate
 				continue
@@ -186,43 +191,48 @@ func loadOneSiteCSV(
 
 			x, err := rcsv.ValidateCSVColumns(csvCols, t[i][:OneSiteColumnLength], funcname, i)
 			if x > 0 {
-				csvErrors = append(csvErrors, err)
+				csvColumnsValidationError = true
+				_, reason, ok := parseLineAndErrorFromRCSV(err)
+				if !ok {
+					LoadOneSiteError = core.ErrInternal
+					return csvErrors, LoadOneSiteError
+				}
+				// won't be able to get unit name here so leave it as a blank
+				csvErrors[i+1] = []string{"", reason}
 				rlib.Ulog("Error <ONESITE CSV COLUMN VALIDATION>: %s\n", err.Error())
-			}
+			} else {
+				// if column order has been validated then only perform data validation
+				// ######################
+				// VALIDATION on data value, type
+				// ######################
+				rowLoaded, csvRow := loadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
 
-			// ######################
-			// VALIDATION on data value, type
-			// ######################
-			rowLoaded, csvRow := loadOneSiteCSVRow(csvCols, t[i][:OneSiteColumnLength])
+				// NOTE: might need to change logic, if t[i] contains blank data that we should
+				// stop the loop as we have to skip rest of the rows (please look at onesite csv)
+				if !rowLoaded {
+					rlib.Ulog("No more data for onesite csv loading\n")
+					break
+				}
 
-			// NOTE: might need to change logic, if t[i] contains blank data that we should
-			// stop the loop as we have to skip rest of the rows (please look at onesite csv)
-			if !rowLoaded {
-				rlib.Ulog("No more data for onesite csv loading\n")
-				break
-			}
+				// if row is loaded successfully then do validation over fields
+				// this function return true if validation succedd take opposite value, for dataValidationError
+				dataValidationError := !validateOneSiteCSVRow(&csvRow, i+1, csvErrors)
 
-			// if row is loaded successfully then do validation over fields
-			rowErrs := validateOneSiteCSVRow(&csvRow, i)
-			if len(rowErrs) > 0 {
-				dataValidationError = true
-				csvErrors = append(csvErrors, rowErrs...)
-			}
-
-			// if dataValidationError is false then only fill data into map
-			// because anyways the program will return and rest of operation will not be performed if dataValidationError is true
-			// csvRowDataMap is only used for second iteration
-			// so no need to dump it in the map if validation fails from any row
-			if !dataValidationError {
-				// index increased by one as in to be matched with csv row number
-				csvRowDataMap[i+1] = &csvRow
+				// if dataValidationError and csvColumnsValidationError are false then only fill data into map
+				// because anyways the program will return and rest of operation will not be performed if dataValidationError is true
+				// csvRowDataMap is only used for second iteration
+				// so no need to dump it in the map if validation fails from any row
+				if !dataValidationError && !csvColumnsValidationError {
+					// index increased by one as in to be matched with csv row number
+					csvRowDataMap[i+1] = &csvRow
+				}
 			}
 		}
 	}
 
 	// if there is any error in data validation then return from here
 	// do not perform any further action
-	if dataValidationError {
+	if dataValidationError || csvColumnsValidationError {
 		return csvErrors, LoadOneSiteError
 	}
 
@@ -350,7 +360,7 @@ func loadOneSiteCSV(
 	}
 
 	// rrDoLoad is a nested function
-	// used to get index and unit value from trace<TYPE>CSVMap map
+	// used to load data from csv with help of rcsv loaders
 	rrDoLoad := func(fname string, handler func(string) []error, traceDataMap string) bool {
 		Errs := handler(fname)
 		// fmt.Print(rcsv.ErrlistToString(&Errs))
@@ -358,45 +368,19 @@ func loadOneSiteCSV(
 		for _, err := range Errs {
 			// skip warnings about already existing records
 			// if it's not kind of to skip then process it and count in error report
+			errText := err.Error()
 			if !csvRecordsToSkip(err) {
-				errText := err.Error()
-				// split with separator `:`
-				s := strings.Split(errText, ":")
-				// remove first element from slice
-				s = append(s[:0], s[1:]...)
-				// now join with separator
-				errText = strings.Join(s, "|")
-				// split with separator `-`
-				s = strings.Split(errText, "-")
-				// get line number string
-				lineNoStr := s[0]
-				// remove space from lineNoStr string
-				lineNoStr = strings.Replace(lineNoStr, " ", "", -1)
-				// remove `lineno` text from lineNoStr string
-				lineNoStr = strings.Replace(lineNoStr, "lineno", "", -1)
-				// remove `line` text from lineNoStr string
-				lineNoStr = strings.Replace(lineNoStr, "line", "", -1)
-				// now it should contain number in string
-				lineNo, err := strconv.Atoi(lineNoStr)
-				if err != nil {
-					// CRITICAL
-					rlib.Ulog("rcsv loaders should do something about returning error format")
+				lineNo, reason, ok := parseLineAndErrorFromRCSV(err)
+				if !ok {
+					// return false
 					return false
 				}
-				// remove first element from slice
-				s = append(s[:0], s[1:]...)
-				// now join with separator
-				errText = strings.Join(s, "")
-				// replace new line broker
-				errText = strings.Replace(errText, "\n", "", -1)
 				// now get the original row index of imported onesite csv and Unit value
 				onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
 				// generate new error
-				err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
-				// append it into csvErrors
-				csvErrors = append(csvErrors, err)
+				csvErrors[onesiteIndex] = []string{unit, reason}
 			} else {
-				rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, err.Error()))
+				rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, errText))
 			}
 		}
 		// return with success
@@ -520,11 +504,10 @@ func loadOneSiteCSV(
 	peopleCSVFile.Close()
 	customAttributeCSVFile.Close()
 
-	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV & PEOPLE CSV
+	// LOAD CUSTOM ATTRIBUTE & RENTABLE TYPE CSV
 	var h = []csvLoadHandler{
 		{Fname: customAttributeCSVFile.Name(), Handler: rcsv.LoadCustomAttributesCSV, TraceDataMap: "traceCustomAttributeCSVMap"},
 		{Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV, TraceDataMap: "traceRentableTypeCSVMap"},
-		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
 	}
 
 	for i := 0; i < len(h); i++ {
@@ -555,8 +538,7 @@ func loadOneSiteCSV(
 		if err != nil {
 			unit, _ := traceUnitMap[refData.RowIndex]
 			rlib.Ulog("Error <CUSTOMREF INSERTION>: %s", err)
-			err = fmt.Errorf("Error while inserting custom attribute ref data at row \"%d\" with unit \"%s\"", refData.RowIndex, unit)
-			csvErrors = append(csvErrors, err)
+			csvErrors[refData.RowIndex] = []string{unit, "Unable to insert custom attribute"}
 			continue
 		}
 
@@ -567,13 +549,11 @@ func loadOneSiteCSV(
 			n := customAttributeConfig["Name"]
 			v := strconv.Itoa(int(refData.SqFt))
 			u := customAttributeConfig["Units"]
-			// TODO: add BID param in below method
 			ca := rlib.GetCustomAttributeByVals(t, n, v, u)
 			if ca.CID == 0 {
 				unit, _ := traceUnitMap[refData.RowIndex]
 				rlib.Ulog("Error <CUSTOMREF INSERTION>: %s", "CUSTOM ATTRIBUTE NOT FOUND IN DB")
-				err := fmt.Errorf("Error while inserting custom attribute ref data at row \"%d\" with unit \"%s\"", refData.RowIndex, unit)
-				csvErrors = append(csvErrors, err)
+				csvErrors[refData.RowIndex] = []string{unit, "Unable to insert custom attribute"}
 				continue
 			}
 
@@ -586,7 +566,6 @@ func loadOneSiteCSV(
 
 			// check that record already exists, if yes then just continue
 			// without accounting it as an error
-			// TODO: add BID param in below method
 			ref := rlib.GetCustomAttributeRef(a.ElementType, a.ID, a.CID)
 			if ref.ElementType == a.ElementType && ref.CID == a.CID && ref.ID == a.ID {
 				unit, _ := traceUnitMap[refData.RowIndex]
@@ -602,8 +581,103 @@ func loadOneSiteCSV(
 				unit, _ := traceUnitMap[refData.RowIndex]
 				rlib.Ulog("Error <CUSTOMREF INSERTION>: %s", err)
 				err = fmt.Errorf("Error while inserting custom attribute ref data at row \"%d\" with unit \"%s\"", refData.RowIndex, unit)
-				csvErrors = append(csvErrors, err)
+				csvErrors[refData.RowIndex] = []string{unit, "Unable to insert custom attribute"}
 				continue
+			}
+		}
+	}
+
+	// *****************************************************
+	// rrPeopleDoLoad (SPECIAL METHOD TO LOAD PEOPLE)
+	// *****************************************************
+	rrPeopleDoLoad := func(fname string, handler func(string) []error, traceDataMap string) bool {
+		Errs := handler(fname)
+		// fmt.Print(rcsv.ErrlistToString(&Errs))
+
+		for _, err := range Errs {
+			// handling for duplicant transactant
+			if strings.Contains(err.Error(), dupTransactantWithPrimaryEmail) {
+				lineNo, _, ok := parseLineAndErrorFromRCSV(err)
+				if !ok {
+					return false
+				}
+				// now get the original row index of imported onesite csv and Unit value
+				onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
+				// load csvRow from dataMap to get email
+				csvRow := *csvRowDataMap[onesiteIndex]
+				pEmail := csvRow.Email
+				// get tcid from email
+				t := rlib.GetTransactantByPhoneOrEmail(business.BID, pEmail)
+				if t.TCID == 0 {
+					// unable to get TCID
+					reason := "Unable to get people information"
+					csvErrors[onesiteIndex] = []string{unit, reason}
+				} else {
+					// if duplicate people found
+					rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, err.Error()))
+					// map it in tcid map
+					traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.FormatInt(t.TCID, 10)
+				}
+			} else {
+				lineNo, reason, ok := parseLineAndErrorFromRCSV(err)
+				if !ok {
+					return false
+				}
+				// now get the original row index of imported onesite csv and Unit value
+				onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
+				// generate new error
+				csvErrors[onesiteIndex] = []string{unit, reason}
+			}
+
+			// *****************************************************************
+			// AS WE DON'T HAVE MAPPING OF PHONENUMBER TO CELLPHONE
+			// WE JUST AVOID THIS CHECK, BUT KEEP THIS IN CASE MAPPING
+			// OF PHONENUMBER CHANGED TO CELLPHONE
+			// PLACE IT AFTER DUPLICATE EMAIL CHECK
+			// *****************************************************************
+			/*
+				else if strings.Contains(errText, dupTransactantWithCellPhone) {
+					lineNo, _, ok := parseLineAndErrorFromRCSV(err)
+					if !ok {
+						return false
+					}
+					// now get the original row index of imported onesite csv and Unit value
+					onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
+					// load csvRow from dataMap to get email
+					csvRow := *csvRowDataMap[onesiteIndex]
+					pCellNo := csvRow.PhoneNumber
+					// get tcid from cellphonenumber
+					t := rlib.GetTransactantByPhoneOrEmail(business.BID, pCellNo)
+					if t.TCID == 0 {
+						// unable to get TCID
+						reason := "Unable to get people information"
+						csvErrors[onesiteIndex] = []string{unit, reason}
+					} else {
+						// if duplicate people found
+						rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, errText))
+						// map it in tcid map
+						traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.FormatInt(t.TCID, 10)
+					}
+				}
+			*/
+			// *****************************************************
+
+		}
+		// return with success
+		return true
+	}
+
+	// LOAD PEOPLE CSV
+	h = []csvLoadHandler{
+		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
+	}
+
+	for i := 0; i < len(h); i++ {
+		if len(h[i].Fname) > 0 {
+			if !rrPeopleDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
+				// if any error then simple return with internal error
+				LoadOneSiteError = core.ErrInternal
+				return csvErrors, LoadOneSiteError
 			}
 		}
 	}
@@ -614,7 +688,11 @@ func loadOneSiteCSV(
 
 	// get TCID and update traceTCIDMap
 	for onesiteIndex := range traceTCIDMap {
-		traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(rlib.GetTCIDByNote(onesiteNotesPrefix+strconv.Itoa(onesiteIndex)))
+		tcid := rlib.GetTCIDByNote(onesiteNotesPrefix + strconv.Itoa(onesiteIndex))
+		// for duplicant case, it won't be found so need check here
+		if tcid != 0 {
+			traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(tcid)
+		}
 	}
 
 	// ======================================================
@@ -799,9 +877,6 @@ func CSVHandler(
 	// CSVReport will hold whole report for onesite imported csv
 	CSVReport := ""
 
-	// holds the error text for onesite imported csv
-	CSVErrs := []error{}
-
 	// to catch error from onesite loader
 	var LoadOneSiteError error
 
@@ -832,20 +907,22 @@ func CSVHandler(
 	userValueErrors, business := validateUserSuppliedValues(userRRValues)
 	if len(userValueErrors) > 0 {
 		CSVLoaded = false
-		CSVErrs = append(CSVErrs, userValueErrors...)
-		CSVReport = errorReporting(&CSVErrs)
+		for _, err := range userValueErrors {
+			errTxt := err.Error()
+			CSVReport += errTxt + "\n"
+		}
 		return CSVLoaded, CSVReport, LoadOneSiteError
 	}
 
 	// ===== 3. Call onesite loader =====
-	CSVErrs, LoadOneSiteError = loadOneSiteCSV(
+	CSVErrs, LoadOneSiteError := loadOneSiteCSV(
 		CSV, TestMode, userRRValues, &business,
 		currentTime, currentTimeFormat)
 
 	// check if there any errors from onesite loader
 	if len(CSVErrs) > 0 || LoadOneSiteError != nil {
 		CSVLoaded = false
-		CSVReport = errorReporting(&CSVErrs)
+		CSVReport = errorReporting(CSVErrs)
 
 		// if not testmode then only do rollback
 		if TestMode != 1 {
@@ -884,20 +961,25 @@ func generateCSVReport(business *rlib.Business) string {
 }
 
 // errorReporting used to report the errors for onesite csv
-func errorReporting(csvErrors *[]error) string {
+func errorReporting(csvErrors map[int][]string) string {
 
 	// check the length of errors
-	if len(*csvErrors) == 0 {
+	if len(csvErrors) == 0 {
 		return ""
 	}
 
 	var tbl rlib.Table
 	tbl.Init()
+	tbl.AddColumn("Input Line", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Unit Name", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	tbl.AddColumn("Error", 180, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
-	for _, err := range *csvErrors {
+	for rowIndex, unitReasonSlice := range csvErrors {
 		tbl.AddRow()
-		tbl.Puts(-1, 0, err.Error())
+
+		tbl.Puts(-1, 0, strconv.Itoa(rowIndex))
+		tbl.Puts(-1, 1, unitReasonSlice[0])
+		tbl.Puts(-1, 2, unitReasonSlice[1])
 	}
 	return tbl.SprintTable(rlib.RPTTEXT)
 }
