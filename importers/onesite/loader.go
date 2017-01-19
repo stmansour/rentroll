@@ -536,93 +536,6 @@ func loadOneSiteCSV(
 		}
 	}
 
-	// LOAD PEOPLE CSV
-
-	// *****************************************************
-	// rrPeopleDoLoad (SPECIAL METHOD TO LOAD PEOPLE)
-	// *****************************************************
-	rrPeopleDoLoad := func(fname string, handler func(string) []error, traceDataMap string) bool {
-		Errs := handler(fname)
-		// fmt.Print(rcsv.ErrlistToString(&Errs))
-
-		for _, err := range Errs {
-			// skip warnings about already existing records
-			// if it's not kind of to skip then process it and count in error report
-			errText := err.Error()
-			if !csvRecordsToSkip(err) {
-				// split with separator `:`
-				s := strings.Split(errText, ":")
-				// remove first element from slice
-				s = append(s[:0], s[1:]...)
-				// now join with separator
-				errText = strings.Join(s, "|")
-				// split with separator `-`
-				s = strings.Split(errText, "-")
-				// get line number string
-				lineNoStr := s[0]
-				// remove space from lineNoStr string
-				lineNoStr = strings.Replace(lineNoStr, " ", "", -1)
-				// remove `lineno` text from lineNoStr string
-				lineNoStr = strings.Replace(lineNoStr, "lineno", "", -1)
-				// remove `line` text from lineNoStr string
-				lineNoStr = strings.Replace(lineNoStr, "line", "", -1)
-				// now it should contain number in string
-				lineNo, err := strconv.Atoi(lineNoStr)
-				if err != nil {
-					// CRITICAL
-					rlib.Ulog("rcsv loaders should do something about returning error format")
-					return false
-				}
-				// remove first element from slice
-				s = append(s[:0], s[1:]...)
-				// now join with separator
-				errText = strings.Join(s, "")
-				// replace new line broker
-				errText = strings.Replace(errText, "\n", "", -1)
-				// now get the original row index of imported onesite csv and Unit value
-				onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
-				// generate new error
-				err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
-				// append it into csvErrors
-				csvErrors = append(csvErrors, err)
-			} else {
-				// if duplicate people found then get TCID for original Transactant
-				rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, errText))
-				if strings.Contains(errText, DupTransactantWithPrimaryEmail) {
-					pEmail := ""
-					t := rlib.GetTransactantByPhoneOrEmail(business.BID, pEmail)
-					if t.TCID == 0 {
-						// TODO: count error
-						// csvErrors = append(csvErrors, err)
-					}
-				} else if strings.Contains(errText, DupTransactantWithCellPhone) {
-					pCellNo := ""
-					t := rlib.GetTransactantByPhoneOrEmail(business.BID, pCellNo)
-					if t.TCID == 0 {
-						// TODO: count error
-						// csvErrors = append(csvErrors, err)
-					}
-				}
-			}
-		}
-		// return with success
-		return true
-	}
-
-	h = []csvLoadHandler{
-		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
-	}
-
-	for i := 0; i < len(h); i++ {
-		if len(h[i].Fname) > 0 {
-			if !rrPeopleDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
-				// if any error then simple return with internal error
-				LoadOneSiteError = core.ErrInternal
-				return csvErrors, LoadOneSiteError
-			}
-		}
-	}
-
 	// ====================================
 	// INSERT CUSTOM ATTRIBUTE REF MANUALLY
 	// ====================================
@@ -653,7 +566,6 @@ func loadOneSiteCSV(
 			n := customAttributeConfig["Name"]
 			v := strconv.Itoa(int(refData.SqFt))
 			u := customAttributeConfig["Units"]
-			// TODO: add BID param in below method
 			ca := rlib.GetCustomAttributeByVals(t, n, v, u)
 			if ca.CID == 0 {
 				unit, _ := traceUnitMap[refData.RowIndex]
@@ -672,7 +584,6 @@ func loadOneSiteCSV(
 
 			// check that record already exists, if yes then just continue
 			// without accounting it as an error
-			// TODO: add BID param in below method
 			ref := rlib.GetCustomAttributeRef(a.ElementType, a.ID, a.CID)
 			if ref.ElementType == a.ElementType && ref.CID == a.CID && ref.ID == a.ID {
 				unit, _ := traceUnitMap[refData.RowIndex]
@@ -694,14 +605,137 @@ func loadOneSiteCSV(
 		}
 	}
 
+	// *****************************************************
+	// rrPeopleDoLoad (SPECIAL METHOD TO LOAD PEOPLE)
+	// *****************************************************
+	rrPeopleDoLoad := func(fname string, handler func(string) []error, traceDataMap string) bool {
+		Errs := handler(fname)
+		// fmt.Print(rcsv.ErrlistToString(&Errs))
+
+		for _, err := range Errs {
+			errText := err.Error()
+			// split with separator `:`
+			s := strings.Split(errText, ":")
+			// remove first element from slice
+			s = append(s[:0], s[1:]...)
+			// now join with separator
+			errText = strings.Join(s, "|")
+			// split with separator `-`
+			s = strings.Split(errText, "-")
+			// get line number string
+			lineNoStr := s[0]
+			// remove space from lineNoStr string
+			lineNoStr = strings.Replace(lineNoStr, " ", "", -1)
+			// remove `line` text from lineNoStr string
+			lineNoStr = strings.Replace(lineNoStr, "line", "", -1)
+			// now it should contain number in string
+			lineNo, err := strconv.Atoi(lineNoStr)
+			if err != nil {
+				// CRITICAL
+				rlib.Ulog("rcsv loaders should do something about returning error format")
+				return false
+			}
+			// now get the original row index of imported onesite csv and Unit value
+			onesiteIndex, unit := getIndexAndUnit(traceDataMap, lineNo)
+
+			// handling for duplicant transactant
+			if strings.Contains(errText, dupTransactantWithPrimaryEmail) {
+				// load csvRow from dataMap to get email
+				csvRow := *csvRowDataMap[onesiteIndex]
+				pEmail := csvRow.Email
+				// get tcid from email
+				t := rlib.GetTransactantByPhoneOrEmail(business.BID, pEmail)
+				if t.TCID == 0 {
+					// remove first element from slice
+					s = append(s[:0], s[1:]...)
+					// now join with separator
+					errText = strings.Join(s, "")
+					// replace new line broker
+					errText = strings.Replace(errText, "\n", "", -1)
+					// generate new error
+					err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
+					// append it into csvErrors
+					csvErrors = append(csvErrors, err)
+				} else {
+					// if duplicate people found
+					rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, errText))
+					// map it in tcid map
+					traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.FormatInt(t.TCID, 10)
+				}
+			} else {
+				// remove first element from slice
+				s = append(s[:0], s[1:]...)
+				// now join with separator
+				errText = strings.Join(s, "")
+				// replace new line broker
+				errText = strings.Replace(errText, "\n", "", -1)
+				// generate new error
+				err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
+				// append it into csvErrors
+				csvErrors = append(csvErrors, err)
+			}
+
+			// *****************************************************************
+			// AS WE DON'T HAVE MAPPING OF PHONENUMBER TO CELLPHONE
+			// WE JUST AVOID THIS CHECK, BUT KEEP THIS IN CASE MAPPING
+			// OF PHONENUMBER CHANGED TO CELLPHONE
+			// *****************************************************************
+			// else if strings.Contains(errText, dupTransactantWithCellPhone) {
+			// 	// load csvRow from dataMap to get email
+			// 	csvRow := *csvRowDataMap[onesiteIndex]
+			// 	pCellNo := csvRow.PhoneNumber
+			// 	// get tcid from cellphonenumber
+			// 	t := rlib.GetTransactantByPhoneOrEmail(business.BID, pCellNo)
+			// 	if t.TCID == 0 {
+			// 		// remove first element from slice
+			// 		s = append(s[:0], s[1:]...)
+			// 		// now join with separator
+			// 		errText = strings.Join(s, "")
+			// 		// replace new line broker
+			// 		errText = strings.Replace(errText, "\n", "", -1)
+			// 		// generate new error
+			// 		err = fmt.Errorf("%s at row \"%d\" with unit \"%s\"", errText, onesiteIndex, unit)
+			// 		// append it into csvErrors
+			// 		csvErrors = append(csvErrors, err)
+			// 	} else {
+			// 		// if duplicate people found
+			// 		rlib.Ulog(fmt.Sprintf("Error <%s>: %s", fname, errText))
+			// 		// map it in tcid map
+			// 		traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.FormatInt(t.TCID, 10)
+			// 	}
+			// *****************************************************
+
+		}
+		// return with success
+		return true
+	}
+
+	// LOAD PEOPLE CSV
+	h = []csvLoadHandler{
+		{Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV, TraceDataMap: "tracePeopleCSVMap"},
+	}
+
+	for i := 0; i < len(h); i++ {
+		if len(h[i].Fname) > 0 {
+			if !rrPeopleDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap) {
+				// if any error then simple return with internal error
+				LoadOneSiteError = core.ErrInternal
+				return csvErrors, LoadOneSiteError
+			}
+		}
+	}
+
 	// =====================================
 	// GET TCID FOR EACH ROW FROM PEOPLE CSV
 	// =====================================
 
 	// get TCID and update traceTCIDMap
-	// TODO: handle dupTransactant case to get reference of TCID
 	for onesiteIndex := range traceTCIDMap {
-		traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(rlib.GetTCIDByNote(onesiteNotesPrefix+strconv.Itoa(onesiteIndex)))
+		tcid := rlib.GetTCIDByNote(onesiteNotesPrefix + strconv.Itoa(onesiteIndex))
+		// for duplicant case, it won't be found so need check here
+		if tcid != 0 {
+			traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(tcid)
+		}
 	}
 
 	// ======================================================
