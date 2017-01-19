@@ -10,6 +10,7 @@ function setToForm(sform,url) {
     w2ui['toplayout'].show('right',true);
     w2ui['toplayout'].content('right', f);
     w2ui['toplayout'].sizeTo('right', 400);
+    f.resize();
     f.request();
 }
 

@@ -17,7 +17,9 @@ var assignmap = []struct {
 	{a: "XJSONAssignmentTime", b: "int64", mapper: AssignmentTime2Int64},
 	{a: "int64", b: "XJSONAssignmentTime", mapper: Int642AssignmentTime},
 	{a: "int", b: "JSONbool", mapper: Int2Bool},
-	{a: "JSONbool", b: "int", mapper: Int2Bool},
+	{a: "JSONbool", b: "int", mapper: Bool2Int},
+	{a: "int64", b: "JSONbool", mapper: Int642Bool},
+	{a: "JSONbool", b: "int64", mapper: Bool2Int64},
 }
 
 // XJSONAssignmentTime is a UI converter: backend int64, Front End string
@@ -76,6 +78,28 @@ func Bool2Int(a, b *reflect.Value) error {
 	i := 0
 	if false != (*a).Interface().(bool) {
 		i = 1
+	}
+	(*b).Set(reflect.ValueOf(i))
+	return nil
+}
+
+// Int642Bool copies an int into a bool value as follows
+// if the int is 0, the bool value is false
+// for any other value of the int the bool is true
+// a must point to an int
+// b must point to a bool
+func Int642Bool(a, b *reflect.Value) error {
+	(*b).Set(reflect.ValueOf(0 != (*a).Interface().(int64)))
+	return nil
+}
+
+// Bool2Int64 is the exact inverse of Int642Bool
+// a must point to a bool
+// b must point to an int
+func Bool2Int64(a, b *reflect.Value) error {
+	i := int64(0)
+	if false != (*a).Interface().(bool) {
+		i = int64(1)
 	}
 	(*b).Set(reflect.ValueOf(i))
 	return nil

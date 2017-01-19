@@ -38,6 +38,7 @@ type gxperson struct {
 	EmployerPostalCode        string
 	EmployerEmail             string
 	EmployerPhone             string
+	Website                   string
 	Occupation                string
 	ApplicationFee            float64       // if non-zero this Prospect is an applicant
 	DesiredUsageStartDate     rlib.JSONTime // predicted rent start date
