@@ -6,8 +6,6 @@ TESTSUMMARY="Load all csv files through loader and validate the database after l
 source ../share/base.sh
 RRCTX="-G ${BUD} -g 12/1/15,1/1/16"
 
-#./newbiz -b nb.csv -f rprefs.csv -n rprtrate.csv -t rpsprate.csv -l strlists.csv -R rt.csv -u custom.csv -d depository.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -a rp.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv -m depmeth.csv -y deposit.csv -S sources.csv >${LOGFILE} 2>&1
-
 mysqlverify "a"  "-b nb.csv"           		"NewBusinesses"	            	"select BID,BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC,LastModBy from Business;"
 mysqlverify "b"  "-l strlists.csv"     		"StringLists"	            	"select SLID,BID,Name,LastModBy from StringList;"
 mysqlverify "c"  " "	               		"SLString"	            		"select SLSID,SLID,Value,LastModBy from SLString;"
@@ -40,12 +38,12 @@ mysqlverify "b1" "-n rprtrate.csv"     		"RatePlanRefRTRate"	    		"select * fro
 mysqlverify "c1" "-t rpsprate.csv"     		"RatePlanRefSPRate"	    		"select * from RatePlanRefSPRate;"
 mysqlverify "d1" "-A asmt.csv ${RRCTX}"     "Assessments"	            	"select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
 mysqlverify "e1" "-P pmt.csv"          		"PaymentTypes"	            	"select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
-exit 1
 mysqlverify "f1" "-e rcpt.csv ${RRCTX}"     "PaymentAllocations"	    	"select * from ReceiptAllocation order by Amount ASC;"
 mysqlverify "g1" " "                   		"Receipts"	            		"select RCPTID,BID,RAID,PMTID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"
 mysqlverify "h1" "-u custom.csv"       		"CustomAttributes"	    		"select CID,BID,Type,Name,Value,LastModBy from CustomAttr;"
 mysqlverify "i1" "-U assigncustom.csv" 		"CustomAttributesAssignment" 	"select * from CustomAttrRef;"
 mysqlverify "j1" "-O nt.csv"           		"NoteTypes"	            		"select NTID,BID,Name,LastModBy from NoteType;"
 mysqlverify "k1" "-y deposit.csv ${RRCTX}"  "Deposits"	            		"select DID,BID,Dt,DEPID,Amount,LastModBy from Deposit;"
+
 
 logcheck

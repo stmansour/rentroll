@@ -1,0 +1,17 @@
+BUD,RPName,RPRID,RentableTypeName,Specialty1,Amount1,Specialty2,Amount2,Specialty3,Amount3,Specialty4,Amount4,Specialty5,Amount5
+REX,Std-T,1,GM,Courtyard View,100%,Fireplace,99.00%,Lake View,98%,Top Floor,97%,,100%
+REX,Std-T,1,FS,Courtyard View,96%,Fireplace,95.00%,Lake View,94%,Top Floor,93%,,100%
+REX,Std-T,1,SBL,Courtyard View,92%,Fireplace,91.00%,Lake View,90%,Top Floor,89%,,100%
+REX,Std-T,1,KDS,Courtyard View,88%,Fireplace,87.00%,Lake View,86%,Top Floor,85%,,100%
+REX,Std-P,2,GM,Courtyard View,84%,Fireplace,83.00%,Lake View,82%,Top Floor,81%,,100%
+REX,Std-P,2,FS,Courtyard View,80%,Fireplace,79.00%,Lake View,78%,Top Floor,77%,,100%
+REX,Std-P,2,SBL,Courtyard View,76%,Fireplace,75.00%,Lake View,74%,Top Floor,73%,,100%
+REX,Std-P,2,KDS,Courtyard View,72%,Fireplace,71.00%,Lake View,70%,Top Floor,69%,,100%
+REX,FAA-T,3,GM,Courtyard View,20,Fireplace,67.00%,Lake View,19,Top Floor,65%,,100%
+REX,FAA-T,3,FS,Courtyard View,18,Fireplace,63.00%,Lake View,17,Top Floor,61%,,100%
+REX,FAA-T,3,SBL,Courtyard View,16,Fireplace,59.00%,Lake View,15,Top Floor,57%,,100%
+REX,FAA-T,3,KDS,Courtyard View,14,Fireplace,55.00%,Lake View,13,Top Floor,53%,,100%
+REX,FAA-P,RPR0004,GM,Courtyard View,52%,Fireplace,51.00%,Lake View,50%,Top Floor,49%,,100%
+REX,FAA-P,4,FS,Courtyard View,10,Fireplace,47.00%,Lake View,8,Top Floor,45%,,100%
+REX,FAA-P,4,SBL,Courtyard View,44%,Fireplace,43.00%,Lake View,42%,Top Floor,41%,,100%
+REX,FAA-P,4,KDS,Courtyard View,6,Fireplace,39.00%,Lake View,4,Top Floor,37%,,100%

@@ -393,7 +393,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 				pr.RAID = y
 			}
 		default:
-			return CsvErrorSensitivity, fmt.Errorf("i = %d, unknown field\n", i)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unknown field, column %d\n", funcname, lineno, i)
 		}
 	}
 

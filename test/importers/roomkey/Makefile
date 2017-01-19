@@ -4,7 +4,7 @@ roomkey:
 	@echo "*** Completed in test/importers/roomkey ***"
 
 clean:
-	rm -f [a-z] rentroll.log log *.txt ${TEMPCSVSTORE}/*.csv
+	rm -f [a-z] rentroll.log log *.txt ${TEMPCSVSTORE}/*.csv roomkey.log
 	@echo "*** CLEAN completed in test/importers/roomkey ***"
 
 test:

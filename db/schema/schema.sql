@@ -878,12 +878,14 @@ CREATE TABLE JournalMarker (
 
 CREATE TABLE JournalAudit (
     JID BIGINT NOT NULL DEFAULT 0,          -- what JID was affected
+    BID BIGINT NOT NULL DEFAULT 0,          -- Business id
     UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
     ModTime TIMESTAMP                       -- timestamp of change    
 );
 
 CREATE TABLE JournalMarkerAudit (
     JMID BIGINT NOT NULL DEFAULT 0,         -- what JMID was affected
+    BID BIGINT NOT NULL DEFAULT 0,          -- Business id
     UID MEDIUMINT NOT NULL DEFAULT 0,       -- UID of person making the change
     ModTime TIMESTAMP                       -- timestamp of change
 );
@@ -952,12 +954,14 @@ CREATE TABLE GLAccount (
 
 CREATE TABLE LedgerAudit (
     LEID BIGINT NOT NULL DEFAULT 0,             -- what LEID was affected
+    BID BIGINT NOT NULL DEFAULT 0,              -- Business id
     UID MEDIUMINT NOT NULL DEFAULT 0,           -- UID of person making the change
     ModTime TIMESTAMP                           -- timestamp of change    
 );
 
 CREATE TABLE LedgerMarkerAudit (
     LMID BIGINT NOT NULL DEFAULT 0,             -- what LMID was affected
+    BID BIGINT NOT NULL DEFAULT 0,              -- Business id
     UID MEDIUMINT NOT NULL DEFAULT 0,           -- UID of person making the change
     ModTime TIMESTAMP                           -- timestamp of change    
 );

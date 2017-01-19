@@ -79,7 +79,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
+	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
@@ -92,26 +92,26 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	// The name must be unique. Make sure we don't have any other rlib.Rentable
 	// with this name...
 	//-------------------------------------------------------------------
-	r.Name = strings.TrimSpace(sa[1])
+	r.Name = strings.TrimSpace(sa[Name])
 	r1, err := rlib.GetRentableByName(r.Name, r.BID)
 	if err != nil {
 		s := err.Error()
 		if !strings.Contains(s, "no rows") {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - error with rlib.GetRentableByName: %s\n", funcname, lineno, err.Error())
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error with rlib.GetRentableByName: %s\n", funcname, lineno, err.Error())
 		}
 	}
 	if r1.RID > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - %s:: Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, DupRentable, r.Name)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Rentable with name \"%s\" already exists. Skipping. \n", funcname, lineno, DupRentable, r.Name)
 	}
 
 	//-------------------------------------------------------------------
 	// parse out the AssignmentTime value
 	// Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
 	//-------------------------------------------------------------------
-	if len(sa[2]) > 0 {
-		i, err := strconv.Atoi(sa[2])
+	if len(sa[AssignmentTime]) > 0 {
+		i, err := strconv.Atoi(sa[AssignmentTime])
 		if err != nil || i < 0 || i > 2 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - invalid AssignmentTime number: %s\n", funcname, lineno, sa[2])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid AssignmentTime number: %s\n", funcname, lineno, sa[AssignmentTime])
 		}
 		r.AssignmentTime = int64(i)
 	}
@@ -123,12 +123,12 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	// "ednak@springfield.com,1/1/2013,11/9/2015;homerj@springfield.com,11/20/2015,;marge@springfield.com,11/20/2015,"
 	//-----------------------------------------------------------------------------------
 	var rul []rlib.RentableUser // keep every rlib.RentableUser we find in an array
-	if 0 < len(strings.TrimSpace(sa[3])) {
-		st := strings.Split(sa[3], ";") // split it on Status 3-tuple separator (;)
-		for i := 0; i < len(st); i++ {  //spin through the 3-tuples
+	if 0 < len(strings.TrimSpace(sa[RUserSpec])) {
+		st := strings.Split(sa[RUserSpec], ";") // split it on Status 3-tuple separator (;)
+		for i := 0; i < len(st); i++ {          //spin through the 3-tuples
 			ss := strings.Split(st[i], ",")
 			if len(ss) != 3 {
-				return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 					funcname, lineno, len(ss), ss)
 			}
 
@@ -143,7 +143,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 
 			ru.DtStart, ru.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s", err.Error())
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, err.Error())
 			}
 			rul = append(rul, ru) // add this struct to the list
 		}
@@ -153,23 +153,23 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	// STATUS 3-TUPLEs
 	// "S1,Strt1,Stp1;S2,Strt2,Stp2 ..."
 	//-----------------------------------------------------------------------------------
-	if 0 == len(strings.TrimSpace(sa[4])) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - rlib.RentableStatus value is required.\n",
+	if 0 == len(strings.TrimSpace(sa[RentableStatus])) {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.RentableStatus value is required.\n",
 			funcname, lineno)
 	}
-	var m []rlib.RentableStatus     // keep every rlib.RentableStatus we find in an array
-	st := strings.Split(sa[4], ";") // split it on Status 3-tuple separator (;)
-	for i := 0; i < len(st); i++ {  //spin through the 3-tuples
+	var m []rlib.RentableStatus                  // keep every rlib.RentableStatus we find in an array
+	st := strings.Split(sa[RentableStatus], ";") // split it on Status 3-tuple separator (;)
+	for i := 0; i < len(st); i++ {               //spin through the 3-tuples
 		ss := strings.Split(st[i], ",")
 		if len(ss) != 3 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 				funcname, lineno, len(ss), ss)
 		}
 
 		var rst rlib.RentableStatus // struct for the data in this 3-tuple
 		ix, err := strconv.Atoi(ss[0])
 		if err != nil || ix < rlib.RENTABLESTATUSONLINE || ix > rlib.RENTABLESTATUSLAST {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - invalid Status value: %s.  Must be in the range %d to %d\n",
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status value: %s.  Must be in the range %d to %d\n",
 				funcname, lineno, ss[0], rlib.RENTABLESTATUSONLINE, rlib.RENTABLESTATUSLAST)
 		}
 		rst.Status = int64(ix)
@@ -181,7 +181,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		m = append(m, rst) // add this struct to the list
 	}
 	if len(m) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - rlib.RentableStatus value is required.\n",
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.RentableStatus value is required.\n",
 			funcname, lineno)
 	}
 
@@ -189,23 +189,23 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	// RTID 3-TUPLEs
 	// "RTname1,Amount,startDate1,stopDate1;RTname2,startDate2,stopDate2;..."
 	//-----------------------------------------------------------------------------------
-	if 0 == len(strings.TrimSpace(sa[5])) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - rlib.Rentable RTID Ref value is required.\n",
+	if 0 == len(strings.TrimSpace(sa[RentableTypeRef])) {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Rentable RTID Ref value is required.\n",
 			funcname, lineno)
 	}
 	var n []rlib.RentableTypeRef
-	st = strings.Split(sa[5], ";") // split on RTID 3-tuple seperator (;)
-	for i := 0; i < len(st); i++ { // spin through the 3-tuples
+	st = strings.Split(sa[RentableTypeRef], ";") // split on RTID 3-tuple seperator (;)
+	for i := 0; i < len(st); i++ {               // spin through the 3-tuples
 		ss := strings.Split(st[i], ",") // separate the 3 parts
 		if len(ss) != 3 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - invalid RTID syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid RTID syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
 				funcname, lineno, len(ss), ss)
 		}
 
 		var rt rlib.RentableTypeRef                                                  // struct for the data in this 3-tuple
 		rstruct, err := rlib.GetRentableTypeByStyle(strings.TrimSpace(ss[0]), r.BID) // find the rlib.RentableType being referenced
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - Could not load rentable type with style name: %s  -- error = %s\n",
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable type with style name: %s  -- error = %s\n",
 				funcname, lineno, ss[0], err.Error())
 		}
 		rt.RTID = rstruct.RTID
@@ -222,7 +222,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	rid, err := rlib.InsertRentable(&r)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - error inserting rlib.Rentable = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Rentable = %v\n", funcname, lineno, err)
 	}
 	if rid > 0 {
 		for i := 0; i < len(rul); i++ {
@@ -235,7 +235,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 			m[i].BID = r.BID
 			err := rlib.InsertRentableStatus(&m[i])
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())
 			}
 		}
 		for i := 0; i < len(n); i++ {
@@ -243,7 +243,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 			n[i].BID = r.BID
 			err := rlib.InsertRentableTypeRef(&n[i])
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableStatus: %s\n", funcname, lineno, err.Error())
 			}
 		}
 	}

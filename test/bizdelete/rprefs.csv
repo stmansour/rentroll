@@ -1,0 +1,5 @@
+BUD,RPName,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,CancellationFee,PromoCode,Flags
+REX,Std-T,1/1/2016,1/1/2199,12,2,10,25,,Hide
+REX,Std-P,1/1/2016,1/1/2199,12,2,50,25,,Hide
+REX,FAA-T,1/1/2016,1/1/2199,12,2,15,25,,
+REX,FAA-P,1/1/2016,1/1/2199,12,2,75,25,,

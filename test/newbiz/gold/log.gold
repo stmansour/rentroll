@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Sat Jan 14 20:13:41 PST 2017
+Date/Time:    Wed Jan 18 13:47:17 PST 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/01/14 20:13:42 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2017/01/18 13:47:18 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -26,12 +26,12 @@ CreateVehicleFromCSV: line 12 - vehicle with License Plate BR549 in State = MO a
 CreateVehicleFromCSV: line 13 - vehicle with License Plate BR549 in State = MO already exists
 CreateVehicleFromCSV: line 14 - vehicle with License Plate  in State =  already exists
 CreateRentables: line 2 - Business with bud aaa does not exist
-CreateRentables: lineno 3 - Could not load rentable type with style name: QYX  -- error = sql: no rows in result set
-CreateRentables: lineno 14 - invalid AssignmentTime number: 9
-CreateRentables: lineno 15 - invalid AssignmentTime number: 9
-CreateRentables: lineno 16 - invalid AssignmentTime number: 9
-CreateRentables: lineno 17 - DuplicateRentable:: Rentable with name "107" already exists. Skipping. 
-CreateRentables: lineno 18 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
+CreateRentables: line 3 - Could not load rentable type with style name: QYX  -- error = sql: no rows in result set
+CreateRentables: line 14 - invalid AssignmentTime number: 9
+CreateRentables: line 15 - invalid AssignmentTime number: 9
+CreateRentables: line 16 - invalid AssignmentTime number: 9
+CreateRentables: line 17 - DuplicateRentable:: Rentable with name "107" already exists. Skipping. 
+CreateRentables: line 18 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
 CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
@@ -61,8 +61,10 @@ CreateReceiptsFromCSV: line 7 -  invalid rlib.Receipt date:  12-11-2015
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 
 CreateCustomAttributes: line 6 - Type value must be a number from 0 to 4
-IntFromString: Value cannot be converted to an integer: ab827
-IntFromString: Value cannot be converted to an unsigned integer: ab827
+CreateCustomAttributes: line 7 - IntFromString: Value cannot be converted to an integer: ab827
+
+CreateCustomAttributes: line 8 - IntFromString: Value cannot be converted to an unsigned integer: ab827
+
 ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Sat Jan 14 20:13:44 PST 2017
+Test completed: Wed Jan 18 13:47:20 PST 2017
