@@ -133,8 +133,12 @@ func loadOneSiteCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
 // validateOneSiteCSVRow validates csv field of onesite
 // Dont perform validation while loading data in CSVRow struct
 // (in loadOneSiteCSVRow function as it decides when to stop parsing)
-func validateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
-	rowErrs := []error{}
+func validateOneSiteCSVRow(
+	oneSiteCSVRow *CSVRow,
+	rowIndex int,
+	csvErrors map[int][]string,
+) bool {
+	validated := true
 
 	// fill data according to headers length
 	reflectedOneSiteCSVRow := reflect.ValueOf(oneSiteCSVRow).Elem()
@@ -146,10 +150,12 @@ func validateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 	// when it encounters other type of rentablestatus
 	// right now we are just throwing an error of bad value
 	if !ok {
-		statusErr := fmt.Errorf("\"%s\" has no valid rentable status value at row \"%d\" with unit \"%s\"",
-			"UnitLeaseStatus", rowIndex, oneSiteCSVRow.Unit)
-		rowErrs = append(rowErrs, statusErr)
-		return rowErrs
+		csvErrors[rowIndex] = []string{
+			oneSiteCSVRow.Unit,
+			"UnitLeaseStatus has no valid rentable status value",
+		}
+		validated = false
+		return validated
 	}
 
 	if strings.Contains(oneSiteCSVRow.UnitLeaseStatus, "occupied") {
@@ -157,23 +163,25 @@ func validateOneSiteCSVRow(oneSiteCSVRow *CSVRow, rowIndex int) []error {
 		for i := 0; i < len(csvCols); i++ {
 			fieldName := reflect.TypeOf(*oneSiteCSVRow).Field(i).Name
 			fieldValue := reflectedOneSiteCSVRow.Field(i).Interface().(string)
-			err := validateCSVField(oneSiteCSVRow, fieldName, fieldValue, rowIndex+1)
+			err := validateCSVField(oneSiteCSVRow, fieldName, fieldValue, rowIndex)
 			if err != nil {
-				rowErrs = append(rowErrs, err)
+				csvErrors[rowIndex] = []string{oneSiteCSVRow.Unit, err.Error()}
+				validated = false
 			}
 		}
 	} else {
 		// perform validation on fields defined in notOccupiedRentableValidateFields
 		for _, fieldName := range notOccupiedRentableValidateFields {
 			fieldValue := reflectedOneSiteCSVRow.FieldByName(fieldName).Interface().(string)
-			err := validateCSVField(oneSiteCSVRow, fieldName, fieldValue, rowIndex+1)
+			err := validateCSVField(oneSiteCSVRow, fieldName, fieldValue, rowIndex)
 			if err != nil {
-				rowErrs = append(rowErrs, err)
+				csvErrors[rowIndex] = []string{oneSiteCSVRow.Unit, err.Error()}
+				validated = false
 			}
 		}
 	}
 
-	return rowErrs
+	return validated
 }
 
 // validateCSVField validates csv field of onesite
@@ -182,7 +190,7 @@ func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowInde
 
 	// if not found then simple return
 	if !ok {
-		// TODO: verify this also
+		rlib.Ulog("Rule for field %s not found", field)
 		return nil
 	}
 
@@ -195,7 +203,7 @@ func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowInde
 
 	// if blank is not allowed and value is blank then return with error
 	if fieldBlankAllow == "false" && value == "" {
-		return fmt.Errorf("\"%s\" has blank value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+		return fmt.Errorf("\"%s\" has blank value", field)
 	}
 
 	// check with field type
@@ -203,43 +211,43 @@ func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowInde
 	case "int":
 		ok := core.IsIntString(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid integer number value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+			return fmt.Errorf("\"%s\" has no valid integer number value", field)
 		}
 		return nil
 	case "uint":
 		ok := core.IsUIntString(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid positive integer number value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+			return fmt.Errorf("\"%s\" has no valid positive integer number value", field)
 		}
 		return nil
 	case "float":
 		ok := core.IsFloatString(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid integer number value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+			return fmt.Errorf("\"%s\" has no valid integer number value", field)
 		}
 		return nil
 	case "email":
 		ok := core.IsValidEmail(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid email value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+			return fmt.Errorf("\"%s\" has no valid email value", field)
 		}
 		return nil
 	case "phone":
 		ok := core.IsValidPhone(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid phone number value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+			return fmt.Errorf("\"%s\" has no valid phone number value", field)
 		}
 		return nil
 	case "date":
 		_, err := rlib.StringToDate(value)
 		if err != nil {
-			return fmt.Errorf("\"%s\" has no valid date value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+			return fmt.Errorf("\"%s\" has no valid date value", field)
 		}
 		return nil
 	case "rentable_status":
 		ok, _, _ := IsValidRentableStatus(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid rentable status value at row \"%d\" with unit \"%s\"", field, rowIndex, oneSiteCSVRow.Unit)
+			return fmt.Errorf("\"%s\" has no valid rentable status value", field)
 		}
 		return nil
 	default:
