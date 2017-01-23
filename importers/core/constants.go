@@ -28,6 +28,7 @@ const (
 	DBRentalAgreement = iota
 )
 
+// DBTypeMapStrings holds dbtype int to string format
 var DBTypeMapStrings = map[int]string{
 	DBCustomAttr:      strconv.Itoa(DBCustomAttr),
 	DBRentableType:    strconv.Itoa(DBRentableType),
