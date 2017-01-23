@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"phonebook/lib"
+	"rentroll/importers/core"
 	"rentroll/importers/onesite"
 	"rentroll/rlib"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kardianos/osext"
 )
 
 // App is the global application structure used for onesite csv importer
@@ -29,46 +32,32 @@ var App struct {
 // userRRValues holds the values passed by user for rentroll attributes
 var userRRValues = make(map[string]string)
 
-// GetOneSiteFieldDefaultValues used to return map[string]string
-// with field values, which is default to values defined here
-func GetOneSiteFieldDefaultValues() map[string]string {
-	defaults := map[string]string{}
-	defaults["ManageToBudget"] = "1" // always take to default this one
-	defaults["RentCycle"] = "6"      // maybe overridden by user supplied value
-	defaults["Proration"] = "4"      // maybe overridden by user supplied value
-	defaults["GSRPC"] = "4"          // maybe overridden by user supplied value
-	defaults["AssignmentTime"] = "1" // always take to default this one
-	defaults["Renewal"] = "2"        // always take to default this one
-	return defaults
-}
-
 // MergeSuppliedAndDefaultValues used to merge
 // override values from userRRValues map into matched
 // field of Defaults
 func MergeSuppliedAndDefaultValues() {
-	defaults := GetOneSiteFieldDefaultValues()
 
 	// override default values to userRRValues map
 	// if not passed
 	for k := range userRRValues {
 		if userRRValues[k] == "" {
-			if defaultVal, ok := defaults[k]; ok {
+			if defaultVal, ok := onesite.FieldDefaultValues[k]; ok {
 				userRRValues[k] = defaultVal
 			}
 		}
 	}
 
-	// append also defaults fields in userRRValues
+	// append also onesite fields in userRRValues
 	// if it does not exist in map
-	for k, v := range defaults {
+	for k, v := range onesite.FieldDefaultValues {
 		if _, ok := userRRValues[k]; !ok {
 			userRRValues[k] = v
 		}
 	}
 }
 
-func readCommandLineArgs() (bool, []string) {
-	ok, errors := true, []string{}
+func readCommandLineArgs() []string {
+	inputErrors := []string{}
 	// a csv file must be passed
 	fp := flag.String("csv", "", "the name of the onesite CSV file to import")
 	// a bud must be passed
@@ -94,18 +83,17 @@ func readCommandLineArgs() (bool, []string) {
 	flag.Parse()
 
 	if *fp == "" {
-		ok = false
-		errors = append(errors, "Please, pass onesite csv input file")
+		inputErrors = append(inputErrors, "Please, pass onesite csv input file")
 	}
 
 	if *bud == "" {
-		ok = false
-		errors = append(errors, "Please, pass business unit designation")
+		inputErrors = append(inputErrors, "Please, pass business unit designation")
 	}
 
-	// if not ok then return with errors, otherwise fill up values in map
-	if !ok {
-		return ok, errors
+	// above inputs must required from users
+	// so put condition here
+	if len(inputErrors) > 0 {
+		return inputErrors
 	}
 
 	// App structure values
@@ -121,28 +109,57 @@ func readCommandLineArgs() (bool, []string) {
 	userRRValues["GSRPC"] = *gsrpc
 	userRRValues["BUD"] = *bud
 
-	return ok, errors
+	return inputErrors
 }
 
 func main() {
+
+	// ================================
+	// COMMAND LINE OPTIONS VALIDATION
+	// ================================
+	inputErrors := readCommandLineArgs()
+	if len(inputErrors) > 0 {
+		for _, errText := range inputErrors {
+			fmt.Println(errText)
+		}
+		os.Exit(1)
+	}
+
+	// ==========================================================
+	// INITIAL SETUP: CSV TEMP STORAGE, DATABASE CONNECTION, LOG FILE
+	// ==========================================================
+
+	// error variable
 	var err error
 
-	// setup log file
+	// LOGFILE SETUP
 	App.LogFile, err = os.OpenFile("onesite.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	lib.Errcheck(err)
 	defer App.LogFile.Close()
 	log.SetOutput(App.LogFile)
-	rlib.Ulog("IMPORTERS started \n")
+	rlib.Ulog("*********** ONTESITE IMPORTER HAS BEEN STARTED *********** \n")
 
-	// read command line argument first
-	ok, inputErrors := readCommandLineArgs()
-	if !ok {
-		fmt.Printf("Input Errors: %v\n", inputErrors)
+	// CSV STORE CHECK
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <INITIALIZATION>: %s", err.Error())
 		os.Exit(1)
 	}
 
-	// db initialization
+	// get path of splitted csv store
+	onesite.TempCSVStore = path.Join(folderPath, onesite.TempCSVStoreName)
+
+	// if tempCSVStore not exist then create it
+	if _, err := os.Stat(onesite.TempCSVStore); os.IsNotExist(err) {
+		os.MkdirAll(onesite.TempCSVStore, 0700)
+	}
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <INITIALIZATION>: %s", err.Error())
+		os.Exit(1)
+	}
+
+	// DATABASE INITIALIZATION
 	rlib.RRReadConfig()
 
 	//----------------------------
@@ -179,27 +196,43 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
-	// ###########################################
-	// DB INIT COMPLETE     ##
-	// ###########################################
+
+	// ==================================
+	// AFTER DB SETUP DO VALIDATION OVER
+	// USER SUPPLIED VALUES WITH DB VALUES
+	// ==================================
 
 	// merge user supplied values with default one
 	MergeSuppliedAndDefaultValues()
 
+	// now validation on user supplied values
+	validateErrs, business := onesite.ValidateUserSuppliedValues(userRRValues)
+	if len(validateErrs) > 0 {
+		for _, err := range validateErrs {
+			fmt.Println(err.Error())
+		}
+		os.Exit(1)
+	}
+
+	// =======================
+	// CALL ONSITE CSV HANDLER
+	// =======================
+
 	// call onesite loader
-	done, ErrReport, oneSiteErr := onesite.CSVHandler(
+	report, internalErr, done := onesite.CSVHandler(
 		App.CSV,
 		App.TestMode,
 		userRRValues,
+		business,
 	)
 
 	var oneSiteErrText string
-	if oneSiteErr != nil {
-		oneSiteErrText = oneSiteErr.Error()
+	if internalErr {
+		oneSiteErrText = core.ErrInternal.Error()
 	}
 	fmt.Printf("\n1. ONESITE IMPORTING SUCCESSFULLY DONE: %v", done)
 	fmt.Printf("\n2. ONESITE ERRORS: %v", oneSiteErrText)
 	fmt.Printf("\n3. ONESITE CSV ERROR REPORT:")
 	fmt.Printf("\n%s", strings.Repeat("=", 65))
-	fmt.Printf("\n%s", ErrReport)
+	fmt.Printf("\n%s", report)
 }

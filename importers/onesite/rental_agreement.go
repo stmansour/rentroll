@@ -62,14 +62,13 @@ func WriteRentalAgreementData(
 	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
-	// avoidData *[]string,
 	currentTime time.Time,
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	rentalAgreementStruct *core.RentalAgreementCSV,
 	traceTCIDMap map[int]string,
+	csvErrors map[int][]string,
 ) {
-	// TODO: need to decide how to avoid data
 
 	// TODO: generate error here for RentableTypeRef
 	// to let endusers know that least start/end dates don't exists so we are taking
@@ -88,6 +87,21 @@ func WriteRentalAgreementData(
 	rentableDefaultData["DtStop"] = DtStop
 	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
 
+	// flag warning that we are taking default values for least start, end dates
+	// as they don't exists
+	if csvRow.LeaseStart == "" {
+		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentalAgreement] + ">:"
+		csvErrors[rowIndex] = append(csvErrors[rowIndex],
+			warnPrefix+"No lease start date has been passed hence taking default value "+DtStart,
+		)
+	}
+	if csvRow.LeaseEnd == "" {
+		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentalAgreement] + ">:"
+		csvErrors[rowIndex] = append(csvErrors[rowIndex],
+			warnPrefix+"No lease end date has been passed hence taking default value "+DtStop,
+		)
+	}
+
 	// get csv row data
 	ok, csvRowData := GetRentalAgreementCSVRow(
 		csvRow, rentalAgreementStruct,
@@ -100,7 +114,10 @@ func WriteRentalAgreementData(
 		// after write operation to csv,
 		// entry this rowindex with unit value in the map
 		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
+
+		// need to map on next row index of temp csv as first row is header line
+		// and recordCount initialized with 0 value
+		traceCSVData[*recordCount+1] = rowIndex
 	}
 }
 

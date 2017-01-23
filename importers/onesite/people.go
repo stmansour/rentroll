@@ -61,12 +61,57 @@ func WritePeopleCSVData(
 	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
-	// avoidData *[]string,
+	traceDuplicatePeople map[string][]string,
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	peopleStruct *core.PeopleCSV,
+	csvErrors map[int][]string,
 ) {
-	// TODO: need to decide how to avoid duplicate data
+
+	// flag duplicate people
+	name := strings.TrimSpace(csvRow.Name)
+	email := strings.TrimSpace(csvRow.Email)
+	phone := strings.TrimSpace(csvRow.PhoneNumber)
+
+	// flag for name of people who has no email or phone
+	if name != "" && email == "" && phone == "" {
+		if core.StringInSlice(name, traceDuplicatePeople["name"]) {
+			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBPeople] + ">:"
+			// mark it as a warning so customer can validate it
+			csvErrors[rowIndex] = append(csvErrors[rowIndex],
+				warnPrefix+"There is at least one other person with the name \""+name+"\" "+
+					"who also has no unique identifiers such as cell phone number or email.",
+			)
+		} else {
+			traceDuplicatePeople["name"] = append(traceDuplicatePeople["name"], name)
+		}
+	}
+
+	// flag for email
+	if email != "" {
+		if core.StringInSlice(email, traceDuplicatePeople["email"]) {
+			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBPeople] + ">:"
+			// mark it as a warning so customer can validate it
+			csvErrors[rowIndex] = append(csvErrors[rowIndex],
+				warnPrefix+"There is at least one other person with the email \""+email+"\"",
+			)
+		} else {
+			traceDuplicatePeople["email"] = append(traceDuplicatePeople["email"], email)
+		}
+	}
+
+	// flag for phone
+	if phone != "" {
+		if core.StringInSlice(phone, traceDuplicatePeople["phone"]) {
+			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBPeople] + ">:"
+			// mark it as a warning so customer can validate it
+			csvErrors[rowIndex] = append(csvErrors[rowIndex],
+				warnPrefix+"There is at least one other person with the phone \""+phone+"\"",
+			)
+		} else {
+			traceDuplicatePeople["phone"] = append(traceDuplicatePeople["phone"], phone)
+		}
+	}
 
 	// get csv row data
 	ok, csvRowData := GetPeopleCSVRow(
@@ -81,7 +126,10 @@ func WritePeopleCSVData(
 		// after write operation to csv,
 		// entry this rowindex with unit value in the map
 		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
+
+		// need to map on next row index of temp csv as first row is header line
+		// and recordCount initialized with 0 value
+		traceCSVData[*recordCount+1] = rowIndex
 	}
 }
 

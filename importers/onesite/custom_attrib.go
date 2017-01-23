@@ -110,6 +110,9 @@ func WriteCustomAttributeData(
 		// after write operation to csv,
 		// entry this rowindex with unit value in the map
 		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
+
+		// need to map on next row index of temp csv as first row is header line
+		// and recordCount initialized with 0 value
+		traceCSVData[*recordCount+1] = rowIndex
 	}
 }

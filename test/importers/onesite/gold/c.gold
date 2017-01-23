@@ -3,14 +3,42 @@
 2. ONESITE ERRORS: 
 3. ONESITE CSV ERROR REPORT:
 =================================================================
+Import File: ./onesite.csv
+
+===============
+SUMMARY SECTION
+===============
+                                Total       Total                 
+Data Type                       Possible    Imported    Issues    
+------------------------------  ----------  ----------  ----------
+Custom Attributes               4           4           0         
+Rentable Types                  4           4           0         
+Custom Attribute References     4           4           0         
+Transactants                    5           5           0         
+Rentables                       6           6           2         
+Rental Agreements               5           5           0         
+
+
+=======================
+DETAILED REPORT SECTION
+=======================
+Input Line  Unit Name             RentRoll DB Type      Description                                                                                                                                                                         
+----------  --------------------  --------------------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+12          6343-166              Rentables             Warning: No lease start date has been passed hence taking default value 1/23/2017                                                                                                   
+12          6343-166              Rentables             Warning: No lease end date has been passed hence taking default value 12/31/9999                                                                                                    
+
+
+=====================================================
+RECORDS FOR BUSINESS UNIT DESIGNATION: JGM First, LLC
+=====================================================
                                                          Manage                                  
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   1/18/17 - 12/31/99 $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  800.00
 ================================================================================
 RID        Name      Assignment Time
 ---------  --------  ---------------

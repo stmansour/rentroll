@@ -6,10 +6,20 @@ import (
 )
 
 // tempCSVStoreName holds the name of csvstore folder
-var tempCSVStoreName = "temp_CSVs"
+var TempCSVStoreName = "temp_CSVs"
 
 // used to store temporary csv files
-var tempCSVStore string
+var TempCSVStore string
+
+// used to overwrite if user has not passed to values for these fields
+var FieldDefaultValues = map[string]string{
+	"ManageToBudget": "1", // always take to default this one
+	"RentCycle":      "6", // maybe overridden by user supplied value
+	"Proration":      "4", // maybe overridden by user supplied value
+	"GSRPC":          "4", // maybe overridden by user supplied value
+	"AssignmentTime": "1", // always take to default this one
+	"Renewal":        "2", // always take to default this one
+}
 
 // CARD Custom Attriute Ref Data struct, holds data
 // from which we'll insert customAttributeRef in system
@@ -90,6 +100,48 @@ const (
 	Referral        = iota
 )
 
+// fieldColumnMap contains internal OneSite Structure fields
+// to csv columns, used to refer columns from struct fields
+var fieldColumnMap = map[string]string{
+	"Unit":            "Unit",
+	"FloorPlan":       "FloorPlan",
+	"UnitDesignation": "UnitDesignation",
+	"Sqft":            "SQFT",
+	"UnitLeaseStatus": "Unit/LeaseStatus",
+	"Name":            "Name",
+	"PhoneNumber":     "PhoneNumber",
+	"Email":           "Email",
+	"MoveIn":          "Move-In",
+	"NoticeForDate":   "NoticeForDate",
+	"MoveOut":         "Move-Out",
+	"LeaseStart":      "LeaseStart",
+	"LeaseEnd":        "LeaseEnd",
+	"MarketAddl":      "Market+Addl.",
+	"DepOnHand":       "DepOnHand",
+	"Balance":         "Balance",
+	"TotalCharges":    "TotalCharges",
+	"Rent":            "RENT",
+	"WaterReImb":      "WATERREIMB",
+	"Corp":            "CORP",
+	"Discount":        "DISCOUNT",
+	"Platinum":        "Platinum",
+	"Tax":             "TAX",
+	"ElectricReImb":   "ELECTRICREIMB",
+	"Fire":            "Fire",
+	"ConcSpecl":       "CONC/SPECL",
+	"WashDry":         "WASH/DRY",
+	"EmplCred":        "EMPLCRED",
+	"Short":           "SHORT",
+	"PetFee":          "PETFEE",
+	"TrashReImb":      "TRASHREIMB",
+	"TermFee":         "TERMFEE",
+	"LakeView":        "Lakeview",
+	"Utility":         "UTILITY",
+	"Furn":            "FURN",
+	"Mtom":            "MTOM",
+	"Referral":        "REFERRAL",
+}
+
 // defined csv columns
 var csvCols = []rcsv.CSVColumn{
 	{Name: "Unit", Index: Unit},
@@ -131,36 +183,25 @@ var csvCols = []rcsv.CSVColumn{
 	{Name: "REFERRAL", Index: Referral},
 }
 
-// // this structure used as table-driven approach
-// // to write data in csv
-// type oneSiteCSVWriter struct {
-// 	handler                 func(string)
-// 	csvTypeNo               int
-// 	recordCount             *int
-// 	rowIndex                int
-// 	traceDataMap            map[int]int
-// 	csvWriter               *csv.Writer
-// 	csvRow                  *CSVRow
-// 	avoidData               interface{}
-// 	currentTime             time.Time
-// 	currentTimeFormat       string
-// 	userRRValues            map[string]string
-// 	dbTypeCSV               interface{}
-// 	customAttributesRefData map[string]CARD
-// 	business                *rlib.Business
-// }
-
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type csvLoadHandler struct {
 	Fname        string
 	Handler      func(string) []error
 	TraceDataMap string
+	DBType       int
 }
 
 // canWriteCSVStatusMap holds the set of csv types with key of status value
 // used in checking if csv file for db type is able to perform write operation
 // for the given status value
 var canWriteCSVStatusMap = map[string][]int{
+	// if rentable status is blank then still you can write data to these CSVs
+	"": []int{
+		core.RENTABLETYPECSV,
+		core.RENTALAGREEMENTCSV,
+		// core.PEOPLECSV,
+		core.CUSTOMATTRIUTESCSV,
+	},
 	"occupied": []int{
 		core.RENTABLETYPECSV,
 		core.PEOPLECSV,
