@@ -864,8 +864,7 @@ func CSVHandler(
 
 	// check if there any errors from onesite loader
 	if len(csvErrs) > 0 {
-		csvLoaded = false
-		csvReport = errorReporting(business, csvErrs, unitMap, summaryReportCount, csvPath)
+		csvReport, csvLoaded = errorReporting(business, csvErrs, unitMap, summaryReportCount, csvPath)
 
 		// if not testmode then only do rollback
 		if testMode != 1 {
@@ -886,10 +885,11 @@ func CSVHandler(
 func generateSummaryReport(summaryCount map[int]map[string]int) string {
 	var report string
 
-	tableTitle := "Summary Section"
+	tableTitle := "SUMMARY SECTION"
 	report += strings.Repeat("=", len(tableTitle))
-	report += tableTitle
+	report += "\n" + tableTitle + "\n"
 	report += strings.Repeat("=", len(tableTitle))
+	report += "\n"
 
 	var tbl rlib.Table
 	tbl.Init()
@@ -917,7 +917,10 @@ func generateSummaryReport(summaryCount map[int]map[string]int) string {
 		tbl.Puts(-1, 3, strconv.Itoa(countMap["issues"]))
 	}
 
-	return tbl.SprintTable(rlib.RPTTEXT)
+	report += tbl.SprintTable(rlib.RPTTEXT)
+	report += "\n\n"
+
+	return report
 }
 
 // generateDetailedReport gives detailed report with (rowNumber, unit, db type, reason)
@@ -933,6 +936,12 @@ func generateDetailedReport(
 	csvReportGenerate := true
 
 	var detailedReport string
+	tableTitle := "DETAILED REPORT SECTION"
+	detailedReport += strings.Repeat("=", len(tableTitle))
+	detailedReport += "\n" + tableTitle + "\n"
+	detailedReport += strings.Repeat("=", len(tableTitle))
+	detailedReport += "\n"
+
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("Input Line", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
@@ -1050,6 +1059,7 @@ func generateDetailedReport(
 
 	// append detailed section
 	detailedReport += tbl.SprintTable(rlib.RPTTEXT)
+	detailedReport += "\n\n"
 
 	// return
 	return detailedReport, csvReportGenerate
@@ -1072,6 +1082,12 @@ func generateCSVReport(
 	}
 
 	var report string
+
+	title := fmt.Sprintf("RECORDS FOR BUSINESS UNIT DESIGNATION: %s", business.Name)
+	report += strings.Repeat("=", len(title))
+	report += "\n" + title + "\n"
+	report += strings.Repeat("=", len(title))
+	report += "\n"
 
 	for i := 0; i < len(r); i++ {
 		report += r[i].Handler(&r[i])
@@ -1104,7 +1120,6 @@ func successReport(
 
 	// append summary report
 	report += generateSummaryReport(summaryCount)
-	report += "\n\n"
 
 	// csv report for all types
 	report += generateCSVReport(business, summaryCount, csvFile)
@@ -1120,7 +1135,7 @@ func errorReporting(
 	unitMap map[int]string,
 	summaryCount map[int]map[string]int,
 	csvFile string,
-) string {
+) (string, bool) {
 	var errReport string
 
 	// import file name in first line
@@ -1133,11 +1148,9 @@ func errorReporting(
 
 	// append summary report
 	errReport += generateSummaryReport(summaryCount)
-	errReport += "\n\n"
 
 	// append detailedReport
 	errReport += detailedReport
-	errReport += "\n\n"
 
 	// if true then generate csv report
 	// specia case: when there are only warnings but no errors
@@ -1146,5 +1159,5 @@ func errorReporting(
 	}
 
 	// return
-	return errReport
+	return errReport, csvReportGenerate
 }
