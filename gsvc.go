@@ -80,6 +80,41 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 	w.Write(b)
 }
 
+func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
+	funcname := "getPOSTdata"
+	var err error
+	htmlData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		e := fmt.Errorf("%s: Error reading message Body: %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return e
+	}
+	fmt.Printf("htmlData = %s\n", htmlData)
+	u, err := url.QueryUnescape(string(htmlData))
+	if err != nil {
+		e := fmt.Errorf("%s: Error with QueryUnescape: %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return e
+	}
+
+	requestHeader := "request=" // this is what w2ui starts all its grid requests with
+	i := strings.Index(u, requestHeader)
+	if i >= 0 {
+		// e := fmt.Errorf("%s: Bad request format.  Looking for \"request=\"...  found: %s\n", funcname, u)
+		// SvcGridErrorReturn(w, e)
+		// return
+		u = u[i+len(requestHeader):]
+		d.data = u
+	}
+	err = json.Unmarshal([]byte(u), &d.greq)
+	if err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return e
+	}
+	return err
+}
+
 // gridServiceHandler is the main dispatch point for w2ui grid service requests
 //
 // The expected input is of the form:
@@ -92,24 +127,10 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 // from function to function.
 //-----------------------------------------------------------------------------------------------------------
 func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Printf("Entered gridServiceHandler\n")
-
 	funcname := "gridServiceHandler"
-	var d ServiceData
-	htmlData, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		e := fmt.Errorf("%s: Error reading message Body: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	u, err := url.QueryUnescape(string(htmlData))
-	if err != nil {
-		e := fmt.Errorf("%s: Error with QueryUnescape: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
+	var err error
 
+	fmt.Printf("Entered %s.  r.Method = %s\n", funcname, r.Method)
 	fmt.Printf("Request Headers\n")
 	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
 	for k, v := range r.Header {
@@ -121,19 +142,15 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
 
-	requestHeader := "request=" // this is what w2ui starts all its grid requests with
-	i := strings.Index(u, requestHeader)
-	if i < 0 {
-		e := fmt.Errorf("%s: Bad request format.  Looking for \"request=\"...  found: %s\n", funcname, u)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	u = u[i+len(requestHeader):]
-	d.data = u
-	err = json.Unmarshal([]byte(u), &d.greq)
-	if err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+	var d ServiceData
+
+	switch r.Method {
+	case "POST":
+		if nil != getPOSTdata(w, r, &d) {
+			return
+		}
+	case "GET":
+		fmt.Printf("GET method not yet handled\n")
 		return
 	}
 

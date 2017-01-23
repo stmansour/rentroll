@@ -9,7 +9,7 @@ source ../share/base.sh
 
 pushd ../jm1;./functest.sh;popd
 
-docsvtest "a" "-b business.csv -L 3" "Business"
+docsvtest "a" "-b Business.csv -L 3" "Business"
 docsvtest "b" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
 docsvtest "b1" "-c ccccoa.csv -L 10,CCC" "ChartOfAccounts"
 docsvtest "c" "-m depmeth.csv -L 23,${BUD}" "DepositMethods"
