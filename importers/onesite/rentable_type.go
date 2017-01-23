@@ -118,7 +118,10 @@ func WriteRentableTypeCSVData(
 		// after write operation to csv,
 		// entry this rowindex with unit value in the map
 		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
+
+		// need to map on next row index of temp csv as first row is header line
+		// and recordCount initialized with 0 value
+		traceCSVData[*recordCount+1] = rowIndex
 	}
 }
 
@@ -161,7 +164,7 @@ func GetRentableTypeCSVRow(
 		MappedFieldName := reflectedRentableTypeFieldMap.FieldByName(rentableTypeField.Name).Interface().(string)
 		// MappedFieldName, ok := reflectedRentableTypeFieldMap.FieldByName(rentableTypeField.Name).Interface().(string)
 		// if !ok {
-		//  panic("coudln't get mapping field")
+		// 	rlib.Ulog("Mapping Field not found", ...)
 		// }
 
 		// if has not value then continue

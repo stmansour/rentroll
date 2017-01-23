@@ -143,17 +143,26 @@ func validateOneSiteCSVRow(
 	// fill data according to headers length
 	reflectedOneSiteCSVRow := reflect.ValueOf(oneSiteCSVRow).Elem()
 
+	// first check if it has blank value or not
+	if oneSiteCSVRow.UnitLeaseStatus == "" {
+		csvErrors[rowIndex] = append(
+			csvErrors[rowIndex],
+			fmt.Sprintf("E:%s has blank value", fieldColumnMap["UnitLeaseStatus"]),
+		)
+		validated = false
+		return validated
+	}
+
 	// perform validation based on rentable status
 	ok, _, _ := IsValidRentableStatus(oneSiteCSVRow.UnitLeaseStatus)
 
-	// TODO: need to clear on this what should importers do
-	// when it encounters other type of rentablestatus
+	// NOTE: when it encounters other type of rentablestatus
 	// right now we are just throwing an error of bad value
 	if !ok {
-		csvErrors[rowIndex] = []string{
-			oneSiteCSVRow.Unit,
-			"UnitLeaseStatus has no valid rentable status value",
-		}
+		csvErrors[rowIndex] = append(
+			csvErrors[rowIndex],
+			fmt.Sprintf("E:%s has no valid rentable status value", fieldColumnMap["UnitLeaseStatus"]),
+		)
 		validated = false
 		return validated
 	}
@@ -165,7 +174,7 @@ func validateOneSiteCSVRow(
 			fieldValue := reflectedOneSiteCSVRow.Field(i).Interface().(string)
 			err := validateCSVField(oneSiteCSVRow, fieldName, fieldValue, rowIndex)
 			if err != nil {
-				csvErrors[rowIndex] = []string{oneSiteCSVRow.Unit, err.Error()}
+				csvErrors[rowIndex] = append(csvErrors[rowIndex], err.Error())
 				validated = false
 			}
 		}
@@ -175,7 +184,7 @@ func validateOneSiteCSVRow(
 			fieldValue := reflectedOneSiteCSVRow.FieldByName(fieldName).Interface().(string)
 			err := validateCSVField(oneSiteCSVRow, fieldName, fieldValue, rowIndex)
 			if err != nil {
-				csvErrors[rowIndex] = []string{oneSiteCSVRow.Unit, err.Error()}
+				csvErrors[rowIndex] = append(csvErrors[rowIndex], err.Error())
 				validated = false
 			}
 		}
@@ -187,6 +196,7 @@ func validateOneSiteCSVRow(
 // validateCSVField validates csv field of onesite
 func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowIndex int) error {
 	rule, ok := csvRowFieldRules[field]
+	csvColumnFieldName := fieldColumnMap[field]
 
 	// if not found then simple return
 	if !ok {
@@ -203,7 +213,7 @@ func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowInde
 
 	// if blank is not allowed and value is blank then return with error
 	if fieldBlankAllow == "false" && value == "" {
-		return fmt.Errorf("\"%s\" has blank value", field)
+		return fmt.Errorf("E:\"%s\" has blank value", csvColumnFieldName)
 	}
 
 	// check with field type
@@ -211,43 +221,43 @@ func validateCSVField(oneSiteCSVRow *CSVRow, field string, value string, rowInde
 	case "int":
 		ok := core.IsIntString(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid integer number value", field)
+			return fmt.Errorf("E:\"%s\" has no valid integer number value", csvColumnFieldName)
 		}
 		return nil
 	case "uint":
 		ok := core.IsUIntString(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid positive integer number value", field)
+			return fmt.Errorf("E:\"%s\" has no valid positive integer number value", csvColumnFieldName)
 		}
 		return nil
 	case "float":
 		ok := core.IsFloatString(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid integer number value", field)
+			return fmt.Errorf("E:\"%s\" has no valid integer number value", csvColumnFieldName)
 		}
 		return nil
 	case "email":
 		ok := core.IsValidEmail(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid email value", field)
+			return fmt.Errorf("E:\"%s\" has no valid email value", csvColumnFieldName)
 		}
 		return nil
 	case "phone":
 		ok := core.IsValidPhone(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid phone number value", field)
+			return fmt.Errorf("E:\"%s\" has no valid phone number value", csvColumnFieldName)
 		}
 		return nil
 	case "date":
 		_, err := rlib.StringToDate(value)
 		if err != nil {
-			return fmt.Errorf("\"%s\" has no valid date value", field)
+			return fmt.Errorf("E:\"%s\" has no valid date value", csvColumnFieldName)
 		}
 		return nil
 	case "rentable_status":
 		ok, _, _ := IsValidRentableStatus(value)
 		if !ok {
-			return fmt.Errorf("\"%s\" has no valid rentable status value", field)
+			return fmt.Errorf("E:\"%s\" has no valid rentable status value", csvColumnFieldName)
 		}
 		return nil
 	default:
