@@ -5,6 +5,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -61,10 +62,13 @@ type ServiceData struct {
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
 	{"transactants", SvcSearchHandlerTransactants},
-	{"xperson", SvcFormHandlerXPerson},
 	{"accounts", SvcSearchHandlerGLAccounts},
 	{"rentables", SvcSearchHandlerRentables},
+	{"rentalagrs", SvcSearchHandlerRentalAgr},
+	{"xperson", SvcFormHandlerXPerson},
 	{"xrentable", SvcFormHandlerRentable},
+	{"xrentalagr", SvcFormHandlerRentalAgreement},
+	{"uilists", SvcUILists},
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -105,6 +109,17 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
+	fmt.Printf("Request Headers\n")
+	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
+	for k, v := range r.Header {
+		fmt.Printf("%s: ", k)
+		for i := 0; i < len(v); i++ {
+			fmt.Printf("%q  ", v[i])
+		}
+		fmt.Printf("\n")
+	}
+	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
 
 	requestHeader := "request=" // this is what w2ui starts all its grid requests with
 	i := strings.Index(u, requestHeader)
@@ -159,6 +174,15 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Printf("\n-------------------------------------\n\n")
+}
+
+// SvcUILists returns JSON for the Javascript lists needed for the UI
+func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	response := `{
+	yesNoList: [ 'no', 'yes' ],
+	asgnList: [ 'unset', 'Pre-Assign', 'Commencement']
+	}`
+	io.WriteString(w, response)
 }
 
 func gridHandleField(q, logic, field, value, format string, count *int) string {
@@ -278,7 +302,17 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("first 100 chars of response: %100.100s\n", string(b))
+	fmt.Printf("first 200 chars of response: %200.200s\n", string(b))
 	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
+}
+
+// SvcWriteSuccessResponse is used to complete a successful write operation on w2ui form save requests.
+func SvcWriteSuccessResponse(w http.ResponseWriter) {
+	var g struct {
+		Status string `json:"status"`
+	}
+	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
 }

@@ -226,12 +226,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-
-	var g struct {
-		Status string `json:"status"`
-	}
-	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteSuccessResponse(w)
 }
 
 // getXPerson handles the request for an XPerson from the Transactant Form

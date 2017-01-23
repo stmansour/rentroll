@@ -6,12 +6,14 @@
 // @return string value that was set in dc
 function setToForm(sform,url) {
     var f = w2ui[sform];
-    f.url = url
     w2ui['toplayout'].show('right',true);
     w2ui['toplayout'].content('right', f);
     w2ui['toplayout'].sizeTo('right', 400);
     f.resize();
-    f.request();
+    if (url.length > 0) {
+        f.url = url
+        f.request();
+    }
 }
 
 //-----------------------------------------------------------------------------
