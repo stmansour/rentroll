@@ -27,6 +27,7 @@ var App struct {
 	LogFile  *os.File // where to log messages
 	TestMode int      // used for test purpose?
 	CSV      string   // csv filename that needs to be load
+	debug    int      // debug records
 }
 
 // userRRValues holds the values passed by user for rentroll attributes
@@ -70,6 +71,8 @@ func readCommandLineArgs() []string {
 	gsrpc := flag.String("gsrpc", "", "GSRPC")
 	// is it for testing purpose
 	testmode := flag.Int("testmode", 0, "testing")
+	// is it for debug purpose
+	debug := flag.Int("debug", 0, "debug Records")
 	// parse db options
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
@@ -102,6 +105,7 @@ func readCommandLineArgs() []string {
 	App.DBUser = *dbuPtr
 	App.TestMode = *testmode
 	App.CSV = *fp
+	App.debug = *debug
 
 	// get user values
 	userRRValues["RentCycle"] = *frequency
@@ -224,6 +228,7 @@ func main() {
 		App.TestMode,
 		userRRValues,
 		business,
+		App.debug,
 	)
 
 	var oneSiteErrText string

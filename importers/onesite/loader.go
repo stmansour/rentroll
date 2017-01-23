@@ -821,6 +821,7 @@ func CSVHandler(
 	testMode int,
 	userRRValues map[string]string,
 	business *rlib.Business,
+	debugMode int,
 ) (string, bool, bool) {
 
 	// return report, internal error flag, done (csv loaded or not)
@@ -864,7 +865,7 @@ func CSVHandler(
 
 	// check if there any errors from onesite loader
 	if len(csvErrs) > 0 {
-		csvReport, csvLoaded = errorReporting(business, csvErrs, unitMap, summaryReportCount, csvPath)
+		csvReport, csvLoaded = errorReporting(business, csvErrs, unitMap, summaryReportCount, csvPath, debugMode)
 
 		// if not testmode then only do rollback
 		if testMode != 1 {
@@ -875,7 +876,7 @@ func CSVHandler(
 	}
 
 	// ===== 4. Geneate Report =====
-	csvReport = successReport(business, summaryReportCount, csvPath)
+	csvReport = successReport(business, summaryReportCount, csvPath, debugMode)
 
 	// ===== 5. Return =====
 	return csvReport, internalErr, csvLoaded
@@ -1103,6 +1104,7 @@ func successReport(
 	business *rlib.Business,
 	summaryCount map[int]map[string]int,
 	csvFile string,
+	debugMode int,
 ) string {
 	var report string
 
@@ -1121,8 +1123,10 @@ func successReport(
 	// append summary report
 	report += generateSummaryReport(summaryCount)
 
-	// csv report for all types
-	report += generateCSVReport(business, summaryCount, csvFile)
+	// csv report for all types if testmode is on
+	if debugMode == 1 {
+		report += generateCSVReport(business, summaryCount, csvFile)
+	}
 
 	// return
 	return report
@@ -1135,6 +1139,7 @@ func errorReporting(
 	unitMap map[int]string,
 	summaryCount map[int]map[string]int,
 	csvFile string,
+	debugMode int,
 ) (string, bool) {
 	var errReport string
 
@@ -1154,7 +1159,7 @@ func errorReporting(
 
 	// if true then generate csv report
 	// specia case: when there are only warnings but no errors
-	if csvReportGenerate {
+	if csvReportGenerate && debugMode == 1 {
 		errReport += generateCSVReport(business, summaryCount, csvFile)
 	}
 
