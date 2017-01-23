@@ -9,6 +9,13 @@ import (
 	"reflect"
 )
 
+// W2uiHTMLSelect is a struct that covers the way w2ui sends back the
+// selection from a dropdown list.
+type W2uiHTMLSelect struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
+
 var assignmap = []struct {
 	a      string
 	b      string
@@ -31,6 +38,9 @@ var AssignmentTimeMap = Str2Int64Map{
 	"Pre-Assign":   1,
 	"Commencement": 2,
 }
+
+// // AssignmentTimeSL is the inverse of AssignmentTimeMap; maps an int to a string
+// var AssignmentTimeSL = []string{"unset", "Pre-Assign", "Commencement"}
 
 // AssignmentTime2Int64 converter
 // a must be *AssignmentTime2Int64

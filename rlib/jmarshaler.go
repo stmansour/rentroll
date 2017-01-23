@@ -18,7 +18,8 @@ type JSONTime time.Time
 //--------------------------------------------------------------------
 func (t *JSONTime) MarshalJSON() ([]byte, error) {
 	ts := time.Time(*t)
-	val := fmt.Sprintf("\"%s\"", ts.Format("2006-01-02"))
+	// val := fmt.Sprintf("\"%s\"", ts.Format("2006-01-02"))
+	val := fmt.Sprintf("\"%s\"", ts.Format(RRDATEFMT3))
 	return []byte(val), nil
 }
 
@@ -28,7 +29,8 @@ func (t *JSONTime) MarshalJSON() ([]byte, error) {
 func (t *JSONTime) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	s = Stripchars(s, "\"")
-	x, err := time.Parse("2006-01-02", s)
+	// x, err := time.Parse("2006-01-02", s)
+	x, err := StringToDate(s)
 	if err != nil {
 		return err
 	}

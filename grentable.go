@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -17,6 +18,31 @@ type gxrentable struct {
 	AssignmentTime rlib.XJSONAssignmentTime
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
+}
+
+// Decoding the form data from w2ui gets tricky when certain value types are returned.
+// For example, dropdown menu selections are returned as a JSON struct value
+//     "AssignmentTime": { "ID": "Pre-Assign", "Text": "Pre-Assign"}
+// The approach to getting this sort of information back into the appropriate struct
+// is to:
+//		1. Use MigrateStructVals to get pretty much everything except
+//         dropdown menu selections.
+//		2. Handle the dropdown menu selections separately using rlib.W2uiHTMLSelect
+//         for unmarshaling
+
+// this is a structure specifically for the UI. It will be
+// automatically populated from an rlib.Rentable struct
+type gxrentableForm struct {
+	Recid       int64 `json:"recid"` // this is to support the w2ui form
+	RID         int64
+	BID         int64
+	Name        string
+	LastModTime rlib.JSONTime
+	LastModBy   int64
+}
+
+type gxrentableOther struct {
+	AssignmentTime rlib.W2uiHTMLSelect
 }
 
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
@@ -121,10 +147,9 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// funcname := "saveRentable"
 	target := `"record":`
-	fmt.Printf("SvcFormHandlerRentable save\n")
-	fmt.Printf("record data = %s\n", d.data)
+	// fmt.Printf("SvcFormHandlerRentable save\n")
+	// fmt.Printf("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
-	fmt.Printf("record is at index = %d\n", i)
 	if i < 0 {
 		e := fmt.Errorf("saveRentable: cannot find %s in form json", target)
 		SvcGridErrorReturn(w, e)
@@ -132,7 +157,42 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
-	fmt.Printf("data to unmarshal is:  %s\n", s)
+	var foo gxrentableForm
+	err := json.Unmarshal([]byte(s), &foo)
+	if err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s\n", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	// migrate the variables that transfer without needing special handling...
+	var a rlib.Rentable
+	rlib.MigrateStructVals(&foo, &a)
+
+	// now get the stuff that requires special handling...
+	var bar gxrentableOther
+	err = json.Unmarshal([]byte(s), &bar)
+	if err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s\n", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	var ok bool
+	a.AssignmentTime, ok = rlib.AssignmentTimeMap[bar.AssignmentTime.ID]
+	if !ok {
+		e := fmt.Errorf("Could not map AssignmentTime value: %s\n", bar.AssignmentTime.ID)
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	// Now just update the database
+	err = rlib.UpdateRentable(&a)
+	if err != nil {
+		e := fmt.Errorf("Error updating rentable: %s\n", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	SvcWriteSuccessResponse(w)
 }
 
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -145,6 +205,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	a := rlib.GetRentable(d.RID)
 	fmt.Printf("Begin migration to form struct\n")
 	if a.RID > 0 {
+		// var gg gxrentable
 		var gg gxrentable
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg

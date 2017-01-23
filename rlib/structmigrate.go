@@ -64,6 +64,7 @@ func MigrateStructVals(pa interface{}, pb interface{}) error {
 	for i := 0; i < ar.NumField(); i++ {
 		fa := ar.Field(i)
 		afldname := ar.Type().Field(i).Name
+		// fmt.Printf("MigrateStructVals: %s\n", afldname)
 		if !fa.IsValid() {
 			continue
 		}

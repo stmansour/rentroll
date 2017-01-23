@@ -336,6 +336,7 @@ type OtherDeliverables struct {
 
 // RentalAgreement binds one or more payors to one or more rentables
 type RentalAgreement struct {
+	Recid                  int64       `json:"recid"` // this is to support the grid widget
 	RAID                   int64       // internal unique id
 	RATID                  int64       // reference to Occupancy Master Agreement
 	BID                    int64       // Business (so that we can process by Business)
@@ -1164,7 +1165,7 @@ type RRprepSQL struct {
 	UpdateDeposit                      *sql.Stmt
 	UpdateDepositMethod                *sql.Stmt
 	UpdateDepository                   *sql.Stmt
-	UpdateeRentalAgreementTax          *sql.Stmt
+	UpdateRentalAgreementTax           *sql.Stmt
 	UpdateInvoice                      *sql.Stmt
 	UpdateLedger                       *sql.Stmt
 	UpdateLedgerMarker                 *sql.Stmt
@@ -1175,6 +1176,7 @@ type RRprepSQL struct {
 	UpdateRatePlanRef                  *sql.Stmt
 	UpdateRatePlanRefRTRate            *sql.Stmt
 	UpdateRatePlanRefSPRate            *sql.Stmt
+	UpdateRentable                     *sql.Stmt
 	UpdateRentableSpecialtyRef         *sql.Stmt
 	UpdateRentableStatus               *sql.Stmt
 	UpdateRentableTypeRef              *sql.Stmt

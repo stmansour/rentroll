@@ -20,12 +20,14 @@ var TRNSfields = string("TCID,BID,NLID,FirstName,MiddleName,LastName,PreferredNa
 
 // GenSQLInsertAndUpdateStrings generates a string suitable for SQL INSERT and UPDATE statements given the fields as used in SELECT statements.
 //
-//    example:  given this string:      "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy"
-//              we return these 5:  1)  "BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy"                       -- use for SELECT
-//                                  2)  "?,?,?,?,?,?,?,?,?"  																	   -- use for INSERT
-//                                  3)  "BID=?RAID=?,GLNumber=?,Status=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=?"      -- use for UPDATE
-//                                  4)  "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy", 				   -- use for INSERT (no AUTO_INCREMENT key)
-//                                  5)  "?,?,?,?,?,?,?,?,?,?"  																	   -- use for INSERT
+//  example:
+//	given this string:      "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy"
+//  we return these five strings:
+//  1)  "BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy"                  	-- use for SELECT
+//  2)  "?,?,?,?,?,?,?,?,?"  																	-- use for INSERT
+//  3)  "BID=?RAID=?,GLNumber=?,Status=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=?"   -- use for UPDATE
+//  4)  "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy", 				-- use for INSERT (no PRIMARYKEY), add "WHERE LID=?"
+//  5)  "?,?,?,?,?,?,?,?,?,?"  																	-- use for INSERT (no PRIMARYKEY)
 //
 // Note that in this convention, we remove LastModTime from insert and update statements (the db is set up to update them by default) and
 // we remove the initial ID as that number is AUTOINCREMENT on INSERTs and is not updated on UPDATE.
@@ -592,6 +594,9 @@ func buildPreparedStatements() {
 
 	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentable, err = RRdb.Dbrr.Prepare("INSERT INTO Rentable (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentable, err = RRdb.Dbrr.Prepare("UPDATE Rentable SET " + s3 + " WHERE RID=?")
+	Errcheck(err)
 
 	//===============================
 	//  Rental Agreement
