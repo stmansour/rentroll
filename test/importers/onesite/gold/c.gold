@@ -22,10 +22,11 @@ Rental Agreements               5           5           0
 =======================
 DETAILED REPORT SECTION
 =======================
-Input Line  Unit Name             RentRoll DB Type      Description                                                                                                                                                                         
-----------  --------------------  --------------------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-12          6343-166              Rentables             Warning: No lease start date has been passed hence taking default value 1/23/2017                                                                                                   
-12          6343-166              Rentables             Warning: No lease end date has been passed hence taking default value 12/31/9999                                                                                                    
+Input                                                                                                                                                                                                                  
+Line    Unit Name                  Description                                                                                                                                                                         
+------  -------------------------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+12      6343-166                   Warning: No lease start date has been passed hence taking default value 1/24/2017                                                                                                   
+12      6343-166                   Warning: No lease end date has been passed hence taking default value 12/31/9999                                                                                                    
 
 
 =====================================================
@@ -35,10 +36,10 @@ RECORDS FOR BUSINESS UNIT DESIGNATION: JGM First, LLC
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   1/23/17 - 12/31/99 $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   1/24/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   1/24/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   1/24/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   1/24/17 - 12/31/99 $  800.00
 ================================================================================
 RID        Name      Assignment Time
 ---------  --------  ---------------
