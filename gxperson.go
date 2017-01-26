@@ -161,7 +161,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := int64(d.greq.Offset)
+	i := int64(d.webreq.Offset)
 	count := 0
 	for rows.Next() {
 		var p rlib.Transactant
@@ -169,7 +169,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 		p.Recid = i
 		g.Records = append(g.Records, p)
 		count++ // update the count only after adding the record
-		if count >= d.greq.Limit {
+		if count >= d.webreq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 		i++ // update the index no matter what
@@ -184,7 +184,8 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 
 // SvcFormHandlerXPerson formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the TCID as follows:
-// 		/gsvc/xperson/UID/BID/TCID
+//       0    1       2    3
+// 		/gsvc/xperson/BID/TCID
 // The server command can be:
 //      get
 //      save
@@ -194,39 +195,23 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	fmt.Printf("Entered SvcFormHandlerXPerson\n")
 	var err error
 
-	path := "/gsvc/"                // this is the part of the URL that got us into this handler
-	uri := r.RequestURI[len(path):] // this pulls off the specific request
-	sa := strings.Split(uri, "/")
-	if len(sa) < 3 {
-		e := fmt.Errorf("Error in URI, expecting /gsv/xperson/USRID/BID/TCID but found: %s", uri)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	d.UID, err = rlib.IntFromString(sa[1], "not an integer number")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
-		return
-	}
-	d.BID, err = rlib.IntFromString(sa[2], "not an integer number")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
-		return
-	}
-	d.TCID, err = rlib.IntFromString(sa[3], "not an integer number")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
+	if d.TCID, err = SvcExtractIDFromURI(r.RequestURI, "TCID", 3, w); err != nil {
 		return
 	}
 
-	fmt.Printf("Requester UID = %d, BID = %d,  TCID = %d\n", d.UID, d.BID, d.TCID)
+	fmt.Printf("Request: %s:  BID = %d,  TCID = %d\n", d.webreq.Cmd, d.BID, d.TCID)
 
-	switch d.greq.Cmd {
+	switch d.webreq.Cmd {
 	case "get":
 		getXPerson(w, r, d)
 		break
 	case "save":
 		saveXPerson(w, r, d)
 		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s\n", d.webreq.Cmd)
+		SvcGridErrorReturn(w, err)
+		return
 	}
 }
 
@@ -337,15 +322,12 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // getXPerson handles the request for an XPerson from the Transactant Form
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// fmt.Printf("entered getXPerson\n")
 	var g struct {
 		Status string   `json:"status"`
 		Record gxperson `json:"record"`
 	}
 	var xp rlib.XPerson
-	// fmt.Printf("GetXPerson( TCID = %d )\n", d.TCID)
 	rlib.GetXPerson(d.TCID, &xp)
-	// fmt.Printf("Begin migration to form struct\n")
 	if xp.Pay.TCID > 0 {
 		rlib.MigrateStructVals(&xp.Pay, &g.Record)
 	}
@@ -358,7 +340,6 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if xp.Trn.TCID > 0 {
 		rlib.MigrateStructVals(&xp.Trn, &g.Record)
 	}
-	// fmt.Printf("End migration\n")
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }

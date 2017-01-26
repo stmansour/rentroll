@@ -470,7 +470,7 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; ++i) {
                         ob = this.get(sel[i])
-                        setToForm('transactantForm', '/gsvc/xperson/' + app.uid + '/' + ob.BID + '/' + ob.TCID);
+                        setToForm('transactantForm', '/gsvc/xperson/' + ob.BID + '/' + ob.TCID);
                      }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0')
@@ -629,8 +629,8 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         ob = this.get(sel[i])
-                        console.log('rentable form url: ' + '/gsvc/xrentable/' + app.uid + '/' + ob.BID + '/' + ob.RID)
-                        setToForm('rentableForm', '/gsvc/xrentable/' + app.uid + '/' + ob.BID + '/' + ob.RID);
+                        console.log('rentable form url: ' + '/gsvc/xrentable/' + ob.BID + '/' + ob.RID)
+                        setToForm('rentableForm', '/gsvc/xrentable/' + ob.BID + '/' + ob.RID);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0')
@@ -728,7 +728,7 @@ function buildPageElements() {
                     for (var i = 0; i < sel.length; i++) {
                         ob = this.get(sel[i])
                         console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID)
-                        setToForm('rentalagrForm', '/gsvc/xrentalagr/' + app.uid + '/' + ob.BID + '/' + ob.RAID);
+                        setToForm('rentalagrForm', '/gsvc/xrentalagr/' + ob.BID + '/' + ob.RAID);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0')

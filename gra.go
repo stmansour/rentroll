@@ -117,7 +117,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := int64(d.greq.Offset)
+	i := int64(d.webreq.Offset)
 	count := 0
 	for rows.Next() {
 		var p rlib.RentalAgreement
@@ -127,7 +127,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		rlib.MigrateStructVals(&p, &q)
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
-		if count >= d.greq.Limit {
+		if count >= d.webreq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 		i++
@@ -140,7 +140,8 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 
 // SvcFormHandlerRentalAgreement formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the RAID as follows:
-// 		/gsvc/rentalagrs/UID/BID/RAID
+//       0    1          2    3
+// 		/gsvc/rentalagrs/BID/RAID
 // The server command can be:
 //      get
 //      save
@@ -150,46 +151,23 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 	fmt.Printf("Entered SvcFormHandlerRentalAgreement\n")
 	var err error
 
-	path := "/gsvc/"                // this is the part of the URL that got us into this handler
-	uri := r.RequestURI[len(path):] // this pulls off the specific request
-	sa := strings.Split(uri, "/")
-	if len(sa) < 3 {
-		e := fmt.Errorf("Error in URI, expecting /gsv/rentalagrs/USRID/BID/RAID but found: %s", uri)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	d.UID, err = rlib.IntFromString(sa[1], "not an integer number")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
-		return
-	}
-	d.BID, err = rlib.IntFromString(sa[2], "not an integer number") // assume it's a BID  (could be a BUD)
-	if err != nil {
-		var ok bool
-		// OK, let's see if it's a BUD
-		d.BID, ok = rlib.RRdb.BUDlist[sa[2]]
-		if !ok {
-			e := fmt.Errorf("Could not identify business: %s\n", sa[2])
-			fmt.Printf("***ERROR IN URL***  %s", e.Error())
-			SvcGridErrorReturn(w, err)
-			return
-		}
-	}
-	d.RAID, err = rlib.IntFromString(sa[3], "not an integer number")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
+	if d.RAID, err = SvcExtractIDFromURI(r.RequestURI, "RAID", 3, w); err != nil {
 		return
 	}
 
-	fmt.Printf("Requester UID = %d, BID = %d,  RIDa = %d\n", d.UID, d.BID, d.RID)
+	fmt.Printf("Requester UID = %d, BID = %d,  RAID = %d\n", d.UID, d.BID, d.RAID)
 
-	switch d.greq.Cmd {
+	switch d.webreq.Cmd {
 	case "get":
 		getRentalAgreement(w, r, d)
 		break
 	case "save":
 		saveRentalAgreement(w, r, d)
 		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s\n", d.webreq.Cmd)
+		SvcGridErrorReturn(w, err)
+		return
 	}
 }
 
@@ -260,25 +238,21 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 }
 
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("entered getRentalAgreement\n")
 	var g struct {
 		Status string      `json:"status"`
 		Record gxrentalagr `json:"record"`
 	}
-	fmt.Printf("GetRentalAgreement( RAID = %d )\n", d.RAID)
 	a, err := rlib.GetRentalAgreement(d.RAID)
 	if err != nil {
 		e := fmt.Errorf("getRentalAgreement: cannot read RentalAgreement RAID = %d, err = %s", d.RAID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("Begin migration to form struct\n")
 	if a.RAID > 0 {
 		var gg gxrentalagr
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg
 	}
-	fmt.Printf("End migration.  g.Record = %#v\n", g.Record)
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }
