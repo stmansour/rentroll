@@ -945,9 +945,9 @@ func generateDetailedReport(
 
 	var tbl rlib.Table
 	tbl.Init()
-	tbl.AddColumn("Input Line", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Unit Name", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("RentRoll DB Type", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Input Line", 6, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Unit Name", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	// tbl.AddColumn("RentRoll DB Type", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	tbl.AddColumn("Description", 180, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	csvErrorIndexes := []int{}
@@ -977,8 +977,8 @@ func generateDetailedReport(
 			tbl.AddRow()
 			tbl.Puts(-1, 0, "")
 			tbl.Puts(-1, 1, "")
-			tbl.Puts(-1, 2, "")
-			tbl.Puts(-1, 3, reportError[0])
+			// tbl.Puts(-1, 2, "") //rentroll db type
+			tbl.Puts(-1, 2, reportError[0])
 
 			// append detailed section
 			detailedReport += tbl.SprintTable(rlib.RPTTEXT)
@@ -1002,12 +1002,20 @@ func generateDetailedReport(
 
 				// red color
 				reason = strings.Replace(reason, "E:", "", -1)
-				rowErrors = append(rowErrors, reason)
+
+				// if error not appended already then
+				if !core.StringInSlice(reason, rowErrors) {
+					rowErrors = append(rowErrors, reason)
+				}
 			}
 			if strings.HasPrefix(reason, "W:") {
 				// orange color
 				reason = strings.Replace(reason, "W:", "", -1)
-				rowWarnings = append(rowWarnings, reason)
+
+				// if warning not appended already then
+				if !core.StringInSlice(reason, rowWarnings) {
+					rowWarnings = append(rowWarnings, reason)
+				}
 			}
 		}
 
@@ -1028,8 +1036,8 @@ func generateDetailedReport(
 			tbl.AddRow()
 			tbl.Puts(-1, 0, strconv.Itoa(rowIndex))
 			tbl.Puts(-1, 1, unit)
-			tbl.Puts(-1, 2, core.DBTypeMap[dbTypeInt])
-			tbl.Puts(-1, 3, reason)
+			// tbl.Puts(-1, 2, core.DBTypeMap[dbTypeInt])
+			tbl.Puts(-1, 2, reason)
 		}
 
 		// then warnings
@@ -1048,8 +1056,8 @@ func generateDetailedReport(
 			tbl.AddRow()
 			tbl.Puts(-1, 0, strconv.Itoa(rowIndex))
 			tbl.Puts(-1, 1, unit)
-			tbl.Puts(-1, 2, core.DBTypeMap[dbTypeInt])
-			tbl.Puts(-1, 3, reason)
+			// tbl.Puts(-1, 2, core.DBTypeMap[dbTypeInt])
+			tbl.Puts(-1, 2, reason)
 		}
 	}
 
