@@ -61,6 +61,7 @@ func InsertBusiness(b *Business) (int64, error) {
 		if err == nil {
 			bid = int64(id)
 		}
+		RRdb.BUDlist[b.Designation] = bid
 	}
 	return bid, err
 }

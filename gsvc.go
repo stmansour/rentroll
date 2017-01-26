@@ -115,6 +115,32 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	return err
 }
 
+func showRequestHeaders(r *http.Request) {
+	fmt.Printf("Request Headers\n")
+	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
+	for k, v := range r.Header {
+		fmt.Printf("%s: ", k)
+		for i := 0; i < len(v); i++ {
+			fmt.Printf("%q  ", v[i])
+		}
+		fmt.Printf("\n")
+	}
+	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
+}
+
+func showGRequest(d *ServiceData) {
+	fmt.Printf("Cmd         = %s\n", d.greq.Cmd)
+	fmt.Printf("Limit       = %d\n", d.greq.Limit)
+	fmt.Printf("Offset      = %d\n", d.greq.Offset)
+	fmt.Printf("searchLogic = %s\n", d.greq.SearchLogic)
+	for i := 0; i < len(d.greq.Search); i++ {
+		fmt.Printf("search[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.greq.Search[i].Field, d.greq.Search[i].Type, d.greq.Search[i].Value, d.greq.Search[i].Operator)
+	}
+	for i := 0; i < len(d.greq.Sort); i++ {
+		fmt.Printf("sort[%d] - Field = %s,  Direction = %s\n", i, d.greq.Sort[i].Field, d.greq.Sort[i].Direction)
+	}
+}
+
 // gridServiceHandler is the main dispatch point for w2ui grid service requests
 //
 // The expected input is of the form:
@@ -128,47 +154,24 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 //-----------------------------------------------------------------------------------------------------------
 func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "gridServiceHandler"
-	var err error
-
 	fmt.Printf("Entered %s.  r.Method = %s\n", funcname, r.Method)
-	fmt.Printf("Request Headers\n")
-	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
-	for k, v := range r.Header {
-		fmt.Printf("%s: ", k)
-		for i := 0; i < len(v); i++ {
-			fmt.Printf("%q  ", v[i])
-		}
-		fmt.Printf("\n")
-	}
-	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
-
+	var err error
 	var d ServiceData
 
+	showRequestHeaders(r)
 	switch r.Method {
 	case "POST":
 		if nil != getPOSTdata(w, r, &d) {
 			return
 		}
 	case "GET":
-		fmt.Printf("GET method not yet handled\n")
-		return
+		d.greq.Cmd = r.URL.Query().Get("cmd")
 	}
+	showGRequest(&d)
 
-	fmt.Printf("Cmd         = %s\n", d.greq.Cmd)
-	fmt.Printf("Limit       = %d\n", d.greq.Limit)
-	fmt.Printf("Offset      = %d\n", d.greq.Offset)
-	fmt.Printf("searchLogic = %s\n", d.greq.SearchLogic)
-	for i := 0; i < len(d.greq.Search); i++ {
-		fmt.Printf("search[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.greq.Search[i].Field, d.greq.Search[i].Type, d.greq.Search[i].Value, d.greq.Search[i].Operator)
-	}
-	for i := 0; i < len(d.greq.Sort); i++ {
-		fmt.Printf("sort[%d] - Field = %s,  Direction = %s\n", i, d.greq.Sort[i].Field, d.greq.Sort[i].Direction)
-	}
-
-	fmt.Printf("Full URI:  %s\n", r.RequestURI) // print before we strip it off
-	path := "/gsvc/"                            // this is the part of the URL that got us into this handler
-	cmdinfo := r.RequestURI[len(path):]         // this pulls off the specific request
-	fmt.Printf("URI info:  %s\n", cmdinfo)      // print before we strip it off
+	path := "/gsvc/"                       // this is the part of the URL that got us into this handler
+	cmdinfo := r.RequestURI[len(path):]    // this pulls off the specific request
+	fmt.Printf("URI info:  %s\n", cmdinfo) // print before we strip it off
 
 	sa := strings.Split(cmdinfo, "/")
 	for i := 0; i < len(sa); i++ {
@@ -179,13 +182,27 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		SvcGridErrorReturn(w, err)
 	}
-	d.BID, err = rlib.IntFromString(sa[2], "bad request integer value")
+
+	// if this value comes from a GET request there will be "?param1=val1&..."
+	// on the end of this string.  We'll split it at the '?' character and
+	// process the first bit for the BID...
+	// The value here can be the BID or the BUD. Handle either...
+	ss2 := strings.Split(sa[2], "?")
+	d.BID, err = rlib.IntFromString(ss2[0], "bad request integer value") // assume it's a BID
 	if err != nil {
-		SvcGridErrorReturn(w, err)
+		var ok bool
+		// OK, let's see if it's a BUD
+		d.BID, ok = rlib.RRdb.BUDlist[ss2[0]]
+		if !ok {
+			e := fmt.Errorf("Could not identify business: %s\n", ss2)
+			fmt.Printf("***ERROR IN URL***  %s", e.Error())
+			SvcGridErrorReturn(w, err)
+		}
 	}
 
 	for i := 0; i < len(Svcs); i++ {
 		if Svcs[i].Cmd == cmdinfo {
+			fmt.Printf("%s - Handler found\n", cmdinfo)
 			Svcs[i].Handler(w, r, &d)
 			break
 		}
@@ -195,11 +212,23 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 // SvcUILists returns JSON for the Javascript lists needed for the UI
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	response := `{
-	yesNoList: [ 'no', 'yes' ],
-	asgnList: [ 'unset', 'Pre-Assign', 'Commencement']
-	}`
+	response := `yesNoList = [ 'no', 'yes' ];
+assignmentTimeList = [ 'unset', 'Pre-Assign', 'Commencement'];
+`
 	io.WriteString(w, response)
+
+	s := "businesses = ["
+	l := len(rlib.RRdb.BUDlist)
+	i := 0
+	for k := range rlib.RRdb.BUDlist {
+		s += "'" + k + "'"
+		if i+1 < l {
+			s += ","
+		}
+		i++
+	}
+	s += "];\n"
+	io.WriteString(w, s)
 }
 
 func gridHandleField(q, logic, field, value, format string, count *int) string {
@@ -319,7 +348,7 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("first 200 chars of response: %200.200s\n", string(b))
+	fmt.Printf("first 200 chars of response: %-200.200s\n", string(b))
 	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }

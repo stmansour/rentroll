@@ -15,7 +15,7 @@ type gxrentalagr struct {
 	Recid                  int64         `json:"recid"` // this is to support the w2ui form
 	RAID                   int64         // internal unique id
 	RATID                  int64         // reference to Occupancy Master Agreement
-	BID                    int64         // Business (so that we can process by Business)
+	BID                    rlib.XJSONBud // Business (so that we can process by Business)
 	NLID                   int64         // Note ID
 	AgreementStart         rlib.JSONTime // start date for rental agreement contract
 	AgreementStop          rlib.JSONTime // stop date for rental agreement contract
@@ -46,6 +46,46 @@ type gxrentalagr struct {
 	RightOfFirstRefusal    string        // Tenant may have the right to purchase their premises if LL chooses to sell
 	LastModTime            rlib.JSONTime // when was this record last written
 	LastModBy              int64         // employee UID (from phonebook) that modified it
+}
+
+type gxrentalagrForm struct {
+	Recid                  int64         `json:"recid"` // this is to support the w2ui form
+	RAID                   int64         // internal unique id
+	RATID                  int64         // reference to Occupancy Master Agreement
+	NLID                   int64         // Note ID
+	AgreementStart         rlib.JSONTime // start date for rental agreement contract
+	AgreementStop          rlib.JSONTime // stop date for rental agreement contract
+	PossessionStart        rlib.JSONTime // start date for Occupancy
+	PossessionStop         rlib.JSONTime // stop date for Occupancy
+	RentStart              rlib.JSONTime // start date for Rent
+	RentStop               rlib.JSONTime // stop date for Rent
+	RentCycleEpoch         rlib.JSONTime // Date on which rent cycle recurs. Start date for the recurring rent assessment
+	UnspecifiedAdults      int64         // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
+	UnspecifiedChildren    int64         // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
+	Renewal                int64         // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
+	SpecialProvisions      string        // free-form text
+	LeaseType              int64         // Full Service Gross, Gross, ModifiedGross, Tripple Net
+	ExpenseAdjustmentType  int64         // Base Year, No Base Year, Pass Through
+	ExpensesStop           float64       // cap on the amount of oexpenses that can be passed through to the tenant
+	ExpenseStopCalculation string        // note on how to determine the expense stop
+	BaseYearEnd            rlib.JSONTime // last day of the base year
+	ExpenseAdjustment      rlib.JSONTime // the next date on which an expense adjustment is due
+	EstimatedCharges       float64       // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
+	RateChange             float64       // predetermined amount of rent increase, expressed as a percentage
+	NextRateChange         rlib.JSONTime // he next date on which a RateChange will occur
+	PermittedUses          string        // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
+	ExclusiveUses          string        // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
+	ExtensionOption        string        // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
+	ExtensionOptionNotice  rlib.JSONTime // the last dade by wich a Tenant can give notice of their intention to exercise the right to an extension option period
+	ExpansionOption        string        // the right to expand to certanin spaces that are typically contiguous to their primary space
+	ExpansionOptionNotice  rlib.JSONTime // the last dade by wich a Tenant can give notice of their intention to exercise the right to an Expansion Option
+	RightOfFirstRefusal    string        // Tenant may have the right to purchase their premises if LL chooses to sell
+	LastModTime            rlib.JSONTime // when was this record last written
+	LastModBy              int64         // employee UID (from phonebook) that modified it
+}
+
+type gxrentalagrOther struct {
+	BID rlib.W2uiHTMLSelect // Business (so that we can process by Business)
 }
 
 // SvcSearchHandlerRentalAgr generates a report of all RentalAgreements defined business d.BID
@@ -123,10 +163,17 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	d.BID, err = rlib.IntFromString(sa[2], "not an integer number")
+	d.BID, err = rlib.IntFromString(sa[2], "not an integer number") // assume it's a BID  (could be a BUD)
 	if err != nil {
-		SvcGridErrorReturn(w, err)
-		return
+		var ok bool
+		// OK, let's see if it's a BUD
+		d.BID, ok = rlib.RRdb.BUDlist[sa[2]]
+		if !ok {
+			e := fmt.Errorf("Could not identify business: %s\n", sa[2])
+			fmt.Printf("***ERROR IN URL***  %s", e.Error())
+			SvcGridErrorReturn(w, err)
+			return
+		}
 	}
 	d.RAID, err = rlib.IntFromString(sa[3], "not an integer number")
 	if err != nil {
@@ -147,7 +194,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 }
 
 func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// funcname := "saveRentalAgreement"
+	funcname := "saveRentalAgreement"
 	target := `"record":`
 	fmt.Printf("SvcFormHandlerRentalAgreement save\n")
 	fmt.Printf("record data = %s\n", d.data)
@@ -162,33 +209,43 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	s = s[:len(s)-1]
 	fmt.Printf("data to unmarshal is:  %s\n", s)
 
-	var foo gxrentalagr
+	//===============================================================
+	//------------------------------
+	// Handle all the non-list data
+	//------------------------------
+	var foo gxrentalagrForm
+
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s\n", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-
 	// migrate the variables that transfer without needing special handling...
 	var a rlib.RentalAgreement
 	rlib.MigrateStructVals(&foo, &a)
 
-	// now get the stuff that requires special handling...
-	// var bar gxrentableOther
-	// err = json.Unmarshal([]byte(s), &bar)
-	// if err != nil {
-	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s\n", err.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-	// var ok bool
-	// a.AssignmentTime, ok = rlib.AssignmentTimeMap[bar.AssignmentTime.ID]
-	// if !ok {
-	// 	e := fmt.Errorf("Could not map AssignmentTime value: %s\n", bar.AssignmentTime.ID)
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
+	//---------------------------
+	//  Handle all the list data
+	//---------------------------
+	var bar gxrentalagrOther
+	err = json.Unmarshal([]byte(s), &bar)
+	if err != nil {
+		fmt.Printf("Data unmarshal error: %s\n", err.Error())
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	var ok bool
+	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
+	if !ok {
+		e := fmt.Errorf("Could not map BID value: %s\n", bar.BID.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	//===============================================================
 
 	fmt.Printf("Update complete:  RA = %#v\n", a)
 

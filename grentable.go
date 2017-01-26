@@ -8,18 +8,6 @@ import (
 	"strings"
 )
 
-// this is a structure specifically for the UI. It will be
-// automatically populated from an rlib.Rentable struct
-type gxrentable struct {
-	Recid          int64 `json:"recid"` // this is to support the w2ui form
-	RID            int64
-	BID            int64
-	Name           string
-	AssignmentTime rlib.XJSONAssignmentTime
-	LastModTime    rlib.JSONTime
-	LastModBy      int64
-}
-
 // Decoding the form data from w2ui gets tricky when certain value types are returned.
 // For example, dropdown menu selections are returned as a JSON struct value
 //     "AssignmentTime": { "ID": "Pre-Assign", "Text": "Pre-Assign"}
@@ -35,14 +23,26 @@ type gxrentable struct {
 type gxrentableForm struct {
 	Recid       int64 `json:"recid"` // this is to support the w2ui form
 	RID         int64
-	BID         int64
 	Name        string
 	LastModTime rlib.JSONTime
 	LastModBy   int64
 }
 
 type gxrentableOther struct {
+	BID            rlib.W2uiHTMLSelect
 	AssignmentTime rlib.W2uiHTMLSelect
+}
+
+// this is a structure specifically for the UI. It will be
+// automatically populated from an rlib.Rentable struct
+type gxrentable struct {
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	RID            int64
+	BID            rlib.XJSONBud
+	Name           string
+	AssignmentTime rlib.XJSONAssignmentTime
+	LastModTime    rlib.JSONTime
+	LastModBy      int64
 }
 
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
@@ -98,7 +98,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 
 // SvcFormHandlerRentable formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the TCID as follows:
-// 		/gsvc/xperson/UID/BID/TCID
+// 		/gsvc/xperson/UID/BUD/TCID
 // The server command can be:
 //      get
 //      save
@@ -118,21 +118,30 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 	d.UID, err = rlib.IntFromString(sa[1], "not an integer number")
 	if err != nil {
+		fmt.Printf("%s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	d.BID, err = rlib.IntFromString(sa[2], "not an integer number")
+	// the BUD...
+	d.BID, err = rlib.IntFromString(sa[2], "not an integer number") // assume it's a BID  (could be a BUD)
 	if err != nil {
-		SvcGridErrorReturn(w, err)
-		return
+		var ok bool // alright, let's see if it's a BUD
+		d.BID, ok = rlib.RRdb.BUDlist[sa[2]]
+		if !ok {
+			e := fmt.Errorf("Could not identify business: %s\n", sa[2])
+			fmt.Printf("***ERROR IN URL***  %s", e.Error())
+			SvcGridErrorReturn(w, err)
+			return
+		}
 	}
 	d.RID, err = rlib.IntFromString(sa[3], "not an integer number")
 	if err != nil {
+		fmt.Printf("%s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
 
-	fmt.Printf("Requester UID = %d, BID = %d,  RIDa = %d\n", d.UID, d.BID, d.RID)
+	fmt.Printf("Requester UID = %d, BUD = %s(%d),  RID = %d\n", d.UID, sa[2], d.BID, d.RID)
 
 	switch d.greq.Cmd {
 	case "get":
@@ -178,6 +187,13 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	var ok bool
+	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
+	if !ok {
+		e := fmt.Errorf("Could not map BID value: %s\n", bar.BID.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
 	a.AssignmentTime, ok = rlib.AssignmentTimeMap[bar.AssignmentTime.ID]
 	if !ok {
 		e := fmt.Errorf("Could not map AssignmentTime value: %s\n", bar.AssignmentTime.ID)

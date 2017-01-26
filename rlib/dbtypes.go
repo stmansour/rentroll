@@ -1194,65 +1194,6 @@ type RRprepSQL struct {
 	// GetLedgerMarkerByRAID              *sql.Stmt
 }
 
-// PBprepSQL is the structure of prepared sql statements for the Phonebook db
-type PBprepSQL struct {
-	GetCompanyByDesignation      *sql.Stmt
-	GetCompany                   *sql.Stmt
-	GetBusinessUnitByDesignation *sql.Stmt
-}
-
-// BusinessTypeLists is a struct holding a collection of Types associated with a business
-type BusinessTypeLists struct {
-	BID          int64
-	PmtTypes     map[int64]*PaymentType // payment types accepted
-	DefaultAccts map[int64]*GLAccount   // index by the predifined contants DFAC*, value = GL No of that account
-	GLAccounts   map[int64]GLAccount    // all the accounts for this business
-	NoteTypes    []NoteType             // all defined note types for this business
-}
-
-// RRdb is a struct with all variables needed by the db infrastructure
-var RRdb struct {
-	Prepstmt RRprepSQL
-	PBsql    PBprepSQL
-	Dbdir    *sql.DB // phonebook db
-	Dbrr     *sql.DB //rentroll db
-	BizTypes map[int64]*BusinessTypeLists
-}
-
-// InitDBHelpers initializes the db infrastructure
-func InitDBHelpers(dbrr, dbdir *sql.DB) {
-	RRdb.Dbdir = dbdir
-	RRdb.Dbrr = dbrr
-	RRdb.BizTypes = make(map[int64]*BusinessTypeLists, 0)
-	buildPreparedStatements()
-	buildPBPreparedStatements()
-	// RRdb.AsmtTypes = GetAssessmentTypes()
-}
-
-// InitBusinessFields initialize the lists in rlib's internal data structures
-func InitBusinessFields(bid int64) {
-	if nil == RRdb.BizTypes[bid] {
-		bt := BusinessTypeLists{
-			BID:          bid,
-			PmtTypes:     make(map[int64]*PaymentType),
-			DefaultAccts: make(map[int64]*GLAccount),
-			GLAccounts:   make(map[int64]GLAccount),
-		}
-		RRdb.BizTypes[bid] = &bt
-	}
-}
-
-// InitBizInternals initializes several internal structures with information about the business.
-func InitBizInternals(bid int64, xbiz *XBusiness) {
-	// fmt.Printf("Entered InitBizInternals\n")
-	GetXBusiness(bid, xbiz) // get its info
-	InitBusinessFields(bid)
-	GetDefaultLedgers(bid) // Gather its chart of accounts
-	RRdb.BizTypes[bid].GLAccounts = GetGLAccountMap(bid)
-	GetAllNoteTypes(bid)
-	LoadRentableTypeCustomaAttributes(xbiz)
-}
-
 // AllTables is an array of strings containing the names of every table in the RentRoll database
 var AllTables = []string{
 	"AssessmentTax",
@@ -1336,5 +1277,78 @@ func DeleteBusinessFromDB(BID int64) (int64, error) {
 			noRecs += x
 		}
 	}
+	RRdb.BUDlist = buildBusinessDesignationMap()
 	return noRecs, nil
+}
+
+// PBprepSQL is the structure of prepared sql statements for the Phonebook db
+type PBprepSQL struct {
+	GetCompanyByDesignation      *sql.Stmt
+	GetCompany                   *sql.Stmt
+	GetBusinessUnitByDesignation *sql.Stmt
+}
+
+// BusinessTypeLists is a struct holding a collection of Types associated with a business
+type BusinessTypeLists struct {
+	BID          int64
+	PmtTypes     map[int64]*PaymentType // payment types accepted
+	DefaultAccts map[int64]*GLAccount   // index by the predifined contants DFAC*, value = GL No of that account
+	GLAccounts   map[int64]GLAccount    // all the accounts for this business
+	NoteTypes    []NoteType             // all defined note types for this business
+}
+
+// RRdb is a struct with all variables needed by the db infrastructure
+var RRdb struct {
+	Prepstmt RRprepSQL
+	PBsql    PBprepSQL
+	Dbdir    *sql.DB                      // phonebook db
+	Dbrr     *sql.DB                      //rentroll db
+	BizTypes map[int64]*BusinessTypeLists // details about a business
+	BUDlist  Str2Int64Map                 //list of known business Designations
+}
+
+func buildBusinessDesignationMap() map[string]int64 {
+	var sl = map[string]int64{}
+	bl, err := GetAllBusinesses()
+	if err != nil {
+		Ulog("GetAllBusinesses: err = %s\n", err.Error())
+	}
+	for i := 0; i < len(bl); i++ {
+		sl[bl[i].Designation] = bl[i].BID
+	}
+	return sl
+}
+
+// InitDBHelpers initializes the db infrastructure
+func InitDBHelpers(dbrr, dbdir *sql.DB) {
+	RRdb.Dbdir = dbdir
+	RRdb.Dbrr = dbrr
+	RRdb.BizTypes = make(map[int64]*BusinessTypeLists, 0)
+	buildPreparedStatements()
+	buildPBPreparedStatements()
+	RRdb.BUDlist = buildBusinessDesignationMap()
+}
+
+// InitBusinessFields initialize the lists in rlib's internal data structures
+func InitBusinessFields(bid int64) {
+	if nil == RRdb.BizTypes[bid] {
+		bt := BusinessTypeLists{
+			BID:          bid,
+			PmtTypes:     make(map[int64]*PaymentType),
+			DefaultAccts: make(map[int64]*GLAccount),
+			GLAccounts:   make(map[int64]GLAccount),
+		}
+		RRdb.BizTypes[bid] = &bt
+	}
+}
+
+// InitBizInternals initializes several internal structures with information about the business.
+func InitBizInternals(bid int64, xbiz *XBusiness) {
+	// fmt.Printf("Entered InitBizInternals\n")
+	GetXBusiness(bid, xbiz) // get its info
+	InitBusinessFields(bid)
+	GetDefaultLedgers(bid) // Gather its chart of accounts
+	RRdb.BizTypes[bid].GLAccounts = GetGLAccountMap(bid)
+	GetAllNoteTypes(bid)
+	LoadRentableTypeCustomaAttributes(xbiz)
 }

@@ -5,7 +5,7 @@
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script> -->
     <script src="/js/jquery.min.js"></script>
     <script src="/js/w2ui-1.5.rc1.js"></script>
-    <script src="/js/lists.js"></script>
+    <!-- <script src="/js/lists.js"></script> -->
     <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script>
     <script src="/html/{{.Lang}}/{{.Tmpl}}.js"></script>
     <script src="/js/rutil.js"></script>
@@ -38,25 +38,123 @@ var app = {
     uid: 211,
     lastCmd: ''
 }
+var yesNoList=['no','yes']
+var assignmentTimeList = ['unset','Pre-Assign','Commencement']
 
 var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
 var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
 var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;';
 var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777'
-var config = {
-    mainlayout: {
+
+
+function showReport(rptname) {
+    var w = w2ui['reportslayout']
+    var x = getCurrentBusiness();
+    var userid = 211;
+    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname
+    w2ui['toplayout'].content('main', w);
+    w2ui['toplayout'].hide('right',true);
+    var y = document.getElementsByName("dateD1");
+    var d = y[0].value;
+    app.D1 = d;
+    url += '&dtstart=' + d;
+    //console.log('d1 = ' + d);
+    y = document.getElementsByName("dateD2");
+    d = y[0].value;
+    app.D2 = d;
+    // console.log('d2 = ' + d);
+    url += '&dtstop=' + d;
+    console.log('url = ' + url);
+    w.load('main', url);
+}
+
+
+function getCurrentBusiness() {
+    var x = document.getElementsByName("BusinessSelect");
+    return x[0];
+}
+
+// urlPrefix returns the standard for values for the web services
+// url ending:  <userid>/<business id>
+function urlSuffix() {
+    user = "211" // hardcoded for now
+    return user+x[0].value;
+}
+
+// ChangeBusiness updates the UI to the newly selected business
+function ChangeBusiness() {
+    w2ui['toplayout'].content('main', ' ');
+    w2ui['toplayout'].hide('right',true);
+    s = w2ui['sidebarL1'];
+    sel = s.selected;
+    if (sel != null) { 
+        s.unselect(sel);
+    }
+    w2ui['reportslayout'].load('main','/html/blank.html');
+    app.lastCmd = '';
+    s.collapse('reports');
+    s.collapse('admin');
+}
+
+function switchToGrid(svc) {
+    grid = svc + 'Grid' // this builds the name of the w2ui grid we want
+    var user = '211'    // user is hardcoded for now
+    var x = getCurrentBusiness();
+    var url = '/gsvc/' + svc + '/' + user + '/' + x.value;
+    w2ui[grid].url = url;
+    console.log('url = ' + url);
+    w2ui['toplayout'].content('main', w2ui[grid]);
+    w2ui['toplayout'].hide('right',true);
+}
+
+function defineDateFmts() {
+    var month = (new Date()).getMonth() + 1;
+    var year  = (new Date()).getFullYear();
+    // // US Format
+    $('input[type=us-date]').w2field('date', { format: 'm/d/yyy' });
+    $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
+    $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
+    $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });
+    $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
+    $('input[type=us-time]').w2field('time',  { format: 'h12' });
+    $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
+
+    // EU Common Format
+    $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
+    $('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
+    $('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blocked: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
+    $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]') });
+    $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
+    $('input[type=eu-time]').w2field('time',  { format: 'h24' });
+    $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
+}
+
+// The reason to load these elements in this way rather than storing them as part of a
+// 'config' variable then passing them into the widget generators is that we need to
+// download the lists first. Making the elements part of a config.* variable would evaluate
+// the dropdown lists prior to downloading their values. By doing it this way, we download
+// the lists first so that their values will be set by the server before we build the UI.
+function buildPageElements() {
+    //------------------------------------------------------------------------
+    //          mainlayout
+    //------------------------------------------------------------------------
+    $('#layout').w2layout({
         name: 'mainlayout',
         padding: 2,
         panels: [
             { type: 'top', size: 55, style: pstyle, content: 'top' },
             { type: 'left', size: 200, hidden: true, style: pstyle, content: 'left' },
             { type: 'main', style: pstyle, content: 'main' },
-			{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-			{ type: 'right', size: 200, resizable: true, style: pstyle, hidden: true, content: 'Details' },
+            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
+            { type: 'right', size: 200, resizable: true, style: pstyle, hidden: true, content: 'Details' },
             { type: 'bottom', size: 23, resizable: true, style: stdfmt, content: '&copy; 2015-2016 Accord Interests' }
         ]
-    },
-    toplayout: {
+    });
+
+    //------------------------------------------------------------------------
+    //          toplayout
+    //------------------------------------------------------------------------
+    w2ui.mainlayout.content('main', $().w2layout({
         name: 'toplayout',
         padding: 2,
         panels: [
@@ -67,20 +165,12 @@ var config = {
             { type: 'right', size: 200, resizable: true, style: pstyle2, hidden: true },
             { type: 'bottom', size: 20, resizable: true, style: pstyle2, hidden: true, content: 'toplayout - bottom' }
         ]
-    },
-    reportslayout: {
-        name: 'reportslayout',
-        padding: 0,
-        panels: [
-            { type: 'top',size: 40, style: pstyle2, content: 'reports toolbar'},
-            { type: 'left', size: 20, style: prefmt, hidden: false },
-            { type: 'main',  size: 100, style: prefmt},
-            { type: 'preview', size: '50%', resizable: true, hidden: true, content: 'reports preview' },
-            { type: 'right', size: 200, resizable: true, hidden: true, content: 'reports - detail' },
-            { type: 'bottom', size: 20, resizable: true, hidden: true, content: 'reports - bottom' }
-        ]
-    },
-    toptoolbar: {
+    }));
+    
+    //------------------------------------------------------------------------
+    //          toptoolbar
+    //------------------------------------------------------------------------
+    w2ui.mainlayout.content('top', $().w2toolbar({
         name: 'toptoolbar',
         items: [
              { type: 'html',  id: 'logo',
@@ -126,14 +216,13 @@ var config = {
                 case "menuButton:topLayoutMain":  w2ui['toplayout'].toggle('main',true);                    break;
             }
         },
-    },
-    sidebarL1: {
+    }));
+
+    //------------------------------------------------------------------------
+    //          sidebarL1
+    //------------------------------------------------------------------------
+    w2ui['toplayout'].content('left',$().w2sidebar({
         name: 'sidebarL1',
-        // topHTML:  '<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">&nbsp;&nbsp;&nbsp;'+
-        //             '<i class="fa fa-building-o"></i> &nbsp;' + sBusinessUnit + ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
-        //             '{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}'+
-        //             '</select>&nbsp;&nbsp;&nbsp;</div>',
-        //flatButton: true,
         nodes: [
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
                 nodes: [  { id: 'rentables', text: plural(sRentable), icon: 'fa fa-cube' },
@@ -231,8 +320,29 @@ var config = {
                     console.log('unhandled event: ' + event.target)
             }
         }
-    },
-    reportstoolbar: {
+    }));
+
+    //------------------------------------------------------------------------
+    //          reportslayout
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'reportslayout',
+        padding: 0,
+        panels: [
+            { type: 'top',size: 40, style: pstyle2, content: 'reports toolbar'},
+            { type: 'left', size: 20, style: prefmt, hidden: false },
+            { type: 'main',  size: 100, style: prefmt},
+            { type: 'preview', size: '50%', resizable: true, hidden: true, content: 'reports preview' },
+            { type: 'right', size: 200, resizable: true, hidden: true, content: 'reports - detail' },
+            { type: 'bottom', size: 20, resizable: true, hidden: true, content: 'reports - bottom' }
+        ]
+    });
+
+    
+    //------------------------------------------------------------------------
+    //          reportstoolbar
+    //------------------------------------------------------------------------
+    w2ui.reportslayout.content('top', $().w2toolbar({
         name: 'reportstoolbar',
         items: [
             { type: 'button',  id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
@@ -287,471 +397,412 @@ var config = {
                 x[0].value = app.D2;
             }
         }
-    }
-}
+    }));
 
-
-
-// function myEventHndlr() {
-//         var x = document.getElementsByName("dateD1")
-//     console.log('*** dateD1 onchange event(): value = ' + x[0].value)
-// }
-
-function showReport(rptname) {
-    var w = w2ui['reportslayout']
-    var x = getCurrentBusiness();
-    var userid = 211;
-    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname
-    w2ui['toplayout'].content('main', w);
-    w2ui['toplayout'].hide('right',true);
-    var y = document.getElementsByName("dateD1");
-    var d = y[0].value;
-    app.D1 = d;
-    url += '&dtstart=' + d;
-    //console.log('d1 = ' + d);
-    y = document.getElementsByName("dateD2");
-    d = y[0].value;
-    app.D2 = d;
-    // console.log('d2 = ' + d);
-    url += '&dtstop=' + d;
-    console.log('url = ' + url);
-    w.load('main', url);
-}
-
-var accountsGrid = {
-    name: 'accountsGrid',
-    url: '/gsvc/GLAccounts',
-    show: {
-        header: false,
-        toolbar: true,
-        footer: true,
-        searches: true,
-        lineNumbers: false,
-        selectColumn: false,
-        expandColumn: false
-    },        
-    columns: [
-        {field: 'recid',    caption: 'recid', size: '40px', sortable: true},
-        {field: 'LID',      caption: 'LID', size: '50px', sortable: true},
-        {field: 'PLID',     caption: 'PLID', size: '50px', sortable: true},
-        {field: 'BID',      caption: 'BID', size: '40px', sortable: true},
-        {field: 'GLNumber', caption: 'GL Number', size: '85px', sortable: true},
-        {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
-        {field: 'Status',   caption: 'Status', size: '50px', sortable: true},
-        {field: 'AcctType', caption: 'AcctType', size: '140px', sortable: true},
-    ],
-    onSelect:  function(event) {
-        console.log(event);
-    },
-    onClick: function(event) {
-        event.onComplete = function () {
-            // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
-            //   console.log(val + ' -> ' + this[val]);
-            // });   
-            var sel = this.getSelection(true);
-            console.log('Current selection is ' + sel );
-        }
-    }
-}
-
-var transactantsGrid = { 
-    name: 'transactantsGrid', 
-    url: '/gsvc/transactants',
-    show: {
-        header: false,
-        toolbar: true,
-        footer: true,
-        lineNumbers: false,
-        selectColumn: false,
-        expandColumn: false
-    },        
-    columns: [
-        {field: 'TCID',         caption: "TCID",          size: '50px', sortable: true, hidden: false},
-        {field: 'FirstName',    caption: "First Name",    size: '10%', sortable: true, hidden: false},
-        {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: true},
-        {field: 'LastName',     caption: "Last Name",     size: '10%', sortable: true, hidden: false},
-        {field: 'CompanyName',  caption: "Company Name",  size: '10%', sortable: true, hidden: true},
-        {field: 'PrimaryEmail', caption: "Primary Email", size: '10%', sortable: true, hidden: false},
-        {field: 'CellPhone',    caption: "Cell Phone",    size: '10%', sortable: true, hidden: false},
-        {field: 'WorkPhone',    caption: "Work Phone",    size: '10%', sortable: true, hidden: false},
-    ],
-    onClick: function(event) {
-        var sel = this.getSelection(true);
-        event.onComplete = function () {
-            // var x = this.get; Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
-            var sel = this.getSelection(true);
-            if (sel.length > 0) {
-                for (var i = 0; i < sel.length; ++i) {
-                    ob = this.get(sel[i])
-                    setToForm('transactantForm', '/gsvc/xperson/' + app.uid + '/' + ob.BID + '/' + ob.TCID);
-                 }
-            } else {
-                console.log('*** NO SELECTION FOUND ***   So, select index 0')
-                this.select(1)
+    //------------------------------------------------------------------------
+    //          accountsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'accountsGrid',
+        url: '/gsvc/GLAccounts',
+        show: {
+            header: false,
+            toolbar: true,
+            footer: true,
+            searches: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },        
+        columns: [
+            {field: 'recid',    caption: 'recid', size: '40px', sortable: true},
+            {field: 'LID',      caption: 'LID', size: '50px', sortable: true},
+            {field: 'PLID',     caption: 'PLID', size: '50px', sortable: true},
+            {field: 'BID',      caption: 'BID', size: '40px', sortable: true},
+            {field: 'GLNumber', caption: 'GL Number', size: '85px', sortable: true},
+            {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
+            {field: 'Status',   caption: 'Status', size: '50px', sortable: true},
+            {field: 'AcctType', caption: 'AcctType', size: '140px', sortable: true},
+        ],
+        onSelect:  function(event) {
+            console.log(event);
+        },
+        onClick: function(event) {
+            event.onComplete = function () {
+                // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
+                //   console.log(val + ' -> ' + this[val]);
+                // });   
+                var sel = this.getSelection(true);
+                console.log('Current selection is ' + sel );
             }
         }
-    }
-}
+    });
 
-var transactantForm = {
-    name: 'transactantForm',
-    style: 'border: 0px; background-color: transparent;',
-    header: sTransactant + ' Detail',
-    url: '/gsvc/xperson',
-    formURL: '/html/formtc.html',
-    fields: [
-        { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-        { field: 'FirstName', type: 'text', required: false, html: { caption: 'First Name', page: 0, column: 0 } },
-        { field: 'LastName', type: 'text', required: false, html: { caption: 'Last Name', page: 0, column: 0 } },
-        { field: 'MiddleName', type: 'text', required: false, html: { caption: 'Middle Name', page: 0, column: 0 } },
-        { field: 'PreferredName', type: 'text', required: false, html: { caption: 'Preferred Name', page: 0, column: 0 } },
-        { field: 'PrimaryEmail', type: 'email', required: false, html: { caption: 'Primary Email', page: 0, column: 0 } },
-        { field: 'TCID', type: 'int', required: false, html: { caption: 'TCID', page: 0, column: 0 } },
-        { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
-        { field: 'NLID', type: 'int', required: false, html: { caption: 'NLID', page: 0, column: 0 } },
-        { field: 'CompanyName', type: 'text', required: false, html: { caption: 'Company Name', page: 0, column: 0 } },
-        { field: 'IsCompany', type: 'checkbox', required: false, html: { caption: 'Is Company', page: 0, column: 0 } },
-        { field: 'SecondaryEmail', type: 'email', required: false, html: { caption: 'Secondary Email', page: 0, column: 0 } },
-        { field: 'WorkPhone', type: 'phone', required: false, html: { caption: 'Work Phone', page: 0, column: 0 } },
-        { field: 'CellPhone', type: 'phone', required: false, html: { caption: 'Cell Phone', page: 0, column: 0 } },
-        { field: 'Address', type: 'text', required: false, html: { caption: 'Address', page: 0, column: 0 } },
-        { field: 'Address2', type: 'text', required: false, html: { caption: 'Address 2', page: 0, column: 0 } },
-        { field: 'City', type: 'text', required: false, html: { caption: 'City', page: 0, column: 0 } },
-        { field: 'State', type: 'text', required: false, html: { caption: 'State', page: 0, column: 0 } },
-        { field: 'PostalCode', type: 'text', required: false, html: { caption: 'Postal Code', page: 0, column: 0 } },
-        { field: 'Country', type: 'text', required: false, html: { caption: 'Country', page: 0, column: 0 } },
-        { field: 'Website', type: 'text', required: false, html: { caption: 'Website', page: 0, column: 0 } },
-        { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-        { field: 'LastModBy', type: 'text', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
-        { field: 'Points', type: 'text', required: false, html: { caption: 'Points', page: 1, column: 0 } },
-        { field: 'DateofBirth', type: 'date', required: false, html: { caption: 'Date of Birth', page: 1, column: 0 } },
-        { field: 'EmergencyContactName', type: 'text', required: false, html: { caption: 'Emerg Cntct Name', page: 1, column: 0 } },
-        { field: 'EmergencyContactAddress', type: 'text', required: false, html: { caption: 'Emerg Cntct Addr', page: 1, column: 0 } },
-        { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { caption: 'Emerg Cntct Tel', page: 1, column: 0 } },
-        { field: 'EmergencyEmail', type: 'text', required: false, html: { caption: 'Emergency Email', page: 1, column: 0 } },
-        { field: 'AlternateAddress', type: 'text', required: false, html: { caption: 'Alternate Address', page: 1, column: 0 } },
-        { field: 'EligibleFutureUser', type: 'text', required: false, html: { caption: 'Eligible Future User', page: 1, column: 0 } },
-        { field: 'Industry', type: 'text', required: false, html: { caption: 'Industry', page: 1, column: 0 } },
-        { field: 'SourceSLSID', type: 'w2int', required: false, html: { caption: 'Source SLSID', page: 1, column: 0 } },
-        { field: 'CreditLimit', type: 'w2float', required: false, html: {caption: 'Credit Limit', page: 2, column: 0 } },
-        { field: 'TaxpayorID', type: 'text', required: false, html: {caption: 'Taxpayor ID', page: 2, column: 0 } },
-        { field: 'AccountRep', type: 'text', required: false, html: {caption: 'Account Rep', page: 2, column: 0 } },
-        { field: 'EligibleFuturePayor', type: 'text', required: false, html: {caption: 'Eligible Future Payor', page: 2, column: 0 } },
-        { field: 'EmployerName', type: 'text', required: false, html: {caption: 'Employer Name', page: 3, column: 0 } },
-        { field: 'EmployerStreetAddress', type: 'text', required: false, html: {caption: 'Employer Street Address', page: 3, column: 0 } },
-        { field: 'EmployerCity', type: 'text', required: false, html: {caption: 'Employer City', page: 3, column: 0 } },
-        { field: 'EmployerState', type: 'text', required: false, html: {caption: 'Employer State', page: 3, column: 0 } },
-        { field: 'EmployerPostalCode', type: 'text', required: false, html: {caption: 'Employer Postal Code', page: 3, column: 0 } },
-        { field: 'EmployerEmail', type: 'text', required: false, html: {caption: 'Employer Email', page: 3, column: 0 } },
-        { field: 'EmployerPhone', type: 'text', required: false, html: {caption: 'Employer Phone', page: 3, column: 0 } },
-        { field: 'Occupation', type: 'text', required: false, html: {caption: 'Occupation', page: 3, column: 0 } },
-        { field: 'ApplicationFee', type: 'text', required: false, html: {caption: 'Application Fee', page: 3, column: 0 } },
-        { field: 'DesiredUsageStartDate', type: 'date', required: false, html: {caption: 'Desired Usage Start Date', page: 3, column: 0 } },
-        { field: 'RentableTypePreference', type: 'text', required: false, html: {caption: 'Rentable Type Preference', page: 3, column: 0 } },
-        { field: 'FLAGS', type: 'text', required: false, html: {caption: 'FLAGS', page: 3, column: 0 } },
-        { field: 'Approver', type: 'text', required: false, html: {caption: 'Approver', page: 3, column: 0 } },
-        { field: 'DeclineReasonSLSID', type: 'w2int', required: false, html: {caption: 'Decline Reason SLSID', page: 3, column: 0 } },
-        { field: 'OtherPreferences', type: 'text', required: false, html: {caption: 'Other Preferences', page: 3, column: 0 } },
-        { field: 'FollowUpDate', type: 'date', required: false, html: {caption: 'FollowU pDate', page: 3, column: 0 } },
-        { field: 'CSAgent', type: 'text', required: false, html: {caption: 'CS Agent', page: 3, column: 0 } },
-        { field: 'OutcomeSLSID', type: 'text', required: false, html: {caption: 'Outcome SLSID', page: 3, column: 0 } },
-        { field: 'FloatingDeposit', type: 'w2float', required: false, html: {caption: 'Floating Deposit', page: 3, column: 0 } },
-        { field: 'RAID', type: 'w2int', required: false, html: {caption: 'RAID', page: 3, column: 0 } },
-
-    ],
-    tabs: [
-        { id: 'tab1', caption: sTransactant },
-        { id: 'tab2', caption: sUser },
-        { id: 'tab3', caption: sPayor },
-        { id: 'tab4', caption: sProspect },
-    ],
-    actions: {
-        save: function () {
-            var obj = this;
-            var tgrid = w2ui['transactantsGrid'];
-            var sel = tgrid.getSelection();
-            tgrid.unselect(sel);
-            console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
-            this.save({}, function (data) { 
-                if (data.status == 'error') {
-                    console.log('ERROR: '+ data.message);
-                    return;
-                }
-                // obj.clear();
-                w2ui['toplayout'].hide('right',true);
-                tgrid.reload();
-            });
-        },
-        reset: function () {
-            w2ui['transactantForm'].resize()
-        }
-    },
-    onRefresh: function(event) {
-        var f = w2ui['transactantForm']
-        var r = f.record
-        var name = r.FirstName + ' ' + r.LastName
-        var title = 'Edit ' + sTransactant + ' - ' + name +' (' + r.TCID + ')'
-        f.header = title
-    }
-}
-
-var rentablesGrid = {
-    name: 'rentablesGrid',
-    url: '/gsvc/xrentable',
-    formURL: '/html/formr.html',
-    show: {
-        header: false,
-        toolbar: true,
-        searches: true,
-        footer: false,
-        lineNumbers: false,
-        selectColumn: false,
-        expandColumn: false
-    },
-    columns: [
-        {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
-        {field: 'RID', caption: 'RID', size: '50px', sortable: true},
-        {field: 'Name', caption: 'Name', size: '15%', sortable: true},
-        {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
-    ],
-    onClick: function(event) {
-        var sel = this.getSelection(true);
-        event.onComplete = function () {
+    //------------------------------------------------------------------------
+    //          transactantsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({ 
+        name: 'transactantsGrid', 
+        url: '/gsvc/transactants',
+        show: {
+            header: false,
+            toolbar: true,
+            footer: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },        
+        columns: [
+            {field: 'TCID',         caption: "TCID",          size: '50px', sortable: true, hidden: false},
+            {field: 'FirstName',    caption: "First Name",    size: '10%', sortable: true, hidden: false},
+            {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: true},
+            {field: 'LastName',     caption: "Last Name",     size: '10%', sortable: true, hidden: false},
+            {field: 'CompanyName',  caption: "Company Name",  size: '10%', sortable: true, hidden: true},
+            {field: 'PrimaryEmail', caption: "Primary Email", size: '10%', sortable: true, hidden: false},
+            {field: 'CellPhone',    caption: "Cell Phone",    size: '10%', sortable: true, hidden: false},
+            {field: 'WorkPhone',    caption: "Work Phone",    size: '10%', sortable: true, hidden: false},
+        ],
+        onClick: function(event) {
             var sel = this.getSelection(true);
-            if (sel.length > 0) {
-                for (var i = 0; i < sel.length; i++) {
-                    ob = this.get(sel[i])
-                    setToForm('rentableForm', '/gsvc/xrentable/' + app.uid + '/' + ob.BID + '/' + ob.RID);
+            event.onComplete = function () {
+                // var x = this.get; Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
+                var sel = this.getSelection(true);
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; ++i) {
+                        ob = this.get(sel[i])
+                        setToForm('transactantForm', '/gsvc/xperson/' + app.uid + '/' + ob.BID + '/' + ob.TCID);
+                     }
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0')
+                    this.select(1)
                 }
-            } else {
-                console.log('*** NO SELECTION FOUND ***   So, select index 0')
-                this.select(1)
             }
         }
-    }
-}
+    });
 
-var rentableForm = {
-    name: 'rentableForm',
-    style: 'border: 0px; background-color: transparent;',
-    header: sRentable + ' Detail',
-    url: '/gsvc/xrentable',
-    formURL: '/html/formr.html',
-    fields: [
-        { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-        { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
-        { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
-        { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
-        { field: 'AssignmentTime', type: 'list', options: {items: AssignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
-    ],
-    actions: {
-        save: function () {
-            var obj = this;
-            var tgrid = w2ui['rentablesGrid'];
-            var sel = tgrid.getSelection();
-            tgrid.unselect(sel);
-            this.save({}, function (data) { 
-                if (data.status == 'error') {
-                    console.log('ERROR: '+ data.message);
-                    return;
-                }
-                w2ui['toplayout'].hide('right',true);
-                tgrid.reload();
-            });
+    //------------------------------------------------------------------------
+    //          transactantForm
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'transactantForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: sTransactant + ' Detail',
+        url: '/gsvc/xperson',
+        formURL: '/html/formtc.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+            { field: 'FirstName', type: 'text', required: false, html: { caption: 'First Name', page: 0, column: 0 } },
+            { field: 'LastName', type: 'text', required: false, html: { caption: 'Last Name', page: 0, column: 0 } },
+            { field: 'MiddleName', type: 'text', required: false, html: { caption: 'Middle Name', page: 0, column: 0 } },
+            { field: 'PreferredName', type: 'text', required: false, html: { caption: 'Preferred Name', page: 0, column: 0 } },
+            { field: 'PrimaryEmail', type: 'email', required: false, html: { caption: 'Primary Email', page: 0, column: 0 } },
+            { field: 'TCID', type: 'int', required: false, html: { caption: 'TCID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'NLID', type: 'int', required: false, html: { caption: 'NLID', page: 0, column: 0 } },
+            { field: 'CompanyName', type: 'text', required: false, html: { caption: 'Company Name', page: 0, column: 0 } },
+            { field: 'IsCompany', type: 'checkbox', required: false, html: { caption: 'Is Company', page: 0, column: 0 } },
+            { field: 'SecondaryEmail', type: 'email', required: false, html: { caption: 'Secondary Email', page: 0, column: 0 } },
+            { field: 'WorkPhone', type: 'phone', required: false, html: { caption: 'Work Phone', page: 0, column: 0 } },
+            { field: 'CellPhone', type: 'phone', required: false, html: { caption: 'Cell Phone', page: 0, column: 0 } },
+            { field: 'Address', type: 'text', required: false, html: { caption: 'Address', page: 0, column: 0 } },
+            { field: 'Address2', type: 'text', required: false, html: { caption: 'Address 2', page: 0, column: 0 } },
+            { field: 'City', type: 'text', required: false, html: { caption: 'City', page: 0, column: 0 } },
+            { field: 'State', type: 'text', required: false, html: { caption: 'State', page: 0, column: 0 } },
+            { field: 'PostalCode', type: 'text', required: false, html: { caption: 'Postal Code', page: 0, column: 0 } },
+            { field: 'Country', type: 'text', required: false, html: { caption: 'Country', page: 0, column: 0 } },
+            { field: 'Website', type: 'text', required: false, html: { caption: 'Website', page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'text', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            { field: 'Points', type: 'text', required: false, html: { caption: 'Points', page: 1, column: 0 } },
+            { field: 'DateofBirth', type: 'date', required: false, html: { caption: 'Date of Birth', page: 1, column: 0 } },
+            { field: 'EmergencyContactName', type: 'text', required: false, html: { caption: 'Emerg Cntct Name', page: 1, column: 0 } },
+            { field: 'EmergencyContactAddress', type: 'text', required: false, html: { caption: 'Emerg Cntct Addr', page: 1, column: 0 } },
+            { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { caption: 'Emerg Cntct Tel', page: 1, column: 0 } },
+            { field: 'EmergencyEmail', type: 'text', required: false, html: { caption: 'Emergency Email', page: 1, column: 0 } },
+            { field: 'AlternateAddress', type: 'text', required: false, html: { caption: 'Alternate Address', page: 1, column: 0 } },
+            { field: 'EligibleFutureUser', type: 'list', options: {items: yesNoList}, required: false, html: { caption: 'Eligible Future User', page: 1, column: 0 } },
+            { field: 'Industry', type: 'text', required: false, html: { caption: 'Industry', page: 1, column: 0 } },
+            { field: 'SourceSLSID', type: 'w2int', required: false, html: { caption: 'Source SLSID', page: 1, column: 0 } },
+            { field: 'CreditLimit', type: 'w2float', required: false, html: {caption: 'Credit Limit', page: 2, column: 0 } },
+            { field: 'TaxpayorID', type: 'text', required: false, html: {caption: 'Taxpayor ID', page: 2, column: 0 } },
+            { field: 'AccountRep', type: 'text', required: false, html: {caption: 'Account Rep', page: 2, column: 0 } },
+            { field: 'EligibleFuturePayor', type: 'list', options: {items: yesNoList}, required: false, html: {caption: 'Eligible Future Payor', page: 2, column: 0 } },
+            { field: 'EmployerName', type: 'text', required: false, html: {caption: 'Employer Name', page: 3, column: 0 } },
+            { field: 'EmployerStreetAddress', type: 'text', required: false, html: {caption: 'Employer Street Address', page: 3, column: 0 } },
+            { field: 'EmployerCity', type: 'text', required: false, html: {caption: 'Employer City', page: 3, column: 0 } },
+            { field: 'EmployerState', type: 'text', required: false, html: {caption: 'Employer State', page: 3, column: 0 } },
+            { field: 'EmployerPostalCode', type: 'text', required: false, html: {caption: 'Employer Postal Code', page: 3, column: 0 } },
+            { field: 'EmployerEmail', type: 'text', required: false, html: {caption: 'Employer Email', page: 3, column: 0 } },
+            { field: 'EmployerPhone', type: 'text', required: false, html: {caption: 'Employer Phone', page: 3, column: 0 } },
+            { field: 'Occupation', type: 'text', required: false, html: {caption: 'Occupation', page: 3, column: 0 } },
+            { field: 'ApplicationFee', type: 'text', required: false, html: {caption: 'Application Fee', page: 3, column: 0 } },
+            { field: 'DesiredUsageStartDate', type: 'date', required: false, html: {caption: 'Desired Usage Start Date', page: 3, column: 0 } },
+            { field: 'RentableTypePreference', type: 'text', required: false, html: {caption: 'Rentable Type Preference', page: 3, column: 0 } },
+            { field: 'FLAGS', type: 'text', required: false, html: {caption: 'FLAGS', page: 3, column: 0 } },
+            { field: 'Approver', type: 'text', required: false, html: {caption: 'Approver', page: 3, column: 0 } },
+            { field: 'DeclineReasonSLSID', type: 'w2int', required: false, html: {caption: 'Decline Reason SLSID', page: 3, column: 0 } },
+            { field: 'OtherPreferences', type: 'text', required: false, html: {caption: 'Other Preferences', page: 3, column: 0 } },
+            { field: 'FollowUpDate', type: 'date', required: false, html: {caption: 'FollowU pDate', page: 3, column: 0 } },
+            { field: 'CSAgent', type: 'text', required: false, html: {caption: 'CS Agent', page: 3, column: 0 } },
+            { field: 'OutcomeSLSID', type: 'text', required: false, html: {caption: 'Outcome SLSID', page: 3, column: 0 } },
+            { field: 'FloatingDeposit', type: 'w2float', required: false, html: {caption: 'Floating Deposit', page: 3, column: 0 } },
+            { field: 'RAID', type: 'w2int', required: false, html: {caption: 'RAID', page: 3, column: 0 } },
 
+        ],
+        tabs: [
+            { id: 'tab1', caption: sTransactant },
+            { id: 'tab2', caption: sUser },
+            { id: 'tab3', caption: sPayor },
+            { id: 'tab4', caption: sProspect },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnResize', type: 'button', icon: 'fa fa-expand' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' }
+            ],
         },
-        reset: function() {
+        actions: {
+            save: function () {
+                var obj = this;
+                var tgrid = w2ui['transactantsGrid'];
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+                this.save({}, function (data) { 
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    // obj.clear();
+                    w2ui['toplayout'].hide('right',true);
+                    tgrid.reload();
+                });
+            },
+            reset: function () {
+                w2ui['transactantForm'].resize()
+            }
+        },
+        onClick: function (event) {
+            if (event.target == 'btnResize') {
+                w2ui['transactantForm'].resize()
+            }
+            if (event.target == 'btnNotes')  {
+                w2ui['transactantForm'].resize()
+            }
+        },
+        onRefresh: function(event) {
+            var f = w2ui['transactantForm']
+            var r = f.record
+            var name = r.FirstName + ' ' + r.LastName
+            var title = 'Edit ' + sTransactant + ' - ' + name +' (' + r.TCID + ')'
+            f.header = title
+        }
+    });
+
+    //------------------------------------------------------------------------
+    //          rentablesGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rentablesGrid',
+        url: '/gsvc/xrentable',
+        formURL: '/html/formr.html',
+        show: {
+            header: false,
+            toolbar: true,
+            searches: true,
+            footer: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
+            {field: 'RID', caption: 'RID', size: '50px', sortable: true},
+            {field: 'Name', caption: 'Name', size: '15%', sortable: true},
+            {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
+        ],
+        onClick: function(event) {
+            var sel = this.getSelection(true);
+            event.onComplete = function () {
+                var sel = this.getSelection(true);
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        ob = this.get(sel[i])
+                        console.log('rentable form url: ' + '/gsvc/xrentable/' + app.uid + '/' + ob.BID + '/' + ob.RID)
+                        setToForm('rentableForm', '/gsvc/xrentable/' + app.uid + '/' + ob.BID + '/' + ob.RID);
+                    }
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0')
+                    this.select(1)
+                }
+            }
+        }
+    });
+
+    //------------------------------------------------------------------------
+    //          rentableForm
+    //------------------------------------------------------------------------
+     $().w2form({
+        name: 'rentableForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: sRentable + ' Detail',
+        url: '/gsvc/xrentable',
+        formURL: '/html/formr.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+            { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
+            { field: 'AssignmentTime', type: 'list', options: {items: assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+        ],
+        actions: {
+            save: function () {
+                var obj = this;
+                var tgrid = w2ui['rentablesGrid'];
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                this.save({}, function (data) { 
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui['toplayout'].hide('right',true);
+                    tgrid.reload();
+                });
+
+            },
+            reset: function() {
+                var f = w2ui['rentableForm']
+                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.Name)
+            }
+        },
+        onRefresh: function(event) {
             var f = w2ui['rentableForm']
-            console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.Name)
+            var r = f.record
+            f.header = 'Edit ' + sRentable + ' - ' + r.Name + ' (' + r.RID + ')'
         }
-    },
-    onRefresh: function(event) {
-        var f = w2ui['rentableForm']
-        f.header = 'Edit ' + sRentable + ' - ' + f.record.Name + ' (' + f.record.RID + ')'
-    }
-}
+    });
 
-var rentalagrsGrid = {
-    name: 'rentalagrsGrid',
-    show: {
-        header: false,
-        toolbar: true,
-        footer: false,
-        lineNumbers: false,
-        selectColumn: false,
-        expandColumn: false
-    },
-    url: '/gsvc/rentalagrs',       
-    columns: [
-        {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-        {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
-        {field: 'Payor', caption: 'Payor', size: '10%', sortable: true},
-        {field: 'User',  caption: 'User',  size: '10%', sortable: true},
-        {field: 'agrstart', caption: 'Agreement<br>Start', size: '10%', sortable: true},
-        {field: 'agrstop',  caption: 'Agreement<br>Stop',  size: '10%', sortable: true},
-        // {field: 'posstart', caption: 'Possession<br> Start', size: '10%', sortable: true},
-        // {field: 'posstop',  caption: 'Possession<br> Stop',  size: '10%', sortable: true},
-        // {field: 'rntstart', caption: 'Rent Start', size: '10%', sortable: true},
-        // {field: 'rntstop',  caption: 'Rent Stop',  size: '10%', sortable: true},
-        // {field: 'rntepoch',  caption: 'Cycle Epoch',  size: '10%', sortable: true},
-    ], 
-    actions: {
-        save: function () {
-            var tgrid = w2ui['rentalagrsGrid'];
-            var sel = tgrid.getSelection();
-            tgrid.unselect(sel);
-            console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
-        }
-    },
-    onClick: function(event) {
-        var sel = this.getSelection(true);
-        event.onComplete = function () {
+    //------------------------------------------------------------------------
+    //          rentalagrsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rentalagrsGrid',
+        show: {
+            header: false,
+            toolbar: true,
+            footer: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        url: '/gsvc/rentalagrs',       
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
+            {field: 'Payor', caption: 'Payor', size: '10%', sortable: true},
+            {field: 'User',  caption: 'User',  size: '10%', sortable: true},
+            {field: 'agrstart', caption: 'Agreement<br>Start', size: '10%', sortable: true},
+            {field: 'agrstop',  caption: 'Agreement<br>Stop',  size: '10%', sortable: true},
+            // {field: 'posstart', caption: 'Possession<br> Start', size: '10%', sortable: true},
+            // {field: 'posstop',  caption: 'Possession<br> Stop',  size: '10%', sortable: true},
+            // {field: 'rntstart', caption: 'Rent Start', size: '10%', sortable: true},
+            // {field: 'rntstop',  caption: 'Rent Stop',  size: '10%', sortable: true},
+            // {field: 'rntepoch',  caption: 'Cycle Epoch',  size: '10%', sortable: true},
+        ], 
+        actions: {
+            save: function () {
+                var tgrid = w2ui['rentalagrsGrid'];
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+            }
+        },
+        onClick: function(event) {
             var sel = this.getSelection(true);
-            console.log('Get Selection: Rental Agreement')
-            if (sel.length > 0) {
-                for (var i = 0; i < sel.length; i++) {
-                    ob = this.get(sel[i])
-                    console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID)
-                    setToForm('rentalagrForm', '/gsvc/xrentalagr/' + app.uid + '/' + ob.BID + '/' + ob.RAID);
+            event.onComplete = function () {
+                var sel = this.getSelection(true);
+                console.log('Get Selection: Rental Agreement')
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        ob = this.get(sel[i])
+                        console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID)
+                        setToForm('rentalagrForm', '/gsvc/xrentalagr/' + app.uid + '/' + ob.BID + '/' + ob.RAID);
+                    }
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0')
+                    this.select(1)
                 }
-            } else {
-                console.log('*** NO SELECTION FOUND ***   So, select index 0')
-                this.select(1)
             }
         }
-    }
-}
+    });
 
-var rentalagrForm = {
-    name: 'rentalagrForm',
-    style: 'border: 0px; background-color: transparent;',
-    header: sRentalAgreement + ' Detail',
-    //url: '/gsvc/xrentalagrs',
-    formURL: '/html/formra.html',
-    fields: [
-        { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-        { field: 'RAID', type: 'int', required: false, html: { caption: 'RAID', page: 0, column: 0 } },
-        { field: 'RATID', type: 'int', required: false, html: { caption: 'RATID', page: 0, column: 0 } },
-        { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
-        { field: 'NLID', type: 'int', required: false, html: { caption: 'Notes', page: 0, column: 0 } },
-        { field: 'AgreementStart', type: 'date', required: false, html: { caption: 'Agreement Start', page: 0, column: 0 } },
-        { field: 'AgreementStop', type: 'date', required: false, html: { caption: 'Agreement Stop', page: 0, column: 0 } },
-        { field: 'PossessionStart', type: 'date', required: false, html: { caption: 'Possession Start', page: 0, column: 0 } },
-        { field: 'PossessionStop', type: 'date', required: false, html: { caption: 'Possession Stop', page: 0, column: 0 } },
-        { field: 'RentStart', type: 'date', required: false, html: { caption: 'Rent Start', page: 0, column: 0 } },
-        { field: 'RentStop', type: 'date', required: false, html: { caption: 'Rent Stop', page: 0, column: 0 } },
-        { field: 'RentCycleEpoch', type: 'date', required: false, html: { caption: 'Rent Cycle Epoch', page: 0, column: 0 } },
-        { field: 'UnspecifiedAdults', type: 'int', required: false, html: { caption: 'Unspecified Adults', page: 0, column: 0 } },
-        { field: 'UnspecifiedChildren', type: 'int', required: false, html: { caption: 'Unspecified Children', page: 0, column: 0 } },
-        // { field: 'Renewal', type: 'list', required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
-        // { field: 'SpecialProvisions', type: 'list', required: false, html: { caption: 'Special Provisions', page: 0, column: 0 } },
-        { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-        { field: 'LastModBy', type: 'text', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
-    ],
-    actions: {
-        save: function () {
-            var obj = this;
-            var tgrid = w2ui['rentalagrsGrid'];
-            var sel = tgrid.getSelection();
-            tgrid.unselect(sel);
-            this.save({}, function (data) { 
-                if (data.status == 'error') {
-                    console.log('ERROR: '+ data.message);
-                    return;
-                }
-                w2ui['toplayout'].hide('right',true);
-                tgrid.reload();
-            });
+    //------------------------------------------------------------------------
+    //          rentalagrForm
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'rentalagrForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: sRentalAgreement + ' Detail',
+        //url: '/gsvc/xrentalagrs',
+        formURL: '/html/formra.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+            { field: 'RAID', type: 'int', required: false, html: { caption: 'RAID', page: 0, column: 0 } },
+            { field: 'RATID', type: 'int', required: false, html: { caption: 'RATID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'NLID', type: 'int', required: false, html: { caption: 'Notes', page: 0, column: 0 } },
+            { field: 'AgreementStart', type: 'date', required: false, html: { caption: 'Agreement Start', page: 0, column: 0 } },
+            { field: 'AgreementStop', type: 'date', required: false, html: { caption: 'Agreement Stop', page: 0, column: 0 } },
+            { field: 'PossessionStart', type: 'date', required: false, html: { caption: 'Possession Start', page: 0, column: 0 } },
+            { field: 'PossessionStop', type: 'date', required: false, html: { caption: 'Possession Stop', page: 0, column: 0 } },
+            { field: 'RentStart', type: 'date', required: false, html: { caption: 'Rent Start', page: 0, column: 0 } },
+            { field: 'RentStop', type: 'date', required: false, html: { caption: 'Rent Stop', page: 0, column: 0 } },
+            { field: 'RentCycleEpoch', type: 'date', required: false, html: { caption: 'Rent Cycle Epoch', page: 0, column: 0 } },
+            { field: 'UnspecifiedAdults', type: 'int', required: false, html: { caption: 'Unspecified Adults', page: 0, column: 0 } },
+            { field: 'UnspecifiedChildren', type: 'int', required: false, html: { caption: 'Unspecified Children', page: 0, column: 0 } },
+            // { field: 'Renewal', type: 'list', required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
+            // { field: 'SpecialProvisions', type: 'list', required: false, html: { caption: 'Special Provisions', page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'text', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+        ],
+        actions: {
+            save: function () {
+                var obj = this;
+                var tgrid = w2ui['rentalagrsGrid'];
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                this.save({}, function (data) { 
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui['toplayout'].hide('right',true);
+                    tgrid.reload();
+                });
 
+            },
+            reset: function() {
+                var f = w2ui['rentalagrForm']
+                console.log('f:   recid = ' + f.record.recid + '   RAID = ' + f.record.RID)
+            }
         },
-        reset: function() {
+        onRefresh: function(event) {
             var f = w2ui['rentalagrForm']
-            console.log('f:   recid = ' + f.record.recid + '   RAID = ' + f.record.RID)
+            f.header = 'Edit ' + sRentalAgreement + ' -  RA00' + f.record.RAID 
         }
-    },
-    onRefresh: function(event) {
-        var f = w2ui['rentalagrForm']
-        f.header = 'Edit ' + sRentalAgreement + ' -  RA00' + f.record.RAID 
+    });
+
+}
+
+function handleData(data,status) {
+    if (status == "success") {
+        eval(data) // defines all the lists; values for the dropdown lists
     }
-}
-
-
-function getCurrentBusiness() {
-    var x = document.getElementsByName("BusinessSelect");
-    return x[0];
-}
-
-// urlPrefix returns the standard for values for the web services
-// url ending:  <userid>/<business id>
-function urlSuffix() {
-    user = "211" // hardcoded for now
-    return user+x[0].value;
-}
-
-// ChangeBusiness updates the UI to the newly selected business
-function ChangeBusiness() {
-    w2ui['toplayout'].content('main', ' ');
-    w2ui['toplayout'].hide('right',true);
-    s = w2ui['sidebarL1'];
-    sel = s.selected;
-    if (sel != null) { 
-        s.unselect(sel);
-    }
-    w2ui['reportslayout'].load('main','/html/blank.html');
-    app.lastCmd = '';
-    s.collapse('reports');
-    s.collapse('admin');
-}
-
-function switchToGrid(svc) {
-    grid = svc + 'Grid' // this builds the name of the w2ui grid we want
-    var user = '211'    // user is hardcoded for now
-    var x = getCurrentBusiness();
-    var url = '/gsvc/' + svc + '/' + user + '/' + x.value;
-    w2ui[grid].url = url;
-    console.log('url = ' + url);
-    w2ui['toplayout'].content('main', w2ui[grid]);
-    w2ui['toplayout'].hide('right',true);
-}
-
-function defineDateFmts() {
-    var month = (new Date()).getMonth() + 1;
-    var year  = (new Date()).getFullYear();
-    // // US Format
-    $('input[type=us-date]').w2field('date', { format: 'm/d/yyy' });
-    $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
-    $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
-    $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });
-    $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
-    $('input[type=us-time]').w2field('time',  { format: 'h12' });
-    $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
-
-    // EU Common Format
-    $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
-    $('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
-    $('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blocked: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
-    $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]') });
-    $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
-    $('input[type=eu-time]').w2field('time',  { format: 'h24' });
-    $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
-}
-
-$(function () {
+    console.log('assignmentTimeList = ' + assignmentTimeList)
     defineDateFmts();
-    $('#layout').w2layout(config.mainlayout);
-    w2ui.mainlayout.content('main', $().w2layout(config.toplayout));
-    w2ui.mainlayout.content('top', $().w2toolbar(config.toptoolbar));
-    $().w2layout(config.reportslayout);
-    w2ui.reportslayout.content('top', $().w2toolbar(config.reportstoolbar));
-    $().w2grid(accountsGrid);
-    $().w2grid(transactantsGrid);
-    $().w2form(transactantForm);
-    $().w2grid(rentablesGrid);
-    $().w2form(rentableForm);
-    $().w2grid(rentalagrsGrid);
-    $().w2form(rentalagrForm);
-
-    w2ui['toplayout'].content('left',$().w2sidebar(config.sidebarL1));
+    buildPageElements();
 
     var d1 = new Date();
     d1.setDate(1);
@@ -759,7 +810,12 @@ $(function () {
     var d2 = dateMonthFwd(d1);
     app.D2 = dateControlString(d2);
 
+}
+
+$(function () {
+    $.get("/gsvc/uilists/211/4",handleData)
 });
+
 </script>
 
 <div id="layout"style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>

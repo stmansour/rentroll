@@ -8,12 +8,11 @@ import (
 	"strings"
 )
 
-// this is a structure specifically for the UI. It will be
-// automatically populated from an rlib.XPerson struct
+// UI Data for Transactant, User, Payor, Prospect, Applicant
 type gxperson struct {
 	Recid                     int64 `json:"recid"` // this is to support the w2ui form
 	TCID                      int64
-	BID                       int64
+	BID                       rlib.XJSONBud
 	NLID                      int64
 	FirstName                 string
 	MiddleName                string
@@ -59,15 +58,80 @@ type gxperson struct {
 	EmergencyContactTelephone string
 	EmergencyEmail            string
 	AlternateAddress          string
-	EligibleFutureUser        int64
+	EligibleFutureUser        rlib.XJSONYesNo
 	Industry                  string
 	SourceSLSID               int64
 	CreditLimit               float64
 	TaxpayorID                string
 	AccountRep                int64
-	EligibleFuturePayor       int64
+	EligibleFuturePayor       rlib.XJSONYesNo
 	LastModTime               rlib.JSONTime
 	LastModBy                 int64
+}
+
+// Accepts data from form submit.  Note that "list" data values are handled separately
+// in gxpersonOther.  See note in grentable.go above gxrentableForm for further details.
+type gxpersonForm struct {
+	Recid                     int64 `json:"recid"` // this is to support the w2ui form
+	TCID                      int64
+	NLID                      int64
+	FirstName                 string
+	MiddleName                string
+	LastName                  string
+	PreferredName             string
+	CompanyName               string // sometimes the entity will be a company
+	IsCompany                 int    // 1 => the entity is a company, 0 = not a company
+	PrimaryEmail              string
+	SecondaryEmail            string
+	WorkPhone                 string
+	CellPhone                 string
+	Address                   string
+	Address2                  string
+	City                      string
+	State                     string
+	PostalCode                string
+	Country                   string
+	EmployerName              string
+	EmployerStreetAddress     string
+	EmployerCity              string
+	EmployerState             string
+	EmployerPostalCode        string
+	EmployerEmail             string
+	EmployerPhone             string
+	Website                   string
+	Occupation                string
+	ApplicationFee            float64       // if non-zero this Prospect is an applicant
+	DesiredUsageStartDate     rlib.JSONTime // predicted rent start date
+	RentableTypePreference    int64         // RentableType
+	FLAGS                     uint64        // 0 = Approved/NotApproved,
+	Approver                  int64         // UID from Directory
+	DeclineReasonSLSID        int64         // SLSid of reason
+	OtherPreferences          string        // arbitrary text
+	FollowUpDate              rlib.JSONTime // automatically fill out this date to sysdate + 24hrs
+	CSAgent                   int64         // Accord Directory UserID - for the CSAgent
+	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
+	FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
+	RAID                      int64         // created to hold On Account amount of Floating Deposit
+	Points                    int64
+	DateofBirth               rlib.JSONTime
+	EmergencyContactName      string
+	EmergencyContactAddress   string
+	EmergencyContactTelephone string
+	EmergencyEmail            string
+	AlternateAddress          string
+	Industry                  string
+	SourceSLSID               int64
+	CreditLimit               float64
+	TaxpayorID                string
+	AccountRep                int64
+	LastModTime               rlib.JSONTime
+	LastModBy                 int64
+}
+
+type gxpersonOther struct {
+	BID                 rlib.W2uiHTMLSelect
+	EligibleFutureUser  rlib.W2uiHTMLSelect
+	EligibleFuturePayor rlib.W2uiHTMLSelect
 }
 
 // SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
@@ -183,7 +247,13 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	s = s[:len(s)-1]
 	fmt.Printf("data to unmarshal is:  %s\n", s)
 
-	var gxp gxperson
+	//===============================================================
+	//------------------------------
+	// Handle all the non-list data
+	//------------------------------
+	var gxp gxpersonForm
+	var xp rlib.XPerson
+
 	err := json.Unmarshal([]byte(s), &gxp)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
@@ -191,14 +261,50 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-
-	fmt.Printf("Begin struct data migration\n")
-	var xp rlib.XPerson
 	rlib.MigrateStructVals(&gxp, &xp.Trn)
 	rlib.MigrateStructVals(&gxp, &xp.Usr)
 	rlib.MigrateStructVals(&gxp, &xp.Psp)
 	rlib.MigrateStructVals(&gxp, &xp.Pay)
-	fmt.Printf("end migration\n")
+
+	//---------------------------
+	// Handle all the list data
+	//---------------------------
+	var gxpo gxpersonOther
+	err = json.Unmarshal([]byte(s), &gxpo)
+	if err != nil {
+		fmt.Printf("Data unmarshal error: %s\n", err.Error())
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	var ok bool
+	xp.Trn.BID, ok = rlib.RRdb.BUDlist[gxpo.BID.ID]
+	if !ok {
+		e := fmt.Errorf("Could not map BID value: %s\n", gxpo.BID.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	xp.Usr.BID = xp.Trn.BID
+	xp.Pay.BID = xp.Trn.BID
+	xp.Psp.BID = xp.Trn.BID
+
+	xp.Usr.EligibleFutureUser, ok = rlib.YesNoMap[gxpo.EligibleFutureUser.ID]
+	if !ok {
+		e := fmt.Errorf("Could not map EligibleFutureUser value: %s\n", gxpo.EligibleFutureUser.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	xp.Pay.EligibleFuturePayor, ok = rlib.YesNoMap[gxpo.EligibleFuturePayor.ID]
+	if !ok {
+		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s\n", gxpo.EligibleFuturePayor.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	//===============================================================
 
 	err = rlib.UpdateTransactant(&xp.Trn)
 	if err != nil {
