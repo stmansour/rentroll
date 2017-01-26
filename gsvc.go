@@ -86,7 +86,7 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 	i, err := rlib.IntFromString(s, "not an integer number")
 	if err != nil {
-		err = fmt.Errorf("%s: %s\n", err.Error())
+		err = fmt.Errorf("%s: %s\n", errmsg, err.Error())
 		SvcGridErrorReturn(w, err)
 		return i, err
 	}
@@ -180,6 +180,9 @@ func showWebRequest(d *ServiceData) {
 // The expected input is of the form:
 //		request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D
 // This is exactly what the w2ui grid sends as a request.
+//
+// Decoded, this message looks like this:
+//		request={"cmd":"get","selected":[],"limit":100,"offset":0}
 //
 // Some routines need more information than what is encoded in the request. In
 // these cases the extra information is passed in the request URI.  This information
