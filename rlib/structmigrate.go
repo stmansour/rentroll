@@ -13,8 +13,10 @@ var xjson = string("XJSON")
 func XJSONprocess(a, b *reflect.Value) error {
 	at := (*a).Type().String()
 	bt := (*b).Type().String()
+	// fmt.Printf("XJSONprocess: map from %s to %s\n", at, bt)
 	for i := 0; i < len(assignmap); i++ {
 		if strings.Index(at, assignmap[i].a) >= 0 && strings.Index(bt, assignmap[i].b) >= 0 {
+			// fmt.Printf("Calling mapper %d\n", i)
 			assignmap[i].mapper(a, b)
 			return nil
 		}
@@ -24,9 +26,6 @@ func XJSONprocess(a, b *reflect.Value) error {
 	// fmt.Printf(s)
 	// panic(s)
 }
-
-// Str2Int64Map is a generic type for mapping strings and int64s
-type Str2Int64Map map[string]int64
 
 // ReverseMap takes a string-to-int64 map and does a search for the int64 val
 // and returns the string. The return value is the string along with an error.

@@ -7,7 +7,6 @@ package rlib
 import (
 	"fmt"
 	"reflect"
-	"strings"
 )
 
 // W2uiHTMLSelect is a struct that covers the way w2ui sends back the
@@ -16,6 +15,9 @@ type W2uiHTMLSelect struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
 }
+
+// Str2Int64Map is a generic type for mapping strings and int64s
+type Str2Int64Map map[string]int64
 
 var assignmap = []struct {
 	a      string
@@ -30,8 +32,8 @@ var assignmap = []struct {
 	{a: "JSONbool", b: "int64", mapper: Bool2Int64},
 	{a: "XJSONYesNo", b: "int", mapper: yesNoStr2Int64},
 	{a: "int", b: "XJSONYesNo", mapper: int642YesNo},
-	{a: "XJSONBud", b: "int", mapper: bud2Int64},
-	{a: "int", b: "XJSONBud", mapper: int642Bud},
+	{a: "XJSONBud", b: "int64", mapper: bud2Int64},
+	{a: "int64", b: "XJSONBud", mapper: int642Bud},
 }
 
 // XJSONAssignmentTime is a UI converter: backend int64, Front End string
@@ -47,37 +49,48 @@ var AssignmentTimeMap = Str2Int64Map{
 // XJSONBud is a UI converter: back-end int, UI: string
 type XJSONBud string
 
+// MigrateStrToInt64 generic map of string to int64
+func MigrateStrToInt64(a, b *reflect.Value, m *Str2Int64Map) error {
+	si := (*a).Interface()
+	s := fmt.Sprintf("%v", si)
+	id, ok := (*m)[s]
+	if !ok {
+		id = int64(0)
+	}
+	(*b).Set(reflect.ValueOf(id))
+	return nil
+}
+
+// MigrateInt64ToString generic mapping from int64 to enumerated strings
+func MigrateInt64ToString(a, b *reflect.Value, m *Str2Int64Map) error {
+	s, err := (*m).ReverseMap((*a).Interface().(int64))
+	if err != nil {
+		return err
+	}
+
+	(*b).Set(reflect.ValueOf(s).Convert((*b).Type()))
+	return nil
+}
+
 // bud2Int64 converter
 // a must be *XJSONBud
 // b must be *int
 func bud2Int64(a, b *reflect.Value) error {
-	bud := (*a).Interface()
-	s := fmt.Sprintf("%v", bud)
-	bid, ok := RRdb.BUDlist[s]
-	if !ok {
-		bid = int64(0)
-	}
-	(*b).Set(reflect.ValueOf(bid))
-	return nil
+	return MigrateStrToInt64(a, b, &RRdb.BUDlist)
 }
 
 // int642Bud converter
 // a must be *int
 // b must be *XJSONBud
 func int642Bud(a, b *reflect.Value) error {
-	s, err := RRdb.BUDlist.ReverseMap((*a).Interface().(int64))
-	if err != nil {
-		return err
-	}
-	(*b).Set(reflect.ValueOf(XJSONBud(s)))
-	return nil
+	return MigrateInt64ToString(a, b, &RRdb.BUDlist)
 }
 
 // XJSONYesNo is a UI converter: back-end int, UI: string
 type XJSONYesNo string
 
 // YesNoMap is the mapping for no = 0, 1 = yes
-var YesNoMap = map[string]int64{
+var YesNoMap = Str2Int64Map{
 	"no":  int64(0),
 	"yes": int64(1),
 }
@@ -86,27 +99,29 @@ var YesNoMap = map[string]int64{
 // a must be *XJSONYesNo
 // b must be *int
 func yesNoStr2Int64(a, b *reflect.Value) error {
-	s1 := (*a).Interface()
-	s := fmt.Sprintf("%v", s1)
-	yn := int64(0)
-	if strings.ToLower(s) == "yes" {
-		yn = int64(1)
-	}
-	(*b).Set(reflect.ValueOf(yn))
-	return nil
+	return MigrateStrToInt64(a, b, &YesNoMap)
+	// s1 := (*a).Interface()
+	// s := fmt.Sprintf("%v", s1)
+	// yn := int64(0)
+	// if strings.ToLower(s) == "yes" {
+	// 	yn = int64(1)
+	// }
+	// (*b).Set(reflect.ValueOf(yn))
+	// return nil
 }
 
 // int642YesNo converter
 // a must be *int
 // b must be *XJSONYesNo
 func int642YesNo(a, b *reflect.Value) error {
-	i := fmt.Sprintf("%v", (*a).Interface().(int64))
-	s := "no"
-	if "1" == i {
-		s = "yes"
-	}
-	(*b).Set(reflect.ValueOf(XJSONYesNo(s)))
-	return nil
+	return MigrateInt64ToString(a, b, &YesNoMap)
+	// i := fmt.Sprintf("%v", (*a).Interface().(int64))
+	// s := "no"
+	// if "1" == i {
+	// 	s = "yes"
+	// }
+	// (*b).Set(reflect.ValueOf(XJSONYesNo(s)))
+	// return nil
 }
 
 // // AssignmentTimeSL is the inverse of AssignmentTimeMap; maps an int to a string

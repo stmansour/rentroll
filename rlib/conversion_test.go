@@ -2,6 +2,8 @@ package rlib
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -33,12 +35,12 @@ type testDataConv1 struct {
 var td1 = []testDataConv1{
 	{0, "no"},
 	{1, "yes"},
-	{99, "no"},
+	// {99, "no"},
 }
 var td2 = []testDataConv1{
 	{0, "no"},
 	{1, "yes"},
-	{0, "xyz"},
+	// {0, "xyz"},
 }
 
 // TestConversion1 tests the conversion between int and XJSONYesNo
@@ -85,5 +87,40 @@ func TestConversion1(t *testing.T) {
 
 	if b.I1 != c.I1 || b.I2 != c.I2 {
 		t.Errorf("Error: b != c after migration: b = %#v, c = %#v\n", b, c)
+	}
+}
+
+// TestConversion2 tests data migration using Str2Int64 maps
+func TestConversion2(t *testing.T) {
+	var BUDlist = Str2Int64Map{
+		"REX": 1,
+		"ISO": 2,
+		"CCC": 3,
+	}
+	var foo struct {
+		BID XJSONBud
+	}
+	var bar struct {
+		BID int64
+	}
+	foo.BID = "ISO"
+
+	ar := reflect.ValueOf(&foo).Elem()
+	fa := ar.Field(0)
+	br := reflect.ValueOf(&bar).Elem()
+	fb := br.Field(0)
+	MigrateStrToInt64(&fa, &fb, &BUDlist)
+	if bar.BID != 2 {
+		fmt.Printf("Error: bar.BID != 2 after migration: bar = %#v, foo = %#v, BUDlist = %#v\n", bar, foo, BUDlist)
+	}
+	foo.BID = ""
+	bar.BID = int64(1)
+	ar = reflect.ValueOf(&foo).Elem()
+	fa = ar.Field(0)
+	br = reflect.ValueOf(&bar).Elem()
+	fb = br.Field(0)
+	MigrateInt64ToString(&fb, &fa, &BUDlist)
+	if foo.BID != "REX" {
+		t.Errorf("Error: foo.BID != REX after migration: bar = %#v, foo = %#v, BUDlist = %#v\n", bar, foo, BUDlist)
 	}
 }
