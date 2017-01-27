@@ -485,7 +485,7 @@ func loadOneSiteCSV(
 				t := rlib.GetTransactantByPhoneOrEmail(business.BID, pEmail)
 				if t.TCID == 0 {
 					// unable to get TCID
-					reason := "E:Unable to get people information"
+					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
 					csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
 				} else {
 					// if duplicate people found
@@ -531,7 +531,7 @@ func loadOneSiteCSV(
 					t := rlib.GetTransactantByPhoneOrEmail(business.BID, pCellNo)
 					if t.TCID == 0 {
 						// unable to get TCID
-						reason := "E:Unable to get people information"
+						reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
 						csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
 					} else {
 						// if duplicate people found
