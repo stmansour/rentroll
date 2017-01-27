@@ -20,6 +20,7 @@ func initRentRoll() {
 		"RRCommaf":     rlib.RRCommaf,
 		"LMSum":        LMSum,
 	}
+
 }
 
 func createStartupCtx() DispatchCtx {

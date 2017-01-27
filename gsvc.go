@@ -26,9 +26,8 @@ type ServiceHandler struct {
 	Handler func(http.ResponseWriter, *http.Request, *ServiceData)
 }
 
-// W2uiGridRequest is a struct suitable for holding the json data
-// posted to a web service by the W2ui Grid.
-type W2uiGridRequest struct {
+// WebRequest is a struct suitable for describing a webservice operation.
+type WebRequest struct {
 	Cmd         string `json:"cmd"`
 	Limit       int    `json:"limit"`
 	Offset      int    `json:"offset"`
@@ -50,13 +49,13 @@ type W2uiGridRequest struct {
 // to be centrally parsed and passed to a specific handler, which may need to parse further
 // to get its unique data.
 type ServiceData struct {
-	UID  int64           // user id of requester
-	BID  int64           // which business
-	TCID int64           // TCID if supplied
-	RAID int64           // RAID if supplied
-	RID  int64           // RAID if supplied
-	greq W2uiGridRequest // what did the grid ask for
-	data string          // the raw unparsed data
+	UID    int64      // user id of requester
+	BID    int64      // which business
+	TCID   int64      // TCID if supplied
+	RAID   int64      // RAID if supplied
+	RID    int64      // RAID if supplied
+	webreq WebRequest // what did the grid ask for
+	data   string     // the raw unparsed data
 }
 
 // Svcs is the table of all service handlers
@@ -80,6 +79,44 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 	w.Write(b)
 }
 
+// SvcGetInt64 tries to read an int64 value from the supplied string.
+// If it fails for any reason, it sends writes an error message back
+// to the caller and returns the error.  Otherwise, it returns an
+// int64 and returns nil
+func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
+	i, err := rlib.IntFromString(s, "not an integer number")
+	if err != nil {
+		err = fmt.Errorf("%s: %s\n", errmsg, err.Error())
+		SvcGridErrorReturn(w, err)
+		return i, err
+	}
+	return i, nil
+}
+
+// SvcExtractIDFromURI extracts an int64 id value from position pos of the supplied uri.
+// The URI is of the form returned by http.Request.RequestURI .  In particular:
+//
+//	pos:     0    1         2  3
+//  uri:    /gsvc/xrentable/34/421
+//
+// So, in the example uri above, a call where pos = 3 would return int64(421). errmsg
+// is a string that will be used in the error message if the requested position had an
+// error during conversion to int64. So in the example above, pos 3 is the RID, so
+// errmsg would probably be set to "RID"
+func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (int64, error) {
+	var ID = int64(0)
+	var err error
+
+	sa := strings.Split(uri[1:], "/")
+	if len(sa) < pos+1 {
+		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d\n", pos+1, uri, len(sa))
+		SvcGridErrorReturn(w, err)
+		return ID, err
+	}
+	ID, err = SvcGetInt64(sa[pos], errmsg, w)
+	return ID, err
+}
+
 func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	funcname := "getPOSTdata"
 	var err error
@@ -100,13 +137,10 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	requestHeader := "request=" // this is what w2ui starts all its grid requests with
 	i := strings.Index(u, requestHeader)
 	if i >= 0 {
-		// e := fmt.Errorf("%s: Bad request format.  Looking for \"request=\"...  found: %s\n", funcname, u)
-		// SvcGridErrorReturn(w, e)
-		// return
 		u = u[i+len(requestHeader):]
 		d.data = u
 	}
-	err = json.Unmarshal([]byte(u), &d.greq)
+	err = json.Unmarshal([]byte(u), &d.webreq)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
@@ -115,22 +149,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	return err
 }
 
-// gridServiceHandler is the main dispatch point for w2ui grid service requests
-//
-// The expected input is of the form:
-//		request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D
-// This is exactly what the w2ui grid sends as a request.
-//
-// Some routines need more information than what is encoded in the request. In
-// these cases the extra information is passed in the request URI.  This information
-// must be parsed by each function, as the data needed will be different from
-// from function to function.
-//-----------------------------------------------------------------------------------------------------------
-func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
-	funcname := "gridServiceHandler"
-	var err error
-
-	fmt.Printf("Entered %s.  r.Method = %s\n", funcname, r.Method)
+func showRequestHeaders(r *http.Request) {
 	fmt.Printf("Request Headers\n")
 	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
 	for k, v := range r.Header {
@@ -141,65 +160,132 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("\n")
 	}
 	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
+}
 
+func showWebRequest(d *ServiceData) {
+	fmt.Printf("Cmd         = %s\n", d.webreq.Cmd)
+	fmt.Printf("Limit       = %d\n", d.webreq.Limit)
+	fmt.Printf("Offset      = %d\n", d.webreq.Offset)
+	fmt.Printf("searchLogic = %s\n", d.webreq.SearchLogic)
+	for i := 0; i < len(d.webreq.Search); i++ {
+		fmt.Printf("search[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.webreq.Search[i].Field, d.webreq.Search[i].Type, d.webreq.Search[i].Value, d.webreq.Search[i].Operator)
+	}
+	for i := 0; i < len(d.webreq.Sort); i++ {
+		fmt.Printf("sort[%d] - Field = %s,  Direction = %s\n", i, d.webreq.Sort[i].Field, d.webreq.Sort[i].Direction)
+	}
+}
+
+// gridServiceHandler is the main dispatch point for w2ui grid service requests
+//
+// The expected input is of the form:
+//		request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D
+// This is exactly what the w2ui grid sends as a request.
+//
+// Decoded, this message looks like this:
+//		request={"cmd":"get","selected":[],"limit":100,"offset":0}
+//
+// Some routines need more information than what is encoded in the request. In
+// these cases the extra information is passed in the request URI.  This information
+// must be parsed by each function, as the data needed will be different from
+// from function to function.
+//-----------------------------------------------------------------------------------------------------------
+func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
+	funcname := "gridServiceHandler"
+	fmt.Printf("Entered %s.  r.Method = %s\n", funcname, r.Method)
+	var err error
 	var d ServiceData
 
+	showRequestHeaders(r)
 	switch r.Method {
 	case "POST":
 		if nil != getPOSTdata(w, r, &d) {
 			return
 		}
 	case "GET":
-		fmt.Printf("GET method not yet handled\n")
-		return
+		d.webreq.Cmd = r.URL.Query().Get("cmd")
+	}
+	showWebRequest(&d)
+
+	//-----------------------------------------------------------------------
+	// General form is /gsvc/{subservice}/{BID}/{ID}
+	//-----------------------------------------------------------------------
+	path := "/gsvc/"                       // this is the part of the URL that got us into this handler
+	subURLPath := r.RequestURI[len(path):] // this pulls off the specific request
+
+	//-----------------------------------------------------------------------
+	// pathElements: 0         1     2
+	// Break up {subservice}/{BID}/{ID} into an array of strings
+	// BID is common to nearly all commands
+	//-----------------------------------------------------------------------
+	pathElements := strings.Split(subURLPath, "/")
+	requestedSvc := pathElements[0]
+
+	//-----------------------------------------------------------------------
+	//  DEBUGGING INFORMATION
+	//-----------------------------------------------------------------------
+	fmt.Printf("Command specific info in URL:  %s\n", subURLPath) // print before we strip it off
+	for i := 0; i < len(pathElements); i++ {
+		fmt.Printf("%d. %s\n", i, pathElements[i])
 	}
 
-	fmt.Printf("Cmd         = %s\n", d.greq.Cmd)
-	fmt.Printf("Limit       = %d\n", d.greq.Limit)
-	fmt.Printf("Offset      = %d\n", d.greq.Offset)
-	fmt.Printf("searchLogic = %s\n", d.greq.SearchLogic)
-	for i := 0; i < len(d.greq.Search); i++ {
-		fmt.Printf("search[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.greq.Search[i].Field, d.greq.Search[i].Type, d.greq.Search[i].Value, d.greq.Search[i].Operator)
-	}
-	for i := 0; i < len(d.greq.Sort); i++ {
-		fmt.Printf("sort[%d] - Field = %s,  Direction = %s\n", i, d.greq.Sort[i].Field, d.greq.Sort[i].Direction)
-	}
-
-	fmt.Printf("Full URI:  %s\n", r.RequestURI) // print before we strip it off
-	path := "/gsvc/"                            // this is the part of the URL that got us into this handler
-	cmdinfo := r.RequestURI[len(path):]         // this pulls off the specific request
-	fmt.Printf("URI info:  %s\n", cmdinfo)      // print before we strip it off
-
-	sa := strings.Split(cmdinfo, "/")
-	for i := 0; i < len(sa); i++ {
-		fmt.Printf("%d. %s\n", i, sa[i])
-	}
-	cmdinfo = sa[0]
-	d.UID, err = rlib.IntFromString(sa[1], "bad request integer value")
+	//-----------------------------------------------------------------------
+	// There are commands that have associated ID (UILists, for example), and
+	// if we're processing such a GET request there may be "?param1=val1&..."
+	// on the end of this string.  So, before we try to parse the BID/BUD,
+	// we'll split it at the '?' character and
+	// process the first bit for the BID...
+	//-----------------------------------------------------------------------
+	abud := strings.Split(pathElements[2], "?")                           // in this array, abud[0] will always be what want to parse
+	d.BID, err = rlib.IntFromString(abud[0], "bad request integer value") // assume it's a BID
 	if err != nil {
-		SvcGridErrorReturn(w, err)
-	}
-	d.BID, err = rlib.IntFromString(sa[2], "bad request integer value")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
+		var ok bool // OK, let's see if it's a BUD
+		d.BID, ok = rlib.RRdb.BUDlist[abud[0]]
+		if !ok {
+			e := fmt.Errorf("Could not identify business: %s\n", abud[0])
+			fmt.Printf("***ERROR IN URL***  %s", e.Error())
+			SvcGridErrorReturn(w, err)
+		}
 	}
 
+	//-----------------------------------------------------------------------
+	//  Now call the appropriate handler to do the rest
+	//-----------------------------------------------------------------------
+	found := false
 	for i := 0; i < len(Svcs); i++ {
-		if Svcs[i].Cmd == cmdinfo {
+		if Svcs[i].Cmd == requestedSvc {
+			fmt.Printf("%s - Handler found\n", subURLPath)
 			Svcs[i].Handler(w, r, &d)
+			found = true
 			break
 		}
+	}
+	if !found {
+		e := fmt.Errorf("Service not recognized: %s\n", requestedSvc)
+		fmt.Printf("***ERROR IN URL***  %s", e.Error())
+		SvcGridErrorReturn(w, err)
 	}
 	fmt.Printf("\n-------------------------------------\n\n")
 }
 
 // SvcUILists returns JSON for the Javascript lists needed for the UI
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	response := `{
-	yesNoList: [ 'no', 'yes' ],
-	asgnList: [ 'unset', 'Pre-Assign', 'Commencement']
-	}`
+	response := `yesNoList = [ 'no', 'yes' ];
+assignmentTimeList = [ 'unset', 'Pre-Assign', 'Commencement'];
+`
 	io.WriteString(w, response)
+
+	s := "businesses = ["
+	l := len(rlib.RRdb.BUDlist)
+	i := 0
+	for k := range rlib.RRdb.BUDlist {
+		s += "'" + k + "'"
+		if i+1 < l {
+			s += ","
+		}
+		i++
+	}
+	s += "];\n"
+	io.WriteString(w, s)
 }
 
 func gridHandleField(q, logic, field, value, format string, count *int) string {
@@ -235,35 +321,35 @@ func gridBuildQuery(table, srch, order string, d *ServiceData, p interface{}) (s
 	// q := fmt.Sprintf("SELECT * FROM "+table+" WHERE BID=%d AND (", d.BID)
 	q := "SELECT * FROM " + table + " WHERE"
 	qw := ""
-	if len(d.greq.Search) > 0 {
+	if len(d.webreq.Search) > 0 {
 		val := reflect.ValueOf(p).Elem() // reflect value of input p
 		count := 0
-		for i := 0; i < len(d.greq.Search); i++ {
-			if d.greq.Search[i].Field == "recid" || len(d.greq.Search[i].Value) == 0 {
+		for i := 0; i < len(d.webreq.Search); i++ {
+			if d.webreq.Search[i].Field == "recid" || len(d.webreq.Search[i].Value) == 0 {
 				continue
 			}
 			// look for this field in p
 			for j := 0; j < val.NumField(); j++ {
-				field := val.Field(j)            // this is field[j] of p
-				n := val.Type().Field(j).Name    // variable name for field(i)
-				if n != d.greq.Search[i].Field { // is this the field we're looking for?
+				field := val.Field(j)              // this is field[j] of p
+				n := val.Type().Field(j).Name      // variable name for field(i)
+				if n != d.webreq.Search[i].Field { // is this the field we're looking for?
 					continue
 				}
 				t := field.Type().String() // Is it a type we can handle?
 				if t != "string" {         // TODO: handle all data types
 					continue
 				}
-				switch d.greq.Search[i].Operator {
+				switch d.webreq.Search[i].Operator {
 				case "begins":
-					qw = gridHandleField(qw, d.greq.SearchLogic, d.greq.Search[i].Field, d.greq.Search[i].Value, " %s like '%s%%'", &count)
+					qw = gridHandleField(qw, d.webreq.SearchLogic, d.webreq.Search[i].Field, d.webreq.Search[i].Value, " %s like '%s%%'", &count)
 				case "ends":
-					qw = gridHandleField(qw, d.greq.SearchLogic, d.greq.Search[i].Field, d.greq.Search[i].Value, " %s like '%%%s'", &count)
+					qw = gridHandleField(qw, d.webreq.SearchLogic, d.webreq.Search[i].Field, d.webreq.Search[i].Value, " %s like '%%%s'", &count)
 				case "is":
-					qw = gridHandleField(qw, d.greq.SearchLogic, d.greq.Search[i].Field, d.greq.Search[i].Value, " %s='%s'", &count)
+					qw = gridHandleField(qw, d.webreq.SearchLogic, d.webreq.Search[i].Field, d.webreq.Search[i].Value, " %s='%s'", &count)
 				case "between":
-					qw = gridHandleField(qw, d.greq.SearchLogic, d.greq.Search[i].Field, d.greq.Search[i].Value, " %s like '%%%s%%'", &count)
+					qw = gridHandleField(qw, d.webreq.SearchLogic, d.webreq.Search[i].Field, d.webreq.Search[i].Value, " %s like '%%%s%%'", &count)
 				default:
-					fmt.Printf("Unhandled search operator: %s\n", d.greq.Search[i].Operator)
+					fmt.Printf("Unhandled search operator: %s\n", d.webreq.Search[i].Operator)
 				}
 			}
 		}
@@ -282,19 +368,19 @@ func gridBuildQuery(table, srch, order string, d *ServiceData, p interface{}) (s
 
 	// Handle any Sorting requests
 	q += " ORDER BY "
-	if len(d.greq.Sort) > 0 {
-		for i := 0; i < len(d.greq.Sort); i++ {
+	if len(d.webreq.Sort) > 0 {
+		for i := 0; i < len(d.webreq.Sort); i++ {
 			if i > 0 {
 				q += ","
 			}
-			q += d.greq.Sort[i].Field + " " + d.greq.Sort[i].Direction
+			q += d.webreq.Sort[i].Field + " " + d.webreq.Sort[i].Direction
 		}
 	} else {
 		q += order
 	}
 
 	// now set up the offset and limit
-	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.greq.Limit, d.greq.Offset)
+	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.webreq.Limit, d.webreq.Offset)
 	return q, qw
 }
 
@@ -319,7 +405,7 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("first 200 chars of response: %200.200s\n", string(b))
+	fmt.Printf("first 200 chars of response: %-200.200s\n", string(b))
 	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }

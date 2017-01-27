@@ -20,7 +20,9 @@ rentroll \- Accord Office RentRoll Service
 .B Rentroll
 is the rentroll service in Accord Office. It can run as a server providing a multi-user web interface.
 It can also run in a command line mode suitable for scripting particular tasks or automated testing.
-By default Rentroll listens on port 8270. This value can be changed with the -p option.
+By default Rentroll listens on port 8270. This value can be changed with the -p option. It also supports
+HTTPS connections. For HTTPS, the cert and key files must be provided (see -C and -K). Currently, the
+HTTPS port is set to the HTTP port number + 1, so by default HTTPS is handled on port 8271.
 
 .SH OPTIONS
 .IP "-A"
