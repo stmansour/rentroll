@@ -377,6 +377,9 @@ doOnesiteTest () {
 			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
 		declare -a out_filters=(
+			's/^Time:.*/current time/'
+			's/^Date:.*/current time/'
+			's/^Import File:.*/import file/'
 			's/\s+[0-1]?[0-9]\/[0-3]?[0-9]\/[0-9][0-9][^-]*/date/g'
 			's/\s+[0-1]?[0-9]\/[0-3]?[0-9]\/20[0-9][0-9][^-]*/date/g'
 		)

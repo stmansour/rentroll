@@ -92,13 +92,13 @@ func WriteRentalAgreementData(
 	if csvRow.LeaseStart == "" {
 		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentalAgreement] + ">:"
 		csvErrors[rowIndex] = append(csvErrors[rowIndex],
-			warnPrefix+"No lease start date has been passed hence taking default value "+DtStart,
+			warnPrefix+"No lease start date found. Using default value: "+DtStart,
 		)
 	}
 	if csvRow.LeaseEnd == "" {
 		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentalAgreement] + ">:"
 		csvErrors[rowIndex] = append(csvErrors[rowIndex],
-			warnPrefix+"No lease end date has been passed hence taking default value "+DtStop,
+			warnPrefix+"No lease end date found. Using default value: "+DtStop,
 		)
 	}
 
