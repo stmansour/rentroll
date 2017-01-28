@@ -461,7 +461,7 @@ type Transactant struct {
 	LastName       string
 	PreferredName  string
 	CompanyName    string // sometimes the entity will be a company
-	IsCompany      int    // 1 => the entity is a company, 0 = not a company
+	IsCompany      int64  // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail   string
 	SecondaryEmail string
 	WorkPhone      string

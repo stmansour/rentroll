@@ -24,6 +24,7 @@ type SvcGridError struct {
 type ServiceHandler struct {
 	Cmd     string
 	Handler func(http.ResponseWriter, *http.Request, *ServiceData)
+	NeedBiz bool
 }
 
 // WebRequest is a struct suitable for describing a webservice operation.
@@ -60,14 +61,14 @@ type ServiceData struct {
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
-	{"transactants", SvcSearchHandlerTransactants},
-	{"accounts", SvcSearchHandlerGLAccounts},
-	{"rentables", SvcSearchHandlerRentables},
-	{"rentalagrs", SvcSearchHandlerRentalAgr},
-	{"xperson", SvcFormHandlerXPerson},
-	{"xrentable", SvcFormHandlerRentable},
-	{"xrentalagr", SvcFormHandlerRentalAgreement},
-	{"uilists", SvcUILists},
+	{"transactants", SvcSearchHandlerTransactants, true},
+	{"accounts", SvcSearchHandlerGLAccounts, true},
+	{"rentables", SvcSearchHandlerRentables, true},
+	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
+	{"xperson", SvcFormHandlerXPerson, true},
+	{"xrentable", SvcFormHandlerRentable, true},
+	{"xrentalagr", SvcFormHandlerRentalAgreement, true},
+	{"uilists", SvcUILists, false},
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -235,15 +236,16 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	// we'll split it at the '?' character and
 	// process the first bit for the BID...
 	//-----------------------------------------------------------------------
-	abud := strings.Split(pathElements[2], "?")                           // in this array, abud[0] will always be what want to parse
-	d.BID, err = rlib.IntFromString(abud[0], "bad request integer value") // assume it's a BID
-	if err != nil {
-		var ok bool // OK, let's see if it's a BUD
-		d.BID, ok = rlib.RRdb.BUDlist[abud[0]]
-		if !ok {
-			e := fmt.Errorf("Could not identify business: %s\n", abud[0])
-			fmt.Printf("***ERROR IN URL***  %s", e.Error())
-			SvcGridErrorReturn(w, err)
+	var abud []string
+	if len(pathElements) >= 3 {
+		abud = strings.Split(pathElements[2], "?")                            // in this array, abud[0] will always be what want to parse
+		d.BID, err = rlib.IntFromString(abud[0], "bad request integer value") // assume it's a BID
+		if err != nil {
+			var ok bool // OK, let's see if it's a BUD
+			d.BID, ok = rlib.RRdb.BUDlist[abud[0]]
+			if !ok {
+				d.BID = 0
+			}
 		}
 	}
 
@@ -253,13 +255,18 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	found := false
 	for i := 0; i < len(Svcs); i++ {
 		if Svcs[i].Cmd == requestedSvc {
-			fmt.Printf("%s - Handler found\n", subURLPath)
+			if Svcs[i].NeedBiz && d.BID == 0 {
+				e := fmt.Errorf("Could not identify business: %s\n", abud[0])
+				fmt.Printf("***ERROR IN URL***  %s", e.Error())
+				SvcGridErrorReturn(w, err)
+			}
 			Svcs[i].Handler(w, r, &d)
 			found = true
 			break
 		}
 	}
 	if !found {
+		fmt.Printf("**** YIPES! **** %s - Handler not found\n", subURLPath)
 		e := fmt.Errorf("Service not recognized: %s\n", requestedSvc)
 		fmt.Printf("***ERROR IN URL***  %s", e.Error())
 		SvcGridErrorReturn(w, err)
@@ -283,6 +290,31 @@ assignmentTimeList = [ 'unset', 'Pre-Assign', 'Commencement'];
 			s += ","
 		}
 		i++
+	}
+	s += "];\n"
+	io.WriteString(w, s)
+
+	s = "companyOrPerson = ["
+	l = len(rlib.CompanyOrPersonMap)
+	i = 0
+	for k := range rlib.CompanyOrPersonMap {
+		s += "'" + k + "'"
+		if i+1 < l {
+			s += ","
+		}
+		i++
+	}
+	s += "];\n"
+	io.WriteString(w, s)
+
+	var stateAbbr = []string{"AK", "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"}
+	s = "stateAbbr = ["
+	l = len(stateAbbr)
+	for j := 0; j < l; j++ {
+		s += "'" + stateAbbr[j] + "'"
+		if j+1 < l {
+			s += ","
+		}
 	}
 	s += "];\n"
 	io.WriteString(w, s)
@@ -405,8 +437,8 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("first 200 chars of response: %-200.200s\n", string(b))
-	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
+	// fmt.Printf("first 200 chars of response: %-200.200s\n", string(b))
+	fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }
 

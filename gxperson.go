@@ -18,8 +18,8 @@ type gxperson struct {
 	MiddleName                string
 	LastName                  string
 	PreferredName             string
-	CompanyName               string // sometimes the entity will be a company
-	IsCompany                 int    // 1 => the entity is a company, 0 = not a company
+	CompanyName               string                    // sometimes the entity will be a company
+	IsCompany                 rlib.XJSONCompanyOrPerson // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail              string
 	SecondaryEmail            string
 	WorkPhone                 string
@@ -80,7 +80,6 @@ type gxpersonForm struct {
 	LastName                  string
 	PreferredName             string
 	CompanyName               string // sometimes the entity will be a company
-	IsCompany                 int    // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail              string
 	SecondaryEmail            string
 	WorkPhone                 string
@@ -88,13 +87,11 @@ type gxpersonForm struct {
 	Address                   string
 	Address2                  string
 	City                      string
-	State                     string
 	PostalCode                string
 	Country                   string
 	EmployerName              string
 	EmployerStreetAddress     string
 	EmployerCity              string
-	EmployerState             string
 	EmployerPostalCode        string
 	EmployerEmail             string
 	EmployerPhone             string
@@ -129,7 +126,10 @@ type gxpersonForm struct {
 }
 
 type gxpersonOther struct {
+	IsCompany           rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
 	BID                 rlib.W2uiHTMLSelect
+	State               rlib.W2uiHTMLSelect
+	EmployerState       rlib.W2uiHTMLSelect
 	EligibleFutureUser  rlib.W2uiHTMLSelect
 	EligibleFuturePayor rlib.W2uiHTMLSelect
 }
@@ -274,6 +274,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	xp.Pay.BID = xp.Trn.BID
 	xp.Psp.BID = xp.Trn.BID
 
+	xp.Trn.State = gxpo.State.ID
 	xp.Usr.EligibleFutureUser, ok = rlib.YesNoMap[gxpo.EligibleFutureUser.ID]
 	if !ok {
 		e := fmt.Errorf("Could not map EligibleFutureUser value: %s\n", gxpo.EligibleFutureUser.ID)
@@ -281,6 +282,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	xp.Psp.EmployerState = gxpo.EmployerState.ID
 	xp.Pay.EligibleFuturePayor, ok = rlib.YesNoMap[gxpo.EligibleFuturePayor.ID]
 	if !ok {
 		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s\n", gxpo.EligibleFuturePayor.ID)

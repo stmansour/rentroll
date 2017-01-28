@@ -3,29 +3,7 @@ package rlib
 import (
 	"fmt"
 	"reflect"
-	"strings"
 )
-
-var xjson = string("XJSON")
-
-// XJSONprocess attempts to map a to b. If no converter can befound
-// a message will be printed, then it will panic!
-func XJSONprocess(a, b *reflect.Value) error {
-	at := (*a).Type().String()
-	bt := (*b).Type().String()
-	// fmt.Printf("XJSONprocess: map from %s to %s\n", at, bt)
-	for i := 0; i < len(assignmap); i++ {
-		if strings.Index(at, assignmap[i].a) >= 0 && strings.Index(bt, assignmap[i].b) >= 0 {
-			// fmt.Printf("Calling mapper %d\n", i)
-			assignmap[i].mapper(a, b)
-			return nil
-		}
-	}
-	return fmt.Errorf("XJSONmap - no conversion between: %s and %s\n", at, bt)
-
-	// fmt.Printf(s)
-	// panic(s)
-}
 
 // ReverseMap takes a string-to-int64 map and does a search for the int64 val
 // and returns the string. The return value is the string along with an error.

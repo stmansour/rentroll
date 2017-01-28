@@ -5,7 +5,6 @@
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script> -->
     <script src="/js/jquery.min.js"></script>
     <script src="/js/w2ui-1.5.rc1.js"></script>
-    <!-- <script src="/js/lists.js"></script> -->
     <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script>
     <script src="/html/{{.Lang}}/{{.Tmpl}}.js"></script>
     <script src="/js/rutil.js"></script>
@@ -500,14 +499,14 @@ function buildPageElements() {
             { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: { caption: 'NLID', page: 0, column: 0 } },
             { field: 'CompanyName', type: 'text', required: false, html: { caption: 'Company Name', page: 0, column: 0 } },
-            { field: 'IsCompany', type: 'checkbox', required: false, html: { caption: 'Is Company', page: 0, column: 0 } },
+            { field: 'IsCompany', type: 'list', options: {items: companyOrPerson}, required: false, html: { caption: 'Person/Company', page: 0, column: 0 } },
             { field: 'SecondaryEmail', type: 'email', required: false, html: { caption: 'Secondary Email', page: 0, column: 0 } },
             { field: 'WorkPhone', type: 'phone', required: false, html: { caption: 'Work Phone', page: 0, column: 0 } },
             { field: 'CellPhone', type: 'phone', required: false, html: { caption: 'Cell Phone', page: 0, column: 0 } },
             { field: 'Address', type: 'text', required: false, html: { caption: 'Address', page: 0, column: 0 } },
             { field: 'Address2', type: 'text', required: false, html: { caption: 'Address 2', page: 0, column: 0 } },
             { field: 'City', type: 'text', required: false, html: { caption: 'City', page: 0, column: 0 } },
-            { field: 'State', type: 'text', required: false, html: { caption: 'State', page: 0, column: 0 } },
+            { field: 'State', type: 'list', options: {items: stateAbbr}, required: false, html: { caption: 'State', page: 0, column: 0 } },
             { field: 'PostalCode', type: 'text', required: false, html: { caption: 'Postal Code', page: 0, column: 0 } },
             { field: 'Country', type: 'text', required: false, html: { caption: 'Country', page: 0, column: 0 } },
             { field: 'Website', type: 'text', required: false, html: { caption: 'Website', page: 0, column: 0 } },
@@ -530,7 +529,7 @@ function buildPageElements() {
             { field: 'EmployerName', type: 'text', required: false, html: {caption: 'Employer Name', page: 3, column: 0 } },
             { field: 'EmployerStreetAddress', type: 'text', required: false, html: {caption: 'Employer Street Address', page: 3, column: 0 } },
             { field: 'EmployerCity', type: 'text', required: false, html: {caption: 'Employer City', page: 3, column: 0 } },
-            { field: 'EmployerState', type: 'text', required: false, html: {caption: 'Employer State', page: 3, column: 0 } },
+            { field: 'EmployerState', type: 'list', options: {items: stateAbbr}, required: false, html: {caption: 'Employer State', page: 3, column: 0 } },
             { field: 'EmployerPostalCode', type: 'text', required: false, html: {caption: 'Employer Postal Code', page: 3, column: 0 } },
             { field: 'EmployerEmail', type: 'text', required: false, html: {caption: 'Employer Email', page: 3, column: 0 } },
             { field: 'EmployerPhone', type: 'text', required: false, html: {caption: 'Employer Phone', page: 3, column: 0 } },
@@ -799,6 +798,9 @@ function buildPageElements() {
 function handleData(data,status) {
     if (status == "success") {
         eval(data) // defines all the lists; values for the dropdown lists
+        console.log("SUCCESSFULLY LOADED LISTS")
+    } else {
+        console.log( '**** YIPES! ****  status on /gsvc/uilists/ = ' + status)
     }
     console.log('assignmentTimeList = ' + assignmentTimeList)
     defineDateFmts();
@@ -813,7 +815,11 @@ function handleData(data,status) {
 }
 
 $(function () {
-    $.get("/gsvc/uilists/211/4",handleData)
+    $.get("/gsvc/uilists/")
+    .done(handleData)
+    .fail( function() { console.log('Error getting /gsvc/uilists')
+     });
+
 });
 
 </script>

@@ -188,7 +188,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
 				}
-				tr.IsCompany = int(ic)
+				tr.IsCompany = int64(ic)
 			}
 		case PrimaryEmail:
 			tr.PrimaryEmail = s
