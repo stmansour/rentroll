@@ -238,7 +238,7 @@ func main() {
 	}
 
 	if !done {
-		fmt.Println("Onesite CSV did not import properly. Please look out at the report.\n")
+		fmt.Println("Onesite CSV did not import properly. Please look out at the report.")
 		fmt.Println(report)
 	} else {
 		// SUCCESS THEN REPORT IT

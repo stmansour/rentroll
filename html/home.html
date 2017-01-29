@@ -452,7 +452,7 @@ function buildPageElements() {
             expandColumn: false
         },        
         columns: [
-            {field: 'TCID',         caption: "TCID",          size: '50px', sortable: true, hidden: false},
+            {field: 'TCID',         caption: "TCID",          size: '50px',sortable: true, hidden: false},
             {field: 'FirstName',    caption: "First Name",    size: '10%', sortable: true, hidden: false},
             {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: true},
             {field: 'LastName',     caption: "Last Name",     size: '10%', sortable: true, hidden: false},
@@ -691,7 +691,7 @@ function buildPageElements() {
         show: {
             header: false,
             toolbar: true,
-            footer: false,
+            footer: true,
             lineNumbers: false,
             selectColumn: false,
             expandColumn: false
@@ -701,9 +701,9 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
             {field: 'Payor', caption: 'Payor', size: '10%', sortable: true},
-            {field: 'User',  caption: 'User',  size: '10%', sortable: true},
-            {field: 'agrstart', caption: 'Agreement<br>Start', size: '10%', sortable: true},
-            {field: 'agrstop',  caption: 'Agreement<br>Stop',  size: '10%', sortable: true},
+            {field: 'AgreementStart', caption: 'Agreement<br>Start', size: '10%', sortable: true},
+            {field: 'AgreementStop', caption: 'Agreement<br>Stop',  size: '10%', sortable: true},
+            // {field: 'User',  caption: 'User',  size: '10%', sortable: true},
             // {field: 'posstart', caption: 'Possession<br> Start', size: '10%', sortable: true},
             // {field: 'posstop',  caption: 'Possession<br> Stop',  size: '10%', sortable: true},
             // {field: 'rntstart', caption: 'Rent Start', size: '10%', sortable: true},
@@ -734,6 +734,12 @@ function buildPageElements() {
                     this.select(1)
                 }
             }
+        },
+        onRequest: function(event) {
+            console.log('On Request.  url = ' + w2ui['rentalagrsGrid'].url)
+        },
+        onSearch: function(event) {
+            console.log('Search called')
         }
     });
 
@@ -764,7 +770,7 @@ function buildPageElements() {
             // { field: 'Renewal', type: 'list', required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
             // { field: 'SpecialProvisions', type: 'list', required: false, html: { caption: 'Special Provisions', page: 0, column: 0 } },
             { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'text', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
         ],
         actions: {
             save: function () {

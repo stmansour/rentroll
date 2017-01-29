@@ -808,6 +808,12 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// UIGrid
+	//==========================================
+	RRdb.Prepstmt.UIRAGrid, err = RRdb.Dbrr.Prepare("SELECT ra.RAID,rap.TCID,ra.AgreementStart,ra.AgreementStop FROM RentalAgreement ra INNER JOIN RentalAgreementPayors rap ON ra.RAID=rap.RAID AND rap.DtStart<=? AND ?<rap.DtStop WHERE ra.BID=?")
+	Errcheck(err)
+
+	//==========================================
 	// User
 	//==========================================
 	flds = "TCID,BID,Points,DateofBirth,EmergencyContactName,EmergencyContactAddress,EmergencyContactTelephone,EmergencyEmail,AlternateAddress,EligibleFutureUser,Industry,SourceSLSID,LastModTime,LastModBy"

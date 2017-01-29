@@ -1621,6 +1621,19 @@ func GetPayor(pid int64, p *Payor) {
 	ReadPayor(RRdb.Prepstmt.GetPayor.QueryRow(pid), p)
 }
 
+// func GetRentalAgreementGridInfo(raid int64, d1, d2 *time.Time) []RentalAgreementGrid {
+// 	var m []RentalAgreementGrid
+// 	rows, err := RRdb.Prepstmt.UIRAGrid(raid, d1, d2)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	for rows.Next() {
+// 		var t RentalAgreementGrid
+// 		ReadRentalAgreementGrids(rows, &t)
+// 		m = append(m, &t)
+// 	}
+// 	return m
+// }
+
 // GetVehicle reads a Vehicle structure based on the supplied Vehicle id
 func GetVehicle(vid int64, t *Vehicle) {
 	ReadVehicle(RRdb.Prepstmt.GetVehicle.QueryRow(vid), t)

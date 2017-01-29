@@ -350,8 +350,11 @@ func gridHandleField(q, logic, field, value, format string, count *int) string {
 //----------------------------------------------------------------------------------------------
 func gridBuildQuery(table, srch, order string, d *ServiceData, p interface{}) (string, string) {
 	// Handle Search
-	// q := fmt.Sprintf("SELECT * FROM "+table+" WHERE BID=%d AND (", d.BID)
 	q := "SELECT * FROM " + table + " WHERE"
+	return gridBuildQueryWhereClause(q, table, srch, order, d, p)
+}
+
+func gridBuildQueryWhereClause(q, table, srch, order string, d *ServiceData, p interface{}) (string, string) {
 	qw := ""
 	if len(d.webreq.Search) > 0 {
 		val := reflect.ValueOf(p).Elem() // reflect value of input p

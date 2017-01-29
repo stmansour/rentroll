@@ -245,6 +245,15 @@ type RentalAgreementTemplate struct {
 	LastModBy      int64     // employee UID (from phonebook) that modified it
 }
 
+// RentalAgreementGrid is a struct for the Rental Agreement Grid in the UI
+type RentalAgreementGrid struct {
+	Recid          int
+	RAID           int64
+	TCIDPayor      int64
+	AgreementStart JSONTime
+	AgreementStop  JSONTime
+}
+
 // RatePlan is a structure of static attributes of a rate plan, which describes charges for rentable types, varying by customer
 type RatePlan struct {
 	RPID        int64               // unique id for this rate plan
@@ -1188,6 +1197,7 @@ type RRprepSQL struct {
 	UpdateVehicle                      *sql.Stmt
 	UpdateUser                         *sql.Stmt
 	UpdatePayor                        *sql.Stmt
+	UIRAGrid                           *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
