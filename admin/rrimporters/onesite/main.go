@@ -11,7 +11,6 @@ import (
 	"rentroll/importers/core"
 	"rentroll/importers/onesite"
 	"rentroll/rlib"
-	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kardianos/osext"
@@ -231,13 +230,18 @@ func main() {
 		App.debug,
 	)
 
-	var oneSiteErrText string
 	if internalErr {
+		var oneSiteErrText string
 		oneSiteErrText = core.ErrInternal.Error()
+		fmt.Println(oneSiteErrText)
+		os.Exit(1)
 	}
-	fmt.Printf("\n1. ONESITE IMPORTING SUCCESSFULLY DONE: %v", done)
-	fmt.Printf("\n2. ONESITE ERRORS: %v", oneSiteErrText)
-	fmt.Printf("\n3. ONESITE CSV ERROR REPORT:")
-	fmt.Printf("\n%s", strings.Repeat("=", 65))
-	fmt.Printf("\n%s", report)
+
+	if !done {
+		fmt.Println("Onesite CSV did not import properly. Please look out at the report.\n")
+		fmt.Println(report)
+	} else {
+		// SUCCESS THEN REPORT IT
+		fmt.Println(report)
+	}
 }

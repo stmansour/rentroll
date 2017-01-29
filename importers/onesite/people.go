@@ -69,8 +69,9 @@ func WritePeopleCSVData(
 ) {
 
 	// flag duplicate people
-	name := strings.TrimSpace(csvRow.Name)
-	email := strings.TrimSpace(csvRow.Email)
+	rowName := strings.TrimSpace(csvRow.Name)
+	name := strings.ToLower(rowName)
+	email := strings.ToLower(strings.TrimSpace(csvRow.Email))
 	phone := strings.TrimSpace(csvRow.PhoneNumber)
 
 	// flag for name of people who has no email or phone
@@ -79,7 +80,7 @@ func WritePeopleCSVData(
 			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBPeople] + ">:"
 			// mark it as a warning so customer can validate it
 			csvErrors[rowIndex] = append(csvErrors[rowIndex],
-				warnPrefix+"There is at least one other person with the name \""+name+"\" "+
+				warnPrefix+"There is at least one other person with the name \""+rowName+"\" "+
 					"who also has no unique identifiers such as cell phone number or email.",
 			)
 		} else {
@@ -87,26 +88,15 @@ func WritePeopleCSVData(
 		}
 	}
 
-	// flag for email
-	if email != "" {
-		if core.StringInSlice(email, traceDuplicatePeople["email"]) {
-			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBPeople] + ">:"
-			// mark it as a warning so customer can validate it
-			csvErrors[rowIndex] = append(csvErrors[rowIndex],
-				warnPrefix+"There is at least one other person with the email \""+email+"\"",
-			)
-		} else {
-			traceDuplicatePeople["email"] = append(traceDuplicatePeople["email"], email)
-		}
-	}
-
-	// flag for phone
+	// flag for phone with same person name only
 	if phone != "" {
-		if core.StringInSlice(phone, traceDuplicatePeople["phone"]) {
+		if core.StringInSlice(phone, traceDuplicatePeople["phone"]) &&
+			core.StringInSlice(name, traceDuplicatePeople["name"]) {
 			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBPeople] + ">:"
 			// mark it as a warning so customer can validate it
 			csvErrors[rowIndex] = append(csvErrors[rowIndex],
-				warnPrefix+"There is at least one other person with the phone \""+phone+"\"",
+				warnPrefix+"There is at least one other person with the same name \""+name+"\" and work phone \""+phone+"\""+
+					" and no other unique identifiers such as cell phone or email",
 			)
 		} else {
 			traceDuplicatePeople["phone"] = append(traceDuplicatePeople["phone"], phone)
