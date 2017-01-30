@@ -1,4 +1,4 @@
-DIRS = onesite roomkey
+DIRS = onesite roomkey exported_onesite
 
 importers:
 	for dir in $(DIRS); do make -C $$dir;done
