@@ -236,6 +236,6 @@ var dupTransactantWithCellPhone = "CellPhone"
 
 // will be used exact before rowIndex to format Notes in people csv "onesite:<rowIndex>"
 const (
-	onesiteNotesPrefix = "onesite:"
+	onesiteNotesPrefix = "onesite$"
 	tcidPrefix         = "TC000"
 )

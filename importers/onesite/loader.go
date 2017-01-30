@@ -627,7 +627,7 @@ func loadOneSiteCSV(
 	// ========================================================
 
 	for onesiteIndex := range traceTCIDMap {
-		tcid := rlib.GetTCIDByNote(onesiteNotesPrefix + strconv.Itoa(onesiteIndex))
+		tcid := rlib.GetTCIDByNote(getPeopleNoteString(onesiteIndex, currentTimeFormat))
 		// for duplicant case, it won't be found so need check here
 		if tcid != 0 {
 			traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(tcid)
