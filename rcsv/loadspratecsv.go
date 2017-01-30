@@ -129,7 +129,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		amt := strings.TrimSpace(sa[i+1])
 		p.Val, errmsg = rlib.FloatFromString(amt, "bad amount")
 		if len(errmsg) > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - %s\n", funcname, lineno, errmsg)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - %s\n", funcname, lineno, errmsg)
 		}
 		if strings.Contains(amt, "%") {
 			p.FLAGS |= rlib.FlSPRpct // mark it as a percentage
@@ -140,7 +140,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		//-------------------------------------------------------------------
 		err = rlib.InsertRatePlanRefSPRate(&p)
 		if nil != err {
-			return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - error inserting RatePlanRefSPRate = %v\n", funcname, lineno, err)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RatePlanRefSPRate = %v\n", funcname, lineno, err)
 		}
 	}
 	return 0, nil
