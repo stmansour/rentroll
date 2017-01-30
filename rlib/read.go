@@ -312,6 +312,11 @@ func ReadRentalAgreements(rows *sql.Rows, a *RentalAgreement) error {
 		&a.LastModTime, &a.LastModBy)
 }
 
+// ReadRentalAgreementGrids reads a full RentalAgreementGrid structure of data from the database based on the supplied Rows pointer.
+func ReadRentalAgreementGrids(rows *sql.Rows, a *RentalAgreementGrid) error {
+	return rows.Scan(&a.RAID, &a.TCIDPayor, &a.AgreementStart, &a.AgreementStop)
+}
+
 // ReadRentalAgreementPayor reads a full RentalAgreementPayor structure of data from the database based on the supplied Row pointer.
 func ReadRentalAgreementPayor(row *sql.Row, a *RentalAgreementPayor) error {
 	return row.Scan(&a.RAID, &a.BID, &a.TCID, &a.DtStart, &a.DtStop, &a.FLAGS)
