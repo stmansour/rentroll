@@ -1,7 +1,7 @@
 /*
 
-This is the program where actually data from csv being imported
-to rentroll database.
+Package onesite contains this program where data actually
+being imported from csv to rentroll database.
 
 Main program call `CSVHandler` function to do the actual job.
 `CSVHandler` calls main function `loadOneSiteCSV` and
