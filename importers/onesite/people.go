@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rlib"
-	"strconv"
 	"strings"
 )
 
@@ -176,7 +175,7 @@ func GetPeopleCSVRow(
 		}
 		// Special notes for people to get TCID in future with below value
 		if peopleField.Name == "Notes" {
-			dataMap[i] = onesiteNotesPrefix + strconv.Itoa(rowIndex)
+			dataMap[i] = getPeopleNoteString(rowIndex, timestamp)
 		}
 
 		// get mapping field

@@ -122,3 +122,8 @@ func ValidateUserSuppliedValues(userValues map[string]string) ([]error, *rlib.Bu
 	// finally return error list
 	return errorList, &business
 }
+
+// take int of csv index, current time in string format
+func getPeopleNoteString(rowIndex int, currentTime string) string {
+	return onesiteNotesPrefix + currentTime + "$" + strconv.Itoa(rowIndex)
+}
