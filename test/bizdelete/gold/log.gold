@@ -1,11 +1,11 @@
 Test Name:    Business Delete Test
 Test Purpose: Creates many records for a business, then tests DeleteBusinessFromDB to remove them
-Date/Time:    Wed Jan 18 13:48:17 PST 2017
+Date/Time:    Mon Jan 30 22:50:51 IST 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/01/18 13:48:19 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2017/01/30 22:50:57 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -20,7 +20,7 @@ CreateCustomAttributes: line 7 - IntFromString: Value cannot be converted to an 
 
 CreateCustomAttributes: line 8 - IntFromString: Value cannot be converted to an unsigned integer: ab827
 
-CreateRentalSpecialty: lineno 3  - rlib.Business rex already has a rlib.RentableSpecialty named Lake View
+CreateRentalSpecialty: line 3  - rlib.Business rex already has a rlib.RentableSpecialty named Lake View
 CreateBuilding: line 5 - rlib.Business with designation bug does not exist
 CreateBuilding: line 6 - invalid rlib.Building number: qe
 CreatePeopleFromCSV: line 12 - DuplicateTransactant:: Transactant with PrimaryEmail address = homerj@springfield.com 
@@ -35,11 +35,11 @@ CreateRentables: line 17 - DuplicateRentable:: Rentable with name "107" already 
 CreateRentables: line 18 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
-CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
-CreateRentalAgreement: lineno 13 - Required Payor field is blank
-CreateRentalAgreement: lineno 14 - Required User field is blank
-CreateRentalAgreement: lineno 15 - Required Payor field is blank
-CreateRentalAgreement: lineno 16 - Required User field is blank
+CreateRentalAgreement:  line 12 - could not find rlib.Transactant with contact information billybob@springfield.com
+CreateRentalAgreement: line 13 - Required Payor field is blank
+CreateRentalAgreement: line 14 - Required User field is blank
+CreateRentalAgreement: line 15 - Required Payor field is blank
+CreateRentalAgreement: line 16 - Required User field is blank
 CreateLedgerMarkers: line 29 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
 CreateLedgerMarkers: line 30 - Account already exists: 42999
 CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
@@ -101,4 +101,4 @@ Could not find Business Unit named REX
 Could not find Business Unit named REX
 Could not find Business Unit named REX
 Could not find Business Unit named REX
-Test completed: Wed Jan 18 13:48:21 PST 2017
+Test completed: Mon Jan 30 22:51:00 IST 2017
