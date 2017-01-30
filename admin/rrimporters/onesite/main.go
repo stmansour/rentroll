@@ -1,3 +1,37 @@
+/*
+
+================
+ONESITE IMPORTER
+================
+This is main program which is entry point for onesite importer.
+
+This program performs following things
+================================
+> Parse command line arguments
+> Setup log file
+> Check to create csv store
+> Database initiliazation
+> Merge user supplied values with default values
+> Validate supplied values
+> Call onesite csv handler with required args
+> Print the report, output
+
+Command Line Arguments
+=====================
+1. bud (required) (business unit designation)
+2. csv (required) (onesite csv)
+3. testmode (optional) (testmode doesn't clear temp files, right now!)
+4. debug (optional) (debug used for to debug the records, been inspected from rcsv reports)
+5. frequency (optional) (rent cycle frequency)
+(
+    0: one time only | 1: secondly | 2: minutely | 3: hourly |
+    4: daily | 5: weekly | 6: monthly | 7: quarterly | 8: yearly |
+)
+6. proration (optional) (proration cycle)
+7. gsrpc (optional) (GSRPC)
+
+*/
+
 package main
 
 import (

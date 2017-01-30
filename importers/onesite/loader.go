@@ -1,39 +1,15 @@
 /*
-Package onesite imports data from onesite to rentroll.
 
-This main program requires at least two inputs from users:
-1. bud (required) (business unit designation)
-2. csv (required) (onesite csv)
-3. testmode (optional) (testmode doesn't clear temp files, right now!)
-4. frequency (optional) (rent cycle frequency)
-(
-    0: one time only | 1: secondly | 2: minutely | 3: hourly |
-    4: daily | 5: weekly | 6: monthly | 7: quarterly | 8: yearly |
-)
-5. proration (optional) (proration cycle)
-6. gsrpc (optional) (GSRPC)
+This is the program where actually data from csv being imported
+to rentroll database.
 
-It handles imported csv via `CSVhandler` function.
-
-CSVHandler accepts csv file path, testmode and user supplied values.
-It initializes config first for onesite loader via init() call.
-All user's passed values should be validated in it first.
-After that it calls main function `loadOneSiteCSV` and
+Main program call `CSVHandler` function to do the actual job.
+`CSVHandler` calls main function `loadOneSiteCSV` and
 then creates a report based on response of `loadOneSiteCSV` call.
 
-loadOneSiteCSV first loads field mapping defined from mapper.json in struct.
-Then after loading csv data, in first loop it skips rows that are meant for
-onesite data to import and then performs data validation on onesite csv data.
-If there is any error in validation then it just simply returns.
-Before going to second iteration loop it performs some necessary operation including
-get file pointers, writer pointers, declaring struct to avoid duplicate data,
-declaring struct to trace the data in accordance of input csv, declaring count
-variables for each db type, declare customAttribRefData struct.
-Then it loads data into temporary files in favor of onesite rcsv loader to import
-the data via calls of rcsv routines. After data import has been done, it will dump
-customAttribRefs in rentroll in a manual way rather than importing via temp csv file.
-At last, after all things done, it clears out all temp files from `temp_CSVs` dir and
-returns the response.
+`loadOneSiteCSV` writes data in CSVs and loads with help of rcsv
+loaders and return the response to `CSVHandler`.
+
 */
 package onesite
 
@@ -142,12 +118,11 @@ func loadOneSiteCSV(
 	// traceDuplicatePeople holds records with unique string (name, email, phone)
 	// with duplicant match at row
 	// e.g.; {
-	// 	"email": {"test@no.com": [1,5,3]},
 	// 	"phone": {"9999999999": [2,4]},
 	// 	"name": {"foo, bar": 3},
 	// }
 	traceDuplicatePeople := map[string][]string{
-		"name": {}, "email": {}, "phone": {},
+		"name": {}, "phone": {},
 	}
 
 	// --------------------- avoid duplicate data structures -------------------- //
@@ -784,9 +759,6 @@ func loadOneSiteCSV(
 	summaryReport[core.DBCustomAttr]["possible"] = CustomAttributeCSVRecordCount
 	summaryReport[core.DBCustomAttrRef]["possible"] = CustomAttributeCSVRecordCount // customAttrRef count same as customAttr
 	summaryReport[core.DBPeople]["possible"] = PeopleCSVRecordCount
-
-	// if not internal errors then hit db to count total imported rows
-	// countImportedRow(summaryReport, business.BID)
 
 	// =======
 	// RETURN
