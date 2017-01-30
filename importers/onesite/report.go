@@ -53,7 +53,7 @@ func generateSummaryReport(summaryCount map[int]map[string]int) string {
 	tbl.AddColumn("Issues", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	summaryCountIndexes := []int{}
-	for index := range core.DBTypeMap {
+	for index := range summaryCount {
 		summaryCountIndexes = append(summaryCountIndexes, index)
 	}
 	sort.Ints(summaryCountIndexes)
