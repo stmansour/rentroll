@@ -1,10 +1,15 @@
+TOP=../../..
+COUNTOL=${TOP}/test/share/countol.sh
+
 onesite: *.go
-	if [ ! -f ./conf.json ]; then cp ../../../confdev.json ./conf.json; fi
-	if [ ! -f ./mapper.json ]; then cp ../../../importers/onesite/mapper.json .; fi
+	@touch fail
+	if [ ! -f ./conf.json ]; then cp ${TOP}/confdev.json ./conf.json; fi
+	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/onesite/mapper.json .; fi
 	chmod 400 ./mapper.json
-	go vet
-	golint
+	@${COUNTOL} "go vet"
+	@${COUNTOL} golint
 	go build
+	@rm -f fail
 
 clean:
 	rm -f onesite conf.json mapper.json
@@ -18,8 +23,10 @@ test:
 # 	cp rrloadcsv.1 /usr/local/share/man/man1
 
 package: onesite
-	mkdir -p ../../../tmp/rentroll/importers/onesite/
-	cp ./conf.json ../../../tmp/rentroll/importers/onesite/conf.json
-	cp ./mapper.json ../../../tmp/rentroll/importers/onesite/
-	cp ./onesite ../../../tmp/rentroll/importers/onesite/onesiteload
+	@touch fail
+	mkdir -p ${TOP}/tmp/rentroll/importers/onesite/
+	cp ./conf.json ${TOP}/tmp/rentroll/importers/onesite/conf.json
+	cp ./mapper.json ${TOP}/tmp/rentroll/importers/onesite/
+	cp ./onesite ${TOP}/tmp/rentroll/importers/onesite/onesiteload
 	@echo "*** PACKAGE completed in rrimporters/onesite ***"
+	@rm -f fail

@@ -1,13 +1,19 @@
 DIRS = db rlib rrpt rcsv admin importers test
+TOP = .
+COUNTOL=${TOP}/test/share/countol.sh
+
 .PHONY:  test
 
-rentroll: *.go ver.go
+rentroll: ver.go *.go
+	@touch fail
 	cp confdev.json conf.json
 	for dir in $(DIRS); do make -C $$dir;done
-	go vet
-	golint
+	@${COUNTOL} "go vet"
+	@${COUNTOL} golint
 	./mkver.sh
 	go build
+	@rm -rf fail
+	test/share/buildcheck.sh BUILD
 
 ver.go:
 	./mkver.sh
@@ -15,10 +21,10 @@ ver.go:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	go clean
-	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example
+	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example fail
 
 test: package
-	rm -f test/*/err.txt
+	@rm -f test/*/err.txt
 	for dir in $(DIRS); do make -C $$dir test;done
 	@./errcheck.sh
 
@@ -29,6 +35,7 @@ instman:
 	pushd tmp/rentroll;./installman.sh;popd
 
 package: rentroll
+	@touch fail
 	rm -rf tmp
 	mkdir -p tmp/rentroll
 	mkdir -p tmp/rentroll/man/man1/
@@ -45,6 +52,8 @@ package: rentroll
 	ln -s tmp/rentroll/rrbkup
 	ln -s tmp/rentroll/rrrestore
 	@echo "*** PACKAGE COMPLETED ***"
+	@rm -f fail
+	test/share/buildcheck.sh PACKAGE
 
 publish: package
 	cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar

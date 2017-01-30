@@ -1,16 +1,24 @@
+TOP=..
+COUNTOL=${TOP}/test/share/countol.sh
+
 rrlib: *.go
-	go vet
-	golint
+	@touch fail
+	@${COUNTOL} "go vet"
+	@${COUNTOL} golint
 	go build
 	go test
 	go install
+	@rm -f fail
 
 test:
+	@touch fail
 	go test
 	@echo "*** TESTS COMPLETE in rrpt -- ALL TESTS PASS ***"
+	@rm -f fail
 
 clean:
 	go clean
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in rrpt ***"

@@ -1,21 +1,28 @@
+TOP=../..
+COUNTOL=${TOP}/test/share/countol.sh
+
 rrnewdb: *.sh
 
 clean:
-	rm -f rrnewdb
+	rm -f rrnewdb fail
 	@echo "*** Clean completed in admin/rrnewdb ***"
 
 install: rrnewdb
 	@echo "*** Packaging completed in admin/rrnewdb ***"
 
 package: rrnewdb
-	cp rrnewdb ../../tmp/rentroll/
-	cp *.1 ../../tmp/rentroll/man/man1/
+	touch fail
+	cp rrnewdb ${TOP}/tmp/rentroll/
+	cp *.1 ${TOP}/tmp/rentroll/man/man1/
 	@echo "*** Packaging completed in admin/rrnewdb ***"
+	rm -f fail
 
 packageqa: rrnewdb
-	cp rrnewdb ../../tmp/rentroll/
-	cp *.1 ../../tmp/rentrollqa/man/man1/
+	touch fail
+	cp rrnewdb ${TOP}/tmp/rentroll/
+	cp *.1 ${TOP}/tmp/rentrollqa/man/man1/
 	@echo "*** Packaging completed in admin/rrnewdb ***"
+	rm -f fail
 
 test:
 	@echo "*** Testing completed in admin/rrnewdb ***"

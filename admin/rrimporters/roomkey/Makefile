@@ -1,10 +1,15 @@
+TOP=../../..
+COUNTOL=${TOP}/test/share/countol.sh
+
 roomkey: *.go
-	if [ ! -f ./conf.json ]; then cp ../../../confdev.json ./conf.json; fi
-	if [ ! -f ./mapper.json ]; then cp ../../../importers/roomkey/mapper.json .; fi
+	@touch fail
+	if [ ! -f ./conf.json ]; then cp ${TOP}/confdev.json ./conf.json; fi
+	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/roomkey/mapper.json .; fi
 	chmod 400 ./mapper.json
-	go vet
-	golint
+	@${COUNTOL} "go vet"
+	@${COUNTOL} golint
 	go build
+	@rm -f fail
 
 clean:
 	rm -f roomkey conf.json mapper.json
@@ -14,8 +19,10 @@ test:
 	@echo "*** TEST completed in rrimporters/roomkey ***"
 
 package: roomkey
-	mkdir -p ../../../tmp/rentroll/importers/roomkey/
-	cp ./conf.json ../../../tmp/rentroll/importers/roomkey/conf.json
-	cp ./mapper.json ../../../tmp/rentroll/importers/roomkey/mapper.json
-	cp ./roomkey ../../../tmp/rentroll/importers/roomkey/roomkeyload
+	@touch fail
+	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
+	cp ./conf.json ${TOP}/tmp/rentroll/importers/roomkey/conf.json
+	cp ./mapper.json ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
+	cp ./roomkey ${TOP}/tmp/rentroll/importers/roomkey/roomkeyload
 	@echo "*** PACKAGE completed in rrimporters/roomkey ***"
+	@rm -f fail

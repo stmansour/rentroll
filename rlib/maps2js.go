@@ -25,7 +25,7 @@ func MapsToJS() {
 			j++
 			fmt.Printf("'%s'", k)
 			if j < L {
-				fmt.Printf(", ")
+				fmt.Printf(",")
 			}
 		}
 		fmt.Printf("];\n")
