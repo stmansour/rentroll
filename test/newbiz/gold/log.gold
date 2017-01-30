@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Wed Jan 18 13:47:17 PST 2017
+Date/Time:    Mon Jan 30 07:42:15 PST 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/01/18 13:47:18 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2017/01/30 07:42:16 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -15,7 +15,7 @@ CreateRentableType: line 13 - Invalid manage to budget flag: nyet
 CreateRentableType: line 14 - Invalid manage to budget flag: nyet
 CreateRentableType: line 15 - Invalid manage to budget flag: 3
 CreateRentableType: line 16 - Stop date (2014-01-01 00:00:00 +0000 UTC) must be after Start date (2016-01-01 00:00:00 +0000 UTC)
-CreateRentalSpecialty: lineno 3  - rlib.Business rex already has a rlib.RentableSpecialty named Lake View
+CreateRentalSpecialty: line 3  - rlib.Business rex already has a rlib.RentableSpecialty named Lake View
 CreateBuilding: line 5 - rlib.Business with designation bug does not exist
 CreateBuilding: line 6 - invalid rlib.Building number: qe
 CreatePeopleFromCSV: line 12 - DuplicateTransactant:: Transactant with PrimaryEmail address = homerj@springfield.com 
@@ -34,11 +34,11 @@ CreateRentables: line 17 - DuplicateRentable:: Rentable with name "107" already 
 CreateRentables: line 18 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
 CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
-CreateRentalAgreement:  lineno 12 - could not find rlib.Transactant with contact information billybob@springfield.com
-CreateRentalAgreement: lineno 13 - Required Payor field is blank
-CreateRentalAgreement: lineno 14 - Required User field is blank
-CreateRentalAgreement: lineno 15 - Required Payor field is blank
-CreateRentalAgreement: lineno 16 - Required User field is blank
+CreateRentalAgreement:  line 12 - could not find rlib.Transactant with contact information billybob@springfield.com
+CreateRentalAgreement: line 13 - Required Payor field is blank
+CreateRentalAgreement: line 14 - Required User field is blank
+CreateRentalAgreement: line 15 - Required Payor field is blank
+CreateRentalAgreement: line 16 - Required User field is blank
 CreateLedgerMarkers: line 29 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
 CreateLedgerMarkers: line 30 - Account already exists: 42999
 CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
@@ -67,4 +67,4 @@ CreateCustomAttributes: line 8 - IntFromString: Value cannot be converted to an 
 
 ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Wed Jan 18 13:47:20 PST 2017
+Test completed: Mon Jan 30 07:42:18 PST 2017
