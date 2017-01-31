@@ -22,6 +22,7 @@ package: roomkey
 	@touch fail
 	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
 	cp ./conf.json ${TOP}/tmp/rentroll/importers/roomkey/conf.json
+	rm -f ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./mapper.json ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./roomkey ${TOP}/tmp/rentroll/importers/roomkey/roomkeyload
 	@echo "*** PACKAGE completed in rrimporters/roomkey ***"
