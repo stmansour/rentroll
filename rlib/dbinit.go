@@ -2,7 +2,7 @@ package rlib
 
 import "time"
 
-// DefaultAccts are the required accounts for all businesses
+// NewBizDefaultAccts are the required accounts for all businesses
 var NewBizDefaultAccts = []GLAccount{
 	{Status: 2, Type: GLCASH, Name: "Bank Account"},
 	{Status: 2, Type: GLGENRCV, Name: "General Accounts Receivable"},
