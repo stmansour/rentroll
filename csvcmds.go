@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// 1MB
+// MAXMEMORY sets the maximum amount of memory used for uploading multi-part attachments
 const MAXMEMORY = 1 * 1024 * 1024
 
 var tmpdir = string("tmp")

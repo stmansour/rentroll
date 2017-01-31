@@ -5,13 +5,13 @@ import (
 	"rentroll/rcsv"
 )
 
-// tempCSVStoreName holds the name of csvstore folder
+// TempCSVStoreName holds the name of csvstore folder
 var TempCSVStoreName = "temp_CSVs"
 
-// used to store temporary csv files
+// TempCSVStore is used to store temporary csv files
 var TempCSVStore string
 
-// used to overwrite if user has not passed to values for these fields
+// FieldDefaultValues isused to overwrite if user has not passed to values for these fields
 var FieldDefaultValues = map[string]string{
 	"ManageToBudget": "1", // always take to default this one
 	"RentCycle":      "6", // maybe overridden by user supplied value

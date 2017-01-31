@@ -46,7 +46,6 @@ type CSVLoader struct {
 }
 
 // CSVLoaders is an array of functions that load CSV files that are indexed
-
 // by the associated Index value
 var CSVLoaders = []CSVLoader{
 	{Name: "Assessments", Index: CSVAssessments, Loader: LoadAssessmentsCSV},

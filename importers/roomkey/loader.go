@@ -3,7 +3,6 @@ package roomkey
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/kardianos/osext"
 	"io/ioutil"
 	"os"
 	"path"
@@ -15,9 +14,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/kardianos/osext"
 )
 
-// used to store temporary csv files
+// SplittedCSVStore is used to store temporary csv files
 var SplittedCSVStore string
 
 // Init configure required settings
