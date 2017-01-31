@@ -6,83 +6,63 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"phonebook/lib"
+	"rentroll/importers/core"
 	"rentroll/importers/roomkey"
 	"rentroll/rlib"
-	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kardianos/osext"
 )
 
 // App is the global application structure used for roomkey csv importer
 var App struct {
-	dbdir    *sql.DB  // phonebook db
-	dbrr     *sql.DB  // rentroll db
-	DBDir    string   // phonebook database
-	DBRR     string   // rentroll database
-	DBUser   string   // user for all databases
-	LogFile  *os.File // where to log messages
-	TestMode int      // used for test purpose?
-	CSV      string   // csv filename that needs to be load
+	dbdir        *sql.DB  // phonebook db
+	dbrr         *sql.DB  // rentroll db
+	DBDir        string   // phonebook database
+	DBRR         string   // rentroll database
+	DBUser       string   // user for all databases
+	LogFile      *os.File // where to log messages
+	TestMode     int      // used for test purpose?
+	CSV          string   // csv filename that needs to be load
+	GuestInfoCSV string   // csv filename containing guest info
+	debug        int      // debug records
 }
 
 // userRRValues holds the values passed by user for rentroll attributes
 var userRRValues = make(map[string]string)
 
-// GetRoomKeyFieldDefaultValues used to return map[string]string
-// with field values, which is default to values defined here
-func GetRoomKeyFieldDefaultValues() map[string]string {
-	defaults := map[string]string{}
-	defaults["ManageToBudget"] = "1" // always take to default this one
-	defaults["RentCycle"] = "6"      // maybe overridden by user supplied value
-	defaults["Proration"] = "4"      // maybe overridden by user supplied value
-	defaults["GSRPC"] = "4"          // maybe overridden by user supplied value
-	defaults["AssignmentTime"] = "1" // always take to default this one
-	defaults["Renewal"] = "2"        // always take to default this one
-	return defaults
-}
-
 // MergeSuppliedAndDefaultValues used to merge
 // override values from userRRValues map into matched
 // field of Defaults
 func MergeSuppliedAndDefaultValues() {
-	defaults := GetRoomKeyFieldDefaultValues()
 
 	// override default values to userRRValues map
 	// if not passed
 	for k := range userRRValues {
 		if userRRValues[k] == "" {
-			if defaultVal, ok := defaults[k]; ok {
+			if defaultVal, ok := roomkey.FieldDefaultValues[k]; ok {
 				userRRValues[k] = defaultVal
 			}
 		}
 	}
 
-	// append also defaults fields in userRRValues
+	// append also roomkey fields in userRRValues
 	// if it does not exist in map
-	for k, v := range defaults {
+	for k, v := range roomkey.FieldDefaultValues {
 		if _, ok := userRRValues[k]; !ok {
 			userRRValues[k] = v
 		}
 	}
 }
 
-// TODO: remove this accrual rate later
-// Rental accrual rate
-// 0 = one time only
-// 1 = secondly
-// 2 = minutely
-// 3 = hourly
-// 4 = daily
-// 5 = weekly
-// 6 = monthly
-// 7 = quarterly
-// 8 = yearly
-
-func readCommandLineArgs() (bool, []string) {
-	ok, errors := true, []string{}
+func readCommandLineArgs() []string {
+	inputErrors := []string{}
 	// a csv file must be passed
-	fp := flag.String("csv", "", "the name of the roomkey CSV file to import")
+	fp := flag.String("csv", "", "Path of the roomkey CSV file to import")
+	// a csv file must be passed
+	guestInfoFp := flag.String("guestinfo", "", "Path of CSV file containing guest info (Guest Export)")
 	// a bud must be passed
 	bud := flag.String("bud", "", "A business unit designation")
 	// frequency should default to monthly
@@ -93,7 +73,8 @@ func readCommandLineArgs() (bool, []string) {
 	gsrpc := flag.String("gsrpc", "", "GSRPC")
 	// is it for testing purpose
 	testmode := flag.Int("testmode", 0, "testing")
-
+	// is it for debug purpose
+	debug := flag.Int("debug", 0, "debug Records")
 	// parse db options
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
@@ -107,18 +88,17 @@ func readCommandLineArgs() (bool, []string) {
 	flag.Parse()
 
 	if *fp == "" {
-		ok = false
-		errors = append(errors, "Please, pass roomkey csv input file")
+		inputErrors = append(inputErrors, "Please, pass roomkey csv input file")
 	}
 
 	if *bud == "" {
-		ok = false
-		errors = append(errors, "Please, pass business unit designation")
+		inputErrors = append(inputErrors, "Please, pass business unit designation")
 	}
 
-	// if not ok then return with errors, otherwise fill up values in map
-	if !ok {
-		return ok, errors
+	// above inputs must required from users
+	// so put condition here
+	if len(inputErrors) > 0 {
+		return inputErrors
 	}
 
 	// App structure values
@@ -127,6 +107,8 @@ func readCommandLineArgs() (bool, []string) {
 	App.DBUser = *dbuPtr
 	App.TestMode = *testmode
 	App.CSV = *fp
+	App.GuestInfoCSV = *guestInfoFp
+	App.debug = *debug
 
 	// get user values
 	userRRValues["RentCycle"] = *frequency
@@ -134,28 +116,57 @@ func readCommandLineArgs() (bool, []string) {
 	userRRValues["GSRPC"] = *gsrpc
 	userRRValues["BUD"] = *bud
 
-	return ok, errors
+	return inputErrors
 }
 
 func main() {
+
+	// ================================
+	// COMMAND LINE OPTIONS VALIDATION
+	// ================================
+	inputErrors := readCommandLineArgs()
+	if len(inputErrors) > 0 {
+		for _, errText := range inputErrors {
+			fmt.Println(errText)
+		}
+		os.Exit(1)
+	}
+
+	// ==========================================================
+	// INITIAL SETUP: CSV TEMP STORAGE, DATABASE CONNECTION, LOG FILE
+	// ==========================================================
+
+	// error variable
 	var err error
 
-	// setup log file
+	// LOGFILE SETUP
 	App.LogFile, err = os.OpenFile("roomkey.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	lib.Errcheck(err)
 	defer App.LogFile.Close()
 	log.SetOutput(App.LogFile)
-	rlib.Ulog("IMPORTERS started \n")
+	rlib.Ulog("*********** ONTESITE IMPORTER HAS BEEN STARTED *********** \n")
 
-	// read command line argument first
-	ok, inputErrors := readCommandLineArgs()
-	if !ok {
-		fmt.Printf("Input Errors: %v\n", inputErrors)
+	// CSV STORE CHECK
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <INITIALIZATION>: %s", err.Error())
 		os.Exit(1)
 	}
 
-	// db initialization
+	// get path of splitted csv store
+	roomkey.TempCSVStore = path.Join(folderPath, roomkey.TempCSVStoreName)
+
+	// if tempCSVStore not exist then create it
+	if _, err := os.Stat(roomkey.TempCSVStore); os.IsNotExist(err) {
+		os.MkdirAll(roomkey.TempCSVStore, 0700)
+	}
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <INITIALIZATION>: %s", err.Error())
+		os.Exit(1)
+	}
+
+	// DATABASE INITIALIZATION
 	rlib.RRReadConfig()
 
 	//----------------------------
@@ -192,27 +203,50 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
-	// ###########################################
-	// DB INIT COMPLETE     ##
-	// ###########################################
+
+	// ==================================
+	// AFTER DB SETUP DO VALIDATION OVER
+	// USER SUPPLIED VALUES WITH DB VALUES
+	// ==================================
 
 	// merge user supplied values with default one
 	MergeSuppliedAndDefaultValues()
 
+	// now validation on user supplied values
+	validateErrs, business := roomkey.ValidateUserSuppliedValues(userRRValues)
+	if len(validateErrs) > 0 {
+		for _, err := range validateErrs {
+			fmt.Println(err.Error())
+		}
+		os.Exit(1)
+	}
+
+	// =======================
+	// CALL ONSITE CSV HANDLER
+	// =======================
+
 	// call roomkey loader
-	done, ErrReport, roomKeyErr := roomkey.CSVHandler(
+	report, internalErr, done := roomkey.CSVHandler(
 		App.CSV,
+		App.GuestInfoCSV,
 		App.TestMode,
 		userRRValues,
+		business,
+		App.debug,
 	)
 
-	var roomKeyErrText string
-	if roomKeyErr != nil {
-		roomKeyErrText = roomKeyErr.Error()
+	if internalErr {
+		var roomKeyErrText string
+		roomKeyErrText = core.ErrInternal.Error()
+		fmt.Println(roomKeyErrText)
+		os.Exit(1)
 	}
-	fmt.Printf("\n1. ROOMKEY IMPORTING SUCCESSFULLY DONE: %v", done)
-	fmt.Printf("\n2. ROOMKEY ERRORS: %v", roomKeyErrText)
-	fmt.Printf("\n3. ROOMKEY CSV ERROR REPORT:")
-	fmt.Printf("\n%s", strings.Repeat("=", 65))
-	fmt.Printf("\n%s", ErrReport)
+
+	if !done {
+		fmt.Println("RoomKey CSV did not import properly. Please look out at the report.")
+		fmt.Println(report)
+	} else {
+		// SUCCESS THEN REPORT IT
+		fmt.Println(report)
+	}
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TESTNAME="Onesite Import"
+TESTNAME="Onesite Import (Exported)"
 TESTSUMMARY="Tests initizing RentRoll DB from importing OneSite rentroll report."
 
 RRBIN="../../../tmp/rentroll"
