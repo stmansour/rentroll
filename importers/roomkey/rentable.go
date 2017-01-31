@@ -2,6 +2,7 @@ package roomkey
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"path"
 	"reflect"
@@ -10,27 +11,6 @@ import (
 	"strings"
 	"time"
 )
-
-// ===========
-// CONSTANTS
-// ===========
-
-// RRRentableStatus is status for rentable in rentroll system
-var RRRentableStatus = map[string]string{
-	"unknown":        "0",
-	"online":         "1",
-	"admin":          "2",
-	"employee":       "3",
-	"owner occupied": "4",
-	"offline":        "5",
-}
-
-// RentableStatusCSV is mapping for rentable status between roomkey and rentroll
-var RentableStatusCSV = map[string]string{
-	"vacant":   "online",
-	"occupied": "online",
-	"model":    "admin",
-}
 
 // CreateRentableCSV create rentable csv temporarily
 // write headers, used to load data from roomkey csv
@@ -82,11 +62,12 @@ func WriteRentableData(
 	traceCSVData map[int]int,
 	csvWriter *csv.Writer,
 	csvRow *CSVRow,
-	avoidData *[]string,
 	currentTime time.Time,
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	rentableStruct *core.RentableCSV,
+	traceTCIDMap map[int]string,
+	csvErrors map[int][]string,
 ) {
 	// TODO: need to decide how to avoid data
 	// checkRentableStyle := csvRow.FloorPlan
@@ -99,6 +80,11 @@ func WriteRentableData(
 
 	// *avoidData = append(*avoidData, checkRentableStyle)
 
+	currentYear, currentMonth, currentDate := currentTime.Date()
+	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
+	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
+	DtStop := "12/31/9999" // no end date
+
 	// make rentable data from userSuppliedValues and defaultValues
 	rentableDefaultData := map[string]string{}
 	for k, v := range suppliedValues {
@@ -107,6 +93,24 @@ func WriteRentableData(
 
 	// Forming default rentable status string
 	rentableDefaultData["RentableStatus"] = "1"
+	rentableDefaultData["DtStart"] = DtStart
+	rentableDefaultData["DtStop"] = DtStop
+	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
+
+	// flag warning that we are taking default values for least start, end dates
+	// as they don't exists
+	if csvRow.Empty3 == "" {
+		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
+		csvErrors[rowIndex] = append(csvErrors[rowIndex],
+			warnPrefix+"No lease start date found. Using default value: "+DtStart,
+		)
+	}
+	if csvRow.DateOut == "" {
+		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
+		csvErrors[rowIndex] = append(csvErrors[rowIndex],
+			warnPrefix+"No lease end date found. Using default value: "+DtStop,
+		)
+	}
 
 	dateIn := getFormattedDate(csvRow.Empty3)
 	dateOut := getFormattedDate(csvRow.DateOut)
@@ -119,6 +123,7 @@ func WriteRentableData(
 		csvRow, rentableStruct,
 		currentTimeFormat, rentableDefaultData,
 	)
+
 	if ok {
 		csvWriter.Write(csvRowData)
 		csvWriter.Flush()
@@ -248,17 +253,4 @@ func GetRentableTypeRef(
 	}
 
 	return ",,", ok
-}
-
-// getFormattedDate returns rentroll accepted date string
-func getFormattedDate(
-	dateString string,
-) string {
-
-	const shortForm = "02-Jan-2006"
-	const layout = "2006-01-02"
-
-	parsedDate, _ := time.Parse(shortForm, dateString)
-	return parsedDate.Format(layout)
-
 }

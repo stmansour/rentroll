@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TESTNAME="RoomKey Import"
+TESTNAME="RoomKey Import (Exported) with Guest Data Export"
 TESTSUMMARY="Tests initizing RentRoll DB from importing RoomKey rentroll report."
 BUD="ISO"
 
@@ -18,7 +18,7 @@ rm -f ${TEMPCSVSTORE}/rentable_*.csv ./rentable_*.csv
 rm -f ${TEMPCSVSTORE}/rentalAgreement_*.csv ./rentalAgreement_*.csv
 
 # call loader
-doRoomKeyTest "b" "-csv ./roomkey.csv -bud ${BUD} -testmode 1 -debug 1" "RoomKeyRentrollCSV"
+doRoomKeyTest "b" "-csv ./roomkey_exported.csv -bud ${BUD} -guestinfo ./guestdataexport.csv -testmode 1 -debug 1" "RoomKeyRentrollCSV"
 
 # Print out All the different data types for validation
 docsvtest "c" "-L 5,${BUD}" "RentableTypes"

@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
@@ -64,12 +65,35 @@ func WritePeopleCSVData(
 	currentTimeFormat string,
 	suppliedValues map[string]string,
 	peopleStruct *core.PeopleCSV,
+	guestData GuestCSVRow,
+	tracePeopleNote map[int]string,
+	traceDuplicatePeople map[string][]string,
+	csvErrors map[int][]string,
 ) {
+
+	// flag duplicate people
+	rowName := strings.TrimSpace(csvRow.Guest)
+	name := strings.ToLower(rowName)
+
+	// flag for name of people who has no email or phone
+	if name != "" {
+		if core.StringInSlice(name, traceDuplicatePeople["name"]) {
+			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBPeople] + ">:"
+			// mark it as a warning so customer can validate it
+			csvErrors[rowIndex] = append(csvErrors[rowIndex],
+				warnPrefix+"There is at least one other person with the name \""+rowName+"\" "+
+					"who also has no unique identifiers such as cell phone number or email.",
+			)
+		} else {
+			traceDuplicatePeople["name"] = append(traceDuplicatePeople["name"], name)
+		}
+	}
 
 	// get csv row data
 	ok, csvRowData := GetPeopleCSVRow(
 		csvRow, peopleStruct,
 		currentTimeFormat, suppliedValues,
+		guestData, rowIndex, tracePeopleNote,
 	)
 	if ok {
 		csvWriter.Write(csvRowData)
@@ -89,6 +113,9 @@ func GetPeopleCSVRow(
 	fieldMap *core.PeopleCSV,
 	timestamp string,
 	DefaultValues map[string]string,
+	guestData GuestCSVRow,
+	rowIndex int,
+	tracePeopleNote map[int]string,
 ) (bool, []string) {
 
 	// take initial variable
@@ -117,6 +144,43 @@ func GetPeopleCSVRow(
 			dataMap[i] = suppliedValue
 		}
 
+		if guestData.GuestName != "" {
+			if peopleField.Name == "FirstName" {
+				dataMap[i] = guestData.FirstName
+			}
+			if peopleField.Name == "LastName" {
+				dataMap[i] = guestData.LastName
+			}
+			if peopleField.Name == "PrimaryEmail" {
+				if core.IsValidEmail(guestData.Email) {
+					dataMap[i] = guestData.Email
+				}
+			}
+			if peopleField.Name == "CellPhone" {
+				dataMap[i] = guestData.MainPhone
+			}
+			if peopleField.Name == "Address" {
+				dataMap[i] = guestData.Address
+			}
+			if peopleField.Name == "Address2" {
+				dataMap[i] = guestData.Address2
+			}
+			if peopleField.Name == "City" {
+				dataMap[i] = guestData.City
+			}
+			if peopleField.Name == "State" {
+				dataMap[i] = guestData.StateProvince
+			}
+			if peopleField.Name == "PostalCode" {
+				dataMap[i] = guestData.ZipPostalCode
+			}
+			if peopleField.Name == "Country" {
+				dataMap[i] = guestData.Country
+			}
+			if peopleField.Name == "AlternateAddress" {
+				dataMap[i] = guestData.Address2
+			}
+		}
 		// =========================================================
 		// these conditions have been put here because it's mapping field does not exist
 		// =========================================================
@@ -133,11 +197,17 @@ func GetPeopleCSVRow(
 			}
 		}
 
+		// Special notes for people to get TCID in future with below value
+
 		// Add description to Notes field of people
 		if peopleField.Name == "Notes" {
-			des := "Res. Id:" + roomKeyRow.ResID
-			des += "\n" + strings.TrimSpace(roomKeyRow.Description)
+			des := roomkeyNotesPrefix + strconv.Itoa(rowIndex) + "\n"
+			des += "Res. Id:" + roomKeyRow.ResID
+			if roomKeyRow.Description != "" {
+				des += "\n" + strings.TrimSpace(roomKeyRow.Description)
+			}
 			dataMap[i] = des
+			tracePeopleNote[rowIndex] = des
 		}
 
 		// get mapping field
