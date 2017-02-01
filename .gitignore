@@ -1,4 +1,5 @@
 *.xlsx
+*.xls
 mdb
 buildno
 tmp
@@ -6,8 +7,11 @@ bkup
 .DS_Store
 */.DS_Store
 */*/.DS_Store
+js/w2ui*
 html/help/SettingUpANewBusinessWithCSVImport/images/
 html/help/Glossary/.DS_Store
 html/help/Glossary/resources/
 html/images
 localhost.*
+test/testreport.txt
+js/jquery*

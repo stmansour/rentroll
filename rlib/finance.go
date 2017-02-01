@@ -2,7 +2,6 @@ package rlib
 
 import (
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -67,21 +66,21 @@ func ProrationUnits(a int64) string {
 	return s
 }
 
-// StringToDate tries to convert the supplied string to a time.Time value. It will use the two
-// formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2
-func s2d(s string) time.Time {
-	var t time.Time
-	var err error
-	// try the ansi std date format first
-	s = strings.TrimSpace(s)
-	for i := 0; i < len(RDateFmt); i++ {
-		t, err = time.Parse(RDateFmt[i], s)
-		if err == nil {
-			return t
-		}
-	}
-	return t
-}
+// // StringToDate tries to convert the supplied string to a time.Time value. It will use the two
+// // formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2
+// func s2d(s string) time.Time {
+// 	var t time.Time
+// 	var err error
+// 	// try the ansi std date format first
+// 	s = strings.TrimSpace(s)
+// 	for i := 0; i < len(RDateFmt); i++ {
+// 		t, err = time.Parse(RDateFmt[i], s)
+// 		if err == nil {
+// 			return t
+// 		}
+// 	}
+// 	return t
+// }
 
 // CycleDuration returns the prorateDuration in microseconds and the units as a string
 func CycleDuration(cycle int64, epoch time.Time) time.Duration {

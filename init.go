@@ -63,7 +63,7 @@ func createStartupCtx() DispatchCtx {
 	ctx.Args = App.Report
 	ctx.CSVLoadStr = strings.TrimSpace(App.CSVLoad)
 	// fmt.Printf("ctx.CSVLoadStr = %s\n", ctx.CSVLoadStr)
-	ctx.Cmd = CmdRUNBOOKS
-	ctx.OutputFormat = FMTTEXT
+	ctx.Cmd = 1
+	ctx.OutputFormat = rlib.RPTTEXT
 	return ctx
 }

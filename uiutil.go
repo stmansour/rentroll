@@ -60,30 +60,3 @@ func UIInitBizList(ui *RRuiSupport) {
 	// 	fmt.Printf("ui.BL[%d] = %#v\n", i, ui.BL[i])
 	// }
 }
-
-// UIInitUISupport sets the ui context structure value for page handlers equal to App.PageHandlers
-func UIInitUISupport(ui *RRuiSupport) {
-	ui.PgHnd = App.PageHandlers
-}
-
-// // BuildXLedgerList initializes all ledger information for use in the UI. It loads all defined GLAccounts
-// // and the LedgerMarkers for a specific period
-// func BuildXLedgerList(ui *RRuiSupport, bid int64, dt time.Time) {
-// 	m := rlib.GetAllLedgerMarkersOnOrBefore(bid, &dt) // map of ledger markers indexed by LID
-// 	n := rlib.GetLedgerList(bid)                      // list of all ledgers
-// 	k := 0
-// 	for i := 0; i < len(n); i++ {
-// 		var x XLedger
-// 		x.G = n[i]
-// 		x.LM = m[n[i].LID]
-// 		if n[i].LID == 0 {
-// 			fmt.Printf("found LID == 0\n")
-// 			debug.PrintStack()
-// 		}
-// 		ui.LDG.XL = append(ui.LDG.XL, x)
-// 		k++
-// 	}
-
-// 	ui.LDG.Balance = LMSum(&ui.LDG.XL)
-// 	ui.LDG.BID = bid
-// }

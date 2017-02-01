@@ -321,13 +321,3 @@ func RunCommandLine(ctx *DispatchCtx) {
 		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	}
 }
-
-// Dispatch generates the supplied report for all properties
-func Dispatch(ctx *DispatchCtx) {
-	switch ctx.Cmd {
-	case CmdRUNBOOKS:
-		RunCommandLine(ctx)
-	default:
-		fmt.Printf("Unrecognized command: %d\n", ctx.Cmd)
-	}
-}

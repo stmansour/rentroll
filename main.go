@@ -16,15 +16,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// CmdRUNBOOKS and the rest are command numbers used by the Dispatch function.
-const (
-	CmdRUNBOOKS     = 1 // Run Journal and ledgers over a defined period
-	CmdTRIALBALANCE = 5 // balance of all ledgers at the end of the defined period
-
-	FMTTEXT = 1 // output format is text
-	FMTHTML = 2 // output format is html
-)
-
 // DispatchCtx is a type of struct needed for the Dispatch function. It defines
 // everything needed to run a particular command. It is the responsibility of the
 // caller to fill out all the needed ctx information. Not all information is needed
@@ -65,11 +56,11 @@ var App struct {
 
 // WebContext is a struct of information that is essentially session information
 // associated with a login session.
-type WebContext struct {
-	Biz string // the 3 character designation for a business
-	D1  string // start date/time for reports, etc.
-	D2  string // stop date/time
-}
+// type WebContext struct {
+// 	Biz string // the 3 character designation for a business
+// 	D1  string // start date/time for reports, etc.
+// 	D2  string // stop date/time
+// }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
 // as needed to produce the page
@@ -196,7 +187,7 @@ func main() {
 	if App.BatchMode {
 		ctx := createStartupCtx()
 		rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-		Dispatch(&ctx)
+		RunCommandLine(&ctx)
 	} else {
 		initHTTP()
 		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)

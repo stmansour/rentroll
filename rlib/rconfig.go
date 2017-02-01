@@ -31,6 +31,14 @@ type rrconfig struct {
 	RRDbtype string `json:"RRDbtype"` // what type of database: mysql, ...
 }
 
+// APPENVDEV et. al. are constants describing the environment where
+// the app is running. It is set via the conf.json file
+const (
+	APPENVDEV  = 0
+	APPENVPROD = 1
+	APPENVQA   = 2
+)
+
 // AppConfig is the shared struct of configuration values
 var AppConfig rrconfig
 

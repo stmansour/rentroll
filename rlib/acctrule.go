@@ -82,9 +82,11 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 				base = 1                              // base moves by one
 				a := rpnASM.FindStringSubmatch(ta[0]) // need to find the assessment id
 				if len(a) != 2 {
-					fmt.Printf("%s: invalid assessment identifier: %s\n", funcname, ta[0])
+					LogAndPrintError(funcname, fmt.Errorf("%s: invalid assessment identifier: %s", funcname, ta[0]))
 				} else {
-					r.ASMID, _ = IntFromString(a[1], "Invalid Assessment ID")
+					var err error
+					r.ASMID, err = IntFromString(a[1], "Invalid Assessment ID")
+					CheckLogAndPrintError(funcname, err)
 				}
 			}
 			r.Action = strings.ToLower(strings.TrimSpace(ta[base])) // action is at index base
