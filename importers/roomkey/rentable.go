@@ -213,23 +213,6 @@ func GetRentableCSVRow(
 	return ok, dataArray
 }
 
-// IsValidRentableStatus checks that passed string contains valid rentable status
-// acoording to rentroll system
-func IsValidRentableStatus(s string) (bool, string) {
-	found := false
-	var tempRS string
-	// first find that passed string contains any status key
-	a := strings.ToLower(s)
-	for k, v := range RentableStatusCSV {
-		if strings.Contains(a, k) {
-			tempRS = v
-			found = true
-			break
-		}
-	}
-	return found, tempRS
-}
-
 // GetRentableTypeRef used to get rentable type ref in format of rentroll system
 func GetRentableTypeRef(
 	csvRow *CSVRow,
