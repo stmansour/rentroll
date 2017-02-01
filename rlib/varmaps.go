@@ -55,7 +55,7 @@ func XJSONprocess(a, b *reflect.Value) error {
 	bt := (*b).Type().String()
 	// fmt.Printf("XJSONprocess: map from %s to %s\n", at, bt)
 	for i := 0; i < len(assignmap); i++ {
-		if strings.Index(at, assignmap[i].a) >= 0 && strings.Index(bt, assignmap[i].b) >= 0 {
+		if strings.Contains(at, assignmap[i].a) && strings.Contains(bt, assignmap[i].b) {
 			assignmap[i].mapper(a, b, assignmap[i].valmap)
 			return nil
 		}
@@ -146,7 +146,7 @@ func Int2Bool(a, b *reflect.Value, m *Str2Int64Map) error {
 // b must point to an int
 func Bool2Int(a, b *reflect.Value, m *Str2Int64Map) error {
 	i := 0
-	if false != (*a).Interface().(bool) {
+	if (*a).Interface().(bool) {
 		i = 1
 	}
 	(*b).Set(reflect.ValueOf(i))
@@ -168,7 +168,7 @@ func Int642Bool(a, b *reflect.Value, m *Str2Int64Map) error {
 // b must point to an int
 func Bool2Int64(a, b *reflect.Value, m *Str2Int64Map) error {
 	i := int64(0)
-	if false != (*a).Interface().(bool) {
+	if (*a).Interface().(bool) {
 		i = int64(1)
 	}
 	(*b).Set(reflect.ValueOf(i))

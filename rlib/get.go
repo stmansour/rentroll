@@ -144,7 +144,7 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 		GetBusiness(bid, &xbiz.P)
 	}
 	xbiz.RT = GetBusinessRentableTypes(bid)
-	xbiz.US = make(map[int64]RentableSpecialty, 0)
+	xbiz.US = make(map[int64]RentableSpecialty)
 	rows, err := RRdb.Prepstmt.GetAllBusinessSpecialtyTypes.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
@@ -185,7 +185,7 @@ func GetCustomAttributeByVals(t int64, n, v, u string) CustomAttribute {
 func GetAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error) {
 	var t []int64
 	var m map[string]CustomAttribute
-	m = make(map[string]CustomAttribute, 0)
+	m = make(map[string]CustomAttribute)
 	rows, err := RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
 	Errcheck(err)
 	defer rows.Close()
@@ -610,7 +610,7 @@ func GetLatestLedgerMarkerByType(bid int64, t int64) LedgerMarker {
 // GetAllLedgerMarkersOnOrBefore returns a map of all ledgermarkers for the supplied business and dat
 func GetAllLedgerMarkersOnOrBefore(bid int64, dt *time.Time) map[int64]LedgerMarker {
 	var t map[int64]LedgerMarker
-	t = make(map[int64]LedgerMarker, 0) // this line is absolutely necessary
+	t = make(map[int64]LedgerMarker) // this line is absolutely necessary
 	rows, err := RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
 	Errcheck(err)
 	defer rows.Close()
@@ -870,7 +870,7 @@ func GetAllNoteTypes(bid int64) []NoteType {
 // GetPaymentTypes returns a slice of payment types indexed by the PMTID
 func GetPaymentTypes() map[int64]PaymentType {
 	var t map[int64]PaymentType
-	t = make(map[int64]PaymentType, 0)
+	t = make(map[int64]PaymentType)
 	rows, err := RRdb.Dbrr.Query("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentTypes")
 	Errcheck(err)
 	defer rows.Close()
@@ -893,7 +893,7 @@ func GetPaymentTypeByName(bid int64, name string, a *PaymentType) {
 // GetPaymentTypesByBusiness returns a slice of payment types indexed by the PMTID for the supplied Business
 func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
 	var t map[int64]PaymentType
-	t = make(map[int64]PaymentType, 0)
+	t = make(map[int64]PaymentType)
 	rows, err := RRdb.Prepstmt.GetPaymentTypesByBusiness.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
@@ -1306,7 +1306,7 @@ func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 // GetBusinessRentableTypes returns a slice of RentableType indexed by the RTID
 func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	var t map[int64]RentableType
-	t = make(map[int64]RentableType, 0)
+	t = make(map[int64]RentableType)
 	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
 	Errcheck(err)
 	defer rows.Close()

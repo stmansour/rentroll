@@ -7,38 +7,6 @@ import (
 
 // ======== TEST FOR METHODS DEFINED IN `struct_utils.go` ========
 
-// Testing for `field map of struct`
-func TestBuildFieldMap(t *testing.T) {
-
-	type Sample struct {
-		a int
-		b string
-	}
-
-	// CASE: POSITIVE
-	// expected output
-	outputSampleMap := map[string]int{
-		"a": 0,
-		"b": 1,
-	}
-
-	// create var for struct
-	var sample Sample
-	fmap, ok := BuildFieldMap(&sample)
-
-	// check that both are equal
-	if !reflect.DeepEqual(fmap, outputSampleMap) {
-		t.Errorf("[TestBuildFieldMap] Expected field map is `%v`, but it returned `%v`", outputSampleMap, fmap)
-	}
-
-	// CASE: NEGATIVE
-	var a int
-	fmap, ok = BuildFieldMap(&a)
-	if ok {
-		t.Errorf("[TestBuildFieldMap] Expected `false` for ok, but it returned `%v` for `var a int`", ok)
-	}
-}
-
 // Testing for `struct fields`
 func TestGetStructFields(t *testing.T) {
 
@@ -107,75 +75,6 @@ func TestIntegerInSlice(t *testing.T) {
 	ok = IntegerInSlice(z, sampleSlice)
 	if ok {
 		t.Errorf("[TestIntegerInSlice] Expected `false`, but it returned `%v` for `%v` in slice `%v`", ok, a, sampleSlice)
-	}
-}
-
-// Testing for `string is integer value?`
-func TestIsIntString(t *testing.T) {
-
-	validValues := []string{"10", "+10", "-100"}
-	invalidValues := []string{"+", "a", "1000.123", "-1.123"}
-
-	// CASE: POSITIVE
-	for _, value := range validValues {
-		ok := IsIntString(value)
-		if !ok {
-			t.Errorf("[TestIsIntString] Expected `true`, but it returned `%v` for `%s`", ok, value)
-		}
-	}
-
-	// CASE: NEGATIVE
-	for _, value := range invalidValues {
-		ok := IsIntString(value)
-		if ok {
-			t.Errorf("[TestIsIntString] Expected `false`, but it returned `%v` for `%s`", ok, value)
-		}
-	}
-}
-
-// Testing for `string is positive integer value?`
-func TestIsUIntString(t *testing.T) {
-
-	validValues := []string{"10", "0"}
-	invalidValues := []string{"+", "a", "1000.123", "-1.123"}
-
-	// CASE: POSITIVE
-	for _, value := range validValues {
-		ok := IsUIntString(value)
-		if !ok {
-			t.Errorf("[TestIsUIntString] Expected `true`, but it returned `%v` for `%s`", ok, value)
-		}
-	}
-
-	// CASE: NEGATIVE
-	for _, value := range invalidValues {
-		ok := IsUIntString(value)
-		if ok {
-			t.Errorf("[TestIsUIntString] Expected `false`, but it returned `%v` for `%s`", ok, value)
-		}
-	}
-}
-
-// Testing for `string is float value?`
-func TestIsFloatString(t *testing.T) {
-
-	validValues := []string{"10.0", "0", "-100.123", "10"}
-	invalidValues := []string{"+", "a"}
-
-	// CASE: POSITIVE
-	for _, value := range validValues {
-		ok := IsFloatString(value)
-		if !ok {
-			t.Errorf("[TestIsFloatString] Expected `true`, but it returned `%v` for `%s`", ok, value)
-		}
-	}
-
-	// CASE: NEGATIVE
-	for _, value := range invalidValues {
-		ok := IsFloatString(value)
-		if ok {
-			t.Errorf("[TestIsFloatString] Expected `false`, but it returned `%v` for `%s`", ok, value)
-		}
 	}
 }
 

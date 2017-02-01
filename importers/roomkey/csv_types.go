@@ -1,11 +1,9 @@
 package roomkey
 
 import (
-	"fmt"
 	"reflect"
 	"rentroll/importers/core"
 	"rentroll/rcsv"
-	"rentroll/rlib"
 	"strings"
 )
 
@@ -177,99 +175,6 @@ func loadRoomKeyCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
 	}
 
 	return rowLoaded, csvRow.Elem().Interface().(CSVRow)
-}
-
-// validateRoomKeyCSVRow validates csv field of roomkey
-// Dont perform validation while loading data in CSVRow struct
-// (in LoadRoomKeyCSVRow function as it decides when to stop parsing)
-func validateRoomKeyCSVRow(roomKeyCSVRow *CSVRow, rowIndex int) []error {
-	rowErrs := []error{}
-
-	// fill data according to headers length
-	reflectedRoomKeyCSVRow := reflect.ValueOf(roomKeyCSVRow).Elem()
-
-	for i := 0; i < len(csvCols); i++ {
-		fieldName := reflect.TypeOf(*roomKeyCSVRow).Field(i).Name
-		fieldValue := reflectedRoomKeyCSVRow.Field(i).Interface().(string)
-		err := validateCSVField(fieldName, fieldValue, rowIndex+1)
-		if err != nil {
-			rowErrs = append(rowErrs, err)
-		}
-	}
-
-	return rowErrs
-}
-
-// validateCSVField validates csv field of roomkey
-func validateCSVField(field string, value string, rowIndex int) error {
-	rule, ok := csvRowFieldRules[field]
-
-	// if not found then simple return
-	if !ok {
-		return nil
-	}
-
-	fieldType, fieldBlankAllow := rule["type"], rule["blank"]
-
-	// check with blank rule
-	if fieldBlankAllow == "true" && value == "" {
-		return nil
-	}
-
-	// if blank is not allowed and value is blank then return with error
-	if fieldBlankAllow == "false" && value == "" {
-		return fmt.Errorf("\"%s\" has blank value at row \"%d\"", field, rowIndex)
-	}
-
-	// check with field type
-	switch fieldType {
-	case "int":
-		ok := core.IsIntString(value)
-		if !ok {
-			return fmt.Errorf("\"%s\" has no valid integer number value at row \"%d\"", field, rowIndex)
-		}
-		return nil
-	case "uint":
-		ok := core.IsUIntString(value)
-		if !ok {
-			return fmt.Errorf("\"%s\" has no valid positive integer number value at row \"%d\"", field, rowIndex)
-		}
-		return nil
-	case "float":
-		ok := core.IsFloatString(value)
-		if !ok {
-			return fmt.Errorf("\"%s\" has no valid integer number value at row \"%d\"", field, rowIndex)
-		}
-		return nil
-	case "email":
-		ok := core.IsValidEmail(value)
-		if !ok {
-			return fmt.Errorf("\"%s\" has no valid email value at row \"%d\"", field, rowIndex)
-		}
-		return nil
-	case "phone":
-		ok := core.IsValidPhone(value)
-		if !ok {
-			return fmt.Errorf("\"%s\" has no valid phone number value at row \"%d\"", field, rowIndex)
-		}
-		return nil
-	case "date":
-		_, err := rlib.StringToDate(value)
-		if err != nil {
-			return fmt.Errorf("\"%s\" has no valid date value at row \"%d\"", field, rowIndex)
-		}
-		return nil
-	case "rentable_status":
-		//ok, _ := IsValidRentableStatus(value)
-		ok := true
-		if !ok {
-			return fmt.Errorf("\"%s\" has no valid rentable status value at row \"%d\"", field, rowIndex)
-		}
-		return nil
-	default:
-		return nil
-	}
-
 }
 
 // loadRoomKeyCSVRow used to load data from slice

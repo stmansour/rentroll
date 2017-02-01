@@ -41,10 +41,10 @@ func rpnPrintStack(ctx *RpnCtx) {
 // RpnInit initializes the Rpn calculator routines
 func RpnInit() {
 	rpnVariable = regexp.MustCompile("{(.*)}")
-	rpnOperator = regexp.MustCompile("[\\-+*/%]")
-	rpnNumber = regexp.MustCompile("^\\d+\\.?[0-9]+")
-	rpnFunction = regexp.MustCompile("([a-zA-Z]+)\\(([^\\)]+)\\)")
-	rpnASM = regexp.MustCompile("^ASM\\(([^)]+)\\)")
+	rpnOperator = regexp.MustCompile(`[\-+*/%]`)
+	rpnNumber = regexp.MustCompile(`^\d+\.?[0-9]+`)
+	rpnFunction = regexp.MustCompile(`([a-zA-Z]+)\(([^\)]+)\)`)
+	rpnASM = regexp.MustCompile(`^ASM\(([^)]+)\)`)
 }
 
 func rpnPop(ctx *RpnCtx) float64 {
