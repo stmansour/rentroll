@@ -40,7 +40,7 @@ func Ulog(format string, a ...interface{}) {
 // Stripchars returns a string with the characters from chars removed
 func Stripchars(str, chars string) string {
 	return strings.Map(func(r rune) rune {
-		if strings.IndexRune(chars, r) < 0 {
+		if !strings.ContainsRune(chars, r) {
 			return r
 		}
 		return -1

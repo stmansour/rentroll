@@ -145,7 +145,7 @@ func UpdateSubLedgerMarkers(bid int64, d2 *time.Time) {
 
 		// fmt.Printf("LedgerEntries for RAID = %d between %s - %s:  %d\n", ra.RAID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), len(m))
 
-		LIDprocessed := make(map[int64]int, 0)
+		LIDprocessed := make(map[int64]int)
 
 		// Spin through all the transactions for this RAID...
 		for i := 0; i < len(m); i++ {

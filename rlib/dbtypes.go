@@ -1333,7 +1333,7 @@ func buildBusinessDesignationMap() map[string]int64 {
 func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.Dbdir = dbdir
 	RRdb.Dbrr = dbrr
-	RRdb.BizTypes = make(map[int64]*BusinessTypeLists, 0)
+	RRdb.BizTypes = make(map[int64]*BusinessTypeLists)
 	buildPreparedStatements()
 	buildPBPreparedStatements()
 	RRdb.BUDlist = buildBusinessDesignationMap()
