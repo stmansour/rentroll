@@ -186,23 +186,32 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 		tnow := time.Now()
 		ui.D1 = time.Date(tnow.Year(), tnow.Month(), 1, 0, 0, 0, 0, time.UTC)
-		ui.D2 = tnow.AddDate(0, 1, 0)
+		nm := int(ui.D1.Month()) + 1
+		yr := ui.D1.Year()
+		if nm > int(time.December) {
+			nm = int(time.January)
+			yr++
+		}
+		ui.D2 = time.Date(yr, time.Month(nm), 1, 0, 0, 0, 0, time.UTC)
 		x, ok = m["dtstart"]
-		if ok {
-			ui.D1, err = rlib.StringToDate(x[0])
-			if err != nil {
-				ui.ReportContent = fmt.Sprintf("Error with dtstart value:  %s", err.Error())
-				SendWebSvcPage(w, r, &ui)
-				return
+		var d1 time.Time
+		if ok && len(x[0]) > 0 {
+			d1, err = rlib.StringToDate(x[0])
+			if err == nil {
+				ui.D1 = d1
+				// ui.ReportContent = fmt.Sprintf("Error with dtstart value:  %s", err.Error())
+				// SendWebSvcPage(w, r, &ui)
+				// return
 			}
 		}
 		x, ok = m["dtstop"]
-		if ok {
-			ui.D2, err = rlib.StringToDate(x[0])
-			if err != nil {
-				ui.ReportContent = fmt.Sprintf("Error with dtstop value:  %s", err.Error())
-				SendWebSvcPage(w, r, &ui)
-				return
+		if ok && len(x[0]) > 0 {
+			d1, err = rlib.StringToDate(x[0])
+			if err == nil {
+				ui.D2 = d1
+				// ui.ReportContent = fmt.Sprintf("Error with dtstop value:  %s", err.Error())
+				// SendWebSvcPage(w, r, &ui)
+				// return
 			}
 		}
 	}
