@@ -165,7 +165,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 		saveRentalAgreement(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("Unhandled command: %s\n", d.webreq.Cmd)
+		err = fmt.Errorf("Unhandled command: %s", d.webreq.Cmd)
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -195,7 +195,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s\n", err.Error())
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
@@ -210,7 +210,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
@@ -218,7 +218,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
 	if !ok {
-		e := fmt.Errorf("Could not map BID value: %s\n", bar.BID.ID)
+		e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
@@ -230,7 +230,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	// Now just update the database
 	err = rlib.UpdateRentalAgreement(&a)
 	if err != nil {
-		e := fmt.Errorf("Error updating Rental Agreement RAID = %d: %s\n", a.RAID, err.Error())
+		e := fmt.Errorf("Error updating Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}

@@ -48,7 +48,7 @@ func CreateSourceCSV(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			return CsvErrorSensitivity, fmt.Errorf("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[BUD])
+			return CsvErrorSensitivity, fmt.Errorf("CreateRentalSpecialtyType: rlib.Business named %s not found", sa[BUD])
 		}
 	}
 	a.BID = b.BID
@@ -61,7 +61,7 @@ func CreateSourceCSV(sa []string, lineno int) (int, error) {
 		var src rlib.DemandSource
 		rlib.GetDemandSourceByName(b.BID, s, &src)
 		if len(src.Name) > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - DemandSource named %s already exists.\n", funcname, lineno, s)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - DemandSource named %s already exists", funcname, lineno, s)
 		}
 	}
 	a.Name = s
@@ -73,7 +73,7 @@ func CreateSourceCSV(sa []string, lineno int) (int, error) {
 
 	_, err = rlib.InsertDemandSource(&a)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting DemandSource: %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting DemandSource: %v", funcname, lineno, err)
 	}
 
 	return 0, nil

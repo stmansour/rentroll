@@ -62,7 +62,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 	}
 
@@ -74,7 +74,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found", funcname, lineno, rpname)
 		}
 	}
 
@@ -89,7 +89,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	dt := sa[DtStart]
 	a.DtStart, err = rlib.StringToDate(dt)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[DtStart])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s", funcname, lineno, sa[DtStart])
 	}
 
 	//-------------------------------------------------------------------
@@ -98,7 +98,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	dt = sa[DtStop]
 	a.DtStop, err = rlib.StringToDate(dt)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[DtStop])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[DtStop])
 	}
 
 	//-------------------------------------------------------------------
@@ -106,7 +106,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.FeeAppliesAge, err = rlib.IntFromString(sa[FeeAppliesAge], "Invalid FeeAppliesAge")
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, err.Error())
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s", funcname, lineno, err.Error())
 	}
 
 	//-------------------------------------------------------------------
@@ -114,7 +114,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.MaxNoFeeUsers, err = rlib.IntFromString(sa[MaxNoFeeUsers], "Invalid MaxNoFeeUsers")
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, err.Error())
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s", funcname, lineno, err.Error())
 	}
 
 	//-------------------------------------------------------------------
@@ -122,7 +122,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.AdditionalUserFee, errmsg = rlib.FloatFromString(sa[AdditionalUserFee], "Invalid Additional User Fee")
 	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[AdditionalUserFee])
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s", funcname, lineno, sa[AdditionalUserFee])
 	}
 
 	//-------------------------------------------------------------------
@@ -130,7 +130,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.CancellationFee, errmsg = rlib.FloatFromString(sa[CancellationFee], "Invalid Cancellation Fee")
 	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s\n", funcname, lineno, sa[CancellationFee])
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  -  Invalid number: %s", funcname, lineno, sa[CancellationFee])
 	}
 
 	//-------------------------------------------------------------------
@@ -149,7 +149,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 			case "hide":
 				a.FLAGS |= rlib.FlRTRRefHide // do not show this rate plan to users
 			default:
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unrecognized export flag: %s\n", funcname, lineno, ssa[i])
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Unrecognized export flag: %s", funcname, lineno, ssa[i])
 			}
 		}
 	}
@@ -160,7 +160,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	a.RPID = rp.RPID
 	_, err = rlib.InsertRatePlanRef(&a)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - error inserting RatePlanRef = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - error inserting RatePlanRef = %v", funcname, lineno, err)
 	}
 	return 0, nil
 }

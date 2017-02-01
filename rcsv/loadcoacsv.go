@@ -72,7 +72,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		// fmt.Printf("Looking for BUD:  %s\n", des)
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		lm.BID = b1.BID
 		l.BID = b1.BID
@@ -94,7 +94,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		// fmt.Printf("0.1  -  s = %s,  i = %d\n", s, i)
 
 		if err != nil || !(i == 0 || (rlib.GLCASH <= i && i <= rlib.GLLAST)) {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Default value for account %s: %s.  Value must blank, 0, or between %d and %d\n",
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Default value for account %s: %s.  Value must blank, 0, or between %d and %d",
 				funcname, lineno, sa[2], s, rlib.GLCASH, rlib.GLLAST)
 		}
 		l1 := rlib.GetLedgerByType(l.BID, int64(i))
@@ -109,7 +109,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 
 		// fmt.Printf("0.25:  lm1 = %#v\n", lm1)
 		if lm1.LMID == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No default rlib.LedgerMarker for business %d, type = %d\n", funcname, lineno, l.BID, l.Type)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No default rlib.LedgerMarker for business %d, type = %d", funcname, lineno, l.BID, l.Type)
 		}
 		// fmt.Println("0.3")
 		lm = lm1 // we're just going to update the existing information
@@ -128,18 +128,18 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	g := strings.TrimSpace(sa[2])
 	if len(g) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - You must suppy a GL Number for this entry\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - You must suppy a GL Number for this entry", funcname, lineno)
 	}
 	if len(g) > 0 {
 		// if we're inserting a record then it must not already exist
 		if inserting {
 			ldg := rlib.GetLedgerByGLNo(lm.BID, g)
 			if ldg.LID > 0 {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Account already exists: %s\n", funcname, lineno, g)
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Account already exists: %s", funcname, lineno, g)
 			}
 			// // was there an error in finding an account with this GLNo?
 			// if !rlib.IsSQLNoResultsError(err) {
-			// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d, GL Account %s already exists\n", funcname, lineno, g)
+			// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d, GL Account %s already exists", funcname, lineno, g)
 			// 	return rs,CsvErrorSensitivity
 			// }
 		}
@@ -155,7 +155,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	if len(g) > 0 {
 		parent := rlib.GetLedgerByGLNo(l.BID, g)
 		if parent.LID == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error getting GLAccount: %s\n", funcname, lineno, g)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error getting GLAccount: %s", funcname, lineno, g)
 		}
 		l.PLID = parent.LID
 	}
@@ -179,7 +179,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	if len(g) > 0 {
 		x, err := strconv.ParseFloat(g, 64)
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid balance: %s\n", funcname, lineno, sa[6])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid balance: %s", funcname, lineno, sa[6])
 		}
 		lm.Balance = x
 	}
@@ -194,7 +194,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	} else if "inactive" == s {
 		l.Status = rlib.ACCTSTATUSINACTIVE
 	} else {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid account status: %s\n", funcname, lineno, sa[7])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid account status: %s", funcname, lineno, sa[7])
 	}
 
 	// fmt.Println("F")
@@ -207,7 +207,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	} else if "unassociated" == s || s == "n" || s == "no" || s == "0" {
 		l.RAAssociated = rlib.RAUNASSOCIATED
 	} else {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid associated/unassociated value: %s\n", funcname, lineno, sa[8])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid associated/unassociated value: %s", funcname, lineno, sa[8])
 	}
 
 	// fmt.Println("G")
@@ -218,10 +218,10 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	if len(s) > 0 {
 		i, err := strconv.Atoi(strings.TrimSpace(s))
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s\n", funcname, lineno, s)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s", funcname, lineno, s)
 		}
 		if i < 0 || (2 <= i && i <= 9) || i > rlib.GLLAST {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value is invalid: %s\n", funcname, lineno, s)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value is invalid: %s", funcname, lineno, s)
 		}
 		l.Type = int64(i)
 	}
@@ -231,7 +231,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	DtStop, err := rlib.StringToDate(sa[10])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[10])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[10])
 	}
 	lm.Dt = DtStop
 
@@ -240,7 +240,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	l.AllowPost, err = rlib.YesNoToInt(sa[11])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid value for AllowPost:  %s\n", funcname, lineno, sa[11])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid value for AllowPost:  %s", funcname, lineno, sa[11])
 	}
 
 	//----------------------------------------------------------------------
@@ -251,7 +251,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, err
 	}
 	if RARequired < rlib.RARQDINRANGE || RARequired > rlib.RARQDLAST {
-		return CsvErrorSensitivity, fmt.Errorf("Invalid number for RARequired. Must be a number between %d and %d\n", rlib.RARQDINRANGE, rlib.RARQDLAST)
+		return CsvErrorSensitivity, fmt.Errorf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST)
 	}
 	l.RARequired = RARequired
 
@@ -260,7 +260,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	l.ManageToBudget, err = rlib.YesNoToInt(sa[13])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid yes/no value: %s\n", funcname, lineno, sa[13])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid yes/no value: %s", funcname, lineno, sa[13])
 	}
 
 	//----------------------------------------------------------------------
@@ -288,7 +288,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		lm.LID = l.LID
 	}
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save rlib.GLAccount marker, err = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save rlib.GLAccount marker, err = %v", funcname, lineno, err)
 	}
 
 	// Now update the markers
@@ -298,7 +298,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		err = rlib.UpdateLedgerMarker(&lm)
 	}
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save rlib.GLAccount marker, err = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save rlib.GLAccount marker, err = %v", funcname, lineno, err)
 	}
 
 	return 0, nil

@@ -57,7 +57,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[BUD])
 		}
 	}
 
@@ -69,7 +69,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (int, error) {
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found", funcname, lineno, rpname)
 		}
 	}
 
@@ -83,7 +83,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.RPRID = CSVLoaderGetRPRID(strings.TrimSpace(sa[RPRID]))
 	if 0 == a.RPRID {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[RPRID])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Bad value for RatePlanRef ID: %s", funcname, lineno, sa[RPRID])
 	}
 
 	//-------------------------------------------------------------------
@@ -93,7 +93,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (int, error) {
 	name := strings.TrimSpace(sa[RentableType])
 	rt, err := rlib.GetRentableTypeByStyle(name, b.BID)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not load RentableType with Style = %s,  err:  %s\n", funcname, lineno, sa[RentableType], err.Error())
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not load RentableType with Style = %s,  err:  %s", funcname, lineno, sa[RentableType], err.Error())
 	}
 	a.RTID = rt.RTID
 
@@ -105,7 +105,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (int, error) {
 	amt := strings.TrimSpace(sa[Amount])
 	a.Val, errmsg = rlib.FloatFromString(amt, "bad amount")
 	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s\n", funcname, lineno, errmsg)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s", funcname, lineno, errmsg)
 	}
 	if strings.Contains(amt, "%") {
 		a.FLAGS |= rlib.FlRTRpct
@@ -116,7 +116,7 @@ func CreateRatePlanRefRTRate(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	err = rlib.InsertRatePlanRefRTRate(&a)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RatePlanRefRTRate = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RatePlanRefRTRate = %v", funcname, lineno, err)
 	}
 	return 0, nil
 }

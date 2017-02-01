@@ -46,7 +46,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b := rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business named %s not found\n", funcname, lineno, des)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business named %s not found", funcname, lineno, des)
 		}
 		pt.BID = b.BID
 	}
@@ -56,7 +56,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (int, error) {
 
 	rlib.GetPaymentTypeByName(pt.BID, pt.Name, &dup)
 	if dup.PMTID > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Payment type named %s already exists.  Skipping...\n", funcname, lineno, pt.Name)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping because payment type named %s already exists", funcname, lineno, pt.Name)
 	}
 
 	//-------------------------------------------------------------------
@@ -64,7 +64,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	err = rlib.InsertPaymentType(&pt)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting PaymentType = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting PaymentType = %v", funcname, lineno, err)
 	}
 
 	return 0, nil

@@ -41,17 +41,17 @@ func CreateNoteTypes(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		nt.BID = b1.BID
 	}
 	nt.Name = strings.TrimSpace(sa[1])
 	if len(nt.Name) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No Name found for the NoteType\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No Name found for the NoteType", funcname, lineno)
 	}
 	_, err = rlib.InsertNoteType(&nt)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error inserting NoteType.  err = %s\n", funcname, lineno, err.Error())
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error inserting NoteType.  err = %s", funcname, lineno, err.Error())
 	}
 	return 0, nil
 }

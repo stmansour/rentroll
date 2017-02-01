@@ -126,7 +126,7 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		saveRentable(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("Unhandled command: %s\n", d.webreq.Cmd)
+		err = fmt.Errorf("Unhandled command: %s", d.webreq.Cmd)
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -148,7 +148,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var foo gxrentableForm
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s\n", err.Error())
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
@@ -161,21 +161,21 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var bar gxrentableOther
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s\n", err.Error())
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
 	if !ok {
-		e := fmt.Errorf("Could not map BID value: %s\n", bar.BID.ID)
+		e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 	a.AssignmentTime, ok = rlib.AssignmentTimeMap[bar.AssignmentTime.ID]
 	if !ok {
-		e := fmt.Errorf("Could not map AssignmentTime value: %s\n", bar.AssignmentTime.ID)
+		e := fmt.Errorf("Could not map AssignmentTime value: %s", bar.AssignmentTime.ID)
 		SvcGridErrorReturn(w, e)
 		return
 	}
@@ -183,7 +183,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Now just update the database
 	err = rlib.UpdateRentable(&a)
 	if err != nil {
-		e := fmt.Errorf("Error updating rentable: %s\n", err.Error())
+		e := fmt.Errorf("Error updating rentable: %s", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}

@@ -39,7 +39,7 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 	s := ri.Xbiz.P.Designation + "\n"
 	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
 	if err != nil {
-		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
 		return s, e
 	}
 	if bu.CoCode == 0 {
@@ -47,7 +47,7 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 	} else {
 		c, err := rlib.GetCompany(int64(bu.CoCode))
 		if err != nil {
-			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v\n", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
+			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
 			return s, e
 		}
 		s += fmt.Sprintf("%s\n", c.LegalName)

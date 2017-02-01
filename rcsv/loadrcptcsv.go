@@ -43,7 +43,7 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 		// make sure the referenced assessment actually exists
 		a1, _ := rlib.GetAssessment(a.ASMID)
 		if a1.ASMID == 0 {
-			return fmt.Errorf("GenerateReceiptAllocations: Referenced assessment ID %d does not exist\n", a.ASMID)
+			return fmt.Errorf("GenerateReceiptAllocations: Referenced assessment ID %d does not exist", a.ASMID)
 		}
 
 		// for each index in the list, build its part of the AcctRule
@@ -109,7 +109,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	if len(bud) > 0 {
 		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("CreateLedgerMarkers: rlib.Business with designation %s does not exist\n", sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("CreateLedgerMarkers: rlib.Business with designation %s does not exist", sa[0])
 		}
 		r.BID = b1.BID
 		rlib.GetXBusiness(r.BID, &xbiz)
@@ -122,7 +122,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 
 	_, err = rlib.GetRentalAgreement(r.RAID)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[RAID], err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s, err = %v", funcname, lineno, sa[RAID], err)
 	}
 
 	//-------------------------------------------------------------------
@@ -131,7 +131,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	r.PMTID, _ = rlib.IntFromString(sa[PMTID], "Payment type is invalid")
 	_, ok := pmtTypes[r.PMTID]
 	if !ok {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Payment type is invalid: %s\n", funcname, lineno, sa[PMTID])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Payment type is invalid: %s", funcname, lineno, sa[PMTID])
 	}
 
 	//-------------------------------------------------------------------
@@ -139,7 +139,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	dt, err := rlib.StringToDate(sa[Dt])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  invalid rlib.Receipt date:  %s\n", funcname, lineno, sa[Dt])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  invalid rlib.Receipt date:  %s", funcname, lineno, sa[Dt])
 	}
 	r.Dt = dt
 
@@ -165,7 +165,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	if len(r.AcctRule) == 0 || r.PMTID == 0 ||
 		r.Amount == 0 || r.RAID == 0 || r.BID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("Skipping this record\n")
+		return CsvErrorSensitivity, fmt.Errorf("Skipping this record")
 	}
 
 	//-------------------------------------------------------------------
@@ -173,12 +173,12 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	rdup := rlib.GetReceiptDuplicate(&r.Dt, r.Amount, r.DocNo)
 	if rdup.RCPTID != 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing receipt: %s\n", funcname, lineno, rdup.IDtoString())
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing receipt: %s", funcname, lineno, rdup.IDtoString())
 	}
 
 	rcptid, err := rlib.InsertReceipt(&r)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting receipt: %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting receipt: %v", funcname, lineno, err)
 	}
 	r.RCPTID = rcptid
 
@@ -189,7 +189,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	if err != nil {
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error processing receipt: %s\n", funcname, lineno, err.Error())
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error processing receipt: %s", funcname, lineno, err.Error())
 	}
 
 	//-------------------------------------------------------------------
@@ -213,7 +213,7 @@ func LoadReceiptsCSV(fname string) []error {
 		if len(des) > 0 {
 			b := rlib.GetBusinessByDesignation(des)
 			if b.BID < 1 {
-				err := fmt.Errorf("LoadReceiptsCSV: rlib.Business named %s not found\n", des)
+				err := fmt.Errorf("LoadReceiptsCSV: rlib.Business named %s not found", des)
 				m = append(m, err)
 				return m
 			}

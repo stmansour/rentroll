@@ -12,7 +12,7 @@ func InvoiceTextReport(id int64) error {
 	funcname := "InvoiceTextReport"
 	inv, err := rlib.GetInvoice(id)
 	if err != nil {
-		e := fmt.Errorf("%s: error getting invoice - %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: error getting invoice - %s", funcname, err.Error())
 		return e
 	}
 
@@ -21,12 +21,12 @@ func InvoiceTextReport(id int64) error {
 
 	bu, err := rlib.GetBusinessUnitByDesignation(biz.Designation)
 	if err != nil {
-		e := fmt.Errorf("%s: error getting BusinessUnit - %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
 		return e
 	}
 	c, err := rlib.GetCompany(int64(bu.CoCode))
 	if err != nil {
-		e := fmt.Errorf("%s: error getting Company - %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: error getting Company - %s", funcname, err.Error())
 		return e
 	}
 

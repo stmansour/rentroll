@@ -56,7 +56,7 @@ func CreateBuilding(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, des)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, des)
 		}
 		b.BID = b1.BID
 	}
@@ -67,7 +67,7 @@ func CreateBuilding(sa []string, lineno int) (int, error) {
 	if len(sa[1]) > 0 {
 		i, err := strconv.Atoi(sa[1])
 		if err != nil || i < 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid rlib.Building number: %s\n", funcname, lineno, sa[1])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid rlib.Building number: %s", funcname, lineno, sa[1])
 		}
 		b.BLDGID = int64(i)
 	}
@@ -84,7 +84,7 @@ func CreateBuilding(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	_, err = rlib.InsertBuildingWithID(&b)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Building = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Building = %v", funcname, lineno, err)
 	}
 	return 0, nil
 }

@@ -146,7 +146,7 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 
 	// determine the rentable type for time dt
 	if rt.RTID == 0 {
-		err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d during period %s\n", r.RID, dt.Format(RRDATEINPFMT))
+		err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d during period %s", r.RID, dt.Format(RRDATEINPFMT))
 		return 0, 0, 0, err // this is bad! No RTID for the supplied time range
 	}
 	if prorationCycle < 0 { // if there was no override..
@@ -299,7 +299,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 
 	rta := GetRentableTypeRefsByRange(r.RID, d1, d2) // get the list
 	if len(rta) == 0 {
-		err = fmt.Errorf("%s:  No valid RTID for rentable R%08d during period %s to %s\n",
+		err = fmt.Errorf("%s:  No valid RTID for rentable R%08d during period %s to %s",
 			funcname, r.RID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 		Ulog("%s", err.Error())
 		return gsr, m, period, err // this is bad! No RTID for the supplied time range
@@ -323,7 +323,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		//--------------------------------------------------------------------
 		rsa, nerr := GetRentableSpecialtyTypesForRentableByRange(r, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
 		if nerr != nil {
-			err = fmt.Errorf("%s:  error getting specialties for rentable R%08d during period %s to %s.  err = %s\n",
+			err = fmt.Errorf("%s:  error getting specialties for rentable R%08d during period %s to %s.  err = %s",
 				funcname, r.RID, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT), nerr.Error())
 			Ulog("%s", err.Error())
 			break

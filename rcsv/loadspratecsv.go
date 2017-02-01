@@ -34,7 +34,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 
 	required := 5
 	if len(sa) < required {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - found %d values, there must be at least %d", funcname, lineno, len(sa), required)
 	}
 
 	//-------------------------------------------------------------------
@@ -47,7 +47,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if len(b.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 	}
 
@@ -63,7 +63,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 	if len(rpname) > 0 {
 		rlib.GetRatePlanByName(b.BID, rpname, &rp)
 		if rp.RPID < 1 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found\n", funcname, lineno, rpname)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found", funcname, lineno, rpname)
 		}
 	}
 
@@ -78,7 +78,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.RPRID = CSVLoaderGetRPRID(strings.TrimSpace(sa[2]))
 	if 0 == a.RPRID {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Bad value for RatePlanRef ID: %s\n", funcname, lineno, sa[2])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Bad value for RatePlanRef ID: %s", funcname, lineno, sa[2])
 	}
 
 	//-------------------------------------------------------------------
@@ -94,7 +94,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		}
 	}
 	if !found {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Specialty with name = %s\n", funcname, lineno, rtname)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Specialty with name = %s", funcname, lineno, rtname)
 	}
 
 	for i := 4; i < len(sa); i += 2 {
@@ -117,7 +117,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 			}
 		}
 		if !found {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Specialty with name = %s\n", funcname, lineno, name)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Specialty with name = %s", funcname, lineno, name)
 		}
 
 		//-------------------------------------------------------------------
@@ -129,7 +129,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		amt := strings.TrimSpace(sa[i+1])
 		p.Val, errmsg = rlib.FloatFromString(amt, "bad amount")
 		if len(errmsg) > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - %s\n", funcname, lineno, errmsg)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - %s", funcname, lineno, errmsg)
 		}
 		if strings.Contains(amt, "%") {
 			p.FLAGS |= rlib.FlSPRpct // mark it as a percentage
@@ -140,7 +140,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		//-------------------------------------------------------------------
 		err = rlib.InsertRatePlanRefSPRate(&p)
 		if nil != err {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RatePlanRefSPRate = %v\n", funcname, lineno, err)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RatePlanRefSPRate = %v", funcname, lineno, err)
 		}
 	}
 	return 0, nil

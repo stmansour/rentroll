@@ -42,7 +42,7 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 	if len(sa[BUD]) > 0 {
 		b1 := rlib.GetBusinessByDesignation(sa[BUD])
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		d.BID = b1.BID
 	}
@@ -52,7 +52,7 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	d.Name = strings.TrimSpace(sa[Name])
 	if len(d.Name) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no name for Depository. Please supply a name\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no name for Depository. Please supply a name", funcname, lineno)
 	}
 
 	//-------------------------------------------------------------------
@@ -60,16 +60,16 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	d.AccountNo = strings.TrimSpace(sa[AccountNo])
 	if len(d.AccountNo) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no AccountNo for Depository. Please supply AccountNo\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no AccountNo for Depository. Please supply AccountNo", funcname, lineno)
 	}
 	dup := rlib.GetDepositoryByAccount(d.BID, d.AccountNo)
 	if dup.DEPID != 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  depository with account number %s already exists\n", funcname, lineno, d.AccountNo)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  depository with account number %s already exists", funcname, lineno, d.AccountNo)
 	}
 
 	_, err = rlib.InsertDepository(&d)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting depository: %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting depository: %v", funcname, lineno, err)
 	}
 	return 0, nil
 }

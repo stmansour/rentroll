@@ -56,7 +56,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	if len(cmpdes) > 0 {
 		b2 := rlib.GetBusinessByDesignation(cmpdes)
 		if b2.BID == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find rlib.Business named %s\n", funcname, lineno, cmpdes)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find rlib.Business named %s", funcname, lineno, cmpdes)
 		}
 		pet.BID = b2.BID
 	}
@@ -67,7 +67,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	pet.RAID = CSVLoaderGetRAID(sa[RAID])
 	_, err = rlib.GetRentalAgreement(pet.RAID)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error loading Rental Agreement %s, err = %v\n", funcname, lineno, sa[0], err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error loading Rental Agreement %s, err = %v", funcname, lineno, sa[0], err)
 	}
 
 	pet.Name = strings.TrimSpace(sa[Name])
@@ -80,7 +80,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	pet.Weight, errmsg = rlib.FloatFromString(sa[Weight], "Weight is invalid")
 	if len(errmsg) > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Weight is invalid: %s  (%s)\n", funcname, lineno, sa[5], errmsg)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Weight is invalid: %s  (%s)", funcname, lineno, sa[5], errmsg)
 	}
 
 	//-------------------------------------------------------------------
@@ -88,7 +88,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	DtStart, err := rlib.StringToDate(sa[Dt1])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[Dt1])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s", funcname, lineno, sa[Dt1])
 	}
 	pet.DtStart = DtStart
 
@@ -100,13 +100,13 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	}
 	DtStop, err := rlib.StringToDate(end)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[Dt2])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[Dt2])
 	}
 	pet.DtStop = DtStop
 
 	_, err = rlib.InsertRentalAgreementPet(&pet)
 	if nil != err {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save pet, err = %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save pet, err = %v", funcname, lineno, err)
 	}
 	return 0, nil
 }

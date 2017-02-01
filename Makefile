@@ -15,6 +15,13 @@ rentroll: ver.go *.go
 	@rm -rf fail
 	test/share/buildcheck.sh BUILD
 
+stats:
+	@echo "GO SOURCE CODE STATISTICS"
+	@echo "----------------------------------------"
+	@find . -name "*.go" | srcstats
+	@echo "----------------------------------------"
+
+
 ver.go:
 	./mkver.sh
 
@@ -69,6 +76,10 @@ pub: pubjs pubimages
 
 
 all: clean rentroll test
-
+	@echo
+	@echo "GO SOURCE CODE STATISTICS"
+	@echo "----------------------------------------"
+	@find . -name "*.go" | srcstats
+	@echo "----------------------------------------"
 
 try: clean rentroll package

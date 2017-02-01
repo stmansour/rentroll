@@ -59,7 +59,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b = rlib.GetBusinessByDesignation(des)
 		if b.BID < 1 {
-			return CsvErrorSensitivity, fmt.Errorf("CreateRentalSpecialtyType: rlib.Business named %s not found\n", sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("CreateRentalSpecialtyType: rlib.Business named %s not found", sa[0])
 		}
 	}
 	a.BID = b.BID
@@ -72,7 +72,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 		// fmt.Printf("Searching: rentable name = %s, BID = %d\n", s, b.BID)
 		r, err = rlib.GetRentableByName(s, b.BID)
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s in Business %d.  Error = %v\n", funcname, lineno, s, b.BID, err)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s in Business %d.  Error = %v", funcname, lineno, s, b.BID, err)
 		}
 	}
 	a.RID = r.RID
@@ -83,7 +83,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 	name := strings.TrimSpace(sa[RentableSpecialty])
 	rsp := rlib.GetRentableSpecialtyTypeByName(r.BID, name)
 	if rsp.RSPID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find a rlib.RentableSpecialty named %s in rlib.Business %d\n", funcname, lineno, name, r.BID)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find a rlib.RentableSpecialty named %s in rlib.Business %d", funcname, lineno, name, r.BID)
 	}
 	a.RSPID = rsp.RSPID
 
@@ -97,7 +97,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 
 	err = rlib.InsertRentableSpecialtyRef(&a)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v", funcname, lineno, err)
 	}
 	return 0, nil
 }

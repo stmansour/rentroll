@@ -87,7 +87,7 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error) {
 func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 	i, err := rlib.IntFromString(s, "not an integer number")
 	if err != nil {
-		err = fmt.Errorf("%s: %s\n", errmsg, err.Error())
+		err = fmt.Errorf("%s: %s", errmsg, err.Error())
 		SvcGridErrorReturn(w, err)
 		return i, err
 	}
@@ -110,7 +110,7 @@ func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (in
 
 	sa := strings.Split(uri[1:], "/")
 	if len(sa) < pos+1 {
-		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d\n", pos+1, uri, len(sa))
+		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d", pos+1, uri, len(sa))
 		SvcGridErrorReturn(w, err)
 		return ID, err
 	}
@@ -130,7 +130,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	fmt.Printf("htmlData = %s\n", htmlData)
 	u, err := url.QueryUnescape(string(htmlData))
 	if err != nil {
-		e := fmt.Errorf("%s: Error with QueryUnescape: %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: Error with QueryUnescape: %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return e
 	}
@@ -143,7 +143,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	}
 	err = json.Unmarshal([]byte(u), &d.webreq)
 	if err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return e
 	}
@@ -256,7 +256,7 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(Svcs); i++ {
 		if Svcs[i].Cmd == requestedSvc {
 			if Svcs[i].NeedBiz && d.BID == 0 {
-				e := fmt.Errorf("Could not identify business: %s\n", abud[0])
+				e := fmt.Errorf("Could not identify business: %s", abud[0])
 				fmt.Printf("***ERROR IN URL***  %s", e.Error())
 				SvcGridErrorReturn(w, err)
 			}
@@ -267,7 +267,7 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if !found {
 		fmt.Printf("**** YIPES! **** %s - Handler not found\n", subURLPath)
-		e := fmt.Errorf("Service not recognized: %s\n", requestedSvc)
+		e := fmt.Errorf("Service not recognized: %s", requestedSvc)
 		fmt.Printf("***ERROR IN URL***  %s", e.Error())
 		SvcGridErrorReturn(w, err)
 	}
@@ -426,7 +426,7 @@ func GetRowCount(table, where string) (int64, error) {
 	s := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s", table, where)
 	de := rlib.RRdb.Dbrr.QueryRow(s).Scan(&count)
 	if de != nil {
-		err = fmt.Errorf("GetRowCount: query=\"%s\"    err = %s\n", s, de.Error())
+		err = fmt.Errorf("GetRowCount: query=\"%s\"    err = %s", s, de.Error())
 	}
 	return count, err
 }

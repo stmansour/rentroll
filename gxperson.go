@@ -209,7 +209,7 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		saveXPerson(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("Unhandled command: %s\n", d.webreq.Cmd)
+		err = fmt.Errorf("Unhandled command: %s", d.webreq.Cmd)
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -242,7 +242,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	err := json.Unmarshal([]byte(s), &gxp)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
@@ -258,14 +258,14 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	err = json.Unmarshal([]byte(s), &gxpo)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 	var ok bool
 	xp.Trn.BID, ok = rlib.RRdb.BUDlist[gxpo.BID.ID]
 	if !ok {
-		e := fmt.Errorf("Could not map BID value: %s\n", gxpo.BID.ID)
+		e := fmt.Errorf("Could not map BID value: %s", gxpo.BID.ID)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
@@ -277,7 +277,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	xp.Trn.State = gxpo.State.ID
 	xp.Usr.EligibleFutureUser, ok = rlib.YesNoMap[gxpo.EligibleFutureUser.ID]
 	if !ok {
-		e := fmt.Errorf("Could not map EligibleFutureUser value: %s\n", gxpo.EligibleFutureUser.ID)
+		e := fmt.Errorf("Could not map EligibleFutureUser value: %s", gxpo.EligibleFutureUser.ID)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
@@ -285,7 +285,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	xp.Psp.EmployerState = gxpo.EmployerState.ID
 	xp.Pay.EligibleFuturePayor, ok = rlib.YesNoMap[gxpo.EligibleFuturePayor.ID]
 	if !ok {
-		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s\n", gxpo.EligibleFuturePayor.ID)
+		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s", gxpo.EligibleFuturePayor.ID)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
@@ -295,27 +295,27 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	err = rlib.UpdateTransactant(&xp.Trn)
 	if err != nil {
-		e := fmt.Errorf("%s: UpdateTransactant error:  %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 	err = rlib.UpdateUser(&xp.Usr)
 	if err != nil {
-		e := fmt.Errorf("%s: UpdateUser error:  %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
 	err = rlib.UpdateProspect(&xp.Psp)
 	if err != nil {
-		e := fmt.Errorf("%s: UpdateProspect error:  %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
 	err = rlib.UpdatePayor(&xp.Pay)
 	if err != nil {
-		e := fmt.Errorf("%s: UpdatePayor err.Pay %s\n", funcname, err.Error())
+		e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}

@@ -73,18 +73,18 @@ func ValidateCSVColumnsErr(csvCols []CSVColumn, sa []string, funcname string, li
 			if i < l {
 				s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
 				if s != strings.ToLower(csvCols[i].Name) {
-					return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %s, found %s\n", funcname, lineno, i, csvCols[i].Name, sa[i])
+					return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %s, found %s", funcname, lineno, i, csvCols[i].Name, sa[i])
 				}
 			}
 		}
-		return true, fmt.Errorf("%s: line %d - found %d values, there must be at least %d\n", funcname, lineno, len(sa), required)
+		return true, fmt.Errorf("%s: line %d - found %d values, there must be at least %d", funcname, lineno, len(sa), required)
 	}
 
 	if lineno == 1 {
 		for i := 0; i < len(csvCols); i++ {
 			s := rlib.Stripchars(strings.ToLower(strings.TrimSpace(sa[i])), " ")
 			if s != strings.ToLower(csvCols[i].Name) {
-				return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %s, found %s\n", funcname, lineno, i, csvCols[i].Name, sa[i])
+				return true, fmt.Errorf("%s: line %d - Error at column heading %d, expected %s, found %s", funcname, lineno, i, csvCols[i].Name, sa[i])
 			}
 		}
 	}
@@ -157,22 +157,22 @@ func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname st
 	// var noerr error
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
 	if len(s2) == 0 {
-		return m, fmt.Errorf("%s: line %d - Required Payor field is blank\n", funcname, lineno)
+		return m, fmt.Errorf("%s: line %d - Required Payor field is blank", funcname, lineno)
 	}
 	s1 := strings.Split(s2, ";")
 	for i := 0; i < len(s1); i++ {
 		ss := strings.Split(s1[i], ",")
 		if len(ss) != 3 {
-			return m, fmt.Errorf("%s: line %d - invalid Payor Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+			return m, fmt.Errorf("%s: line %d - invalid Payor Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"",
 				funcname, lineno, len(ss), ss)
 		}
 		s = strings.TrimSpace(ss[0]) // either the email address or the phone number or TransactantID (TC0003234)
 		if len(s) == 0 {
-			return m, fmt.Errorf("%s: line %d - Required Payor field is blank\n", funcname, lineno)
+			return m, fmt.Errorf("%s: line %d - Required Payor field is blank", funcname, lineno)
 		}
 		n, _ := CSVLoaderTransactantList(BID, s)
 		if len(n) == 0 {
-			return m, fmt.Errorf("%s:  line %d - could not find rlib.Transactant with contact information %s\n", funcname, lineno, s)
+			return m, fmt.Errorf("%s:  line %d - could not find rlib.Transactant with contact information %s", funcname, lineno, s)
 		}
 
 		var payor rlib.RentalAgreementPayor
@@ -197,24 +197,24 @@ func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, l
 	var m []rlib.RentableUser
 	s2 := strings.TrimSpace(sa) // TCID, email address, or the phone number
 	if len(s2) == 0 {
-		return m, fmt.Errorf("%s: line %d - Required User field is blank\n", funcname, lineno)
+		return m, fmt.Errorf("%s: line %d - Required User field is blank", funcname, lineno)
 	}
 	s1 := strings.Split(s2, ";")
 	var noerr error
 	for i := 0; i < len(s1); i++ {
 		ss := strings.Split(s1[i], ",")
 		if len(ss) != 3 {
-			err := fmt.Errorf("%s: line %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"\n",
+			err := fmt.Errorf("%s: line %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"",
 				funcname, lineno, len(ss), ss)
 			return m, err
 		}
 		s := strings.TrimSpace(ss[0]) // TCID, email address, or the phone number
 		if len(s) == 0 {
-			return m, fmt.Errorf("%s: line %d - Required User field is blank\n", funcname, lineno)
+			return m, fmt.Errorf("%s: line %d - Required User field is blank", funcname, lineno)
 		}
 		n, err := CSVLoaderTransactantList(BID, s)
 		if err != nil {
-			return m, fmt.Errorf("%s: line %d - invalid person identifier: %s. Error = %s\n", funcname, lineno, s, err.Error())
+			return m, fmt.Errorf("%s: line %d - invalid person identifier: %s. Error = %s", funcname, lineno, s, err.Error())
 		}
 		var p rlib.RentableUser
 		p.TCID = n[0].TCID

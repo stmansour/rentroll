@@ -60,7 +60,7 @@ func XJSONprocess(a, b *reflect.Value) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("XJSONmap - no conversion between: %s and %s\n", at, bt)
+	return fmt.Errorf("XJSONmap - no conversion between: %s and %s", at, bt)
 }
 
 // XJSONAssignmentTime is a UI converter: backend int64, Front End string

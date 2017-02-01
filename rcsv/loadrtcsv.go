@@ -76,7 +76,7 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	var a rlib.RentableType
 	bid := GetBusinessBID(des)
 	if bid == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - rlib.Business named %s not found\n", funcname, lineno, sa[0])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - rlib.Business named %s not found", funcname, lineno, sa[0])
 	}
 
 	a.BID = bid
@@ -84,10 +84,10 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	if len(a.Style) > 0 {
 		rt, err := rlib.GetRentableTypeByStyle(a.Style, bid)
 		if nil != err && !rlib.IsSQLNoResultsError(err) {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - err = %v\n", funcname, lineno, err)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - err = %v", funcname, lineno, err)
 		}
 		if rt.RTID > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: rlib.RentableType named %s already exists\n", funcname, lineno, DupRentableType, a.Style)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: rlib.RentableType named %s already exists", funcname, lineno, DupRentableType, a.Style)
 		}
 	}
 
@@ -98,28 +98,28 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	n, err := strconv.Atoi(strings.TrimSpace(sa[3])) // frequency
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental frequency: %s\n", funcname, lineno, sa[3])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental frequency: %s", funcname, lineno, sa[3])
 	}
 	a.RentCycle = int64(n)
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[4])) // Proration
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental proration frequency: %s\n", funcname, lineno, sa[4])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental proration frequency: %s", funcname, lineno, sa[4])
 	}
 	a.Proration = int64(n)
 	if a.Proration > a.RentCycle {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration frequency (%d) must be greater than rental frequency (%d)\n", funcname, lineno, a.Proration, a.RentCycle)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration frequency (%d) must be greater than rental frequency (%d)", funcname, lineno, a.Proration, a.RentCycle)
 	}
 
 	n, err = strconv.Atoi(strings.TrimSpace(sa[5])) // Proration
 	if err != nil || !rlib.IsValidAccrual(int64(n)) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental GSRPC: %s\n", funcname, lineno, sa[5])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid rental GSRPC: %s", funcname, lineno, sa[5])
 	}
 	a.GSRPC = int64(n)
 
 	n64, err := rlib.YesNoToInt(strings.TrimSpace(sa[6])) // manage to budget
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid manage to budget flag: %s\n", funcname, lineno, sa[6])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid manage to budget flag: %s", funcname, lineno, sa[6])
 	}
 	a.ManageToBudget = int64(n64)
 
@@ -136,21 +136,21 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 			var m rlib.RentableMarketRate
 			m.RTID = rtid
 			if x, err = strconv.ParseFloat(strings.TrimSpace(sa[i]), 64); err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid floating point number: %s   err = %s\n", funcname, lineno, sa[i], err.Error())
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid floating point number: %s   err = %s", funcname, lineno, sa[i], err.Error())
 			}
 			m.MarketRate = x
 			DtStart, err := rlib.StringToDate(sa[i+1])
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[i+1])
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s", funcname, lineno, sa[i+1])
 			}
 			m.DtStart = DtStart
 			DtStop, err := rlib.StringToDate(sa[i+2])
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[i+2])
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[i+2])
 			}
 			m.DtStop = DtStop
 			if m.DtStart.After(m.DtStop) {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Stop date (%s) must be after Start date (%s)\n", funcname, lineno, m.DtStop, m.DtStart)
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Stop date (%s) must be after Start date (%s)", funcname, lineno, m.DtStop, m.DtStart)
 			}
 			m.BID = a.BID
 			rlib.InsertRentableMarketRates(&m)

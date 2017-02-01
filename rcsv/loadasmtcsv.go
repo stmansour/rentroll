@@ -95,7 +95,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		rlib.InitBizInternals(b1.BID, &xbiz) // this initializes a number of internal variables that the internals need and is efficient if they are already loaded
 		Rcsv.Xbiz = &xbiz
@@ -109,7 +109,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	if len(s) > 0 {
 		r, err = rlib.GetRentableByName(s, a.BID)
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s.  Error = %v\n", funcname, lineno, s, err)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s.  Error = %v", funcname, lineno, s, err)
 		}
 		a.RID = r.RID
 	}
@@ -119,13 +119,13 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	d1, err := rlib.StringToDate(sa[4])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s\n", funcname, lineno, sa[4])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid start date:  %s", funcname, lineno, sa[4])
 	}
 	a.Start = d1
 
 	d2, err := rlib.StringToDate(sa[5])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s\n", funcname, lineno, sa[5])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[5])
 	}
 	a.Stop = d2
 
@@ -139,7 +139,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	rlib.RRdb.BizTypes[a.BID].GLAccounts = rlib.GetGLAccountMap(a.BID)
 	gla, ok := rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
 	if !ok {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Assessment type is invalid: %s\n", funcname, lineno, sa[2])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Assessment type is invalid: %s", funcname, lineno, sa[2])
 	}
 
 	//-------------------------------------------------------------------
@@ -155,7 +155,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 			rs := fmt.Sprintf("%s: line %d - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: %d\n",
 				funcname, lineno, gla.RARequired)
 			rs += fmt.Sprintf("Rental Agreement start/stop: %s - %s \n", ra.AgreementStart.Format(rlib.RRDATEFMT3), ra.AgreementStop.Format(rlib.RRDATEFMT3))
-			return CsvErrorSensitivity, fmt.Errorf("%s      Assessment start/stop: %s - %s \n", rs, a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+			return CsvErrorSensitivity, fmt.Errorf("%s      Assessment start/stop: %s - %s ", rs, a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
 		}
 	}
 
@@ -169,7 +169,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.RentCycle, _ = rlib.IntFromString(sa[7], "Accrual value is invalid")
 	if !rlib.IsValidAccrual(a.RentCycle) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Accrual must be between %d and %d.  Found %s\n", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, sa[7])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Accrual must be between %d and %d.  Found %s", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, sa[7])
 	}
 
 	//-------------------------------------------------------------------
@@ -177,10 +177,10 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.ProrationCycle, _ = rlib.IntFromString(sa[8], "Proration value is invalid")
 	if !rlib.IsValidAccrual(a.ProrationCycle) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration must be between %d and %d.  Found %d\n", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, a.ProrationCycle)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration must be between %d and %d.  Found %d", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, a.ProrationCycle)
 	}
 	if a.ProrationCycle > a.RentCycle {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)\n", funcname, lineno, a.ProrationCycle, a.RentCycle)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)", funcname, lineno, a.ProrationCycle, a.RentCycle)
 	}
 
 	//-------------------------------------------------------------------
@@ -200,30 +200,30 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	// Make sure everything that needs to be set actually got set...
 	//-------------------------------------------------------------------
 	if len(a.AcctRule) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as there is no AcctRule\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as there is no AcctRule", funcname, lineno)
 	}
 	if a.Amount == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the Amount is 0\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the Amount is 0", funcname, lineno)
 	}
 	if a.RID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the rlib.Rentable ID could not be found\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the rlib.Rentable ID could not be found", funcname, lineno)
 	}
 	if a.BID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the rlib.Business could not be found\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the rlib.Business could not be found", funcname, lineno)
 	}
 
 	if a.RAID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the Rental Agreement could not be found\n", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the Rental Agreement could not be found", funcname, lineno)
 	}
 
 	adup := rlib.GetAssessmentDuplicate(&a.Start, a.Amount, a.PASMID, a.RID, a.RAID, a.ATypeLID)
 	if adup.ASMID != 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing assessment: %s\n", funcname, lineno, adup.IDtoString())
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing assessment: %s", funcname, lineno, adup.IDtoString())
 	}
 
 	_, err = rlib.InsertAssessment(&a)
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v\n", funcname, lineno, err)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v", funcname, lineno, err)
 	}
 
 	// process this new assessment over the requested time range...

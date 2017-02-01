@@ -45,7 +45,7 @@ func CreateDepositMethod(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {                                  // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[BUD])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist", funcname, lineno, sa[BUD])
 		}
 		a.BID = b1.BID
 	}
@@ -59,11 +59,11 @@ func CreateDepositMethod(sa []string, lineno int) (int, error) {
 		if err != nil {
 			s := err.Error()
 			if !strings.Contains(s, "no rows") {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d -   returners, d error %v\n", funcname, lineno, err)
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d -   returners, d error %v", funcname, lineno, err)
 			}
 		}
 		if len(a1.Name) > 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - DepositMethod with Name %s already exists\n", funcname, lineno, name)
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - DepositMethod with Name %s already exists", funcname, lineno, name)
 		}
 	}
 

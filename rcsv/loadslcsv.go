@@ -73,7 +73,7 @@ func CreateStringList(sa []string, lineno int) (int, error) {
 	if len(des) > 0 {                                // make sure it's not empty
 		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist\n", funcname, lineno, sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		// if business is changed, write the stringlist
 		if len(bud) > 0 && des != bud {
@@ -111,7 +111,7 @@ func LoadStringTablesCSV(fname string) []error {
 	if len(a.S) > 0 && len(m) == 0 {
 		err := writeStringList()
 		if err != nil {
-			err := fmt.Errorf("Error writing string list: %s\n", err.Error())
+			err := fmt.Errorf("Error writing string list: %s", err.Error())
 			m = append(m, err)
 		}
 	}

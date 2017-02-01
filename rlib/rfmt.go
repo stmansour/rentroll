@@ -110,7 +110,7 @@ func YesNoToInt(si string) (int64, error) {
 	case s == "N" || s == "NO" || s == "0":
 		return NO, nil
 	default:
-		err := fmt.Errorf("Unrecognized yes/no string: %s.", si)
+		err := fmt.Errorf("Unrecognized yes/no string: %s", si)
 		return NO, err
 	}
 }
