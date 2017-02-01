@@ -12,7 +12,7 @@ roomkey: *.go
 	@rm -f fail
 
 clean:
-	rm -f roomkey conf.json mapper.json
+	rm -f roomkey conf.json mapper.json fail
 	@echo "*** CLEAN completed in rrimporters/roomkey ***"
 
 test:

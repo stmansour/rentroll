@@ -44,11 +44,6 @@ func getRoomKeyMapping(RoomKeyFieldMap *CSVFieldMap) error {
 	return err
 }
 
-func remove(s []string, i int) []string {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
 // loadRoomKeyCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
 func loadRoomKeyCSV(
@@ -732,18 +727,6 @@ func loadRoomKeyCSV(
 	internalErrFlag = false
 	// RETURN
 	return csvErrors, internalErrFlag
-}
-
-func rrDoLoad(fname string, handler func(string) []error) []error {
-	Errs := handler(fname)
-	return Errs
-}
-
-// rollBackSplitOperation func used to clear out the things
-// that created by program temporarily while loading roomkey data
-//  and if any error occurs
-func rollBackSplitOperation(timestamp string) {
-	clearSplittedTempCSVFiles(timestamp)
 }
 
 func loadGuestInfoCSV(
