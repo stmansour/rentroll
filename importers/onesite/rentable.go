@@ -39,7 +39,6 @@ func CreateRentableCSV(
 	rentableCSVWriter := csv.NewWriter(rentableCSVFile)
 
 	// parse headers of rentableCSV using reflect
-	rentableCSVHeaders := []string{}
 	rentableCSVHeaders, ok := core.GetStructFields(rentableStruct)
 	if !ok {
 		rlib.Ulog("Error <RENTABLE CSV>: Unable to get struct fields for rentableCSV\n")
@@ -125,10 +124,7 @@ func GetRentableCSVRow(
 	fieldMap *core.RentableCSV,
 	timestamp string,
 	DefaultValues map[string]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load rentable's data from onesiterow data
@@ -212,24 +208,21 @@ func GetRentableCSVRow(
 	for i := 0; i < rRTLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
 }
 
 // GetRUserSpec used to get ruser spec in format of rentroll system
 func GetRUserSpec(
 	csvRow *CSVRow,
 	defaults map[string]string,
-) (string, bool) {
+) string {
 
 	// check if status is occupied then return only RUserSpec otherwise
 	// just return "" (blank string, not ",," with two comma separated blank string!)
 	if _, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus); rrStatus != "occupied" {
-		return "", true
+		return ""
 	}
-
-	// TODO: verify if validation required here
-	ok := false
 
 	orderedFields := []string{}
 
@@ -243,22 +236,11 @@ func GetRUserSpec(
 		orderedFields = append(orderedFields, csvRow.LeaseStart)
 	}
 
-	// append lease end
-	// if csvRow.LeaseEnd == "" {
-	// 	orderedFields = append(orderedFields, defaults["DtStop"])
-	// } else {
-	// 	orderedFields = append(orderedFields, csvRow.LeaseEnd)
-	// }
-
+	// don't append default value from DtStop
 	// even if it is blank then we might just leave it as blank
 	orderedFields = append(orderedFields, csvRow.LeaseEnd)
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
-
-	return ",,", ok
+	return strings.Join(orderedFields, ",")
 }
 
 // GetRentableStatus used to get rentable status in format of rentroll system
@@ -306,10 +288,7 @@ func GetRentableStatus(csvRow *CSVRow,
 func GetRentableTypeRef(
 	csvRow *CSVRow,
 	defaults map[string]string,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+) string {
 
 	orderedFields := []string{}
 
@@ -330,10 +309,5 @@ func GetRentableTypeRef(
 		orderedFields = append(orderedFields, csvRow.LeaseEnd)
 	}
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
-
-	return ",,", ok
+	return strings.Join(orderedFields, ",")
 }

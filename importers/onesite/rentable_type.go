@@ -39,7 +39,6 @@ func CreateRentableTypeCSV(
 	rentableTypeCSVWriter := csv.NewWriter(rentableTypeCSVFile)
 
 	// parse headers of rentableTypeCSV using reflect
-	rentableTypeCSVHeaders := []string{}
 	rentableTypeCSVHeaders, ok := core.GetStructFields(rt)
 	if !ok {
 		rlib.Ulog("Error <RENTABLE TYPE CSV>: Unable to get struct fields for rentableTypeCSV\n")
@@ -132,10 +131,7 @@ func GetRentableTypeCSVRow(
 	fieldMap *core.RentableTypeCSV,
 	timestamp string,
 	DefaultValues map[string]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load rentableType's data from onesiterow data
@@ -182,6 +178,6 @@ func GetRentableTypeCSVRow(
 	for i := 0; i < rRTLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
 }

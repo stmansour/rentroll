@@ -37,7 +37,6 @@ func CreatePeopleCSV(
 	peopleCSVWriter := csv.NewWriter(peopleCSVFile)
 
 	// parse headers of peopleCSV using reflect
-	peopleCSVHeaders := []string{}
 	peopleCSVHeaders, ok := core.GetStructFields(peopleCSVStruct)
 	if !ok {
 		rlib.Ulog("Error <PEOPLE CSV>: Unable to get struct fields for peopleCSV\n")
@@ -130,10 +129,7 @@ func GetPeopleCSVRow(
 	timestamp string,
 	DefaultValues map[string]string,
 	rowIndex int,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load people's data from onesiterow data
@@ -196,6 +192,5 @@ func GetPeopleCSVRow(
 	for i := 0; i < pplLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+	return dataArray
 }

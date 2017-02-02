@@ -39,7 +39,6 @@ func CreateRentalAgreementCSV(
 	rentalAgreementCSVWriter := csv.NewWriter(rentalAgreementCSVFile)
 
 	// parse headers of rentalAgreementCSV using reflect
-	rentalAgreementCSVHeaders := []string{}
 	rentalAgreementCSVHeaders, ok := core.GetStructFields(rentalAgreementStruct)
 	if !ok {
 		rlib.Ulog("Error <RENTAL AGREEMENT CSV>: Unable to get struct fields for rentalAgreementCSV\n")
@@ -128,10 +127,7 @@ func GetRentalAgreementCSVRow(
 	fieldMap *core.RentalAgreementCSV,
 	timestamp string,
 	DefaultValues map[string]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load rentalAgreement's data from onesiterow data
@@ -205,18 +201,15 @@ func GetRentalAgreementCSVRow(
 	for i := 0; i < rRTLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
 }
 
 // GetPayorSpec used to get payor spec in format of rentroll system
 func GetPayorSpec(
 	csvRow *CSVRow,
 	defaults map[string]string,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+) string {
 
 	orderedFields := []string{}
 
@@ -237,22 +230,14 @@ func GetPayorSpec(
 		orderedFields = append(orderedFields, csvRow.LeaseEnd)
 	}
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
-
-	return ",,", ok
+	return strings.Join(orderedFields, ",")
 }
 
 // GetUserSpec used to get user spec in format of rentroll system
 func GetUserSpec(
 	csvRow *CSVRow,
 	defaults map[string]string,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+) string {
 
 	orderedFields := []string{}
 
@@ -273,21 +258,13 @@ func GetUserSpec(
 		orderedFields = append(orderedFields, csvRow.LeaseEnd)
 	}
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
-
-	return ",,", ok
+	return strings.Join(orderedFields, ",")
 }
 
 // GetRentableSpec used to get rentable spec in format of rentroll system
 func GetRentableSpec(
 	csvRow *CSVRow,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+) string {
 
 	orderedFields := []string{}
 
@@ -296,10 +273,5 @@ func GetRentableSpec(
 	// append contractrent
 	orderedFields = append(orderedFields, csvRow.Rent)
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
-
-	return ",", ok
+	return strings.Join(orderedFields, ",")
 }
