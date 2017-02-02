@@ -815,12 +815,12 @@ func CSVHandler(
 	// summaryReportCount contains each type csv as a key
 	// with count of total imported, possible, issues in csv data
 	summaryReportCount := map[int]map[string]int{
-		core.DBCustomAttr:      map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBRentableType:    map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBCustomAttrRef:   map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBPeople:          map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBRentable:        map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBRentalAgreement: map[string]int{"imported": 0, "possible": 0, "issues": 0},
+		core.DBCustomAttr:      {"imported": 0, "possible": 0, "issues": 0},
+		core.DBRentableType:    {"imported": 0, "possible": 0, "issues": 0},
+		core.DBCustomAttrRef:   {"imported": 0, "possible": 0, "issues": 0},
+		core.DBPeople:          {"imported": 0, "possible": 0, "issues": 0},
+		core.DBRentable:        {"imported": 0, "possible": 0, "issues": 0},
+		core.DBRentalAgreement: {"imported": 0, "possible": 0, "issues": 0},
 	}
 
 	// ====== Call onesite loader =====

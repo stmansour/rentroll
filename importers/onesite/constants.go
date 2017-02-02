@@ -196,25 +196,25 @@ type csvLoadHandler struct {
 // for the given status value
 var canWriteCSVStatusMap = map[string][]int{
 	// if rentable status is blank then still you can write data to these CSVs
-	"": []int{
+	"": {
 		core.RENTABLETYPECSV,
 		core.RENTALAGREEMENTCSV,
 		// core.PEOPLECSV,
 		core.CUSTOMATTRIUTESCSV,
 	},
-	"occupied": []int{
+	"occupied": {
 		core.RENTABLETYPECSV,
 		core.PEOPLECSV,
 		core.RENTABLECSV,
 		core.RENTALAGREEMENTCSV,
 		core.CUSTOMATTRIUTESCSV,
 	},
-	"model": []int{
+	"model": {
 		core.RENTABLETYPECSV,
 		core.RENTABLECSV,
 		core.CUSTOMATTRIUTESCSV,
 	},
-	"vacant": []int{
+	"vacant": {
 		core.RENTABLETYPECSV,
 		core.RENTABLECSV,
 		core.CUSTOMATTRIUTESCSV,
