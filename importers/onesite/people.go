@@ -102,23 +102,22 @@ func WritePeopleCSVData(
 	}
 
 	// get csv row data
-	ok, csvRowData := GetPeopleCSVRow(
+	csvRowData := GetPeopleCSVRow(
 		csvRow, peopleStruct,
 		currentTimeFormat, suppliedValues,
 		rowIndex,
 	)
-	if ok {
-		csvWriter.Write(csvRowData)
-		csvWriter.Flush()
 
-		// after write operation to csv,
-		// entry this rowindex with unit value in the map
-		*recordCount = *recordCount + 1
+	csvWriter.Write(csvRowData)
+	csvWriter.Flush()
 
-		// need to map on next row index of temp csv as first row is header line
-		// and recordCount initialized with 0 value
-		traceCSVData[*recordCount+1] = rowIndex
-	}
+	// after write operation to csv,
+	// entry this rowindex with unit value in the map
+	*recordCount = *recordCount + 1
+
+	// need to map on next row index of temp csv as first row is header line
+	// and recordCount initialized with 0 value
+	traceCSVData[*recordCount+1] = rowIndex
 }
 
 // GetPeopleCSVRow used to create people

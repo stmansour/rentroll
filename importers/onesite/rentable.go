@@ -99,22 +99,22 @@ func WriteRentableData(
 	}
 
 	// get csv row data
-	ok, csvRowData := GetRentableCSVRow(
+	csvRowData := GetRentableCSVRow(
 		csvRow, rentableStruct,
 		currentTimeFormat, rentableDefaultData,
 	)
-	if ok {
-		csvWriter.Write(csvRowData)
-		csvWriter.Flush()
 
-		// after write operation to csv,
-		// entry this rowindex with unit value in the map
-		*recordCount = *recordCount + 1
+	csvWriter.Write(csvRowData)
+	csvWriter.Flush()
 
-		// need to map on next row index of temp csv as first row is header line
-		// and recordCount initialized with 0 value
-		traceCSVData[*recordCount+1] = rowIndex
-	}
+	// after write operation to csv,
+	// entry this rowindex with unit value in the map
+	*recordCount = *recordCount + 1
+
+	// need to map on next row index of temp csv as first row is header line
+	// and recordCount initialized with 0 value
+	traceCSVData[*recordCount+1] = rowIndex
+
 }
 
 // GetRentableCSVRow used to create rentabletype
@@ -153,34 +153,18 @@ func GetRentableCSVRow(
 		// this condition has been put here because it's mapping field does not exist
 		// =========================================================
 		if rentableField.Name == "RentableTypeRef" {
-			typeRef, ok := GetRentableTypeRef(oneSiteRow, DefaultValues)
-			if ok {
-				dataMap[i] = typeRef
-			} else {
-				// TODO: verify that what to do in false case
-				// dataMap[i] = "FailedRentableTypeRef"
-				dataMap[i] = typeRef
-			}
+			dataMap[i] = GetRentableTypeRef(oneSiteRow, DefaultValues)
 		}
 		if rentableField.Name == "RUserSpec" {
 			// format is user, startDate, stopDate
-			rUserSpec, ok := GetRUserSpec(oneSiteRow, DefaultValues)
-			if ok {
-				dataMap[i] = rUserSpec
-			} else {
-				// TODO: verify that what to do in false case -> should return its original value or raise error
-				dataMap[i] = rUserSpec
-			}
+			dataMap[i] = GetRUserSpec(oneSiteRow, DefaultValues)
 		}
 		if rentableField.Name == "RentableStatus" {
 			// format is status, startDate, stopDate
-			status, ok := GetRentableStatus(oneSiteRow, DefaultValues)
-			if ok {
-				dataMap[i] = status
-			} else {
-				// TODO: verify that what to do in false case -> should return its original value or raise error
-				dataMap[i] = status
-			}
+			status, _ := GetRentableStatus(oneSiteRow, DefaultValues)
+			// TODO: verify that what to do in false case
+			// should return its original value or raise error???
+			dataMap[i] = status
 		}
 
 		// get mapping field
