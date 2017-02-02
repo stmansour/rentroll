@@ -69,9 +69,6 @@ func WriteRentalAgreementData(
 	csvErrors map[int][]string,
 ) {
 
-	// TODO: generate error here for RentableTypeRef
-	// to let endusers know that least start/end dates don't exists so we are taking
-	// defaults
 	currentYear, currentMonth, currentDate := currentTime.Date()
 	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
 	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
@@ -86,8 +83,8 @@ func WriteRentalAgreementData(
 	rentableDefaultData["DtStop"] = DtStop
 	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
 
-	// flag warning that we are taking default values for least start, end dates
-	// as they don't exists
+	// to let endusers know that least start/end dates don't exists so we are taking
+	// defaults
 	if csvRow.LeaseStart == "" {
 		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentalAgreement] + ">:"
 		csvErrors[rowIndex] = append(csvErrors[rowIndex],
