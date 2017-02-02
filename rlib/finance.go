@@ -263,7 +263,7 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 	}
 
 	// Get the sum of the activeity between requested date and LedgerMarker
-	activity := float64(0)
+	var activity float64
 	if raid != 0 {
 		activity, _ = GetRAAccountActivity(bid, lid, raid, &lm.Dt, dt)
 		// fmt.Printf("GetRAAccountActivity(bid, lid, raid, &lm.Dt, dt) = %8.2f\n", activity)
@@ -301,7 +301,7 @@ func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
 		// fmt.Printf("LedgerMarkerOnOrBefore( bid=%d, lid=%d, rid=%d,  dt = %10s ) --> LM%08d, lm.Balance = %8.2f ==>  bal = %8.2f\n", bid, lid, rid, dt.Format(RRDATEFMT4), lm.LMID, lm.Balance, bal)
 	}
 	// Get the sum of the activeity between requested date and LedgerMarker
-	activity := float64(0)
+	var activity float64
 	if rid != 0 {
 		activity, _ = GetRentableAccountActivity(bid, lid, rid, &lm.Dt, dt)
 		// fmt.Printf("GetRentableAccountActivity(bid=%d, lid=%d, rid=%d, &lm.Dt = %s, dt = %s) = %8.2f\n", bid, lid, rid, lm.Dt.Format(RRDATEFMT4), dt.Format(RRDATEFMT4), activity)

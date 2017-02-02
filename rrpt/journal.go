@@ -69,7 +69,7 @@ func textPrintJournalAssessment(tbl *rlib.Table, jctx *jprintctx, xbiz *rlib.XBu
 	// 2. What percent of the accrual period was the Rentable "occupied" during the range of interest
 	//        *  create a time range equal to the report period [reportDtStart - reportDtStop]
 	//        *  if this range is > Accrual Period, trim the range accordingly
-	//        *  if this range is > "occupiedrange", trim the range acordingly
+	//        *  if this range is > "occupiedrange", trim the range accordingly
 	//        *  if the resulting range == Accrual Period then we don't need to report anything, pf = 1
 	// 3. Report the prorate factor numerator and denominator:
 	//           pf = (resulting range duration)/AccrualPeriod (both in units of the ProrationCycle)
@@ -213,7 +213,7 @@ func textReportJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 	stop := jctx.ReportStop   // start with the report range
 	if j.RAID > 0 {           // is there an associated rental agreement?
 		ra, _ := rlib.GetRentalAgreement(j.RAID) // if so, get it
-		if ra.RentStart.After(start) {           // if posession of rental starts later...
+		if ra.RentStart.After(start) {           // if possession of rental starts later...
 			start = ra.RentStart // ...then make an adjustment
 		}
 		stop = ra.AgreementStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE

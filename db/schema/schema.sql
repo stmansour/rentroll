@@ -193,9 +193,9 @@ CREATE TABLE RentalAgreement (
     PermittedUses VARCHAR(128) NOT NULL DEFAULT '',                     -- indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
     ExclusiveUses VARCHAR(128) NOT NULL DEFAULT '',                     -- those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
     ExtensionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
-    ExtensionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last dade by wich a Tenant can give notice of their intention to exercise the right to an extension option period
+    ExtensionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
     ExpansionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to expand to certanin spaces that are typically contiguous to their primary space
-    ExpansionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last dade by wich a Tenant can give notice of their intention to exercise the right to an Expansion Option
+    ExpansionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
     RightOfFirstRefusal VARCHAR(128) NOT NULL DEFAULT '',               -- Tenant may have the right to purchase their premises if LL chooses to sell
     LastModTime TIMESTAMP,                                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that modified it 
