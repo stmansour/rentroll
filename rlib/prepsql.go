@@ -801,7 +801,7 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.FindTCIDByNote, err = RRdb.Dbrr.Prepare("SELECT t.TCID FROM Transactant t, Notes n WHERE t.NLID = n.NLID AND n.Comment=?")
 	Errcheck(err)
 
-	s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(TRNSfields)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(TRNSfields)
 	RRdb.Prepstmt.InsertTransactant, err = RRdb.Dbrr.Prepare("INSERT INTO Transactant (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateTransactant, err = RRdb.Dbrr.Prepare("UPDATE Transactant SET " + s3 + " WHERE TCID=?")

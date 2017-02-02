@@ -34,6 +34,7 @@ func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
 		appPage = strings.TrimSpace(f)
 	}
 
+	// use   http://domain/home/{lang}/{tmpl}  to set template
 	if len(uri) > 0 {
 		s1 := strings.Split(uri, "?")
 		sa := strings.Split(s1[0], "/")

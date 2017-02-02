@@ -124,6 +124,9 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	a.ManageToBudget = int64(n64)
 
 	rtid, err := rlib.InsertRentableType(&a)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error inserting Rentable Type: %s", funcname, lineno, err.Error())
+	}
 
 	// rlib.Rentable Market Rates are provided in 3-tuples starting at index 7 - Amount,startdata,enddate
 	if rtid > 0 {

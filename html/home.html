@@ -35,10 +35,10 @@ var app = {
     D1: "2016-02-01",
     D2: "2016-03-01",
     uid: 211,
-    lastCmd: ''
+    lastCmd: '',
+    lang: "{{.Lang}}",
+    tmpl: "{{.Tmpl}}"
 }
-var yesNoList=['no','yes']
-var assignmentTimeList = ['unset','Pre-Assign','Commencement']
 
 var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
 var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
@@ -192,6 +192,8 @@ function buildPageElements() {
             },
             { type: 'break', id: 'break2' },
             { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
+                { text: 'Template-Dflt', icon: 'fa fa-language' }, 
+                { text: 'Template-Apts', icon: 'fa fa-language' }, 
                 { text: 'Messages', icon: 'fa fa-folder-o' }, 
                 { text: 'Sidebar', icon: 'fa fa-folder-o' }, 
                 { text: 'mainLayoutMain', icon: 'fa fa-folder-open-o' }, 
@@ -205,6 +207,8 @@ function buildPageElements() {
             console.log('target = ' + event.target)
             switch(event.target) {
                 case "moduleMenu:Directory":      window.location.href = 'https://directory.airoller.com/'; break;
+                case "menuButton:Template-Dflt":  window.location.href = '/home/us-en/dflt'; break;
+                case "menuButton:Template-Apts":  window.location.href = '/home/us-en/apts'; break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                               break;
                 case "menuButton:Messages":       w2ui['toplayout'].toggle('top',true);                     break;
                 case "menuButton:Sidebar":        w2ui['toplayout'].toggle('left',true);                    break;

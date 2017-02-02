@@ -90,6 +90,9 @@ func testNotes() {
 	n3.LastModBy = 211
 	n3.NTID = 1 // third comment type
 	_, err = rlib.InsertNote(&n3)
+	if err != nil {
+		fmt.Printf("Error inserting note: %s\n", err.Error())
+	}
 
 	// Now readback the notelist
 	d := rlib.GetNoteList(nl.NLID)

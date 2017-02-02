@@ -128,7 +128,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	g := strings.TrimSpace(sa[2])
 	if len(g) == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - You must suppy a GL Number for this entry", funcname, lineno)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - You must supply a GL Number for this entry", funcname, lineno)
 	}
 	if len(g) > 0 {
 		// if we're inserting a record then it must not already exist

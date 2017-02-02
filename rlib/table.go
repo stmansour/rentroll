@@ -673,8 +673,8 @@ func (t *Table) DeleteRow(row int) {
 	}
 }
 
-// TightenColumns goes through all values in STRING columnx and determines the maximum length in characters.
-// If this length is less than the column width the column width is reduced to the max.  This is
+// TightenColumns goes through all values in STRING columns and determines the maximum length in characters (max).
+// If this length is less than the column width the column width is reduced to max.  This is
 // mostly useful for text formatting.
 func (t *Table) TightenColumns() {
 	for i := 0; i < len(t.ColDefs); i++ {

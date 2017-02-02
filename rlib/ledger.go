@@ -218,7 +218,7 @@ func GenerateLedgerMarkers(xbiz *XBusiness, dt *time.Time) {
 		// lm := GetLatestLedgerMarkerByGLNo(xbiz.P.BID, t[i].GLNumber)
 		lm := GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i].LID, dt)
 		if lm.LMID == 0 {
-			fmt.Printf("%s: Could not get GLAccount %d (%s) in busines %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
+			fmt.Printf("%s: Could not get GLAccount %d (%s) in business %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
 			continue
 		}
 		// fmt.Printf("lm = %#v\n", lm)

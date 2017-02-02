@@ -373,9 +373,9 @@ type RentalAgreement struct {
 	PermittedUses          string      // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
 	ExclusiveUses          string      // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
 	ExtensionOption        string      // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
-	ExtensionOptionNotice  time.Time   // the last dade by wich a Tenant can give notice of their intention to exercise the right to an extension option period
+	ExtensionOptionNotice  time.Time   // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
 	ExpansionOption        string      // the right to expand to certanin spaces that are typically contiguous to their primary space
-	ExpansionOptionNotice  time.Time   // the last dade by wich a Tenant can give notice of their intention to exercise the right to an Expansion Option
+	ExpansionOptionNotice  time.Time   // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string      // Tenant may have the right to purchase their premises if LL chooses to sell
 	LastModTime            time.Time   // when was this record last written
 	LastModBy              int64       // employee UID (from phonebook) that modified it

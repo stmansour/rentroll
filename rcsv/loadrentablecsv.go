@@ -194,7 +194,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 			funcname, lineno)
 	}
 	var n []rlib.RentableTypeRef
-	st = strings.Split(sa[RentableTypeRef], ";") // split on RTID 3-tuple seperator (;)
+	st = strings.Split(sa[RentableTypeRef], ";") // split on RTID 3-tuple separator (;)
 	for i := 0; i < len(st); i++ {               // spin through the 3-tuples
 		ss := strings.Split(st[i], ",") // separate the 3 parts
 		if len(ss) != 3 {

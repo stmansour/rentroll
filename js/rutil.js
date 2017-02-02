@@ -17,6 +17,19 @@ function setToForm(sform,url) {
 }
 
 //-----------------------------------------------------------------------------
+// plural - return the plural of the provided word.  Totally simplistic at
+//          this point, it just adds an 's'.  It will need serious updates
+//          going forward
+// @params
+//   s = the word to pluralize
+// @return - the plural of word s
+//-----------------------------------------------------------------------------
+function plural(s) {
+    return s + 's'
+}
+
+
+//-----------------------------------------------------------------------------
 // dateFromDC - return a java date value equal to the date in the supplied
 //              date control 
 // @params
