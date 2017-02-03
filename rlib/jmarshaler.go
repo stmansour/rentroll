@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -45,6 +46,31 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 		x = earliestDate
 	}
 	*t = JSONTime(x)
+	return nil
+}
+
+// UnmarshalJSON a string to a W2uiHTMLSelect struct.  The data can come in
+// two different forms.
+//
+//  1. 	{"id":"OKC","text":"OKC"}
+// 		This is the expected form.  We just call unmarshal it.
+//  2.  ""
+//      When this happens it means that the dropdown was uninitialized and
+//      the user didn't select anything. In this case just create a struct
+//      and set the values to ""
+//--------------------------------------------------------------------
+func (t *W2uiHTMLSelect) UnmarshalJSON(b []byte) error {
+	m := W2uiHTMLSelect{ID: "", Text: ""}
+	// fmt.Printf("b: len = %d, contents: %s\n", len(b), string(b))
+	if len(b) > 2 { // if b contains more than ""
+		s := Stripchars(string(b), `"{}`) // {"id":"Person","text":"Person"}  -->  id:Person,text:Person
+		ss := strings.Split(s, ",")       // ["id:Person" "text:Person"]
+		sss := strings.Split(ss[0], ":")  // ["id" "Person"]
+		m.ID = sss[1]                     // "Person"
+		sss = strings.Split(ss[1], ":")   // ["text" "Person"]
+		m.Text = sss[1]                   // "Person"
+	}
+	*t = m
 	return nil
 }
 

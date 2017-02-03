@@ -6,6 +6,7 @@ package main
 // fashion.
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"rentroll/rlib"
@@ -83,7 +84,41 @@ func TestConversion2() {
 	fmt.Printf("SUCCESS!\n")
 }
 
+type gxpersonOther struct {
+	IsCompany     rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
+	BID           rlib.W2uiHTMLSelect
+	State         rlib.W2uiHTMLSelect
+	EmployerState rlib.W2uiHTMLSelect
+	// EligibleFutureUser  rlib.W2uiHTMLSelect
+	// EligibleFuturePayor rlib.W2uiHTMLSelect
+}
+
+func testConversion3() {
+	funcname := "testConversion3"
+	s := `{"id":"OKC","text":"OKC"}`
+	var w rlib.W2uiHTMLSelect
+	err := json.Unmarshal([]byte(s), &w)
+	if err != nil {
+		fmt.Printf("Data unmarshal error: %s\n", err.Error())
+		fmt.Printf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		return
+	}
+	fmt.Printf("Successfully unmarshalled w:  %#v\n", w)
+
+	s1 := `{"recid":0, "IsCompany":{"id":"Person","text":"Person"}, "City":"", "State":{"id":"AZ", "text":"AZ"}, "EmployerState":"", "EmployerPostalCode":"", "EligibleFutureUser":{"id":"no", "text":"no"}, "Industry":"", "EligibleFuturePayor":{"id":"no", "text":"no"}, "LastModTime":"2/1/2017","LastModBy":0 }`
+	var gxpo gxpersonOther
+	err = json.Unmarshal([]byte(s1), &gxpo)
+	if err != nil {
+		fmt.Printf("Data unmarshal error: %s\n", err.Error())
+		fmt.Printf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		return
+	}
+	fmt.Printf("After Unmarshal, gxpo = %#v\n", gxpo)
+	fmt.Printf("SUCCESS!\n")
+}
+
 func main() {
-	TestConversion1()
-	TestConversion2()
+	// TestConversion1()
+	// TestConversion2()
+	testConversion3()
 }

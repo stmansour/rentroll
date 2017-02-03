@@ -246,10 +246,12 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	fmt.Printf("saveXPersonL Start migration\n")
 	rlib.MigrateStructVals(&gxp, &xp.Trn)
 	rlib.MigrateStructVals(&gxp, &xp.Usr)
 	rlib.MigrateStructVals(&gxp, &xp.Psp)
 	rlib.MigrateStructVals(&gxp, &xp.Pay)
+	fmt.Printf("saveXPersonL Finished migration\n")
 
 	//---------------------------
 	// Handle all the list data
@@ -263,12 +265,13 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	var ok bool
+	fmt.Printf("gxpo.BID.ID = %s\n", gxpo.BID.ID)
+	fmt.Printf("rlib.RRdb.BUDlist = %#v\n", rlib.RRdb.BUDlist)
 	xp.Trn.BID, ok = rlib.RRdb.BUDlist[gxpo.BID.ID]
 	if !ok {
 		e := fmt.Errorf("Could not map BID value: %s", gxpo.BID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
-		return
+		rlib.LogAndPrintError("saveXPerson", e)
+		xp.Trn.BID = d.BID
 	}
 	xp.Usr.BID = xp.Trn.BID
 	xp.Pay.BID = xp.Trn.BID
