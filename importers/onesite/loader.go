@@ -846,7 +846,7 @@ func CSVHandler(
 		return csvReport, internalErr, csvLoaded
 	}
 
-	// ===== 4. Geneate Report =====
+	// ===== 4. Generate Report =====
 	csvReport = successReport(business, summaryReportCount, csvPath, debugMode, currentTime)
 
 	// ===== 5. Return =====
