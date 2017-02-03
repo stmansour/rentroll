@@ -688,7 +688,7 @@ CREATE TABLE User (
     AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
     EligibleFutureUser SMALLINT NOT NULL DEFAULT 1,              -- yes/no
     Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
-    SourceSLSID BIGINT NOT NULL DEFAULT 0,                              -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
+    SourceSLSID BIGINT NOT NULL DEFAULT 0,                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP,                                       -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (TCID)

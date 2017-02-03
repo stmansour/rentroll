@@ -503,7 +503,7 @@ function buildPageElements() {
             { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: { caption: 'NLID', page: 0, column: 0 } },
             { field: 'CompanyName', type: 'text', required: false, html: { caption: 'Company Name', page: 0, column: 0 } },
-            { field: 'IsCompany', type: 'list', options: {items: companyOrPerson}, required: false, html: { caption: 'Person/Company', page: 0, column: 0 } },
+            { field: 'IsCompany', type: 'list', options: {items: companyOrPerson}, required: false, html: { caption: 'Person or Company', page: 0, column: 0 } },
             { field: 'SecondaryEmail', type: 'email', required: false, html: { caption: 'Secondary Email', page: 0, column: 0 } },
             { field: 'WorkPhone', type: 'phone', required: false, html: { caption: 'Work Phone', page: 0, column: 0 } },
             { field: 'CellPhone', type: 'phone', required: false, html: { caption: 'Cell Phone', page: 0, column: 0 } },
@@ -564,6 +564,14 @@ function buildPageElements() {
                 { id: 'bt3', type: 'spacer' },
                 { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' }
             ],
+            onClick: function (event) {
+                if (event.target == 'btnResize') {
+                    w2ui['transactantForm'].resize();
+                }
+                if (event.target == 'btnNotes')  {
+                    notesPopUp();
+                }
+            },
         },
         actions: {
             save: function () {
@@ -586,14 +594,6 @@ function buildPageElements() {
                 w2ui['transactantForm'].resize()
             }
         },
-        onClick: function (event) {
-            if (event.target == 'btnResize') {
-                w2ui['transactantForm'].resize()
-            }
-            if (event.target == 'btnNotes')  {
-                w2ui['transactantForm'].resize()
-            }
-        },
         onRefresh: function(event) {
             var f = w2ui['transactantForm']
             var r = f.record
@@ -602,6 +602,26 @@ function buildPageElements() {
             f.header = title
         }
     });
+
+
+    //------------------------------------------------------------------------
+    //          notesPopUp
+    //------------------------------------------------------------------------
+    function notesPopUp() {
+        w2popup.open({
+            width   : 580,
+            height  : 350,
+            title   : 'Notes',
+            body    : '<div class="w2ui-centered" style="line-height: 1.8">'+
+                      '     This is a sample of what the Notes area.'+
+                      '     <br>The focus will not leave popup. <br><br>'+
+                      '     Add Note: <textarea name="comments" type="text" style="width: 385px; height: 80px"></textarea><br>'+
+                       '</div>',
+            buttons : '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'+
+                      '<button class="w2ui-btn" onclick="w2popup.close()">Cancel</button>'
+        });
+    }
+
 
     //------------------------------------------------------------------------
     //          rentablesGrid
