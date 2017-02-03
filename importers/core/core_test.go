@@ -30,7 +30,7 @@ func TestGetStructFields(t *testing.T) {
 
 	// CASE: NEGATIVE
 	var a int
-	fields, ok = GetStructFields(&a)
+	_, ok = GetStructFields(&a)
 	if ok {
 		t.Errorf("[TestGetStructFields] Expected `false` for ok, but it returned `%v` for `var a int`", ok)
 	}
