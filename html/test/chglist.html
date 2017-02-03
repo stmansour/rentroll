@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FORM TEST - Change List</title>
+    <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/w2ui-1.5.rc1.js"></script>
+    <!-- <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script> -->
+</head>
+<body>
+
+<div id="form" style="width: 750px;"></div>
+
+<script type="text/javascript">
+$(function () {
+    $.get("/gsvc/uilists/211/4",HandleData)
+});
+
+function HandleData(data,status) {
+    if (status == "success") {
+        eval(data)
+    }
+    
+    $('#form').w2form({ 
+        name     : 'form',
+        url      : 'server/post',
+        header   : 'Field Types',
+        // formURL  : 'data/form.html', 
+        toolbar: {
+            items: [
+                { id: 'btnChangeList', type: 'button', caption: 'Change List', img: 'icon-folder' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnChangeList1', type: 'button', caption: 'Change List1', icon: 'fa fa-star' }
+            ],
+            onClick: function (event) {
+                console.log('event = ' + event.target);
+                if (event.target == 'btnChangeList') {
+                    var newlist = ['Elrod', 'Jerome', 'T-Baby', 'Slinky', 'Jivin Ivan'];
+                    console.log( 'Change field_select to contain: ' + newlist);
+                    var f = w2ui['form'].get('field_select');
+                    console.log( 'f.options.items = ' + f.options.items)
+                    for (i = 0; i < f.options.items.length; i++ ) {
+                        x = f.options.items[i];
+                        console.log('item '+i);
+                        Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
+                    }
+                }
+            }
+        },
+        fields: [
+            { field: 'field_text', type: 'text', required: true },
+            { field: 'field_alpha', type: 'alphaNumeric', required: true },
+            { field: 'field_int', type: 'int', required: true },
+            { field: 'field_float', type: 'float', required: true },
+            { field: 'field_date', type: 'date' },
+            { field: 'field_list', type: 'list', required: true, 
+                options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+            { field: 'field_enum', type: 'enum', required: true, 
+                options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+            { field: 'field_textarea', type: 'text'},
+            { field: 'yesnolist', type: 'select', required: false, options: {items: yesNoList} },
+            { field: 'field_select', type: 'select', required: false, options: { items: ['first', 'second'] } },
+            { field: 'IsCompany', type: 'checkbox', required: false }
+            //{ field: 'field_radio', type: 'radio', required: false }
+        ],
+        actions: {
+            reset: function () {
+                this.clear();
+            },
+            save: function () {
+                var obj = this;
+                this.save({}, function (data) { 
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    obj.clear();
+                });
+            },
+        },
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,16 +1,13 @@
-/*
+// Package onesite contains this program where data actually
+// being imported from csv to rentroll database.
 
-Package onesite contains this program where data actually
-being imported from csv to rentroll database.
+// Main program call `CSVHandler` function to do the actual job.
+// `CSVHandler` calls main function `loadOneSiteCSV` and
+// then creates a report based on response of `loadOneSiteCSV` call.
 
-Main program call `CSVHandler` function to do the actual job.
-`CSVHandler` calls main function `loadOneSiteCSV` and
-then creates a report based on response of `loadOneSiteCSV` call.
+// `loadOneSiteCSV` writes data in CSVs and loads with help of rcsv
+// loaders and return the response to `CSVHandler`.
 
-`loadOneSiteCSV` writes data in CSVs and loads with help of rcsv
-loaders and return the response to `CSVHandler`.
-
-*/
 package onesite
 
 import (
