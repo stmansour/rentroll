@@ -100,47 +100,47 @@ const (
 	Referral        = iota
 )
 
-// fieldColumnMap contains internal OneSite Structure fields
-// to csv columns, used to refer columns from struct fields
-var fieldColumnMap = map[string]string{
-	"Unit":            "Unit",
-	"FloorPlan":       "FloorPlan",
-	"UnitDesignation": "UnitDesignation",
-	"Sqft":            "SQFT",
-	"UnitLeaseStatus": "Unit/LeaseStatus",
-	"Name":            "Name",
-	"PhoneNumber":     "PhoneNumber",
-	"Email":           "Email",
-	"MoveIn":          "Move-In",
-	"NoticeForDate":   "NoticeForDate",
-	"MoveOut":         "Move-Out",
-	"LeaseStart":      "LeaseStart",
-	"LeaseEnd":        "LeaseEnd",
-	"MarketAddl":      "Market+Addl.",
-	"DepOnHand":       "DepOnHand",
-	"Balance":         "Balance",
-	"TotalCharges":    "TotalCharges",
-	"Rent":            "RENT",
-	"WaterReImb":      "WATERREIMB",
-	"Corp":            "CORP",
-	"Discount":        "DISCOUNT",
-	"Platinum":        "Platinum",
-	"Tax":             "TAX",
-	"ElectricReImb":   "ELECTRICREIMB",
-	"Fire":            "Fire",
-	"ConcSpecl":       "CONC/SPECL",
-	"WashDry":         "WASH/DRY",
-	"EmplCred":        "EMPLCRED",
-	"Short":           "SHORT",
-	"PetFee":          "PETFEE",
-	"TrashReImb":      "TRASHREIMB",
-	"TermFee":         "TERMFEE",
-	"LakeView":        "Lakeview",
-	"Utility":         "UTILITY",
-	"Furn":            "FURN",
-	"Mtom":            "MTOM",
-	"Referral":        "REFERRAL",
-}
+// // fieldColumnMap contains internal OneSite Structure fields
+// // to csv columns, used to refer columns from struct fields
+// var fieldColumnMap = map[string]string{
+// 	"Unit":            "Unit",
+// 	"FloorPlan":       "FloorPlan",
+// 	"UnitDesignation": "UnitDesignation",
+// 	"Sqft":            "SQFT",
+// 	"UnitLeaseStatus": "Unit/LeaseStatus",
+// 	"Name":            "Name",
+// 	"PhoneNumber":     "PhoneNumber",
+// 	"Email":           "Email",
+// 	"MoveIn":          "Move-In",
+// 	"NoticeForDate":   "NoticeForDate",
+// 	"MoveOut":         "Move-Out",
+// 	"LeaseStart":      "LeaseStart",
+// 	"LeaseEnd":        "LeaseEnd",
+// 	"MarketAddl":      "Market+Addl.",
+// 	"DepOnHand":       "DepOnHand",
+// 	"Balance":         "Balance",
+// 	"TotalCharges":    "TotalCharges",
+// 	"Rent":            "RENT",
+// 	"WaterReImb":      "WATERREIMB",
+// 	"Corp":            "CORP",
+// 	"Discount":        "DISCOUNT",
+// 	"Platinum":        "Platinum",
+// 	"Tax":             "TAX",
+// 	"ElectricReImb":   "ELECTRICREIMB",
+// 	"Fire":            "Fire",
+// 	"ConcSpecl":       "CONC/SPECL",
+// 	"WashDry":         "WASH/DRY",
+// 	"EmplCred":        "EMPLCRED",
+// 	"Short":           "SHORT",
+// 	"PetFee":          "PETFEE",
+// 	"TrashReImb":      "TRASHREIMB",
+// 	"TermFee":         "TERMFEE",
+// 	"LakeView":        "Lakeview",
+// 	"Utility":         "UTILITY",
+// 	"Furn":            "FURN",
+// 	"Mtom":            "MTOM",
+// 	"Referral":        "REFERRAL",
+// }
 
 // defined csv columns
 var csvCols = []rcsv.CSVColumn{
@@ -232,7 +232,7 @@ var csvRecordsSkipList = []string{
 }
 
 var dupTransactantWithPrimaryEmail = "PrimaryEmail"
-var dupTransactantWithCellPhone = "CellPhone"
+// var dupTransactantWithCellPhone = "CellPhone"
 
 // will be used exact before rowIndex to format Notes in people csv "onesite:<rowIndex>"
 const (

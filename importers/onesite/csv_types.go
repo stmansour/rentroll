@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// CSVFieldMap is struct which contains several categories
+// CSVFieldMap is struct which con`~tains several categories
 // used to store the data from onesite to rentroll system
 type CSVFieldMap struct {
 	RentableTypeCSV    core.RentableTypeCSV
@@ -59,48 +59,48 @@ type CSVRow struct {
 	Referral        string
 }
 
-// csvRowFieldRules is map contains rules for specific fields in onesite
-var csvRowFieldRules = map[string]map[string]string{
-	"Unit":            {"type": "string", "blank": "false"},
-	"FloorPlan":       {"type": "string", "blank": "false"},
-	"UnitDesignation": {"type": "string", "blank": "true"},
-	"SQFT":            {"type": "uint", "blank": "false"},
-	// based on status value all of except this, will be validated
-	// so don't defined rule for status here
-	// "UnitLeaseStatus": {"type": "rentable_status", "blank": "true"},
-	"Name":          {"type": "string", "blank": "false"},
-	"PhoneNumber":   {"type": "phone", "blank": "true"},
-	"Email":         {"type": "email", "blank": "true"},
-	"MoveIn":        {"type": "date", "blank": "true"},
-	"NoticeForDate": {"type": "string", "blank": "true"},
-	"MoveOut":       {"type": "date", "blank": "true"},
-	"LeaseStart":    {"type": "date", "blank": "false"},
-	"LeaseEnd":      {"type": "date", "blank": "false"},
-	"MarketAddl":    {"type": "float", "blank": "false"},
-	"DepOnHand":     {"type": "float", "blank": "true"},
-	"Balance":       {"type": "float", "blank": "true"},
-	"TotalCharges":  {"type": "float", "blank": "true"},
-	"Rent":          {"type": "float", "blank": "false"},
-	"WaterReImb":    {"type": "float", "blank": "true"},
-	"Corp":          {"type": "float", "blank": "true"},
-	"Discount":      {"type": "float", "blank": "true"},
-	"Platinum":      {"type": "float", "blank": "true"},
-	"Tax":           {"type": "float", "blank": "true"},
-	"ElectricReImb": {"type": "float", "blank": "true"},
-	"Fire":          {"type": "float", "blank": "true"},
-	"ConcSpecl":     {"type": "float", "blank": "true"},
-	"WashDry":       {"type": "float", "blank": "true"},
-	"EmplCred":      {"type": "float", "blank": "true"},
-	"Short":         {"type": "float", "blank": "true"},
-	"PetFee":        {"type": "float", "blank": "true"},
-	"TrashReImb":    {"type": "float", "blank": "true"},
-	"TermFee":       {"type": "float", "blank": "true"},
-	"LakeView":      {"type": "float", "blank": "true"},
-	"Utility":       {"type": "float", "blank": "true"},
-	"Furn":          {"type": "float", "blank": "true"},
-	"Mtom":          {"type": "float", "blank": "true"},
-	"Referral":      {"type": "float", "blank": "true"},
-}
+// // csvRowFieldRules is map contains rules for specific fields in onesite
+// var csvRowFieldRules = map[string]map[string]string{
+// 	"Unit":            {"type": "string", "blank": "false"},
+// 	"FloorPlan":       {"type": "string", "blank": "false"},
+// 	"UnitDesignation": {"type": "string", "blank": "true"},
+// 	"SQFT":            {"type": "uint", "blank": "false"},
+// 	// based on status value all of except this, will be validated
+// 	// so don't defined rule for status here
+// 	// "UnitLeaseStatus": {"type": "rentable_status", "blank": "true"},
+// 	"Name":          {"type": "string", "blank": "false"},
+// 	"PhoneNumber":   {"type": "phone", "blank": "true"},
+// 	"Email":         {"type": "email", "blank": "true"},
+// 	"MoveIn":        {"type": "date", "blank": "true"},
+// 	"NoticeForDate": {"type": "string", "blank": "true"},
+// 	"MoveOut":       {"type": "date", "blank": "true"},
+// 	"LeaseStart":    {"type": "date", "blank": "false"},
+// 	"LeaseEnd":      {"type": "date", "blank": "false"},
+// 	"MarketAddl":    {"type": "float", "blank": "false"},
+// 	"DepOnHand":     {"type": "float", "blank": "true"},
+// 	"Balance":       {"type": "float", "blank": "true"},
+// 	"TotalCharges":  {"type": "float", "blank": "true"},
+// 	"Rent":          {"type": "float", "blank": "false"},
+// 	"WaterReImb":    {"type": "float", "blank": "true"},
+// 	"Corp":          {"type": "float", "blank": "true"},
+// 	"Discount":      {"type": "float", "blank": "true"},
+// 	"Platinum":      {"type": "float", "blank": "true"},
+// 	"Tax":           {"type": "float", "blank": "true"},
+// 	"ElectricReImb": {"type": "float", "blank": "true"},
+// 	"Fire":          {"type": "float", "blank": "true"},
+// 	"ConcSpecl":     {"type": "float", "blank": "true"},
+// 	"WashDry":       {"type": "float", "blank": "true"},
+// 	"EmplCred":      {"type": "float", "blank": "true"},
+// 	"Short":         {"type": "float", "blank": "true"},
+// 	"PetFee":        {"type": "float", "blank": "true"},
+// 	"TrashReImb":    {"type": "float", "blank": "true"},
+// 	"TermFee":       {"type": "float", "blank": "true"},
+// 	"LakeView":      {"type": "float", "blank": "true"},
+// 	"Utility":       {"type": "float", "blank": "true"},
+// 	"Furn":          {"type": "float", "blank": "true"},
+// 	"Mtom":          {"type": "float", "blank": "true"},
+// 	"Referral":      {"type": "float", "blank": "true"},
+// }
 
 // loadOneSiteCSVRow used to load data from slice
 // into CSVRow struct and return that struct

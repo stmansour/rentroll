@@ -2,7 +2,6 @@ package core
 
 import (
 	"regexp"
-	"strconv"
 )
 
 // StringInSlice used to check whether string a
