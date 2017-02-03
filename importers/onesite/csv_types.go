@@ -76,8 +76,8 @@ type CSVRow struct {
 	// Tax             string
 }
 
-// getCSVHeadersIndexMap returns the map of fields with ]
-// uninitalized indexes
+// getCSVHeadersIndexMap returns the map of fields with
+// undetermined indexes
 func getCSVHeadersIndexMap() map[string]int {
 
 	// csvHeadersIndex holds the map of headers with its index
