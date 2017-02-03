@@ -3,6 +3,7 @@ package onesite
 import (
 	"rentroll/importers/core"
 	"rentroll/rcsv"
+	"strings"
 )
 
 // TempCSVStoreName holds the name of csvstore folder
@@ -70,118 +71,13 @@ const (
 	PhoneNumber     = iota
 	Email           = iota
 	MoveIn          = iota
-	NoticeForDate   = iota
 	MoveOut         = iota
 	LeaseStart      = iota
 	LeaseEnd        = iota
 	MarketAddl      = iota
-	DepOnHand       = iota
-	Balance         = iota
-	TotalCharges    = iota
 	Rent            = iota
-	WaterReImb      = iota
-	Corp            = iota
-	Discount        = iota
-	Platinum        = iota
-	Tax             = iota
-	ElectricReImb   = iota
-	Fire            = iota
-	ConcSpecl       = iota
-	WashDry         = iota
-	EmplCred        = iota
-	Short           = iota
-	PetFee          = iota
-	TrashReImb      = iota
-	TermFee         = iota
-	LakeView        = iota
-	Utility         = iota
-	Furn            = iota
-	Mtom            = iota
-	Referral        = iota
+	// Tax             = iota
 )
-
-// // fieldColumnMap contains internal OneSite Structure fields
-// // to csv columns, used to refer columns from struct fields
-// var fieldColumnMap = map[string]string{
-// 	"Unit":            "Unit",
-// 	"FloorPlan":       "FloorPlan",
-// 	"UnitDesignation": "UnitDesignation",
-// 	"Sqft":            "SQFT",
-// 	"UnitLeaseStatus": "Unit/LeaseStatus",
-// 	"Name":            "Name",
-// 	"PhoneNumber":     "PhoneNumber",
-// 	"Email":           "Email",
-// 	"MoveIn":          "Move-In",
-// 	"NoticeForDate":   "NoticeForDate",
-// 	"MoveOut":         "Move-Out",
-// 	"LeaseStart":      "LeaseStart",
-// 	"LeaseEnd":        "LeaseEnd",
-// 	"MarketAddl":      "Market+Addl.",
-// 	"DepOnHand":       "DepOnHand",
-// 	"Balance":         "Balance",
-// 	"TotalCharges":    "TotalCharges",
-// 	"Rent":            "RENT",
-// 	"WaterReImb":      "WATERREIMB",
-// 	"Corp":            "CORP",
-// 	"Discount":        "DISCOUNT",
-// 	"Platinum":        "Platinum",
-// 	"Tax":             "TAX",
-// 	"ElectricReImb":   "ELECTRICREIMB",
-// 	"Fire":            "Fire",
-// 	"ConcSpecl":       "CONC/SPECL",
-// 	"WashDry":         "WASH/DRY",
-// 	"EmplCred":        "EMPLCRED",
-// 	"Short":           "SHORT",
-// 	"PetFee":          "PETFEE",
-// 	"TrashReImb":      "TRASHREIMB",
-// 	"TermFee":         "TERMFEE",
-// 	"LakeView":        "Lakeview",
-// 	"Utility":         "UTILITY",
-// 	"Furn":            "FURN",
-// 	"Mtom":            "MTOM",
-// 	"Referral":        "REFERRAL",
-// }
-
-// defined csv columns
-var csvCols = []rcsv.CSVColumn{
-	{Name: "Unit", Index: Unit},
-	{Name: "FloorPlan", Index: FloorPlan},
-	{Name: "UnitDesignation", Index: UnitDesignation},
-	{Name: "SQFT", Index: Sqft},
-	{Name: "Unit/LeaseStatus", Index: UnitLeaseStatus},
-	{Name: "Name", Index: Name},
-	{Name: "PhoneNumber", Index: PhoneNumber},
-	{Name: "Email", Index: Email},
-	{Name: "Move-In", Index: MoveIn},
-	{Name: "NoticeForDate", Index: NoticeForDate},
-	{Name: "Move-Out", Index: MoveOut},
-	{Name: "LeaseStart", Index: LeaseStart},
-	{Name: "LeaseEnd", Index: LeaseEnd},
-	{Name: "Market+Addl.", Index: MarketAddl},
-	{Name: "DepOnHand", Index: DepOnHand},
-	{Name: "Balance", Index: Balance},
-	{Name: "TotalCharges", Index: TotalCharges},
-	{Name: "RENT", Index: Rent},
-	{Name: "WATERREIMB", Index: WaterReImb},
-	{Name: "CORP", Index: Corp},
-	{Name: "DISCOUNT", Index: Discount},
-	{Name: "Platinum", Index: Platinum},
-	{Name: "TAX", Index: Tax},
-	{Name: "ELECTRICREIMB", Index: ElectricReImb},
-	{Name: "Fire", Index: Fire},
-	{Name: "CONC/SPECL", Index: ConcSpecl},
-	{Name: "WASH/DRY", Index: WashDry},
-	{Name: "EMPLCRED", Index: EmplCred},
-	{Name: "SHORT", Index: Short},
-	{Name: "PETFEE", Index: PetFee},
-	{Name: "TRASHREIMB", Index: TrashReImb},
-	{Name: "TERMFEE", Index: TermFee},
-	{Name: "Lakeview", Index: LakeView},
-	{Name: "UTILITY", Index: Utility},
-	{Name: "FURN", Index: Furn},
-	{Name: "MTOM", Index: Mtom},
-	{Name: "REFERRAL", Index: Referral},
-}
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type csvLoadHandler struct {
@@ -232,10 +128,19 @@ var csvRecordsSkipList = []string{
 }
 
 var dupTransactantWithPrimaryEmail = "PrimaryEmail"
+
 // var dupTransactantWithCellPhone = "CellPhone"
 
 // will be used exact before rowIndex to format Notes in people csv "onesite:<rowIndex>"
 const (
 	onesiteNotesPrefix = "onesite$"
 	tcidPrefix         = "TC000"
+)
+
+var specialCharsReplacer = strings.NewReplacer(
+	"`", "", "~", "", "!", "", "@", "", "#", "", "$", "", "%", "", "^", "", "&", "", "*", "", "(", "", ")", "", "-", "", "_", "", "+", "", "=", "", //line1
+	"{", "", "[", "", "}", "", "]", "", "|", "", "\\", "", //line2
+	";", "", ":", "", "\"", "", "'", "", // line3
+	",", "", "<", "", ".", "", ">", "", "/", "", "?", "", // line4
+	" ", "", // whitespace
 )
