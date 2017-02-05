@@ -34,7 +34,7 @@ dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
-dojsonPOST "http://localhost:8270/gsvc/accounts/211/1" "w2uiGridReq" "s"  "WebService--ChartOfAccounts"
+dojsonPOST "http://localhost:8270/gsvc/accounts/1" "w2uiGridReq" "s"  "WebService--ChartOfAccounts"
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

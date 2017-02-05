@@ -225,8 +225,8 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid amount:  %s", funcname, lineno, sss[1])
 		}
 		rar.RID = rnt.RID
-		rar.DtStart = DtStart
-		rar.DtStop = DtStop
+		rar.RARDtStart = DtStart
+		rar.RARDtStop = DtStop
 		rar.ContractRent = x
 		m = append(m, rar)
 	}
@@ -264,7 +264,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Rentable %s is already included in Rental Agreement %s from %s to %s",
 				funcname, lineno, RentableAlreadyRented,
 				rlib.IDtoString("R", rra[j].RID), rlib.IDtoString("RA", rra[j].RAID),
-				rra[j].DtStart.Format(rlib.RRDATEFMT4), rra[j].DtStop.Format(rlib.RRDATEFMT4))
+				rra[j].RARDtStart.Format(rlib.RRDATEFMT4), rra[j].RARDtStop.Format(rlib.RRDATEFMT4))
 		}
 	}
 

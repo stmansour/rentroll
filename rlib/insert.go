@@ -536,7 +536,7 @@ func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
 // InsertRentalAgreementRentable writes a new User record to the database
 func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.DtStart, a.DtStop)
+	res, err := RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

@@ -36,6 +36,8 @@ var assignmap = []struct {
 	{a: "int64", b: "XJSONAssignmentTime", mapper: MigrateInt64ToString, valmap: &AssignmentTimeMap},
 	{a: "XJSONCompanyOrPerson", b: "int64", mapper: MigrateStrToInt64, valmap: &CompanyOrPersonMap},
 	{a: "int64", b: "XJSONCompanyOrPerson", mapper: MigrateInt64ToString, valmap: &CompanyOrPersonMap},
+	{a: "XJSONRenewal", b: "int64", mapper: MigrateStrToInt64, valmap: &RenewalMap},
+	{a: "int64", b: "XJSONRenewal", mapper: MigrateInt64ToString, valmap: &RenewalMap},
 	{a: "int", b: "JSONbool", mapper: Int2Bool},
 	{a: "JSONbool", b: "int", mapper: Bool2Int},
 	{a: "int64", b: "JSONbool", mapper: Int642Bool},
@@ -71,6 +73,16 @@ var AssignmentTimeMap = Str2Int64Map{
 	"unset":        0,
 	"Pre-Assign":   1,
 	"Commencement": 2,
+}
+
+// XJSONRenewal is a UI converter
+type XJSONRenewal string
+
+// RenewalMap is the mapping
+var RenewalMap = Str2Int64Map{
+	"unset": 0,
+	"month to month automatic renewal": 1,
+	"lease extension option":           2,
 }
 
 // XJSONCompanyOrPerson is a UI converter: back-end int, UI: string

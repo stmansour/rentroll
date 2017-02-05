@@ -208,8 +208,8 @@ CREATE TABLE RentalAgreementRentables (
     RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
     CLID BIGINT NOT NULL DEFAULT 0,                           -- Commission Ledger (for outside salespeople to get a commission)
     ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Rentable was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this Rentable was no longer being billed to this agreement
+    RARDtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when this Rentable was added to the agreement
+    RARDtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'     -- date when this Rentable was no longer being billed to this agreement
 );
 
 CREATE TABLE RentalAgreementPayors (

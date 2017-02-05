@@ -27,7 +27,6 @@ func GetAllRentalAgreementPets(raid int64) []RentalAgreementPet {
 	var t []RentalAgreementPet
 	for i := 0; rows.Next(); i++ {
 		var a RentalAgreementPet
-		// Errcheck(rows.Scan(&a.PETID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 		ReadRentalAgreementPets(rows, &a)
 		t = append(t, a)
 	}
@@ -44,7 +43,8 @@ func FindAgreementByRentable(rid int64, d1, d2 *time.Time) (RentalAgreementRenta
 
 	// SELECT RAID,BID,RID,DtStart,DtStop from RentalAgreementRentables where RID=? and DtStop>=? and DtStart<=?
 
-	err := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2).Scan(&a.RAID, &a.BID, &a.RID, &a.CLID, &a.ContractRent, &a.DtStart, &a.DtStop)
+	row := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2)
+	err := ReadRentalAgreementRentable(row, &a)
 	return a, err
 }
 

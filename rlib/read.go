@@ -337,9 +337,14 @@ func ReadRentalAgreementPets(rows *sql.Rows, a *RentalAgreementPet) error {
 	return rows.Scan(&a.PETID, &a.BID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
 }
 
+// ReadRentalAgreementRentable reads a full RentalAgreementRentable structure of data from the database based on the supplied Row pointer.
+func ReadRentalAgreementRentable(row *sql.Row, a *RentalAgreementRentable) error {
+	return row.Scan(&a.RAID, &a.BID, &a.RID, &a.CLID, &a.ContractRent, &a.RARDtStart, &a.RARDtStop)
+}
+
 // ReadRentalAgreementRentables reads a full RentalAgreementRentable structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreementRentables(rows *sql.Rows, a *RentalAgreementRentable) error {
-	return rows.Scan(&a.RAID, &a.BID, &a.RID, &a.CLID, &a.ContractRent, &a.DtStart, &a.DtStop)
+	return rows.Scan(&a.RAID, &a.BID, &a.RID, &a.CLID, &a.ContractRent, &a.RARDtStart, &a.RARDtStop)
 }
 
 // ReadRentalAgreementTemplate reads a full RentalAgreementTemplate structure of data from the database based on the supplied Row pointer.
