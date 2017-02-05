@@ -1457,6 +1457,13 @@ func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []RentalAgreementRen
 	return t
 }
 
+// GetRARentableForDate gets the RentalAgreementRentable plus the associated rentables and payors for the
+// time period specified
+func GetRARentableForDate(raid int64, d1 *time.Time, rar *RentalAgreementRentable) error {
+	row := RRdb.Prepstmt.GetRARentableForDate.QueryRow(raid, d1, d1)
+	return ReadRentalAgreementRentable(row, rar)
+}
+
 // GetRentalAgreementRentables returns an array of RentalAgreementRentables associated with the supplied RentalAgreement ID
 // during the time range d1-d2
 func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreementRentable {

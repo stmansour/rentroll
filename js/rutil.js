@@ -9,7 +9,7 @@ function setToForm(sform,url) {
     var f = w2ui[sform];
     w2ui.toplayout.show('right',true);
     w2ui.toplayout.content('right', f);
-    w2ui.toplayout.sizeTo('right', 400);
+    w2ui.toplayout.sizeTo('right', 500);
     f.resize();
     //console.log( 'setToForm:  url = ' + url)
     if (url.length > 0) {

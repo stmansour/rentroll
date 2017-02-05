@@ -185,7 +185,7 @@ func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname st
 		if len(strings.TrimSpace(ss[2])) == 0 {
 			ss[2] = dfltStop
 		}
-		payor.DtStart, payor.DtStop, _ = readTwoDates(ss[1], ss[2], funcname, lineno)
+		payor.DtStart, payor.DtStop, _ = readTwoDates(ss[1], ss[2], funcname, lineno, "Payor")
 
 		m = append(m, payor)
 	}
@@ -225,7 +225,7 @@ func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, l
 		if len(strings.TrimSpace(ss[2])) == 0 {
 			ss[2] = dfltStop
 		}
-		p.DtStart, p.DtStop, _ = readTwoDates(ss[1], ss[2], funcname, lineno)
+		p.DtStart, p.DtStop, _ = readTwoDates(ss[1], ss[2], funcname, lineno, "User")
 		m = append(m, p)
 	}
 	return m, noerr

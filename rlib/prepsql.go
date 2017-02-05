@@ -622,6 +622,8 @@ func buildPreparedStatements() {
 	//  Rental Agreement { Rentable | Users | Payors }
 	//====================================================
 	flds = "RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop"
+	RRdb.Prepstmt.GetRARentableForDate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RAID=? AND ?>=RARDtStart AND ?<RARDtStop")
+	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementRentables, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RAID=? and ?<RARDtStop and ?>RARDtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RID=? and ?<RARDtStop and ?>RARDtStart")

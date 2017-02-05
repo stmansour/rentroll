@@ -1,9 +1,0 @@
-BUD,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,MarketRate,DtStart,DtStop
-CCC,Unit A,Condo A,6,4,4,1,660.31,1/1/2016,12/31/2016
-CCC,Unit B,Condo B,6,4,4,1,3932.99,1/1/2016,12/31/2016
-CCC,Unit C,Condo C,6,4,4,1,1533.57,1/1/2016,12/31/2016
-CCC,Unit D,Condo D,6,4,4,1,2818.62,1/1/2016,12/31/2016
-CCC,Unit E,Condo E,6,4,4,1,6857.01,1/1/2016,12/31/2016
-CCC,Roof,Rooftop Lease,7,4,4,1,20766.25,1/1/2016,12/31/2016
-CCC,Parcel B,Parcel B,6,4,4,1,1023.71,1/1/2016,12/31/2016
-CCC,Roof Maint,Roof Maintenance Agreement,6,4,4,1,1500,3/1/2016,12/31/2016

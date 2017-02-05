@@ -1198,6 +1198,7 @@ type RRprepSQL struct {
 	UpdateUser                         *sql.Stmt
 	UpdatePayor                        *sql.Stmt
 	UIRAGrid                           *sql.Stmt
+	GetRARentableForDate               *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
