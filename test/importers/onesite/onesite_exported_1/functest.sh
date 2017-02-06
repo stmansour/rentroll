@@ -5,9 +5,8 @@ TESTSUMMARY="Tests initizing RentRoll DB from importing OneSite rentroll report.
 
 RRBIN="../../../../tmp/rentroll"
 TEMPCSVSTORE="${RRBIN}/importers/onesite/temp_CSVs"
-
-source ../../../share/base.sh
 BUD=ISO
+source ../../../share/base.sh
 
 docsvtest "a" "-b business.csv -L 3" "Business"
 
