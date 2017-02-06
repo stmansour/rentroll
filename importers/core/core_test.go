@@ -14,6 +14,7 @@ func TestGetStructFields(t *testing.T) {
 		a int
 		b string
 	}
+	var ok bool
 
 	// CASE: POSITIVE
 	// expected output
@@ -21,7 +22,7 @@ func TestGetStructFields(t *testing.T) {
 
 	// create var for struct
 	var sample Sample
-	fields, ok := GetStructFields(&sample)
+	fields, _ := GetStructFields(&sample)
 
 	// check that both are equal
 	if !reflect.DeepEqual(fields, outputFields) {
