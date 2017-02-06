@@ -33,6 +33,7 @@ clean:
 test: package
 	@rm -f test/*/err.txt
 	for dir in $(DIRS); do make -C $$dir test;done
+	@test/share/buildcheck.sh TEST
 	@./errcheck.sh
 
 man: rentroll.1
@@ -60,7 +61,7 @@ package: rentroll
 	ln -s tmp/rentroll/rrrestore
 	@echo "*** PACKAGE COMPLETED ***"
 	@rm -f fail
-	test/share/buildcheck.sh PACKAGE
+	@test/share/buildcheck.sh PACKAGE
 
 publish: package
 	cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar
