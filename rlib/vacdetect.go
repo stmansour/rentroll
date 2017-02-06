@@ -78,7 +78,7 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) []VacancyMar
 		case RENTABLESTATUSONLINE:
 			// fmt.Printf("\tonline... ")
 			for i := 0; i < len(t); i++ {
-				if DateRangeOverlap(&t[i].DtStart, &t[i].DtStop, &dt, &dtNext) {
+				if DateRangeOverlap(&t[i].RARDtStart, &t[i].RARDtStop, &dt, &dtNext) {
 					// fmt.Printf("covered, RAID = %d\n", t[i].RAID)
 					vacant = false // not vacant
 				}

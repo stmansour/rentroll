@@ -237,8 +237,8 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	// process the first bit for the BID...
 	//-----------------------------------------------------------------------
 	var abud []string
-	if len(pathElements) >= 3 {
-		abud = strings.Split(pathElements[2], "?")                            // in this array, abud[0] will always be what want to parse
+	if len(pathElements) >= 2 {
+		abud = strings.Split(pathElements[1], "?")                            // in this array, abud[0] will always be what want to parse
 		d.BID, err = rlib.IntFromString(abud[0], "bad request integer value") // assume it's a BID
 		if err != nil {
 			var ok bool // OK, let's see if it's a BUD

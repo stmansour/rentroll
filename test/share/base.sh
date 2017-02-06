@@ -20,6 +20,7 @@ MYSQLOPTS=""
 MYSQL=$(which mysql)
 TESTCOUNT=0			## this is an internal counter, your external script should not touch it
 SHOWCOMMAND=0
+CREATENEWDB=1
 SCRIPTPATH=$(pwd -P)
 
 if [ "x${RRPORT}" = "x" ]; then
@@ -206,6 +207,9 @@ OPTIONS
 	-f  Executes all the steps of the test but does not compare the output
 	    to the known-good files. This is useful when making a slight change
 	    to something just to see how it will work.
+
+	-n  Do not create a new database, use the current database and simply
+	    add to it.
 
 	-o  Regenerate the .gold files based on the output from this run. Only
 	    use this option if you're sure the output is correct. This option
@@ -746,7 +750,7 @@ dojsonPOST () {
 #  Handle command line options...
 #--------------------------------------------------------------------------
 tdir
-while getopts "cforR:" o; do
+while getopts "cfornR:" o; do
 	echo "o = ${o}"
 	case "${o}" in
 		c | C)
@@ -759,6 +763,9 @@ while getopts "cforR:" o; do
 			;;
 		f)  SKIPCOMPARE=1
 			echo "SKIPPING COMPARES..."
+			;;
+		n)	CREATENEWDB=0
+			echo "DATA WILL BE ADDED TO CURRENT DB"
 			;;
 		o)	FORCEGOOD=1
 			echo "OUTPUT OF THIS RUN IS SAVED AS *.GOLD"
@@ -779,7 +786,9 @@ date >> ${LOGFILE}
 echo >>${LOGFILE}
 
 echo -n "Create new database... " >> ${LOGFILE} 2>&1
-${RRBIN}/rrnewdb
+if [ ${CREATENEWDB} -eq 1 ]; then
+	${RRBIN}/rrnewdb
+fi
 if [ $? -eq 0 ]; then
 	echo " successful" >> ${LOGFILE} 2>&1
 else

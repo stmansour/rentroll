@@ -21,12 +21,12 @@ import (
 
 // readTwoDates assumes that a date string is in ss[1] and ss[2].  It will parse and return the dates
 // along with any error it finds.
-func readTwoDates(s1, s2 string, funcname string, lineno int) (time.Time, time.Time, error) {
+func readTwoDates(s1, s2 string, funcname string, lineno int, col string) (time.Time, time.Time, error) {
 	var DtStart, DtStop time.Time
 	var err error
 	DtStart, err = rlib.StringToDate(s1) // required field
 	if err != nil {
-		err = fmt.Errorf("%s: line %d - invalid start date:  %s", funcname, lineno, s1)
+		err = fmt.Errorf("%s: line %d   column: %s - invalid start date:  %s", funcname, lineno, col, s1)
 		return DtStart, DtStop, err
 	}
 
@@ -38,7 +38,7 @@ func readTwoDates(s1, s2 string, funcname string, lineno int) (time.Time, time.T
 	}
 	DtStop, err = rlib.StringToDate(end)
 	if err != nil {
-		err = fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, s2)
+		err = fmt.Errorf("%s: line %d   column: %s - invalid stop date:  %s", funcname, lineno, col, s2)
 	}
 	return DtStart, DtStop, err
 }
@@ -128,7 +128,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		for i := 0; i < len(st); i++ {          //spin through the 3-tuples
 			ss := strings.Split(st[i], ",")
 			if len(ss) != 3 {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"",
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid User Specification. Each semi-colon separated field must have 3 values. Found %d in \"%s\"",
 					funcname, lineno, len(ss), ss)
 			}
 
@@ -141,9 +141,9 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 			}
 			ru.TCID = n[0].TCID
 
-			ru.DtStart, ru.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
+			ru.DtStart, ru.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RUserSpec")
 			if err != nil {
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s", funcname, lineno, err.Error())
+				return CsvErrorSensitivity, err
 			}
 			rul = append(rul, ru) // add this struct to the list
 		}
@@ -162,7 +162,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	for i := 0; i < len(st); i++ {               //spin through the 3-tuples
 		ss := strings.Split(st[i], ",")
 		if len(ss) != 3 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status syntax. Each semi-colon separated field must have 3 values. Found %d in \"%s\"",
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Rentable Status. Each semi-colon separated field must have 3 values. Found %d in \"%s\"",
 				funcname, lineno, len(ss), ss)
 		}
 
@@ -174,9 +174,9 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		}
 		rst.Status = int64(ix)
 
-		rst.DtStart, rst.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
+		rst.DtStart, rst.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableStatus")
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s", err.Error())
+			return CsvErrorSensitivity, err
 		}
 		m = append(m, rst) // add this struct to the list
 	}
@@ -210,9 +210,9 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		}
 		rt.RTID = rstruct.RTID
 
-		rt.DtStart, rt.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno)
+		rt.DtStart, rt.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableTypeRef")
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s", err.Error())
+			return CsvErrorSensitivity, err
 		}
 		n = append(n, rt) // add this struct to the list
 	}

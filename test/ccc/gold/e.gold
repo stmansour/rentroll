@@ -10,4 +10,7 @@ RT00000005  Unit E      Condo E                    monthly   daily      daily  Y
 RT00000006  Roof        Rooftop Lease              quarterl  daily      daily  Yes     |    1/1/16 - 12/31/16 $20766.25
 RT00000007  Parcel B    Parcel B                   monthly   daily      daily  Yes     |    1/1/16 - 12/31/16 $ 1023.71
 RT00000008  Roof Maint  Roof Maintenance Agreemen  monthly   daily      daily  Yes     |    3/1/16 - 12/31/16 $ 1500.00
+RT00000009  PRKI        Parking Space Inside       monthly   daily      daily  Yes     |    1/1/16 -   1/1/18 $   50.00
+RT00000010  PRKO        Parking Space Outside      monthly   daily      daily  Yes     |    1/1/16 -   1/1/18 $   40.00
+RT00000011  Unit J      Condo J                    monthly   daily      daily  Yes     |    1/1/16 -   1/1/18 $ 8000.00
 

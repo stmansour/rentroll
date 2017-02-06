@@ -5,13 +5,15 @@
 //   dc = date control
 // @return string value that was set in dc
 function setToForm(sform,url) {
+    "use strict";
     var f = w2ui[sform];
-    w2ui['toplayout'].show('right',true);
-    w2ui['toplayout'].content('right', f);
-    w2ui['toplayout'].sizeTo('right', 400);
+    w2ui.toplayout.show('right',true);
+    w2ui.toplayout.content('right', f);
+    w2ui.toplayout.sizeTo('right', 500);
     f.resize();
+    //console.log( 'setToForm:  url = ' + url)
     if (url.length > 0) {
-        f.url = url
+        f.url = url;
         f.request();
     }
 }
@@ -25,7 +27,8 @@ function setToForm(sform,url) {
 // @return - the plural of word s
 //-----------------------------------------------------------------------------
 function plural(s) {
-    return s + 's'
+    "use strict";
+    return s + 's';
 }
 
 
@@ -37,6 +40,7 @@ function plural(s) {
 // @return - java date value
 //-----------------------------------------------------------------------------
 function dateFromDC(dc) {
+    "use strict";
     var x = new Date(dc.value); 
     return new Date(x.getTime() + 24*60*60*1000); // for some reason we need to add 1 day to get the right value
  }
@@ -49,6 +53,7 @@ function dateFromDC(dc) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function dayBack(dc) {
+    "use strict";
     var x = dateFromDC(dc);
     var y = new Date(x.getTime() - 24*60*60*1000); // one day prior 
     return setDateControl(dc,y);
@@ -61,6 +66,7 @@ function dayBack(dc) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function dayFwd( dc ) {
+    "use strict";
     var x = dateFromDC(dc);
     var y = new Date(x.getTime() + 24*60*60*1000); // one day prior
     return setDateControl(dc,y);
@@ -75,6 +81,7 @@ function dayFwd( dc ) {
 // @return - a date that is one month from y
 //-----------------------------------------------------------------------------
 function dateMonthFwd( y ) {
+    "use strict";
     var m = (y.getMonth() + 1) % 12;    // set m to the correct next month value
     var my = (y.getMonth() + 1) / 12;   // number of years to add for next month
     var d = y.getDate();                // this is the target date
@@ -106,7 +113,8 @@ function dateMonthFwd( y ) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function monthFwd( dc ) {
-    y = dateFromDC(dc);
+    "use strict";
+    var y = dateFromDC(dc);
     var d2 = dateMonthFwd(y);
     return setDateControl(dc,d2);
 }
@@ -120,7 +128,8 @@ function monthFwd( dc ) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function monthBack(dc) {
-    y = dateFromDC(dc);
+    "use strict";
+    var y = dateFromDC(dc);
     var yb = 0; // assume same year
     var m = y.getMonth() - 1;
     if (m < 0) {
@@ -148,6 +157,7 @@ function monthBack(dc) {
 // @return string value yyyy-mm-dd
 //-----------------------------------------------------------------------------
 function dateControlString(dt) {
+    "use strict";
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     var s = '' + dt.getFullYear() + '-';
@@ -170,7 +180,8 @@ function dateControlString(dt) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function setDateControl(dc,dt) {
-    s = dateControlString(dt)
+    "use strict";
+    var s = dateControlString(dt);
     dc.value = s;
-    return s
+    return s;
 }

@@ -7,6 +7,7 @@ RRBIN="../../../../tmp/rentroll"
 TEMPCSVSTORE="${RRBIN}/importers/onesite/temp_CSVs"
 
 source ../../../share/base.sh
+BUD=ISO
 
 docsvtest "a" "-b business.csv -L 3" "Business"
 

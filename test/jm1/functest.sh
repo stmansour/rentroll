@@ -120,7 +120,7 @@ dorrtest  "q2" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 cat >xxyyzz <<EOF
 use rentroll
 update RentalAgreement SET AgreementStop="2018-03-01",PossessionStop="2018-03-01",RentStop="2018-03-01" WHERE RAID=1;
-INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(1,1,0,3750,"2016-03-01 00:00:00","2018-03-01 00:00:00");
+INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,RARDtStart,RARDtStop) VALUES(1,1,0,3750,"2016-03-01 00:00:00","2018-03-01 00:00:00");
 INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(1,3750,"2016-03-01 00:00:00","2018-03-01 00:00:00");
 INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop) VALUES(1,1,"2016-03-01 00:00:00","2018-03-01 00:00:00");
 INSERT INTO RentalAgreementPayors (RAID,TCID,DtStart,DtStop) VALUES(1,2,"2016-03-01 00:00:00","2018-03-01 00:00:00");
@@ -186,8 +186,8 @@ dorrtest  "q4" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 cat >xxyyzz <<EOF
 use rentroll
 INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(2,3800,"2016-05-01 00:00:00","2016-10-01 00:00:00");
-INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(2,2,0,3800,"2016-05-01 00:00:00","2016-08-28 00:00:00");
-UPDATE RentalAgreementRentables SET DtStop="2016-05-01" WHERE ContractRent=3550 AND RID=2;
+INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,RARDtStart,RARDtStop) VALUES(2,2,0,3800,"2016-05-01 00:00:00","2016-08-28 00:00:00");
+UPDATE RentalAgreementRentables SET RARDtStop="2016-05-01" WHERE ContractRent=3550 AND RID=2;
 EOF
 ${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz
@@ -285,7 +285,7 @@ dorrtest  "q9" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 cat >xxyyzz <<EOF
 use rentroll
 INSERT INTO RentableMarketRate (RTID,MarketRate,DtStart,DtStop) VALUES(2,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
-INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,DtStart,DtStop) VALUES(2,2,0,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
+INSERT INTO RentalAgreementRentables (RAID,RID,CLID,ContractRent,RARDtStart,RARDtStop) VALUES(2,2,0,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
 EOF
 ${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz

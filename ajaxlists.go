@@ -7,6 +7,23 @@ import (
 	"rentroll/rlib"
 )
 
+// String2Int64MapToJSList generates a string of JS code that assigns
+// all the map strings in m to an array.  Suitable for a JS eval call.
+func String2Int64MapToJSList(name string, m *rlib.Str2Int64Map) string {
+	s := name + "=["
+	l := len(*m)
+	i := 0
+	for k := range *m {
+		s += "'" + k + "'"
+		if i+1 < l {
+			s += ","
+		}
+		i++
+	}
+	s += "];\n"
+	return s
+}
+
 // SvcUILists returns JSON for the Javascript lists needed for the UI
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcUILists\n")
@@ -54,4 +71,6 @@ assignmentTimeList = [ 'unset', 'Pre-Assign', 'Commencement'];
 	}
 	s += "];\n"
 	io.WriteString(w, s)
+
+	io.WriteString(w, String2Int64MapToJSList("renewalMap", &rlib.RenewalMap))
 }

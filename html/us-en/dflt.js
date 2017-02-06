@@ -26,3 +26,7 @@ var sService ="Service"
 var sBusinessUnit="Business Unit"
 var sAssessment="Assessment"
 var sReceipt="Receipt"
+
+// Rental Agreement Detail Form
+var sRAMainTab="Main"
+var sRACommercialTab="Commercial"

@@ -24,7 +24,7 @@ sidebarL1     - w2ui sidebar
 -->
 
 <script>
-var businesses = []
+var businesses = [];
 {{range .BL}}
 var business = {BUD:"{{.Designation}}", BID:"{{.BID}}"};
 businesses.push(business);
@@ -38,21 +38,22 @@ var app = {
     lastCmd: '',
     lang: "{{.Lang}}",
     tmpl: "{{.Tmpl}}"
-}
+};
 
 var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
 var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
 var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;';
-var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777'
+var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777';
 
 
 function showReport(rptname) {
-    var w = w2ui['reportslayout']
+    "use strict";
+    var w = w2ui.reportslayout;
     var x = getCurrentBusiness();
     var userid = 211;
-    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname
-    w2ui['toplayout'].content('main', w);
-    w2ui['toplayout'].hide('right',true);
+    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname;
+    w2ui.toplayout.content('main', w);
+    w2ui.toplayout.hide('right',true);
     var y = document.getElementsByName("dateD1");
     var d = y[0].value;
     app.D1 = d;
@@ -69,44 +70,48 @@ function showReport(rptname) {
 
 
 function getCurrentBusiness() {
+    "use strict";
     var x = document.getElementsByName("BusinessSelect");
     return x[0];
 }
 
-// urlPrefix returns the standard for values for the web services
-// url ending:  <userid>/<business id>
-function urlSuffix() {
-    user = "211" // hardcoded for now
-    return user+x[0].value;
-}
+// // urlPrefix returns the standard for values for the web services
+// // url ending:  <userid>/<business id>
+// function urlSuffix() {
+//     "use strict";
+//     user = "211"; // hardcoded for now
+//     return user+x[0].value;
+// }
 
 // ChangeBusiness updates the UI to the newly selected business
 function ChangeBusiness() {
-    w2ui['toplayout'].content('main', ' ');
-    w2ui['toplayout'].hide('right',true);
-    s = w2ui['sidebarL1'];
-    sel = s.selected;
-    if (sel != null) { 
+    "use strict";
+    w2ui.toplayout.content('main', ' ');
+    w2ui.toplayout.hide('right',true);
+    var s = w2ui.sidebarL1;
+    var sel = s.selected;
+    if (sel !== null) { 
         s.unselect(sel);
     }
-    w2ui['reportslayout'].load('main','/html/blank.html');
+    w2ui.reportslayout.load('main','/html/blank.html');
     app.lastCmd = '';
     s.collapse('reports');
     s.collapse('admin');
 }
 
 function switchToGrid(svc) {
-    grid = svc + 'Grid' // this builds the name of the w2ui grid we want
-    var user = '211'    // user is hardcoded for now
+    "use strict";
+    var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
-    var url = '/gsvc/' + svc + '/' + user + '/' + x.value;
+    var url = '/gsvc/' + svc + '/' + x.value;
     w2ui[grid].url = url;
     console.log('url = ' + url);
-    w2ui['toplayout'].content('main', w2ui[grid]);
-    w2ui['toplayout'].hide('right',true);
+    w2ui.toplayout.content('main', w2ui[grid]);
+    w2ui.toplayout.hide('right',true);
 }
 
 function defineDateFmts() {
+    "use strict";
     var month = (new Date()).getMonth() + 1;
     var year  = (new Date()).getFullYear();
     // // US Format
@@ -134,6 +139,7 @@ function defineDateFmts() {
 // the dropdown lists prior to downloading their values. By doing it this way, we download
 // the lists first so that their values will be set by the server before we build the UI.
 function buildPageElements() {
+    "use strict";
     //------------------------------------------------------------------------
     //          mainlayout
     //------------------------------------------------------------------------
@@ -204,19 +210,19 @@ function buildPageElements() {
             ]},
         ],
         onClick: function (event) {
-            console.log('target = ' + event.target)
+            console.log('target = ' + event.target);
             switch(event.target) {
                 case "moduleMenu:Directory":      window.location.href = 'https://directory.airoller.com/'; break;
                 case "menuButton:Template-Dflt":  window.location.href = '/home/us-en/dflt'; break;
                 case "menuButton:Template-Apts":  window.location.href = '/home/us-en/apts'; break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                               break;
-                case "menuButton:Messages":       w2ui['toplayout'].toggle('top',true);                     break;
-                case "menuButton:Sidebar":        w2ui['toplayout'].toggle('left',true);                    break;
-                case "menuButton:mainLayoutMain": w2ui['mainlayout'].toggle('main',true);                   break;
-                case "menuButton:Preview":        w2ui['toplayout'].toggle('preview',true);                 break;
-                case "menuButton:Details":        w2ui['toplayout'].toggle('right',true);                   break;
-                case "menuButton:Footer":         w2ui['mainlayout'].toggle('bottom',true);                 break;
-                case "menuButton:topLayoutMain":  w2ui['toplayout'].toggle('main',true);                    break;
+                case "menuButton:Messages":       w2ui.toplayout.toggle('top',true);                     break;
+                case "menuButton:Sidebar":        w2ui.toplayout.toggle('left',true);                    break;
+                case "menuButton:mainLayoutMain": w2ui.mainlayout.toggle('main',true);                   break;
+                case "menuButton:Preview":        w2ui.toplayout.toggle('preview',true);                 break;
+                case "menuButton:Details":        w2ui.toplayout.toggle('right',true);                   break;
+                case "menuButton:Footer":         w2ui.mainlayout.toggle('bottom',true);                 break;
+                case "menuButton:topLayoutMain":  w2ui.toplayout.toggle('main',true);                    break;
             }
         },
     }));
@@ -224,7 +230,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     //          sidebarL1
     //------------------------------------------------------------------------
-    w2ui['toplayout'].content('left',$().w2sidebar({
+    w2ui.toplayout.content('left',$().w2sidebar({
         name: 'sidebarL1',
         nodes: [
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
@@ -269,23 +275,23 @@ function buildPageElements() {
             },
         ],
         onExpand: function(event) {
-            var x = getCurrentBusiness();
+            //var x = getCurrentBusiness();
             //console.log('current biz = ' + x.value + '  name = ' + x.name );
             switch (event.target) {
                 case 'reports':
-                    var w = w2ui['reportslayout']
-                    w2ui['toplayout'].content('main', w);
-                    w2ui['toplayout'].hide('right',true);
+                    var w = w2ui.reportslayout;
+                    w2ui.toplayout.content('main', w);
+                    w2ui.toplayout.hide('right',true);
                     break;
             }
 
         },
         onFlat: function (event) {
-            console.log('event.goFlat = ' + event.goFlat )
+            console.log('event.goFlat = ' + event.goFlat );
             $('#sidebarL1').css('width', (event.goFlat ? '35px' : '200px'));
         },
         onClick: function (event) {
-            console.log('event.target = ' + event.target)
+            console.log('event.target = ' + event.target);
             switch(event.target) {
                 case 'accounts':
                 case 'rentables':
@@ -315,12 +321,12 @@ function buildPageElements() {
                 case 'sl':
                 case 'statements':
                 case 'tb':
-                    showReport(event.target)
-                    app.lastCmd = event.target
+                    showReport(event.target);
+                    app.lastCmd = event.target;
                     break;
 
                 default:
-                    console.log('unhandled event: ' + event.target)
+                    console.log('unhandled event: ' + event.target);
             }
         }
     }));
@@ -350,7 +356,7 @@ function buildPageElements() {
         items: [
             { type: 'button',  id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
             { type: 'button',  id: 'dayback', icon: 'fa fa-chevron-left', tooltip: 'day back' },
-            { type: 'html',    id: 'reportsD1', html: function (item) {
+            { type: 'html',    id: 'reportsD1', html: function () {
                     var html =
                       '<div style="padding: 3px 10px;">'+
                       ' Start: <input type="date" name="dateD1">'+
@@ -358,7 +364,7 @@ function buildPageElements() {
                     return html;
                 }
             },
-            { type: 'html',    id: 'reportsD2', html: function (item) {
+            { type: 'html',    id: 'reportsD2', html: function () {
                     var html =
                       '<div style="padding: 3px 10px;">'+
                       ' Stop: <input type="date" name="dateD2">'+
@@ -394,9 +400,9 @@ function buildPageElements() {
         },
         onRefresh: function (event) {
             if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
-                var x = document.getElementsByName("dateD1")
+                var x = document.getElementsByName("dateD1");
                 x[0].value = app.D1;
-                var x = document.getElementsByName("dateD2")
+                x = document.getElementsByName("dateD2");
                 x[0].value = app.D2;
             }
         }
@@ -437,7 +443,7 @@ function buildPageElements() {
                 // });   
                 var sel = this.getSelection(true);
                 console.log('Current selection is ' + sel );
-            }
+            };
         }
     });
 
@@ -466,20 +472,20 @@ function buildPageElements() {
             {field: 'WorkPhone',    caption: "Work Phone",    size: '10%', sortable: true, hidden: false},
         ],
         onClick: function(event) {
-            var sel = this.getSelection(true);
+            // var sel = this.getSelection(true);
             event.onComplete = function () {
                 // var x = this.get; Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
                 var sel = this.getSelection(true);
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; ++i) {
-                        ob = this.get(sel[i])
+                        var ob = this.get(sel[i]);
                         setToForm('transactantForm', '/gsvc/xperson/' + ob.BID + '/' + ob.TCID);
                      }
                 } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0')
-                    this.select(1)
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
                 }
-            }
+            };
         }
     });
 
@@ -566,7 +572,7 @@ function buildPageElements() {
             ],
             onClick: function (event) {
                 if (event.target == 'btnResize') {
-                    w2ui['transactantForm'].resize();
+                    w2ui.transactantForm.resize();
                 }
                 if (event.target == 'btnNotes')  {
                     notesPopUp();
@@ -575,8 +581,7 @@ function buildPageElements() {
         },
         actions: {
             save: function () {
-                var obj = this;
-                var tgrid = w2ui['transactantsGrid'];
+                var tgrid = w2ui.transactantsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
                 console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
@@ -585,21 +590,20 @@ function buildPageElements() {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
-                    // obj.clear();
-                    w2ui['toplayout'].hide('right',true);
+                    w2ui.toplayout.hide('right',true);
                     tgrid.reload();
                 });
             },
             reset: function () {
-                w2ui['transactantForm'].resize()
+                w2ui.transactantForm.resize();
             }
         },
-        onRefresh: function(event) {
-            var f = w2ui['transactantForm']
-            var r = f.record
-            var name = r.FirstName + ' ' + r.LastName
-            var title = 'Edit ' + sTransactant + ' - ' + name +' (' + r.TCID + ')'
-            f.header = title
+        onRefresh: function() {
+            var f = w2ui.transactantForm;
+            var r = f.record;
+            var name = r.FirstName + ' ' + r.LastName;
+            var title = 'Edit ' + sTransactant + ' - ' + name +' (' + r.TCID + ')';
+            f.header = title;
         }
     });
 
@@ -646,20 +650,20 @@ function buildPageElements() {
             {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
         ],
         onClick: function(event) {
-            var sel = this.getSelection(true);
+            // var sel = this.getSelection(true);
             event.onComplete = function () {
                 var sel = this.getSelection(true);
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
-                        ob = this.get(sel[i])
-                        console.log('rentable form url: ' + '/gsvc/xrentable/' + ob.BID + '/' + ob.RID)
+                        var ob = this.get(sel[i]);
+                        console.log('rentable form url: ' + '/gsvc/xrentable/' + ob.BID + '/' + ob.RID);
                         setToForm('rentableForm', '/gsvc/xrentable/' + ob.BID + '/' + ob.RID);
                     }
                 } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0')
-                    this.select(1)
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
                 }
-            }
+            };
         }
     });
 
@@ -681,8 +685,8 @@ function buildPageElements() {
         ],
         actions: {
             save: function () {
-                var obj = this;
-                var tgrid = w2ui['rentablesGrid'];
+                //var obj = this;
+                var tgrid = w2ui.rentablesGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
                 this.save({}, function (data) { 
@@ -690,20 +694,20 @@ function buildPageElements() {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
-                    w2ui['toplayout'].hide('right',true);
+                    w2ui.toplayout.hide('right',true);
                     tgrid.reload();
                 });
 
             },
             reset: function() {
-                var f = w2ui['rentableForm']
-                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.Name)
+                var f = w2ui.rentableForm;
+                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.Name);
             }
         },
-        onRefresh: function(event) {
-            var f = w2ui['rentableForm']
-            var r = f.record
-            f.header = 'Edit ' + sRentable + ' - ' + r.Name + ' (' + r.RID + ')'
+        onRefresh: function(/*event*/) {
+            var f = w2ui.rentableForm;
+            var r = f.record;
+            f.header = 'Edit ' + sRentable + ' - ' + r.Name + ' (' + r.RID + ')';
         }
     });
 
@@ -736,34 +740,34 @@ function buildPageElements() {
         ], 
         actions: {
             save: function () {
-                var tgrid = w2ui['rentalagrsGrid'];
+                var tgrid = w2ui.rentalagrsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
                 console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
             }
         },
         onClick: function(event) {
-            var sel = this.getSelection(true);
+            //var sel = this.getSelection(true);
             event.onComplete = function () {
                 var sel = this.getSelection(true);
-                console.log('Get Selection: Rental Agreement')
+                console.log('Get Selection: Rental Agreement');
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
-                        ob = this.get(sel[i])
-                        console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID)
+                        var ob = this.get(sel[i]);
+                        console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID);
                         setToForm('rentalagrForm', '/gsvc/xrentalagr/' + ob.BID + '/' + ob.RAID);
                     }
                 } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0')
-                    this.select(1)
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
                 }
-            }
+            };
         },
-        onRequest: function(event) {
-            console.log('On Request.  url = ' + w2ui['rentalagrsGrid'].url)
+        onRequest: function(/*event*/) {
+            console.log('On Request.  url = ' + w2ui.rentalagrsGrid.url);
         },
-        onSearch: function(event) {
-            console.log('Search called')
+        onSearch: function(/*event*/) {
+            console.log('Search called');
         }
     });
 
@@ -791,15 +795,34 @@ function buildPageElements() {
             { field: 'RentCycleEpoch', type: 'date', required: false, html: { caption: 'Rent Cycle Epoch', page: 0, column: 0 } },
             { field: 'UnspecifiedAdults', type: 'int', required: false, html: { caption: 'Unspecified Adults', page: 0, column: 0 } },
             { field: 'UnspecifiedChildren', type: 'int', required: false, html: { caption: 'Unspecified Children', page: 0, column: 0 } },
-            // { field: 'Renewal', type: 'list', required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
-            // { field: 'SpecialProvisions', type: 'list', required: false, html: { caption: 'Special Provisions', page: 0, column: 0 } },
+            { field: 'Renewal', type: 'list', options: {items: renewalMap}, required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
+            { field: 'SpecialProvisions', type: 'text', required: false, html: { caption: 'Special Provisions', page: 0, column: 0 } },
             { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            { field: 'LeaseType', type: 'w2int', required: false, html: {page: 1, column: 0}},
+            { field: 'ExpenseAdjustmentType', type: 'w2int', required: false, html: {page: 1, column: 0}},
+            { field: 'ExpensesStop', type: 'w2float', required: false, html: {page: 1, column: 0}},
+            { field: 'ExpenseStopCalculation', type: 'text', required: false, html: {page: 1, column: 0}},
+            { field: 'BaseYearEnd', type: 'date', required: false, html: {page: 1, column: 0}},
+            { field: 'ExpenseAdjustment', type: 'date', required: false, html: {page: 1, column: 0}},
+            { field: 'EstimatedCharges', type: 'w2float', required: false, html: {page: 1, column: 0}},
+            { field: 'RateChange', type: 'w2float', required: false, html: {page: 1, column: 0}},
+            { field: 'NextRateChange', type: 'date', required: false, html: {page: 1, column: 0}},
+            { field: 'PermittedUses', type: 'text', required: false, html: {page: 1, column: 0}},
+            { field: 'ExclusiveUses', type: 'text', required: false, html: {page: 1, column: 0}},
+            { field: 'ExtensionOption', type: 'text', required: false, html: {page: 1, column: 0}},
+            { field: 'ExtensionOptionNotice', type: 'date', required: false, html: {page: 1, column: 0}},
+            { field: 'ExpansionOption', type: 'text', required: false, html: {page: 1, column: 0}},
+            { field: 'ExpansionOptionNotice', type: 'date', required: false, html: {page: 1, column: 0}},
+            { field: 'RightOfFirstRefusal', type: 'text', required: false, html: {page: 1, column: 0}},
+        ],
+        tabs: [
+            { id: 'tab1', caption: sRAMainTab },
+            { id: 'tab2', caption: sRACommercialTab },
         ],
         actions: {
             save: function () {
-                var obj = this;
-                var tgrid = w2ui['rentalagrsGrid'];
+                var tgrid = w2ui.rentalagrsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
                 this.save({}, function (data) { 
@@ -807,32 +830,25 @@ function buildPageElements() {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
-                    w2ui['toplayout'].hide('right',true);
+                    w2ui.toplayout.hide('right',true);
                     tgrid.reload();
                 });
 
             },
             reset: function() {
-                var f = w2ui['rentalagrForm']
-                console.log('f:   recid = ' + f.record.recid + '   RAID = ' + f.record.RID)
+                var f = w2ui.rentalagrForm;
+                console.log('f:   recid = ' + f.record.recid + '   RAID = ' + f.record.RID);
             }
         },
-        onRefresh: function(event) {
-            var f = w2ui['rentalagrForm']
-            f.header = 'Edit ' + sRentalAgreement + ' -  RA00' + f.record.RAID 
+        onRefresh: function(/*event*/) {
+            var f = w2ui.rentalagrForm;
+            f.header = 'Edit ' + sRentalAgreement + ' -  RA00' + f.record.RAID;
         }
     });
-
 }
 
-function handleData(data,status) {
-    if (status == "success") {
-        eval(data) // defines all the lists; values for the dropdown lists
-        console.log("SUCCESSFULLY LOADED LISTS")
-    } else {
-        console.log( '**** YIPES! ****  status on /gsvc/uilists/ = ' + status)
-    }
-    console.log('assignmentTimeList = ' + assignmentTimeList)
+function finishInitialization() {
+    "use strict";
     defineDateFmts();
     buildPageElements();
 
@@ -841,15 +857,26 @@ function handleData(data,status) {
     app.D1 = dateControlString(d1);
     var d2 = dateMonthFwd(d1);
     app.D2 = dateControlString(d2);
+}
 
+
+function handleData(data,status) {
+    if (status == "success") {
+        eval(data); // defines all the lists; values for the dropdown lists
+        console.log("SUCCESSFULLY LOADED LISTS");
+    } else {
+        console.log( '**** YIPES! ****  status on /gsvc/uilists/ = ' + status);
+    }
+    finishInitialization();
 }
 
 $(function () {
+    "use strict";
     $.get("/gsvc/uilists/")
     .done(handleData)
-    .fail( function() { console.log('Error getting /gsvc/uilists')
+    .fail( function() { 
+        console.log('Error getting /gsvc/uilists');
      });
-
 });
 
 </script>

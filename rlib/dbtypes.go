@@ -391,8 +391,8 @@ type RentalAgreementRentable struct {
 	RID          int64     // the Rentable
 	CLID         int64     // commission ledger -- applies if outside sales rented this rentable
 	ContractRent float64   // the rent
-	DtStart      time.Time // start date/time for this Rentable
-	DtStop       time.Time // stop date/time
+	RARDtStart   time.Time // start date/time for this Rentable
+	RARDtStop    time.Time // stop date/time
 }
 
 // RentalAgreementPayor describes a Payor associated with a rental agreement
@@ -1198,6 +1198,7 @@ type RRprepSQL struct {
 	UpdateUser                         *sql.Stmt
 	UpdatePayor                        *sql.Stmt
 	UIRAGrid                           *sql.Stmt
+	GetRARentableForDate               *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

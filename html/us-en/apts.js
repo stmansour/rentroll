@@ -32,3 +32,7 @@ var sService ="Service";
 var sBusinessUnit="Business Unit";
 var sAssessment="Charge"
 var sReceipt="Payment"
+
+// Rental Agreement Detail Form
+var sRAMainTab="Main"
+var sRACommercialTab="Commercial"
