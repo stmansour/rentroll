@@ -756,7 +756,14 @@ function buildPageElements() {
                         var ob = this.get(sel[i]);
                         console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID);
                         setToForm('rentalagrForm', '/gsvc/xrentalagr/' + ob.BID + '/' + ob.RAID);
+
+                        var url = '/gsvc/rar/' + ob.BID + '/' + ob.RAID;
+                        console.log('RAR url =' + url);
+                        $.get(url)
+                            .done(rcvRARList)
+                            .fail(rcvRARListFail);
                     }
+
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
                     this.select(1);
@@ -770,6 +777,7 @@ function buildPageElements() {
             console.log('Search called');
         }
     });
+
 
     //------------------------------------------------------------------------
     //          rentalagrForm
@@ -846,6 +854,26 @@ function buildPageElements() {
         }
     });
 }
+
+function rcvRARList(responseText,status) {
+    "use strict";
+    var data;
+    console.log('status = ' + status);
+    console.log('responseText = ', responseText);
+    if (typeof responseText == "object") {
+        data = responseText;
+    } else {
+        // $.parseJSON or $.getJSON did not work because they expect JSON data where everything is in double quotes
+        // TODO: avoid (potentially malicious) code injection from the response.
+        try { eval('data = '+ responseText); } catch (e) { }
+    }
+    console.log('data.Status = ' + data.Status);
+}
+function rcvRARListFail() { 
+    "use strict";
+    console.log('Error getting rarlist');
+}
+
 
 function finishInitialization() {
     "use strict";

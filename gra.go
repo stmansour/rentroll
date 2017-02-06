@@ -257,12 +257,6 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 	if a.RAID > 0 {
-		var rar rlib.RentalAgreementRentable
-		now := time.Now()
-		if err = rlib.GetRARentableForDate(d.RAID, &now, &rar); err != nil {
-			rlib.LogAndPrintError("getRentalAgreement", err)
-		}
-		fmt.Printf("rar = %#v\n", rar)
 		var gg gxrentalagr
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg

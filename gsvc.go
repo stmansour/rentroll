@@ -62,6 +62,7 @@ type ServiceData struct {
 var Svcs = []ServiceHandler{
 	{"transactants", SvcSearchHandlerTransactants, true},
 	{"accounts", SvcSearchHandlerGLAccounts, true},
+	{"rar", SvcRARentables, true},
 	{"rentables", SvcSearchHandlerRentables, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
 	{"xperson", SvcFormHandlerXPerson, true},
@@ -248,6 +249,8 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+	fmt.Printf("d.BID = %d\n", d.BID)
 
 	//-----------------------------------------------------------------------
 	//  Now call the appropriate handler to do the rest
