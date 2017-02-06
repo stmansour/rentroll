@@ -53,7 +53,6 @@ func CreateCustomAttibutesCSV(
 	customAttributeCSVWriter := csv.NewWriter(customAttributeCSVFile)
 
 	// parse headers of customAttributeCSV using reflect
-	customAttributeCSVHeaders := []string{}
 	customAttributeCSVHeaders, ok := core.GetStructFields(customAttributeStruct)
 	if !ok {
 		rlib.Ulog("Error <CUSTOM ATTRIBUTES CSV>: Unable to get struct fields for customAttributeCSV\n")

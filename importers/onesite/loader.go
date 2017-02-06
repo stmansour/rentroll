@@ -78,7 +78,6 @@ func loadOneSiteCSV(
 
 	internalErrFlag := true
 	csvErrors := map[int][]string{}
-	funcname := "loadOneSiteCSV"
 
 	// this count used to skip number of rows from the very top of csv
 	var skipRowsCount int
@@ -150,12 +149,6 @@ func loadOneSiteCSV(
 
 	// csvCols and consts for all onesite csv fields are defined in
 	// constant.go file
-	// Onesite csv headers slice and load it from csvCols
-	oneSiteCSVHeaders := []string{}
-	for _, header := range csvCols {
-		oneSiteCSVHeaders = append(oneSiteCSVHeaders, header.Name)
-	}
-	oneSiteColumnLength := len(oneSiteCSVHeaders)
 
 	// load onesite mapping
 	var oneSiteFieldMap CSVFieldMap
@@ -172,31 +165,54 @@ func loadOneSiteCSV(
 	// load csv file and get data from csv
 	t := rlib.LoadCSV(oneSiteCSV)
 
+	csvHeadersIndex := getCSVHeadersIndexMap()
+
 	// detect how many rows we need to skip first
-	for rowIndex = 1; rowIndex <= len(t); rowIndex++ {
+	for rowIndex := 0; rowIndex < len(t); rowIndex++ {
+		for colIndex := 0; colIndex < len(t[rowIndex]); colIndex++ {
+			// remove all white spaces and make lower case
+			cellTextValue := strings.ToLower(
+				specialCharsReplacer.Replace(t[rowIndex][colIndex]))
 
-		if skipRowsCount == 0 {
-			csvRowDataString := strings.Replace(
-				strings.Join(t[rowIndex-1][:oneSiteColumnLength], ","),
-				" ", "", -1)
-
-			csvHeaderString := strings.Replace(
-				strings.Join(oneSiteCSVHeaders[:oneSiteColumnLength], ","),
-				" ", "", -1)
-
-			if csvRowDataString == csvHeaderString {
-				skipRowsCount = rowIndex
+			// if header is exist in map then overwrite it position
+			if field, ok := csvColumnFieldMap[cellTextValue]; ok {
+				csvHeadersIndex[field] = colIndex
+			}
+		}
+		// check after row columns parsing that headers are found or not
+		headersFound := true
+		for _, v := range csvHeadersIndex {
+			if v == -1 {
+				headersFound = false
 				break
 			}
+		}
+
+		if headersFound {
+			// update rowIndex by 1 because we're going to break here
+			rowIndex++
+			skipRowsCount = rowIndex
+			break
 		}
 	}
 
 	// if skipRowsCount is still 0 that means data could not be parsed from csv
 	if skipRowsCount == 0 {
+		missingHeaders := []string{}
+		// make message of missing columns
+		for missedH, v := range csvHeadersIndex {
+			if v == -1 {
+				missingHeaders = append(missingHeaders, missedH)
+			}
+		}
+
+		headerError := "Required data column(s) missing: "
+		headerError += strings.Join(missingHeaders, ", ")
+
 		// ******** special entry ***********
 		// -1 means there is no data
 		internalErrFlag = false
-		csvErrors[-1] = append(csvErrors[-1], "There are no data in onesite csv to load")
+		csvErrors[-1] = append(csvErrors[-1], headerError)
 		return traceUnitMap, csvErrors, internalErrFlag
 	}
 
@@ -241,124 +257,112 @@ func loadOneSiteCSV(
 	// if skipRowsCount found get next row and proceed on rest of the rows with loop
 	for rowIndex = skipRowsCount + 1; rowIndex <= len(t); rowIndex++ {
 
-		// csv Columns order validation
-		x, err := rcsv.ValidateCSVColumns(csvCols, t[rowIndex-1][:oneSiteColumnLength], funcname, rowIndex)
+		// if column order has been validated then only perform
+		// data validation on value, type
+		rowLoaded, csvRow := loadOneSiteCSVRow(csvHeadersIndex, csvCols, t[rowIndex-1])
 
-		if x > 0 {
-			// there is no db type specific error so pass it as -1
-			_, reason, ok := parseLineAndErrorFromRCSV(err, -1)
-			if !ok {
-				// INTERNAL ERROR
+		// **************************************************************
+		// NOTE: might need to change logic, if t[i] contains blank data that
+		// we should stop the loop as we have to skip rest of the rows
+		// (please look at onesite csv)
+		// **************************************************************
+		if !rowLoaded {
+
+			// what IF, only headers are there
+			if rowIndex == skipRowsCount {
+				// ******** special entry ***********
+				// -1 means there is no data
+				internalErrFlag = false
+				csvErrors[-1] = append(csvErrors[-1], "There are no data rows present")
 				return traceUnitMap, csvErrors, internalErrFlag
 			}
-			csvErrors[rowIndex] = append(csvErrors[rowIndex], reason)
-		} else {
-			// if column order has been validated then only perform
-			// data validation on value, type
-			rowLoaded, csvRow := loadOneSiteCSVRow(csvCols, t[rowIndex-1][:oneSiteColumnLength])
 
-			// **************************************************************
-			// NOTE: might need to change logic, if t[i] contains blank data that
-			// we should stop the loop as we have to skip rest of the rows
-			// (please look at onesite csv)
-			// **************************************************************
-			if !rowLoaded {
-
-				// what IF, only headers are there
-				if rowIndex == skipRowsCount {
-					// ******** special entry ***********
-					// -1 means there is no data
-					internalErrFlag = false
-					csvErrors[-1] = append(csvErrors[-1], "There are no data in onesite csv to load")
-					return traceUnitMap, csvErrors, internalErrFlag
-				}
-
-				// else break the loop as there are no more data
-				break
-			}
-
-			// rowLoaded successfully then do rest of the operation
-
-			// get rentable status from csv data
-			csvRentableStatus := csvRow.UnitLeaseStatus
-
-			// get unit from csv data
-			csvUnit := csvRow.Unit
-
-			// for rentable status exists in csvRow, get set of csv types which can be allowed
-			// to perform write data for csv
-			// need to call validation function as in to get the values
-			_, rrStatus, _ := IsValidRentableStatus(csvRentableStatus)
-			csvTypesSet := canWriteCSVStatusMap[rrStatus]
-			var canWriteData bool
-
-			// mark Unit value with row index value
-			// even if it is blank
-			traceUnitMap[rowIndex] = csvUnit
-
-			// keep csv record in this
-			csvRowDataMap[rowIndex] = &csvRow
-
-			// check first that for this row's status rentableType data can be written
-			canWriteData = core.IntegerInSlice(core.RENTABLETYPECSV, csvTypesSet)
-			if canWriteData {
-				// Write data to file of rentabletype
-				WriteRentableTypeCSVData(
-					&RentableTypeCSVRecordCount,
-					rowIndex,
-					traceRentableTypeCSVMap,
-					rentableTypeCSVWriter,
-					&csvRow,
-					&avoidDuplicateRentableTypeData,
-					currentTime,
-					currentTimeFormat,
-					userRRValues,
-					&oneSiteFieldMap.RentableTypeCSV,
-					customAttributesRefData,
-					business,
-				)
-			}
-
-			// check first that for this row's status custom attributes data can be written
-			canWriteData = core.IntegerInSlice(core.CUSTOMATTRIUTESCSV, csvTypesSet)
-			if canWriteData {
-				// Write data to file of CustomAttribute
-				WriteCustomAttributeData(
-					&CustomAttributeCSVRecordCount,
-					rowIndex,
-					traceCustomAttributeCSVMap,
-					customAttributeCSVWriter,
-					&csvRow,
-					avoidDuplicateCustomAttributeData,
-					currentTimeFormat,
-					userRRValues,
-					&oneSiteFieldMap.CustomAttributeCSV,
-				)
-			}
-
-			// check first that for this row's status people data can be written
-			canWriteData = core.IntegerInSlice(core.PEOPLECSV, csvTypesSet)
-			if canWriteData {
-
-				// if people data can be writable then init TCIDMap index
-				// with blank string value
-				traceTCIDMap[rowIndex] = ""
-
-				// Write data to file of people
-				WritePeopleCSVData(
-					&PeopleCSVRecordCount,
-					rowIndex,
-					tracePeopleCSVMap,
-					peopleCSVWriter,
-					&csvRow,
-					traceDuplicatePeople,
-					currentTimeFormat,
-					userRRValues,
-					&oneSiteFieldMap.PeopleCSV,
-					csvErrors,
-				)
-			}
+			// else break the loop as there are no more data
+			break
 		}
+
+		// rowLoaded successfully then do rest of the operation
+
+		// get rentable status from csv data
+		csvRentableStatus := csvRow.UnitLeaseStatus
+
+		// get unit from csv data
+		csvUnit := csvRow.Unit
+
+		// for rentable status exists in csvRow, get set of csv types which can be allowed
+		// to perform write data for csv
+		// need to call validation function as in to get the values
+		_, rrStatus, _ := IsValidRentableStatus(csvRentableStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrStatus]
+		var canWriteData bool
+
+		// mark Unit value with row index value
+		// even if it is blank
+		traceUnitMap[rowIndex] = csvUnit
+
+		// keep csv record in this
+		csvRowDataMap[rowIndex] = &csvRow
+
+		// check first that for this row's status rentableType data can be written
+		canWriteData = core.IntegerInSlice(core.RENTABLETYPECSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of rentabletype
+			WriteRentableTypeCSVData(
+				&RentableTypeCSVRecordCount,
+				rowIndex,
+				traceRentableTypeCSVMap,
+				rentableTypeCSVWriter,
+				&csvRow,
+				&avoidDuplicateRentableTypeData,
+				currentTime,
+				currentTimeFormat,
+				userRRValues,
+				&oneSiteFieldMap.RentableTypeCSV,
+				customAttributesRefData,
+				business,
+			)
+		}
+
+		// check first that for this row's status custom attributes data can be written
+		canWriteData = core.IntegerInSlice(core.CUSTOMATTRIUTESCSV, csvTypesSet)
+		if canWriteData {
+			// Write data to file of CustomAttribute
+			WriteCustomAttributeData(
+				&CustomAttributeCSVRecordCount,
+				rowIndex,
+				traceCustomAttributeCSVMap,
+				customAttributeCSVWriter,
+				&csvRow,
+				avoidDuplicateCustomAttributeData,
+				currentTimeFormat,
+				userRRValues,
+				&oneSiteFieldMap.CustomAttributeCSV,
+			)
+		}
+
+		// check first that for this row's status people data can be written
+		canWriteData = core.IntegerInSlice(core.PEOPLECSV, csvTypesSet)
+		if canWriteData {
+
+			// if people data can be writable then init TCIDMap index
+			// with blank string value
+			traceTCIDMap[rowIndex] = ""
+
+			// Write data to file of people
+			WritePeopleCSVData(
+				&PeopleCSVRecordCount,
+				rowIndex,
+				tracePeopleCSVMap,
+				peopleCSVWriter,
+				&csvRow,
+				traceDuplicatePeople,
+				currentTimeFormat,
+				userRRValues,
+				&oneSiteFieldMap.PeopleCSV,
+				csvErrors,
+			)
+		}
+
 	}
 
 	// Close all files as we are done here with writing data
@@ -812,12 +816,12 @@ func CSVHandler(
 	// summaryReportCount contains each type csv as a key
 	// with count of total imported, possible, issues in csv data
 	summaryReportCount := map[int]map[string]int{
-		core.DBCustomAttr:      map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBRentableType:    map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBCustomAttrRef:   map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBPeople:          map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBRentable:        map[string]int{"imported": 0, "possible": 0, "issues": 0},
-		core.DBRentalAgreement: map[string]int{"imported": 0, "possible": 0, "issues": 0},
+		core.DBCustomAttr:      {"imported": 0, "possible": 0, "issues": 0},
+		core.DBRentableType:    {"imported": 0, "possible": 0, "issues": 0},
+		core.DBCustomAttrRef:   {"imported": 0, "possible": 0, "issues": 0},
+		core.DBPeople:          {"imported": 0, "possible": 0, "issues": 0},
+		core.DBRentable:        {"imported": 0, "possible": 0, "issues": 0},
+		core.DBRentalAgreement: {"imported": 0, "possible": 0, "issues": 0},
 	}
 
 	// ====== Call onesite loader =====

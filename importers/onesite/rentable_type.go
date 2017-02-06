@@ -39,7 +39,6 @@ func CreateRentableTypeCSV(
 	rentableTypeCSVWriter := csv.NewWriter(rentableTypeCSVFile)
 
 	// parse headers of rentableTypeCSV using reflect
-	rentableTypeCSVHeaders := []string{}
 	rentableTypeCSVHeaders, ok := core.GetStructFields(rt)
 	if !ok {
 		rlib.Ulog("Error <RENTABLE TYPE CSV>: Unable to get struct fields for rentableTypeCSV\n")
@@ -107,22 +106,22 @@ func WriteRentableTypeCSVData(
 	rentableTypeDefaultData["DtStop"] = DtStop
 
 	// get csv row data
-	ok, csvRowData := GetRentableTypeCSVRow(
+	csvRowData := GetRentableTypeCSVRow(
 		csvRow, rt,
 		currentTimeFormat, rentableTypeDefaultData,
 	)
-	if ok {
-		csvWriter.Write(csvRowData)
-		csvWriter.Flush()
 
-		// after write operation to csv,
-		// entry this rowindex with unit value in the map
-		*recordCount = *recordCount + 1
+	csvWriter.Write(csvRowData)
+	csvWriter.Flush()
 
-		// need to map on next row index of temp csv as first row is header line
-		// and recordCount initialized with 0 value
-		traceCSVData[*recordCount+1] = rowIndex
-	}
+	// after write operation to csv,
+	// entry this rowindex with unit value in the map
+	*recordCount = *recordCount + 1
+
+	// need to map on next row index of temp csv as first row is header line
+	// and recordCount initialized with 0 value
+	traceCSVData[*recordCount+1] = rowIndex
+
 }
 
 // GetRentableTypeCSVRow used to create rentabletype
@@ -132,10 +131,7 @@ func GetRentableTypeCSVRow(
 	fieldMap *core.RentableTypeCSV,
 	timestamp string,
 	DefaultValues map[string]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load rentableType's data from onesiterow data
@@ -182,6 +178,6 @@ func GetRentableTypeCSVRow(
 	for i := 0; i < rRTLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
 }
