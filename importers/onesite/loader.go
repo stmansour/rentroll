@@ -697,6 +697,7 @@ func loadOneSiteCSV(
 				&oneSiteFieldMap.RentableCSV,
 				traceTCIDMap,
 				csvErrors,
+				rrStatus,
 			)
 		}
 
