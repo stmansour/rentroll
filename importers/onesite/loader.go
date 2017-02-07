@@ -44,10 +44,6 @@ func getOneSiteMapping(oneSiteFieldMap *CSVFieldMap) error {
 		return err
 	}
 	err = json.Unmarshal(fieldmap, oneSiteFieldMap)
-	if err != nil {
-		return err
-	}
-
 	return err
 }
 
@@ -169,7 +165,7 @@ func loadOneSiteCSV(
 		for colIndex := 0; colIndex < len(t[rowIndex]); colIndex++ {
 			// remove all white spaces and make lower case
 			cellTextValue := strings.ToLower(
-				specialCharsReplacer.Replace(t[rowIndex][colIndex]))
+				core.SpecialCharsReplacer.Replace(t[rowIndex][colIndex]))
 
 			// if header is exist in map then overwrite it position
 			if field, ok := csvColumnFieldMap[cellTextValue]; ok {
