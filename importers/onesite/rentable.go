@@ -67,6 +67,7 @@ func WriteRentableData(
 	rentableStruct *core.RentableCSV,
 	traceTCIDMap map[int]string,
 	csvErrors map[int][]string,
+	rrStatus string,
 ) {
 
 	currentYear, currentMonth, currentDate := currentTime.Date()
@@ -85,19 +86,20 @@ func WriteRentableData(
 
 	// flag warning that we are taking default values for least start, end dates
 	// as they don't exists
-	if csvRow.LeaseStart == "" {
-		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
-		csvErrors[rowIndex] = append(csvErrors[rowIndex],
-			warnPrefix+"No lease start date found. Using default value: "+DtStart,
-		)
+	if rrStatus == "occupied" {
+		if csvRow.LeaseStart == "" {
+			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
+			csvErrors[rowIndex] = append(csvErrors[rowIndex],
+				warnPrefix+"No lease start date found. Using default value: "+DtStart,
+			)
+		}
+		if csvRow.LeaseEnd == "" {
+			warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
+			csvErrors[rowIndex] = append(csvErrors[rowIndex],
+				warnPrefix+"No lease end date found. Using default value: "+DtStop,
+			)
+		}
 	}
-	if csvRow.LeaseEnd == "" {
-		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
-		csvErrors[rowIndex] = append(csvErrors[rowIndex],
-			warnPrefix+"No lease end date found. Using default value: "+DtStop,
-		)
-	}
-
 	// get csv row data
 	csvRowData := GetRentableCSVRow(
 		csvRow, rentableStruct,
@@ -248,19 +250,11 @@ func GetRentableStatus(csvRow *CSVRow,
 		// append unitleasestatus
 		orderedFields = append(orderedFields, rRS)
 
-		// append lease start
-		if csvRow.LeaseStart == "" {
-			orderedFields = append(orderedFields, defaults["DtStart"])
-		} else {
-			orderedFields = append(orderedFields, csvRow.LeaseStart)
-		}
+		// append today start date
+		orderedFields = append(orderedFields, defaults["DtStart"])
 
-		// append lease end
-		if csvRow.LeaseEnd == "" {
-			orderedFields = append(orderedFields, defaults["DtStop"])
-		} else {
-			orderedFields = append(orderedFields, csvRow.LeaseEnd)
-		}
+		// append end date unspecified
+		orderedFields = append(orderedFields, "")
 
 		return strings.Join(orderedFields, ","), ok
 	}
@@ -279,19 +273,11 @@ func GetRentableTypeRef(
 	// append floor plan
 	orderedFields = append(orderedFields, csvRow.FloorPlan)
 
-	// append lease start
-	if csvRow.LeaseStart == "" {
-		orderedFields = append(orderedFields, defaults["DtStart"])
-	} else {
-		orderedFields = append(orderedFields, csvRow.LeaseStart)
-	}
+	// append today date
+	orderedFields = append(orderedFields, defaults["DtStart"])
 
-	// append lease end
-	if csvRow.LeaseEnd == "" {
-		orderedFields = append(orderedFields, defaults["DtStop"])
-	} else {
-		orderedFields = append(orderedFields, csvRow.LeaseEnd)
-	}
+	// append end date as unspecified
+	orderedFields = append(orderedFields, "")
 
 	return strings.Join(orderedFields, ",")
 }

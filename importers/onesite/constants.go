@@ -94,7 +94,7 @@ var canWriteCSVStatusMap = map[string][]int{
 	// if rentable status is blank then still you can write data to these CSVs
 	"": {
 		core.RENTABLETYPECSV,
-		core.RENTALAGREEMENTCSV,
+		core.RENTABLECSV,
 		// core.PEOPLECSV,
 		core.CUSTOMATTRIUTESCSV,
 	},
