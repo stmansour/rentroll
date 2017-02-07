@@ -2,20 +2,46 @@
 // setToForm -  enable form sform in toplayout.  Also, set the forms url and
 //              request data from the server
 // @params
-//   dc = date control
-// @return string value that was set in dc
+//   sform = name of the form
+//   url   = request URL for the form
+//-----------------------------------------------------------------------------
 function setToForm(sform,url) {
     "use strict";
+    console.log('sform = ' + sform);
     var f = w2ui[sform];
     w2ui.toplayout.show('right',true);
     w2ui.toplayout.content('right', f);
-    w2ui.toplayout.sizeTo('right', 500);
-    f.resize();
+    w2ui.toplayout.sizeTo('right', 700);
+    //f.resize();
     //console.log( 'setToForm:  url = ' + url)
     if (url.length > 0) {
         f.url = url;
         f.request();
     }
+}
+
+//-----------------------------------------------------------------------------
+// setToRAForm -  enable the Rental Agreement form in toplayout.  Also, set
+//                the forms url and request data from the server
+// @params
+//   bid = business id (or the BUD)
+//  raid = Rental Agreement ID
+//-----------------------------------------------------------------------------
+function setToRAForm(bid,raid) {
+    "use strict";
+    w2ui.toplayout.content('right', w2ui.raLayout);
+    w2ui.toplayout.show('right',true);
+    w2ui.toplayout.sizeTo('right', 900);
+    w2ui.rentalagrForm.url = '/gsvc/xrentalagr/' + bid + '/' + raid;
+    w2ui.rentalagrForm.request();
+
+    // /gsvc/rar/bid/raid[?d1=2017-02-1]
+    // if no date is specified, today's date is used as the default.
+    w2ui.rarGrid.url = '/gsvc/rar/' + bid + '/' + raid;
+    console.log('rar url = ' + w2ui.rarGrid.url);
+    w2ui.rarGrid.request();
+
+
 }
 
 //-----------------------------------------------------------------------------

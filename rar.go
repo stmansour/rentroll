@@ -9,10 +9,21 @@ import (
 	"time"
 )
 
+type xRAR struct {
+	Recid        int64         `json:"recid"` // this is to support the w2ui form
+	RAID         int64         // associated rental agreement
+	BID          int64         // Business
+	RID          int64         // the Rentable
+	ContractRent float64       // the rent
+	RARDtStart   rlib.JSONTime // start date/time for this Rentable
+	RARDtStop    rlib.JSONTime // stop date/time
+}
+
 // RARList is the struct containing the JSON return values for this web service
 type RARList struct {
-	Status  string
-	Records []rlib.RentalAgreementRentable
+	Status  string `json:"status"`
+	Total   int64  `json:"total"`
+	Records []xRAR `json:"records"`
 }
 
 // This command returns the rentables associated with the supplied RAID.  If no dates are supplied
@@ -47,12 +58,19 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 	var rar RARList
-	rar.Records = rlib.GetRentalAgreementRentables(raid, &dt, &dt)
-	fmt.Printf("len(rar.Records) = %d\n", len(rar.Records))
-	for i := 0; i < len(rar.Records); i++ {
-		fmt.Printf("%d. RID = %d, ContractRent = %8.2f\n", i, rar.Records[i].RID, rar.Records[i].ContractRent)
+	m := rlib.GetRentalAgreementRentables(raid, &dt, &dt)
+	// fmt.Printf("len(rar.Records) = %d\n", len(rar.Records))
+	// for i := 0; i < len(rar.Records); i++ {
+	// 	fmt.Printf("%d. RID = %d, ContractRent = %8.2f\n", i, rar.Records[i].RID, rar.Records[i].ContractRent)
+	// }
+	for i := 0; i < len(m); i++ {
+		var xr xRAR
+		xr.Recid = int64(i + 1)
+		rlib.MigrateStructVals(&m[i], &xr)
+		rar.Records = append(rar.Records, xr)
 	}
 	rar.Status = "success"
+	rar.Total = int64(len(m))
 	fmt.Printf("rar = %#v\n", rar)
 	b, err := json.Marshal(&rar)
 	if err != nil {
