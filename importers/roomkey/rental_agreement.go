@@ -96,7 +96,7 @@ func WriteRentalAgreementData(
 
 	// flag warning that we are taking default values for least start, end dates
 	// as they don't exists
-	if csvRow.Empty3 == "" {
+	if csvRow.DateIn == "" {
 		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
 		csvErrors[rowIndex] = append(csvErrors[rowIndex],
 			warnPrefix+"No lease start date found. Using default value: "+DtStart,
@@ -109,7 +109,7 @@ func WriteRentalAgreementData(
 		)
 	}
 
-	dateIn := getFormattedDate(csvRow.Empty3)
+	dateIn := getFormattedDate(csvRow.DateIn)
 	dateOut := getFormattedDate(csvRow.DateOut)
 
 	rentableDefaultData["DtStart"] = dateIn
@@ -217,7 +217,7 @@ func GetRentalAgreementCSVRow(
 		}
 		if rentalAgreementField.Name == "PossessionStart" ||
 			rentalAgreementField.Name == "RentStart" {
-			dataMap[i] = getFormattedDate(roomKeyRow.Empty3)
+			dataMap[i] = getFormattedDate(roomKeyRow.DateIn)
 		}
 		if rentalAgreementField.Name == "AgreementStop" ||
 			rentalAgreementField.Name == "PossessionStop" ||
@@ -252,10 +252,10 @@ func getPayorSpec(
 
 	if defaults["TCID"] != "" {
 		// append rent start
-		if csvRow.Empty3 == "" {
+		if csvRow.DateIn == "" {
 			orderedFields = append(orderedFields, defaults["DtStart"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.Empty3)
+			orderedFields = append(orderedFields, csvRow.DateIn)
 		}
 
 		// append date out
@@ -264,10 +264,11 @@ func getPayorSpec(
 		} else {
 			orderedFields = append(orderedFields, csvRow.DateOut)
 		}
-	} else {
-		fmt.Println(csvRow)
-		fmt.Println(defaults)
 	}
+	// } else {
+	// 	fmt.Println(csvRow)
+	// 	fmt.Println(defaults)
+	// }
 
 	ok = true
 	if ok {
@@ -292,10 +293,10 @@ func getUserSpec(
 
 	if defaults["TCID"] != "" {
 		// append rent start
-		if csvRow.Empty3 == "" {
+		if csvRow.DateIn == "" {
 			orderedFields = append(orderedFields, defaults["DtStart"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.Empty3)
+			orderedFields = append(orderedFields, csvRow.DateIn)
 		}
 
 		// append date out

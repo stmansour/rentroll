@@ -99,7 +99,7 @@ func WriteRentableData(
 
 	// flag warning that we are taking default values for least start, end dates
 	// as they don't exists
-	if csvRow.Empty3 == "" {
+	if csvRow.DateIn == "" {
 		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
 		csvErrors[rowIndex] = append(csvErrors[rowIndex],
 			warnPrefix+"No lease start date found. Using default value: "+DtStart,
@@ -112,7 +112,7 @@ func WriteRentableData(
 		)
 	}
 
-	dateIn := getFormattedDate(csvRow.Empty3)
+	dateIn := getFormattedDate(csvRow.DateIn)
 	dateOut := getFormattedDate(csvRow.DateOut)
 
 	rentableDefaultData["RentableStatus"] += "," + dateIn
@@ -226,7 +226,7 @@ func GetRentableTypeRef(
 	// append room type
 	orderedFields = append(orderedFields, csvRow.RoomType)
 	// append date in
-	orderedFields = append(orderedFields, getFormattedDate(csvRow.Empty3))
+	orderedFields = append(orderedFields, getFormattedDate(csvRow.DateIn))
 	// append date out
 	orderedFields = append(orderedFields, getFormattedDate(csvRow.DateOut))
 
