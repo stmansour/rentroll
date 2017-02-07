@@ -3,7 +3,6 @@ package onesite
 import (
 	"reflect"
 	"rentroll/importers/core"
-	"rentroll/rcsv"
 	"strings"
 )
 
