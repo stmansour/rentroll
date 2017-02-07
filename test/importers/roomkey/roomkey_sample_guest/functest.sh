@@ -4,10 +4,10 @@ TESTNAME="RoomKey Import with Guest Data Export"
 TESTSUMMARY="Tests initizing RentRoll DB from importing RoomKey rentroll report."
 BUD="ISO"
 
-RRBIN="../../../tmp/rentroll"
+RRBIN="../../../../tmp/rentroll"
 TEMPCSVSTORE="${RRBIN}/importers/roomkey/temp_CSVs"
 
-source ../../share/base.sh
+source ../../../share/base.sh
 
 docsvtest "a" "-b business.csv -L 3" "Business"
 

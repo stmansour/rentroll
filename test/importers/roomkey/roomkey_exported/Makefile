@@ -1,10 +1,10 @@
-TEMPCSVSTORE = "../../../tmp/rentroll/importers/roomkey/temp_CSVs"
+TEMPCSVSTORE = "../../../../tmp/rentroll/importers/roomkey/temp_CSVs"
 
 roomkey:
 	@echo "*** Completed in test/importers/roomkey_exported ***"
 
 clean:
-	rm -f [a-z] rentroll.log log *.txt ${TEMPCSVSTORE}/*.csv roomkey.log fail
+	rm -f [a-z] roomkey.log log *.txt ${TEMPCSVSTORE}/*.csv *.g ./gold/*.g fail
 	@echo "*** CLEAN completed in test/importers/roomkey_exported ***"
 
 test:

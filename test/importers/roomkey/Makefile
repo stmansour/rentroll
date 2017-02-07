@@ -1,17 +1,17 @@
-TEMPCSVSTORE = "../../../tmp/rentroll/importers/roomkey/temp_CSVs"
+DIRS = roomkey_sample roomkey_sample_guest roomkey_exported roomkey_exported_guest
 
 roomkey:
+	for dir in $(DIRS); do make -C $$dir;done
 	@echo "*** Completed in test/importers/roomkey ***"
 
 clean:
-	rm -f [a-z] rentroll.log log *.txt ${TEMPCSVSTORE}/*.csv roomkey.log fail
+	for dir in $(DIRS); do make -C $$dir clean;done
 	@echo "*** CLEAN completed in test/importers/roomkey ***"
 
 test:
-	touch fail
-	./functest.sh
+	for dir in $(DIRS); do make -C $$dir test;done
 	@echo "*** TEST completed in test/importers/roomkey ***"
-	rm -f fail
 
 package:
-	@echo "*** PACKAGE completed in test/importers/roomkey ***"
+	for dir in $(DIRS); do make -C $$dir package;done
+	@echo "*** PACKAGING COMPLETE IN test/importers/roomkey ***"
