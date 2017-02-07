@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 2/4/2017
-Time: 2:46AM IST
+Date: 2/7/2017
+Time: 10:46AM IST
 Import File: ./onesite_2.csv
 
 =======
@@ -13,7 +13,7 @@ Custom Attributes               16          16          0
 Rentable Types                  31          31          0         
 Custom Attribute References     16          16          0         
 Transactants                    772         772         242       
-Rentables                       855         855         166       
+Rentables                       855         855         0         
 Rental Agreements               772         772         0         
 
 =======================
@@ -22,14 +22,6 @@ DETAILED REPORT BY UNIT
 Input                                                                                                                                                                                                             
 Line    Unit Name             Description                                                                                                                                                                         
 ------  --------------------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-10      6301-004              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-10      6301-004              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-15      6303-009              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-15      6303-009              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-19      6303-013              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-19      6303-013              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-21      6303-015              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-21      6303-015              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 43      6309-036              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 44      6309-037              Warning: There is at least one other person with the name "Housing, Corporate" who also has no unique identifiers such as cell phone number or email.                               
 46      6309-040              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -168,8 +160,6 @@ Line    Unit Name             Description
 241     6359-236              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 242     6359-238              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 243     6359-240              Warning: There is at least one other person with the name "FAA, *" who also has no unique identifiers such as cell phone number or email.                                           
-244     6361-233              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-244     6361-233              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 245     6361-235              Warning: There is at least one other person with the same name "pilgrim films, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email           
 246     6361-237              Warning: There is at least one other person with the name "Diversified, *" who also has no unique identifiers such as cell phone number or email.                                   
 247     6361-239              Warning: There is at least one other person with the name "Pilgrim Films, *" who also has no unique identifiers such as cell phone number or email.                                 
@@ -181,10 +171,6 @@ Line    Unit Name             Description
 255     6363-247              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 257     6363-252              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 258     6363-254              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4051112222" and no other unique identifiers such as cell phone or email         
-261     6365-251              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-261     6365-251              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-262     6365-253              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-262     6365-253              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 263     6365-255              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 264     6365-258              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 265     6365-260              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -192,80 +178,24 @@ Line    Unit Name             Description
 267     6365-264              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 268     6367-257              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 269     6367-259              Warning: There is at least one other person with the same name "diversified, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email             
-270     6367-261              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-270     6367-261              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-271     6367-263              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-271     6367-263              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-272     6367-266              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-272     6367-266              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-273     6367-268              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-273     6367-268              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-274     6367-270              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-274     6367-270              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-275     6367-272              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-275     6367-272              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-276     6369-265              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-276     6369-265              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-277     6369-267              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-277     6369-267              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-278     6369-269              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-278     6369-269              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-279     6369-271              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-279     6369-271              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 280     6369-274              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
-282     6369-278              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-282     6369-278              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-286     6371-277              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-286     6371-277              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-287     6371-279              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-287     6371-279              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 290     6371-286              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-291     6371-288              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-291     6371-288              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 292     6373-281              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 293     6373-283              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 294     6373-285              Warning: There is at least one other person with the name "Delex, *" who also has no unique identifiers such as cell phone number or email.                                         
-295     6373-287              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-295     6373-287              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 296     6373-290              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 298     6373-294              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 299     6373-296              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-300     6375-289              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-300     6375-289              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-301     6375-291              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-301     6375-291              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 302     6375-293              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 303     6375-295              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-304     6375-298              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-304     6375-298              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-309     6377-299              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-309     6377-299              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-311     6377-303              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-311     6377-303              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-312     6377-306              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-312     6377-306              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 313     6377-308              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-314     6377-310              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-314     6377-310              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-315     6377-312              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-315     6377-312              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-316     6379-305              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-316     6379-305              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 317     6379-307              Warning: There is at least one other person with the name "FAA, *" who also has no unique identifiers such as cell phone number or email.                                           
 318     6379-309              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
-319     6379-311              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-319     6379-311              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 320     6379-314              Warning: There is at least one other person with the name "FAA, *" who also has no unique identifiers such as cell phone number or email.                                           
 321     6379-316              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 322     6379-318              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 323     6379-320              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-324     6381-313              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-324     6381-313              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-325     6381-315              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-325     6381-315              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 326     6381-317              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-327     6381-319              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-327     6381-319              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 328     6381-322              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 329     6381-324              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 331     6381-328              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -319,43 +249,11 @@ Line    Unit Name             Description
 386     6395-382              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 387     6395-384              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 388     6401-6401             Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-389     6403-6403             Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-389     6403-6403             Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-419     6416-030              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-419     6416-030              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-425     6420-034              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-425     6420-034              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-433     6424-043              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-433     6424-043              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-445     6428-055              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-445     6428-055              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-457     6436-067              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-457     6436-067              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-463     6440-073              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-463     6440-073              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-467     6440-077              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-467     6440-077              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-488     6600VIL-102           Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-488     6600VIL-102           Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-490     6600VIL-104           Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-490     6600VIL-104           Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-494     6600VIL-204           Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-494     6600VIL-204           Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-496     6602VIL-106           Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-496     6602VIL-106           Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-499     6602VIL-205           Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-499     6602VIL-205           Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 501     6602VIL-207           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 502     6602VIL-208           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
 511     6604VIL-109           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 515     6604VIL-209           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 517     6604VIL-211           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
-518     6604VIL-212           Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-518     6604VIL-212           Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-526     6606VIL-216           Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-526     6606VIL-216           Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-532     6608-022              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-532     6608-022              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 535     6608VIL-117           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 536     6608VIL-118           Warning: There is at least one other person with the same name "college of construction, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email 
 538     6608VIL-120           Warning: There is at least one other person with the same name "college of construction, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email 
@@ -363,72 +261,8 @@ Line    Unit Name             Description
 540     6608VIL-120B          Warning: There is at least one other person with the same name "college of construction, *" and work phone "(405) 721-2194" and no other unique identifiers such as cell phone or em
 542     6610VIL-121           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 547     6610VIL-223           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-552     6612-029              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-552     6612-029              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 556     6612VIL-124           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
 558     6612VIL-126           Warning: There is at least one other person with the name "Elliot Services, *" who also has no unique identifiers such as cell phone number or email.                               
 561     6612VIL-226           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-565     6616-036              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-565     6616-036              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-568     6616-039              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-568     6616-039              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-573     6700-044              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-573     6700-044              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-579     6704-050              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-579     6704-050              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-583     6704-054              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-583     6704-054              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-593     6708-064              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-593     6708-064              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-596     6712-067              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-596     6712-067              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-604     6716-075              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-604     6716-075              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-610     6800-081              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-610     6800-081              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-611     6800-082              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-611     6800-082              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-620     6804-091              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-620     6804-091              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-623     6804-094              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-623     6804-094              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-626     6808-097              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-626     6808-097              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-627     6808-098              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-627     6808-098              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-629     6808-100              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-629     6808-100              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-652     6820-123              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-652     6820-123              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-655     6820-126              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-655     6820-126              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-668     6828-139              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-668     6828-139              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-677     6900-148              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-677     6900-148              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-708     6916-179              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-708     6916-179              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-718     7000-189              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-718     7000-189              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-720     7000-191              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-720     7000-191              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-728     7004-199              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-728     7004-199              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-775     7100-230              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-775     7100-230              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-776     7100-231              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-776     7100-231              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-803     7122-7122             Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-803     7122-7122             Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-814     7144-7144             Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-814     7144-7144             Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-821     7158-7158             Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-821     7158-7158             Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-836     7164-271              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-836     7164-271              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-848     7172-283              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-848     7172-283              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
-855     7176-290              Warning: No lease start date found. Using default value: 2/4/2017                                                                                                                   
-855     7176-290              Warning: No lease end date found. Using default value: 12/31/9999                                                                                                                   
 
 
