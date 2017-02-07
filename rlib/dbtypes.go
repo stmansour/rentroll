@@ -414,15 +414,6 @@ type RentalAgreementTax struct {
 	FLAGS   uint64    // 1<<0 is whether the agreement is taxable
 }
 
-// RentableTypeTax - the time based attribute for whether the rental agreement is taxable
-type RentableTypeTax struct {
-	RAID    int64     //associated rental agreement
-	BID     int64     // Business
-	DtStart time.Time // start date/time for this Payor
-	DtStop  time.Time // stop date/time
-	TAXID   int64     // which tax in the Tax Table
-}
-
 // RentableUser describes a User associated with a rental agreement
 type RentableUser struct {
 	RID     int64     // associated Rentable
@@ -765,6 +756,15 @@ type RentableMarketRate struct {
 	MarketRate float64
 	DtStart    time.Time
 	DtStop     time.Time
+}
+
+// RentableTypeTax - the time based attribute for whether the rental agreement is taxable
+type RentableTypeTax struct {
+	RAID    int64     //associated rental agreement
+	BID     int64     // Business
+	DtStart time.Time // start date/time for this Payor
+	DtStop  time.Time // stop date/time
+	TAXID   int64     // which tax in the Tax Table
 }
 
 // Rentable is the basic struct for  entities to rent

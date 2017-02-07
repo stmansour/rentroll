@@ -41,6 +41,8 @@ var app = {
 };
 
 var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
+var pstyleNB = 'border: 0px solid #dfdfdf; padding: 0px;';
+var pstyle4 = 'border: 1px solid #dfdfdf; padding: 0px;';
 var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
 var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;';
 var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777';
@@ -207,6 +209,7 @@ function buildPageElements() {
                 { text: 'Preview', icon: 'fa fa-folder-open' },
                 { text: 'Details', icon: 'fa fa-folder-open' },
                 { text: 'Footer', icon: 'fa fa-folder-open' },
+                { text: 'NewRAGrid', icon: 'fa fa-folder-open' },
             ]},
         ],
         onClick: function (event) {
@@ -215,14 +218,15 @@ function buildPageElements() {
                 case "moduleMenu:Directory":      window.location.href = 'https://directory.airoller.com/'; break;
                 case "menuButton:Template-Dflt":  window.location.href = '/home/us-en/dflt'; break;
                 case "menuButton:Template-Apts":  window.location.href = '/home/us-en/apts'; break;
-                case "moduleMenu:RentRoll":       window.location.href = '/';                               break;
-                case "menuButton:Messages":       w2ui.toplayout.toggle('top',true);                     break;
-                case "menuButton:Sidebar":        w2ui.toplayout.toggle('left',true);                    break;
-                case "menuButton:mainLayoutMain": w2ui.mainlayout.toggle('main',true);                   break;
-                case "menuButton:Preview":        w2ui.toplayout.toggle('preview',true);                 break;
-                case "menuButton:Details":        w2ui.toplayout.toggle('right',true);                   break;
-                case "menuButton:Footer":         w2ui.mainlayout.toggle('bottom',true);                 break;
-                case "menuButton:topLayoutMain":  w2ui.toplayout.toggle('main',true);                    break;
+                case "moduleMenu:RentRoll":       window.location.href = '/';                break;
+                case "menuButton:Messages":       w2ui.toplayout.toggle('top',true);         break;
+                case "menuButton:Sidebar":        w2ui.toplayout.toggle('left',true);        break;
+                case "menuButton:mainLayoutMain": w2ui.mainlayout.toggle('main',true);       break;
+                case "menuButton:Preview":        w2ui.toplayout.toggle('preview',true);     break;
+                case "menuButton:Details":        w2ui.toplayout.toggle('right',true);       break;
+                case "menuButton:Footer":         w2ui.mainlayout.toggle('bottom',true);     break;
+                case "menuButton:topLayoutMain":  w2ui.toplayout.toggle('main',true);        break;
+                case "menuButton:NewRAGrid":      loadRentalAgreementForm();                 break;
             }
         },
     }));
@@ -744,7 +748,7 @@ function buildPageElements() {
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
                 console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
-            }
+            },
         },
         onClick: function(event) {
             //var sel = this.getSelection(true);
@@ -755,7 +759,12 @@ function buildPageElements() {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
                         console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID);
-                        setToForm('rentalagrForm', '/gsvc/xrentalagr/' + ob.BID + '/' + ob.RAID);
+                        setToRAForm(ob.BID,ob.RAID);
+                        // var url = '/gsvc/rar/' + ob.BID + '/' + ob.RAID;
+                        // console.log('RAR url =' + url);
+                        // $.get(url)
+                        //     .done(rcvRARList)
+                        //     .fail(rcvRARListFail);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -769,6 +778,35 @@ function buildPageElements() {
         onSearch: function(/*event*/) {
             console.log('Search called');
         }
+    });
+
+
+    //------------------------------------------------------------------------
+    //          Rental Agreement Details
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'raLayout',
+        padding: 0,
+        panels: [
+            { type: 'left', size: '40%', resizable: true, style: pstyle4, content: 'top' },
+            { type: 'top', size: 0, hidden: true },
+            { type: 'main', size: '60%', resizable: true, style: pstyle4, content: 'main' },
+            { type: 'preview', size: '50%', hidden: true },
+            { type: 'bottom', size: 0, hidden: true },
+            { type: 'right', size: '33%', hidden: true }
+        ]
+    });
+    $().w2layout({
+        name: 'raLayoutSub1',
+        padding: 1,
+        panels: [
+            { type: 'top', size: '25%', resizable: true, style: pstyle4, content: 'Rentables' },
+            { type: 'left', size: 0, hidden: true },
+            { type: 'main', size: '25%', resizable: true, style: pstyle4, content: 'Payors' },
+            { type: 'preview', size: '50%', resizable: true, style: pstyle4, content: 'Users' },
+            { type: 'right', size: 0, hidden: true },
+            { type: 'bottom', size: '25%', resizable: true, style: pstyle4, content: 'Pets' }
+        ]
     });
 
     //------------------------------------------------------------------------
@@ -833,9 +871,13 @@ function buildPageElements() {
                     w2ui.toplayout.hide('right',true);
                     tgrid.reload();
                 });
-
             },
             reset: function() {
+                w2ui.toplayout.resize();
+                w2ui.raLayout.resize();
+                w2ui.rentalagrForm.resize();
+                w2ui.raLayoutSub1.resize();
+                w2ui.transactantForm.resize();
                 var f = w2ui.rentalagrForm;
                 console.log('f:   recid = ' + f.record.recid + '   RAID = ' + f.record.RID);
             }
@@ -845,12 +887,151 @@ function buildPageElements() {
             f.header = 'Edit ' + sRentalAgreement + ' -  RA00' + f.record.RAID;
         }
     });
+
+    //------------------------------------------------------------------------
+    //          rarGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rarGrid',
+        show: {
+            header: sRentable,
+            toolbar: false,
+            footer: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        //url: '/gsvc/rar',       
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'RAID', hidden: true, caption: 'RAID',  size: '40px', sortable: true},
+            {field: 'RID', caption: sRentable,  size: '10%', sortable: true},
+            {field: 'ContractRent', caption: 'Rent', size: '10%', sortable: true},
+            {field: 'RARDtStart', caption: 'Start', size: '10%', sortable: true},
+            {field: 'RARDtStop', caption: 'Stop',  size: '10%', sortable: true},
+        ]
+     });
+
+    //------------------------------------------------------------------------
+    //          rapGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rapGrid',
+        show: {
+            header: sPayor,
+            toolbar: false,
+            footer: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        //url: '/gsvc/rap',       
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'TCID', hidden: true, caption: 'TCID',  size: '40px', sortable: true},
+            {field: 'Name', caption: 'Name',  size: '10%', sortable: true}
+        ]
+     });
+
+    //------------------------------------------------------------------------
+    //          rauGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rauGrid',
+        show: {
+            header: sUser,
+            toolbar: false,
+            footer: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        //url: '/gsvc/rau',       
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'TCID', hidden: true, caption: 'TCID',  size: '40px', sortable: true},
+            {field: 'Name', caption: 'Name',  size: '10%', sortable: true}
+        ]
+     });
+
+    //------------------------------------------------------------------------
+    //          raPetGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'raPetGrid',
+        show: {
+            header: sUser,
+            toolbar: false,
+            footer: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        //url: '/gsvc/rapet',       
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'PETID', hidden: true, caption: 'PETID',  size: '40px', sortable: true},
+            {field: 'Type',     caption: 'Type', size: '10%', sortable: true},
+            {field: 'Breed',    caption: 'Breed', size: '10%', sortable: true},
+            {field: 'Color',    caption: 'Color', size: '10%', sortable: true},
+            {field: 'Weight',   caption: 'Weight', size: '10%', sortable: true},
+            {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
+            {field: 'DtStart',  caption: 'DtStart', size: '10%', sortable: true},
+            {field: 'DtStop',   caption: 'DtStop', size: '10%', sortable: true},
+        ]
+     });
+
 }
+
+
+function createRentalAgreementForm() {
+    "use strict";    
+    w2ui.raLayout.content('left', w2ui.rentalagrForm);
+    w2ui.raLayout.content('main', w2ui.raLayoutSub1); 
+
+    w2ui.raLayoutSub1.content('top', w2ui.rarGrid);
+    w2ui.rarGrid.header = plural(sRentable);
+    w2ui.raLayoutSub1.content('main', w2ui.rapGrid);
+    w2ui.rapGrid.header = plural(sPayor);
+    
+    w2ui.raLayoutSub1.content('preview', w2ui.rauGrid);
+    w2ui.rauGrid.header = plural(sUser);
+    w2ui.raLayoutSub1.content('bottom', w2ui.raPetGrid);
+    w2ui.raPetGrid.header = "Pets";
+}
+
+
+// function rcvRARList(responseText,status) {
+//     "use strict";
+//     var data;
+//     console.log('status = ' + status);
+//     // console.log('responseText = ', responseText);
+//     if (typeof responseText == "object") {
+//         data = responseText;
+//     } else {
+//         // $.parseJSON or $.getJSON did not work because they expect JSON data where everything is in double quotes
+//         // TODO: avoid (potentially malicious) code injection from the response.
+//         try { eval('data = '+ responseText); } catch (e) { }
+//     }
+//     console.log('data.Status = ' + data.Status);
+//     var t = document.getElementsByName("RARtable");
+//     if (t.length > 0 ) {
+//         t[0].innerHTML = "Ready to show Rental Agreement Rentables!";
+//     } else {
+//         console.log('document.getElementsByName("RARtable") return no finds!!')
+//     }
+// }
+
+// function rcvRARListFail() { 
+//     "use strict";
+//     console.log('Error getting rarlist');
+// }
 
 function finishInitialization() {
     "use strict";
     defineDateFmts();
     buildPageElements();
+    createRentalAgreementForm();
 
     var d1 = new Date();
     d1.setDate(1);

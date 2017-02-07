@@ -1,9 +1,8 @@
 #!/bin/bash
-ERRORS=$(ls test/*/err.txt 2>/dev/null)
-ERRCOUNT=$(ls test/*/err.txt 2>/dev/null | wc -l)
+ERRCOUNT=$(find . -name fail | wc -l)
 if (( ERRCOUNT > 0 )); then
 	echo "TESTS HAD ERRORS"
-	echo "${ERRORS}"
+	find . -name fail
 	exit 2
 else
 	echo "ALL TESTS PASSED"
