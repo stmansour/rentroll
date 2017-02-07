@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// CSVFieldMap is struct which con`~tains several categories
+// CSVFieldMap is struct which contains several categories
 // used to store the data from onesite to rentroll system
 type CSVFieldMap struct {
 	RentableTypeCSV    core.RentableTypeCSV
@@ -35,25 +35,6 @@ var csvColumnFieldMap = map[string]string{
 	"marketaddl":      "MarketAddl",
 	"rent":            "Rent",
 	// "tax":              "TAX",
-}
-
-// defined csv columns
-var csvCols = []rcsv.CSVColumn{
-	{Name: "Unit", Index: Unit},
-	{Name: "FloorPlan", Index: FloorPlan},
-	{Name: "UnitDesignation", Index: UnitDesignation},
-	{Name: "SQFT", Index: Sqft},
-	{Name: "Unit/LeaseStatus", Index: UnitLeaseStatus},
-	{Name: "Name", Index: Name},
-	{Name: "PhoneNumber", Index: PhoneNumber},
-	{Name: "Email", Index: Email},
-	{Name: "Move-In", Index: MoveIn},
-	{Name: "Move-Out", Index: MoveOut},
-	{Name: "LeaseStart", Index: LeaseStart},
-	{Name: "LeaseEnd", Index: LeaseEnd},
-	{Name: "Market+Addl.", Index: MarketAddl},
-	{Name: "RENT", Index: Rent},
-	// {Name: "TAX", Index: Tax},
 }
 
 // CSVRow contains fields which represents value
@@ -104,7 +85,7 @@ func getCSVHeadersIndexMap() map[string]int {
 
 // loadOneSiteCSVRow used to load data from slice
 // into CSVRow struct and return that struct
-func loadOneSiteCSVRow(csvHeadersIndex map[string]int, csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
+func loadOneSiteCSVRow(csvHeadersIndex map[string]int, data []string) (bool, CSVRow) {
 	csvRow := reflect.New(reflect.TypeOf(CSVRow{}))
 	rowLoaded := false
 

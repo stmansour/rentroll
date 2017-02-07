@@ -147,9 +147,6 @@ func loadOneSiteCSV(
 	// LOAD FIELD MAP AND GET HEADERS, LENGTH OF HEADERS
 	// ================================================
 
-	// csvCols and consts for all onesite csv fields are defined in
-	// constant.go file
-
 	// load onesite mapping
 	var oneSiteFieldMap CSVFieldMap
 	err := getOneSiteMapping(&oneSiteFieldMap)
@@ -259,7 +256,7 @@ func loadOneSiteCSV(
 
 		// if column order has been validated then only perform
 		// data validation on value, type
-		rowLoaded, csvRow := loadOneSiteCSVRow(csvHeadersIndex, csvCols, t[rowIndex-1])
+		rowLoaded, csvRow := loadOneSiteCSVRow(csvHeadersIndex, t[rowIndex-1])
 
 		// **************************************************************
 		// NOTE: might need to change logic, if t[i] contains blank data that
