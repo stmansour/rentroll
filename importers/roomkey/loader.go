@@ -2,6 +2,7 @@ package roomkey
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path"
@@ -25,8 +26,7 @@ func getRoomKeyMapping(RoomKeyFieldMap *CSVFieldMap) error {
 
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
-		// log.Fatal(err)
-		panic("Unable to get current filename")
+		return err
 	}
 
 	// read json file which contains mapping of roomkey fields
@@ -34,13 +34,9 @@ func getRoomKeyMapping(RoomKeyFieldMap *CSVFieldMap) error {
 
 	fieldmap, err := ioutil.ReadFile(mapperFilePath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	err = json.Unmarshal(fieldmap, RoomKeyFieldMap)
-	if err != nil {
-		// fmt.Errorf("%s", err)
-		panic(err)
-	}
 	return err
 }
 
@@ -72,7 +68,9 @@ func loadRoomKeyCSV(
 
 	internalErrFlag := true
 	csvErrors := map[int][]string{}
-	funcname := "loadRoomKeyCSV"
+
+	// this holds the records for each row index
+	csvRowDataMap := map[int]*CSVRow{}
 
 	// --------------------------- trace csv records map ----------------------------
 	// trace<TYPE>CSVMap used to hold records
@@ -96,12 +94,10 @@ func loadRoomKeyCSV(
 	// traceDuplicatePeople holds records with unique string (name, email, phone)
 	// with duplicant match at row
 	// e.g.; {
-	// 	"email": {"test@no.com": [1,5,3]},
-	// 	"phone": {"9999999999": [2,4]},
 	// 	"name": {"foo, bar": 3},
 	// }
 	traceDuplicatePeople := map[string][]string{
-		"name": {}, "email": {}, "phone": {},
+		"name": {},
 	}
 
 	// --------------------- avoid duplicate data structures -------------------- //
@@ -123,15 +119,6 @@ func loadRoomKeyCSV(
 	// LOAD FIELD MAP AND GET HEADERS, LENGTH OF HEADERS
 	// ===================================================
 
-	// csvCols and consts for all roomkey csv fields are defined in
-	// constant.go file
-	// Roomkey csv headers slice and load it from constants.csvCols
-	roomKeyCSVHeaders := []string{}
-	for _, header := range csvCols {
-		roomKeyCSVHeaders = append(roomKeyCSVHeaders, header.Name)
-	}
-	RoomKeyColumnLength := len(roomKeyCSVHeaders)
-
 	// load roomkey mapping
 	var RoomKeyFieldMap CSVFieldMap
 	err := getRoomKeyMapping(&RoomKeyFieldMap)
@@ -147,127 +134,57 @@ func loadRoomKeyCSV(
 	// load csv file and get data from csv
 	t := rlib.LoadCSV(roomKeyCSV)
 
-	// Map row data with index
-	tMap := map[int]*[]string{}
+	// get headers with index map
+	headersIndex := getCSVHeadersIndexMap()
 
-	// Making CSVHeaderString from roomKeyCSVHeaders
-	CSVHeaderString := strings.Replace(
-		strings.Join(roomKeyCSVHeaders[:RoomKeyColumnLength], ","),
-		" ", "", -1)
+	// this will be helpful while we have "description" type of row
+	// so that we can put it in currentDataRowIndex's csvRow
+	currentDataRowIndex := 0
 
-	// Storing indices of blank columns to ignore while loading data
-	skipColumns := []int{}
-	checkForHeader := true
-	for i := 0; i < len(t); i++ {
+	headersFirstOccurenceFound := false
 
-		// Checking for row header
-		if checkForHeader {
+	for rowIndex := 1; rowIndex <= len(t); rowIndex++ {
 
-			// skipColumns is a slice storing indices of blank columns
-			skipColumns = []int{}
-
-			// Joining csv row data string
-			CSVRowDataString := strings.Replace(
-				strings.Join(t[i][:RoomKeyColumnLength+3], ","),
-				" ", "", -1)
-
-			// Detecting blank columns in csv data
-			tmpCSvRowDataString := ""
-			commaString := ""
-			for commas := minBlankColumns; commas <= maxBlankColumns; commas++ {
-				// Getting indices of commas
-				commaString = strings.Repeat(",", commas)
-				commasIndex := strings.Index(CSVRowDataString, commaString)
-
-				if commasIndex >= 0 {
-					tmpCSvRowDataString = strings.Replace(CSVRowDataString,
-						commaString,
-						strings.Repeat(","+dummyBlankColumnName, commas), -1)
-					break
-				}
-			}
-
-			CSVRowDataString = strings.Replace(CSVRowDataString, commaString, "", -1)
-
-			// Matching csv row data string with roomkey header string
-			if CSVRowDataString == CSVHeaderString {
-
-				if tmpCSvRowDataString != "" {
-					tmpSlice := strings.Split(tmpCSvRowDataString, ",")
-					for skipIndex, val := range tmpSlice {
-						if val == dummyBlankColumnName {
-							skipColumns = append(skipColumns, skipIndex)
-						}
-					}
-				}
-
-				checkForHeader = false
-				continue
-			}
-
-		} else {
-
-			// If first column has some data, it must be a new page,
-			// so marking check for headers flag to true
-			if t[i][0] != "" {
-				checkForHeader = true
-				continue
-			}
-
-			// Skipping empty colums as specified in skipColumns
-			if len(skipColumns) > 0 {
-				tempRow := []string{}
-
-				for rowindex, rowvalue := range t[i] {
-					appendflag := true
-					for _, columnIndex := range skipColumns {
-						if rowindex == columnIndex {
-							appendflag = false
-							break
-						}
-					}
-					if appendflag {
-						tempRow = append(tempRow, rowvalue)
-					}
-				}
-				t[i] = tempRow
-			}
-
-			// Storing csv data to map (index : row data)
-			tMap[i] = &t[i]
-
-			// Checking data in description column
-			if t[i][2] != "" {
-
-				// Appending description to actual data row
-				// Description might be on multiple rows after data row
-				for j := 1; j < i; j++ {
-					if t[i-j][1] != "" {
-						t[i-j][2] += t[i][2]
-
-						// Making description row as nil as data appended to actual row
-						tMap[i] = nil
-						if j > 1 {
-							tMap[i-j+1] = nil
-						}
-						break
-					}
-				}
-			}
+		// if it is header line then skip it
+		if ok, csvHeadersWithCSVIndex := isRoomKeyHeaderLine(t[rowIndex-1]); ok {
+			headersFirstOccurenceFound = true
+			// get new headersIndex
+			headersIndex = csvHeadersWithCSVIndex
+			continue
 		}
+
+		// if first time headers are not detected then do continue
+		if !headersFirstOccurenceFound {
+			continue
+		}
+
+		// check it is page row
+		if isRoomKeyPageRow(t[rowIndex-1]) {
+			continue
+		}
+
+		// check it is description row
+		if isRoomKeyDescriptionRow(t[rowIndex-1]) {
+			csvRowDataMap[currentDataRowIndex].Description += descriptionFieldSep + t[rowIndex-1][rowTypeDetectionCSVIndex["description"]]
+			continue
+		}
+
+		skipRow, csvRow := loadRoomKeyCSVRow(headersIndex, t[rowIndex-1])
+		if skipRow {
+			// in case blank row detected
+			continue
+		}
+
+		// map this row as currentDataRowIndex and also hold a reference in datamap
+		csvRowDataMap[rowIndex] = &csvRow
+		currentDataRowIndex = rowIndex
+
 	}
 
-	// To store the keys in slice in sorted order
-	var keys []int
-	for k := range tMap {
-		keys = append(keys, k)
-	}
-	sort.Ints(keys)
-
-	// if tMap is empty, that means data could not be parsed from csv
-	if len(tMap) == 0 {
+	// if csvRowDataMap is empty, that means data could not be parsed from csv
+	if len(csvRowDataMap) == 0 {
 		internalErrFlag = false
-		csvErrors[-1] = append(csvErrors[-1], "There are no data to load in the provided csv")
+		csvErrors[-1] = append(csvErrors[-1], "There are no data rows present")
 		return csvErrors, internalErrFlag
 	}
 
@@ -298,107 +215,67 @@ func loadRoomKeyCSV(
 	// # PHASE 1 : SPLITTING DATA IN CSV FILES #
 	// ##############################
 
-	// this map is used to hold csvRow typed struct after data has been loaded in it from first loop iteration
-	// so we have not to iteration over roomkey csv again and can be re-used in second loop
-	csvRowDataMap := map[int]*CSVRow{}
-
-	// if dataValidationError is true throughout rows
-	// do not perform any furter operation
-	dataValidationError := false
-
 	// ================================
 	// First loop for validation on csv
 	// ================================
 
+	// To store the keys in slice in sorted order
+	// always sort keys to iterate over csv rows in proper manner (from top to bottom)
+	var csvRowDataMapKeys []int
+	for k := range csvRowDataMap {
+		csvRowDataMapKeys = append(csvRowDataMapKeys, k)
+	}
+	sort.Ints(csvRowDataMapKeys)
+
 	// Iterating over cleaned csv data
-	for _, k := range keys {
-		// for rowIndex, rowData := range tMap {
-		rowIndex := k
-		rowData := tMap[k]
-		if rowData == nil {
-			continue
+	for _, rowIndex := range csvRowDataMapKeys {
+
+		csvRow := *csvRowDataMap[rowIndex]
+
+		// Write data to file of rentabletype
+		WriteRentableTypeCSVData(
+			&RentableTypeCSVRecordCount,
+			rowIndex,
+			traceRentableTypeCSVMap,
+			rentableTypeCSVWriter,
+			&csvRow,
+			&avoidDuplicateRentableTypeData,
+			currentTime,
+			currentTimeFormat,
+			userRRValues,
+			&RoomKeyFieldMap.RentableTypeCSV,
+			business,
+		)
+
+		guestdata := guestInfo[csvRow.Guest]
+		if guestdata == nil {
+			guestdata = &GuestCSVRow{GuestName: ""}
 		}
 
-		// csv Columns order validation
-		x, err := rcsv.ValidateCSVColumns(csvCols, *rowData, funcname, rowIndex)
+		traceTCIDMap[rowIndex] = ""
+		tracePeopleNote[rowIndex] = csvRow.Description
 
-		if x > 0 {
-			// there is no db type specific error so pass it as -1
-			_, reason, ok := parseLineAndErrorFromRCSV(err, -1)
-
-			if !ok {
-				// INTERNAL ERROR
-				return csvErrors, internalErrFlag
-			}
-			csvErrors[rowIndex] = append(csvErrors[rowIndex], reason)
-		} else {
-
-			// ######################
-			// VALIDATION on data value, type
-			// ######################
-			rowLoaded, csvRow := loadRoomKeyCSVRow(csvCols, *rowData)
-
-			// NOTE: might need to change logic, if t[i] contains blank data that we should
-			// stop the loop as we have to skip rest of the rows (please look at roomkey csv)
-			if !rowLoaded {
-				rlib.Ulog("No more data for roomkey csv loading\n")
-				break
-			}
-
-			// if dataValidationError is false then only fill data into map
-			// because anyways the program will return and rest of operation will not be performed if dataValidationError is true
-			// csvRowDataMap is only used for second iteration
-			// so no need to dump it in the map if validation fails from any row
-			if !dataValidationError {
-				// index increased by one as in to be matched with csv row number
-				csvRowDataMap[rowIndex+1] = &csvRow
-			}
-
-			// Write data to file of rentabletype
-			WriteRentableTypeCSVData(
-				&RentableTypeCSVRecordCount,
-				rowIndex+1,
-				traceRentableTypeCSVMap,
-				rentableTypeCSVWriter,
-				&csvRow,
-				&avoidDuplicateRentableTypeData,
-				currentTime,
-				currentTimeFormat,
-				userRRValues,
-				&RoomKeyFieldMap.RentableTypeCSV,
-				business,
-			)
-
-			guestdata := guestInfo[csvRow.Guest]
-			if guestdata == nil {
-				guestdata = &GuestCSVRow{GuestName: ""}
-			}
-
-			traceTCIDMap[rowIndex+1] = ""
-			tracePeopleNote[rowIndex+1] = csvRow.Description
-
-			peopleCollisions[csvRow.Guest]++
-			if peopleCollisions[csvRow.Guest] > 1 {
-				guestdata = &GuestCSVRow{GuestName: ""}
-			}
-
-			// Write data to file of people
-			WritePeopleCSVData(
-				&PeopleCSVRecordCount,
-				rowIndex+1,
-				tracePeopleCSVMap,
-				peopleCSVWriter,
-				&csvRow,
-				&avoidDuplicatePeopleData,
-				currentTimeFormat,
-				userRRValues,
-				&RoomKeyFieldMap.PeopleCSV,
-				*guestdata,
-				tracePeopleNote,
-				traceDuplicatePeople,
-				csvErrors,
-			)
+		peopleCollisions[csvRow.Guest]++
+		if peopleCollisions[csvRow.Guest] > 1 {
+			guestdata = &GuestCSVRow{GuestName: ""}
 		}
+
+		// Write data to file of people
+		WritePeopleCSVData(
+			&PeopleCSVRecordCount,
+			rowIndex,
+			tracePeopleCSVMap,
+			peopleCSVWriter,
+			&csvRow,
+			&avoidDuplicatePeopleData,
+			currentTimeFormat,
+			userRRValues,
+			&RoomKeyFieldMap.PeopleCSV,
+			*guestdata,
+			tracePeopleNote,
+			traceDuplicatePeople,
+			csvErrors,
+		)
 	}
 
 	// Close all files as we are done here with writing data
@@ -641,13 +518,6 @@ func loadRoomKeyCSV(
 		return csvErrors, internalErrFlag
 	}
 
-	// always sort keys to iterate over csv rows in proper manner (from top to bottom)
-	var csvRowDataMapKeys []int
-	for k := range csvRowDataMap {
-		csvRowDataMapKeys = append(csvRowDataMapKeys, k)
-	}
-	sort.Ints(csvRowDataMapKeys)
-
 	// iteration over csv row data structure and write data to csv
 	for _, rowIndex := range csvRowDataMapKeys {
 
@@ -736,46 +606,82 @@ func loadGuestInfoCSV(
 	// store all guest info in guestInfoMap
 	guestInfoMap := map[string]*GuestCSVRow{}
 
-	// Guest data export csv headers slice and load it from constants.csvCols
-	guestInfoCSVHeaders := []string{}
-	for _, header := range guestCSVCols {
-		guestInfoCSVHeaders = append(guestInfoCSVHeaders, header.Name)
-	}
+	csvHeadersIndex := getGuestCSVHeadersIndexMap()
 
-	// Calculating column length of guest info csv
-	guestInfoColumnLength := len(guestInfoCSVHeaders)
-
-	// Making guestInfoHeaderString from guestInfoCSVHeaders
-	guestInfoHeaderString := strings.Replace(
-		strings.Join(guestInfoCSVHeaders[:guestInfoColumnLength], ","),
-		" ", "", -1)
+	skipRowsCount := 0
 
 	// load csv file and get data from csv
 	t := rlib.LoadCSV(guestInfoCSV)
 
-	// Looping through guest export csv rows
-	checkForHeader := true
-	for i := 0; i < len(t); i++ {
-
-		// Checking for row header
-		if checkForHeader {
-
-			// Joining csv row data string
-			guestInfoRowDataString := strings.Replace(
-				strings.Join(t[i][:guestInfoColumnLength], ","),
-				" ", "", -1)
-
-			if guestInfoRowDataString == guestInfoHeaderString {
-				checkForHeader = false
-				continue
+	// detect how many rows we need to skip first
+	for rowIndex := 0; rowIndex < len(t); rowIndex++ {
+		for colIndex := 0; colIndex < len(t[rowIndex]); colIndex++ {
+			// remove all white spaces and make lower case
+			cellTextValue := strings.ToLower(
+				core.SpecialCharsReplacer.Replace(t[rowIndex][colIndex]))
+			// if header is exist in map then overwrite it position
+			if field, ok := guestCSVColumnFieldMap[cellTextValue]; ok {
+				csvHeadersIndex[field] = colIndex
+			}
+		}
+		// check after row columns parsing that headers are found or not
+		headersFound := true
+		for _, v := range csvHeadersIndex {
+			if v == -1 {
+				headersFound = false
+				break
 			}
 		}
 
-		// Process on people data
-		rowLoaded, csvRow := loadGuestInfoCSVRow(guestCSVCols, t[i])
-		if rowLoaded {
-			guestInfoMap[csvRow.GuestName] = &csvRow
+		if headersFound {
+			// update rowIndex by 1 because we're going to break here
+			rowIndex++
+			skipRowsCount = rowIndex
+			break
 		}
+	}
+
+	// if skipRowsCount is still 0 that means data could not be parsed from csv
+	if skipRowsCount == 0 {
+		missingHeaders := []string{}
+		// make message of missing columns
+		for missedH, v := range csvHeadersIndex {
+			if v == -1 {
+				missingHeaders = append(missingHeaders, missedH)
+			}
+		}
+
+		headerError := "(Guest Data CSV) Required data column(s) missing: "
+		headerError += strings.Join(missingHeaders, ", ")
+
+		err := errors.New(headerError)
+		return guestInfoMap, err
+	}
+
+	// if skipRowsCount found get next row and proceed on rest of the rows with loop
+	for rowIndex := skipRowsCount + 1; rowIndex <= len(t); rowIndex++ {
+
+		// if column order has been validated then only perform
+		// data validation on value, type
+		rowLoaded, csvRow := loadGuestInfoCSVRow(csvHeadersIndex, t[rowIndex-1])
+
+		// **************************************************************
+		// NOTE: might need to change logic, if t[i] contains blank data that
+		// we should stop the loop as we have to skip rest of the rows
+		// (please look at guest info csv)
+		// **************************************************************
+		if !rowLoaded {
+
+			// what IF, only headers are there
+			if rowIndex == skipRowsCount {
+				err := errors.New("There are no data rows present")
+				return guestInfoMap, err
+			}
+
+			// else break the loop as there are no more data
+			break
+		}
+		guestInfoMap[csvRow.GuestName] = &csvRow
 	}
 
 	return guestInfoMap, nil
@@ -809,11 +715,6 @@ func CSVHandler(
 	debugMode int,
 ) (string, bool, bool) {
 
-	// vars
-	var (
-		GuestInfo map[string]*GuestCSVRow
-	)
-
 	// init values
 	csvLoaded := true
 
@@ -841,10 +742,13 @@ func CSVHandler(
 	// --------------------------------------------------------------------------------------------------------- //
 
 	// ---------------------- call onesite loader ----------------------------------------
-	GuestInfo, _ = loadGuestInfoCSV(GuestInfoCSV)
+	guestInfo, guestCSVError := loadGuestInfoCSV(GuestInfoCSV)
+	if guestCSVError != nil {
+		// throw an error in report
+	}
 
 	// ---------------------- call roomkey loader ----------------------------------------
-	csvErrs, internalErr := loadRoomKeyCSV(csvPath, GuestInfo, testMode, userRRValues,
+	csvErrs, internalErr := loadRoomKeyCSV(csvPath, guestInfo, testMode, userRRValues,
 		business, currentTime, currentTimeFormat,
 		summaryReportCount)
 
