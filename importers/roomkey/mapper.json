@@ -88,11 +88,5 @@
         "SpecialProvisions": "",
         "RentableSpec": "",
         "Notes": ""
-    },
-    "CustomAttributeCSV": {
-        "Name": "",
-        "ValueType": "",
-        "Value": "",
-        "Units": ""
     }
 }
