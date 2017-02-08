@@ -425,6 +425,7 @@ type RentableUser struct {
 
 // RentalAgreementPet describes a pet associated with a rental agreement. There can be as many as needed.
 type RentalAgreementPet struct {
+	Recid       int64 `json:"recid"` // support w2ui grid
 	PETID       int64
 	BID         int64 // associated business
 	RAID        int64
