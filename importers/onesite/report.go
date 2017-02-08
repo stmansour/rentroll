@@ -53,7 +53,7 @@ func generateSummaryReport(summaryCount map[int]map[string]int) string {
 	tbl.AddColumn("Issues", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	// evaluate import count
-	getImportedCount(summaryCount)
+	core.GetImportedCount(summaryCount)
 
 	// sort indices
 	summaryCountIndexes := []int{}

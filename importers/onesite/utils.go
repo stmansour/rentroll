@@ -127,30 +127,3 @@ func ValidateUserSuppliedValues(userValues map[string]string) ([]error, *rlib.Bu
 func getPeopleNoteString(rowIndex int, currentTime string) string {
 	return onesiteNotesPrefix + currentTime + "$" + strconv.Itoa(rowIndex)
 }
-
-// getImportedCount get map of summaryCount as an argument
-// then it hit db to get imported count for each type
-func getImportedCount(summaryCount map[int]map[string]int) {
-	for dbType := range summaryCount {
-		switch dbType {
-		case core.DBCustomAttrRef:
-			summaryCount[core.DBCustomAttrRef]["imported"] += rlib.GetCountBusinessCustomAttrRefs()
-			break
-		case core.DBCustomAttr:
-			summaryCount[core.DBCustomAttr]["imported"] += rlib.GetCountBusinessCustomAttributes()
-			break
-		case core.DBRentableType:
-			summaryCount[core.DBRentableType]["imported"] += rlib.GetCountBusinessRentableTypes()
-			break
-		case core.DBPeople:
-			summaryCount[core.DBPeople]["imported"] += rlib.GetCountBusinessTransactants()
-			break
-		case core.DBRentable:
-			summaryCount[core.DBRentable]["imported"] += rlib.GetCountBusinessRentables()
-			break
-		case core.DBRentalAgreement:
-			summaryCount[core.DBRentalAgreement]["imported"] += rlib.GetCountBusinessRentalAgreements()
-			break
-		}
-	}
-}
