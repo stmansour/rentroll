@@ -209,6 +209,21 @@ func loadOneSiteCSV(
 		return traceUnitMap, csvErrors, internalErrFlag
 	}
 
+	// =================================
+	// DELETE DATA RELATED TO BUSINESS ID
+	// =================================
+	// detele business related data before starting to import in database
+	rlib.DeleteBusinessFromDB(business.BID)
+	bid, err := rlib.InsertBusiness(business)
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <INSERT BUSINESS>: %s\n", err.Error())
+		return traceUnitMap, csvErrors, internalErrFlag
+	}
+	// set new BID as we have deleted and inserted it again
+	// TODO:  remove this step after sman's next push
+	// in InsertBusiness it will be set automatically
+	business.BID = bid
+
 	// ========================================================
 	// WRITE DATA FOR CUSTOM ATTRIBUTE, RENTABLE TYPE, PEOPLE CSV
 	// ========================================================
