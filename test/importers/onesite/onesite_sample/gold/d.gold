@@ -1,9 +1,9 @@
-                                                         Manage                                  
-                              Rent     Proration         To                                      
-RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
-----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  800.00
+                        Middle                      Is                                            
+TCID        First Name  Name    Last Name  Company  Company  Cell Phone  Primary Email            
+----------  ----------  ------  ---------  -------  -------  ----------  -------------------------
+TC00000001  Jimmy               Chen                No                   snsd123@aol.com          
+TC00000002  Diane               Hire                No                   diane_hire@gmail.com     
+TC00000003  Mercedes            White               No                   mercedeswhite843@gmail.co
+TC00000004  Fawad               Kahn                No                   fawadkhan405@gmail.com   
+TC00000005  Crescent            Clark               No                                            
 

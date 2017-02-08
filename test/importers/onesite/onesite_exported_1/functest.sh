@@ -18,15 +18,15 @@ rm -f ${TEMPCSVSTORE}/rentalAgreement_*.csv ./rentalAgreement_*.csv
 rm -f ${TEMPCSVSTORE}/customAttribute_*.csv ./customAttribute_*.csv
 
 # call loader
-doOnesiteTest "c" "-csv ./onesite_1.csv -bud ${BUD} -testmode 1" "OnesiteRentrollCSV"
+doOnesiteTest "b" "-csv ./onesite_1.csv -bud ${BUD} -testmode 1" "OnesiteRentrollCSV"
 
 # Print out All the different data types for validation
-docsvtest "d" "-L 5,${BUD}" "RentableTypes"
-docsvtest "e" "-L 7,${BUD}" "People"
-docsvtest "f" "-L 6,${BUD}" "Rentables"
-docsvtest "h" "-L 9,${BUD}" "RentalAgreements"
-docsvtest "k" "-L 14,${BUD}" "CustomAttribute"
-docsvtest "l" "-L 15,${BUD}" "CustomAttributeRef"
+docsvtest "c" "-L 5,${BUD}" "RentableTypes"
+docsvtest "d" "-L 7,${BUD}" "People"
+docsvtest "e" "-L 6,${BUD}" "Rentables"
+docsvtest "f" "-L 9,${BUD}" "RentalAgreements"
+docsvtest "h" "-L 14,${BUD}" "CustomAttribute"
+docsvtest "k" "-L 15,${BUD}" "CustomAttributeRef"
 
 logcheck
 

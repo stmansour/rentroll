@@ -1,20 +1,35 @@
-                      Value                           
-CID        BID        Type   Name         Value  Units
----------  ---------  -----  -----------  -----  -----
-C00000001  B00000002  int    Square Feet    656  sqft 
-C00000002  B00000002  int    Square Feet    840  sqft 
-C00000003  B00000002  int    Square Feet    852  sqft 
-C00000004  B00000002  int    Square Feet    847  sqft 
-C00000005  B00000002  int    Square Feet    872  sqft 
-C00000006  B00000002  int    Square Feet   1549  sqft 
-C00000007  B00000002  int    Square Feet    715  sqft 
-C00000008  B00000002  int    Square Feet    932  sqft 
-C00000009  B00000002  int    Square Feet   1150  sqft 
-C00000010  B00000002  int    Square Feet   1000  sqft 
-C00000011  B00000002  int    Square Feet   1300  sqft 
-C00000012  B00000002  int    Square Feet    675  sqft 
-C00000013  B00000002  int    Square Feet   1400  sqft 
-C00000014  B00000002  int    Square Feet    850  sqft 
-C00000015  B00000002  int    Square Feet   1164  sqft 
-C00000016  B00000002  int    Square Feet   1184  sqft 
+Element                       
+   Type  BID          ID   CID
+-------  ---------  ----  ----
+      5  B00000002     1     1
+      5  B00000002     2     1
+      5  B00000002     4     1
+      5  B00000002    10     1
+      5  B00000002     7     1
+      5  B00000002    14     1
+      5  B00000002    21     7
+      5  B00000002    19     7
+      5  B00000002    29    14
+      5  B00000002     8     3
+      5  B00000002    16     3
+      5  B00000002     5     2
+      5  B00000002    13     2
+      5  B00000002    11     4
+      5  B00000002    12     4
+      5  B00000002     9     4
+      5  B00000002    15     4
+      5  B00000002    17     5
+      5  B00000002    20     8
+      5  B00000002    30    15
+      5  B00000002    31    16
+      5  B00000002     3     1
+      5  B00000002     6     2
+      5  B00000002    24     9
+      5  B00000002    27    13
+      5  B00000002    18     6
+      5  B00000002    23    10
+      5  B00000002    22     9
+      5  B00000002    28    13
+      5  B00000002    26    12
+      5  B00000002    25    11
 
