@@ -934,6 +934,12 @@ type GLAccount struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
+	CountBusinessCustomAttrRefs   *sql.Stmt
+	CountBusinessCustomAttributes *sql.Stmt
+	CountBusinessRentableTypes    *sql.Stmt
+	CountBusinessTransactants     *sql.Stmt
+	CountBusinessRentables        *sql.Stmt
+	CountBusinessRentalAgreements *sql.Stmt
 	// GetRABalanceLedger                       *sql.Stmt
 	DeleteAllRentalAgreementPets       *sql.Stmt
 	DeleteCustomAttribute              *sql.Stmt

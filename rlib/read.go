@@ -416,3 +416,39 @@ func ReadVehicles(rows *sql.Rows, a *Vehicle) {
 func ReadTCIDByNote(rows *sql.Rows, id *int) {
 	Errcheck(rows.Scan(id))
 }
+
+// ReadCountBusinessCustomAttrRefs reads total count for CustomAttrRefs
+// for particular associated business
+func ReadCountBusinessCustomAttrRefs(rows *sql.Rows, id *int) {
+	Errcheck(rows.Scan(id))
+}
+
+// ReadCountBusinessCustomAttributes reads total count for CustomAttributes
+// for particular associated business
+func ReadCountBusinessCustomAttributes(rows *sql.Rows, id *int) {
+	Errcheck(rows.Scan(id))
+}
+
+// ReadCountBusinessRentableTypes reads total count for RentableTypes
+// for particular associated business
+func ReadCountBusinessRentableTypes(rows *sql.Rows, id *int) {
+	Errcheck(rows.Scan(id))
+}
+
+// ReadCountBusinessTransactants reads total count for Transactants
+// for particular associated business
+func ReadCountBusinessTransactants(rows *sql.Rows, id *int) {
+	Errcheck(rows.Scan(id))
+}
+
+// ReadCountBusinessRentables reads total count for Rentables
+// for particular associated business
+func ReadCountBusinessRentables(rows *sql.Rows, id *int) {
+	Errcheck(rows.Scan(id))
+}
+
+// ReadCountBusinessRentalAgreements reads total count for RentalAgreements
+// for particular associated business
+func ReadCountBusinessRentalAgreements(rows *sql.Rows, id *int) {
+	Errcheck(rows.Scan(id))
+}

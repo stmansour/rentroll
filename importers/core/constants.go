@@ -21,8 +21,8 @@ const (
 
 // const for db types
 const (
-	DBCustomAttr      = iota
 	DBRentableType    = iota
+	DBCustomAttr      = iota
 	DBCustomAttrRef   = iota
 	DBPeople          = iota
 	DBRentable        = iota
