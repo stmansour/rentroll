@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 2/7/2017
-Time: 10:38AM IST
+Date: 2/8/2017
+Time: 12:53PM IST
 Import File: ./onesite_1.csv
 
 =======
@@ -9,9 +9,9 @@ SUMMARY
                                 Total       Total                 
 Data Type                       Possible    Imported    Issues    
 ------------------------------  ----------  ----------  ----------
-Custom Attributes               16          16          0         
 Rentable Types                  31          31          0         
-Custom Attribute References     16          16          0         
+Custom Attributes               16          16          0         
+Custom Attribute References     16          31          0         
 Transactants                    766         766         331       
 Rentables                       855         855         0         
 Rental Agreements               766         766         0         
