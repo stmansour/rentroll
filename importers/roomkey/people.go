@@ -90,20 +90,19 @@ func WritePeopleCSVData(
 	}
 
 	// get csv row data
-	ok, csvRowData := GetPeopleCSVRow(
+	csvRowData := GetPeopleCSVRow(
 		csvRow, peopleStruct,
 		currentTimeFormat, suppliedValues,
 		guestData, rowIndex, tracePeopleNote,
 	)
-	if ok {
-		csvWriter.Write(csvRowData)
-		csvWriter.Flush()
 
-		// after write operation to csv,
-		// entry this rowindex with unit value in the map
-		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
-	}
+	csvWriter.Write(csvRowData)
+	csvWriter.Flush()
+
+	// after write operation to csv,
+	// entry this rowindex with unit value in the map
+	*recordCount = *recordCount + 1
+	traceCSVData[*recordCount+1] = rowIndex
 }
 
 // GetPeopleCSVRow used to create people
@@ -116,10 +115,7 @@ func GetPeopleCSVRow(
 	guestData GuestCSVRow,
 	rowIndex int,
 	tracePeopleNote map[int]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load people's data from roomkeyrow data
@@ -201,10 +197,10 @@ func GetPeopleCSVRow(
 
 		// Add description to Notes field of people
 		if peopleField.Name == "Notes" {
-			des := roomkeyNotesPrefix + strconv.Itoa(rowIndex) + "\n"
-			des += "Res. Id:" + roomKeyRow.ResID
+			des := roomkeyNotesPrefix + strconv.Itoa(rowIndex) + "." + descriptionFieldSep
+			des += "Res. Id:" + roomKeyRow.ResID + "."
 			if roomKeyRow.Description != "" {
-				des += "\n" + strings.TrimSpace(roomKeyRow.Description)
+				des += descriptionFieldSep + strings.TrimSpace(roomKeyRow.Description)
 			}
 			dataMap[i] = des
 			tracePeopleNote[rowIndex] = des
@@ -229,6 +225,6 @@ func GetPeopleCSVRow(
 	for i := 0; i < pplLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
 }

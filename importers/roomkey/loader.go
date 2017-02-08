@@ -165,7 +165,7 @@ func loadRoomKeyCSV(
 
 		// check it is description row
 		if isRoomKeyDescriptionRow(t[rowIndex-1]) {
-			csvRowDataMap[currentDataRowIndex].Description += descriptionFieldSep + t[rowIndex-1][rowTypeDetectionCSVIndex["description"]]
+			csvRowDataMap[currentDataRowIndex].Description += descriptionFieldSep + strings.TrimSpace(t[rowIndex-1][rowTypeDetectionCSVIndex["description"]])
 			continue
 		}
 
@@ -188,7 +188,25 @@ func loadRoomKeyCSV(
 		return csvErrors, internalErrFlag
 	}
 
-	// ----------------------- create files and get csv writer object -----------------------
+	// =================================
+	// DELETE DATA RELATED TO BUSINESS ID
+	// =================================
+	// detele business related data before starting to import in database
+	rlib.DeleteBusinessFromDB(business.BID)
+	bid, err := rlib.InsertBusiness(business)
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <INSERT BUSINESS>: %s\n", err.Error())
+		return csvErrors, internalErrFlag
+	}
+	// set new BID as we have deleted and inserted it again
+	// TODO:  remove this step after sman's next push
+	// in InsertBusiness it will be set automatically
+	business.BID = bid
+
+	// ========================================================
+	// WRITE DATA FOR RENTABLE TYPE, PEOPLE CSV
+	// ========================================================
+
 	// get created rentabletype csv and writer pointer
 	rentableTypeCSVFile, rentableTypeCSVWriter, ok :=
 		CreateRentableTypeCSV(
@@ -210,14 +228,6 @@ func loadRoomKeyCSV(
 		rlib.Ulog("INTERNAL ERROR <PEOPLE CSV>: %s\n", err.Error())
 		return csvErrors, internalErrFlag
 	}
-
-	// ##############################
-	// # PHASE 1 : SPLITTING DATA IN CSV FILES #
-	// ##############################
-
-	// ================================
-	// First loop for validation on csv
-	// ================================
 
 	// To store the keys in slice in sorted order
 	// always sort keys to iterate over csv rows in proper manner (from top to bottom)
@@ -440,9 +450,9 @@ func loadRoomKeyCSV(
 		return true
 	}
 
-	// =========================================
+	// ======================
 	// LOAD RENTABLE TYPE CSV
-	// =========================================
+	// ======================
 	var h = []csvLoadHandler{
 		{
 			Fname: rentableTypeCSVFile.Name(), Handler: rcsv.LoadRentableTypesCSV,
@@ -460,9 +470,9 @@ func loadRoomKeyCSV(
 		}
 	}
 
-	// =========================================
-	// LOAD RENTABLE TYPE CSV
-	// =========================================
+	// ================
+	// LOAD PEOPLE CSV
+	// ================
 	h = []csvLoadHandler{
 		{
 			Fname: peopleCSVFile.Name(), Handler: rcsv.LoadPeopleCSV,
@@ -741,10 +751,16 @@ func CSVHandler(
 
 	// --------------------------------------------------------------------------------------------------------- //
 
-	// ---------------------- call onesite loader ----------------------------------------
-	guestInfo, guestCSVError := loadGuestInfoCSV(GuestInfoCSV)
-	if guestCSVError != nil {
-		// throw an error in report
+	var guestInfo map[string]*GuestCSVRow
+	var guestCSVError error
+	// ---------------------- call guestinfocsv loader ----------------------------------------
+	// only call if it has been passed then
+	if GuestInfoCSV != "" {
+		guestInfo, guestCSVError = loadGuestInfoCSV(GuestInfoCSV)
+		if guestCSVError != nil {
+			csvReport = "\n\n" + guestCSVError.Error()
+			return csvReport, false, false
+		}
 	}
 
 	// ---------------------- call roomkey loader ----------------------------------------

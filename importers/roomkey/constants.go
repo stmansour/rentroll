@@ -29,6 +29,8 @@ var prefixCSVFile = map[string]string{
 	"rentable":         "rentable_",
 }
 
+var RoomKeyOnlineRentableStatus = "1"
+
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type csvLoadHandler struct {
 	Fname        string
@@ -55,4 +57,4 @@ var csvRecordsSkipList = []string{
 	rcsv.RentableAlreadyRented,
 }
 
-var descriptionFieldSep = "\n"
+var descriptionFieldSep = " "
