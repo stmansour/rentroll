@@ -66,6 +66,8 @@ var Svcs = []ServiceHandler{
 	{"rentables", SvcSearchHandlerRentables, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
 	{"xperson", SvcFormHandlerXPerson, true},
+	{"xrapeople", SvcRAPeople, true},
+	{"xrapets", SvcRAPets, true},
 	{"xrentable", SvcFormHandlerRentable, true},
 	{"xrentalagr", SvcFormHandlerRentalAgreement, true},
 	{"uilists", SvcUILists, false},

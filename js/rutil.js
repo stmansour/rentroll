@@ -35,12 +35,41 @@ function setToRAForm(bid,raid) {
     w2ui.rentalagrForm.url = '/gsvc/xrentalagr/' + bid + '/' + raid;
     w2ui.rentalagrForm.request();
 
-    // /gsvc/rar/bid/raid[?d1=2017-02-1]
-    // if no date is specified, today's date is used as the default.
+    //----------------------------------------------------------------
+    // Get the associated Rentables...
+    //      /gsvc/rar/bid/raid[?d1=2017-02-1]
+    //      if no date is specified, today's date is used as the default.
+    //----------------------------------------------------------------
     w2ui.rarGrid.url = '/gsvc/rar/' + bid + '/' + raid;
     console.log('rar url = ' + w2ui.rarGrid.url);
     w2ui.rarGrid.request();
 
+    //----------------------------------------------------------------
+    // Get the associated Payors...
+    //      /gsvc/xrapeople/bid/raid[?type=payor&d1=2017-02-1]
+    //      if no date is specified, today's date is used as the default.
+    //      if no person type is provided, payor is assumed
+    //----------------------------------------------------------------
+    w2ui.rapGrid.url = '/gsvc/xrapeople/' + bid + '/' + raid;
+    console.log('xrapeople url = ' + w2ui.rapGrid.url);
+    w2ui.rapGrid.request();
+ 
+    //----------------------------------------------------------------
+    // Get the associated Users...
+    //      /gsvc/xrapeople/bid/raid[?type=user&d1=2017-02-1]
+    //      if no date is specified, today's date is used as the default.
+    //----------------------------------------------------------------
+    w2ui.rauGrid.url = '/gsvc/xrapeople/' + bid + '/' + raid + '?type=user';
+    console.log('xrapeople url = ' + w2ui.rauGrid.url);
+    w2ui.rauGrid.request();
+
+    //----------------------------------------------------------------
+    // Get the associated Pets...
+    //      /gsvc/xrapets/bid/raid
+    //----------------------------------------------------------------
+    w2ui.raPetGrid.url = '/gsvc/xrapets/' + bid + '/' + raid;
+    console.log('xrapets url = ' + w2ui.rarGrid.url);
+    w2ui.rarGrid.request();
 
 }
 

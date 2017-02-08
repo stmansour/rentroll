@@ -1,5 +1,9 @@
 package main
 
+//
+// This command returns the rentables associated with the supplied RAID.  If no dates are supplied
+// then the current date is assumed.
+
 import (
 	"encoding/json"
 	"fmt"
@@ -26,22 +30,19 @@ type RARList struct {
 	Records []xRAR `json:"records"`
 }
 
-// This command returns the rentables associated with the supplied RAID.  If no dates are supplied
-// then the current date is assumed.
-
 // SvcRARentables returns the Rentables associated with the RAID supplied
 //  Called with URL:
-//       0    1       2    3
-// 		/gsvc/xperson/BID/RAID?dt=2017-01-03
+//       0    1   2   3
+// 		/gsvc/rar/BID/RAID?dt=2017-01-03
 func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("entered SvcRARentables\n")
+	// fmt.Printf("entered SvcRARentables\n")
 	s := r.URL.String()
-	fmt.Printf("s = %s\n", s)
+	// fmt.Printf("s = %s\n", s)
 	s1 := strings.Split(s, "?")
-	fmt.Printf("s1 = %#v\n", s1)
+	// fmt.Printf("s1 = %#v\n", s1)
 	ss := strings.Split(s1[0][1:], "/")
-	fmt.Printf("ss = %#v\n", ss)
-	raid, err := rlib.IntFromString(ss[3], "bad request integer value")
+	// fmt.Printf("ss = %#v\n", ss)
+	raid, err := rlib.IntFromString(ss[3], "bad RAID value")
 	if err != nil {
 		SvcGridErrorReturn(w, err)
 		return
@@ -50,7 +51,7 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	dt := now
 	if len(s1) > 1 && len(s1[1]) > 0 {
 		sd := strings.Split(s1[1], "=")
-		fmt.Printf("dt = %s\n", sd[1])
+		// fmt.Printf("dt = %s\n", sd[1])
 		dt, err = rlib.StringToDate(sd[1])
 		if err != nil {
 			SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", sd[1]))
@@ -59,9 +60,9 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	var rar RARList
 	m := rlib.GetRentalAgreementRentables(raid, &dt, &dt)
-	// fmt.Printf("len(rar.Records) = %d\n", len(rar.Records))
+	// // fmt.Printf("len(rar.Records) = %d\n", len(rar.Records))
 	// for i := 0; i < len(rar.Records); i++ {
-	// 	fmt.Printf("%d. RID = %d, ContractRent = %8.2f\n", i, rar.Records[i].RID, rar.Records[i].ContractRent)
+	// 	// fmt.Printf("%d. RID = %d, ContractRent = %8.2f\n", i, rar.Records[i].RID, rar.Records[i].ContractRent)
 	// }
 	for i := 0; i < len(m); i++ {
 		var xr xRAR
@@ -71,13 +72,13 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	rar.Status = "success"
 	rar.Total = int64(len(m))
-	fmt.Printf("rar = %#v\n", rar)
+	// fmt.Printf("rar = %#v\n", rar)
 	b, err := json.Marshal(&rar)
 	if err != nil {
 		SvcGridErrorReturn(w, fmt.Errorf("cannot marshal records:  %s", err.Error()))
 		return
 	}
-	fmt.Printf("len(b) = %d\n", len(b))
-	fmt.Printf("b = %s\n", string(b))
+	// fmt.Printf("len(b) = %d\n", len(b))
+	// fmt.Printf("b = %s\n", string(b))
 	w.Write(b)
 }

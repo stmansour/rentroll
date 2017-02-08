@@ -21,7 +21,7 @@ function plural(s) {
 
 var sTransactant = "Person";
 var sRentable = "Unit";
-var sUser = "Renter";
+var sUser = "User";
 var sPayor = "Payor";
 var sProspect = "Prospect";
 var sRentalAgreement = "Rental Agreement";
