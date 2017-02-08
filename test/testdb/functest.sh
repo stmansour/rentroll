@@ -10,5 +10,6 @@ source ../share/base.sh
 pushd ../jm1;./functest.sh;popd
 pushd ../ccc;./functest.sh -n -f;popd
 pushd ../importers/onesite/onesite_exported_2;./functest.sh -n -f;popd
+pushd ../importers/roomkey/roomkey_exported_guest;./functest.sh -n -f;popd
 
 docsvtest "a" "-E cccpets.csv" "Pets"
