@@ -1,0 +1,112 @@
+Accord RentRoll RoomKey Importer
+Date: 2/8/2017
+Time: 5:47PM IST
+Import File: ./roomkey.csv
+Guest Export File: ./guestdataexport.csv
+
+=======
+SUMMARY
+=======
+                                Total       Total                 
+Data Type                       Possible    Imported    Issues    
+------------------------------  ----------  ----------  ----------
+Rentable Types                  10          10          0         
+Transactants                    23          23          0         
+Rentables                       23          21          0         
+Rental Agreements               23          21          0         
+
+==================================================
+RECORDS FOR BUSINESS UNIT DESIGNATION: Isola Bella
+==================================================
+                                                                           Manage                         
+                                                Rent     Proration         To                             
+RTID        Style       Name                    Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate
+----------  ----------  ----------------------  -------  ---------  -----  ------  -----------------------
+RT00000001  3 BDR 2.5   3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes                            
+RT00000002  LS Deluxe   LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes                            
+RT00000003  2 BDR 1 Ba  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes                            
+RT00000004  1 BDR NSNP  1 BDR NSNP/POC-         monthly  daily      daily  Yes                            
+RT00000005  1 BDR NS/P  1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes                            
+RT00000006  1 BDR NSNP  1 BDR NSNP-Q            monthly  daily      daily  Yes                            
+RT00000007  1 BDR Delu  1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes                            
+RT00000008  2 BDR 1 Ba  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes                            
+RT00000009  2 BDR 1 Ba  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes                            
+RT00000010  4 BDR 2 Ba  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes                            
+================================================================================
+RID        Name     Assignment Time
+---------  -------  ---------------
+R00000001  6608118  pre-assign     
+R00000002  6383323  pre-assign     
+R00000003  6361239  pre-assign     
+R00000004  6381324  pre-assign     
+R00000005  6373285  pre-assign     
+R00000006  6377308  pre-assign     
+R00000007  6355215  pre-assign     
+R00000008  6307026  pre-assign     
+R00000009  6329118  pre-assign     
+R00000010  6373283  pre-assign     
+R00000011  6395371  pre-assign     
+R00000012  6337152  pre-assign     
+R00000013  6347186  pre-assign     
+R00000014  6391362  pre-assign     
+R00000015  6353216  pre-assign     
+R00000016  6381328  pre-assign     
+R00000017  6610123  pre-assign     
+R00000018  6359238  pre-assign     
+R00000019  6389345  pre-assign     
+R00000020  6331122  pre-assign     
+R00000021  6343172  pre-assign     
+================================================================================
+                         Middle                               Is                                             
+TCID        First Name   Name    Last Name   Company          Company  Cell Phone    Primary Email           
+----------  -----------  ------  ----------  ---------------  -------  ------------  ------------------------
+TC00000001  adams                brandon     OK College Of C  No                                             
+TC00000002  Adkins               Chris       Pilgrim Films    No       2514581075                            
+TC00000003  Aleson               Zane        Pilgrim Films    No                                             
+TC00000004  Alfailakawi          Mohammed                     No       405-512-4199  boalking1@gmail.com     
+TC00000005  Almannaei            Abdulaziz   Delex            No       4055123365                            
+TC00000006  Alrashedi            Abdulaziz                    No       4055106262                            
+TC00000007  Alvarez              Abigail     Sooner Care Lod  No                                             
+TC00000008  Alvarez              Victor      Pilgrim Films    No                                             
+TC00000009  Anderson             Daniel      Diversified Ser  No       580-381-0088                          
+TC00000010  Andrade              Kenneth                      No                                             
+TC00000011  Aragon               Sabrina                      No       5052617599    aragon_sabrina@yahoo.com
+TC00000012  Arroliga             Carlos      Sooner Care Lod  No       9187304386                            
+TC00000013  Arroyo               Karianie                     No       305-335-3617  karianie@gmail.com      
+TC00000014  Arthur               Kyle                         No       480-784-7993  ksArthur88@gmail.com    
+TC00000015  Austrino             James                        No                                             
+TC00000016  Aviles               Jonathan                     No       3053025314    jonathana1086@gmail.com 
+TC00000017  Azaceta              Nicolas                      No                                             
+TC00000018  Baker                Zachary     Elliot Services  No       9999999999                            
+TC00000019  Barletta             Giovanni                     No       5128204294    giobar22@gmail.com      
+TC00000020  Barta                Josiah                       No                                             
+TC00000021  Baussan              Bernadette                   No                                             
+TC00000022  Baussan              Daniel                       No       407-489-2379  daniel.baussan@faa.gov  
+TC00000023  Baxter               Addison                      No       6015067741    addison.baxter@faa.gov  
+================================================================================
+                         Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
+RAID        Payor  User  Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
+----------  -----  ----  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
+RA00000001               09/14/2016  05/31/2017  09/14/2016  05/31/2017  09/14/2016  05/31/2017  09/14/2016  2                  3            0                           
+RA00000002               12/13/2016  10/31/2017  12/13/2016  10/31/2017  12/13/2016  10/31/2017  12/13/2016  2                  1            0                           
+RA00000003               12/13/2016  01/31/2017  12/13/2016  01/31/2017  12/13/2016  01/31/2017  12/13/2016  2                  1            0                           
+RA00000004               01/03/2017  04/30/2017  01/03/2017  04/30/2017  01/03/2017  04/30/2017  01/03/2017  2                  2            0                           
+RA00000005               01/12/2016  05/31/2017  01/12/2016  05/31/2017  01/12/2016  05/31/2017  01/12/2016  2                  1            0                           
+RA00000006               01/03/2017  04/30/2017  01/03/2017  04/30/2017  01/03/2017  04/30/2017  01/03/2017  2                  2            0                           
+RA00000007               01/06/2017  01/16/2017  01/06/2017  01/16/2017  01/06/2017  01/16/2017  01/06/2017  2                  1            0                           
+RA00000008               11/13/2016  02/28/2017  11/13/2016  02/28/2017  11/13/2016  02/28/2017  11/13/2016  2                  2            0                           
+RA00000009               11/29/2016  01/18/2017  11/29/2016  01/18/2017  11/29/2016  01/18/2017  11/29/2016  2                  1            0                           
+RA00000010               12/16/2016  03/22/2017  12/16/2016  03/22/2017  12/16/2016  03/22/2017  12/16/2016  2                  1            0                           
+RA00000011               01/04/2017  01/17/2017  01/04/2017  01/17/2017  01/04/2017  01/17/2017  01/04/2017  2                  2            0                           
+RA00000012               10/07/2016  01/27/2017  10/07/2016  01/27/2017  10/07/2016  01/27/2017  10/07/2016  2                  1            0                           
+RA00000013               11/28/2016  02/07/2017  11/28/2016  02/07/2017  11/28/2016  02/07/2017  11/28/2016  2                  1            0                           
+RA00000014               09/20/2016  01/11/2017  09/20/2016  01/11/2017  09/20/2016  01/11/2017  09/20/2016  2                  2            0                           
+RA00000015               12/01/2016  05/05/2017  12/01/2016  05/05/2017  12/01/2016  05/05/2017  12/01/2016  2                  1            0                           
+RA00000016               11/07/2016  01/11/2017  11/07/2016  01/11/2017  11/07/2016  01/11/2017  11/07/2016  2                  1            0                           
+RA00000017               12/31/2015  05/31/2017  12/31/2015  05/31/2017  12/31/2015  05/31/2017  12/31/2015  2                  4            0                           
+RA00000018               12/26/2016  04/01/2017  12/26/2016  04/01/2017  12/26/2016  04/01/2017  12/26/2016  2                  1            0                           
+RA00000019               10/04/2016  04/07/2017  10/04/2016  04/07/2017  10/04/2016  04/07/2017  10/04/2016  2                  2            0                           
+RA00000020               12/05/2016  02/10/2017  12/05/2016  02/10/2017  12/05/2016  02/10/2017  12/05/2016  2                  1            0                           
+RA00000021               11/22/2016  02/14/2017  11/22/2016  02/14/2017  11/22/2016  02/14/2017  11/22/2016  2                  1            0                           
+================================================================================
+

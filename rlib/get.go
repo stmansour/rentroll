@@ -1707,3 +1707,93 @@ func GetDateOfLedgerMarkerOnOrBefore(bid int64, d1 *time.Time) time.Time {
 	}
 	return lm.Dt
 }
+
+// GetCountBusinessCustomAttrRefs get total count for CustomAttrRefs
+// with particular associated business
+func GetCountBusinessCustomAttrRefs() int {
+	var id int
+	rows, err := RRdb.Prepstmt.CountBusinessCustomAttrRefs.Query()
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		ReadCountBusinessCustomAttrRefs(rows, &id)
+		return id
+	}
+	return id
+}
+
+// GetCountBusinessCustomAttributes get total count for CustomAttributes
+// with particular associated business
+func GetCountBusinessCustomAttributes() int {
+	var id int
+	rows, err := RRdb.Prepstmt.CountBusinessCustomAttributes.Query()
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		ReadCountBusinessCustomAttributes(rows, &id)
+		return id
+	}
+	return id
+}
+
+// GetCountBusinessRentableTypes get total count for RentableTypes
+// with particular associated business
+func GetCountBusinessRentableTypes() int {
+	var id int
+	rows, err := RRdb.Prepstmt.CountBusinessRentableTypes.Query()
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		ReadCountBusinessRentableTypes(rows, &id)
+		return id
+	}
+	return id
+}
+
+// GetCountBusinessTransactants get total count for Transactants
+// with particular associated business
+func GetCountBusinessTransactants() int {
+	var id int
+	rows, err := RRdb.Prepstmt.CountBusinessTransactants.Query()
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		ReadCountBusinessTransactants(rows, &id)
+		return id
+	}
+	return id
+}
+
+// GetCountBusinessRentables get total count for Rentables
+// with particular associated business
+func GetCountBusinessRentables() int {
+	var id int
+	rows, err := RRdb.Prepstmt.CountBusinessRentables.Query()
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		ReadCountBusinessRentables(rows, &id)
+		return id
+	}
+	return id
+}
+
+// GetCountBusinessRentalAgreements get total count for RentalAgreements
+// with particular associated business
+func GetCountBusinessRentalAgreements() int {
+	var id int
+	rows, err := RRdb.Prepstmt.CountBusinessRentalAgreements.Query()
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		ReadCountBusinessRentalAgreements(rows, &id)
+		return id
+	}
+	return id
+}

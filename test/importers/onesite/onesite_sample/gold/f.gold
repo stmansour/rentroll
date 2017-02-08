@@ -1,9 +1,9 @@
-RID        Name      Assignment Time
----------  --------  ---------------
-R00000001  6303-016  pre-assign     
-R00000002  6315-055  pre-assign     
-R00000003  6313-052  pre-assign     
-R00000004  6339-156  pre-assign     
-R00000005  6343-165  pre-assign     
-R00000006  6343-166  pre-assign     
+                                            Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
+RAID        Payor           User            Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
+----------  --------------  --------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
+RA00000001  Jimmy Chen      Jimmy Chen      10/01/2015  09/30/2016  03/22/2008  09/30/2016  10/01/2015  09/30/2016  10/01/2015  2                  0            0                           
+RA00000002  Diane Hire      Diane Hire      02/17/2016  02/28/2017  02/17/2016  02/28/2017  02/17/2016  02/28/2017  02/17/2016  2                  0            0                           
+RA00000003  Mercedes White  Mercedes White  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  2                  0            0                           
+RA00000004  Fawad Kahn      Fawad Kahn      02/01/2016  01/31/2017  12/05/2010  01/31/2017  02/01/2016  01/31/2017  02/01/2016  2                  0            0                           
+RA00000005  Crescent Clark  Crescent Clark  02/01/2016  07/31/2016  07/11/2014  07/31/2016  02/01/2016  07/31/2016  02/01/2016  2                  0            0                           
 

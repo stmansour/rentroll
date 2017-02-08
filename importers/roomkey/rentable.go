@@ -69,16 +69,6 @@ func WriteRentableData(
 	traceTCIDMap map[int]string,
 	csvErrors map[int][]string,
 ) {
-	// TODO: need to decide how to avoid data
-	// checkRentableStyle := csvRow.FloorPlan
-	// Stylefound := core.StringInSlice(checkRentableStyle, *avoidData)
-
-	// // if style found then simplay return otherwise continue
-	// if Stylefound {
-	// 	return
-	// }
-
-	// *avoidData = append(*avoidData, checkRentableStyle)
 
 	currentYear, currentMonth, currentDate := currentTime.Date()
 	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
@@ -92,14 +82,14 @@ func WriteRentableData(
 	}
 
 	// Forming default rentable status string
-	rentableDefaultData["RentableStatus"] = "1"
+	rentableDefaultData["RentableStatus"] = RoomKeyOnlineRentableStatus
 	rentableDefaultData["DtStart"] = DtStart
 	rentableDefaultData["DtStop"] = DtStop
 	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
 
 	// flag warning that we are taking default values for least start, end dates
 	// as they don't exists
-	if csvRow.Empty3 == "" {
+	if csvRow.DateIn == "" {
 		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
 		csvErrors[rowIndex] = append(csvErrors[rowIndex],
 			warnPrefix+"No lease start date found. Using default value: "+DtStart,
@@ -112,27 +102,25 @@ func WriteRentableData(
 		)
 	}
 
-	dateIn := getFormattedDate(csvRow.Empty3)
+	dateIn := getFormattedDate(csvRow.DateIn)
 	dateOut := getFormattedDate(csvRow.DateOut)
 
 	rentableDefaultData["RentableStatus"] += "," + dateIn
 	rentableDefaultData["RentableStatus"] += "," + dateOut
 
 	// get csv row data
-	ok, csvRowData := GetRentableCSVRow(
+	csvRowData := GetRentableCSVRow(
 		csvRow, rentableStruct,
 		currentTimeFormat, rentableDefaultData,
 	)
 
-	if ok {
-		csvWriter.Write(csvRowData)
-		csvWriter.Flush()
+	csvWriter.Write(csvRowData)
+	csvWriter.Flush()
 
-		// after write operation to csv,
-		// entry this rowindex with unit value in the map
-		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
-	}
+	// after write operation to csv,
+	// entry this rowindex with unit value in the map
+	*recordCount = *recordCount + 1
+	traceCSVData[*recordCount+1] = rowIndex
 }
 
 // GetRentableCSVRow used to create rentabletype
@@ -142,10 +130,7 @@ func GetRentableCSVRow(
 	fieldMap *core.RentableCSV,
 	timestamp string,
 	DefaultValues map[string]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load rentable's data from roomkeyrow data
@@ -174,14 +159,18 @@ func GetRentableCSVRow(
 		// this condition has been put here because it's mapping field does not exist
 		// =========================================================
 		if rentableField.Name == "RentableTypeRef" {
-			typeRef, ok := GetRentableTypeRef(roomKeyRow)
-			if ok {
-				dataMap[i] = typeRef
-			} else {
-				// TODO: verify that what to do in false case
-				// dataMap[i] = "FailedRentableTypeRef"
-				dataMap[i] = typeRef
-			}
+			dataMap[i] = GetRentableTypeRef(roomKeyRow, DefaultValues)
+		}
+		if rentableField.Name == "RUserSpec" {
+			// format is user, startDate, stopDate
+			dataMap[i] = GetRUserSpec(roomKeyRow, DefaultValues)
+		}
+		if rentableField.Name == "RentableStatus" {
+			// format is status, startDate, stopDate
+			status := GetRentableStatus(roomKeyRow, DefaultValues)
+			// TODO: verify that what to do in false case
+			// should return its original value or raise error???
+			dataMap[i] = status
 		}
 
 		// get mapping field
@@ -209,31 +198,58 @@ func GetRentableCSVRow(
 	for i := 0; i < rRTLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
+}
+
+// GetRUserSpec used to get ruser spec in format of rentroll system
+func GetRUserSpec(
+	csvRow *CSVRow,
+	defaults map[string]string,
+) string {
+
+	// always it is ONLINE then leave it as a blank
+	// as rcsv loader automatically associate user from rental
+	// agreement csv so leave it as blank (nearly all cases)
+	return ""
+}
+
+// GetRentableStatus used to get rentable status in format of rentroll system
+func GetRentableStatus(csvRow *CSVRow,
+	defaults map[string]string) string {
+
+	orderedFields := []string{}
+
+	// rentable status is always online then
+	// append unitleasestatus
+	orderedFields = append(orderedFields, RoomKeyOnlineRentableStatus)
+
+	// append today start date
+	orderedFields = append(orderedFields, defaults["DtStart"])
+
+	// append end date unspecified
+	orderedFields = append(orderedFields, "")
+
+	return strings.Join(orderedFields, ",")
+
 }
 
 // GetRentableTypeRef used to get rentable type ref in format of rentroll system
 func GetRentableTypeRef(
 	csvRow *CSVRow,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+	defaults map[string]string,
+) string {
 
 	orderedFields := []string{}
 
-	// append room type
+	// append floor plan
 	orderedFields = append(orderedFields, csvRow.RoomType)
-	// append date in
-	orderedFields = append(orderedFields, getFormattedDate(csvRow.Empty3))
-	// append date out
-	orderedFields = append(orderedFields, getFormattedDate(csvRow.DateOut))
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
+	// append today date
+	orderedFields = append(orderedFields, defaults["DtStart"])
 
-	return ",,", ok
+	// append end date as unspecified
+	orderedFields = append(orderedFields, "")
+
+	return strings.Join(orderedFields, ",")
 }

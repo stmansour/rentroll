@@ -3,7 +3,6 @@ package roomkey
 import (
 	"reflect"
 	"rentroll/importers/core"
-	"rentroll/rcsv"
 	"strings"
 )
 
@@ -14,19 +13,33 @@ type CSVFieldMap struct {
 	PeopleCSV          core.PeopleCSV
 	RentableCSV        core.RentableCSV
 	RentalAgreementCSV core.RentalAgreementCSV
-	CustomAttributeCSV core.CustomAttributeCSV
+}
+
+// csvColumnFieldMap contains internal Roomkey Structure fields
+// to csv columns, used to refer columns from struct fields
+var csvColumnFieldMap = map[string]string{
+	"guest":              "Guest",
+	"resid":              "ResID",
+	"dateres":            "DateRes",
+	"datein":             "DateIn",
+	"dateout":            "DateOut",
+	"adults":             "Adults",
+	"child":              "Child",
+	"room":               "Room",
+	"roomtype":           "RoomType",
+	"rate":               "Rate",
+	"ratename":           "RateName",
+	"groupcorporatename": "GroupCorporate",
 }
 
 // CSVRow contains fields which represents value
 // exactly to the each raw of roomkey input csv file
 type CSVRow struct {
-	Empty1         string
 	Guest          string
 	Description    string
 	ResID          string
 	DateRes        string
 	DateIn         string
-	Empty3         string
 	DateOut        string
 	Adults         string
 	Child          string
@@ -37,156 +50,182 @@ type CSVRow struct {
 	GroupCorporate string
 }
 
-// csvRowFieldRules is map contains rules for specific fields in roomkey
-var csvRowFieldRules = map[string]map[string]string{
-	"Empty1":         {"type": "string", "blank": "true"},
-	"Guest":          {"type": "string", "blank": "true"},
-	"Description":    {"type": "string", "blank": "true"},
-	"ResID":          {"type": "uint", "blank": "true"},
-	"DateRes":        {"type": "string", "blank": "true"},
-	"DateIn":         {"type": "string", "blank": "true"},
-	"Empty3":         {"type": "string", "blank": "true"},
-	"DateOut":        {"type": "string", "blank": "true"},
-	"Adults":         {"type": "uint", "blank": "true"},
-	"Child":          {"type": "uint", "blank": "true"},
-	"Room":           {"type": "uint", "blank": "true"},
-	"RoomType":       {"type": "string", "blank": "true"},
-	"Rate":           {"type": "string", "blank": "true"},
-	"RateName":       {"type": "string", "blank": "true"},
-	"GroupCorporate": {"type": "string", "blank": "true"},
+// getCSVHeadersIndexMap returns the map of fields with
+// undetermined indexes for roomkey csv
+func getCSVHeadersIndexMap() map[string]int {
+
+	// csvHeadersIndex holds the map of headers with its index
+	csvHeadersIndex := map[string]int{
+		"Guest":          -1,
+		"ResID":          -1,
+		"DateRes":        -1,
+		"DateIn":         -1,
+		"DateOut":        -1,
+		"Adults":         -1,
+		"Child":          -1,
+		"Room":           -1,
+		"RoomType":       -1,
+		"Rate":           -1,
+		"RateName":       -1,
+		"GroupCorporate": -1,
+	}
+
+	return csvHeadersIndex
+}
+
+// tells which type of row is
+var csvRowType = map[string]int{
+	"page":        0,
+	"header":      1,
+	"record":      2,
+	"description": 3,
+}
+
+// by which index, it will decide tyep of row
+var rowTypeDetectionCSVIndex = map[string]int{
+	"page":        0,
+	"description": 2,
+}
+
+// loadRoomKeyCSVRow used to load data from slice
+// into CSVRow struct and return that struct
+func loadRoomKeyCSVRow(csvHeadersIndex map[string]int, data []string) (bool, CSVRow) {
+	csvRow := reflect.New(reflect.TypeOf(CSVRow{}))
+	skipRow := false
+
+	// else go for records
+	for header, index := range csvHeadersIndex {
+		if index < len(data) {
+			value := strings.TrimSpace(data[index])
+			csvRow.Elem().FieldByName(header).Set(reflect.ValueOf(value))
+		}
+	}
+
+	// if blank data has not been passed then only need to return true
+	if (CSVRow{}) == csvRow.Elem().Interface().(CSVRow) {
+		skipRow = true
+	}
+
+	return skipRow, csvRow.Elem().Interface().(CSVRow)
+}
+
+// check that row is headerline
+func isRoomKeyHeaderLine(rowHeaders []string) (bool, map[string]int) {
+	csvHeadersIndex := getCSVHeadersIndexMap()
+
+	for colIndex := 0; colIndex < len(rowHeaders); colIndex++ {
+		// remove all white spaces and make lower case
+		cellTextValue := strings.ToLower(
+			core.SpecialCharsReplacer.Replace(rowHeaders[colIndex]))
+
+		// if header is exist in map then overwrite it position
+		if field, ok := csvColumnFieldMap[cellTextValue]; ok {
+			// ******** VERY SPECIAL CASE ***************
+			// dateIn data appears in next column, so need to add 1
+			if cellTextValue == "datein" {
+				csvHeadersIndex[field] = colIndex + 1
+			} else {
+				// normal case
+				csvHeadersIndex[field] = colIndex
+			}
+		}
+	}
+	// check after row columns parsing that headers are found or not
+	headersFound := true
+	for _, v := range csvHeadersIndex {
+		if v == -1 {
+			headersFound = false
+			break
+		}
+	}
+
+	return headersFound, csvHeadersIndex
+}
+
+// isRoomKeyPageRow check row is used for new page records
+func isRoomKeyPageRow(data []string) bool {
+
+	// if first column is not empty then it is
+	if strings.TrimSpace(data[rowTypeDetectionCSVIndex["page"]]) != "" {
+		return true
+	}
+
+	return false
+}
+
+func isRoomKeyDescriptionRow(data []string) bool {
+
+	// if third column is not empty then it is
+	if strings.TrimSpace(data[rowTypeDetectionCSVIndex["description"]]) != "" {
+		return true
+	}
+
+	return false
+}
+
+// guestCSVColumnFieldMap contains internal Roomkey Guest Structure fields
+// to guest csv columns, used to refer columns from struct fields
+var guestCSVColumnFieldMap = map[string]string{
+	"guestname":     "GuestName",
+	"firstname":     "FirstName",
+	"lastname":      "LastName",
+	"email":         "Email",
+	"mainphone":     "MainPhone",
+	"address":       "Address",
+	"address2":      "Address2",
+	"city":          "City",
+	"stateprovince": "StateProvince",
+	"zippostalcode": "ZipPostalCode",
+	"country":       "Country",
 }
 
 // GuestCSVRow contains fields which represents value
 // exactly to the each row of roomkey input csv file
 type GuestCSVRow struct {
-	GuestID            string
-	CreateDate         string
-	Title              string
-	GuestName          string
-	FirstName          string
-	LastName           string
-	Address            string
-	City               string
-	StateProvince      string
-	Country            string
-	CountryNationality string
-	ZipPostalCode      string
-	Email              string
-	MainPhone          string
-	Mobile             string
-	PhoneOther         string
-	RentalStatus       string
-	VIPStatus          string
-	VIPDescription     string
-	GuestNote          string
-	Air                string
-	Auto               string
-	Loyalty            string
-	Language           string
-	VehicleMake        string
-	VehicleModel       string
-	VehicleColor       string
-	LicensePlate       string
-	EmailMarketing     string
-	EmailGeneral       string
-	Address2Name       string
-	Address2           string
-	City2              string
-	StateProvince2     string
-	Country2           string
-	ZipPostalCode2     string
-	Email2             string
-	MainPhone2         string
-	Mobile2            string
-	PhoneOther2        string
-	RoomNights         string
-	Stays              string
-	AvgStay            string
-	Revenue            string
-	Reservations       string
-	Cancellations      string
+	GuestName     string
+	FirstName     string
+	LastName      string
+	Email         string
+	MainPhone     string
+	Address       string
+	Address2      string
+	City          string
+	StateProvince string
+	ZipPostalCode string
+	Country       string
 }
 
-// csvRowFieldRules is map contains rules for specific fields in roomkey
-var guestCSVRowFieldRules = map[string]map[string]string{
-	"GuestID":            {"type": "uint", "blank": "true"},
-	"CreateDate":         {"type": "string", "blank": "true"},
-	"Title":              {"type": "string", "blank": "true"},
-	"GuestName":          {"type": "string", "blank": "true"},
-	"FirstName":          {"type": "string", "blank": "true"},
-	"LastName":           {"type": "string", "blank": "true"},
-	"Address":            {"type": "string", "blank": "true"},
-	"City":               {"type": "string", "blank": "true"},
-	"StateProvince":      {"type": "string", "blank": "true"},
-	"Country":            {"type": "string", "blank": "true"},
-	"CountryNationality": {"type": "string", "blank": "true"},
-	"ZipPostalCode":      {"type": "uint", "blank": "true"},
-	"Email":              {"type": "string", "blank": "true"},
-	"MainPhone":          {"type": "string", "blank": "true"},
-	"Mobile":             {"type": "string", "blank": "true"},
-	"PhoneOther":         {"type": "string", "blank": "true"},
-	"RentalStatus":       {"type": "string", "blank": "true"},
-	"VIPStatus":          {"type": "string", "blank": "true"},
-	"VIPDescription":     {"type": "string", "blank": "true"},
-	"GuestNote":          {"type": "string", "blank": "true"},
-	"Air":                {"type": "string", "blank": "true"},
-	"Auto":               {"type": "string", "blank": "true"},
-	"Loyalty":            {"type": "string", "blank": "true"},
-	"Language":           {"type": "string", "blank": "true"},
-	"VehicleMake":        {"type": "string", "blank": "true"},
-	"VehicleModel":       {"type": "string", "blank": "true"},
-	"VehicleColor":       {"type": "string", "blank": "true"},
-	"LicensePlate":       {"type": "string", "blank": "true"},
-	"EmailMarketing":     {"type": "string", "blank": "true"},
-	"EmailGeneral":       {"type": "string", "blank": "true"},
-	"Address2Name":       {"type": "string", "blank": "true"},
-	"Address2":           {"type": "string", "blank": "true"},
-	"City2":              {"type": "string", "blank": "true"},
-	"StateProvince2":     {"type": "string", "blank": "true"},
-	"Country2":           {"type": "string", "blank": "true"},
-	"ZipPostalCode2":     {"type": "string", "blank": "true"},
-	"Email2":             {"type": "string", "blank": "true"},
-	"MainPhone2":         {"type": "string", "blank": "true"},
-	"Mobile2":            {"type": "string", "blank": "true"},
-	"PhoneOther2":        {"type": "string", "blank": "true"},
-	"RoomNights":         {"type": "string", "blank": "true"},
-	"Stays":              {"type": "string", "blank": "true"},
-	"AvgStay":            {"type": "string", "blank": "true"},
-	"Revenue":            {"type": "string", "blank": "true"},
-	"Reservations":       {"type": "string", "blank": "true"},
-	"Cancellations":      {"type": "string", "blank": "true"},
+// getGuestCSVHeadersIndexMap returns the map of fields with
+// undetermined indexes for guest csv
+func getGuestCSVHeadersIndexMap() map[string]int {
+
+	// csvHeadersIndex holds the map of headers with its index
+	csvHeadersIndex := map[string]int{
+		"GuestName":     -1,
+		"FirstName":     -1,
+		"LastName":      -1,
+		"Email":         -1,
+		"MainPhone":     -1,
+		"Address":       -1,
+		"Address2":      -1,
+		"City":          -1,
+		"StateProvince": -1,
+		"ZipPostalCode": -1,
+		"Country":       -1,
+	}
+
+	return csvHeadersIndex
 }
 
 // loadRoomKeyCSVRow used to load data from slice
 // into CSVRow struct and return that struct
-func loadRoomKeyCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, CSVRow) {
-	csvRow := reflect.New(reflect.TypeOf(CSVRow{}))
-	rowLoaded := false
-
-	// fill data according to headers length
-	for i := 0; i < len(csvCols); i++ {
-		value := strings.TrimSpace(data[i])
-		csvRow.Elem().Field(i).Set(reflect.ValueOf(value))
-	}
-
-	// if blank data has not been passed then only need to return true
-	if (CSVRow{}) != csvRow.Elem().Interface().(CSVRow) {
-		rowLoaded = true
-	}
-
-	return rowLoaded, csvRow.Elem().Interface().(CSVRow)
-}
-
-// loadRoomKeyCSVRow used to load data from slice
-// into CSVRow struct and return that struct
-func loadGuestInfoCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, GuestCSVRow) {
+func loadGuestInfoCSVRow(csvHeadersIndex map[string]int, data []string) (bool, GuestCSVRow) {
 	csvRow := reflect.New(reflect.TypeOf(GuestCSVRow{}))
 	rowLoaded := false
 
-	// fill data according to headers length
-	for i := 0; i < len(csvCols); i++ {
-		value := strings.TrimSpace(data[i])
-		csvRow.Elem().Field(i).Set(reflect.ValueOf(value))
+	for header, index := range csvHeadersIndex {
+		value := strings.TrimSpace(data[index])
+		csvRow.Elem().FieldByName(header).Set(reflect.ValueOf(value))
 	}
 
 	// if blank data has not been passed then only need to return true
@@ -194,6 +233,7 @@ func loadGuestInfoCSVRow(csvCols []rcsv.CSVColumn, data []string) (bool, GuestCS
 		rowLoaded = true
 	}
 
+	// if no valid email then fill with blank value
 	if !core.IsValidEmail(csvRow.Elem().FieldByName("Email").Interface().(string)) {
 		csvRow.Elem().FieldByName("Email").Set(reflect.ValueOf(""))
 	}

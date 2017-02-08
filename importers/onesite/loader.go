@@ -44,10 +44,6 @@ func getOneSiteMapping(oneSiteFieldMap *CSVFieldMap) error {
 		return err
 	}
 	err = json.Unmarshal(fieldmap, oneSiteFieldMap)
-	if err != nil {
-		return err
-	}
-
 	return err
 }
 
@@ -147,9 +143,6 @@ func loadOneSiteCSV(
 	// LOAD FIELD MAP AND GET HEADERS, LENGTH OF HEADERS
 	// ================================================
 
-	// csvCols and consts for all onesite csv fields are defined in
-	// constant.go file
-
 	// load onesite mapping
 	var oneSiteFieldMap CSVFieldMap
 	err := getOneSiteMapping(&oneSiteFieldMap)
@@ -172,7 +165,7 @@ func loadOneSiteCSV(
 		for colIndex := 0; colIndex < len(t[rowIndex]); colIndex++ {
 			// remove all white spaces and make lower case
 			cellTextValue := strings.ToLower(
-				specialCharsReplacer.Replace(t[rowIndex][colIndex]))
+				core.SpecialCharsReplacer.Replace(t[rowIndex][colIndex]))
 
 			// if header is exist in map then overwrite it position
 			if field, ok := csvColumnFieldMap[cellTextValue]; ok {
@@ -215,6 +208,21 @@ func loadOneSiteCSV(
 		csvErrors[-1] = append(csvErrors[-1], headerError)
 		return traceUnitMap, csvErrors, internalErrFlag
 	}
+
+	// =================================
+	// DELETE DATA RELATED TO BUSINESS ID
+	// =================================
+	// detele business related data before starting to import in database
+	rlib.DeleteBusinessFromDB(business.BID)
+	bid, err := rlib.InsertBusiness(business)
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <INSERT BUSINESS>: %s\n", err.Error())
+		return traceUnitMap, csvErrors, internalErrFlag
+	}
+	// set new BID as we have deleted and inserted it again
+	// TODO:  remove this step after sman's next push
+	// in InsertBusiness it will be set automatically
+	business.BID = bid
 
 	// ========================================================
 	// WRITE DATA FOR CUSTOM ATTRIBUTE, RENTABLE TYPE, PEOPLE CSV
@@ -259,7 +267,7 @@ func loadOneSiteCSV(
 
 		// if column order has been validated then only perform
 		// data validation on value, type
-		rowLoaded, csvRow := loadOneSiteCSVRow(csvHeadersIndex, csvCols, t[rowIndex-1])
+		rowLoaded, csvRow := loadOneSiteCSVRow(csvHeadersIndex, t[rowIndex-1])
 
 		// **************************************************************
 		// NOTE: might need to change logic, if t[i] contains blank data that

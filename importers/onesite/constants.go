@@ -3,7 +3,6 @@ package onesite
 import (
 	"rentroll/importers/core"
 	"rentroll/rcsv"
-	"strings"
 )
 
 // TempCSVStoreName holds the name of csvstore folder
@@ -59,25 +58,6 @@ var RentableStatusCSV = map[string]string{
 	"occupied": "online",
 	"model":    "admin",
 }
-
-// define column fields with order
-const (
-	Unit            = iota
-	FloorPlan       = iota
-	UnitDesignation = iota
-	Sqft            = iota
-	UnitLeaseStatus = iota
-	Name            = iota
-	PhoneNumber     = iota
-	Email           = iota
-	MoveIn          = iota
-	MoveOut         = iota
-	LeaseStart      = iota
-	LeaseEnd        = iota
-	MarketAddl      = iota
-	Rent            = iota
-	// Tax             = iota
-)
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type csvLoadHandler struct {
@@ -135,12 +115,4 @@ var dupTransactantWithPrimaryEmail = "PrimaryEmail"
 const (
 	onesiteNotesPrefix = "onesite$"
 	tcidPrefix         = "TC000"
-)
-
-var specialCharsReplacer = strings.NewReplacer(
-	"`", "", "~", "", "!", "", "@", "", "#", "", "$", "", "%", "", "^", "", "&", "", "*", "", "(", "", ")", "", "-", "", "_", "", "+", "", "=", "", //line1
-	"{", "", "[", "", "}", "", "]", "", "|", "", "\\", "", //line2
-	";", "", ":", "", "\"", "", "'", "", // line3
-	",", "", "<", "", ".", "", ">", "", "/", "", "?", "", // line4
-	" ", "", // whitespace
 )

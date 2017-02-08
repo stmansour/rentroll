@@ -52,6 +52,10 @@ func generateSummaryReport(summaryCount map[int]map[string]int) string {
 	tbl.AddColumn("Total Imported", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	tbl.AddColumn("Issues", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
+	// evaluate import count
+	core.GetImportedCount(summaryCount)
+
+	// sort indices
 	summaryCountIndexes := []int{}
 	for index := range summaryCount {
 		summaryCountIndexes = append(summaryCountIndexes, index)
@@ -108,16 +112,6 @@ func generateDetailedReport(
 		csvErrorIndexes = append(csvErrorIndexes, rowIndex)
 	}
 	sort.Ints(csvErrorIndexes)
-
-	// to count imported, just remove this count from possible column in summaryCount
-	errorCount := map[int]int{
-		core.DBCustomAttr:      0,
-		core.DBRentableType:    0,
-		core.DBCustomAttrRef:   0,
-		core.DBPeople:          0,
-		core.DBRentable:        0,
-		core.DBRentalAgreement: 0,
-	}
 
 	for _, rowIndex := range csvErrorIndexes {
 
@@ -182,9 +176,6 @@ func generateDetailedReport(
 			// count issues in summary report
 			summaryCount[dbTypeInt]["issues"]++
 
-			// error count, helpful to count imported
-			errorCount[dbTypeInt]++
-
 			// put in tabl
 			tbl.AddRow()
 			tbl.Puts(-1, 0, strconv.Itoa(rowIndex))
@@ -212,11 +203,6 @@ func generateDetailedReport(
 			// tbl.Puts(-1, 2, core.DBTypeMap[dbTypeInt])
 			tbl.Puts(-1, 2, reason)
 		}
-	}
-
-	// count imported
-	for dbTypeInt := range summaryCount {
-		summaryCount[dbTypeInt]["imported"] = summaryCount[dbTypeInt]["possible"] - errorCount[dbTypeInt]
 	}
 
 	// append detailed section
@@ -273,14 +259,6 @@ func successReport(
 
 	// import header line for report
 	report = getReportHeader(currentTime, csvFile)
-
-	// **************************************************************
-	// FOR SUCCESSFUL CASE, there are no errors and also no warnings
-	// so imported is same as possible values
-	// **************************************************************
-	for dbType := range summaryCount {
-		summaryCount[dbType]["imported"] = summaryCount[dbType]["possible"]
-	}
 
 	// append summary report
 	report += generateSummaryReport(summaryCount)

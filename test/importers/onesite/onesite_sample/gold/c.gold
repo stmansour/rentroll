@@ -1,74 +1,9 @@
-Accord RentRoll Onesite Importer
-Date: 2/7/2017
-Time: 10:35AM IST
-Import File: ./onesite.csv
-
-=======
-SUMMARY
-=======
-                                Total       Total                 
-Data Type                       Possible    Imported    Issues    
-------------------------------  ----------  ----------  ----------
-Custom Attributes               4           4           0         
-Rentable Types                  4           4           0         
-Custom Attribute References     4           4           0         
-Transactants                    5           5           0         
-Rentables                       6           6           0         
-Rental Agreements               5           5           0         
-
-=====================================================
-RECORDS FOR BUSINESS UNIT DESIGNATION: JGM First, LLC
-=====================================================
                                                          Manage                                  
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |    2/7/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |    2/7/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |    2/7/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |    2/7/17 - 12/31/99 $  800.00
-================================================================================
-RID        Name      Assignment Time
----------  --------  ---------------
-R00000001  6303-016  pre-assign     
-R00000002  6315-055  pre-assign     
-R00000003  6313-052  pre-assign     
-R00000004  6339-156  pre-assign     
-R00000005  6343-165  pre-assign     
-R00000006  6343-166  pre-assign     
-================================================================================
-                        Middle                      Is                                            
-TCID        First Name  Name    Last Name  Company  Company  Cell Phone  Primary Email            
-----------  ----------  ------  ---------  -------  -------  ----------  -------------------------
-TC00000001  Jimmy               Chen                No                   snsd123@aol.com          
-TC00000002  Diane               Hire                No                   diane_hire@gmail.com     
-TC00000003  Mercedes            White               No                   mercedeswhite843@gmail.co
-TC00000004  Fawad               Kahn                No                   fawadkhan405@gmail.com   
-TC00000005  Crescent            Clark               No                                            
-================================================================================
-                                            Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
-RAID        Payor           User            Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
-----------  --------------  --------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
-RA00000001  Jimmy Chen      Jimmy Chen      10/01/2015  09/30/2016  03/22/2008  09/30/2016  10/01/2015  09/30/2016  10/01/2015  2                  0            0                           
-RA00000002  Diane Hire      Diane Hire      02/17/2016  02/28/2017  02/17/2016  02/28/2017  02/17/2016  02/28/2017  02/17/2016  2                  0            0                           
-RA00000003  Mercedes White  Mercedes White  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  2                  0            0                           
-RA00000004  Fawad Kahn      Fawad Kahn      02/01/2016  01/31/2017  12/05/2010  01/31/2017  02/01/2016  01/31/2017  02/01/2016  2                  0            0                           
-RA00000005  Crescent Clark  Crescent Clark  02/01/2016  07/31/2016  07/11/2014  07/31/2016  02/01/2016  07/31/2016  02/01/2016  2                  0            0                           
-================================================================================
-                      Value                           
-CID        BID        Type   Name         Value  Units
----------  ---------  -----  -----------  -----  -----
-C00000001  B00000001  int    Square Feet    656  sqft 
-C00000002  B00000001  int    Square Feet    840  sqft 
-C00000003  B00000001  int    Square Feet    852  sqft 
-C00000004  B00000001  int    Square Feet    657  sqft 
-================================================================================
-Element                       
-   Type  BID          ID   CID
--------  ---------  ----  ----
-      5  B00000001     1     1
-      5  B00000001     3     1
-      5  B00000001     4     3
-      5  B00000001     2     2
-================================================================================
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  800.00
 

@@ -2,6 +2,7 @@ package core
 
 import (
 	"strconv"
+	"strings"
 )
 
 // constants for csv types
@@ -20,8 +21,8 @@ const (
 
 // const for db types
 const (
-	DBCustomAttr      = iota
 	DBRentableType    = iota
+	DBCustomAttr      = iota
 	DBCustomAttrRef   = iota
 	DBPeople          = iota
 	DBRentable        = iota
@@ -48,3 +49,12 @@ var DBTypeMap = map[int]string{
 	DBRentable:        "Rentables",
 	DBRentalAgreement: "Rental Agreements",
 }
+
+// SpecialCharsReplacer used to replace this all chars with blank
+var SpecialCharsReplacer = strings.NewReplacer(
+	"`", "", "~", "", "!", "", "@", "", "#", "", "$", "", "%", "", "^", "", "&", "", "*", "", "(", "", ")", "", "-", "", "_", "", "+", "", "=", "", //line1
+	"{", "", "[", "", "}", "", "]", "", "|", "", "\\", "", //line2
+	";", "", ":", "", "\"", "", "'", "", // line3
+	",", "", "<", "", ".", "", ">", "", "/", "", "?", "", // line4
+	" ", "", // whitespace
+)

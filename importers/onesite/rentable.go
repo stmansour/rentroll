@@ -210,23 +210,27 @@ func GetRUserSpec(
 		return ""
 	}
 
-	orderedFields := []string{}
+	// as rcsv loader automatically associate user from rental
+	// agreement csv so leave it as blank (nearly all cases)
+	return ""
 
-	// append TCID for user identification
-	orderedFields = append(orderedFields, defaults["TCID"])
+	// orderedFields := []string{}
 
-	// append lease start
-	if csvRow.LeaseStart == "" {
-		orderedFields = append(orderedFields, defaults["DtStart"])
-	} else {
-		orderedFields = append(orderedFields, csvRow.LeaseStart)
-	}
+	// // append TCID for user identification
+	// orderedFields = append(orderedFields, defaults["TCID"])
 
-	// don't append default value from DtStop
-	// even if it is blank then we might just leave it as blank
-	orderedFields = append(orderedFields, csvRow.LeaseEnd)
+	// // append lease start
+	// if csvRow.LeaseStart == "" {
+	// 	orderedFields = append(orderedFields, defaults["DtStart"])
+	// } else {
+	// 	orderedFields = append(orderedFields, csvRow.LeaseStart)
+	// }
 
-	return strings.Join(orderedFields, ",")
+	// // don't append default value from DtStop
+	// // even if it is blank then we might just leave it as blank
+	// orderedFields = append(orderedFields, csvRow.LeaseEnd)
+
+	// return strings.Join(orderedFields, ",")
 }
 
 // GetRentableStatus used to get rentable status in format of rentroll system

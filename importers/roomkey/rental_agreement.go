@@ -69,20 +69,7 @@ func WriteRentalAgreementData(
 	traceTCIDMap map[int]string,
 	csvErrors map[int][]string,
 ) {
-	// TODO: need to decide how to avoid data
-	// checkRentableStyle := csvRow.FloorPlan
-	// Stylefound := core.StringInSlice(checkRentableStyle, *avoidData)
 
-	// // if style found then simplay return otherwise continue
-	// if Stylefound {
-	//  return
-	// }
-
-	// *avoidData = append(*avoidData, checkRentableStyle)
-
-	// TODO: generate error here for RentableTypeRef
-	// to let endusers know that least start/end dates don't exists so we are taking
-	// defaults
 	currentYear, currentMonth, currentDate := currentTime.Date()
 	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
 	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
@@ -96,7 +83,7 @@ func WriteRentalAgreementData(
 
 	// flag warning that we are taking default values for least start, end dates
 	// as they don't exists
-	if csvRow.Empty3 == "" {
+	if csvRow.DateIn == "" {
 		warnPrefix := "W:<" + core.DBTypeMapStrings[core.DBRentable] + ">:"
 		csvErrors[rowIndex] = append(csvErrors[rowIndex],
 			warnPrefix+"No lease start date found. Using default value: "+DtStart,
@@ -109,7 +96,7 @@ func WriteRentalAgreementData(
 		)
 	}
 
-	dateIn := getFormattedDate(csvRow.Empty3)
+	dateIn := getFormattedDate(csvRow.DateIn)
 	dateOut := getFormattedDate(csvRow.DateOut)
 
 	rentableDefaultData["DtStart"] = dateIn
@@ -117,20 +104,18 @@ func WriteRentalAgreementData(
 	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
 
 	// get csv row data
-	ok, csvRowData := GetRentalAgreementCSVRow(
+	csvRowData := GetRentalAgreementCSVRow(
 		csvRow, rentalAgreementStruct,
 		currentTimeFormat, rentableDefaultData,
 	)
 
-	if ok {
-		csvWriter.Write(csvRowData)
-		csvWriter.Flush()
+	csvWriter.Write(csvRowData)
+	csvWriter.Flush()
 
-		// after write operation to csv,
-		// entry this rowindex with unit value in the map
-		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
-	}
+	// after write operation to csv,
+	// entry this rowindex with unit value in the map
+	*recordCount = *recordCount + 1
+	traceCSVData[*recordCount+1] = rowIndex
 }
 
 // GetRentalAgreementCSVRow used to create RentalAgreement
@@ -140,10 +125,7 @@ func GetRentalAgreementCSVRow(
 	fieldMap *core.RentalAgreementCSV,
 	timestamp string,
 	DefaultValues map[string]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load rentalAgreement's data from onesiterow data
@@ -172,31 +154,13 @@ func GetRentalAgreementCSVRow(
 		// this condition has been put here because it's mapping field does not exist
 		// =========================================================
 		if rentalAgreementField.Name == "PayorSpec" {
-			payorSpec, ok := getPayorSpec(roomKeyRow, DefaultValues)
-			if ok {
-				dataMap[i] = payorSpec
-			} else {
-				// TODO: verify that what to do in false case
-				dataMap[i] = payorSpec
-			}
+			dataMap[i] = getPayorSpec(roomKeyRow, DefaultValues)
 		}
 		if rentalAgreementField.Name == "UserSpec" {
-			userSpec, ok := getUserSpec(roomKeyRow, DefaultValues)
-			if ok {
-				dataMap[i] = userSpec
-			} else {
-				// TODO: verify that what to do in false case
-				dataMap[i] = userSpec
-			}
+			dataMap[i] = getUserSpec(roomKeyRow, DefaultValues)
 		}
 		if rentalAgreementField.Name == "RentableSpec" {
-			rentableSpec, ok := getRentableSpec(roomKeyRow)
-			if ok {
-				dataMap[i] = rentableSpec
-			} else {
-				// TODO: verify that what to do in false case
-				dataMap[i] = rentableSpec
-			}
+			dataMap[i] = getRentableSpec(roomKeyRow)
 		}
 
 		// get mapping field
@@ -217,7 +181,7 @@ func GetRentalAgreementCSVRow(
 		}
 		if rentalAgreementField.Name == "PossessionStart" ||
 			rentalAgreementField.Name == "RentStart" {
-			dataMap[i] = getFormattedDate(roomKeyRow.Empty3)
+			dataMap[i] = getFormattedDate(roomKeyRow.DateIn)
 		}
 		if rentalAgreementField.Name == "AgreementStop" ||
 			rentalAgreementField.Name == "PossessionStop" ||
@@ -232,18 +196,15 @@ func GetRentalAgreementCSVRow(
 	for i := 0; i < rRTLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
 }
 
 // getPayorSpec used to get payor spec in format of rentroll system
 func getPayorSpec(
 	csvRow *CSVRow,
 	defaults map[string]string,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+) string {
 
 	orderedFields := []string{}
 
@@ -252,10 +213,10 @@ func getPayorSpec(
 
 	if defaults["TCID"] != "" {
 		// append rent start
-		if csvRow.Empty3 == "" {
+		if csvRow.DateIn == "" {
 			orderedFields = append(orderedFields, defaults["DtStart"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.Empty3)
+			orderedFields = append(orderedFields, csvRow.DateIn)
 		}
 
 		// append date out
@@ -264,27 +225,16 @@ func getPayorSpec(
 		} else {
 			orderedFields = append(orderedFields, csvRow.DateOut)
 		}
-	} else {
-		fmt.Println(csvRow)
-		fmt.Println(defaults)
 	}
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
-
-	return ",,", ok
+	return strings.Join(orderedFields, ",")
 }
 
 // getUserSpec used to get user spec in format of rentroll system
 func getUserSpec(
 	csvRow *CSVRow,
 	defaults map[string]string,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+) string {
 
 	orderedFields := []string{}
 
@@ -292,10 +242,10 @@ func getUserSpec(
 
 	if defaults["TCID"] != "" {
 		// append rent start
-		if csvRow.Empty3 == "" {
+		if csvRow.DateIn == "" {
 			orderedFields = append(orderedFields, defaults["DtStart"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.Empty3)
+			orderedFields = append(orderedFields, csvRow.DateIn)
 		}
 
 		// append date out
@@ -306,21 +256,14 @@ func getUserSpec(
 		}
 	}
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
+	return strings.Join(orderedFields, ",")
 
-	return ",,", ok
 }
 
 // getRentableSpec used to get rentable spec in format of rentroll system
 func getRentableSpec(
 	csvRow *CSVRow,
-) (string, bool) {
-
-	// TODO: verify if validation required here
-	ok := false
+) string {
 
 	orderedFields := []string{}
 
@@ -329,13 +272,8 @@ func getRentableSpec(
 	// append contractrent
 	rent := csvRow.Rate
 	rent = strings.Replace(rent, "$", "", -1)
-	rent = strings.Replace(rent, ".", "", -1)
+	// rent = strings.Replace(rent, ".", "", -1)
 	orderedFields = append(orderedFields, rent)
 
-	ok = true
-	if ok {
-		return strings.Join(orderedFields, ","), ok
-	}
-
-	return ",", ok
+	return strings.Join(orderedFields, ",")
 }

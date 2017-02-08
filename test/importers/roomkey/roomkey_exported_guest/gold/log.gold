@@ -1,0 +1,6 @@
+Test Name:    RoomKey Import (Exported) with Guest Data Export
+Test Purpose: Tests initizing RentRoll DB from importing RoomKey rentroll report.
+Date/Time:    Wed Feb  8 17:44:50 IST 2017
+
+Create new database...  successful
+Test completed: Wed Feb  8 17:45:19 IST 2017

@@ -93,19 +93,18 @@ func WriteRentableTypeCSVData(
 	rentableTypeDefaultData["DtStop"] = DtStop
 
 	// get csv row data
-	ok, csvRowData := GetRentableTypeCSVRow(
+	csvRowData := GetRentableTypeCSVRow(
 		csvRow, rt,
 		currentTimeFormat, rentableTypeDefaultData,
 	)
-	if ok {
-		csvWriter.Write(csvRowData)
-		csvWriter.Flush()
 
-		// after write operation to csv,
-		// entry this rowindex with unit value in the map
-		*recordCount = *recordCount + 1
-		traceCSVData[*recordCount] = rowIndex
-	}
+	csvWriter.Write(csvRowData)
+	csvWriter.Flush()
+
+	// after write operation to csv,
+	// entry this rowindex with unit value in the map
+	*recordCount = *recordCount + 1
+	traceCSVData[*recordCount+1] = rowIndex
 }
 
 // GetRentableTypeCSVRow used to create rentabletype
@@ -115,10 +114,7 @@ func GetRentableTypeCSVRow(
 	fieldMap *core.RentableTypeCSV,
 	timestamp string,
 	DefaultValues map[string]string,
-) (bool, []string) {
-
-	// take initial variable
-	ok := false
+) []string {
 
 	// ======================================
 	// Load rentableType's data from roomKeyRow data
@@ -165,6 +161,6 @@ func GetRentableTypeCSVRow(
 	for i := 0; i < rRTLength; i++ {
 		dataArray = append(dataArray, dataMap[i])
 	}
-	ok = true
-	return ok, dataArray
+
+	return dataArray
 }

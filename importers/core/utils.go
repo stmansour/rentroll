@@ -2,6 +2,7 @@ package core
 
 import (
 	"regexp"
+	"rentroll/rlib"
 )
 
 // StringInSlice used to check whether string a
@@ -32,4 +33,31 @@ func IsValidEmail(email string) bool {
 	// Re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
 	Re := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+$`)
 	return Re.MatchString(email)
+}
+
+// GetImportedCount get map of summaryCount as an argument
+// then it hit db to get imported count for each type
+func GetImportedCount(summaryCount map[int]map[string]int) {
+	for dbType := range summaryCount {
+		switch dbType {
+		case DBCustomAttrRef:
+			summaryCount[DBCustomAttrRef]["imported"] += rlib.GetCountBusinessCustomAttrRefs()
+			break
+		case DBCustomAttr:
+			summaryCount[DBCustomAttr]["imported"] += rlib.GetCountBusinessCustomAttributes()
+			break
+		case DBRentableType:
+			summaryCount[DBRentableType]["imported"] += rlib.GetCountBusinessRentableTypes()
+			break
+		case DBPeople:
+			summaryCount[DBPeople]["imported"] += rlib.GetCountBusinessTransactants()
+			break
+		case DBRentable:
+			summaryCount[DBRentable]["imported"] += rlib.GetCountBusinessRentables()
+			break
+		case DBRentalAgreement:
+			summaryCount[DBRentalAgreement]["imported"] += rlib.GetCountBusinessRentalAgreements()
+			break
+		}
+	}
 }

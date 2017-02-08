@@ -145,7 +145,7 @@ func main() {
 	lib.Errcheck(err)
 	defer App.LogFile.Close()
 	log.SetOutput(App.LogFile)
-	rlib.Ulog("*********** ONTESITE IMPORTER HAS BEEN STARTED *********** \n")
+	rlib.Ulog("*********** ROOMKEY IMPORTER HAS BEEN STARTED *********** \n")
 
 	// CSV STORE CHECK
 	folderPath, err := osext.ExecutableFolder()
