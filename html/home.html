@@ -50,11 +50,10 @@ var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; bord
 
 function showReport(rptname) {
     "use strict";
-    var w = w2ui.reportslayout;
     var x = getCurrentBusiness();
     var userid = 211;
     var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname;
-    w2ui.toplayout.content('main', w);
+    w2ui.toplayout.content('main', w2ui.reportslayout);
     w2ui.toplayout.hide('right',true);
     var y = document.getElementsByName("dateD1");
     var d = y[0].value;
@@ -67,7 +66,7 @@ function showReport(rptname) {
     // console.log('d2 = ' + d);
     url += '&dtstop=' + d;
     console.log('url = ' + url);
-    w.load('main', url);
+    w2ui.reportslayout.load('main', url);
 }
 
 
@@ -158,6 +157,23 @@ function buildPageElements() {
         ]
     });
 
+
+    //------------------------------------------------------------------------
+    //          NEWS LAYOUT
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'newsLayout',
+        padding: 0,
+        panels: [
+            { type: 'left', hidden: false, style: pstyleNB, size: 20 },
+            { type: 'top', hidden: true },
+            { type: 'main', size: '90%', resizable: true, hidden: false, style: pstyleNB, content: 'Hi.  I should load w2ui.newsLayout' },
+            { type: 'preview', hidden: true },
+            { type: 'bottom', hidden: true },
+            { type: 'right', hidden: true }
+        ]
+    });
+
     //------------------------------------------------------------------------
     //          toplayout
     //------------------------------------------------------------------------
@@ -165,7 +181,7 @@ function buildPageElements() {
         name: 'toplayout',
         padding: 2,
         panels: [
-            { type: 'top', hidden: true, size: 60, resizable: true, style: pstyle2, content: '<p align="center">**** Accord NEWS FLASH ****</p>'},
+            { type: 'top', hidden: true, size: 200, resizable: true, style: pstyle2, content: w2ui.newsLayout},
             { type: 'left', size: 200, style: pstyle2, resizable: true, content: 'sidebar' },
             { type: 'main',  size: 100, style: pstyle2 },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle2, content: 'preview' },
@@ -199,6 +215,7 @@ function buildPageElements() {
                     '</select>&nbsp;&nbsp;&nbsp;' //+ '</div>'
             },
             { type: 'break', id: 'break2' },
+            { type: 'button', id: 'msgButton', caption: 'News Flash', /*icon: 'fa fa-newspaper-o'*/ icon: 'fa fa-spinner fa-pulse fa-3x fa-fw'},
             { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
                 { text: 'Template-Dflt', icon: 'fa fa-language' }, 
                 { text: 'Template-Apts', icon: 'fa fa-language' }, 
@@ -219,7 +236,6 @@ function buildPageElements() {
                 case "menuButton:Template-Dflt":  window.location.href = '/home/us-en/dflt'; break;
                 case "menuButton:Template-Apts":  window.location.href = '/home/us-en/apts'; break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                break;
-                case "menuButton:Messages":       w2ui.toplayout.toggle('top',true);         break;
                 case "menuButton:Sidebar":        w2ui.toplayout.toggle('left',true);        break;
                 case "menuButton:mainLayoutMain": w2ui.mainlayout.toggle('main',true);       break;
                 case "menuButton:Preview":        w2ui.toplayout.toggle('preview',true);     break;
@@ -227,6 +243,14 @@ function buildPageElements() {
                 case "menuButton:Footer":         w2ui.mainlayout.toggle('bottom',true);     break;
                 case "menuButton:topLayoutMain":  w2ui.toplayout.toggle('main',true);        break;
                 case "menuButton:NewRAGrid":      loadRentalAgreementForm();                 break;
+
+                case "msgButton":
+                case "menuButton:Messages":
+                        w2ui.toplayout.toggle('top',true); 
+                        w2ui.toplayout.set('top',{ content: w2ui.newsLayout});     
+                        w2ui.newsLayout.load('main', '/html/news.html', 'flip-down', function () {console.log('content loaded');});
+                        w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'})
+                        break;
             }
         },
     }));
@@ -342,12 +366,12 @@ function buildPageElements() {
         name: 'reportslayout',
         padding: 0,
         panels: [
-            { type: 'top',size: 40, style: pstyle2, content: 'reports toolbar'},
+            { type: 'top',size: 0, hidden: true, content: 'reports toolbar'},
             { type: 'left', size: 20, style: prefmt, hidden: false },
             { type: 'main',  size: 100, style: prefmt},
-            { type: 'preview', size: '50%', resizable: true, hidden: true, content: 'reports preview' },
-            { type: 'right', size: 200, resizable: true, hidden: true, content: 'reports - detail' },
-            { type: 'bottom', size: 20, resizable: true, hidden: true, content: 'reports - bottom' }
+            { type: 'preview', size: 0, hidden: true, content: 'reports preview' },
+            { type: 'right', size: 200, hidden: true, content: 'reports - detail' },
+            { type: 'bottom', size: 20, hidden: true, content: 'reports - bottom' }
         ]
     });
 
@@ -720,15 +744,11 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'rentalagrsGrid',
+        url: '/gsvc/rentalagrs',       
         show: {
-            header: false,
             toolbar: true,
             footer: true,
-            lineNumbers: false,
-            selectColumn: false,
-            expandColumn: false
         },
-        url: '/gsvc/rentalagrs',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
@@ -789,10 +809,10 @@ function buildPageElements() {
         name: 'raLayoutSub1',
         padding: 1,
         panels: [
-            { type: 'top', size: '25%', resizable: true, style: pstyle4, content: 'Rentables' },
+            { type: 'top', size: '30%', resizable: true, style: pstyle4, content: 'Rentables' },
             { type: 'left', size: 0, hidden: true },
-            { type: 'main', size: '25%', resizable: true, style: pstyle4, content: 'Payors' },
-            { type: 'preview', size: '50%', resizable: true, style: pstyle4, content: 'Users' },
+            { type: 'main', size: '20%', resizable: true, style: pstyle4, content: 'Payors' },
+            { type: 'preview', size: '60%', resizable: true, style: pstyle4, content: 'Users' },
             { type: 'right', size: 0, hidden: true },
             { type: 'bottom', size: '25%', resizable: true, style: pstyle4, content: 'Pets' }
         ]
@@ -966,15 +986,16 @@ function buildPageElements() {
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'PETID', hidden: true, caption: 'PETID',  size: '40px', sortable: true},
+            {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
             {field: 'Type',     caption: 'Type', size: '10%', sortable: true},
             {field: 'Breed',    caption: 'Breed', size: '10%', sortable: true},
             {field: 'Color',    caption: 'Color', size: '10%', sortable: true},
             {field: 'Weight',   caption: 'Weight', size: '10%', sortable: true},
-            {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
             {field: 'DtStart',  caption: 'DtStart', size: '10%', sortable: true},
             {field: 'DtStop',   caption: 'DtStop', size: '10%', sortable: true},
         ]
      });
+
 
 }
 
