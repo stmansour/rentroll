@@ -2,7 +2,7 @@ DIRS = db rlib rrpt rcsv admin importers test
 TOP = .
 COUNTOL=${TOP}/test/share/countol.sh
 
-# Force the build
+# 
 
 .PHONY:  test
 
