@@ -366,12 +366,12 @@ function buildPageElements() {
         name: 'reportslayout',
         padding: 0,
         panels: [
-            { type: 'top',size: 0, hidden: true, content: 'reports toolbar'},
+            { type: 'top',size: 40, content: 'reports toolbar'},
             { type: 'left', size: 20, style: prefmt, hidden: false },
             { type: 'main',  size: 100, style: prefmt},
             { type: 'preview', size: 0, hidden: true, content: 'reports preview' },
             { type: 'right', size: 200, hidden: true, content: 'reports - detail' },
-            { type: 'bottom', size: 20, hidden: true, content: 'reports - bottom' }
+            { type: 'bottom', size: 20, hidden: true, content: 'reports - bottom' },
         ]
     });
 
@@ -382,6 +382,7 @@ function buildPageElements() {
     w2ui.reportslayout.content('top', $().w2toolbar({
         name: 'reportstoolbar',
         items: [
+            { type: 'break', id: 'break1' },
             { type: 'button',  id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
             { type: 'button',  id: 'dayback', icon: 'fa fa-chevron-left', tooltip: 'day back' },
             { type: 'html',    id: 'reportsD1', html: function () {
@@ -402,10 +403,14 @@ function buildPageElements() {
             },
             { type: 'button',  id: 'dayfwd', icon: 'fa fa-chevron-right', tooltip: 'day forward' },
             { type: 'button',  id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
+            { type: 'break', id: 'break2' },
+            { type: 'button',  id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to csv' },
+            { type: 'button',  id: 'printreport', icon: 'fa fa-print', tooltip: 'print' },
         ],
         onClick: function (event) {
             var xd1 = document.getElementsByName("dateD1")[0];
             var xd2 = document.getElementsByName("dateD2")[0];
+
             switch (event.target) {
             case 'monthback':
                 app.D1 = monthBack(xd1);
@@ -753,8 +758,8 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
             {field: 'Payor', caption: 'Payor', size: '10%', sortable: true},
-            {field: 'AgreementStart', caption: 'Agreement<br>Start', size: '10%', sortable: true},
-            {field: 'AgreementStop', caption: 'Agreement<br>Stop',  size: '10%', sortable: true},
+            {field: 'AgreementStart', caption: 'Agreement<br>Start', size: '10%', sortable: true, style: 'text-align: right'},
+            {field: 'AgreementStop', caption: 'Agreement<br>Stop',  size: '10%', sortable: true, style: 'text-align: right'},
         ], 
         actions: {
             save: function () {
@@ -773,7 +778,8 @@ function buildPageElements() {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
                         console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID);
-                        setToRAForm(ob.BID,ob.RAID);
+                        var d = new Date();  // we'll use today for time-sensitive data
+                        setToRAForm(ob.BID,ob.RAID,d);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -915,9 +921,9 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', hidden: true, caption: 'RAID',  size: '40px', sortable: true},
             {field: 'RID', caption: sRentable,  size: '10%', sortable: true},
-            {field: 'ContractRent', caption: 'Rent', size: '10%', sortable: true, render: 'money'},
-            {field: 'RARDtStart', caption: 'Start', size: '10%', sortable: true},
-            {field: 'RARDtStop', caption: 'Stop',  size: '10%', sortable: true},
+            {field: 'ContractRent', caption: 'Rent', size: '10%', sortable: true, render: 'money', editable: { type: 'money' }},
+            {field: 'RARDtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
+            {field: 'RARDtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             ]
      });
 
@@ -991,8 +997,8 @@ function buildPageElements() {
             {field: 'Breed',    caption: 'Breed', size: '10%', sortable: true},
             {field: 'Color',    caption: 'Color', size: '10%', sortable: true},
             {field: 'Weight',   caption: 'Weight', size: '10%', sortable: true},
-            {field: 'DtStart',  caption: 'DtStart', size: '10%', sortable: true},
-            {field: 'DtStop',   caption: 'DtStop', size: '10%', sortable: true},
+            {field: 'DtStart',  caption: 'DtStart', size: '10%', sortable: true, style: 'text-align: right'},
+            {field: 'DtStop',   caption: 'DtStop', size: '10%', sortable: true, style: 'text-align: right'},
         ]
      });
 

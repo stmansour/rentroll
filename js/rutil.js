@@ -26,8 +26,9 @@ function setToForm(sform,url) {
 // @params
 //   bid = business id (or the BUD)
 //  raid = Rental Agreement ID
+//     d = date to use for time sensitive data
 //-----------------------------------------------------------------------------
-function setToRAForm(bid,raid) {
+function setToRAForm(bid,raid,d) {
     "use strict";
     w2ui.toplayout.content('right', w2ui.raLayout);
     w2ui.toplayout.show('right',true);
@@ -43,6 +44,7 @@ function setToRAForm(bid,raid) {
     w2ui.rarGrid.url = '/gsvc/rar/' + bid + '/' + raid;
     console.log('rar url = ' + w2ui.rarGrid.url);
     w2ui.rarGrid.request();
+    w2ui.rarGrid.header = plural(sRentable) + ' as of ' + dateFmtStr(d);
 
     //----------------------------------------------------------------
     // Get the associated Payors...
@@ -53,6 +55,7 @@ function setToRAForm(bid,raid) {
     w2ui.rapGrid.url = '/gsvc/xrapeople/' + bid + '/' + raid;
     console.log('xrapeople url = ' + w2ui.rapGrid.url);
     w2ui.rapGrid.request();
+    w2ui.rapGrid.header = plural(sPayor) + ' as of ' + dateFmtStr(d);
  
     //----------------------------------------------------------------
     // Get the associated Users...
@@ -62,6 +65,7 @@ function setToRAForm(bid,raid) {
     w2ui.rauGrid.url = '/gsvc/xrapeople/' + bid + '/' + raid + '?type=user';
     console.log('xrapeople url = ' + w2ui.rauGrid.url);
     w2ui.rauGrid.request();
+    w2ui.rauGrid.header = plural(sUser) + ' as of ' + dateFmtStr(d);
 
     //----------------------------------------------------------------
     // Get the associated Pets...
@@ -69,7 +73,8 @@ function setToRAForm(bid,raid) {
     //----------------------------------------------------------------
     w2ui.raPetGrid.url = '/gsvc/xrapets/' + bid + '/' + raid;
     console.log('xrapets url = ' + w2ui.rarGrid.url);
-    w2ui.rarGrid.request();
+    w2ui.raPetGrid.request();
+    w2ui.raPetGrid.header = 'Pets as of ' + dateFmtStr(d);
 
 }
 
@@ -99,6 +104,32 @@ function dateFromDC(dc) {
     var x = new Date(dc.value); 
     return new Date(x.getTime() + 24*60*60*1000); // for some reason we need to add 1 day to get the right value
  }
+
+//-----------------------------------------------------------------------------
+// dateTodayStr - return a string with today's date in the form d/m/yyyy
+// @params
+//   <none>
+// @return - formatted date string
+//-----------------------------------------------------------------------------
+function dateTodayStr() {
+    "use strict";
+    var today = new Date();
+    return dateFmtStr(today);
+}
+
+//-----------------------------------------------------------------------------
+// dateFmtStr - return a string with the supplied date in the form d/m/yyyy
+// @params - date
+//
+// @return - formatted date string
+//-----------------------------------------------------------------------------
+function dateFmtStr(today) {
+    "use strict";
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
+    return mm+'/'+dd+'/'+yyyy;
+}
 
 //-----------------------------------------------------------------------------
 // dayBack - supply the date control and this function will go to the previous

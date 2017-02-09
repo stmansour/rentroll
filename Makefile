@@ -73,7 +73,10 @@ pubimages:
 pubjs:
 	cd tmp/rentroll;tar czvf rrjs.tar.gz ./js;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
 
-pub: pubjs pubimages
+pubdb:
+	cd ./test/testdb;make dbbackup
+
+pub: pubjs pubimages pubdb
 
 
 all: clean rentroll test
