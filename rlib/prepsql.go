@@ -400,8 +400,9 @@ func buildPreparedStatements() {
 	// Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM (SELECT * FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 and Dt<=? ORDER BY Dt DESC) AS t1 GROUP BY LID")
-	Errcheck(err)
+
+	// RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM (SELECT * FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 and Dt<=? ORDER BY Dt DESC) AS t1 GROUP BY LID")
+	// Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and Dt<=? ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=? and Dt<=?  ORDER BY Dt DESC LIMIT 1")

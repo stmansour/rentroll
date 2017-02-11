@@ -607,23 +607,23 @@ func GetLatestLedgerMarkerByType(bid int64, t int64) LedgerMarker {
 	return GetLatestLedgerMarkerByLID(bid, l.LID)
 }
 
-// GetAllLedgerMarkersOnOrBefore returns a map of all ledgermarkers for the supplied business and dat
-func GetAllLedgerMarkersOnOrBefore(bid int64, dt *time.Time) map[int64]LedgerMarker {
-	var t map[int64]LedgerMarker
-	t = make(map[int64]LedgerMarker) // this line is absolutely necessary
-	rows, err := RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
-	Errcheck(err)
-	defer rows.Close()
-	// fmt.Printf("%4s  %4s  %4s  %5s  %10s  %8s\n", "LMID", "LID", "BID", "State", "Dt", "Balance")
-	for rows.Next() {
-		var r LedgerMarker
-		ReadLedgerMarkers(rows, &r)
-		t[r.LID] = r
-		// fmt.Printf("%4d  %4d  %4d  %5d  %10s  %8.2f\n", r.LMID, r.LID, r.BID, r.State, r.Dt, r.Balance)
-	}
-	Errcheck(rows.Err())
-	return t
-}
+// // GetAllLedgerMarkersOnOrBefore returns a map of all ledgermarkers for the supplied business and dat
+// func GetAllLedgerMarkersOnOrBefore(bid int64, dt *time.Time) map[int64]LedgerMarker {
+// 	var t map[int64]LedgerMarker
+// 	t = make(map[int64]LedgerMarker) // this line is absolutely necessary
+// 	rows, err := RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	// fmt.Printf("%4s  %4s  %4s  %5s  %10s  %8s\n", "LMID", "LID", "BID", "State", "Dt", "Balance")
+// 	for rows.Next() {
+// 		var r LedgerMarker
+// 		ReadLedgerMarkers(rows, &r)
+// 		t[r.LID] = r
+// 		// fmt.Printf("%4d  %4d  %4d  %5d  %10s  %8.2f\n", r.LMID, r.LID, r.BID, r.State, r.Dt, r.Balance)
+// 	}
+// 	Errcheck(rows.Err())
+// 	return t
+// }
 
 //=======================================================
 //  L E D G E R
