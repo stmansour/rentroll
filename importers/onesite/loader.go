@@ -79,9 +79,9 @@ func loadOneSiteCSV(
 	var skipRowsCount int
 	var rowIndex int
 
-	// customAttributesRefData holds the data for future operation to insert
-	// custom attribute ref in system for each rentableType
-	// so we identify each element in this list via Style value
+	// customAttributesRefData holds the data after customAttr insertion
+	// to insert custom attribute ref in system for each rentableType
+	// so we identify each element in this list with Style Key
 	customAttributesRefData := map[string]CARD{}
 
 	// this map is used to hold csvRow typed struct after data has been loaded in it
@@ -138,6 +138,7 @@ func loadOneSiteCSV(
 	PeopleCSVRecordCount := 0
 	RentalAgreementCSVRecordCount := 0
 	CustomAttributeCSVRecordCount := 0
+	CustomAttrRefRecordCount := 0
 
 	// ================================================
 	// LOAD FIELD MAP AND GET HEADERS, LENGTH OF HEADERS
@@ -460,7 +461,6 @@ func loadOneSiteCSV(
 	// *****************************************************
 	rrPeopleDoLoad := func(fname string, handler func(string) []error, traceDataMapName string, dbType int) bool {
 		Errs := handler(fname)
-		// fmt.Print(rcsv.ErrlistToString(&Errs))
 
 		for _, err := range Errs {
 			// handling for duplicant transactant
@@ -598,6 +598,9 @@ func loadOneSiteCSV(
 				csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
 				continue
 			}
+
+			// count possible values
+			CustomAttrRefRecordCount++
 
 			// insert custom attribute ref in system
 			var a rlib.CustomAttributeRef
@@ -779,7 +782,7 @@ func loadOneSiteCSV(
 	summaryReport[core.DBRentalAgreement]["possible"] = RentalAgreementCSVRecordCount
 	summaryReport[core.DBRentableType]["possible"] = RentableTypeCSVRecordCount
 	summaryReport[core.DBCustomAttr]["possible"] = CustomAttributeCSVRecordCount
-	summaryReport[core.DBCustomAttrRef]["possible"] = CustomAttributeCSVRecordCount // customAttrRef count same as customAttr
+	summaryReport[core.DBCustomAttrRef]["possible"] = CustomAttrRefRecordCount
 	summaryReport[core.DBPeople]["possible"] = PeopleCSVRecordCount
 
 	// =======
