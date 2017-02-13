@@ -1710,9 +1710,9 @@ func GetDateOfLedgerMarkerOnOrBefore(bid int64, d1 *time.Time) time.Time {
 
 // GetCountBusinessCustomAttrRefs get total count for CustomAttrRefs
 // with particular associated business
-func GetCountBusinessCustomAttrRefs() int {
+func GetCountBusinessCustomAttrRefs(bid int64) int {
 	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessCustomAttrRefs.Query()
+	rows, err := RRdb.Prepstmt.CountBusinessCustomAttrRefs.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 
@@ -1725,9 +1725,9 @@ func GetCountBusinessCustomAttrRefs() int {
 
 // GetCountBusinessCustomAttributes get total count for CustomAttributes
 // with particular associated business
-func GetCountBusinessCustomAttributes() int {
+func GetCountBusinessCustomAttributes(bid int64) int {
 	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessCustomAttributes.Query()
+	rows, err := RRdb.Prepstmt.CountBusinessCustomAttributes.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 
@@ -1740,9 +1740,9 @@ func GetCountBusinessCustomAttributes() int {
 
 // GetCountBusinessRentableTypes get total count for RentableTypes
 // with particular associated business
-func GetCountBusinessRentableTypes() int {
+func GetCountBusinessRentableTypes(bid int64) int {
 	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessRentableTypes.Query()
+	rows, err := RRdb.Prepstmt.CountBusinessRentableTypes.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 
@@ -1755,9 +1755,9 @@ func GetCountBusinessRentableTypes() int {
 
 // GetCountBusinessTransactants get total count for Transactants
 // with particular associated business
-func GetCountBusinessTransactants() int {
+func GetCountBusinessTransactants(bid int64) int {
 	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessTransactants.Query()
+	rows, err := RRdb.Prepstmt.CountBusinessTransactants.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 
@@ -1770,9 +1770,9 @@ func GetCountBusinessTransactants() int {
 
 // GetCountBusinessRentables get total count for Rentables
 // with particular associated business
-func GetCountBusinessRentables() int {
+func GetCountBusinessRentables(bid int64) int {
 	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessRentables.Query()
+	rows, err := RRdb.Prepstmt.CountBusinessRentables.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 
@@ -1785,9 +1785,9 @@ func GetCountBusinessRentables() int {
 
 // GetCountBusinessRentalAgreements get total count for RentalAgreements
 // with particular associated business
-func GetCountBusinessRentalAgreements() int {
+func GetCountBusinessRentalAgreements(bid int64) int {
 	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessRentalAgreements.Query()
+	rows, err := RRdb.Prepstmt.CountBusinessRentalAgreements.Query(bid)
 	Errcheck(err)
 	defer rows.Close()
 

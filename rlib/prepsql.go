@@ -150,7 +150,7 @@ func buildPreparedStatements() {
 	// Custom Attribute
 	//==========================================
 	flds = "CID,BID,Type,Name,Value,Units,LastModTime,LastModBy"
-	RRdb.Prepstmt.CountBusinessCustomAttributes, err = RRdb.Dbrr.Prepare("SELECT COUNT(CID) FROM CustomAttr")
+	RRdb.Prepstmt.CountBusinessCustomAttributes, err = RRdb.Dbrr.Prepare("SELECT COUNT(CID) FROM CustomAttr WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetCustomAttribute, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM CustomAttr WHERE CID=?")
 	Errcheck(err)
@@ -171,7 +171,7 @@ func buildPreparedStatements() {
 	// Custom Attribute Ref
 	//==========================================
 	flds = "ElementType,BID,ID,CID"
-	RRdb.Prepstmt.CountBusinessCustomAttrRefs, err = RRdb.Dbrr.Prepare("SELECT COUNT(CID) FROM CustomAttrRef")
+	RRdb.Prepstmt.CountBusinessCustomAttrRefs, err = RRdb.Dbrr.Prepare("SELECT COUNT(CID) FROM CustomAttrRef WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetCustomAttributeRefs, err = RRdb.Dbrr.Prepare("SELECT CID FROM CustomAttrRef WHERE ElementType=? and ID=?")
 	Errcheck(err)
@@ -589,7 +589,7 @@ func buildPreparedStatements() {
 	//  Rentable
 	//===============================
 	flds = "RID,BID,Name,AssignmentTime,LastModTime,LastModBy"
-	RRdb.Prepstmt.CountBusinessRentables, err = RRdb.Dbrr.Prepare("SELECT COUNT(RID) FROM Rentable")
+	RRdb.Prepstmt.CountBusinessRentables, err = RRdb.Dbrr.Prepare("SELECT COUNT(RID) FROM Rentable WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Rentable WHERE RID=?")
 	Errcheck(err)
@@ -608,7 +608,7 @@ func buildPreparedStatements() {
 	//  Rental Agreement
 	//===============================
 	flds = "RAID,RATID,BID,NLID,AgreementStart,AgreementStop,PossessionStart,PossessionStop,RentStart,RentStop,RentCycleEpoch,UnspecifiedAdults,UnspecifiedChildren,Renewal,SpecialProvisions,LeaseType,ExpenseAdjustmentType,ExpensesStop,ExpenseStopCalculation,BaseYearEnd,ExpenseAdjustment,EstimatedCharges,RateChange,NextRateChange,PermittedUses,ExclusiveUses,ExtensionOption,ExtensionOptionNotice,ExpansionOption,ExpansionOptionNotice,RightOfFirstRefusal,LastModTime,LastModBy"
-	RRdb.Prepstmt.CountBusinessRentalAgreements, err = RRdb.Dbrr.Prepare("SELECT COUNT(RAID) FROM RentalAgreement")
+	RRdb.Prepstmt.CountBusinessRentalAgreements, err = RRdb.Dbrr.Prepare("SELECT COUNT(RAID) FROM RentalAgreement WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreement where BID=?")
 	Errcheck(err)
@@ -728,7 +728,7 @@ func buildPreparedStatements() {
 	//  Rentable Type
 	//===============================
 	RTYfields := "RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,LastModTime,LastModBy"
-	RRdb.Prepstmt.CountBusinessRentableTypes, err = RRdb.Dbrr.Prepare("SELECT COUNT(RTID) FROM RentableTypes")
+	RRdb.Prepstmt.CountBusinessRentableTypes, err = RRdb.Dbrr.Prepare("SELECT COUNT(RTID) FROM RentableTypes WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableType, err = RRdb.Dbrr.Prepare("SELECT " + RTYfields + " FROM RentableTypes WHERE RTID=?")
 	Errcheck(err)
@@ -803,7 +803,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// TRANSACTANT
 	//==========================================
-	RRdb.Prepstmt.CountBusinessTransactants, err = RRdb.Dbrr.Prepare("SELECT COUNT(TCID) FROM Transactant")
+	RRdb.Prepstmt.CountBusinessTransactants, err = RRdb.Dbrr.Prepare("SELECT COUNT(TCID) FROM Transactant WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetTransactant, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant WHERE TCID=?")
 	Errcheck(err)
