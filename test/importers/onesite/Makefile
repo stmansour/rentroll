@@ -1,4 +1,4 @@
-DIRS = onesite_sample onesite_exported_1 onesite_exported_2
+DIRS = onesite_sample onesite_exported_1 onesite_exported_2 onesite_exported_mr_1
 
 onesite:
 	for dir in $(DIRS); do make -C $$dir;done
