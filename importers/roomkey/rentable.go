@@ -39,7 +39,6 @@ func CreateRentableCSV(
 	rentableCSVWriter := csv.NewWriter(rentableCSVFile)
 
 	// parse headers of rentableCSV using reflect
-	rentableCSVHeaders := []string{}
 	rentableCSVHeaders, ok := core.GetStructFields(rentableStruct)
 	if !ok {
 		rlib.Ulog("Error <RENTABLE CSV>: Unable to get struct fields for rentableCSV\n")

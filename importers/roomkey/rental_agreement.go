@@ -39,7 +39,6 @@ func CreateRentalAgreementCSV(
 	rentalAgreementCSVWriter := csv.NewWriter(rentalAgreementCSVFile)
 
 	// parse headers of rentalAgreementCSV using reflect
-	rentalAgreementCSVHeaders := []string{}
 	rentalAgreementCSVHeaders, ok := core.GetStructFields(rentalAgreementStruct)
 	if !ok {
 		rlib.Ulog("Error <RENTAL AGREEMENT CSV>: Unable to get struct fields for rentalAgreementCSV\n")
