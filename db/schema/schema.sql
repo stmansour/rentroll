@@ -35,7 +35,7 @@ DROP DATABASE IF EXISTS rentroll;
 CREATE DATABASE rentroll;
 USE rentroll;
 GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
-SET GLOBAL sql_mode='';
+set GLOBAL sql_mode='ALLOW_INVALID_DATES';
 
 -- ===========================================
 --   ID COUNTERS

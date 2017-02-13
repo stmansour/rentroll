@@ -157,6 +157,9 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 
 	dateform := "2006-01-02"
 	pr.OtherPreferences = ""
+	// rlib.SnapZeroDate(&t.DateofBirth)
+	// rlib.SnapZeroDate(&pr.DesiredUsageStartDate)
+	// rlib.SnapZeroDate(&pr.FollowUpDate)
 
 	for i := 0; i < len(sa); i++ {
 		s := strings.TrimSpace(sa[i])
