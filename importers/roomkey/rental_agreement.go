@@ -72,7 +72,6 @@ func WriteRentalAgreementData(
 
 	currentYear, currentMonth, currentDate := currentTime.Date()
 	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
-	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
 	DtStop := "12/31/9999" // no end date
 
 	// make rentable data from userSuppliedValues and defaultValues
@@ -96,11 +95,8 @@ func WriteRentalAgreementData(
 		)
 	}
 
-	dateIn := getFormattedDate(csvRow.DateIn)
-	dateOut := getFormattedDate(csvRow.DateOut)
-
-	rentableDefaultData["DtStart"] = dateIn
-	rentableDefaultData["DtStop"] = dateOut
+	rentableDefaultData["DtStart"] = DtStart
+	rentableDefaultData["DtStop"] = DtStop
 	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
 
 	// get csv row data
@@ -216,14 +212,14 @@ func getPayorSpec(
 		if csvRow.DateIn == "" {
 			orderedFields = append(orderedFields, defaults["DtStart"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.DateIn)
+			orderedFields = append(orderedFields, getFormattedDate(csvRow.DateIn))
 		}
 
 		// append date out
 		if csvRow.DateOut == "" {
 			orderedFields = append(orderedFields, defaults["DtStop"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.DateOut)
+			orderedFields = append(orderedFields, getFormattedDate(csvRow.DateOut))
 		}
 	}
 
@@ -245,14 +241,14 @@ func getUserSpec(
 		if csvRow.DateIn == "" {
 			orderedFields = append(orderedFields, defaults["DtStart"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.DateIn)
+			orderedFields = append(orderedFields, getFormattedDate(csvRow.DateIn))
 		}
 
 		// append date out
 		if csvRow.DateOut == "" {
 			orderedFields = append(orderedFields, defaults["DtStop"])
 		} else {
-			orderedFields = append(orderedFields, csvRow.DateOut)
+			orderedFields = append(orderedFields, getFormattedDate(csvRow.DateOut))
 		}
 	}
 
