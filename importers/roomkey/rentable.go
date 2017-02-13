@@ -72,7 +72,6 @@ func WriteRentableData(
 
 	currentYear, currentMonth, currentDate := currentTime.Date()
 	DtStart := fmt.Sprintf("%d/%d/%d", currentMonth, currentDate, currentYear)
-	// DtStart := fmt.Sprintf("%02d/%02d/%04d", currentMonth, currentDate, currentYear)
 	DtStop := "12/31/9999" // no end date
 
 	// make rentable data from userSuppliedValues and defaultValues
@@ -82,7 +81,6 @@ func WriteRentableData(
 	}
 
 	// Forming default rentable status string
-	rentableDefaultData["RentableStatus"] = RoomKeyOnlineRentableStatus
 	rentableDefaultData["DtStart"] = DtStart
 	rentableDefaultData["DtStop"] = DtStop
 	rentableDefaultData["TCID"] = traceTCIDMap[rowIndex]
@@ -101,12 +99,6 @@ func WriteRentableData(
 			warnPrefix+"No lease end date found. Using default value: "+DtStop,
 		)
 	}
-
-	dateIn := getFormattedDate(csvRow.DateIn)
-	dateOut := getFormattedDate(csvRow.DateOut)
-
-	rentableDefaultData["RentableStatus"] += "," + dateIn
-	rentableDefaultData["RentableStatus"] += "," + dateOut
 
 	// get csv row data
 	csvRowData := GetRentableCSVRow(
