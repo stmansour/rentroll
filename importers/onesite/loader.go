@@ -167,6 +167,18 @@ func loadOneSiteCSV(
 			cellTextValue := strings.ToLower(
 				core.SpecialCharsReplacer.Replace(t[rowIndex][colIndex]))
 
+			// ********************************
+			// MARKET RENT OR MARKET ADDL
+			// ********************************
+			// if marketRent found then remove marketAddl header
+			// and make an entry for "marketrent" in csvColumnFieldMap with -1
+			// keep "MarketAddl" mapping to `marketrent` still, anyways `MarketAddl`
+			// going to be put in `MarketRate` of Rentroll field
+			if cellTextValue == marketRent {
+				delete(csvColumnFieldMap, "marketaddl")
+				csvColumnFieldMap[marketRent] = "MarketAddl"
+			}
+
 			// if header is exist in map then overwrite it position
 			if field, ok := csvColumnFieldMap[cellTextValue]; ok {
 				csvHeadersIndex[field] = colIndex
