@@ -37,26 +37,26 @@ func IsValidEmail(email string) bool {
 
 // GetImportedCount get map of summaryCount as an argument
 // then it hit db to get imported count for each type
-func GetImportedCount(summaryCount map[int]map[string]int) {
+func GetImportedCount(summaryCount map[int]map[string]int, BID int64) {
 	for dbType := range summaryCount {
 		switch dbType {
 		case DBCustomAttrRef:
-			summaryCount[DBCustomAttrRef]["imported"] += rlib.GetCountBusinessCustomAttrRefs()
+			summaryCount[DBCustomAttrRef]["imported"] += rlib.GetCountBusinessCustomAttrRefs(BID)
 			break
 		case DBCustomAttr:
-			summaryCount[DBCustomAttr]["imported"] += rlib.GetCountBusinessCustomAttributes()
+			summaryCount[DBCustomAttr]["imported"] += rlib.GetCountBusinessCustomAttributes(BID)
 			break
 		case DBRentableType:
-			summaryCount[DBRentableType]["imported"] += rlib.GetCountBusinessRentableTypes()
+			summaryCount[DBRentableType]["imported"] += rlib.GetCountBusinessRentableTypes(BID)
 			break
 		case DBPeople:
-			summaryCount[DBPeople]["imported"] += rlib.GetCountBusinessTransactants()
+			summaryCount[DBPeople]["imported"] += rlib.GetCountBusinessTransactants(BID)
 			break
 		case DBRentable:
-			summaryCount[DBRentable]["imported"] += rlib.GetCountBusinessRentables()
+			summaryCount[DBRentable]["imported"] += rlib.GetCountBusinessRentables(BID)
 			break
 		case DBRentalAgreement:
-			summaryCount[DBRentalAgreement]["imported"] += rlib.GetCountBusinessRentalAgreements()
+			summaryCount[DBRentalAgreement]["imported"] += rlib.GetCountBusinessRentalAgreements(BID)
 			break
 		}
 	}

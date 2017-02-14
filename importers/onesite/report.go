@@ -36,7 +36,10 @@ func getReportHeader(importTime time.Time, csvFile string) string {
 }
 
 // generateSummaryReport used to generate summary report from argued struct
-func generateSummaryReport(summaryCount map[int]map[string]int) string {
+func generateSummaryReport(
+	summaryCount map[int]map[string]int,
+	BID int64,
+) string {
 	var report string
 
 	tableTitle := "SUMMARY"
@@ -53,7 +56,7 @@ func generateSummaryReport(summaryCount map[int]map[string]int) string {
 	tbl.AddColumn("Issues", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	// evaluate import count
-	core.GetImportedCount(summaryCount)
+	core.GetImportedCount(summaryCount, BID)
 
 	// sort indices
 	summaryCountIndexes := []int{}
@@ -261,7 +264,7 @@ func successReport(
 	report = getReportHeader(currentTime, csvFile)
 
 	// append summary report
-	report += generateSummaryReport(summaryCount)
+	report += generateSummaryReport(summaryCount, business.BID)
 
 	// csv report for all types if testmode is on
 	if debugMode == 1 {
@@ -293,7 +296,7 @@ func errorReporting(
 	detailedReport, csvReportGenerate := generateDetailedReport(csvErrors, unitMap, summaryCount)
 
 	// append summary report
-	errReport += generateSummaryReport(summaryCount)
+	errReport += generateSummaryReport(summaryCount, business.BID)
 
 	// append detailedReport
 	errReport += detailedReport
