@@ -1,4 +1,4 @@
-package main
+package ws
 
 import (
 	"encoding/json"
@@ -70,7 +70,7 @@ type gxperson struct {
 }
 
 // Accepts data from form submit.  Note that "list" data values are handled separately
-// in gxpersonOther.  See note in grentable.go above gxrentableForm for further details.
+// in gxpersonOther.  See note in grentable.go above grentableForm for further details.
 type gxpersonForm struct {
 	Recid                     int64 `json:"recid"` // this is to support the w2ui form
 	TCID                      int64
@@ -185,7 +185,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 // SvcFormHandlerXPerson formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the TCID as follows:
 //       0    1       2    3
-// 		/gsvc/xperson/BID/TCID
+// 		/v1/xperson/BID/TCID
 // The server command can be:
 //      get
 //      save

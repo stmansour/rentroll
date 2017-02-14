@@ -149,15 +149,6 @@ func IsSQLNoResultsError(err error) bool {
 	return strings.Contains(s, "no rows in result")
 }
 
-// // SnapZeroDate looks at the supplied date. If the date.IsZero() is true, it snaps
-// // the date value to Jan 1, 1900
-// func SnapZeroDate(d *time.Time) {
-// 	if d.IsZero() {
-// 		t := time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC)
-// 		*d = t
-// 	}
-// }
-
 // IntFromString converts the supplied string to an int64 value. If there
 // is a problem in the conversion, it generates an error message. To suppress
 // the error message, pass in "" for errmsg.

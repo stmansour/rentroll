@@ -1,4 +1,4 @@
-package main
+package ws
 
 import (
 	"encoding/json"
@@ -39,16 +39,16 @@ var pTypeList = []string{"payor", "user"}
 //
 // URL:
 //       0    1       2    3
-// 		/gsvc/xrapeep/BID/RAID?type={payor|user}&dt=2017-02-01
+// 		/v1/rapeep/BID/RAID?type={payor|user}&dt=2017-02-01
 //-----------------------------------------------------------------------------
 func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	//fmt.Printf("entered SvcRAPeople\n")
-	s := r.URL.String() // ex: /gsvc/rar/CCC/10?dt=2017-02-01
-	//fmt.Printf("s = %s\n", s)           // x
-	s1 := strings.Split(s, "?") // ex: /gsvc/rar/CCC/10?dt=2017-02-01
-	//fmt.Printf("s1 = %#v\n", s1)        // x
-	ss := strings.Split(s1[0][1:], "/") // ex: []string{"gsvc", "rar", "CCC", "10"}
-	//fmt.Printf("ss = %#v\n", ss)
+	fmt.Printf("entered SvcRAPeople\n")
+	s := r.URL.String()                 // ex: /v1/rar/CCC/10?dt=2017-02-01
+	fmt.Printf("s = %s\n", s)           // x
+	s1 := strings.Split(s, "?")         // ex: /v1/rar/CCC/10?dt=2017-02-01
+	fmt.Printf("s1 = %#v\n", s1)        // x
+	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "rar", "CCC", "10"}
+	fmt.Printf("ss = %#v\n", ss)
 
 	//------------------------------------------------------
 	// Handle URL path values
@@ -71,7 +71,7 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if len(param) < 2 {
 				continue
 			}
-			//fmt.Printf("param[i] value = %s\n", param[1])
+			fmt.Printf("param[i] value = %s\n", param[1])
 			switch param[0] {
 			case "dt":
 				dt, err = rlib.StringToDate(param[1])
@@ -128,6 +128,8 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				gxp.Records = append(gxp.Records, xr)
 			}
 		}
+	} else {
+		rlib.LogAndPrintError("SvcRAPeople", fmt.Errorf("Unrecognized person req: %s", ptype))
 	}
 
 	//------------------------------------------------------
@@ -135,7 +137,7 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	gxp.Status = "success"
 	gxp.Total = int64(len(gxp.Records))
-	//fmt.Printf("gxp = %#v\n", gxp)
+	fmt.Printf("gxp = %#v\n", gxp)
 	b, err := json.Marshal(&gxp)
 	if err != nil {
 		SvcGridErrorReturn(w, fmt.Errorf("cannot marshal gxp:  %s", err.Error()))

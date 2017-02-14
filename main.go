@@ -10,6 +10,7 @@ import (
 	"phonebook/lib"
 	"rentroll/rcsv"
 	"rentroll/rlib"
+	"rentroll/ws"
 	"strings"
 	"time"
 
@@ -131,7 +132,7 @@ func initHTTP() {
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/home/", HomeUIHandler)
 	http.HandleFunc("/dispatch/", dispatchHandler)
-	http.HandleFunc("/gsvc/", gridServiceHandler)
+	http.HandleFunc("/v1/", ws.V1ServiceHandler)
 	http.HandleFunc("/wsvc/", webServiceHandler)
 }
 

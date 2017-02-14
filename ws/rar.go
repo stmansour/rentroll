@@ -1,4 +1,4 @@
-package main
+package ws
 
 //
 // This command returns the rentables associated with the supplied RAID.  If no dates are supplied
@@ -33,7 +33,7 @@ type RARList struct {
 // SvcRARentables returns the Rentables associated with the RAID supplied
 //  Called with URL:
 //       0    1   2   3
-// 		/gsvc/rar/BID/RAID?dt=2017-01-03
+// 		/v1/rar/BID/RAID?dt=2017-01-03
 func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// fmt.Printf("entered SvcRARentables\n")
 	s := r.URL.String()

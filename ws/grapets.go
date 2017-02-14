@@ -1,4 +1,4 @@
-package main
+package ws
 
 import (
 	"encoding/json"
@@ -23,15 +23,15 @@ type gxpets struct {
 //
 // URL:
 //       0    1       2    3
-// 		/gsvc/xrapets/BID/RAID?dt=2017-02-01
+// 		/v1/rapets/BID/RAID?dt=2017-02-01
 //-----------------------------------------------------------------------------
 func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered SvcRAPets\n")
-	s := r.URL.String()                 // ex: /gsvc/xrapets/CCC/10?dt=2017-02-01
+	s := r.URL.String()                 // ex: /v1/rapets/CCC/10?dt=2017-02-01
 	fmt.Printf("s = %s\n", s)           // x
-	s1 := strings.Split(s, "?")         // ex: /gsvc/xrapets/CCC/10?dt=2017-02-01
+	s1 := strings.Split(s, "?")         // ex: /v1/rapets/CCC/10?dt=2017-02-01
 	fmt.Printf("s1 = %#v\n", s1)        // x
-	ss := strings.Split(s1[0][1:], "/") // ex: []string{"gsvc", "xrapets", "CCC", "10"}
+	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "rapets", "CCC", "10"}
 	fmt.Printf("ss = %#v\n", ss)
 
 	//------------------------------------------------------

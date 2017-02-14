@@ -1,4 +1,4 @@
-package main
+package ws
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 
 // this is a structure specifically for the UI. It will be
 // automatically populated from an rlib.RentalAgreement struct
-type gxrentalagr struct {
+type rentalagr struct {
 	Recid                  int64             `json:"recid"` // this is to support the w2ui form
 	RAID                   int64             // internal unique id
 	RATID                  int64             // reference to Occupancy Master Agreement
@@ -48,7 +48,7 @@ type gxrentalagr struct {
 	LastModBy              int64             // employee UID (from phonebook) that modified it
 }
 
-type gxrentalagrForm struct {
+type rentalagrForm struct {
 	Recid                  int64         `json:"recid"` // this is to support the w2ui form
 	RAID                   int64         // internal unique id
 	RATID                  int64         // reference to Occupancy Master Agreement
@@ -83,7 +83,7 @@ type gxrentalagrForm struct {
 	LastModBy              int64         // employee UID (from phonebook) that modified it
 }
 
-type gxrentalagrOther struct {
+type rentalagrOther struct {
 	BID     rlib.W2uiHTMLSelect // Business (so that we can process by Business)
 	Renewal rlib.W2uiHTMLSelect // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 }
@@ -94,9 +94,9 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	var p rlib.RentalAgreement
 	var err error
 	var g struct {
-		Status  string        `json:"status"`
-		Total   int64         `json:"total"`
-		Records []gxrentalagr `json:"records"`
+		Status  string      `json:"status"`
+		Total   int64       `json:"total"`
+		Records []rentalagr `json:"records"`
 	}
 	t := time.Now()
 	srch := fmt.Sprintf("BID=%d AND AgreementStop>%q", d.BID, t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
@@ -121,7 +121,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	count := 0
 	for rows.Next() {
 		var p rlib.RentalAgreement
-		var q gxrentalagr
+		var q rentalagr
 		rlib.ReadRentalAgreements(rows, &p)
 		p.Recid = i
 		rlib.MigrateStructVals(&p, &q)
@@ -141,7 +141,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 // SvcFormHandlerRentalAgreement formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the RAID as follows:
 //       0    1          2    3
-// 		/gsvc/rentalagrs/BID/RAID
+// 		/v1/rentalagrs/BID/RAID
 // The server command can be:
 //      get
 //      save
@@ -191,7 +191,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	//------------------------------
 	// Handle all the non-list data
 	//------------------------------
-	var foo gxrentalagrForm
+	var foo rentalagrForm
 
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
@@ -206,7 +206,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	//---------------------------
 	//  Handle all the list data
 	//---------------------------
-	var bar gxrentalagrOther
+	var bar rentalagrOther
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
@@ -245,10 +245,21 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	SvcWriteSuccessResponse(w)
 }
 
+// https://play.golang.org/p/gfOhByMroo
+// wsdoc {
+//	Get a Rental Agreement
+//  This service returns the time-insensitive attributes of a Rental Agreement.
+//
+//		/v1/rentalagrs/BID/RAID
+//
+//  Response:: rentalagr
+//
+//
+// wsdoc }
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var g struct {
-		Status string      `json:"status"`
-		Record gxrentalagr `json:"record"`
+		Status string    `json:"status"`
+		Record rentalagr `json:"record"`
 	}
 	a, err := rlib.GetRentalAgreement(d.RAID)
 	if err != nil {
@@ -257,7 +268,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 	if a.RAID > 0 {
-		var gg gxrentalagr
+		var gg rentalagr
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg
 	}

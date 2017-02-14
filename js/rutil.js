@@ -33,45 +33,45 @@ function setToRAForm(bid,raid,d) {
     w2ui.toplayout.content('right', w2ui.raLayout);
     w2ui.toplayout.show('right',true);
     w2ui.toplayout.sizeTo('right', 900);
-    w2ui.rentalagrForm.url = '/gsvc/xrentalagr/' + bid + '/' + raid;
+    w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
     w2ui.rentalagrForm.request();
 
     //----------------------------------------------------------------
     // Get the associated Rentables...
-    //      /gsvc/rar/bid/raid[?d1=2017-02-1]
+    //      /v1/rar/bid/raid[?d1=2017-02-1]
     //      if no date is specified, today's date is used as the default.
     //----------------------------------------------------------------
-    w2ui.rarGrid.url = '/gsvc/rar/' + bid + '/' + raid;
+    w2ui.rarGrid.url = '/v1/rar/' + bid + '/' + raid;
     console.log('rar url = ' + w2ui.rarGrid.url);
     w2ui.rarGrid.request();
     w2ui.rarGrid.header = plural(sRentable) + ' as of ' + dateFmtStr(d);
 
     //----------------------------------------------------------------
     // Get the associated Payors...
-    //      /gsvc/xrapeople/bid/raid[?type=payor&d1=2017-02-1]
+    //      /v1/rapeople/bid/raid[?type=payor&d1=2017-02-1]
     //      if no date is specified, today's date is used as the default.
     //      if no person type is provided, payor is assumed
     //----------------------------------------------------------------
-    w2ui.rapGrid.url = '/gsvc/xrapeople/' + bid + '/' + raid;
+    w2ui.rapGrid.url = '/v1/rapeople/' + bid + '/' + raid;
     console.log('xrapeople url = ' + w2ui.rapGrid.url);
     w2ui.rapGrid.request();
     w2ui.rapGrid.header = plural(sPayor) + ' as of ' + dateFmtStr(d);
  
     //----------------------------------------------------------------
     // Get the associated Users...
-    //      /gsvc/xrapeople/bid/raid[?type=user&d1=2017-02-1]
+    //      /v1/rapeople/bid/raid[?type=user&d1=2017-02-1]
     //      if no date is specified, today's date is used as the default.
     //----------------------------------------------------------------
-    w2ui.rauGrid.url = '/gsvc/xrapeople/' + bid + '/' + raid + '?type=user';
-    console.log('xrapeople url = ' + w2ui.rauGrid.url);
+    w2ui.rauGrid.url = '/v1/rapeople/' + bid + '/' + raid + '?type=user';
+    console.log('rapeople url = ' + w2ui.rauGrid.url);
     w2ui.rauGrid.request();
     w2ui.rauGrid.header = plural(sUser) + ' as of ' + dateFmtStr(d);
 
     //----------------------------------------------------------------
     // Get the associated Pets...
-    //      /gsvc/xrapets/bid/raid
+    //      /v1/xrapets/bid/raid
     //----------------------------------------------------------------
-    w2ui.raPetGrid.url = '/gsvc/xrapets/' + bid + '/' + raid;
+    w2ui.raPetGrid.url = '/v1/rapets/' + bid + '/' + raid;
     console.log('xrapets url = ' + w2ui.rarGrid.url);
     w2ui.raPetGrid.request();
     w2ui.raPetGrid.header = 'Pets as of ' + dateFmtStr(d);

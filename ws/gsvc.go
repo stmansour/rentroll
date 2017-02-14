@@ -1,4 +1,4 @@
-package main
+package ws
 
 // These are general utilty routines to support w2ui grid components.
 
@@ -65,11 +65,11 @@ var Svcs = []ServiceHandler{
 	{"rar", SvcRARentables, true},
 	{"rentables", SvcSearchHandlerRentables, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
-	{"xperson", SvcFormHandlerXPerson, true},
-	{"xrapeople", SvcRAPeople, true},
-	{"xrapets", SvcRAPets, true},
-	{"xrentable", SvcFormHandlerRentable, true},
-	{"xrentalagr", SvcFormHandlerRentalAgreement, true},
+	{"person", SvcFormHandlerXPerson, true},
+	{"rapeople", SvcRAPeople, true},
+	{"rapets", SvcRAPets, true},
+	{"rentable", SvcFormHandlerRentable, true},
+	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"uilists", SvcUILists, false},
 }
 
@@ -100,7 +100,7 @@ func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 // The URI is of the form returned by http.Request.RequestURI .  In particular:
 //
 //	pos:     0    1         2  3
-//  uri:    /gsvc/xrentable/34/421
+//  uri:    /v1/rentable/34/421
 //
 // So, in the example uri above, a call where pos = 3 would return int64(421). errmsg
 // is a string that will be used in the error message if the requested position had an
@@ -154,7 +154,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 
 func showRequestHeaders(r *http.Request) {
 	fmt.Printf("Request Headers\n")
-	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
+	fmt.Printf("-----------------------\n")
 	for k, v := range r.Header {
 		fmt.Printf("%s: ", k)
 		for i := 0; i < len(v); i++ {
@@ -162,7 +162,7 @@ func showRequestHeaders(r *http.Request) {
 		}
 		fmt.Printf("\n")
 	}
-	fmt.Printf("-----------------------------------------------------------------------------------------------\n")
+	fmt.Printf("-----------------------\n")
 }
 
 func showWebRequest(d *ServiceData) {
@@ -178,7 +178,7 @@ func showWebRequest(d *ServiceData) {
 	}
 }
 
-// gridServiceHandler is the main dispatch point for w2ui grid service requests
+// V1ServiceHandler is the main dispatch point for w2ui grid service requests
 //
 // The expected input is of the form:
 //		request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D
@@ -192,9 +192,10 @@ func showWebRequest(d *ServiceData) {
 // must be parsed by each function, as the data needed will be different from
 // from function to function.
 //-----------------------------------------------------------------------------------------------------------
-func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
-	funcname := "gridServiceHandler"
-	fmt.Printf("Entered %s.  r.Method = %s\n", funcname, r.Method)
+func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
+	funcname := "V1ServiceHandler"
+	fmt.Printf("==========================================================================================\n")
+	fmt.Printf("Entered %s. URL = %s , r.Method = %s\n", funcname, r.URL.String(), r.Method)
 	var err error
 	var d ServiceData
 
@@ -210,9 +211,9 @@ func gridServiceHandler(w http.ResponseWriter, r *http.Request) {
 	showWebRequest(&d)
 
 	//-----------------------------------------------------------------------
-	// General form is /gsvc/{subservice}/{BID}/{ID}
+	// General form is /v1/{subservice}/{BID}/{ID}
 	//-----------------------------------------------------------------------
-	path := "/gsvc/"                       // this is the part of the URL that got us into this handler
+	path := "/v1/"                         // this is the part of the URL that got us into this handler
 	subURLPath := r.RequestURI[len(path):] // this pulls off the specific request
 
 	//-----------------------------------------------------------------------

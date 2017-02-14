@@ -1,4 +1,4 @@
-package main
+package ws
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ import (
 
 // this is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
-type gxrentableForm struct {
+type grentableForm struct {
 	Recid       int64 `json:"recid"` // this is to support the w2ui form
 	RID         int64
 	Name        string
@@ -28,14 +28,14 @@ type gxrentableForm struct {
 	LastModBy   int64
 }
 
-type gxrentableOther struct {
+type grentableOther struct {
 	BID            rlib.W2uiHTMLSelect
 	AssignmentTime rlib.W2uiHTMLSelect
 }
 
 // this is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
-type gxrentable struct {
+type grentable struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RID            int64
 	BID            rlib.XJSONBud
@@ -53,9 +53,9 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	var p rlib.Rentable
 	var err error
 	var g struct {
-		Status  string       `json:"status"`
-		Total   int64        `json:"total"`
-		Records []gxrentable `json:"records"`
+		Status  string      `json:"status"`
+		Total   int64       `json:"total"`
+		Records []grentable `json:"records"`
 	}
 
 	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
@@ -80,7 +80,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	count := 0
 	for rows.Next() {
 		var p rlib.Rentable
-		var q gxrentable
+		var q grentable
 		rlib.ReadRentables(rows, &p)
 		p.Recid = i
 		rlib.MigrateStructVals(&p, &q)
@@ -101,7 +101,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 // SvcFormHandlerRentable formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the RID as follows:
 //           0    1         2   3
-// uri 		/gsvc/xrentable/BUD/RID
+// uri 		/v1/rentable/BUD/RID
 // The server command can be:
 //      get
 //      save
@@ -145,7 +145,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
-	var foo gxrentableForm
+	var foo grentableForm
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -158,7 +158,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo, &a)
 
 	// now get the stuff that requires special handling...
-	var bar gxrentableOther
+	var bar grentableOther
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -193,12 +193,12 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered getRentable\n")
 	var g struct {
-		Status string     `json:"status"`
-		Record gxrentable `json:"record"`
+		Status string    `json:"status"`
+		Record grentable `json:"record"`
 	}
 	a := rlib.GetRentable(d.RID)
 	if a.RID > 0 {
-		var gg gxrentable
+		var gg grentable
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg
 	}

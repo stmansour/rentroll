@@ -104,7 +104,7 @@ function switchToGrid(svc) {
     "use strict";
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
-    var url = '/gsvc/' + svc + '/' + x.value;
+    var url = '/v1/' + svc + '/' + x.value;
     w2ui[grid].url = url;
     console.log('url = ' + url);
     w2ui.toplayout.content('main', w2ui[grid]);
@@ -446,7 +446,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'accountsGrid',
-        url: '/gsvc/GLAccounts',
+        url: '/v1/GLAccounts',
         show: {
             header: false,
             toolbar: true,
@@ -485,7 +485,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     $().w2grid({ 
         name: 'transactantsGrid', 
-        url: '/gsvc/transactants',
+        url: '/v1/transactants',
         show: {
             header: false,
             toolbar: true,
@@ -512,7 +512,7 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; ++i) {
                         var ob = this.get(sel[i]);
-                        setToForm('transactantForm', '/gsvc/xperson/' + ob.BID + '/' + ob.TCID);
+                        setToForm('transactantForm', '/v1/person/' + ob.BID + '/' + ob.TCID);
                      }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -529,7 +529,7 @@ function buildPageElements() {
         name: 'transactantForm',
         style: 'border: 0px; background-color: transparent;',
         header: sTransactant + ' Detail',
-        url: '/gsvc/xperson',
+        url: '/v1/person',
         formURL: '/html/formtc.html',
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
@@ -665,7 +665,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'rentablesGrid',
-        url: '/gsvc/xrentable',
+        url: '/v1/rentable',
         formURL: '/html/formr.html',
         show: {
             header: false,
@@ -689,8 +689,8 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        console.log('rentable form url: ' + '/gsvc/xrentable/' + ob.BID + '/' + ob.RID);
-                        setToForm('rentableForm', '/gsvc/xrentable/' + ob.BID + '/' + ob.RID);
+                        console.log('rentable form url: ' + '/v1/rentable/' + ob.BID + '/' + ob.RID);
+                        setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -707,7 +707,7 @@ function buildPageElements() {
         name: 'rentableForm',
         style: 'border: 0px; background-color: transparent;',
         header: sRentable + ' Detail',
-        url: '/gsvc/xrentable',
+        url: '/v1/rentable',
         formURL: '/html/formr.html',
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
@@ -749,7 +749,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'rentalagrsGrid',
-        url: '/gsvc/rentalagrs',       
+        url: '/v1/rentalagrs',       
         show: {
             toolbar: true,
             footer: true,
@@ -831,7 +831,7 @@ function buildPageElements() {
         name: 'rentalagrForm',
         style: 'border: 0px; background-color: transparent;',
         header: sRentalAgreement + ' Detail',
-        //url: '/gsvc/xrentalagrs',
+        //url: '/v1/rentalagrs',
         formURL: '/html/formra.html',
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
@@ -916,7 +916,7 @@ function buildPageElements() {
             selectColumn: false,
             expandColumn: false
         },
-        url: '/gsvc/rar/',       
+        url: '/v1/rar/',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', hidden: true, caption: 'RAID',  size: '40px', sortable: true},
@@ -940,7 +940,7 @@ function buildPageElements() {
             selectColumn: false,
             expandColumn: false
         },
-        //url: '/gsvc/rap',       
+        url: '/v1/rap',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'TCID', hidden: true, caption: 'TCID',  size: '40px', sortable: true},
@@ -963,7 +963,7 @@ function buildPageElements() {
             selectColumn: false,
             expandColumn: false
         },
-        //url: '/gsvc/rau',       
+        url: '/v1/rau',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'TCID', hidden: true, caption: 'TCID',  size: '40px', sortable: true},
@@ -988,7 +988,7 @@ function buildPageElements() {
             selectColumn: false,
             expandColumn: false
         },
-        //url: '/gsvc/rapet',       
+        url: '/v1/rapet',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'PETID', hidden: true, caption: 'PETID',  size: '40px', sortable: true},
@@ -1068,17 +1068,17 @@ function handleData(data,status) {
         eval(data); // defines all the lists; values for the dropdown lists
         console.log("SUCCESSFULLY LOADED LISTS");
     } else {
-        console.log( '**** YIPES! ****  status on /gsvc/uilists/ = ' + status);
+        console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + status);
     }
     finishInitialization();
 }
 
 $(function () {
     "use strict";
-    $.get("/gsvc/uilists/")
+    $.get("/v1/uilists/")
     .done(handleData)
     .fail( function() { 
-        console.log('Error getting /gsvc/uilists');
+        console.log('Error getting /v1/uilists');
      });
 });
 

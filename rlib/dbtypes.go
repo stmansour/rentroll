@@ -773,7 +773,7 @@ type Rentable struct {
 	Recid          int64             `json:"recid"` // this is to support the grid widget
 	RID            int64             // unique id for this Rentable
 	BID            int64             // Business
-	Name           string            // name for this rental
+	Name           string            // name for this rentable
 	AssignmentTime int64             // can we pre-assign or assign only at commencement
 	LastModTime    time.Time         // time of last update to the db record
 	LastModBy      int64             // who made the update (Phonebook UID)

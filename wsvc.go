@@ -8,6 +8,7 @@ import (
 	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
+	"rentroll/ws"
 	"strings"
 	"time"
 )
@@ -17,7 +18,7 @@ import (
 // a mono-spaced font.
 func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 	funcname := "SendWebSvcPage"
-	tmpl := "gsvcrpt.html"
+	tmpl := "v1rpt.html"
 	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/" + tmpl)
 	if nil != err {
 		s := fmt.Sprintf("%s: error loading template: %v\n", funcname, err)
@@ -142,7 +143,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "webServiceHandler"
 	fmt.Printf("Entered %s\n", funcname)
 	var ui RRuiSupport
-	var d ServiceData
+	var d ws.ServiceData
 	var xbiz rlib.XBusiness
 	var reportname string
 	var err error
