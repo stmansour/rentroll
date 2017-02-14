@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 2/8/2017
-Time: 12:55PM IST
+Date: 2/13/2017
+Time: 12:33PM IST
 Import File: ./onesite.csv
 
 =======
@@ -23,10 +23,10 @@ RECORDS FOR BUSINESS UNIT DESIGNATION: JGM First, LLC
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |    2/8/17 - 12/31/99 $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  800.00
 ================================================================================
 RID        Name      Assignment Time
 ---------  --------  ---------------

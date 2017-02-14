@@ -36,6 +36,9 @@ var csvColumnFieldMap = map[string]string{
 	// "tax":              "TAX",
 }
 
+var marketAddl = "marketaddl"
+var marketRent = "marketrent"
+
 // CSVRow contains fields which represents value
 // exactly to the each raw of onesite input csv file
 type CSVRow struct {

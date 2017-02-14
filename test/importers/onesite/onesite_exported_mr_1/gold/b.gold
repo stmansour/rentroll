@@ -1,7 +1,7 @@
 Accord RentRoll Onesite Importer
 Date: 2/13/2017
-Time: 12:33PM IST
-Import File: ./onesite_2.csv
+Time: 12:35PM IST
+Import File: ./onesite_mr_1.csv
 
 =======
 SUMMARY
@@ -12,9 +12,9 @@ Data Type                       Possible    Imported    Issues
 Rentable Types                  31          31          0         
 Custom Attributes               16          16          0         
 Custom Attribute References     31          31          0         
-Transactants                    772         771         242       
+Transactants                    770         770         237       
 Rentables                       855         855         0         
-Rental Agreements               772         772         0         
+Rental Agreements               770         770         0         
 
 =======================
 DETAILED REPORT BY UNIT
@@ -24,7 +24,6 @@ Line    Unit Name             Description
 ------  --------------------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 43      6309-036              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 44      6309-037              Warning: There is at least one other person with the name "Housing, Corporate" who also has no unique identifiers such as cell phone number or email.                               
-46      6309-040              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 48      6311-041              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 50      6311-043              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 52      6311-045              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -48,9 +47,10 @@ Line    Unit Name             Description
 77      6317-070              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 79      6319-071              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 80      6319-073              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-81      6319-074              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
+81      6319-074              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 82      6319-075              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 85      6319-080              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
+86      6321-077              Warning: There is at least one other person with the same name "housing, corporate" and work phone "(405) 721-2191" and no other unique identifiers such as cell phone or email     
 87      6321-079              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 89      6321-082              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 90      6321-083              Warning: There is at least one other person with the name "Housing, Corporate" who also has no unique identifiers such as cell phone number or email.                               
@@ -70,17 +70,16 @@ Line    Unit Name             Description
 107     6325-100              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 108     6325-102              Warning: There is at least one other person with the name "Diversified, *" who also has no unique identifiers such as cell phone number or email.                                   
 110     6327-101              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
-111     6327-103              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 112     6327-105              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 113     6327-106              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 114     6327-107              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 115     6327-108              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-116     6327-110              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 117     6327-112              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 118     6329-109              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 119     6329-111              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 120     6329-113              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 121     6329-114              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
+124     6329-118              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 125     6329-120              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 126     6331-117              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 127     6331-119              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -94,7 +93,6 @@ Line    Unit Name             Description
 136     6333-129              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 137     6333-130              Warning: There is at least one other person with the name "FAA, *" who also has no unique identifiers such as cell phone number or email.                                           
 138     6333-132              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-139     6333-134              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 141     6335-131              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 142     6335-133              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 143     6335-135              Warning: There is at least one other person with the same name "crossland, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email               
@@ -104,10 +102,8 @@ Line    Unit Name             Description
 150     6337-141              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 151     6337-143              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 152     6337-145              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
-153     6337-146              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 154     6337-148              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 155     6337-150              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-156     6337-152              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 157     6339-147              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
 158     6339-149              Warning: There is at least one other person with the name "Pilgrim Films, *" who also has no unique identifiers such as cell phone number or email.                                 
 159     6339-151              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -128,6 +124,7 @@ Line    Unit Name             Description
 189     6347-179              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 190     6347-181              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 192     6347-185              Warning: There is at least one other person with the name "Pilgrim Films, *" who also has no unique identifiers such as cell phone number or email.                                 
+193     6347-186              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 196     6347-192              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 197     6349-187              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 198     6349-189              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -150,7 +147,6 @@ Line    Unit Name             Description
 220     6353-216              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 221     6355-211              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 223     6355-215              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-224     6355-217              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 230     6357-221              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 232     6357-225              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 233     6357-226              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -167,7 +163,7 @@ Line    Unit Name             Description
 249     6361-244              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 251     6361-248              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 253     6363-243              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
-254     6363-245              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
+254     6363-245              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 255     6363-247              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 257     6363-252              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 258     6363-254              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4051112222" and no other unique identifiers such as cell phone or email         
@@ -212,12 +208,12 @@ Line    Unit Name             Description
 342     6385-333              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 343     6385-335              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 344     6385-338              Warning: There is at least one other person with the name "Housing, Corporate" who also has no unique identifiers such as cell phone number or email.                               
-345     6385-340              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 346     6385-342              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 347     6385-344              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
 348     6387-337              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 349     6387-339              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 350     6387-341              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
+351     6387-343              Warning: There is at least one other person with the same name "housing, corporate" and work phone "(405) 721-2191" and no other unique identifiers such as cell phone or email     
 352     6387-346              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 353     6387-348              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 354     6387-350              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -241,9 +237,7 @@ Line    Unit Name             Description
 377     6393-372              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 378     6393-374              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 379     6393-376              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-380     6395-369              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 381     6395-371              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
-382     6395-373              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 383     6395-375              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
 384     6395-378              Warning: There is at least one other person with the same name "faa, *" and work phone "4057212194" and no other unique identifiers such as cell phone or email                     
 386     6395-382              Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
@@ -262,6 +256,7 @@ Line    Unit Name             Description
 542     6610VIL-121           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 547     6610VIL-223           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 556     6612VIL-124           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212191" and no other unique identifiers such as cell phone or email         
+557     6612VIL-125           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 558     6612VIL-126           Warning: There is at least one other person with the name "Elliot Services, *" who also has no unique identifiers such as cell phone number or email.                               
 561     6612VIL-226           Warning: There is at least one other person with the same name "housing, corporate" and work phone "4057212194" and no other unique identifiers such as cell phone or email         
 

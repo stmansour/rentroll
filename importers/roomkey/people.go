@@ -38,7 +38,6 @@ func CreatePeopleCSV(
 	peopleCSVWriter := csv.NewWriter(peopleCSVFile)
 
 	// parse headers of peopleCSV using reflect
-	peopleCSVHeaders := []string{}
 	peopleCSVHeaders, ok := core.GetStructFields(peopleCSVStruct)
 	if !ok {
 		rlib.Ulog("Error <PEOPLE CSV>: Unable to get struct fields for peopleCSV\n")
