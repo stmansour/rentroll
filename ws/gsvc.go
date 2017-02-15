@@ -99,7 +99,7 @@ func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 // SvcExtractIDFromURI extracts an int64 id value from position pos of the supplied uri.
 // The URI is of the form returned by http.Request.RequestURI .  In particular:
 //
-//	pos:     0    1         2  3
+//	pos:     0    1      2  3
 //  uri:    /v1/rentable/34/421
 //
 // So, in the example uri above, a call where pos = 3 would return int64(421). errmsg
@@ -111,11 +111,14 @@ func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (in
 	var err error
 
 	sa := strings.Split(uri[1:], "/")
+	// fmt.Printf("uri parts:  %v\n", sa)
 	if len(sa) < pos+1 {
 		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d", pos+1, uri, len(sa))
+		// fmt.Printf("err = %s\n", err)
 		SvcGridErrorReturn(w, err)
 		return ID, err
 	}
+	// fmt.Printf("sa[pos] = %s\n", sa[pos])
 	ID, err = SvcGetInt64(sa[pos], errmsg, w)
 	return ID, err
 }

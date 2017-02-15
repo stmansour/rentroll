@@ -97,7 +97,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 				m = rrpt.LedgerActivityReport(&ri)
 			}
 			for i := 0; i < len(m); i++ {
-				s += m[i].Title + m[i].SprintTable(rlib.TABLEOUTTEXT) + "\n\n"
+				s += m[i].GetTitle() + m[i].SprintTable(rlib.TABLEOUTTEXT) + "\n\n"
 			}
 			return s
 		}

@@ -75,7 +75,7 @@ func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusine
 		}
 		ui.ReportContent = ""
 		for i := 0; i < len(m); i++ {
-			ui.ReportContent += m[i].Title + m[i].SprintTable(rlib.TABLEOUTTEXT) + "\n\n"
+			ui.ReportContent += m[i].GetTitle() + m[i].SprintTable(rlib.TABLEOUTTEXT) + "\n\n"
 		}
 	}
 }
@@ -96,7 +96,7 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, u
 	if xbiz.P.BID > 0 {
 		tbl, err := rrpt.RentRollReport(&ri)
 		if err == nil {
-			ui.ReportContent = tbl.Title + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
+			ui.ReportContent = tbl.GetTitle() + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
 		} else {
 			ui.ReportContent = fmt.Sprintf("Error generating RentRoll report:  %s\n", err)
 		}

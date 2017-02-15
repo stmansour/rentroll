@@ -108,7 +108,6 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
 	fmt.Printf("Entered SvcFormHandlerRentable\n")
 
 	var err error

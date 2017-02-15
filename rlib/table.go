@@ -27,7 +27,9 @@ const (
 	CELLDATETIME = 5
 
 	TABLEOUTTEXT = 1
-	TABLEOUTHTML = 2
+	TABLEOUTCSV  = 2
+	TABLEOUTHTML = 3
+	TABLEOUTPDF  = 4
 )
 
 // Cell is the basic data value type for the Table class.
@@ -42,7 +44,7 @@ type Cell struct {
 // ColumnDef defines a Table column -- a column title, justification, and formatting
 // information for cells in the column.
 type ColumnDef struct {
-	Title     string   // the column title
+	ColTitle  string   // the column title
 	Width     int      // column width
 	Justify   int      // justification
 	Pfmt      string   // printf-style formatting information for values in this column
@@ -65,6 +67,8 @@ type Rowset struct {
 // operations that can be performed.
 type Table struct {
 	Title        string      // table title
+	Section1     string      // another section for the title, different font
+	Section2     string      // a third section for the title, different font
 	ColDefs      []ColumnDef // table's column definitions, ordered 0..n left to right
 	Row          []Colset    // Each Colset forms a row
 	TextColSpace int         // space between text columns
@@ -84,6 +88,26 @@ func (t *Table) SetTitle(s string) {
 // GetTitle sets the table's Title string to the supplied value
 func (t *Table) GetTitle() string {
 	return t.Title
+}
+
+// SetSection1 sets the table's Section1 string to the supplied value
+func (t *Table) SetSection1(s string) {
+	t.Section1 = s
+}
+
+// GetSection1 sets the table's Section1 string to the supplied value
+func (t *Table) GetSection1() string {
+	return t.Section1
+}
+
+// SetSection2 sets the table's Section2 string to the supplied value
+func (t *Table) SetSection2(s string) {
+	t.Section2 = s
+}
+
+// GetSection2 sets the table's Section2 string to the supplied value
+func (t *Table) GetSection2() string {
+	return t.Section2
 }
 
 // RowCount returns the number of rows in the table
@@ -185,7 +209,7 @@ func (t *Table) AdjustFormatString(cd *ColumnDef) {
 
 // AddColumn adds a new ColumnDef to the table
 func (t *Table) AddColumn(title string, width, celltype int, justification int) {
-	var cd = ColumnDef{Title: title, Width: width, CellType: celltype, Justify: justification, Fdecimals: 2}
+	var cd = ColumnDef{ColTitle: title, Width: width, CellType: celltype, Justify: justification, Fdecimals: 2}
 	t.AdjustColumnHeader(&cd)
 	t.AdjustFormatString(&cd)
 	t.ColDefs = append(t.ColDefs, cd)
@@ -195,7 +219,7 @@ func (t *Table) AddColumn(title string, width, celltype int, justification int) 
 // make the title fit.  If necessary, it will force the width of the column to be
 // wide enough to fit the longest word in the title.
 func (t *Table) AdjustColumnHeader(cd *ColumnDef) {
-	sa := strings.Split(cd.Title, " ") // break up the string at the spaces
+	sa := strings.Split(cd.ColTitle, " ") // break up the string at the spaces
 	var a []string
 	j := 0
 	maxColWidth := 0
@@ -554,6 +578,11 @@ func (t *Table) SprintTable(f int) string {
 		s += t.SprintColHdrsText()
 	case TABLEOUTHTML:
 		s += t.SprintColHdrsHTML()
+	case TABLEOUTCSV:
+		return "CSV output format not yet supported"
+	case TABLEOUTPDF:
+		return "PDF output format not yet supported"
+
 	}
 	for i := 0; i < t.Rows(); i++ {
 		s += t.SprintRow(i, f)
@@ -564,7 +593,7 @@ func (t *Table) SprintTable(f int) string {
 // String is the "stringer" method implementation for go so that you can simply
 // print(t)
 func (t Table) String() string {
-	return t.Title + t.SprintTable(TABLEOUTTEXT)
+	return t.Title + t.Section1 + t.Section2 + t.SprintTable(TABLEOUTTEXT)
 }
 
 // InsertRow adds a new Row at the specified index.

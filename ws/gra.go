@@ -9,9 +9,10 @@ import (
 	"time"
 )
 
-// this is a structure specifically for the UI. It will be
-// automatically populated from an rlib.RentalAgreement struct
-type rentalagr struct {
+// RentalAgr is a structure specifically for the Web Services interface. It will be
+// automatically populated from an rlib.RentalAgreement struct. Records of this type
+// are returned by the search handler
+type RentalAgr struct {
 	Recid                  int64             `json:"recid"` // this is to support the w2ui form
 	RAID                   int64             // internal unique id
 	RATID                  int64             // reference to Occupancy Master Agreement
@@ -48,7 +49,8 @@ type rentalagr struct {
 	LastModBy              int64             // employee UID (from phonebook) that modified it
 }
 
-type rentalagrForm struct {
+// RentalAgrForm is used to save a Rental Agreement.  It holds those values
+type RentalAgrForm struct {
 	Recid                  int64         `json:"recid"` // this is to support the w2ui form
 	RAID                   int64         // internal unique id
 	RATID                  int64         // reference to Occupancy Master Agreement
@@ -83,7 +85,8 @@ type rentalagrForm struct {
 	LastModBy              int64         // employee UID (from phonebook) that modified it
 }
 
-type rentalagrOther struct {
+// RentalAgrOther is used to save a Rental Agreement.
+type RentalAgrOther struct {
 	BID     rlib.W2uiHTMLSelect // Business (so that we can process by Business)
 	Renewal rlib.W2uiHTMLSelect // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 }
@@ -96,7 +99,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	var g struct {
 		Status  string      `json:"status"`
 		Total   int64       `json:"total"`
-		Records []rentalagr `json:"records"`
+		Records []RentalAgr `json:"records"`
 	}
 	t := time.Now()
 	srch := fmt.Sprintf("BID=%d AND AgreementStop>%q", d.BID, t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
@@ -121,7 +124,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	count := 0
 	for rows.Next() {
 		var p rlib.RentalAgreement
-		var q rentalagr
+		var q RentalAgr
 		rlib.ReadRentalAgreements(rows, &p)
 		p.Recid = i
 		rlib.MigrateStructVals(&p, &q)
@@ -141,7 +144,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 // SvcFormHandlerRentalAgreement formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the RAID as follows:
 //       0    1          2    3
-// 		/v1/rentalagrs/BID/RAID
+// 		/v1/RentalAgrs/BID/RAID
 // The server command can be:
 //      get
 //      save
@@ -171,6 +174,12 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 	}
 }
 
+// wsdoc {
+//	@URL /v1/rentalagr/BID/RAID
+//	@Synopsis Save (create or update) a Rental Agreement
+//  @Description This service returns the single-valued attributes of a Rental Agreement.
+//  @Response RentalAgr
+// wsdoc }
 func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveRentalAgreement"
 	target := `"record":`
@@ -191,7 +200,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	//------------------------------
 	// Handle all the non-list data
 	//------------------------------
-	var foo rentalagrForm
+	var foo RentalAgrForm
 
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
@@ -206,7 +215,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	//---------------------------
 	//  Handle all the list data
 	//---------------------------
-	var bar rentalagrOther
+	var bar RentalAgrOther
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
@@ -246,20 +255,18 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 }
 
 // https://play.golang.org/p/gfOhByMroo
+
 // wsdoc {
-//	Get a Rental Agreement
-//  This service returns the time-insensitive attributes of a Rental Agreement.
-//
-//		/v1/rentalagrs/BID/RAID
-//
-//  Response:: rentalagr
-//
-//
+//	@URL /v1/rentalagr/BID/RAID
+//	@Synopsis Get a Rental Agreement
+//  @Description This service returns the single-valued attributes of a Rental Agreement.
+//  @Input
+//  @Response RentalAgr
 // wsdoc }
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var g struct {
 		Status string    `json:"status"`
-		Record rentalagr `json:"record"`
+		Record RentalAgr `json:"record"`
 	}
 	a, err := rlib.GetRentalAgreement(d.RAID)
 	if err != nil {
@@ -268,7 +275,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 	if a.RAID > 0 {
-		var gg rentalagr
+		var gg RentalAgr
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg
 	}

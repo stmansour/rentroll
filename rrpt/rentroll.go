@@ -41,7 +41,7 @@ func RentRollTextReport(ri *ReporterInfo) {
 func RentRollReportString(ri *ReporterInfo) string {
 	tbl, err := RentRollReport(ri)
 	if err == nil {
-		return tbl.Title + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
+		return tbl.GetTitle() + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
 	}
 	return err.Error()
 }

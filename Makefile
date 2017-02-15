@@ -1,4 +1,4 @@
-DIRS = db rlib rrpt rcsv admin importers test
+DIRS = db rlib rrpt rcsv admin importers tools test
 TOP = .
 COUNTOL=${TOP}/test/share/countol.sh
 
