@@ -139,6 +139,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		SvcGridErrorReturn(w, e)
 		return e
 	}
+	fmt.Printf("Unescaped htmlData = %s\n", u)
 
 	requestHeader := "request=" // this is what w2ui starts all its grid requests with
 	i := strings.Index(u, requestHeader)
@@ -403,8 +404,8 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	// fmt.Printf("first 200 chars of response: %-200.200s\n", string(b))
-	fmt.Printf("\nResponse Data:  %s\n\n", string(b))
+	fmt.Printf("first 200 chars of response: %-200.200s\n", string(b))
+	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }
 

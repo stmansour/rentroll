@@ -175,9 +175,12 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 }
 
 // wsdoc {
+//  @Title  Save Rental Agreement
 //	@URL /v1/rentalagr/BID/RAID
+//  @Method  POST
 //	@Synopsis Save (create or update) a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.
+//	@Input WebRequest
 //  @Response RentalAgr
 // wsdoc }
 func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -257,10 +260,12 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 // https://play.golang.org/p/gfOhByMroo
 
 // wsdoc {
+//  @Title  Get Rental Agreement
 //	@URL /v1/rentalagr/BID/RAID
+//	@Method POST or GET
 //	@Synopsis Get a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.
-//  @Input
+//  @Input WebRequest
 //  @Response RentalAgr
 // wsdoc }
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {

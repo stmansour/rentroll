@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"rentroll/ws"
 	"strings"
 )
 
@@ -22,57 +23,120 @@ type AtestStruct struct {
 	I   int64
 }
 
-//var WSTypes map[string]reflect.Type // so that we can instance variables of a paraticular top
+// Creator is an integral part of the factory implementation.
+// A creator function returns a new struct of different types
+// by returning an interface.
+type Creator func() interface{}
+
+// WSTypeFactory is a map for creating new data types used by the
+// web services routines based on the supplied name.
+var WSTypeFactory = map[string]Creator{
+	"RentalAgr":  NewRentalAgr,
+	"WebRequest": NewWebRequest,
+	"WSRAR":      NewWSRAR,
+}
+
+// NewRentalAgr is a factory for RentalAgr structs
+func NewRentalAgr() interface{} {
+	return new(ws.RentalAgr)
+}
+
+// NewWebRequest is a factory for WebRequest structs
+func NewWebRequest() interface{} {
+	return new(ws.WebRequest)
+}
+
+// NewWSRAR is a factory for WSRAR structs
+func NewWSRAR() interface{} {
+	return new(ws.WSRAR)
+}
 
 // ListVars lists the names of the variables within a struct and their types
-func ListVars(a interface{}) {
-	fmt.Printf("Type Of a = %s\n", reflect.TypeOf(a).Name())
+func ListVars(a interface{}) string {
+	s := fmt.Sprintf("{\n")
 	v := reflect.ValueOf(a).Elem()
 	for j := 0; j < v.NumField(); j++ {
 		f := v.Field(j)
-		fmt.Printf("%d. %s   %s\n", j, v.Type().Field(j).Name, f.Type().Name())
+		s += fmt.Sprintf("    %q: %s", v.Type().Field(j).Name, f.Type().Name())
+		if j+1 < v.NumField() {
+			s += fmt.Sprintf(",")
+		}
+		s += fmt.Sprintf("\n")
 	}
+	s += fmt.Sprintf("}\n")
+	return s
 }
 
-// Directive is a struct describing a particular directive within the WS DOC comments
-// and the handler function to process the data following the directive
+// Directive is a struct describing a particular Cmd within the WS DOC comments
+// and the Handler function to process the data following the Cmd
 type Directive struct {
-	directive string
-	handler   func(string, *Directive)
+	Cmd     string
+	Handler func(string, *Directive)
 }
 
 // Directives contains the list of Directive struct for fields recognized within the
-// WS DOC comments and the handlers for each.
+// WS DOC comments and the Handlers for each.
 var Directives = []Directive{
-	{directive: "@url", handler: handleURL},
-	{directive: "@synopsis", handler: handleSynopsis},
-	{directive: "@description", handler: handleDescription},
-	{directive: "@input", handler: handleInput},
-	{directive: "@response", handler: handleResponse},
+	{Cmd: "@title", Handler: handleTitle},
+	{Cmd: "@url", Handler: handleURL},
+	{Cmd: "@synopsis", Handler: handleSynopsis},
+	{Cmd: "@method", Handler: handleMethod},
+	{Cmd: "@description", Handler: handleDescription},
+	{Cmd: "@input", Handler: handleInput},
+	{Cmd: "@response", Handler: handleResponse},
 }
 
 func handleURL(s string, d *Directive) {
-	s1 := s[len(d.directive):]
-	fmt.Printf("URL: %s\n", s1)
+	s1 := s[len(d.Cmd):]
+	fmt.Printf("URL:         %s\n", strings.TrimSpace(s1))
+}
+
+func handleTitle(s string, d *Directive) {
+	s1 := s[len(d.Cmd):]
+	fmt.Printf("Title:       %s\n", strings.TrimSpace(s1))
 }
 
 func handleSynopsis(s string, d *Directive) {
-	s1 := s[len(d.directive):]
-	fmt.Printf("Synopsis: %s\n", s1)
+	s1 := s[len(d.Cmd):]
+	fmt.Printf("Synopsis:    %s\n", strings.TrimSpace(s1))
 }
 
 func handleDescription(s string, d *Directive) {
-	s1 := s[len(d.directive):]
-	fmt.Printf("Description: %s\n", s1)
+	s1 := s[len(d.Cmd):]
+	fmt.Printf("Description: %s\n", strings.TrimSpace(s1))
+}
+
+func handleMethod(s string, d *Directive) {
+	s1 := s[len(d.Cmd):]
+	fmt.Printf("Method:      %s\n", strings.TrimSpace(s1))
 }
 
 func handleInput(s string, d *Directive) {
-	s1 := s[len(d.directive):]
-	fmt.Printf("Input: %s\n", s1)
+	s1 := s[len(d.Cmd):]
+	fmt.Printf("Input:\n%s\n", getStructDef(s1))
 }
+
 func handleResponse(s string, d *Directive) {
-	s1 := s[len(d.directive):]
-	fmt.Printf("Response: %s\n", s1)
+	s1 := s[len(d.Cmd):]
+	fmt.Printf("Response:\n%s\n", getStructDef(s1))
+}
+
+func getStructDef(s1 string) string {
+	ss1 := strings.Split(s1, " ")
+	for i := 0; i < len(ss1); i++ {
+		t := strings.TrimSpace(ss1[i])
+		if len(t) == 0 {
+			continue
+		}
+		_, ok := WSTypeFactory[t]
+		if !ok {
+			fmt.Printf("Could not find type %s in factory\n", t)
+			return ""
+		}
+		x := WSTypeFactory[t]()
+		return ListVars(x)
+	}
+	return ""
 }
 
 // processWebDocLines builds the documentation for a single web service call. The content
@@ -97,8 +161,8 @@ func processWebDocLines(sa []string) {
 		for j := 0; j < len(Directives); j++ {
 			s := strings.TrimSpace(ss[1])
 			sl := strings.ToLower(s)
-			if strings.Index(sl, Directives[j].directive) == 0 {
-				Directives[j].handler(s, &Directives[j])
+			if strings.Index(sl, Directives[j].Cmd) == 0 {
+				Directives[j].Handler(s, &Directives[j])
 				break
 			}
 		}
@@ -127,7 +191,6 @@ func processGoFiles(path string, f os.FileInfo, err error) error {
 	if f.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(f.Name(), "_test.go") {
 		return nil
 	}
-	fmt.Printf("Process %s\n", path)
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -158,7 +221,6 @@ func processGoFiles(path string, f os.FileInfo, err error) error {
 
 func main() {
 	root := "."
-	var a AtestStruct
 	flag.Parse()
 	if flag.NArg() > 0 {
 		root = flag.Arg(0)
@@ -166,6 +228,5 @@ func main() {
 	if err := filepath.Walk(root, processGoFiles); err != nil {
 		fmt.Printf("Error walking file path = %s]n", err)
 	}
-	fmt.Printf("\n\n")
-	ListVars(&a)
+	fmt.Printf("\n")
 }
