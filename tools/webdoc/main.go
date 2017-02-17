@@ -231,14 +231,12 @@ func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
 			sl = "[]"
 		}
 		p.DataType = sl + rtype
-		fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
+		// fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
 		m = append(m, p)
 		if recurse {
-			fmt.Printf("Recursing into type = %s\n", rtype)
 			x := WSTypeFactory[rtype]()
 			n := ListVars(x, d, depth+1)
 			m = append(m, n...)
-			fmt.Printf("Appended %d members to m\n", len(n))
 		}
 	}
 	return m
