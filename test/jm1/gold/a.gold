@@ -3,6 +3,7 @@
 BID        BUD        Name                  Rent Cycle  Cycle       Cycle     
 ---------  ---------  --------------------  ----------  ----------  ----------
 B00000002  CCC        California Commerce   monthly     daily       daily     
+                      Centr                                                   
 B00000001  REX        JGM First, LLC        monthly     daily       daily     
 B00000003  401        JGM First, LLC        monthly     daily       daily     
 

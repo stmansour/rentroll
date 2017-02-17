@@ -1,6 +1,6 @@
 Accord RentRoll RoomKey Importer
-Date: 2/13/2017
-Time: 3:08PM IST
+Date: 2/17/2017
+Time: 11:55PM IST
 Import File: ./roomkey.csv
 Guest Export File: ./guestdataexport.csv
 
@@ -18,20 +18,29 @@ Rental Agreements               23          21          0
 ==================================================
 RECORDS FOR BUSINESS UNIT DESIGNATION: Isola Bella
 ==================================================
-                                                                           Manage                         
-                                                Rent     Proration         To                             
-RTID        Style       Name                    Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate
-----------  ----------  ----------------------  -------  ---------  -----  ------  -----------------------
-RT00000001  3 BDR 2.5   3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes                            
-RT00000002  LS Deluxe   LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes                            
-RT00000003  2 BDR 1 Ba  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes                            
-RT00000004  1 BDR NSNP  1 BDR NSNP/POC-         monthly  daily      daily  Yes                            
-RT00000005  1 BDR NS/P  1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes                            
-RT00000006  1 BDR NSNP  1 BDR NSNP-Q            monthly  daily      daily  Yes                            
-RT00000007  1 BDR Delu  1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes                            
-RT00000008  2 BDR 1 Ba  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes                            
-RT00000009  2 BDR 1 Ba  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes                            
-RT00000010  4 BDR 2 Ba  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes                            
+                                                                             Manage                         
+                                                  Rent     Proration         To                             
+RTID        Style         Name                    Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate
+----------  ------------  ----------------------  -------  ---------  -----  ------  -----------------------
+RT00000001  3 BDR 2.5     3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes                            
+            Bath TWNHM-                                                                                     
+RT00000002  LS Deluxe     LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes                            
+            2bd 2bath-                                                                                      
+RT00000003  2 BDR 1 Bath  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes                            
+            Deluxe-                                                                                         
+RT00000004  1 BDR         1 BDR NSNP/POC-         monthly  daily      daily  Yes                            
+            NSNP/POC-                                                                                       
+RT00000005  1 BDR         1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes                            
+            NS/POC-Q/POC                                                                                    
+RT00000006  1 BDR NSNP-Q  1 BDR NSNP-Q            monthly  daily      daily  Yes                            
+RT00000007  1 BDR         1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes                            
+            Deluxe-Q/POC                                                                                    
+RT00000008  2 BDR 1 Bath  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes                            
+            NS-QQ                                                                                           
+RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes                            
+            NS/POC-                                                                                         
+RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes                            
+            Flat-QQQQ                                                                                       
 ================================================================================
 RID        Name     Assignment Time
 ---------  -------  ---------------
@@ -60,18 +69,22 @@ R00000021  6343172  pre-assign
                          Middle                               Is                                             
 TCID        First Name   Name    Last Name   Company          Company  Cell Phone    Primary Email           
 ----------  -----------  ------  ----------  ---------------  -------  ------------  ------------------------
-TC00000001  adams                brandon     OK College Of C  No                                             
+TC00000001  adams                brandon     OK College Of    No                                             
+                                             Construction                                                    
 TC00000002  Adkins               Chris       Pilgrim Films    No       2514581075                            
 TC00000003  Aleson               Zane        Pilgrim Films    No                                             
 TC00000004  Alfailakawi          Mohammed                     No       405-512-4199  boalking1@gmail.com     
 TC00000005  Almannaei            Abdulaziz   Delex            No       4055123365                            
 TC00000006  Alrashedi            Abdulaziz                    No       4055106262                            
-TC00000007  Alvarez              Abigail     Sooner Care Lod  No                                             
+TC00000007  Alvarez              Abigail     Sooner Care      No                                             
+                                             Lodging                                                         
 TC00000008  Alvarez              Victor      Pilgrim Films    No                                             
-TC00000009  Anderson             Daniel      Diversified Ser  No       580-381-0088                          
+TC00000009  Anderson             Daniel      Diversified      No       580-381-0088                          
+                                             Service                                                         
 TC00000010  Andrade              Kenneth                      No                                             
 TC00000011  Aragon               Sabrina                      No       5052617599    aragon_sabrina@yahoo.com
-TC00000012  Arroliga             Carlos      Sooner Care Lod  No       9187304386                            
+TC00000012  Arroliga             Carlos      Sooner Care      No       9187304386                            
+                                             Lodging                                                         
 TC00000013  Arroyo               Karianie                     No       305-335-3617  karianie@gmail.com      
 TC00000014  Arthur               Kyle                         No       480-784-7993  ksArthur88@gmail.com    
 TC00000015  Austrino             James                        No                                             

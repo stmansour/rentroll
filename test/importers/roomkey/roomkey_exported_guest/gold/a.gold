@@ -2,5 +2,6 @@
                                             Default     Proration   GSRPC     
 BID        BUD        Name                  Rent Cycle  Cycle       Cycle     
 ---------  ---------  --------------------  ----------  ----------  ----------
-B00000001  RKEY       Isola Bella - RoomKe  monthly     daily       daily     
+B00000001  RKEY       Isola Bella -         monthly     daily       daily     
+                      RoomKey                                                 
 
