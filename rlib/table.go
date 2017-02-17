@@ -552,33 +552,40 @@ func (t *Table) SprintRowText(row int) string {
 		rowTextList = append(rowTextList, temp)
 	}
 
-	// fill the content in rowTextList
-	for k := 0; k < t.Row[row].Height; k++ {
-		for i := 0; i < rowColumns; i++ {
-			switch t.Row[row].Col[i].Type {
-			case CELLFLOAT:
-				rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, RRCommaf(t.Row[row].Col[i].Fval))
-			case CELLINT:
-				rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Ival)
-			case CELLSTRING:
-				if k >= len(colStringChunkMap[i]) {
-					rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, "")
-				} else {
-					rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, colStringChunkMap[i][k])
-				}
-			case CELLDATE:
-				rowTextList[k][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateFmt))
-			case CELLDATETIME:
-				rowTextList[k][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateTimeFmt))
-			default:
-				rowTextList[k][i] = Mkstr(t.ColDefs[i].Width, ' ')
-			}
+	// fill the content in rowTextList for the first line
+	for i := 0; i < rowColumns; i++ {
+		switch t.Row[row].Col[i].Type {
+		case CELLFLOAT:
+			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, RRCommaf(t.Row[row].Col[i].Fval))
+		case CELLINT:
+			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Ival)
+		case CELLSTRING:
+			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, colStringChunkMap[i][0])
+		case CELLDATE:
+			rowTextList[0][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateFmt))
+		case CELLDATETIME:
+			rowTextList[0][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateTimeFmt))
+		default:
+			rowTextList[0][i] = Mkstr(t.ColDefs[i].Width, ' ')
 		}
 	}
 
 	// rowTextList to string
 	for k := 0; k < t.Row[row].Height; k++ {
 		for i := 0; i < rowColumns; i++ {
+
+			// if not first row then process multi line format
+			if k > 0 {
+				if t.Row[row].Col[i].Type == CELLSTRING {
+					if k >= len(colStringChunkMap[i]) {
+						rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, "")
+					} else {
+						rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, colStringChunkMap[i][k])
+					}
+				}
+			}
+
+			// if blank then append string of column width with blank
 			if rowTextList[k][i] == "" {
 				rowTextList[k][i] = Mkstr(t.ColDefs[i].Width, ' ')
 			}
