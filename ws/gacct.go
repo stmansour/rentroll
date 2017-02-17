@@ -6,6 +6,13 @@ import (
 	"rentroll/rlib"
 )
 
+// SearchGLAccountsResponse is the response data to a request for GLAccounts
+type SearchGLAccountsResponse struct {
+	Status  string           `json:"status"`
+	Total   int64            `json:"total"`
+	Records []rlib.GLAccount `json:"records"`
+}
+
 // SvcSearchHandlerGLAccounts generates a report of all GLAccounts for a the business unit
 // called out in d.BID
 // wsdoc {
@@ -15,17 +22,13 @@ import (
 //	@Synopsis Return a list of General Ledger Accounts
 //  @Description This service returns a list of General Ledger accounts
 //	@Input WebRequest
-//  @Response GLAccount
+//  @Response SearchGLAccountsResponse
 // wsdoc }
 func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcSearchHandlerGLAccounts\n")
 	var p rlib.GLAccount
 	var err error
-	var g struct {
-		Status  string           `json:"status"`
-		Total   int64            `json:"total"`
-		Records []rlib.GLAccount `json:"records"`
-	}
+	var g SearchGLAccountsResponse
 
 	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
 	order := "GLNumber ASC, Name ASC"    // default ORDER

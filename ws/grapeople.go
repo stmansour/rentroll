@@ -14,7 +14,8 @@ import (
 // type defaults to "payor" unless it is provided.  If provided it must be
 // one of {payor|user}
 
-type WSRAPeople struct {
+// RAPeople defines a person for the web service interface
+type RAPeople struct {
 	Recid      int64  `json:"recid"` // this is to support the w2ui form
 	TCID       int64  // associated rental agreement
 	BID        int64  // Business
@@ -25,11 +26,11 @@ type WSRAPeople struct {
 	Name       string // rentable name
 }
 
-// gxpeeps is the struct containing the JSON return values for this web service
-type gxpeeps struct {
-	Status  string       `json:"status"`
-	Total   int64        `json:"total"`
-	Records []WSRAPeople `json:"records"`
+// RAPeopleResponse is the struct containing the JSON return values for this web service
+type RAPeopleResponse struct {
+	Status  string     `json:"status"`
+	Total   int64      `json:"total"`
+	Records []RAPeople `json:"records"`
 }
 
 var pTypeList = []string{"payor", "user"}
@@ -44,7 +45,7 @@ var pTypeList = []string{"payor", "user"}
 //	@Synopsis Return Rental Agreement payors or users
 //  @Description  Return all Transactants of type :PTYPE (payor or user) on the supplied :DATE
 //	@Input WebRequest
-//  @Response WSRAPeople
+//  @Response RAPeopleResponse
 // wsdoc }
 //
 // URL:
@@ -109,13 +110,13 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
-	var gxp gxpeeps
+	var gxp RAPeopleResponse
 	if ptype == "payor" {
 		m := rlib.GetRentalAgreementPayors(raid, &dt, &dt)
 		for i := 0; i < len(m); i++ {
 			var p rlib.Transactant
 			rlib.GetTransactant(m[i].TCID, &p)
-			var xr WSRAPeople
+			var xr RAPeople
 			rlib.MigrateStructVals(&p, &xr)
 			xr.Recid = int64(i + 1) // must set AFTER MigrateStructVals in case src contains recid
 			gxp.Records = append(gxp.Records, xr)
@@ -130,7 +131,7 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := 0; i < len(n); i++ {                  // add an entry for each user associated with this rentable
 				var p rlib.Transactant
 				rlib.GetTransactant(n[i].TCID, &p)
-				var xr WSRAPeople
+				var xr RAPeople
 				rlib.MigrateStructVals(&rentable, &xr)
 				rlib.MigrateStructVals(&p, &xr)
 				xr.Recid = int64(k) // must set AFTER MigrateStructVals in case src contains recid

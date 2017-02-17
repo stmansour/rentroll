@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// UI Data for Transactant, User, Payor, Prospect, Applicant
-type gxperson struct {
+// RPerson contains attributes of Transactant, User, Payor, Prospect, Applicant
+type RPerson struct {
 	Recid                     int64 `json:"recid"` // this is to support the w2ui form
 	TCID                      int64
 	BID                       rlib.XJSONBud
@@ -69,9 +69,10 @@ type gxperson struct {
 	LastModBy                 int64
 }
 
-// Accepts data from form submit.  Note that "list" data values are handled separately
-// in gxpersonOther.  See note in grentable.go above grentableForm for further details.
-type gxpersonForm struct {
+// RPersonForm is the expected return data format for updating a person.
+//  Note that "list" data values are handled separately
+//	in RPersonOther.  See note in grentable.go above grentableForm for further details.
+type RPersonForm struct {
 	Recid                     int64 `json:"recid"` // this is to support the w2ui form
 	TCID                      int64
 	NLID                      int64
@@ -125,7 +126,9 @@ type gxpersonForm struct {
 	LastModBy                 int64
 }
 
-type gxpersonOther struct {
+// RPersonOther contains the data from selections boxes in the UI. These come back
+// in structure form rather than as a single string value.
+type RPersonOther struct {
 	IsCompany           rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
 	BID                 rlib.W2uiHTMLSelect
 	State               rlib.W2uiHTMLSelect
@@ -134,16 +137,34 @@ type gxpersonOther struct {
 	EligibleFuturePayor rlib.W2uiHTMLSelect
 }
 
+// GetTransactantResponse is the response data to requests to get a transactant
+type GetTransactantResponse struct {
+	Status string  `json:"status"`
+	Record RPerson `json:"record"`
+}
+
+// SearchTransactantsResponse is the data structure for the response to a search for people
+type SearchTransactantsResponse struct {
+	Status  string             `json:"status"`
+	Total   int64              `json:"total"`
+	Records []rlib.Transactant `json:"records"`
+}
+
 // SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
+// wsdoc {
+//  @Title  Seach Transactants
+//	@URL /v1/transactants/:BID
+//	@Method POST
+//	@Synopsis Search transactants
+//  @Description Returns a list of Transactants matching the search criteria
+//  @Input WebRequest
+//  @Response SearchTransactantsResponse
+// wsdoc }
 func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcSearchHandlerTransactants")
 	var p rlib.Transactant
 	var err error
-	var g struct {
-		Status  string             `json:"status"`
-		Total   int64              `json:"total"`
-		Records []rlib.Transactant `json:"records"`
-	}
+	var g SearchTransactantsResponse
 
 	srch := fmt.Sprintf("BID=%d", d.BID)   // default WHERE clause
 	order := "LastName ASC, FirstName ASC" // default ORDER
@@ -236,7 +257,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------
 	// Handle all the non-list data
 	//------------------------------
-	var gxp gxpersonForm
+	var gxp RPersonForm
 	var xp rlib.XPerson
 
 	err := json.Unmarshal([]byte(s), &gxp)
@@ -256,7 +277,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//---------------------------
 	// Handle all the list data
 	//---------------------------
-	var gxpo gxpersonOther
+	var gxpo RPersonOther
 	err = json.Unmarshal([]byte(s), &gxpo)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
@@ -327,10 +348,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // getXPerson handles the request for an XPerson from the Transactant Form
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var g struct {
-		Status string   `json:"status"`
-		Record gxperson `json:"record"`
-	}
+	var g GetTransactantResponse
 	var xp rlib.XPerson
 	rlib.GetXPerson(d.TCID, &xp)
 	if xp.Pay.TCID > 0 {

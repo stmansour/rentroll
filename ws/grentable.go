@@ -18,9 +18,9 @@ import (
 //		2. Handle the dropdown menu selections separately using rlib.W2uiHTMLSelect
 //         for unmarshaling
 
-// this is a structure specifically for the UI. It will be
+// RentableForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
-type WSRentableForm struct {
+type RentableForm struct {
 	Recid       int64 `json:"recid"` // this is to support the w2ui form
 	RID         int64
 	Name        string
@@ -28,14 +28,15 @@ type WSRentableForm struct {
 	LastModBy   int64
 }
 
-type WSRentableOther struct {
+// RentableOther is a struct to handle the UI list box selections
+type RentableOther struct {
 	BID            rlib.W2uiHTMLSelect
 	AssignmentTime rlib.W2uiHTMLSelect
 }
 
-// WSRentable is a structure specifically for the UI. It will be
+// PrRentableOther is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
-type WSRentable struct {
+type PrRentableOther struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RID            int64
 	BID            rlib.XJSONBud
@@ -45,18 +46,36 @@ type WSRentable struct {
 	LastModBy      int64
 }
 
+// SearchRentablesResponse is a response string to the search request for rentables
+type SearchRentablesResponse struct {
+	Status  string            `json:"status"`
+	Total   int64             `json:"total"`
+	Records []PrRentableOther `json:"records"`
+}
+
+// GetRentableResponse is the response to a GetRentable request
+type GetRentableResponse struct {
+	Status string          `json:"status"`
+	Record PrRentableOther `json:"record"`
+}
+
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
+// wsdoc {
+//  @Title  Search Rentables
+//	@URL /v1/rentables/:BID
+//  @Method  POST
+//	@Synopsis Return all Rentables matching the search criteria
+//  @Description  Return all Transactants of type :PTYPE (payor or user) on the supplied :DATE
+//	@Input WebRequest
+//  @Response SearchRentablesResponse
+// wsdoc }
 func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	fmt.Printf("Entered SvcSearchHandlerRentables\n")
 
 	var p rlib.Rentable
 	var err error
-	var g struct {
-		Status  string       `json:"status"`
-		Total   int64        `json:"total"`
-		Records []WSRentable `json:"records"`
-	}
+	var g SearchRentablesResponse
 
 	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
 	order := "Name ASC"                  // default ORDER
@@ -80,7 +99,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	count := 0
 	for rows.Next() {
 		var p rlib.Rentable
-		var q WSRentable
+		var q PrRentableOther
 		rlib.ReadRentables(rows, &p)
 		p.Recid = i
 		rlib.MigrateStructVals(&p, &q)
@@ -144,7 +163,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
-	var foo WSRentableForm
+	var foo RentableForm
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -157,7 +176,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo, &a)
 
 	// now get the stuff that requires special handling...
-	var bar WSRentableOther
+	var bar RentableOther
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -189,24 +208,22 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(w)
 }
 
+// GetRentable returns the requested rentable
 // wsdoc {
-//  @Title  Rentable
+//  @Title  Get Rentable
 //	@URL /v1/rentable/:BID/:RID
 //  @Method  GET
 //	@Synopsis Get details about a rentable
 //  @Description  Return all fields for rentable :RID
 //	@Input WebRequest
-//  @Response WSRAPeople
+//  @Response GetRentableResponse
 // wsdoc }
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered getRentable\n")
-	var g struct {
-		Status string     `json:"status"`
-		Record WSRentable `json:"record"`
-	}
+	var g GetRentableResponse
 	a := rlib.GetRentable(d.RID)
 	if a.RID > 0 {
-		var gg WSRentable
+		var gg PrRentableOther
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg
 	}

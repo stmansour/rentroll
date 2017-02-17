@@ -14,22 +14,12 @@ import (
 	"time"
 )
 
+// Playground: https://play.golang.org/p/R0xCuJXkzL
+
 // Creator is an integral part of the factory implementation.
 // A creator function returns a new struct of different types
 // by returning an interface.
 type Creator func() interface{}
-
-// WSTypeFactory is a map for creating new data types used by the
-// web services routines based on the supplied name.
-var WSTypeFactory = map[string]Creator{
-	"RentalAgr":          NewRentalAgr,
-	"WebRequest":         NewWebRequest,
-	"WSRAR":              NewWSRAR,
-	"GLAccount":          NewGLAccount,
-	"WSRAPeople":         NewWSRAPeople,
-	"RentalAgreementPet": NewRentalAgreementPet,
-	"WSRentable":         NewWSRentable,
-}
 
 // ProtocolJSON describes an individual field in the JSON protocol
 // for this web service
@@ -81,14 +71,92 @@ var Directives = []Directive{
 	{Cmd: "@response", Handler: handleResponse},
 }
 
+// WSTypeFactory is a map for creating new data types used by the
+// web services routines based on the supplied name.
+var WSTypeFactory = map[string]Creator{
+	"ColSort":                    NewColSort,
+	"GenSearch":                  NewGenSearch,
+	"GetRentableResponse":        NewGetRentableResponse,
+	"GLAccount":                  NewGLAccount,
+	"PrRentableOther":            NewPrRentableOther,
+	"RAPeople":                   NewRAPeople,
+	"RAPeopleResponse":           NewRAPeopleResponse,
+	"RAPets":                     NewRAPets,
+	"RAR":                        NewWSRAR,
+	"RentalAgr":                  NewRentalAgr,
+	"RentalAgreementPet":         NewRentalAgreementPet,
+	"RentalAgrSearchResponse":    NewRentalAgrSearchResponse,
+	"SearchGLAccountsResponse":   NewSearchGLAccountsResponse,
+	"SearchRentablesResponse":    NewSearchRentablesResponse,
+	"SearchTransactantsResponse": NewSearchTransactantsResponse,
+	"SvcStatusResponse":          NewSvcStatusResponse,
+	"WebRequest":                 NewWebRequest,
+	"GetRentalAgreementResponse": NewGetRentalAgreementResponse,
+}
+
+// NewGetRentableResponse is a factory for GetRentableResponse structs
+func NewGetRentableResponse() interface{} {
+	return new(ws.GetRentableResponse)
+}
+
+// NewRAPets is a factory for RAPets structs
+func NewRAPets() interface{} {
+	return new(ws.RAPets)
+}
+
+// NewRAPeopleResponse is a factory for RAPeopleResponse structs
+func NewRAPeopleResponse() interface{} {
+	return new(ws.RAPeopleResponse)
+}
+
+// NewSearchTransactantsResponse is a factory for SearchTransactantsResponse structs
+func NewSearchTransactantsResponse() interface{} {
+	return new(ws.SearchTransactantsResponse)
+}
+
+// NewSearchGLAccountsResponse is a factory for SearchGLAccountsResponse structs
+func NewSearchGLAccountsResponse() interface{} {
+	return new(ws.SearchGLAccountsResponse)
+}
+
+// NewSvcStatusResponse is a factory for SvcStatusResponse structs
+func NewSvcStatusResponse() interface{} {
+	return new(ws.SvcStatusResponse)
+}
+
+// NewGetRentalAgreementResponse is a factory for GetRentalAgreementResponse structs
+func NewGetRentalAgreementResponse() interface{} {
+	return new(ws.GetRentalAgreementResponse)
+}
+
+// NewRentalAgrSearchResponse is a factory for RentalAgrSearchResponse structs
+func NewRentalAgrSearchResponse() interface{} {
+	return new(ws.RentalAgrSearchResponse)
+}
+
+// NewColSort is a factory for ColSort structs
+func NewColSort() interface{} {
+	return new(ws.ColSort)
+}
+
+// NewGenSearch is a factory for GenSearch structs
+func NewGenSearch() interface{} {
+	return new(ws.GenSearch)
+}
+
 // NewRentalAgr is a factory for RentalAgr structs
 func NewRentalAgr() interface{} {
 	return new(ws.RentalAgr)
 }
 
-// NewWSRentable is a factory for WSRentable structs
-func NewWSRentable() interface{} {
-	return new(ws.WSRentable)
+// NewPrRentableOther is a factory for PrRentableOther structs
+func NewPrRentableOther() interface{} {
+	return new(ws.PrRentableOther)
+}
+
+// NewSearchRentablesResponse is a factory for SearchRentablesResponse structs
+func NewSearchRentablesResponse() interface{} {
+	return new(ws.SearchRentablesResponse)
 }
 
 // NewRentalAgreementPet is a factory for RentalAgreementPet structs
@@ -96,14 +164,14 @@ func NewRentalAgreementPet() interface{} {
 	return new(rlib.RentalAgreementPet)
 }
 
-// NewWSPets is a factory for WSPets structs
+// NewWSPets is a factory for RAPets structs
 func NewWSPets() interface{} {
-	return new(ws.WSPets)
+	return new(ws.RAPets)
 }
 
-// NewWSRAPeople is a factory for WSRAPeople structs
-func NewWSRAPeople() interface{} {
-	return new(ws.WSRAPeople)
+// NewRAPeople is a factory for RAPeople structs
+func NewRAPeople() interface{} {
+	return new(ws.RAPeople)
 }
 
 // NewWebRequest is a factory for WebRequest structs
@@ -111,9 +179,9 @@ func NewWebRequest() interface{} {
 	return new(ws.WebRequest)
 }
 
-// NewWSRAR is a factory for WSRAR structs
+// NewWSRAR is a factory for RAR structs
 func NewWSRAR() interface{} {
-	return new(ws.WSRAR)
+	return new(ws.RAR)
 }
 
 // NewGLAccount is a factory for GLAccount structs
@@ -121,16 +189,57 @@ func NewGLAccount() interface{} {
 	return new(rlib.GLAccount)
 }
 
+// AnalyzeType determines:
+//		if the field is a slice
+//		if the type requires recursion
+//		the type name to use for the factory if recursion is needed
+// The return values are:
+//		IsSlice bool    -- true if the field is a slice
+// 		Recurse bool	-- true if recursion is required
+//		Tname   string	-- the data type for a call to the factory
+func AnalyzeType(t string) (bool, bool, string) {
+	Tname := t
+	IsSlice := false
+	if pos := strings.Index(Tname, "[]"); pos >= 0 {
+		Tname = t[2+pos:]
+		IsSlice = true
+	}
+	if i := strings.Index(Tname, "."); i >= 0 {
+		Tname = Tname[i+1:]
+	}
+	// Is Tname in our factory?
+	_, Recursion := WSTypeFactory[Tname]
+	return IsSlice, Recursion, Tname
+}
+
 // ListVars lists the names of the variables within a struct and their types
-func ListVars(a interface{}, d *Directive) []ProtocolJSON {
+func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
 	var m []ProtocolJSON
 	v := reflect.ValueOf(a).Elem()
+	prefix := ""
+	for i := 0; i < depth; i++ {
+		prefix += "...."
+	}
 	for j := 0; j < v.NumField(); j++ {
 		var p ProtocolJSON
 		f := v.Field(j)
-		p.Field = v.Type().Field(j).Name
-		p.DataType = f.Type().Name()
+		p.Field = prefix + v.Type().Field(j).Name
+		p.DataType = f.Type().String()
+		isSlice, recurse, rtype := AnalyzeType(p.DataType)
+		sl := ""
+		if isSlice {
+			sl = "[]"
+		}
+		p.DataType = sl + rtype
+		fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
 		m = append(m, p)
+		if recurse {
+			fmt.Printf("Recursing into type = %s\n", rtype)
+			x := WSTypeFactory[rtype]()
+			n := ListVars(x, d, depth+1)
+			m = append(m, n...)
+			fmt.Printf("Appended %d members to m\n", len(n))
+		}
 	}
 	return m
 }
@@ -175,11 +284,18 @@ func getStructDef(s string, d *Directive) []ProtocolJSON {
 			continue
 		}
 		_, ok := WSTypeFactory[t]
-		if !ok {
-			break
+		if ok {
+			x := WSTypeFactory[t]()
+			return ListVars(x, d, 0)
 		}
-		x := WSTypeFactory[t]()
-		return ListVars(x, d)
+		if strings.ToLower(t) == "string" {
+			var p ProtocolJSON
+			p.Field = "data"
+			p.DataType = "string"
+			var m []ProtocolJSON
+			m = append(m, p)
+			return m
+		}
 	}
 	return []ProtocolJSON{}
 }

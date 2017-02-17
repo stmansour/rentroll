@@ -91,6 +91,19 @@ type RentalAgrOther struct {
 	Renewal rlib.W2uiHTMLSelect // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 }
 
+// RentalAgrSearchResponse is the response data for a Rental Agreement Search
+type RentalAgrSearchResponse struct {
+	Status  string      `json:"status"`
+	Total   int64       `json:"total"`
+	Records []RentalAgr `json:"records"`
+}
+
+// GetRentalAgreementResponse is the response data for GetRentalAgreement
+type GetRentalAgreementResponse struct {
+	Status string    `json:"status"`
+	Record RentalAgr `json:"record"`
+}
+
 // SvcSearchHandlerRentalAgr generates a report of all RentalAgreements defined business d.BID
 // wsdoc {
 //  @Title  Search Rental Agreements
@@ -99,17 +112,13 @@ type RentalAgrOther struct {
 //	@Synopsis Return Rental Agreements that match the criteria provided.
 //  @Description
 //	@Input WebRequest
-//  @Response RentalAgr
+//  @Response RentalAgrSearchResponse
 // wsdoc }
 func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcSearchHandlerRentalAgr\n")
 	var p rlib.RentalAgreement
 	var err error
-	var g struct {
-		Status  string      `json:"status"`
-		Total   int64       `json:"total"`
-		Records []RentalAgr `json:"records"`
-	}
+	var g RentalAgrSearchResponse
 	t := time.Now()
 	srch := fmt.Sprintf("BID=%d AND AgreementStop>%q", d.BID, t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
 	order := "RAID ASC"                                                                    // default ORDER
@@ -190,7 +199,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 //	@Synopsis Save (create or update) a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.
 //	@Input WebRequest
-//  @Response RentalAgr
+//  @Response SvcStatusResponse
 // wsdoc }
 func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveRentalAgreement"
@@ -275,13 +284,10 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //	@Synopsis Get a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.
 //  @Input WebRequest
-//  @Response RentalAgr
+//  @Response GetRentalAgreementResponse
 // wsdoc }
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var g struct {
-		Status string    `json:"status"`
-		Record RentalAgr `json:"record"`
-	}
+	var g GetRentalAgreementResponse
 	a, err := rlib.GetRentalAgreement(d.RAID)
 	if err != nil {
 		e := fmt.Errorf("getRentalAgreement: cannot read RentalAgreement RAID = %d, err = %s", d.RAID, err.Error())
