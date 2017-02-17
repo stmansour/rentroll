@@ -4,24 +4,15 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"html/template"
 	"os"
 	"path/filepath"
 	"reflect"
+	"rentroll/rlib"
 	"rentroll/ws"
 	"strings"
+	"time"
 )
-
-var wsDocFactory = map[string]interface{}{
-//"foo": ws.RentalAgr{},
-}
-
-// AtestStruct is a testing type
-type AtestStruct struct {
-	Foo string
-	Bar int
-	X   float64
-	I   int64
-}
 
 // Creator is an integral part of the factory implementation.
 // A creator function returns a new struct of different types
@@ -31,40 +22,36 @@ type Creator func() interface{}
 // WSTypeFactory is a map for creating new data types used by the
 // web services routines based on the supplied name.
 var WSTypeFactory = map[string]Creator{
-	"RentalAgr":  NewRentalAgr,
-	"WebRequest": NewWebRequest,
-	"WSRAR":      NewWSRAR,
+	"RentalAgr":          NewRentalAgr,
+	"WebRequest":         NewWebRequest,
+	"WSRAR":              NewWSRAR,
+	"GLAccount":          NewGLAccount,
+	"WSRAPeople":         NewWSRAPeople,
+	"RentalAgreementPet": NewRentalAgreementPet,
+	"WSRentable":         NewWSRentable,
 }
 
-// NewRentalAgr is a factory for RentalAgr structs
-func NewRentalAgr() interface{} {
-	return new(ws.RentalAgr)
+// ProtocolJSON describes an individual field in the JSON protocol
+// for this web service
+type ProtocolJSON struct {
+	Field    string
+	DataType string
+	Optional bool
 }
 
-// NewWebRequest is a factory for WebRequest structs
-func NewWebRequest() interface{} {
-	return new(ws.WebRequest)
-}
-
-// NewWSRAR is a factory for WSRAR structs
-func NewWSRAR() interface{} {
-	return new(ws.WSRAR)
-}
-
-// ListVars lists the names of the variables within a struct and their types
-func ListVars(a interface{}) string {
-	s := fmt.Sprintf("{\n")
-	v := reflect.ValueOf(a).Elem()
-	for j := 0; j < v.NumField(); j++ {
-		f := v.Field(j)
-		s += fmt.Sprintf("    %q: %s", v.Type().Field(j).Name, f.Type().Name())
-		if j+1 < v.NumField() {
-			s += fmt.Sprintf(",")
-		}
-		s += fmt.Sprintf("\n")
-	}
-	s += fmt.Sprintf("}\n")
-	return s
+// DirectiveData is a struct of data describing the web service. Its members
+// are set as the comments are parsed. The data in this struct is used to
+// create an html file describing the web service.
+type DirectiveData struct {
+	Title       string         // name of web service
+	URL         string         // programming url format
+	Synopsis    string         // One line explanation
+	Method      string         // POST, GET, ...
+	Description string         // detailed explanation
+	Input       []ProtocolJSON // JSON input data
+	Response    []ProtocolJSON // JSON response data
+	Filename    string         // the name of the html file describing the web service
+	ID          string         // a unique id used in the UI
 }
 
 // Directive is a struct describing a particular Cmd within the WS DOC comments
@@ -72,6 +59,14 @@ func ListVars(a interface{}) string {
 type Directive struct {
 	Cmd     string
 	Handler func(string, *Directive)
+	D       *DirectiveData
+}
+
+// IndexData is an array of DirectiveData structs used to generate an index page.
+var IndexData struct {
+	TOC     []DirectiveData
+	Date    string
+	Version string
 }
 
 // Directives contains the list of Directive struct for fields recognized within the
@@ -86,57 +81,128 @@ var Directives = []Directive{
 	{Cmd: "@response", Handler: handleResponse},
 }
 
+// NewRentalAgr is a factory for RentalAgr structs
+func NewRentalAgr() interface{} {
+	return new(ws.RentalAgr)
+}
+
+// NewWSRentable is a factory for WSRentable structs
+func NewWSRentable() interface{} {
+	return new(ws.WSRentable)
+}
+
+// NewRentalAgreementPet is a factory for RentalAgreementPet structs
+func NewRentalAgreementPet() interface{} {
+	return new(rlib.RentalAgreementPet)
+}
+
+// NewWSPets is a factory for WSPets structs
+func NewWSPets() interface{} {
+	return new(ws.WSPets)
+}
+
+// NewWSRAPeople is a factory for WSRAPeople structs
+func NewWSRAPeople() interface{} {
+	return new(ws.WSRAPeople)
+}
+
+// NewWebRequest is a factory for WebRequest structs
+func NewWebRequest() interface{} {
+	return new(ws.WebRequest)
+}
+
+// NewWSRAR is a factory for WSRAR structs
+func NewWSRAR() interface{} {
+	return new(ws.WSRAR)
+}
+
+// NewGLAccount is a factory for GLAccount structs
+func NewGLAccount() interface{} {
+	return new(rlib.GLAccount)
+}
+
+// ListVars lists the names of the variables within a struct and their types
+func ListVars(a interface{}, d *Directive) []ProtocolJSON {
+	var m []ProtocolJSON
+	v := reflect.ValueOf(a).Elem()
+	for j := 0; j < v.NumField(); j++ {
+		var p ProtocolJSON
+		f := v.Field(j)
+		p.Field = v.Type().Field(j).Name
+		p.DataType = f.Type().Name()
+		m = append(m, p)
+	}
+	return m
+}
+
 func handleURL(s string, d *Directive) {
-	s1 := s[len(d.Cmd):]
-	fmt.Printf("URL:         %s\n", strings.TrimSpace(s1))
+	d.D.URL = strings.TrimSpace(s[len(d.Cmd):])
 }
 
 func handleTitle(s string, d *Directive) {
-	s1 := s[len(d.Cmd):]
-	fmt.Printf("Title:       %s\n", strings.TrimSpace(s1))
+	d.D.Title = strings.TrimSpace(s[len(d.Cmd):])
+	d.D.ID = rlib.Stripchars(strings.ToLower(d.D.Title), " ")
+	d.D.Filename = d.D.ID + ".html"
 }
 
 func handleSynopsis(s string, d *Directive) {
-	s1 := s[len(d.Cmd):]
-	fmt.Printf("Synopsis:    %s\n", strings.TrimSpace(s1))
+	d.D.Synopsis = strings.TrimSpace(s[len(d.Cmd):])
 }
 
 func handleDescription(s string, d *Directive) {
-	s1 := s[len(d.Cmd):]
-	fmt.Printf("Description: %s\n", strings.TrimSpace(s1))
+	d.D.Description = strings.TrimSpace(s[len(d.Cmd):])
 }
 
 func handleMethod(s string, d *Directive) {
-	s1 := s[len(d.Cmd):]
-	fmt.Printf("Method:      %s\n", strings.TrimSpace(s1))
+	d.D.Method = strings.TrimSpace(s[len(d.Cmd):])
 }
 
 func handleInput(s string, d *Directive) {
-	s1 := s[len(d.Cmd):]
-	fmt.Printf("Input:\n%s\n", getStructDef(s1))
+	s1 := strings.TrimSpace(s[len(d.Cmd):])
+	d.D.Input = getStructDef(s1, d)
 }
 
 func handleResponse(s string, d *Directive) {
-	s1 := s[len(d.Cmd):]
-	fmt.Printf("Response:\n%s\n", getStructDef(s1))
+	s1 := strings.TrimSpace(s[len(d.Cmd):])
+	d.D.Response = getStructDef(s1, d)
 }
 
-func getStructDef(s1 string) string {
-	ss1 := strings.Split(s1, " ")
-	for i := 0; i < len(ss1); i++ {
-		t := strings.TrimSpace(ss1[i])
+func getStructDef(s string, d *Directive) []ProtocolJSON {
+	ss := strings.Split(s, " ")
+	for i := 0; i < len(ss); i++ {
+		t := strings.TrimSpace(ss[i])
 		if len(t) == 0 {
 			continue
 		}
 		_, ok := WSTypeFactory[t]
 		if !ok {
-			fmt.Printf("Could not find type %s in factory\n", t)
-			return ""
+			break
 		}
 		x := WSTypeFactory[t]()
-		return ListVars(x)
+		return ListVars(x, d)
 	}
-	return ""
+	return []ProtocolJSON{}
+}
+
+func generateHTMLRefPage(d *DirectiveData) error {
+	path := "./doc"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModeDir|0777)
+	}
+	f, err := os.Create(path + "/" + d.Filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	t, err := template.New("doc.html").ParseFiles("doc.html")
+	if nil != err {
+		fmt.Printf("Error loading template: %v\n", err)
+	}
+	if err = t.Execute(f, d); err != nil {
+		fmt.Printf("Error executing template: %v\n", err)
+	}
+	return err
 }
 
 // processWebDocLines builds the documentation for a single web service call. The content
@@ -152,7 +218,7 @@ func processWebDocLines(sa []string) {
 	if len(sa) == 0 {
 		return
 	}
-	fmt.Printf("\n\nnew web service\n")
+	var d DirectiveData
 	for i := 0; i < len(sa); i++ {
 		ss := strings.Split(sa[i], "//")
 		if len(ss) < 2 {
@@ -162,11 +228,16 @@ func processWebDocLines(sa []string) {
 			s := strings.TrimSpace(ss[1])
 			sl := strings.ToLower(s)
 			if strings.Index(sl, Directives[j].Cmd) == 0 {
+				Directives[j].D = &d
 				Directives[j].Handler(s, &Directives[j])
 				break
 			}
 		}
 	}
+	if err := generateHTMLRefPage(&d); err != nil {
+		fmt.Printf("Error generating reference page: %s\n", err.Error())
+	}
+	IndexData.TOC = append(IndexData.TOC, d)
 }
 
 // isCommentContaining first checks to see if the supplied line is a go comment
@@ -179,6 +250,26 @@ func isCommentContaining(s, target string) bool {
 		return false // it's not a comment
 	}
 	return strings.Index(strings.TrimSpace(ss[1]), target) == 0
+}
+
+func generateDocs() error {
+	f, err := os.Create("./doc/docs.html")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	IndexData.Date = time.Now().Format("Jan 2, 2006  3:04PM MST")
+	IndexData.Version = "1.0"
+	t, err := template.New("docs.html").ParseFiles("docs.html")
+	if nil != err {
+		fmt.Printf("Error loading template: %v\n", err)
+	}
+	if err = t.Execute(f, &IndexData); err != nil {
+		fmt.Printf("Error executing template: %v\n", err)
+	}
+
+	return err
 }
 
 // processGoFiles searches for go files, exclude go unit test files
@@ -215,8 +306,12 @@ func processGoFiles(path string, f os.FileInfo, err error) error {
 		}
 		lines = append(lines, s) // save all lines between start and end of ws docs
 	}
-
-	return scanner.Err()
+	if scanner.Err() != nil {
+		fmt.Printf("Error scanning file: %s\n", scanner.Err().Error())
+		return err
+	}
+	err = generateDocs()
+	return err
 }
 
 func main() {

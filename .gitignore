@@ -4,6 +4,7 @@ mdb
 buildno
 tmp
 bkup
+doc
 .DS_Store
 */.DS_Store
 */*/.DS_Store

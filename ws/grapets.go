@@ -11,8 +11,8 @@ import (
 // This command returns pets associated with a Rental Agreement.
 // Current date is assumed unless a date is provided to override.
 
-// gxpets is the struct containing the JSON return values for this web service
-type gxpets struct {
+// WSPets is the struct containing the JSON return values for this web service
+type WSPets struct {
 	Status  string                    `json:"status"`
 	Total   int64                     `json:"total"`
 	Records []rlib.RentalAgreementPet `json:"records"`
@@ -21,18 +21,27 @@ type gxpets struct {
 // SvcRAPets is used to get the pets associated with the
 // RAID supplied.
 //
+// wsdoc {
+//  @Title  Rental Agreement Pets
+//	@URL /v1/rapets/:BID/:RAID ? dt=:DATE
+//  @Method  GET
+//	@Synopsis Get the pets associated with a Rental Agreement
+//  @Description  Returns all the pets for the supplied Rental Agreement as of :DATE
+//	@Input
+//  @Response RentalAgreementPet
+// wsdoc }
 // URL:
 //       0    1       2    3
 // 		/v1/rapets/BID/RAID?dt=2017-02-01
 //-----------------------------------------------------------------------------
 func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered SvcRAPets\n")
-	s := r.URL.String()                 // ex: /v1/rapets/CCC/10?dt=2017-02-01
-	fmt.Printf("s = %s\n", s)           // x
-	s1 := strings.Split(s, "?")         // ex: /v1/rapets/CCC/10?dt=2017-02-01
-	fmt.Printf("s1 = %#v\n", s1)        // x
+	s := r.URL.String() // ex: /v1/rapets/CCC/10?dt=2017-02-01
+	// fmt.Printf("s = %s\n", s)           // x
+	s1 := strings.Split(s, "?") // ex: /v1/rapets/CCC/10?dt=2017-02-01
+	// fmt.Printf("s1 = %#v\n", s1)        // x
 	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "rapets", "CCC", "10"}
-	fmt.Printf("ss = %#v\n", ss)
+	// fmt.Printf("ss = %#v\n", ss)
 
 	//------------------------------------------------------
 	// Handle URL path values
@@ -71,7 +80,7 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
-	var gxp gxpets
+	var gxp WSPets
 	m := rlib.GetAllRentalAgreementPets(raid)
 	gxp.Records = m
 

@@ -14,7 +14,7 @@ import (
 // type defaults to "payor" unless it is provided.  If provided it must be
 // one of {payor|user}
 
-type xPeep struct {
+type WSRAPeople struct {
 	Recid      int64  `json:"recid"` // this is to support the w2ui form
 	TCID       int64  // associated rental agreement
 	BID        int64  // Business
@@ -27,15 +27,25 @@ type xPeep struct {
 
 // gxpeeps is the struct containing the JSON return values for this web service
 type gxpeeps struct {
-	Status  string  `json:"status"`
-	Total   int64   `json:"total"`
-	Records []xPeep `json:"records"`
+	Status  string       `json:"status"`
+	Total   int64        `json:"total"`
+	Records []WSRAPeople `json:"records"`
 }
 
 var pTypeList = []string{"payor", "user"}
 
 // SvcRAPeople is used to get the Payor(s) or the User(s) associated with the
 // RAID supplied.
+//
+// wsdoc {
+//  @Title  Rental Agreement People
+//	@URL /v1/rapeople/:BID/:RAID ? type=:PTYPE & dt=:DATE
+//  @Method  GET
+//	@Synopsis Return Rental Agreement payors or users
+//  @Description  Return all Transactants of type :PTYPE (payor or user) on the supplied :DATE
+//	@Input WebRequest
+//  @Response WSRAPeople
+// wsdoc }
 //
 // URL:
 //       0    1       2    3
@@ -105,7 +115,7 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		for i := 0; i < len(m); i++ {
 			var p rlib.Transactant
 			rlib.GetTransactant(m[i].TCID, &p)
-			var xr xPeep
+			var xr WSRAPeople
 			rlib.MigrateStructVals(&p, &xr)
 			xr.Recid = int64(i + 1) // must set AFTER MigrateStructVals in case src contains recid
 			gxp.Records = append(gxp.Records, xr)
@@ -120,7 +130,7 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := 0; i < len(n); i++ {                  // add an entry for each user associated with this rentable
 				var p rlib.Transactant
 				rlib.GetTransactant(n[i].TCID, &p)
-				var xr xPeep
+				var xr WSRAPeople
 				rlib.MigrateStructVals(&rentable, &xr)
 				rlib.MigrateStructVals(&p, &xr)
 				xr.Recid = int64(k) // must set AFTER MigrateStructVals in case src contains recid

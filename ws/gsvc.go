@@ -64,12 +64,12 @@ var Svcs = []ServiceHandler{
 	{"accounts", SvcSearchHandlerGLAccounts, true},
 	{"rar", SvcRARentables, true},
 	{"rentables", SvcSearchHandlerRentables, true},
+	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
 	{"person", SvcFormHandlerXPerson, true},
 	{"rapeople", SvcRAPeople, true},
 	{"rapets", SvcRAPets, true},
 	{"rentable", SvcFormHandlerRentable, true},
-	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"uilists", SvcUILists, false},
 }
 

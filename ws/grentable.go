@@ -20,7 +20,7 @@ import (
 
 // this is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
-type grentableForm struct {
+type WSRentableForm struct {
 	Recid       int64 `json:"recid"` // this is to support the w2ui form
 	RID         int64
 	Name        string
@@ -28,14 +28,14 @@ type grentableForm struct {
 	LastModBy   int64
 }
 
-type grentableOther struct {
+type WSRentableOther struct {
 	BID            rlib.W2uiHTMLSelect
 	AssignmentTime rlib.W2uiHTMLSelect
 }
 
-// this is a structure specifically for the UI. It will be
+// WSRentable is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
-type grentable struct {
+type WSRentable struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RID            int64
 	BID            rlib.XJSONBud
@@ -53,9 +53,9 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	var p rlib.Rentable
 	var err error
 	var g struct {
-		Status  string      `json:"status"`
-		Total   int64       `json:"total"`
-		Records []grentable `json:"records"`
+		Status  string       `json:"status"`
+		Total   int64        `json:"total"`
+		Records []WSRentable `json:"records"`
 	}
 
 	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
@@ -80,7 +80,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	count := 0
 	for rows.Next() {
 		var p rlib.Rentable
-		var q grentable
+		var q WSRentable
 		rlib.ReadRentables(rows, &p)
 		p.Recid = i
 		rlib.MigrateStructVals(&p, &q)
@@ -144,7 +144,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
-	var foo grentableForm
+	var foo WSRentableForm
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -157,7 +157,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo, &a)
 
 	// now get the stuff that requires special handling...
-	var bar grentableOther
+	var bar WSRentableOther
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -189,15 +189,24 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(w)
 }
 
+// wsdoc {
+//  @Title  Rentable
+//	@URL /v1/rentable/:BID/:RID
+//  @Method  GET
+//	@Synopsis Get details about a rentable
+//  @Description  Return all fields for rentable :RID
+//	@Input WebRequest
+//  @Response WSRAPeople
+// wsdoc }
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered getRentable\n")
 	var g struct {
-		Status string    `json:"status"`
-		Record grentable `json:"record"`
+		Status string     `json:"status"`
+		Record WSRentable `json:"record"`
 	}
 	a := rlib.GetRentable(d.RID)
 	if a.RID > 0 {
-		var gg grentable
+		var gg WSRentable
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg
 	}

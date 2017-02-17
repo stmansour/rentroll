@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- <link rel="stylesheet" type="text/css" href="/doc/doc.css" /> -->
+    <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
+</head>
+<body>
+<style>
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+code {
+	display: inline-block;
+	margin: 0 0 2px 0;
+	padding: 0 4px;
+	background: #F8F8F8;
+	border: 1px solid #E0E0E0;
+	border-radius: 3px 3px 3px 3px;
+	color: #DD1144;
+	font-family: "Source Code Pro";
+	font-size: 10pt;
+	white-space: pre;
+}
+.title1 {
+	margin: 60px 0 20px 0;
+	color: #0088cc;
+	font-size: 24px;
+	font-weight: bold;
+	line-height: 1em;
+	font-family: "Source Sans Pro", sans-serif;
+}
+.title2 {
+	margin: 40px 0 20px 0;
+	color: #0088cc;
+	font-size: 18px;
+	font-weight: bold;
+	line-height: 1em;
+	font-family: "Source Sans Pro", sans-serif;
+}
+pre > code {
+	display: block;
+	margin: 12px 0;
+	padding: 12px 20px;
+	background: #292b36;
+	border: none;
+	border-radius: 8px;
+	color: #ffffff;
+	overflow: auto;
+}
+.FieldHdr {
+	background: #F0F0F0;
+	font-family: "Source Sans Pro",sans-serif;
+	font-weight: bold;
+	text-align: left;
+	font-size: 10pt;
+}
+.FieldBod {
+	text-align: left;
+	font-family: Roboto,"Source Sans Pro",sans-serif;
+	font-size: 10pt;
+}
+.Synopsis {
+	font-family: Roboto,"Source Sans Pro",sans-serif;
+	font-size: 10pt;
+}
+.JSONparams table {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.JSONparams td {
+	padding: 2px 8px;
+	vertical-align: top;
+}
+.JSONparams th {
+	padding: 4px 8px;
+	background: #F5F5F5;
+	font-weight: bold;
+}
+.JSONparams td, .JSONparams th {
+	border: 1px solid #E0E0E0;
+	text-align: left;
+	font-family: Roboto,"Source Sans Pro",sans-serif;
+	font-size: 10pt;
+}
+table {
+	border-collapse: collapse;
+}
+</style>
+<p class="title1">{{.Title}}</p>
+<pre><code>{{.URL}}</code></pre>
+<p class="Synopsis">{{.Synopsis}}.</p>
+<p class="title2">Input</p>
+<table class="JSONparams">
+  <thead>
+  <tr><th >Name</th><th >Type</th><th >Description</th></tr>
+  </thead>
+  <tbody>
+  {{range .Input}}
+  <tr><td >{{.Field}}</td><td ><code>{{.DataType}}</code></td ><td>&nbsp;</td></tr>
+  {{end}}
+   </tbody>
+</table>
+
+<p class="title2">Response</p>
+<table class="JSONparams">
+  <thead>
+  <tr><th  >Name</th><th >Type</th><th >Description</th></tr>
+  </thead>
+  <tbody>
+  {{range .Response}}
+  <tr><td >{{.Field}}</td><td><code>{{.DataType}}</code></td><td>&nbsp;</td></tr>
+  {{end}}
+   </tbody>
+</table>
+</body>
+</html>
