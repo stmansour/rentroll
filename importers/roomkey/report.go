@@ -109,7 +109,7 @@ func generateDetailedReport(
 	tbl.Init()
 	tbl.AddColumn("Input Line", 6, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 	// tbl.AddColumn("RentRoll DB Type", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Description", 180, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Description", 100, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
 
 	csvErrorIndexes := []int{}
 	for rowIndex := range csvErrors {
