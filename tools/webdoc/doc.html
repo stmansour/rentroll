@@ -45,6 +45,19 @@ pre > code {
 	color: #ffffff;
 	overflow: auto;
 }
+.FieldBlueBlock {
+	display: inline-grid;
+	margin: 12px 0;
+	padding: 4px 10px;
+	background: #4b97d4;
+	border: none;
+	border-radius: 3px;
+	color: #ffffff;
+	overflow: auto;
+	font-family: Roboto,"Source Sans Pro",sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+}
 .FieldHdr {
 	background: #F0F0F0;
 	font-family: "Source Sans Pro",sans-serif;
@@ -90,9 +103,12 @@ table {
 </style>
 <p class="title1">{{.Title}}</p>
 <pre><code>{{.URL}}</code></pre>
-
 <p class="Synopsis">{{.Synopsis}}.</p>
 <p class="Synopsis">{{.Description}}</p>
+
+<p class="title2">Supported Methods</p>
+<p>{{range .Method}}<span class="FieldBlueBlock">{{.}}</span>&nbsp;&nbsp;{{end}}</p>
+
 <p class="title2">Input</p>
 <table class="JSONparams">
   <thead>
@@ -112,7 +128,7 @@ table {
   </thead>
   <tbody>
   {{range .Response}}
-  <tr><td >{{.Field}}</td><td><code>{{.DataType}}</code></td><td>&nbsp;</td></tr>
+  <tr><td >{{.Field}}</td><td><code>{{.DataType}}</code></td><td>{{.Definition}}&nbsp;</td></tr>
   {{end}}
    </tbody>
 </table>

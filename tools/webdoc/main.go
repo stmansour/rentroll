@@ -24,9 +24,10 @@ type Creator func() interface{}
 // ProtocolJSON describes an individual field in the JSON protocol
 // for this web service
 type ProtocolJSON struct {
-	Field    string
-	DataType string
-	Optional bool
+	Field      string // name of the field
+	DataType   string // data type for this field
+	Definition string // definition of the field
+	Optional   bool
 }
 
 // DirectiveData is a struct of data describing the web service. Its members
@@ -36,7 +37,7 @@ type DirectiveData struct {
 	Title       string         // name of web service
 	URL         string         // programming url format
 	Synopsis    string         // One line explanation
-	Method      string         // POST, GET, ...
+	Method      []string       // POST, GET, ...
 	Description string         // detailed explanation
 	Input       []ProtocolJSON // JSON input data
 	Response    []ProtocolJSON // JSON response data
@@ -231,6 +232,11 @@ func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
 			sl = "[]"
 		}
 		p.DataType = sl + rtype
+		fn := rlib.Stripchars(p.Field, ".")
+		fp, ok := GlossaryAbbr[fn]
+		if ok {
+			p.Definition = (*fp).Definition
+		}
 		// fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
 		m = append(m, p)
 		if recurse {
@@ -261,7 +267,13 @@ func handleDescription(s string, d *Directive) {
 }
 
 func handleMethod(s string, d *Directive) {
-	d.D.Method = strings.TrimSpace(s[len(d.Cmd):])
+	t := strings.ToLower(strings.TrimSpace(s[len(d.Cmd):]))
+	if strings.Contains(t, "get") {
+		d.D.Method = append(d.D.Method, "GET")
+	}
+	if strings.Contains(t, "post") {
+		d.D.Method = append(d.D.Method, "POST")
+	}
 }
 
 func handleInput(s string, d *Directive) {
@@ -429,6 +441,9 @@ func processGoFiles(path string, f os.FileInfo, err error) error {
 }
 
 func main() {
+	if err := LoadGlossary("./rrglossary.csv"); err != nil {
+		fmt.Printf("Error loading glossary = %s\n", err.Error())
+	}
 	root := "."
 	flag.Parse()
 	if flag.NArg() > 0 {
