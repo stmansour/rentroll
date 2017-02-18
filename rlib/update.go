@@ -129,7 +129,7 @@ func UpdateProspect(a *Prospect) error {
 
 // UpdateRentable updates a Rentable record in the database
 func UpdateRentable(a *Rentable) error {
-	_, err := RRdb.Prepstmt.UpdateRentable.Exec(a.BID, a.Name, a.AssignmentTime, a.LastModBy, a.RID)
+	_, err := RRdb.Prepstmt.UpdateRentable.Exec(a.BID, a.RentableName, a.AssignmentTime, a.LastModBy, a.RID)
 	if nil != err {
 		Ulog("UpdateRentable: error:  %v\n", err)
 		Ulog("Rentable = %#v\n", *a)

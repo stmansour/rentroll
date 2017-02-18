@@ -46,12 +46,12 @@ func processAcctRuleAmount(tbl *rlib.Table, xbiz *rlib.XBusiness, rid int64, d t
 			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
 			continue
 		}
-		// printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.Name, m[i].Account, amt)
+		// printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.RentableName, m[i].Account, amt)
 		tbl.AddRow()
 		tbl.Puts(-1, 1, l.Name)
 		tbl.Putd(-1, 2, d)
 		tbl.Puts(-1, 3, rlib.IDtoString("RA", raid))
-		tbl.Puts(-1, 4, r.Name)
+		tbl.Puts(-1, 4, r.RentableName)
 		tbl.Puts(-1, 5, m[i].Account)
 		tbl.Putf(-1, 6, amt)
 	}
@@ -109,7 +109,7 @@ func textPrintJournalAssessment(tbl *rlib.Table, jctx *jprintctx, xbiz *rlib.XBu
 		}
 	}
 
-	s += fmt.Sprintf("  %s", r.Name) + " [" + xbiz.RT[rtid].Style
+	s += fmt.Sprintf("  %s", r.RentableName) + " [" + xbiz.RT[rtid].Style
 	if a.RentCycle > rlib.CYCLENORECUR {
 		s += ", " + rlib.RentalPeriodToString(a.RentCycle)
 	}
@@ -161,12 +161,12 @@ func textPrintJournalReceipt(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *jprint
 				amt = -amt
 			}
 			// s := fmt.Sprintf("%d", a.RAID)
-			// printDatedJournalEntryRJ(l.Name, rcpt.Dt, s, r.Name, m[k].Account, amt)
+			// printDatedJournalEntryRJ(l.Name, rcpt.Dt, s, r.RentableName, m[k].Account, amt)
 			tbl.AddRow()
 			tbl.Puts(-1, 1, l.Name)
 			tbl.Putd(-1, 2, rcpt.Dt)
 			tbl.Puts(-1, 3, rlib.IDtoString("RA", a.RAID))
-			tbl.Puts(-1, 4, r.Name)
+			tbl.Puts(-1, 4, r.RentableName)
 			tbl.Puts(-1, 5, m[k].Account)
 			tbl.Putf(-1, 6, amt)
 		}
@@ -181,7 +181,7 @@ func textPrintJournalUnassociated(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *j
 	//printJournalSubtitle(s)
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoString())
-	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.Name, j.Comment))
+	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
 	for i := 0; i < len(j.JA); i++ {
 		processAcctRuleAmount(tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
 	}

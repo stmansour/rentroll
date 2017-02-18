@@ -32,8 +32,14 @@ const (
 // Glossary is the slice with all terms from the glossary
 var Glossary []*GlossaryDef
 
-// GlossaryAbbr is a map that can be indexed by abbreviations
+// GlossaryAbbr is a map that can be indexed by abbreviations.
+// The index string should be lower case characters
 var GlossaryAbbr = map[string]*GlossaryDef{}
+
+// GlossaryTerm is a map that can be indexed by the term.
+// The index string should be lower case characters and all
+// spaces should be removed
+var GlossaryTerm = map[string]*GlossaryDef{}
 
 // LoadGlossary loads the supplied file name into memory
 // and creates a map
@@ -57,10 +63,12 @@ func LoadGlossary(fname string) error {
 		g.Selections = ta[Selections]
 		g.Example = ta[Example]
 		g.Module = ta[Module]
+		termIndex := strings.ToLower(rlib.Stripchars(g.Term, ". "))
 		Glossary = append(Glossary, &g)
 		if len(g.Abbreviation) > 0 {
-			GlossaryAbbr[g.Abbreviation] = &g
+			GlossaryAbbr[strings.ToLower(g.Abbreviation)] = &g
 		}
+		GlossaryTerm[termIndex] = &g
 	}
 	return nil
 }

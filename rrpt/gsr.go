@@ -51,7 +51,7 @@ func GSRReport(ri *ReporterInfo) (rlib.Table, error) {
 		}
 		tbl.AddRow()
 		tbl.Puts(-1, 0, r.IDtoString())
-		tbl.Puts(-1, 1, r.Name)
+		tbl.Puts(-1, 1, r.RentableName)
 		tbl.Puts(-1, 2, ri.Xbiz.RT[rtr.RTID].Name)
 		tbl.Puts(-1, 3, ri.Xbiz.RT[rtr.RTID].Style)
 		tbl.Putf(-1, 4, amt)

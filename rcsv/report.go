@@ -263,7 +263,7 @@ func RRreportRentables(ri *rrpt.ReporterInfo) string {
 		}
 		t.AddRow()
 		t.Puts(-1, 0, p.IDtoString())
-		t.Puts(-1, 1, p.Name)
+		t.Puts(-1, 1, p.RentableName)
 		t.Puts(-1, 2, s)
 	}
 	rlib.Errcheck(rows.Err())

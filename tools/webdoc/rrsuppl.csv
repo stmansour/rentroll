@@ -1,0 +1,7 @@
+,,,,,
+Term,Abbreviation,Definition,Selection Choices,Examples,Modules Using Term
+cmd,,"Command to execute: get, save, delete",,,
+limit,,The maximum number of records that the caller is prepared to handle in the return array of records. The server will return no more than this number.,,,
+offset,,"The index within the solution set where the return values should begin.  For example, if there are 274 matches in the solution set and offset is 100, then the first 100 should be skipped and the response should begin with record 101.",,,
+selected,,An array if recids that were selected by the user at the time this command was issued.,,,
+searchlogic,,Refers to how the different search criteria should be logically combined.,"OR, AND",,

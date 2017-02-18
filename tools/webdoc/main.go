@@ -213,6 +213,21 @@ func AnalyzeType(t string) (bool, bool, string) {
 	return IsSlice, Recursion, Tname
 }
 
+// getDefinition looks at the Term and Abbreviation for *p and
+// searches the glossary for a description.  If it finds one it
+// updates the Description field of *p.
+func getDefinition(p *ProtocolJSON, rtype string) {
+	fn := strings.ToLower(rlib.Stripchars(p.Field, ". "))
+	fp, ok := GlossaryAbbr[fn]
+	if ok {
+		p.Definition = (*fp).Definition
+	}
+	fp, ok = GlossaryTerm[fn]
+	if ok {
+		p.Definition = (*fp).Definition
+	}
+}
+
 // ListVars lists the names of the variables within a struct and their types
 func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
 	var m []ProtocolJSON
@@ -224,19 +239,15 @@ func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
 	for j := 0; j < v.NumField(); j++ {
 		var p ProtocolJSON
 		f := v.Field(j)
-		p.Field = prefix + v.Type().Field(j).Name
-		p.DataType = f.Type().String()
-		isSlice, recurse, rtype := AnalyzeType(p.DataType)
+		p.Field = prefix + v.Type().Field(j).Name          // set the field name
+		p.DataType = f.Type().String()                     // set its data type
+		isSlice, recurse, rtype := AnalyzeType(p.DataType) // analyze and modify as needed
 		sl := ""
 		if isSlice {
 			sl = "[]"
 		}
 		p.DataType = sl + rtype
-		fn := rlib.Stripchars(p.Field, ".")
-		fp, ok := GlossaryAbbr[fn]
-		if ok {
-			p.Definition = (*fp).Definition
-		}
+		getDefinition(&p, rtype)
 		// fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
 		m = append(m, p)
 		if recurse {
@@ -441,8 +452,11 @@ func processGoFiles(path string, f os.FileInfo, err error) error {
 }
 
 func main() {
-	if err := LoadGlossary("./rrglossary.csv"); err != nil {
-		fmt.Printf("Error loading glossary = %s\n", err.Error())
+	var files = []string{"rrglossary", "rrsuppl"}
+	for i := 0; i < len(files); i++ {
+		if err := LoadGlossary(fmt.Sprintf("./%s.csv", files[i])); err != nil {
+			fmt.Printf("Error loading %s.csv:  %s\n", files[i], err.Error())
+		}
 	}
 	root := "."
 	flag.Parse()

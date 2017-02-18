@@ -23,7 +23,6 @@ stats:
 	@find . -name "*.go" | srcstats
 	@echo "----------------------------------------"
 
-
 ver.go:
 	./mkver.sh
 
@@ -89,3 +88,8 @@ all: clean rentroll test
 	@echo "----------------------------------------"
 
 try: clean rentroll package
+
+testdb:
+	cd test/testdb;make test
+
+rebuild: try testdb

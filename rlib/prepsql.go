@@ -589,12 +589,12 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rentable
 	//===============================
-	flds = "RID,BID,Name,AssignmentTime,LastModTime,LastModBy"
+	flds = "RID,BID,RentableName,AssignmentTime,LastModTime,LastModBy"
 	RRdb.Prepstmt.CountBusinessRentables, err = RRdb.Dbrr.Prepare("SELECT COUNT(RID) FROM Rentable WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Rentable WHERE RID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Rentable WHERE Name=? AND BID=?")
+	RRdb.Prepstmt.GetRentableByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Rentable WHERE RentableName=? AND BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentablesByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Rentable WHERE BID=?")
 	Errcheck(err)
