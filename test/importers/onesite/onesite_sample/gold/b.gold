@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 2/13/2017
-Time: 12:33PM IST
+Date: 2/17/2017
+Time: 11:13PM IST
 Import File: ./onesite.csv
 
 =======
@@ -23,10 +23,10 @@ RECORDS FOR BUSINESS UNIT DESIGNATION: JGM First, LLC
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   2/17/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   2/17/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   2/17/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   2/17/17 - 12/31/99 $  800.00
 ================================================================================
 RID        Name      Assignment Time
 ---------  --------  ---------------
@@ -37,14 +37,14 @@ R00000004  6339-156  pre-assign
 R00000005  6343-165  pre-assign     
 R00000006  6343-166  pre-assign     
 ================================================================================
-                        Middle                      Is                                            
-TCID        First Name  Name    Last Name  Company  Company  Cell Phone  Primary Email            
-----------  ----------  ------  ---------  -------  -------  ----------  -------------------------
-TC00000001  Jimmy               Chen                No                   snsd123@aol.com          
-TC00000002  Diane               Hire                No                   diane_hire@gmail.com     
-TC00000003  Mercedes            White               No                   mercedeswhite843@gmail.co
-TC00000004  Fawad               Kahn                No                   fawadkhan405@gmail.com   
-TC00000005  Crescent            Clark               No                                            
+                        Middle                      Is                                             
+TCID        First Name  Name    Last Name  Company  Company  Cell Phone  Primary Email             
+----------  ----------  ------  ---------  -------  -------  ----------  --------------------------
+TC00000001  Jimmy               Chen                No                   snsd123@aol.com           
+TC00000002  Diane               Hire                No                   diane_hire@gmail.com      
+TC00000003  Mercedes            White               No                   mercedeswhite843@gmail.com
+TC00000004  Fawad               Kahn                No                   fawadkhan405@gmail.com    
+TC00000005  Crescent            Clark               No                                             
 ================================================================================
                                             Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
 RAID        Payor           User            Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes

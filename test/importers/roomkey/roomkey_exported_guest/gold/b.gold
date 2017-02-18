@@ -1,6 +1,6 @@
 Accord RentRoll RoomKey Importer
-Date: 2/8/2017
-Time: 5:44PM IST
+Date: 2/17/2017
+Time: 11:57PM IST
 Import File: ./roomkey_exported.csv
 Guest Export File: ./guestdataexport.csv
 
@@ -18,19 +18,30 @@ Rental Agreements               394         259         0
 ===============
 DETAILED REPORT
 ===============
-Input                                                                                                                                                                                       
-Line    Description                                                                                                                                                                         
-------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-66      Warning: There is at least one other person with the name "Bendabout, Jason" who also has no unique identifiers such as cell phone number or email.                                 
-132     Warning: There is at least one other person with the name "Cintron-Arroyo, Zuleika" who also has no unique identifiers such as cell phone number or email.                          
-158     Warning: There is at least one other person with the name "Coury, Joseph" who also has no unique identifiers such as cell phone number or email.                                    
-202     Warning: There is at least one other person with the name "Duffee, Russell" who also has no unique identifiers such as cell phone number or email.                                  
-207     Warning: There is at least one other person with the name "Duplex, FAA" who also has no unique identifiers such as cell phone number or email.                                      
-230     Warning: There is at least one other person with the name "Fanguy, Darrell" who also has no unique identifiers such as cell phone number or email.                                  
-404     Warning: There is at least one other person with the name "Leung, Paula" who also has no unique identifiers such as cell phone number or email.                                     
-405     Warning: There is at least one other person with the name "Leung, Paula" who also has no unique identifiers such as cell phone number or email.                                     
-632     Warning: There is at least one other person with the name "PROGRAM, ROOMMATE" who also has no unique identifiers such as cell phone number or email.                                
-720     Warning: There is at least one other person with the name "School of Construction, Oklahoma" who also has no unique identifiers such as cell phone number or email.                 
-723     Warning: There is at least one other person with the name "School of Construction, Oklahoma" who also has no unique identifiers such as cell phone number or email.                 
+Input                                                                                                       
+Line    Description                                                                                         
+------  ----------------------------------------------------------------------------------------------------
+66      Warning: There is at least one other person with the name "Bendabout, Jason" who also has no unique 
+        identifiers such as cell phone number or email.                                                     
+132     Warning: There is at least one other person with the name "Cintron-Arroyo, Zuleika" who also has no 
+        unique identifiers such as cell phone number or email.                                              
+158     Warning: There is at least one other person with the name "Coury, Joseph" who also has no unique    
+        identifiers such as cell phone number or email.                                                     
+202     Warning: There is at least one other person with the name "Duffee, Russell" who also has no unique  
+        identifiers such as cell phone number or email.                                                     
+207     Warning: There is at least one other person with the name "Duplex, FAA" who also has no unique      
+        identifiers such as cell phone number or email.                                                     
+230     Warning: There is at least one other person with the name "Fanguy, Darrell" who also has no unique  
+        identifiers such as cell phone number or email.                                                     
+404     Warning: There is at least one other person with the name "Leung, Paula" who also has no unique     
+        identifiers such as cell phone number or email.                                                     
+405     Warning: There is at least one other person with the name "Leung, Paula" who also has no unique     
+        identifiers such as cell phone number or email.                                                     
+632     Warning: There is at least one other person with the name "PROGRAM, ROOMMATE" who also has no unique
+        identifiers such as cell phone number or email.                                                     
+720     Warning: There is at least one other person with the name "School of Construction, Oklahoma" who    
+        also has no unique identifiers such as cell phone number or email.                                  
+723     Warning: There is at least one other person with the name "School of Construction, Oklahoma" who    
+        also has no unique identifiers such as cell phone number or email.                                  
 
 

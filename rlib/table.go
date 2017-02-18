@@ -55,7 +55,8 @@ type ColumnDef struct {
 
 // Colset defines a set of Cells
 type Colset struct {
-	Col []Cell // 1 row's worth of Cells, contains len(Col) number of Cells
+	Col    []Cell // 1 row's worth of Cells, contains len(Col) number of Cells
+	Height int    // height of row
 }
 
 // Rowset defines a set of rows to be operated on at a later time.
@@ -292,6 +293,7 @@ func (t *Table) AddRow() {
 		var cell Cell
 		c.Col = append(c.Col, cell)
 	}
+	c.Height = 1
 	t.Row = append(t.Row, c)
 }
 
@@ -388,6 +390,34 @@ func (t *Table) Putf(row, col int, v float64) bool {
 	return true
 }
 
+func (t *Table) getMultiLineText(v string, colWidth int) ([]string, int) {
+	sa := strings.Split(v, " ") // break up the string at the spaces
+	var a []string
+	j := 0
+	maxColWidth := 0
+	for i := 0; i < len(sa); i++ { // spin through all substrings
+		if len(sa[i]) <= colWidth && i+1 < len(sa) { // if the width of this substring is less than the requested width, and we're not at the end of the list
+			s := sa[i]                         // we know we're adding this one
+			for k := i + 1; k < len(sa); k++ { // take as many as possible
+				if len(s)+len(sa[k])+1 <= colWidth { // if it fits...
+					s += " " + sa[k] // ...add it to the list...
+					i = k            // ...and keep loop in sync
+				} else {
+					break // otherwise, add what we have and then go back to the outer loop
+				}
+			}
+			a = append(a, s)
+		} else {
+			a = append(a, sa[i])
+		}
+		if len(a[j]) > maxColWidth { // if there's not enough room for the current string
+			maxColWidth = len(a[j]) // then adjust the max column width we need
+		}
+		j++
+	}
+	return a, maxColWidth
+}
+
 // Puts updates the Cell at row,col with the string value v
 // and sets its type to CELLSTRING. If row or col is out of
 // bounds the return value is false. Otherwise, the return
@@ -401,6 +431,17 @@ func (t *Table) Puts(row, col int, v string) bool {
 	}
 	t.Row[row].Col[col].Type = CELLSTRING
 	t.Row[row].Col[col].Sval = v
+
+	// Need to check width of column everytime when we adding new content
+	// if it is updatable or not
+	cd := t.ColDefs[col]
+	_, cellWidth := t.getMultiLineText(v, cd.Width)
+	if cellWidth > cd.Width { // if the length of the column title is greater than the user-specified width
+		cd.Width = cellWidth //increase the column width to hold the column title
+		t.AdjustFormatString(&cd)
+		t.ColDefs[col] = cd
+	}
+
 	return true
 }
 
@@ -474,26 +515,90 @@ func (t *Table) SprintRowText(row int) string {
 			s += t.SprintLineText()
 		}
 	}
-	for i := 0; i < len(t.Row[row].Col); i++ {
-		switch t.Row[row].Col[i].Type {
-		case CELLFLOAT:
-			s += fmt.Sprintf(t.ColDefs[i].Pfmt, RRCommaf(t.Row[row].Col[i].Fval))
-		case CELLINT:
-			s += fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Ival)
-		case CELLSTRING:
-			s += fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Sval)
-		case CELLDATE:
-			s += fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateFmt))
-		case CELLDATETIME:
-			s += fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateTimeFmt))
-		default:
-			s += Mkstr(t.ColDefs[i].Width, ' ')
-		}
-		if i < len(t.Row[row].Col)-1 {
-			s += Mkstr(t.TextColSpace, ' ')
+
+	rowColumns := len(t.Row[row].Col)
+
+	// columns string chunk map, each column holds list of string
+	// that fits in one line at best
+	colStringChunkMap := map[int][]string{}
+
+	// get Height of row that require to fit the content of max cell string content
+	// by default table has no all the data in string format, so that we need to add
+	// logic here only, to support multi line functionality
+	for i := 0; i < rowColumns; i++ {
+		if t.Row[row].Col[i].Type == CELLSTRING {
+			cd := t.ColDefs[i]
+			a, _ := t.getMultiLineText(t.Row[row].Col[i].Sval, cd.Width)
+
+			colStringChunkMap[i] = a
+
+			if len(a) > t.Row[row].Height {
+				t.Row[row].Height = len(a)
+			}
 		}
 	}
-	s += "\n"
+
+	// rowTextList holds the 2D array, containing data for each block
+	// to achieve multiline row
+	rowTextList := [][]string{}
+
+	// init rowTextList with empty values
+	for k := 0; k < t.Row[row].Height; k++ {
+		temp := make([]string, rowColumns)
+		for i := 0; i < rowColumns; i++ {
+			// assign default string with length of column width
+			temp = append(temp, Mkstr(t.ColDefs[i].Width, ' '))
+		}
+		rowTextList = append(rowTextList, temp)
+	}
+
+	// fill the content in rowTextList for the first line
+	for i := 0; i < rowColumns; i++ {
+		switch t.Row[row].Col[i].Type {
+		case CELLFLOAT:
+			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, RRCommaf(t.Row[row].Col[i].Fval))
+		case CELLINT:
+			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Ival)
+		case CELLSTRING:
+			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, colStringChunkMap[i][0])
+		case CELLDATE:
+			rowTextList[0][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateFmt))
+		case CELLDATETIME:
+			rowTextList[0][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateTimeFmt))
+		default:
+			rowTextList[0][i] = Mkstr(t.ColDefs[i].Width, ' ')
+		}
+	}
+
+	// rowTextList to string
+	for k := 0; k < t.Row[row].Height; k++ {
+		for i := 0; i < rowColumns; i++ {
+
+			// if not first row then process multi line format
+			if k > 0 {
+				if t.Row[row].Col[i].Type == CELLSTRING {
+					if k >= len(colStringChunkMap[i]) {
+						rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, "")
+					} else {
+						rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, colStringChunkMap[i][k])
+					}
+				}
+			}
+
+			// if blank then append string of column width with blank
+			if rowTextList[k][i] == "" {
+				rowTextList[k][i] = Mkstr(t.ColDefs[i].Width, ' ')
+			}
+			s += rowTextList[k][i]
+
+			// if it is not last block then
+			if i < (rowColumns - 1) {
+				s += Mkstr(t.TextColSpace, ' ')
+			}
+		}
+		s += "\n"
+	}
+
 	if len(t.LineAfter) > 0 {
 		j := sort.SearchInts(t.LineAfter, row)
 		if j < len(t.LineAfter) && row == t.LineAfter[j] {

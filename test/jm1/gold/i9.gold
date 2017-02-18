@@ -2,5 +2,6 @@
 Date        RCPTID        RCPTID  RAID        PMTID        Doc No      Amount  Account Rule                                        Comment
 ----------  ------------  ------  ----------  -----------  ------  ----------  --------------------------------------------------  -------
 09/01/2016  RCPT00000024  0       RA00000001  PMT00000001  2157      3,750.00  ASM(32) c ${GLGENRCV} _, ASM(32) d ${GLCASH} _             
-09/01/2016  RCPT00000025  0       RA00000004  PMT00000004  8736      4,150.00  ASM(33) c ${GLGENRCV} 4150, ASM(33) d ${GLCASH} 41         
+09/01/2016  RCPT00000025  0       RA00000004  PMT00000004  8736      4,150.00  ASM(33) c ${GLGENRCV} 4150, ASM(33) d ${GLCASH}            
+                                                                               4150                                                       
 
