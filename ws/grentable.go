@@ -21,11 +21,11 @@ import (
 // RentableForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
 type RentableForm struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	RID         int64
-	Name        string
-	LastModTime rlib.JSONTime
-	LastModBy   int64
+	Recid        int64 `json:"recid"` // this is to support the w2ui form
+	RID          int64
+	RentableName string
+	LastModTime  rlib.JSONTime
+	LastModBy    int64
 }
 
 // RentableOther is a struct to handle the UI list box selections
@@ -40,7 +40,7 @@ type PrRentableOther struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RID            int64
 	BID            rlib.XJSONBud
-	Name           string
+	RentableName   string
 	AssignmentTime rlib.XJSONAssignmentTime
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
@@ -78,7 +78,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	var g SearchRentablesResponse
 
 	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "Name ASC"                  // default ORDER
+	order := "RentableName ASC"          // default ORDER
 	q, qw := gridBuildQuery("Rentable", srch, order, d, &p)
 
 	// set g.Total to the total number of rows of this data...

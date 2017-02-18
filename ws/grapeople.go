@@ -16,14 +16,14 @@ import (
 
 // RAPeople defines a person for the web service interface
 type RAPeople struct {
-	Recid      int64  `json:"recid"` // this is to support the w2ui form
-	TCID       int64  // associated rental agreement
-	BID        int64  // Business
-	FirstName  string // person name
-	MiddleName string // person name
-	LastName   string // person name
-	RID        int64  // Rentable ID
-	Name       string // rentable name
+	Recid        int64  `json:"recid"` // this is to support the w2ui form
+	TCID         int64  // associated rental agreement
+	BID          int64  // Business
+	FirstName    string // person name
+	MiddleName   string // person name
+	LastName     string // person name
+	RID          int64  // Rentable ID
+	RentableName string // rentable name
 }
 
 // RAPeopleResponse is the struct containing the JSON return values for this web service

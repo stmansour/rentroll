@@ -679,7 +679,7 @@ function buildPageElements() {
         columns: [
             {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
             {field: 'RID', caption: 'RID', size: '50px', sortable: true},
-            {field: 'Name', caption: 'Name', size: '15%', sortable: true},
+            {field: 'RentableName', caption: 'RentableName', size: '15%', sortable: true},
             {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
         ],
         onClick: function(event) {
@@ -713,7 +713,7 @@ function buildPageElements() {
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
             { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
-            { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
+            { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
             { field: 'AssignmentTime', type: 'list', options: {items: assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
         ],
         actions: {
@@ -734,13 +734,13 @@ function buildPageElements() {
             },
             reset: function() {
                 var f = w2ui.rentableForm;
-                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.Name);
+                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.RentableName);
             }
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentableForm;
             var r = f.record;
-            f.header = 'Edit ' + sRentable + ' - ' + r.Name + ' (' + r.RID + ')';
+            f.header = 'Edit ' + sRentable + ' - ' + r.RentableName + ' (' + r.RID + ')';
         }
     });
 
@@ -968,7 +968,7 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'TCID', hidden: true, caption: 'TCID',  size: '40px', sortable: true},
             {field: 'RID', hidden: true, caption: 'RID',  size: '40px', sortable: true},
-            {field: 'Name', caption: sRentable,  size: '10%', sortable: true},
+            {field: 'RentableName', caption: sRentable,  size: '10%', sortable: true},
             {field: 'FirstName', caption: 'First Name',  size: '10%', sortable: true},
             {field: 'MiddleName', caption: 'MI',  size: '30px', sortable: true},
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
