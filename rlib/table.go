@@ -220,30 +220,7 @@ func (t *Table) AddColumn(title string, width, celltype int, justification int) 
 // make the title fit.  If necessary, it will force the width of the column to be
 // wide enough to fit the longest word in the title.
 func (t *Table) AdjustColumnHeader(cd *ColumnDef) {
-	sa := strings.Split(cd.ColTitle, " ") // break up the string at the spaces
-	var a []string
-	j := 0
-	maxColWidth := 0
-	for i := 0; i < len(sa); i++ { // spin through all substrings
-		if len(sa[i]) <= cd.Width && i+1 < len(sa) { // if the width of this substring is less than the requested width, and we're not at the end of the list
-			s := sa[i]                         // we know we're adding this one
-			for k := i + 1; k < len(sa); k++ { // take as many as possible
-				if len(s)+len(sa[k])+1 <= cd.Width { // if it fits...
-					s += " " + sa[k] // ...add it to the list...
-					i = k            // ...and keep loop in sync
-				} else {
-					break // otherwise, add what we have and then go back to the outer loop
-				}
-			}
-			a = append(a, s)
-		} else {
-			a = append(a, sa[i])
-		}
-		if len(a[j]) > maxColWidth { // if there's not enough room for the current string
-			maxColWidth = len(a[j]) // then adjust the max column width we need
-		}
-		j++
-	}
+	a, maxColWidth := t.getMultiLineText(cd.ColTitle, cd.Width)
 	if maxColWidth > cd.Width { // if the length of the column title is greater than the user-specified width
 		cd.Width = maxColWidth //increase the column width to hold the column title
 	}
