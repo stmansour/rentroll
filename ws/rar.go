@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// WSRAR is the web service structure for RentalAgreementRentables
-type WSRAR struct {
+// RAR is the web service structure for RentalAgreementRentables
+type RAR struct {
 	Recid        int64         `json:"recid"` // this is to support the w2ui form
 	RAID         int64         // associated rental agreement
 	BID          int64         // Business
@@ -26,9 +26,9 @@ type WSRAR struct {
 
 // RARList is the struct containing the JSON return values for this web service
 type RARList struct {
-	Status  string  `json:"status"`
-	Total   int64   `json:"total"`
-	Records []WSRAR `json:"records"`
+	Status  string `json:"status"`
+	Total   int64  `json:"total"`
+	Records []RAR  `json:"records"`
 }
 
 // SvcRARentables returns the Rentables associated with the RAID supplied
@@ -37,12 +37,12 @@ type RARList struct {
 // 		/v1/rar/BID/RAID?dt=2017-01-03
 // wsdoc {
 //  @Title  Rental Agreement Rentables
-//	@URL /v1/rar/:BID/:RAID
-//	@Method GET, POST
+//	@URL /v1/rar/:BID/:RAID ? dt=:DATE
+//	@Method GET
 //	@Synopsis Get the rentables for the rental agreement on date dt
 //  @Description Returns all the rentables associated with the supplied Rental Agreement for the supplied date.
 //  @Input WebRequest
-//  @Response WSRAR
+//  @Response RAR
 // wsdoc }
 func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// fmt.Printf("entered SvcRARentables\n")
@@ -67,7 +67,7 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var rar RARList
 	m := rlib.GetRentalAgreementRentables(raid, &dt, &dt)
 	for i := 0; i < len(m); i++ {
-		var xr WSRAR
+		var xr RAR
 		xr.Recid = int64(i + 1)
 		rlib.MigrateStructVals(&m[i], &xr)
 		rar.Records = append(rar.Records, xr)

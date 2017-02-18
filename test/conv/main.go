@@ -84,7 +84,7 @@ func TestConversion2() {
 	fmt.Printf("SUCCESS!\n")
 }
 
-type gxpersonOther struct {
+type RPersonOther struct {
 	IsCompany     rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
 	BID           rlib.W2uiHTMLSelect
 	State         rlib.W2uiHTMLSelect
@@ -106,7 +106,7 @@ func testConversion3() {
 	fmt.Printf("Successfully unmarshalled w:  %#v\n", w)
 
 	s1 := `{"recid":0, "IsCompany":{"id":"Person","text":"Person"}, "City":"", "State":{"id":"AZ", "text":"AZ"}, "EmployerState":"", "EmployerPostalCode":"", "EligibleFutureUser":{"id":"no", "text":"no"}, "Industry":"", "EligibleFuturePayor":{"id":"no", "text":"no"}, "LastModTime":"2/1/2017","LastModBy":0 }`
-	var gxpo gxpersonOther
+	var gxpo RPersonOther
 	err = json.Unmarshal([]byte(s1), &gxpo)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())

@@ -11,8 +11,8 @@ import (
 // This command returns pets associated with a Rental Agreement.
 // Current date is assumed unless a date is provided to override.
 
-// WSPets is the struct containing the JSON return values for this web service
-type WSPets struct {
+// RAPets is the struct containing the JSON return values for this web service
+type RAPets struct {
 	Status  string                    `json:"status"`
 	Total   int64                     `json:"total"`
 	Records []rlib.RentalAgreementPet `json:"records"`
@@ -28,7 +28,7 @@ type WSPets struct {
 //	@Synopsis Get the pets associated with a Rental Agreement
 //  @Description  Returns all the pets for the supplied Rental Agreement as of :DATE
 //	@Input
-//  @Response RentalAgreementPet
+//  @Response RAPets
 // wsdoc }
 // URL:
 //       0    1       2    3
@@ -80,7 +80,7 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
-	var gxp WSPets
+	var gxp RAPets
 	m := rlib.GetAllRentalAgreementPets(raid)
 	gxp.Records = m
 

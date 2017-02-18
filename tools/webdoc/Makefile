@@ -11,7 +11,7 @@ webdoc: *.go
 	@rm -f fail
 
 clean:
-	rm -f webdoc ver.go fail
+	rm -rf webdoc ver.go fail doc
 	@echo "*** CLEAN completed in webdoc ***"
 
 test:
@@ -24,6 +24,7 @@ man:
 package:
 	rm -rf ${PKGDIR}/doc
 	mkdir -p ${PKGDIR}/doc
+	./webdoc ${TOP}/ws
 	cp doc/*.html ${PKGDIR}/doc/
 	cp doc.css ${PKGDIR}/doc/
 	@echo "*** PACKAGE completed in webdoc ***"

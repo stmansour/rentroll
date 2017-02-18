@@ -19,6 +19,12 @@ type SvcGridError struct {
 	Message string
 }
 
+// SvcStatusResponse is the response to return status when no other data
+// needs to be returned
+type SvcStatusResponse struct {
+	Status string `json:"status"`
+}
+
 // ServiceHandler describes the handler for all services
 type ServiceHandler struct {
 	Cmd     string
@@ -26,23 +32,29 @@ type ServiceHandler struct {
 	NeedBiz bool
 }
 
+// GenSearch describes a search condition
+type GenSearch struct {
+	Field    string `json:"field"`
+	Type     string `json:"type"`
+	Value    string `json:"value"`
+	Operator string `json:"operator"`
+}
+
+// ColSort is what the UI uses to indicate how the return values should be sorted
+type ColSort struct {
+	Field     string `json:"field"`
+	Direction string `json:"direction"`
+}
+
 // WebRequest is a struct suitable for describing a webservice operation.
 type WebRequest struct {
-	Cmd         string `json:"cmd"`
-	Limit       int    `json:"limit"`
-	Offset      int    `json:"offset"`
-	Selected    []int  `json:"selected"`
-	SearchLogic string `json:"searchLogic"`
-	Search      []struct {
-		Field    string `json:"field"`
-		Type     string `json:"type"`
-		Value    string `json:"value"`
-		Operator string `json:"operator"`
-	} `json:"search"`
-	Sort []struct {
-		Field     string `json:"field"`
-		Direction string `json:"direction"`
-	} `json:"sort"`
+	Cmd         string      `json:"cmd"`
+	Limit       int         `json:"limit"`
+	Offset      int         `json:"offset"`
+	Selected    []int       `json:"selected"`
+	SearchLogic string      `json:"searchLogic"`
+	Search      []GenSearch `json:"search"`
+	Sort        []ColSort   `json:"sort"`
 }
 
 // ServiceData is the generalized data gatherer for svcHandler. It allows all the common data
@@ -411,9 +423,7 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 
 // SvcWriteSuccessResponse is used to complete a successful write operation on w2ui form save requests.
 func SvcWriteSuccessResponse(w http.ResponseWriter) {
-	var g struct {
-		Status string `json:"status"`
-	}
+	var g SvcStatusResponse
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
