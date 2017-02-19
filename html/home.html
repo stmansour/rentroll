@@ -24,12 +24,6 @@ sidebarL1     - w2ui sidebar
 -->
 
 <script>
-var businesses = [];
-{{range .BL}}
-var business = {BUD:"{{.Designation}}", BID:"{{.BID}}"};
-businesses.push(business);
-{{end}}
-
 // my app object in which to manage key data
 var app = {
     D1: "2016-02-01",
@@ -37,15 +31,14 @@ var app = {
     uid: 211,
     lastCmd: '',
     lang: "{{.Lang}}",
-    tmpl: "{{.Tmpl}}"
+    tmpl: "{{.Tmpl}}",
+    pstyle: 'border: 1px solid #dfdfdf; padding: 0px;',
+    pstyleNB: 'border: 0px solid #dfdfdf; padding: 0px;',
+    pstyle4: 'border: 1px solid #bbbbbb; padding: 0px;',
+    pstyle2: 'border: 1px solid #cfcfcf; padding: 0px;',
+    prefmt: 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;',
+    stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777',
 };
-
-var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
-var pstyleNB = 'border: 0px solid #dfdfdf; padding: 0px;';
-var pstyle4 = 'border: 1px solid #bbbbbb; padding: 0px;';
-var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
-var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;';
-var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777';
 
 
 function showReport(rptname) {
@@ -148,12 +141,12 @@ function buildPageElements() {
         name: 'mainlayout',
         padding: 2,
         panels: [
-            { type: 'top', size: 55, style: pstyle, content: 'top' },
-            { type: 'left', size: 200, hidden: true, style: pstyle, content: 'left' },
-            { type: 'main', style: pstyle, content: 'main' },
-            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-            { type: 'right', size: 200, resizable: true, style: pstyle, hidden: true, content: 'Details' },
-            { type: 'bottom', size: 23, resizable: true, style: stdfmt, content: '&copy; 2015-2016 Accord Interests' }
+            { type: 'top', size: 55, style: app.pstyle, content: 'top' },
+            { type: 'left', size: 200, hidden: true, style: app.pstyle, content: 'left' },
+            { type: 'main', style: app.pstyle, content: 'main' },
+            { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle, content: 'preview' },
+            { type: 'right', size: 200, resizable: true, style: app.pstyle, hidden: true, content: 'Details' },
+            { type: 'bottom', size: 23, resizable: true, style: app.stdfmt, content: '&copy; 2015-2016 Accord Interests' }
         ]
     });
 
@@ -165,9 +158,9 @@ function buildPageElements() {
         name: 'newsLayout',
         padding: 0,
         panels: [
-            { type: 'left', hidden: false, style: pstyleNB, size: 20 },
+            { type: 'left', hidden: false, style: app.pstyleNB, size: 20 },
             { type: 'top', hidden: true },
-            { type: 'main', size: '90%', resizable: true, hidden: false, style: pstyleNB, content: 'Hi.  I should load w2ui.newsLayout' },
+            { type: 'main', size: '90%', resizable: true, hidden: false, style: app.pstyleNB, content: 'Hi.  I should load w2ui.newsLayout' },
             { type: 'preview', hidden: true },
             { type: 'bottom', hidden: true },
             { type: 'right', hidden: true }
@@ -181,12 +174,12 @@ function buildPageElements() {
         name: 'toplayout',
         padding: 2,
         panels: [
-            { type: 'top', hidden: true, size: 200, resizable: true, style: pstyle2, content: w2ui.newsLayout},
-            { type: 'left', size: 200, style: pstyle2, resizable: true, content: 'sidebar' },
-            { type: 'main',  size: 100, style: pstyle2 },
-            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle2, content: 'preview' },
-            { type: 'right', size: 200, resizable: true, style: pstyle2, hidden: true },
-            { type: 'bottom', size: 20, resizable: true, style: pstyle2, hidden: true, content: 'toplayout - bottom' }
+            { type: 'top', hidden: true, size: 200, resizable: true, style: app.pstyle2, content: w2ui.newsLayout},
+            { type: 'left', size: 200, style: app.pstyle2, resizable: true, content: 'sidebar' },
+            { type: 'main',  size: 100, style: app.pstyle2 },
+            { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle2, content: 'preview' },
+            { type: 'right', size: 200, resizable: true, style: app.pstyle2, hidden: true },
+            { type: 'bottom', size: 20, resizable: true, style: app.pstyle2, hidden: true, content: 'toplayout - bottom' }
         ]
     }));
     
@@ -367,8 +360,8 @@ function buildPageElements() {
         padding: 0,
         panels: [
             { type: 'top',size: 40, content: 'reports toolbar'},
-            { type: 'left', size: 20, style: prefmt, hidden: false },
-            { type: 'main',  size: 100, style: prefmt},
+            { type: 'left', size: 20, style: app.prefmt, hidden: false },
+            { type: 'main',  size: 100, style: app.prefmt},
             { type: 'preview', size: 0, hidden: true, content: 'reports preview' },
             { type: 'right', size: 200, hidden: true, content: 'reports - detail' },
             { type: 'bottom', size: 20, hidden: true, content: 'reports - bottom' },
@@ -539,17 +532,17 @@ function buildPageElements() {
             { field: 'PreferredName', type: 'text', required: false, html: { caption: 'Preferred Name', page: 0, column: 0 } },
             { field: 'PrimaryEmail', type: 'email', required: false, html: { caption: 'Primary Email', page: 0, column: 0 } },
             { field: 'TCID', type: 'int', required: false, html: { caption: 'TCID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: { caption: 'NLID', page: 0, column: 0 } },
             { field: 'CompanyName', type: 'text', required: false, html: { caption: 'Company Name', page: 0, column: 0 } },
-            { field: 'IsCompany', type: 'list', options: {items: companyOrPerson}, required: false, html: { caption: 'Person or Company', page: 0, column: 0 } },
+            { field: 'IsCompany', type: 'list', options: {items: app.companyOrPerson}, required: false, html: { caption: 'Person or Company', page: 0, column: 0 } },
             { field: 'SecondaryEmail', type: 'email', required: false, html: { caption: 'Secondary Email', page: 0, column: 0 } },
             { field: 'WorkPhone', type: 'phone', required: false, html: { caption: 'Work Phone', page: 0, column: 0 } },
             { field: 'CellPhone', type: 'phone', required: false, html: { caption: 'Cell Phone', page: 0, column: 0 } },
             { field: 'Address', type: 'text', required: false, html: { caption: 'Address', page: 0, column: 0 } },
             { field: 'Address2', type: 'text', required: false, html: { caption: 'Address 2', page: 0, column: 0 } },
             { field: 'City', type: 'text', required: false, html: { caption: 'City', page: 0, column: 0 } },
-            { field: 'State', type: 'list', options: {items: stateAbbr}, required: false, html: { caption: 'State', page: 0, column: 0 } },
+            { field: 'State', type: 'list', options: {items: app.stateAbbr}, required: false, html: { caption: 'State', page: 0, column: 0 } },
             { field: 'PostalCode', type: 'text', required: false, html: { caption: 'Postal Code', page: 0, column: 0 } },
             { field: 'Country', type: 'text', required: false, html: { caption: 'Country', page: 0, column: 0 } },
             { field: 'Website', type: 'text', required: false, html: { caption: 'Website', page: 0, column: 0 } },
@@ -572,7 +565,7 @@ function buildPageElements() {
             { field: 'EmployerName', type: 'text', required: false, html: {caption: 'Employer Name', page: 3, column: 0 } },
             { field: 'EmployerStreetAddress', type: 'text', required: false, html: {caption: 'Employer Street Address', page: 3, column: 0 } },
             { field: 'EmployerCity', type: 'text', required: false, html: {caption: 'Employer City', page: 3, column: 0 } },
-            { field: 'EmployerState', type: 'list', options: {items: stateAbbr}, required: false, html: {caption: 'Employer State', page: 3, column: 0 } },
+            { field: 'EmployerState', type: 'list', options: {items: app.stateAbbr}, required: false, html: {caption: 'Employer State', page: 3, column: 0 } },
             { field: 'EmployerPostalCode', type: 'text', required: false, html: {caption: 'Employer Postal Code', page: 3, column: 0 } },
             { field: 'EmployerEmail', type: 'text', required: false, html: {caption: 'Employer Email', page: 3, column: 0 } },
             { field: 'EmployerPhone', type: 'text', required: false, html: {caption: 'Employer Phone', page: 3, column: 0 } },
@@ -712,7 +705,7 @@ function buildPageElements() {
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
             { field: 'AssignmentTime', type: 'list', options: {items: assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
         ],
@@ -803,9 +796,9 @@ function buildPageElements() {
         name: 'raLayout',
         padding: 0,
         panels: [
-            { type: 'left', size: '40%', resizable: true, style: pstyle, content: 'top' },
+            { type: 'left', size: '40%', resizable: true, style: app.pstyle, content: 'top' },
             { type: 'top', size: 0, hidden: true },
-            { type: 'main', size: '60%', resizable: true, style: pstyle, content: 'main' },
+            { type: 'main', size: '60%', resizable: true, style: app.pstyle, content: 'main' },
             { type: 'preview', size: '50%', hidden: true },
             { type: 'bottom', size: 0, hidden: true },
             { type: 'right', size: '33%', hidden: true }
@@ -815,12 +808,12 @@ function buildPageElements() {
         name: 'raLayoutSub1',
         padding: 1,
         panels: [
-            { type: 'top', size: '30%', resizable: true, style: pstyle4, content: 'Rentables' },
+            { type: 'top', size: '30%', resizable: true, style: app.pstyle4, content: 'Rentables' },
             { type: 'left', size: 0, hidden: true },
-            { type: 'main', size: '20%', resizable: true, style: pstyle4, content: 'Payors' },
-            { type: 'preview', size: '60%', resizable: true, style: pstyle4, content: 'Users' },
+            { type: 'main', size: '20%', resizable: true, style: app.pstyle4, content: 'Payors' },
+            { type: 'preview', size: '60%', resizable: true, style: app.pstyle4, content: 'Users' },
             { type: 'right', size: 0, hidden: true },
-            { type: 'bottom', size: '25%', resizable: true, style: pstyle4, content: 'Pets' }
+            { type: 'bottom', size: '25%', resizable: true, style: app.pstyle4, content: 'Pets' }
         ]
     });
 
@@ -837,7 +830,7 @@ function buildPageElements() {
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'RAID', type: 'int', required: false, html: { caption: 'RAID', page: 0, column: 0 } },
             { field: 'RATID', type: 'int', required: false, html: { caption: 'RATID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: { caption: 'Notes', page: 0, column: 0 } },
             { field: 'AgreementStart', type: 'date', required: false, html: { caption: 'Agreement Start', page: 0, column: 0 } },
             { field: 'AgreementStop', type: 'date', required: false, html: { caption: 'Agreement Stop', page: 0, column: 0 } },
@@ -848,7 +841,7 @@ function buildPageElements() {
             { field: 'RentCycleEpoch', type: 'date', required: false, html: { caption: 'Rent Cycle Epoch', page: 0, column: 0 } },
             { field: 'UnspecifiedAdults', type: 'int', required: false, html: { caption: 'Unspecified Adults', page: 0, column: 0 } },
             { field: 'UnspecifiedChildren', type: 'int', required: false, html: { caption: 'Unspecified Children', page: 0, column: 0 } },
-            { field: 'Renewal', type: 'list', options: {items: renewalMap}, required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
+            { field: 'Renewal', type: 'list', options: {items: app.renewalMap}, required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
             { field: 'SpecialProvisions', type: 'text', required: false, html: { caption: 'Special Provisions', page: 0, column: 0 } },
             { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
@@ -920,7 +913,8 @@ function buildPageElements() {
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', hidden: true, caption: 'RAID',  size: '40px', sortable: true},
-            {field: 'RID', caption: sRentable,  size: '10%', sortable: true},
+            {field: 'RID', hidden: true, caption: sRentable,  size: '10%', sortable: true},
+            {field: 'RentableName', caption: sRentable+' Name',  size: '10%', sortable: true},
             {field: 'ContractRent', caption: 'Rent', size: '10%', sortable: true, render: 'money', editable: { type: 'money' }},
             {field: 'RARDtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'RARDtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
@@ -947,6 +941,8 @@ function buildPageElements() {
             {field: 'FirstName', caption: 'First Name',  size: '10%', sortable: true},
             {field: 'MiddleName', caption: 'MI',  size: '30px', sortable: true},
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
+            {field: 'DtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
+            {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
         ]
      });
 
@@ -972,6 +968,8 @@ function buildPageElements() {
             {field: 'FirstName', caption: 'First Name',  size: '10%', sortable: true},
             {field: 'MiddleName', caption: 'MI',  size: '30px', sortable: true},
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
+            {field: 'DtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
+            {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
         ]
      });
 
@@ -1021,33 +1019,6 @@ function createRentalAgreementForm() {
     w2ui.raLayoutSub1.content('bottom', w2ui.raPetGrid);
     w2ui.raPetGrid.header = "Pets";
 }
-
-
-// function rcvRARList(responseText,status) {
-//     "use strict";
-//     var data;
-//     console.log('status = ' + status);
-//     // console.log('responseText = ', responseText);
-//     if (typeof responseText == "object") {
-//         data = responseText;
-//     } else {
-//         // $.parseJSON or $.getJSON did not work because they expect JSON data where everything is in double quotes
-//         // TODO: avoid (potentially malicious) code injection from the response.
-//         try { eval('data = '+ responseText); } catch (e) { }
-//     }
-//     console.log('data.Status = ' + data.Status);
-//     var t = document.getElementsByName("RARtable");
-//     if (t.length > 0 ) {
-//         t[0].innerHTML = "Ready to show Rental Agreement Rentables!";
-//     } else {
-//         console.log('document.getElementsByName("RARtable") return no finds!!')
-//     }
-// }
-
-// function rcvRARListFail() { 
-//     "use strict";
-//     console.log('Error getting rarlist');
-// }
 
 function finishInitialization() {
     "use strict";

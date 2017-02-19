@@ -62,10 +62,10 @@ type GetRentableResponse struct {
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
 // wsdoc {
 //  @Title  Search Rentables
-//	@URL /v1/rentables/:BID
+//	@URL /v1/rentables/:BUI
 //  @Method  POST
-//	@Synopsis Return all Rentables matching the search criteria
-//  @Description  Return all Transactants of type :PTYPE (payor or user) on the supplied :DATE
+//	@Synopsis Search Rentables
+//  @Description  Search all Rentables and return those that match the Search Logic
 //	@Input WebRequest
 //  @Response SearchRentablesResponse
 // wsdoc }
@@ -150,6 +150,16 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 }
 
+// GetRentable returns the requested rentable
+// wsdoc {
+//  @Title  Save Rentable
+//	@URL /v1/rentable/:BUI/:RID
+//  @Method  GET
+//	@Synopsis Update the information on a Rentable with the supplied data
+//  @Description  This service updates Rentable :RID with the information supplied. All fields must be supplied.
+//	@Input WebRequest
+//  @Response SvcStatusResponse
+// wsdoc }
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// funcname := "saveRentable"
 	target := `"record":`
@@ -211,9 +221,9 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // GetRentable returns the requested rentable
 // wsdoc {
 //  @Title  Get Rentable
-//	@URL /v1/rentable/:BID/:RID
+//	@URL /v1/rentable/:BUI/:RID
 //  @Method  GET
-//	@Synopsis Get details about a rentable
+//	@Synopsis Get information on a Rentable
 //  @Description  Return all fields for rentable :RID
 //	@Input WebRequest
 //  @Response GetRentableResponse

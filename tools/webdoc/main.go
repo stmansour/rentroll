@@ -24,10 +24,22 @@ type Creator func() interface{}
 // ProtocolJSON describes an individual field in the JSON protocol
 // for this web service
 type ProtocolJSON struct {
-	Field      string // name of the field
-	DataType   string // data type for this field
-	Definition string // definition of the field
+	Field      string        // name of the field
+	DataType   string        // data type for this field
+	Definition template.HTML // definition of the field
 	Optional   bool
+}
+
+// URLTerm is a subpart of a url and its definition
+type URLTerm struct {
+	Term       string
+	Definition template.HTML
+}
+
+// URLDef is a struct defining a URL and its subparts
+type URLDef struct {
+	URL   string    // the actual url
+	Parts []URLTerm // the colon-prefixed parts that need definitions
 }
 
 // DirectiveData is a struct of data describing the web service. Its members
@@ -35,7 +47,7 @@ type ProtocolJSON struct {
 // create an html file describing the web service.
 type DirectiveData struct {
 	Title       string         // name of web service
-	URL         string         // programming url format
+	URLs        []URLDef       // one or more URLs defining the
 	Synopsis    string         // One line explanation
 	Method      []string       // POST, GET, ...
 	Description string         // detailed explanation
@@ -213,19 +225,20 @@ func AnalyzeType(t string) (bool, bool, string) {
 	return IsSlice, Recursion, Tname
 }
 
-// getDefinition looks at the Term and Abbreviation for *p and
-// searches the glossary for a description.  If it finds one it
-// updates the Description field of *p.
-func getDefinition(p *ProtocolJSON, rtype string) {
-	fn := strings.ToLower(rlib.Stripchars(p.Field, ". "))
+// getDefinition looks for term in the glossary maps
+// It will return the definition if it finds one. Otherwise
+// it returns an empty string
+func getDefinition(term string) template.HTML {
+	fn := strings.ToLower(rlib.Stripchars(term, ". "))
 	fp, ok := GlossaryAbbr[fn]
 	if ok {
-		p.Definition = (*fp).Definition
+		return template.HTML((*fp).Definition)
 	}
 	fp, ok = GlossaryTerm[fn]
 	if ok {
-		p.Definition = (*fp).Definition
+		return template.HTML((*fp).Definition)
 	}
+	return template.HTML("")
 }
 
 // ListVars lists the names of the variables within a struct and their types
@@ -247,7 +260,7 @@ func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
 			sl = "[]"
 		}
 		p.DataType = sl + rtype
-		getDefinition(&p, rtype)
+		p.Definition = getDefinition(p.Field)
 		// fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
 		m = append(m, p)
 		if recurse {
@@ -259,8 +272,39 @@ func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
 	return m
 }
 
+// handleURL saves the URL for printing and creates a list of all the
+// parts that need explanation.  The url is expected to be in this format
+//
+//          /v1/rentagr/:BUI/:RAID ? dt=:DATE & raid=:RAID
+//
+// Any part of this url that is preceded by a colon indicates that it needs
+// definition.  So there are 2,  :BUI  and  :RAID
 func handleURL(s string, d *Directive) {
-	d.D.URL = strings.TrimSpace(s[len(d.Cmd):])
+	var u URLDef
+	u.URL = strings.TrimSpace(s[len(d.Cmd):])
+	s1 := strings.Split(u.URL, "?")
+	sa := strings.Split(s1[0], "/")
+	for i := 0; i < len(sa); i++ {
+		if strings.Contains(sa[i], ":") { // are there any parts that need definitions?
+			var t URLTerm
+			t.Term = rlib.Stripchars(sa[i], ":")
+			t.Definition = getDefinition(t.Term)
+			u.Parts = append(u.Parts, t) // yes: add it to the list, remove the colon
+		}
+	}
+	if len(s1) > 1 {
+		sb := strings.Split(s1[1], "&") // separate the params
+		for i := 0; i < len(sb); i++ {
+			sc := strings.Split(sb[i], "=")
+			if len(sc) > 1 && strings.Contains(sc[1], ":") {
+				var t URLTerm
+				t.Term = rlib.Stripchars(sc[1], ":")
+				t.Definition = getDefinition(t.Term)
+				u.Parts = append(u.Parts, t) // yes: add it to the list, remove the colon
+			}
+		}
+	}
+	d.D.URLs = append(d.D.URLs, u)
 }
 
 func handleTitle(s string, d *Directive) {

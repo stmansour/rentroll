@@ -74,7 +74,7 @@ pre > code {
 	font-family: Roboto,"Source Sans Pro",sans-serif;
 	font-size: 10pt;
 }
-.JSONparams table {
+.JSONparams table, .URLparams table {
 	width: 100%;
 	margin: 0;
 	padding: 0;
@@ -82,11 +82,11 @@ pre > code {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-.JSONparams td {
+.JSONparams td, .URLparams td {
 	padding: 2px 8px;
 	vertical-align: top;
 }
-.JSONparams th {
+.JSONparams th, .URLparams th {
 	padding: 4px 8px;
 	background: #F5F5F5;
 	font-weight: bold;
@@ -97,12 +97,31 @@ pre > code {
 	font-family: Roboto,"Source Sans Pro",sans-serif;
 	font-size: 10pt;
 }
+.URLparams td, .URLparams th {
+	border: 1px solid #E0E0E0;
+	text-align: left;
+	font-family: Roboto,"Source Sans Pro",sans-serif;
+	font-size: 10pt;
+}
 table {
 	border-collapse: collapse;
 }
+p.indent50 {
+	margin-left: 50px;
+}
 </style>
 <p class="title1">{{.Title}}</p>
-<pre><code>{{.URL}}</code></pre>
+{{if not .URLs}}
+  {{else}}
+  {{range .URLs}}
+  <pre><code>{{.URL}}</code></pre>
+  {{end}}
+  <table class="URLparams" style="margin-left: 50px;"><tr><th>Name</th><th>Description</th></tr>
+  {{range .URLs}}
+  {{range .Parts}}<tr><td>{{.Term}}</td><td>{{.Definition}}</td></tr>{{end}}
+  {{end}}
+  </table>
+{{end}}
 <p class="Synopsis">{{.Synopsis}}.</p>
 <p class="Synopsis">{{.Description}}</p>
 
@@ -110,7 +129,7 @@ table {
 <p>{{range .Method}}<span class="FieldBlueBlock">{{.}}</span>&nbsp;&nbsp;{{end}}</p>
 
 <p class="title2">Input</p>
-<table class="JSONparams">
+<table class="JSONparams" style="margin-left: 50px;">
   <thead>
   <tr><th >Name</th><th >Type</th><th >Description</th></tr>
   </thead>
@@ -122,7 +141,7 @@ table {
 </table>
 
 <p class="title2">Response</p>
-<table class="JSONparams">
+<table class="JSONparams" style="margin-left: 50px;">
   <thead>
   <tr><th  >Name</th><th >Type</th><th >Description</th></tr>
   </thead>

@@ -153,7 +153,7 @@ type SearchTransactantsResponse struct {
 // SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
 // wsdoc {
 //  @Title  Seach Transactants
-//	@URL /v1/transactants/:BID
+//	@URL /v1/transactants/:BUI
 //	@Method POST
 //	@Synopsis Search transactants
 //  @Description Returns a list of Transactants matching the search criteria

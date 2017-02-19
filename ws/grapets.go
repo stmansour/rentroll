@@ -23,7 +23,7 @@ type RAPets struct {
 //
 // wsdoc {
 //  @Title  Rental Agreement Pets
-//	@URL /v1/rapets/:BID/:RAID ? dt=:DATE
+//	@URL /v1/rapets/:BUI/:RAID ? dt=:DATE
 //  @Method  GET
 //	@Synopsis Get the pets associated with a Rental Agreement
 //  @Description  Returns all the pets for the supplied Rental Agreement as of :DATE
