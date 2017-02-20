@@ -48,7 +48,7 @@ var pTypeList = []string{"payor", "user"}
 //  @Description  Get the Transactants of type :PRSTYPE who are associated with the
 //  @Description  Rental Agreement :RAID on the supplied :DATE.
 //  @Description  Note that :PRSTYPE is optional. If it is not present, :Payor is assumed.
-//	@Input WebRequest
+//	@Input none
 //  @Response RAPeopleResponse
 // wsdoc }
 //

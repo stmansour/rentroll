@@ -42,7 +42,7 @@ type RARList struct {
 //	@Method GET
 //	@Synopsis Get the rentables for the rental agreement on date dt
 //  @Description Returns all the rentables associated with the supplied Rental Agreement for the supplied date.
-//  @Input WebRequest
+//  @Input none
 //  @Response RAR
 // wsdoc }
 func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {

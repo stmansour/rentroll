@@ -256,20 +256,25 @@ func getDefinition(term string) template.HTML {
 	for strings.Contains(f, "&nbsp;") {              // remove non-breaking spaces
 		f = f[6:]
 	}
-	fmt.Printf("getDefinition: search for %s... ", f)
+	// fmt.Printf("getDefinition: search for %s... ", f)
 	if def := getTermDefinition(f); len(def) > 0 {
-		fmt.Printf("found!\n")
+		// fmt.Printf("%t!\n", len(def) > 0)
 		return def
 	}
 
 	// see if we can identified a field name.  If so, remove everything up through
 	// and including the last dot and check the glossary again.
-	if i := strings.LastIndex(f, "."); i >= 0 && i+1 < len(f) {
-		f = f[i+1:]
+	for strings.Contains(f, ".") {
+		if i := strings.Index(f, "."); i >= 0 && i+1 < len(f) {
+			f = f[i+1:]
+			if def := getTermDefinition(f); len(def) > 0 {
+				// fmt.Printf("%t!\n", len(def) > 0)
+				return def
+			}
+		}
 	}
-	def := getTermDefinition(f)
-	fmt.Printf("%t\n", len(def) > 0)
-	return def
+	// fmt.Printf("FALSE!\n")
+	return template.HTML("")
 }
 
 func isGlossaryTerm(t string) bool {
