@@ -21,10 +21,13 @@ man:
 	nroff -man webdoc.1
 	cp webdoc.1 /usr/local/share/man/man1
 
-package:
+docs:
+	rm -rf doc
+	./webdoc ${TOP}/ws
+
+package: docs
 	rm -rf ${PKGDIR}/doc
 	mkdir -p ${PKGDIR}/doc
-	./webdoc ${TOP}/ws
 	cp doc/*.html ${PKGDIR}/doc/
 	cp doc.css ${PKGDIR}/doc/
 	@echo "*** PACKAGE completed in webdoc ***"

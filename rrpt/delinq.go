@@ -59,7 +59,7 @@ func DelinquencyReport(ri *ReporterInfo) (rlib.Table, error) {
 
 	for rows.Next() {
 		var r rlib.Rentable
-		rlib.Errcheck(rows.Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy)) // read the rentable
+		rlib.Errcheck(rlib.ReadRentables(rows, &r))
 		rtid := rlib.GetRTIDForDate(r.RID, &ri.D2)
 		//------------------------------------------------------------------------------
 		// Get the RentalAgreement IDs for this rentable over the time range d1,ri.D2.

@@ -1109,20 +1109,22 @@ func GetReceiptsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []Receipt {
 
 // GetRentableByID reads a Rentable structure based on the supplied Rentable id
 func GetRentableByID(rid int64, r *Rentable) {
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy))
+	row := RRdb.Prepstmt.GetRentable.QueryRow(rid)
+	Errcheck(ReadRentable(row, r))
 }
 
 // GetRentable reads and returns a Rentable structure based on the supplied Rentable id
 func GetRentable(rid int64) Rentable {
 	var r Rentable
-	Errcheck(RRdb.Prepstmt.GetRentable.QueryRow(rid).Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy))
+	GetRentableByID(rid, &r)
 	return r
 }
 
 // GetRentableByName reads and returns a Rentable structure based on the supplied Rentable id
 func GetRentableByName(name string, bid int64) (Rentable, error) {
 	var r Rentable
-	err := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid).Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy)
+	row := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid)
+	err := ReadRentable(row, &r)
 	return r, err
 }
 

@@ -72,7 +72,7 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 			pf, num, den, start, stop = CalcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
 			if len(ta) > 1 {
 				Ulog("%s: %d Assessments affect Rentable %d (%s) in period %s - %s\n",
-					funcname, len(ta), r.RID, r.Name, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+					funcname, len(ta), r.RID, r.RentableName, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 			}
 		}
 	default:

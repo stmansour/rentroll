@@ -14,9 +14,22 @@ code {
 	background: #F8F8F8;
 	border: 1px solid #E0E0E0;
 	border-radius: 3px 3px 3px 3px;
-	color: #DD1144;
+	color: #4411EE;
 	font-family: "Source Code Pro";
 	font-size: 10pt;
+	white-space: pre;
+}
+.glossary {
+	display: inline-block;
+	margin: 0 0 2px 0;
+	padding: 0 4px;
+	background: #F8F8F8;
+	border: 1px solid #E0E0E0;
+	border-radius: 3px 3px 3px 3px;
+	color: #4411EE;
+	font-family: Roboto;
+	font-size: 10pt;
+	font-weight: bold;
 	white-space: pre;
 }
 .title1 {
@@ -45,6 +58,19 @@ pre > code {
 	color: #ffffff;
 	overflow: auto;
 }
+.FieldBlueBlock {
+	display: inline-grid;
+	margin: 12px 0;
+	padding: 4px 10px;
+	background: #4b97d4;
+	border: none;
+	border-radius: 3px;
+	color: #ffffff;
+	overflow: auto;
+	font-family: Roboto,"Source Sans Pro",sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+}
 .FieldHdr {
 	background: #F0F0F0;
 	font-family: "Source Sans Pro",sans-serif;
@@ -60,8 +86,9 @@ pre > code {
 .Synopsis {
 	font-family: Roboto,"Source Sans Pro",sans-serif;
 	font-size: 10pt;
+	margin-left: 50px;
 }
-.JSONparams table {
+.JSONparams table, .URLparams table {
 	width: 100%;
 	margin: 0;
 	padding: 0;
@@ -69,11 +96,11 @@ pre > code {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-.JSONparams td {
+.JSONparams td, .URLparams td {
 	padding: 2px 8px;
 	vertical-align: top;
 }
-.JSONparams th {
+.JSONparams th, .URLparams th {
 	padding: 4px 8px;
 	background: #F5F5F5;
 	font-weight: bold;
@@ -84,35 +111,57 @@ pre > code {
 	font-family: Roboto,"Source Sans Pro",sans-serif;
 	font-size: 10pt;
 }
+.URLparams td, .URLparams th {
+	border: 1px solid #E0E0E0;
+	text-align: left;
+	font-family: Roboto,"Source Sans Pro",sans-serif;
+	font-size: 10pt;
+}
 table {
 	border-collapse: collapse;
 }
+p.indent50 {
+	margin-left: 50px;
+}
 </style>
 <p class="title1">{{.Title}}</p>
-<pre><code>{{.URL}}</code></pre>
-
+{{if not .URLs}}
+  {{else}}
+  {{range .URLs}}
+  <pre><code>{{.URL}}</code></pre>
+  {{end}}
+  <table class="URLparams" style="margin-left: 50px;"><tr><th>Name</th><th>Description</th></tr>
+  {{range .URLs}}
+  {{range .Parts}}<tr><td>{{.Term}}</td><td>{{.Definition}}</td></tr>{{end}}
+  {{end}}
+  </table>
+{{end}}
 <p class="Synopsis">{{.Synopsis}}.</p>
 <p class="Synopsis">{{.Description}}</p>
+
+<p class="title2">Supported Methods</p>
+<p style="margin-left: 50px;">{{range .Method}}<span class="FieldBlueBlock">{{.}}</span>&nbsp;&nbsp;{{end}}</p>
+
 <p class="title2">Input</p>
-<table class="JSONparams">
+<table class="JSONparams" style="margin-left: 50px;">
   <thead>
   <tr><th >Name</th><th >Type</th><th >Description</th></tr>
   </thead>
   <tbody>
   {{range .Input}}
-  <tr><td >{{.Field}}</td><td ><code>{{.DataType}}</code></td ><td>&nbsp;</td></tr>
+  <tr><td >{{.Field}}</td><td ><code>{{.DataType}}</code></td ><td>{{.Definition}}&nbsp;</td></tr>
   {{end}}
    </tbody>
 </table>
 
 <p class="title2">Response</p>
-<table class="JSONparams">
+<table class="JSONparams" style="margin-left: 50px;">
   <thead>
   <tr><th  >Name</th><th >Type</th><th >Description</th></tr>
   </thead>
   <tbody>
   {{range .Response}}
-  <tr><td >{{.Field}}</td><td><code>{{.DataType}}</code></td><td>&nbsp;</td></tr>
+  <tr><td >{{.Field}}</td><td><code>{{.DataType}}</code></td><td>{{.Definition}}&nbsp;</td></tr>
   {{end}}
    </tbody>
 </table>

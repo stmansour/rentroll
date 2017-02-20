@@ -74,7 +74,7 @@ func GenVacancyJournals(xbiz *XBusiness, d1, d2 *time.Time) int {
 	defer rows.Close()
 	for rows.Next() {
 		var r Rentable
-		Errcheck(rows.Scan(&r.RID, &r.BID, &r.Name, &r.AssignmentTime, &r.LastModTime, &r.LastModBy))
+		Errcheck(ReadRentables(rows, &r))
 		nr += ProcessRentable(xbiz, d1, d2, &r)
 	}
 	Errcheck(rows.Err())

@@ -21,11 +21,11 @@ import (
 // RentableForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
 type RentableForm struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	RID         int64
-	Name        string
-	LastModTime rlib.JSONTime
-	LastModBy   int64
+	Recid        int64 `json:"recid"` // this is to support the w2ui form
+	RID          int64
+	RentableName string
+	LastModTime  rlib.JSONTime
+	LastModBy    int64
 }
 
 // RentableOther is a struct to handle the UI list box selections
@@ -40,7 +40,7 @@ type PrRentableOther struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RID            int64
 	BID            rlib.XJSONBud
-	Name           string
+	RentableName   string
 	AssignmentTime rlib.XJSONAssignmentTime
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
@@ -62,10 +62,10 @@ type GetRentableResponse struct {
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
 // wsdoc {
 //  @Title  Search Rentables
-//	@URL /v1/rentables/:BID
+//	@URL /v1/rentables/:BUI
 //  @Method  POST
-//	@Synopsis Return all Rentables matching the search criteria
-//  @Description  Return all Transactants of type :PTYPE (payor or user) on the supplied :DATE
+//	@Synopsis Search Rentables
+//  @Description  Search all Rentables and return those that match the Search Logic
 //	@Input WebRequest
 //  @Response SearchRentablesResponse
 // wsdoc }
@@ -78,7 +78,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	var g SearchRentablesResponse
 
 	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "Name ASC"                  // default ORDER
+	order := "RentableName ASC"          // default ORDER
 	q, qw := gridBuildQuery("Rentable", srch, order, d, &p)
 
 	// set g.Total to the total number of rows of this data...
@@ -150,6 +150,16 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 }
 
+// GetRentable returns the requested rentable
+// wsdoc {
+//  @Title  Save Rentable
+//	@URL /v1/rentable/:BUI/:RID
+//  @Method  GET
+//	@Synopsis Update the information on a Rentable with the supplied data
+//  @Description  This service updates Rentable :RID with the information supplied. All fields must be supplied.
+//	@Input WebRequest
+//  @Response SvcStatusResponse
+// wsdoc }
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// funcname := "saveRentable"
 	target := `"record":`
@@ -211,9 +221,9 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // GetRentable returns the requested rentable
 // wsdoc {
 //  @Title  Get Rentable
-//	@URL /v1/rentable/:BID/:RID
+//	@URL /v1/rentable/:BUI/:RID
 //  @Method  GET
-//	@Synopsis Get details about a rentable
+//	@Synopsis Get information on a Rentable
 //  @Description  Return all fields for rentable :RID
 //	@Input WebRequest
 //  @Response GetRentableResponse

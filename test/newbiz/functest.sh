@@ -21,7 +21,7 @@ mysqlverify "o"  ""				       		"Users"	                    	"select TCID,Points
 mysqlverify "p"  ""				 	   		"Payors"	                    "select TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
 mysqlverify "q"  ""				       		"Prospects"	            		"select TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
 mysqlverify "na"  "-V vehicle.csv"       	"Vehicles"	            		"select VID,TCID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"
-mysqlverify "k"  "-r rentable.csv"     		"Rentables"	            		"select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
+mysqlverify "k"  "-r rentable.csv"     		"Rentables"	            		"select RID,BID,RentableName,AssignmentTime,LastModBy from Rentable;"
 mysqlverify "l"  " "                   		"RentableTypeRef"	    		"select RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 mysqlverify "m"  " "                   		"RentableStatus"	            "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
 mysqlverify "r"  "-T rat.csv"          		"RentalAgreementTemplates"   	"select RATID,BID,RATemplateName,LastModBy from RentalAgreementTemplate;"

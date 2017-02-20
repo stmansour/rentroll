@@ -92,8 +92,8 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	// The name must be unique. Make sure we don't have any other rlib.Rentable
 	// with this name...
 	//-------------------------------------------------------------------
-	r.Name = strings.TrimSpace(sa[Name])
-	r1, err := rlib.GetRentableByName(r.Name, r.BID)
+	r.RentableName = strings.TrimSpace(sa[Name])
+	r1, err := rlib.GetRentableByName(r.RentableName, r.BID)
 	if err != nil {
 		s := err.Error()
 		if !strings.Contains(s, "no rows") {
@@ -101,7 +101,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		}
 	}
 	if r1.RID > 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Rentable with name \"%s\" already exists. Skipping. ", funcname, lineno, DupRentable, r.Name)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Rentable with name \"%s\" already exists. Skipping. ", funcname, lineno, DupRentable, r.RentableName)
 	}
 
 	//-------------------------------------------------------------------

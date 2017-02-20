@@ -16,14 +16,16 @@ import (
 
 // RAPeople defines a person for the web service interface
 type RAPeople struct {
-	Recid      int64  `json:"recid"` // this is to support the w2ui form
-	TCID       int64  // associated rental agreement
-	BID        int64  // Business
-	FirstName  string // person name
-	MiddleName string // person name
-	LastName   string // person name
-	RID        int64  // Rentable ID
-	Name       string // rentable name
+	Recid        int64         `json:"recid"` // this is to support the w2ui form
+	TCID         int64         // associated rental agreement
+	BID          int64         // Business
+	FirstName    string        // person name
+	MiddleName   string        // person name
+	LastName     string        // person name
+	RID          int64         // Rentable ID
+	RentableName string        // rentable name
+	DtStart      rlib.JSONTime // start date/time for this Rentable
+	DtStop       rlib.JSONTime // stop date/time
 }
 
 // RAPeopleResponse is the struct containing the JSON return values for this web service
@@ -40,17 +42,19 @@ var pTypeList = []string{"payor", "user"}
 //
 // wsdoc {
 //  @Title  Rental Agreement People
-//	@URL /v1/rapeople/:BID/:RAID ? type=:PTYPE & dt=:DATE
+//	@URL /v1/rapeople/:BUI/:RAID ? dt=:DATE & type=:PRSTYPE
 //  @Method  GET
-//	@Synopsis Return Rental Agreement payors or users
-//  @Description  Return all Transactants of type :PTYPE (payor or user) on the supplied :DATE
+//	@Synopsis Get Rental Agreement payors or users
+//  @Description  Get the Transactants of type :PRSTYPE who are associated with the
+//  @Description  Rental Agreement :RAID on the supplied :DATE.
+//  @Description  Note that :PRSTYPE is optional. If it is not present, :Payor is assumed.
 //	@Input WebRequest
 //  @Response RAPeopleResponse
 // wsdoc }
 //
 // URL:
 //       0    1       2    3
-// 		/v1/rapeep/BID/RAID?type={payor|user}&dt=2017-02-01
+// 		/v1/rapeople/BID/RAID?type={payor|user}&dt=2017-02-01
 //-----------------------------------------------------------------------------
 func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered SvcRAPeople\n")
@@ -74,7 +78,7 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Handle URL parameters
 	//------------------------------------------------------
 	dt := time.Now()                   // default to current date
-	ptype := "payor"                   //default to payor
+	ptype := "payor"                   // default to payor
 	if len(s1) > 1 && len(s1[1]) > 0 { // override with whatever was provided
 		parms := strings.Split(s1[1], "&") // parms is an array of indivdual parameters and their values
 		for i := 0; i < len(parms); i++ {

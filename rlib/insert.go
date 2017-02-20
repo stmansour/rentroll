@@ -435,7 +435,7 @@ func InsertProspect(a *Prospect) (int64, error) {
 // InsertRentable writes a new Rentable record to the database
 func InsertRentable(a *Rentable) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentable.Exec(a.BID, a.Name, a.AssignmentTime, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentable.Exec(a.BID, a.RentableName, a.AssignmentTime, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

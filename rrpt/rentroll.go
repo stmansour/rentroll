@@ -123,8 +123,8 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 
 	for rows.Next() {
 		var p rlib.Rentable
-		rlib.Errcheck(rows.Scan(&p.RID, &p.BID, &p.Name, &p.AssignmentTime, &p.LastModTime, &p.LastModBy)) // read the rentable
-		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2)                                              // its RentableType is time sensitive
+		rlib.Errcheck(rows.Scan(&p.RID, &p.BID, &p.RentableName, &p.AssignmentTime, &p.LastModTime, &p.LastModBy)) // read the rentable
+		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2)                                                      // its RentableType is time sensitive
 
 		rtid := p.RT[0].RTID // select its value at the beginning of this period
 		sqft := int64(0)     // assume no custom attribute
@@ -259,7 +259,7 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 			secdepEndBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d2)
 
 			tbl.AddRow()
-			tbl.Puts(-1, RName, p.Name)
+			tbl.Puts(-1, RName, p.RentableName)
 			tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)
 			tbl.Puti(-1, RTSqFt, sqft)
 			tbl.Puts(-1, RUsers, usernames)
@@ -307,7 +307,7 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 			m := rlib.GetRentableStatusByRange(p.RID, d1, d2)
 			lastRStat := m[len(m)-1].Status
 			tbl.AddRow()
-			tbl.Puts(-1, RName, p.Name)
+			tbl.Puts(-1, RName, p.RentableName)
 			tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)
 			tbl.Puti(-1, RTSqFt, sqft)
 			tbl.Puts(-1, RUsers, rlib.RentableStatusToString(lastRStat))

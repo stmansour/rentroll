@@ -107,7 +107,7 @@ type GetRentalAgreementResponse struct {
 // SvcSearchHandlerRentalAgr generates a report of all RentalAgreements defined business d.BID
 // wsdoc {
 //  @Title  Search Rental Agreements
-//	@URL /v1/rentalagrs/:BID
+//	@URL /v1/rentalagrs/:BUI
 //  @Method  GET, POST
 //	@Synopsis Return Rental Agreements that match the criteria provided.
 //  @Description
@@ -194,7 +194,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 
 // wsdoc {
 //  @Title  Save Rental Agreement
-//	@URL /v1/rentalagr/:BID/:RAID
+//	@URL /v1/rentalagr/:BUI/:RAID
 //  @Method  POST
 //	@Synopsis Save (create or update) a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.
@@ -279,7 +279,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 // wsdoc {
 //  @Title  Get Rental Agreement
-//	@URL /v1/rentalagr/:BID/:RAID
+//	@URL /v1/rentalagr/:BUI/:RAID
 //	@Method POST or GET
 //	@Synopsis Get a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.

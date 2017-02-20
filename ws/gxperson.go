@@ -153,7 +153,7 @@ type SearchTransactantsResponse struct {
 // SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
 // wsdoc {
 //  @Title  Seach Transactants
-//	@URL /v1/transactants/:BID
+//	@URL /v1/transactants/:BUI
 //	@Method POST
 //	@Synopsis Search transactants
 //  @Description Returns a list of Transactants matching the search criteria
@@ -237,6 +237,15 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 }
 
 // saveXPerson handles the Save action from the Transactant Form
+// wsdoc {
+//  @Title  Save Transactant
+//	@URL /v1/person/:BUI/:TCID
+//	@Method POST
+//	@Synopsis Save a Transactant
+//  @Description
+//  @Input WebRequest
+//  @Response SearchTransactantsResponse
+// wsdoc }
 func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveXPerson"
 	target := `"record":`
@@ -347,6 +356,15 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 // getXPerson handles the request for an XPerson from the Transactant Form
+// wsdoc {
+//  @Title  Get Transactant
+//	@URL /v1/person/:BUI/:TCID
+//	@Method POST
+//	@Synopsis Read a Transactant
+//  @Description
+//  @Input WebRequest
+//  @Response SearchTransactantsResponse
+// wsdoc }
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var g GetTransactantResponse
 	var xp rlib.XPerson

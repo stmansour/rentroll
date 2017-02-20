@@ -25,18 +25,18 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 	switch j.Type {
 	case rlib.JNLTYPEUNAS:
 		r := rlib.GetRentable(j.ID) // j.ID is set to RID when the type is unassociated
-		return "Unassociated", r.Name, sra
+		return "Unassociated", r.RentableName, sra
 	case rlib.JNLTYPERCPT:
 		ja := rlib.GetJournalAllocation(l.JAID)
 		a, _ := rlib.GetAssessment(ja.ASMID)
 		r := rlib.GetRentable(a.RID)
 		rcpt := rlib.GetReceipt(j.ID) // ID is the receipt id
 		p := fmt.Sprintf("Payment #%s - ", rcpt.DocNo)
-		return p + rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name, r.Name, sra
+		return p + rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name, r.RentableName, sra
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)
-		return "Assessment - " + rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name, r.Name, sra
+		return "Assessment - " + rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name, r.RentableName, sra
 
 	default:
 		fmt.Printf("getLedgerEntryDescription: unrecognized type: %d\n", j.Type)

@@ -23,7 +23,7 @@ type RAPets struct {
 //
 // wsdoc {
 //  @Title  Rental Agreement Pets
-//	@URL /v1/rapets/:BID/:RAID ? dt=:DATE
+//	@URL /v1/rapets/:BUI/:RAID ? dt=:DATE
 //  @Method  GET
 //	@Synopsis Get the pets associated with a Rental Agreement
 //  @Description  Returns all the pets for the supplied Rental Agreement as of :DATE
@@ -36,12 +36,12 @@ type RAPets struct {
 //-----------------------------------------------------------------------------
 func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered SvcRAPets\n")
-	s := r.URL.String() // ex: /v1/rapets/CCC/10?dt=2017-02-01
-	// fmt.Printf("s = %s\n", s)           // x
-	s1 := strings.Split(s, "?") // ex: /v1/rapets/CCC/10?dt=2017-02-01
-	// fmt.Printf("s1 = %#v\n", s1)        // x
+	s := r.URL.String()                 // ex: /v1/rapets/CCC/10?dt=2017-02-01
+	fmt.Printf("s = %s\n", s)           // x
+	s1 := strings.Split(s, "?")         // ex: /v1/rapets/CCC/10?dt=2017-02-01
+	fmt.Printf("s1 = %#v\n", s1)        // x
 	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "rapets", "CCC", "10"}
-	// fmt.Printf("ss = %#v\n", ss)
+	fmt.Printf("ss = %#v\n", ss)
 
 	//------------------------------------------------------
 	// Handle URL path values

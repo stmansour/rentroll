@@ -10,7 +10,9 @@ import (
 	"reflect"
 	"rentroll/rlib"
 	"rentroll/ws"
+	"sort"
 	"strings"
+	"text/scanner"
 	"time"
 )
 
@@ -24,9 +26,22 @@ type Creator func() interface{}
 // ProtocolJSON describes an individual field in the JSON protocol
 // for this web service
 type ProtocolJSON struct {
-	Field    string
-	DataType string
-	Optional bool
+	Field      template.HTML // name of the field
+	DataType   template.HTML // data type for this field
+	Definition template.HTML // definition of the field
+	Optional   bool
+}
+
+// URLTerm is a subpart of a url and its definition
+type URLTerm struct {
+	Term       string
+	Definition template.HTML
+}
+
+// URLDef is a struct defining a URL and its subparts
+type URLDef struct {
+	URL   string    // the actual url
+	Parts []URLTerm // the colon-prefixed parts that need definitions
 }
 
 // DirectiveData is a struct of data describing the web service. Its members
@@ -34,10 +49,10 @@ type ProtocolJSON struct {
 // create an html file describing the web service.
 type DirectiveData struct {
 	Title       string         // name of web service
-	URL         string         // programming url format
+	URLs        []URLDef       // one or more URLs defining the
 	Synopsis    string         // One line explanation
-	Method      string         // POST, GET, ...
-	Description string         // detailed explanation
+	Method      []string       // POST, GET, ...
+	Description template.HTML  // detailed explanation
 	Input       []ProtocolJSON // JSON input data
 	Response    []ProtocolJSON // JSON response data
 	Filename    string         // the name of the html file describing the web service
@@ -52,9 +67,12 @@ type Directive struct {
 	D       *DirectiveData
 }
 
+// DirDataSlice is a type for an array to easily sort Directive
+type DirDataSlice []DirectiveData
+
 // IndexData is an array of DirectiveData structs used to generate an index page.
 var IndexData struct {
-	TOC     []DirectiveData
+	TOC     DirDataSlice
 	Date    string
 	Version string
 }
@@ -212,38 +230,93 @@ func AnalyzeType(t string) (bool, bool, string) {
 	return IsSlice, Recursion, Tname
 }
 
+// getDefinition looks for term in the glossary maps
+// It will return the definition if it finds one. Otherwise
+// it returns an empty string
+func getDefinition(term string) template.HTML {
+	fn := strings.ToLower(rlib.Stripchars(term, ". "))
+	fp, ok := GlossaryAbbr[fn]
+	if ok {
+		return template.HTML((*fp).Definition)
+	}
+	fp, ok = GlossaryTerm[fn]
+	if ok {
+		return template.HTML((*fp).Definition)
+	}
+	return template.HTML("")
+}
+
+func isGlossaryTerm(t string) bool {
+	s := strings.ToLower(t)
+	_, ok := GlossaryAbbr[s]
+	if ok {
+		return true
+	}
+	_, ok = GlossaryTerm[s]
+	return ok
+}
+
 // ListVars lists the names of the variables within a struct and their types
-func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
+func ListVars(a interface{}, d *Directive, prefix template.HTML) []ProtocolJSON {
 	var m []ProtocolJSON
 	v := reflect.ValueOf(a).Elem()
-	prefix := ""
-	for i := 0; i < depth; i++ {
-		prefix += "...."
-	}
+	prefix = "&nbsp;&nbsp;&nbsp;&nbsp;" + prefix
 	for j := 0; j < v.NumField(); j++ {
 		var p ProtocolJSON
 		f := v.Field(j)
-		p.Field = prefix + v.Type().Field(j).Name
-		p.DataType = f.Type().String()
-		isSlice, recurse, rtype := AnalyzeType(p.DataType)
+		p.Field = prefix + template.HTML(v.Type().Field(j).Name)   // set the field name
+		p.DataType = template.HTML(f.Type().String())              // set its data type
+		isSlice, recurse, rtype := AnalyzeType(string(p.DataType)) // analyze and modify as needed
 		sl := ""
 		if isSlice {
 			sl = "[]"
 		}
-		p.DataType = sl + rtype
+		p.DataType = template.HTML(sl + rtype)
+		p.Definition = getDefinition(string(p.Field))
 		// fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
 		m = append(m, p)
 		if recurse {
 			x := WSTypeFactory[rtype]()
-			n := ListVars(x, d, depth+1)
+			n := ListVars(x, d, prefix+template.HTML(rtype+"."))
 			m = append(m, n...)
 		}
 	}
 	return m
 }
 
+// handleURL saves the URL for printing and creates a list of all the
+// parts that need explanation.  The url is expected to be in this format
+//
+//          /v1/rentagr/:BUI/:RAID ? dt=:DATE & raid=:RAID
+//
+// Any part of this url that is preceded by a colon indicates that it needs
+// definition.  So there are 2,  :BUI  and  :RAID
 func handleURL(s string, d *Directive) {
-	d.D.URL = strings.TrimSpace(s[len(d.Cmd):])
+	var u URLDef
+	u.URL = strings.TrimSpace(s[len(d.Cmd):])
+	s1 := strings.Split(u.URL, "?")
+	sa := strings.Split(s1[0], "/")
+	for i := 0; i < len(sa); i++ {
+		if strings.Contains(sa[i], ":") { // are there any parts that need definitions?
+			var t URLTerm
+			t.Term = rlib.Stripchars(sa[i], ":")
+			t.Definition = getDefinition(t.Term)
+			u.Parts = append(u.Parts, t) // yes: add it to the list, remove the colon
+		}
+	}
+	if len(s1) > 1 {
+		sb := strings.Split(s1[1], "&") // separate the params
+		for i := 0; i < len(sb); i++ {
+			sc := strings.Split(sb[i], "=")
+			if len(sc) > 1 && strings.Contains(sc[1], ":") {
+				var t URLTerm
+				t.Term = rlib.Stripchars(sc[1], ":")
+				t.Definition = getDefinition(t.Term)
+				u.Parts = append(u.Parts, t) // yes: add it to the list, remove the colon
+			}
+		}
+	}
+	d.D.URLs = append(d.D.URLs, u)
 }
 
 func handleTitle(s string, d *Directive) {
@@ -256,12 +329,51 @@ func handleSynopsis(s string, d *Directive) {
 	d.D.Synopsis = strings.TrimSpace(s[len(d.Cmd):])
 }
 
+func handleGlossaryTerms(src string) template.HTML {
+	var s2 template.HTML
+	var s scanner.Scanner
+	s.Filename = "sample"
+	s.Init(strings.NewReader(src))
+	var tok rune
+	for tok != scanner.EOF {
+		tok = s.Scan()
+		if s.TokenText() == ":" {
+			tok = s.Scan()
+			if tok != scanner.EOF {
+				if isGlossaryTerm(s.TokenText()) {
+					s2 += template.HTML(" <span class=\"glossary\">" + s.TokenText() + "</span>")
+				} else {
+					s2 += template.HTML(" " + s.TokenText())
+				}
+			} else {
+				s2 += template.HTML(":")
+			}
+		} else {
+			s2 += template.HTML(" " + s.TokenText())
+		}
+	}
+	return s2
+}
+
 func handleDescription(s string, d *Directive) {
-	d.D.Description = strings.TrimSpace(s[len(d.Cmd):])
+	s1 := strings.TrimSpace(s[len(d.Cmd):])
+	// look for any words that indicate it need to be surrounded with <code> tags.
+	s2 := handleGlossaryTerms(s1)
+	if len(d.D.Description) == 0 {
+		d.D.Description = s2
+	} else {
+		d.D.Description += " " + s2
+	}
 }
 
 func handleMethod(s string, d *Directive) {
-	d.D.Method = strings.TrimSpace(s[len(d.Cmd):])
+	t := strings.ToLower(strings.TrimSpace(s[len(d.Cmd):]))
+	if strings.Contains(t, "get") {
+		d.D.Method = append(d.D.Method, "GET")
+	}
+	if strings.Contains(t, "post") {
+		d.D.Method = append(d.D.Method, "POST")
+	}
 }
 
 func handleInput(s string, d *Directive) {
@@ -284,7 +396,7 @@ func getStructDef(s string, d *Directive) []ProtocolJSON {
 		_, ok := WSTypeFactory[t]
 		if ok {
 			x := WSTypeFactory[t]()
-			return ListVars(x, d, 0)
+			return ListVars(x, d, template.HTML(""))
 		}
 		if strings.ToLower(t) == "string" {
 			var p ProtocolJSON
@@ -366,13 +478,21 @@ func isCommentContaining(s, target string) bool {
 	return strings.Index(strings.TrimSpace(ss[1]), target) == 0
 }
 
-func generateDocs() error {
+// DirDataSlice implements sort.Interface for []DirectiveData based on
+// the Title field.
+func (a DirDataSlice) Len() int           { return len(a) }
+func (a DirDataSlice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a DirDataSlice) Less(i, j int) bool { return a[i].Title < a[j].Title }
+
+// generateDocIndexPage generates the index page for the documentation
+func generateDocIndexPage() error {
 	f, err := os.Create("./doc/docs.html")
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
+	sort.Sort(IndexData.TOC)
 	IndexData.Date = time.Now().Format("Jan 2, 2006  3:04PM MST")
 	IndexData.Version = "1.0"
 	t, err := template.New("docs.html").ParseFiles("docs.html")
@@ -424,11 +544,17 @@ func processGoFiles(path string, f os.FileInfo, err error) error {
 		fmt.Printf("Error scanning file: %s\n", scanner.Err().Error())
 		return err
 	}
-	err = generateDocs()
+	err = generateDocIndexPage()
 	return err
 }
 
 func main() {
+	var files = []string{"rrglossary", "rrsuppl"}
+	for i := 0; i < len(files); i++ {
+		if err := LoadGlossary(fmt.Sprintf("./%s.csv", files[i])); err != nil {
+			fmt.Printf("Error loading %s.csv:  %s\n", files[i], err.Error())
+		}
+	}
 	root := "."
 	flag.Parse()
 	if flag.NArg() > 0 {

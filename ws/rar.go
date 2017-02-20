@@ -19,6 +19,7 @@ type RAR struct {
 	RAID         int64         // associated rental agreement
 	BID          int64         // Business
 	RID          int64         // the Rentable
+	RentableName string        // name of RID
 	ContractRent float64       // the rent
 	RARDtStart   rlib.JSONTime // start date/time for this Rentable
 	RARDtStop    rlib.JSONTime // stop date/time
@@ -37,7 +38,7 @@ type RARList struct {
 // 		/v1/rar/BID/RAID?dt=2017-01-03
 // wsdoc {
 //  @Title  Rental Agreement Rentables
-//	@URL /v1/rar/:BID/:RAID ? dt=:DATE
+//	@URL /v1/rar/:BUI/:RAID ? dt=:DATE
 //	@Method GET
 //	@Synopsis Get the rentables for the rental agreement on date dt
 //  @Description Returns all the rentables associated with the supplied Rental Agreement for the supplied date.
@@ -69,7 +70,9 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for i := 0; i < len(m); i++ {
 		var xr RAR
 		xr.Recid = int64(i + 1)
+		r := rlib.GetRentable(m[i].RID)
 		rlib.MigrateStructVals(&m[i], &xr)
+		xr.RentableName = r.RentableName
 		rar.Records = append(rar.Records, xr)
 	}
 	rar.Status = "success"
