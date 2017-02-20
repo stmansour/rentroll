@@ -51,9 +51,9 @@ func generateSummaryReport(
 	var tbl rlib.Table
 	tbl.Init()
 	tbl.AddColumn("Data Type", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Total Possible", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Total Imported", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Issues", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Total Possible", 10, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Total Imported", 10, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Issues", 10, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
 
 	// evaluate import count
 	core.GetImportedCount(summaryCount, BID)
@@ -73,9 +73,9 @@ func generateSummaryReport(
 		// add row
 		tbl.AddRow()
 		tbl.Puts(-1, 0, core.DBTypeMap[dbType])
-		tbl.Puts(-1, 1, strconv.Itoa(countMap["possible"]))
-		tbl.Puts(-1, 2, strconv.Itoa(countMap["imported"]))
-		tbl.Puts(-1, 3, strconv.Itoa(countMap["issues"]))
+		tbl.Puti(-1, 1, int64(countMap["possible"]))
+		tbl.Puti(-1, 2, int64(countMap["imported"]))
+		tbl.Puti(-1, 3, int64(countMap["issues"]))
 	}
 
 	report += tbl.SprintTable(rlib.RPTTEXT)
