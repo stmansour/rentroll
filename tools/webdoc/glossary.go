@@ -63,7 +63,7 @@ func LoadGlossary(fname string) error {
 		g.Selections = ta[Selections]
 		g.Example = ta[Example]
 		g.Module = ta[Module]
-		termIndex := strings.ToLower(rlib.Stripchars(g.Term, ". "))
+		termIndex := strings.ToLower(rlib.Stripchars(g.Term, " "))
 		Glossary = append(Glossary, &g)
 		if len(g.Abbreviation) > 0 {
 			GlossaryAbbr[strings.ToLower(g.Abbreviation)] = &g

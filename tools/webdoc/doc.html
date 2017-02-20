@@ -143,6 +143,7 @@ p.indent50 {
 <p style="margin-left: 50px;">{{range .Method}}<span class="FieldBlueBlock">{{.}}</span>&nbsp;&nbsp;{{end}}</p>
 
 <p class="title2">Input</p>
+{{$length := len .Input}}{{if gt $length 0}}
 <table class="JSONparams" style="margin-left: 50px;">
   <thead>
   <tr><th >Name</th><th >Type</th><th >Description</th></tr>
@@ -153,6 +154,9 @@ p.indent50 {
   {{end}}
    </tbody>
 </table>
+{{else}}
+<p class="Synopsis">Not Applicable</p>
+{{end}}
 
 <p class="title2">Response</p>
 <table class="JSONparams" style="margin-left: 50px;">
