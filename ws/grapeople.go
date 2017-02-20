@@ -42,17 +42,19 @@ var pTypeList = []string{"payor", "user"}
 //
 // wsdoc {
 //  @Title  Rental Agreement People
-//	@URL /v1/rapeople/:BUI/:RAID ? type=:PTYPE & dt=:DATE
+//	@URL /v1/rapeople/:BUI/:RAID ? dt=:DATE & type=:PRSTYPE
 //  @Method  GET
-//	@Synopsis Return Rental Agreement payors or users
-//  @Description  Return all Transactants of type :PTYPE (payor or user) on the supplied :DATE
+//	@Synopsis Get Rental Agreement payors or users
+//  @Description  Get the Transactants of type :PRSTYPE who are associated with the
+//  @Description  Rental Agreement :RAID on the supplied :DATE.
+//  @Description  Note that :PRSTYPE is optional. If it is not present, :Payor is assumed.
 //	@Input WebRequest
 //  @Response RAPeopleResponse
 // wsdoc }
 //
 // URL:
 //       0    1       2    3
-// 		/v1/rapeep/BID/RAID?type={payor|user}&dt=2017-02-01
+// 		/v1/rapeople/BID/RAID?type={payor|user}&dt=2017-02-01
 //-----------------------------------------------------------------------------
 func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered SvcRAPeople\n")

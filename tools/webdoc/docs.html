@@ -54,6 +54,10 @@ $(function () {
             }
         }
     }));
+    {{$d := index .TOC 0}}
+    w2ui.sidebar.select('{{$d.ID}}'); // select the first doc automatically
+    w2ui.sidebar.click('{{$d.ID}}'); // show the first doc automatically
+
 
 })
 </script>

@@ -27,7 +27,7 @@ func String2Int64MapToJSList(name string, m *rlib.Str2Int64Map) string {
 // SvcUILists returns JSON for the Javascript lists needed for the UI
 // wsdoc {
 //  @Title  Get UI Lists
-//	@URL /v1/accounts/:BUI
+//	@URL /v1/uilist/:BUI
 //  @Method  GET, POST
 //	@Synopsis Return string lists that are used in the UI
 //  @Description Return data can be processed by eval() to create the string lists used in the UI

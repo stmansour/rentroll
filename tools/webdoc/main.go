@@ -10,7 +10,9 @@ import (
 	"reflect"
 	"rentroll/rlib"
 	"rentroll/ws"
+	"sort"
 	"strings"
+	"text/scanner"
 	"time"
 )
 
@@ -24,8 +26,8 @@ type Creator func() interface{}
 // ProtocolJSON describes an individual field in the JSON protocol
 // for this web service
 type ProtocolJSON struct {
-	Field      string        // name of the field
-	DataType   string        // data type for this field
+	Field      template.HTML // name of the field
+	DataType   template.HTML // data type for this field
 	Definition template.HTML // definition of the field
 	Optional   bool
 }
@@ -50,7 +52,7 @@ type DirectiveData struct {
 	URLs        []URLDef       // one or more URLs defining the
 	Synopsis    string         // One line explanation
 	Method      []string       // POST, GET, ...
-	Description string         // detailed explanation
+	Description template.HTML  // detailed explanation
 	Input       []ProtocolJSON // JSON input data
 	Response    []ProtocolJSON // JSON response data
 	Filename    string         // the name of the html file describing the web service
@@ -65,9 +67,12 @@ type Directive struct {
 	D       *DirectiveData
 }
 
+// DirDataSlice is a type for an array to easily sort Directive
+type DirDataSlice []DirectiveData
+
 // IndexData is an array of DirectiveData structs used to generate an index page.
 var IndexData struct {
-	TOC     []DirectiveData
+	TOC     DirDataSlice
 	Date    string
 	Version string
 }
@@ -241,31 +246,38 @@ func getDefinition(term string) template.HTML {
 	return template.HTML("")
 }
 
+func isGlossaryTerm(t string) bool {
+	s := strings.ToLower(t)
+	_, ok := GlossaryAbbr[s]
+	if ok {
+		return true
+	}
+	_, ok = GlossaryTerm[s]
+	return ok
+}
+
 // ListVars lists the names of the variables within a struct and their types
-func ListVars(a interface{}, d *Directive, depth int) []ProtocolJSON {
+func ListVars(a interface{}, d *Directive, prefix template.HTML) []ProtocolJSON {
 	var m []ProtocolJSON
 	v := reflect.ValueOf(a).Elem()
-	prefix := ""
-	for i := 0; i < depth; i++ {
-		prefix += "...."
-	}
+	prefix = "&nbsp;&nbsp;&nbsp;&nbsp;" + prefix
 	for j := 0; j < v.NumField(); j++ {
 		var p ProtocolJSON
 		f := v.Field(j)
-		p.Field = prefix + v.Type().Field(j).Name          // set the field name
-		p.DataType = f.Type().String()                     // set its data type
-		isSlice, recurse, rtype := AnalyzeType(p.DataType) // analyze and modify as needed
+		p.Field = prefix + template.HTML(v.Type().Field(j).Name)   // set the field name
+		p.DataType = template.HTML(f.Type().String())              // set its data type
+		isSlice, recurse, rtype := AnalyzeType(string(p.DataType)) // analyze and modify as needed
 		sl := ""
 		if isSlice {
 			sl = "[]"
 		}
-		p.DataType = sl + rtype
-		p.Definition = getDefinition(p.Field)
+		p.DataType = template.HTML(sl + rtype)
+		p.Definition = getDefinition(string(p.Field))
 		// fmt.Printf("Name = %s, Recurse = %t,  Kind = %s,  type = %s\n", p.Field, recurse, f.Kind().String(), rtype)
 		m = append(m, p)
 		if recurse {
 			x := WSTypeFactory[rtype]()
-			n := ListVars(x, d, depth+1)
+			n := ListVars(x, d, prefix+template.HTML(rtype+"."))
 			m = append(m, n...)
 		}
 	}
@@ -317,8 +329,41 @@ func handleSynopsis(s string, d *Directive) {
 	d.D.Synopsis = strings.TrimSpace(s[len(d.Cmd):])
 }
 
+func handleGlossaryTerms(src string) template.HTML {
+	var s2 template.HTML
+	var s scanner.Scanner
+	s.Filename = "sample"
+	s.Init(strings.NewReader(src))
+	var tok rune
+	for tok != scanner.EOF {
+		tok = s.Scan()
+		if s.TokenText() == ":" {
+			tok = s.Scan()
+			if tok != scanner.EOF {
+				if isGlossaryTerm(s.TokenText()) {
+					s2 += template.HTML(" <span class=\"glossary\">" + s.TokenText() + "</span>")
+				} else {
+					s2 += template.HTML(" " + s.TokenText())
+				}
+			} else {
+				s2 += template.HTML(":")
+			}
+		} else {
+			s2 += template.HTML(" " + s.TokenText())
+		}
+	}
+	return s2
+}
+
 func handleDescription(s string, d *Directive) {
-	d.D.Description = strings.TrimSpace(s[len(d.Cmd):])
+	s1 := strings.TrimSpace(s[len(d.Cmd):])
+	// look for any words that indicate it need to be surrounded with <code> tags.
+	s2 := handleGlossaryTerms(s1)
+	if len(d.D.Description) == 0 {
+		d.D.Description = s2
+	} else {
+		d.D.Description += " " + s2
+	}
 }
 
 func handleMethod(s string, d *Directive) {
@@ -351,7 +396,7 @@ func getStructDef(s string, d *Directive) []ProtocolJSON {
 		_, ok := WSTypeFactory[t]
 		if ok {
 			x := WSTypeFactory[t]()
-			return ListVars(x, d, 0)
+			return ListVars(x, d, template.HTML(""))
 		}
 		if strings.ToLower(t) == "string" {
 			var p ProtocolJSON
@@ -433,13 +478,21 @@ func isCommentContaining(s, target string) bool {
 	return strings.Index(strings.TrimSpace(ss[1]), target) == 0
 }
 
-func generateDocs() error {
+// DirDataSlice implements sort.Interface for []DirectiveData based on
+// the Title field.
+func (a DirDataSlice) Len() int           { return len(a) }
+func (a DirDataSlice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a DirDataSlice) Less(i, j int) bool { return a[i].Title < a[j].Title }
+
+// generateDocIndexPage generates the index page for the documentation
+func generateDocIndexPage() error {
 	f, err := os.Create("./doc/docs.html")
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
+	sort.Sort(IndexData.TOC)
 	IndexData.Date = time.Now().Format("Jan 2, 2006  3:04PM MST")
 	IndexData.Version = "1.0"
 	t, err := template.New("docs.html").ParseFiles("docs.html")
@@ -491,7 +544,7 @@ func processGoFiles(path string, f os.FileInfo, err error) error {
 		fmt.Printf("Error scanning file: %s\n", scanner.Err().Error())
 		return err
 	}
-	err = generateDocs()
+	err = generateDocIndexPage()
 	return err
 }
 

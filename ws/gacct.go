@@ -16,7 +16,7 @@ type SearchGLAccountsResponse struct {
 // SvcSearchHandlerGLAccounts generates a report of all GLAccounts for a the business unit
 // called out in d.BID
 // wsdoc {
-//  @Title  Get General Ledger Accounts
+//  @Title  Search General Ledger Accounts
 //	@URL /v1/accounts/:BUI
 //  @Method  GET, POST
 //	@Synopsis Return a list of General Ledger Accounts

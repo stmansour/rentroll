@@ -14,9 +14,22 @@ code {
 	background: #F8F8F8;
 	border: 1px solid #E0E0E0;
 	border-radius: 3px 3px 3px 3px;
-	color: #DD1144;
+	color: #4411EE;
 	font-family: "Source Code Pro";
 	font-size: 10pt;
+	white-space: pre;
+}
+.glossary {
+	display: inline-block;
+	margin: 0 0 2px 0;
+	padding: 0 4px;
+	background: #F8F8F8;
+	border: 1px solid #E0E0E0;
+	border-radius: 3px 3px 3px 3px;
+	color: #4411EE;
+	font-family: Roboto;
+	font-size: 10pt;
+	font-weight: bold;
 	white-space: pre;
 }
 .title1 {
@@ -73,6 +86,7 @@ pre > code {
 .Synopsis {
 	font-family: Roboto,"Source Sans Pro",sans-serif;
 	font-size: 10pt;
+	margin-left: 50px;
 }
 .JSONparams table, .URLparams table {
 	width: 100%;
@@ -126,7 +140,7 @@ p.indent50 {
 <p class="Synopsis">{{.Description}}</p>
 
 <p class="title2">Supported Methods</p>
-<p>{{range .Method}}<span class="FieldBlueBlock">{{.}}</span>&nbsp;&nbsp;{{end}}</p>
+<p style="margin-left: 50px;">{{range .Method}}<span class="FieldBlueBlock">{{.}}</span>&nbsp;&nbsp;{{end}}</p>
 
 <p class="title2">Input</p>
 <table class="JSONparams" style="margin-left: 50px;">
