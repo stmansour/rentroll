@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -27,9 +28,20 @@ const (
 	CELLDATETIME = 5
 
 	TABLEOUTTEXT = 1
-	TABLEOUTCSV  = 2
-	TABLEOUTHTML = 3
-	TABLEOUTPDF  = 4
+	TABLEOUTHTML = 2
+	TABLEOUTPDF  = 3
+	TABLEOUTCSV  = 4
+)
+
+var (
+	// ErrHeaders error
+	ErrHeaders = errors.New("No Headers found in table")
+	// ErrRows error
+	ErrRows = errors.New("No Rows found in table")
+	// ErrUnKnownFmt error
+	ErrUnKnownFmt = errors.New("Unrecognized format")
+	// ErrPDF error
+	ErrPDF = errors.New("PDF output format yet not supported")
 )
 
 // Cell is the basic data value type for the Table class.
@@ -45,12 +57,13 @@ type Cell struct {
 // information for cells in the column.
 type ColumnDef struct {
 	ColTitle  string   // the column title
-	Width     int      // column width
+	Width     int      // column width for TEXT
 	Justify   int      // justification
 	Pfmt      string   // printf-style formatting information for values in this column
 	CellType  int      // type of data in this column
 	Hdr       []string // multiple lines of column headers as needed -- based on width and Title
 	Fdecimals int      // the number of decimal digits for floating point numbers. The default is 2
+	HTMLWidth int
 }
 
 // Colset defines a set of Cells
@@ -210,7 +223,10 @@ func (t *Table) AdjustFormatString(cd *ColumnDef) {
 
 // AddColumn adds a new ColumnDef to the table
 func (t *Table) AddColumn(title string, width, celltype int, justification int) {
-	var cd = ColumnDef{ColTitle: title, Width: width, CellType: celltype, Justify: justification, Fdecimals: 2}
+	var cd = ColumnDef{
+		ColTitle: title, Width: width, CellType: celltype,
+		Justify: justification, Fdecimals: 2, HTMLWidth: -1,
+	}
 	t.AdjustColumnHeader(&cd)
 	t.AdjustFormatString(&cd)
 	t.ColDefs = append(t.ColDefs, cd)
@@ -368,8 +384,16 @@ func (t *Table) Putf(row, col int, v float64) bool {
 }
 
 func (t *Table) getMultiLineText(v string, colWidth int) ([]string, int) {
-	sa := strings.Split(v, " ") // break up the string at the spaces
 	var a []string
+
+	// fit the content in one line whatever it is irrespective of column width
+	if colWidth < 1 {
+		a[0] = v
+		return a, -1
+	}
+
+	// get multi line chunk in form of array
+	sa := strings.Split(v, " ") // break up the string at the spaces
 	j := 0
 	maxColWidth := 0
 	for i := 0; i < len(sa); i++ { // spin through all substrings
@@ -466,210 +490,6 @@ func (t *Table) Rows() int {
 // Cols returns the number of columns in the table
 func (t *Table) Cols() int {
 	return len(t.ColDefs)
-}
-
-// SprintLineText returns a line across all rows in the table
-func (t *Table) SprintLineText() string {
-	s := ""
-	for i := 0; i < len(t.ColDefs); i++ {
-		s += Mkstr(t.ColDefs[i].Width, '-')
-		if i < len(t.ColDefs)-1 {
-			s += Mkstr(t.TextColSpace, ' ')
-		}
-	}
-	return s + "\n"
-}
-
-// SprintRowText formats the requested row as text in a string and returns the string
-func (t *Table) SprintRowText(row int) string {
-	if row < 0 {
-		return ""
-	}
-	s := ""
-	if len(t.LineBefore) > 0 {
-		j := sort.SearchInts(t.LineBefore, row)
-		if j < len(t.LineBefore) && row == t.LineBefore[j] {
-			s += t.SprintLineText()
-		}
-	}
-
-	rowColumns := len(t.Row[row].Col)
-
-	// columns string chunk map, each column holds list of string
-	// that fits in one line at best
-	colStringChunkMap := map[int][]string{}
-
-	// get Height of row that require to fit the content of max cell string content
-	// by default table has no all the data in string format, so that we need to add
-	// logic here only, to support multi line functionality
-	for i := 0; i < rowColumns; i++ {
-		if t.Row[row].Col[i].Type == CELLSTRING {
-			cd := t.ColDefs[i]
-			a, _ := t.getMultiLineText(t.Row[row].Col[i].Sval, cd.Width)
-
-			colStringChunkMap[i] = a
-
-			if len(a) > t.Row[row].Height {
-				t.Row[row].Height = len(a)
-			}
-		}
-	}
-
-	// rowTextList holds the 2D array, containing data for each block
-	// to achieve multiline row
-	rowTextList := [][]string{}
-
-	// init rowTextList with empty values
-	for k := 0; k < t.Row[row].Height; k++ {
-		temp := make([]string, rowColumns)
-		for i := 0; i < rowColumns; i++ {
-			// assign default string with length of column width
-			temp = append(temp, Mkstr(t.ColDefs[i].Width, ' '))
-		}
-		rowTextList = append(rowTextList, temp)
-	}
-
-	// fill the content in rowTextList for the first line
-	for i := 0; i < rowColumns; i++ {
-		switch t.Row[row].Col[i].Type {
-		case CELLFLOAT:
-			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, RRCommaf(t.Row[row].Col[i].Fval))
-		case CELLINT:
-			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Ival)
-		case CELLSTRING:
-			rowTextList[0][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, colStringChunkMap[i][0])
-		case CELLDATE:
-			rowTextList[0][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateFmt))
-		case CELLDATETIME:
-			rowTextList[0][i] = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateTimeFmt))
-		default:
-			rowTextList[0][i] = Mkstr(t.ColDefs[i].Width, ' ')
-		}
-	}
-
-	// rowTextList to string
-	for k := 0; k < t.Row[row].Height; k++ {
-		for i := 0; i < rowColumns; i++ {
-
-			// if not first row then process multi line format
-			if k > 0 {
-				if t.Row[row].Col[i].Type == CELLSTRING {
-					if k >= len(colStringChunkMap[i]) {
-						rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, "")
-					} else {
-						rowTextList[k][i] = fmt.Sprintf(t.ColDefs[i].Pfmt, colStringChunkMap[i][k])
-					}
-				}
-			}
-
-			// if blank then append string of column width with blank
-			if rowTextList[k][i] == "" {
-				rowTextList[k][i] = Mkstr(t.ColDefs[i].Width, ' ')
-			}
-			s += rowTextList[k][i]
-
-			// if it is not last block then
-			if i < (rowColumns - 1) {
-				s += Mkstr(t.TextColSpace, ' ')
-			}
-		}
-		s += "\n"
-	}
-
-	if len(t.LineAfter) > 0 {
-		j := sort.SearchInts(t.LineAfter, row)
-		if j < len(t.LineAfter) && row == t.LineAfter[j] {
-			s += t.SprintLineText()
-		}
-	}
-	return s
-}
-
-// SprintRowHTML formats the requested row in HTML and returns the HTML as a string
-func (t *Table) SprintRowHTML(row int) string {
-	return "HTML - not implemented"
-}
-
-// SprintRow returns a string formatted for output type f with the information in row
-func (t *Table) SprintRow(row, f int) string {
-	if row >= len(t.Row) {
-		Ulog("SprintRow row number > rows in table:  %d\n", row)
-		return ""
-	}
-	switch f {
-	case TABLEOUTTEXT:
-		return t.SprintRowText(row)
-	case TABLEOUTHTML:
-		return t.SprintRowHTML(row)
-	}
-	Ulog("SprintRow unrecognized format:  %d\n", f)
-	return ""
-}
-
-// SprintColHdrsText formats the column headers as text and returns the string
-func (t *Table) SprintColHdrsText() string {
-	t.AdjustAllColumnHeaders()
-	s := ""
-	for j := 0; j < len(t.ColDefs[0].Hdr); j++ {
-		for i := 0; i < len(t.ColDefs); i++ {
-			sf := ""
-			lft := ""
-			if t.ColDefs[i].Justify == COLJUSTIFYLEFT {
-				lft += "-"
-			}
-			sf += fmt.Sprintf("%%%s%ds", lft, t.ColDefs[i].Width)
-			s += fmt.Sprintf(sf, t.ColDefs[i].Hdr[j])
-			if i < len(t.ColDefs)-1 {
-				s += Mkstr(t.TextColSpace, ' ')
-			}
-		}
-		s += "\n"
-	}
-	for i := 0; i < len(t.ColDefs); i++ {
-		s += fmt.Sprintf("%s", Mkstr(t.ColDefs[i].Width, '-'))
-		if i < len(t.ColDefs)-1 {
-			s += Mkstr(t.TextColSpace, ' ')
-		}
-	}
-	s += "\n"
-	return s
-}
-
-// SprintColHdrsHTML formats the requested row in HTML and returns the HTML as a string
-func (t *Table) SprintColHdrsHTML() string {
-	return "HTML - not implemented"
-}
-
-// SprintColumnHeaders returns a string with the column headers formatted as type f
-func (t *Table) SprintColumnHeaders(f int) string {
-	switch f {
-	case TABLEOUTTEXT:
-		return t.SprintColHdrsText()
-	case TABLEOUTHTML:
-		return t.SprintColHdrsHTML()
-	}
-	Ulog("SprintColumnHeaders unrecognized format:  %d\n", f)
-	return ""
-}
-
-// SprintTable renders the entire table to a string
-func (t *Table) SprintTable(f int) string {
-	s := ""
-	switch f {
-	case TABLEOUTTEXT:
-		s += t.SprintColHdrsText()
-	case TABLEOUTHTML:
-		s += t.SprintColHdrsHTML()
-	case TABLEOUTCSV:
-		return "CSV output format not yet supported"
-	case TABLEOUTPDF:
-		return "PDF output format not yet supported"
-
-	}
-	for i := 0; i < t.Rows(); i++ {
-		s += t.SprintRow(i, f)
-	}
-	return s
 }
 
 // String is the "stringer" method implementation for go so that you can simply
@@ -814,6 +634,96 @@ func (t *Table) TightenColumns() {
 		t.AdjustFormatString(&cd)
 		t.ColDefs[i] = cd
 	}
+}
+
+// SprintTable renders the entire table to a string
+func (t *Table) SprintTable(f int) string {
+	fmt.Printf("Table Output Format: %d\n\n", f)
+	switch f {
+	case TABLEOUTTEXT:
+		return t.SprintTableText(f)
+	case TABLEOUTHTML:
+		return t.SprintTableHTML(f)
+	case TABLEOUTCSV:
+		return t.SprintTableCSV(f)
+	case TABLEOUTPDF:
+		return t.SprintTablePDF(f)
+	}
+	Ulog("SprintTable: unrecognized format:  %d\n", f)
+	return ErrUnKnownFmt.Error()
+
+}
+
+// SprintColumnHeaders returns a string with the column headers formatted as type f
+func (t *Table) SprintColumnHeaders(f int) (string, error) {
+
+	// first check if there are any headers
+	if len(t.ColDefs) < 1 {
+		Ulog("there are no headers\n")
+		return "", ErrHeaders
+	}
+
+	switch f {
+	case TABLEOUTTEXT:
+		return t.SprintColHdrsText()
+	case TABLEOUTHTML:
+		return t.SprintColHdrsHTML()
+	case TABLEOUTCSV:
+		return t.SprintColHdrsCSV()
+	case TABLEOUTPDF:
+		return t.SprintColHdrsPDF()
+	}
+	Ulog("SprintColumnHeaders unrecognized format:  %d\n", f)
+	return "", ErrUnKnownFmt
+}
+
+// SprintRows returns a string formatted for all rows
+func (t *Table) SprintRows(f int) (string, error) {
+
+	// if there are no rows in table
+	if t.Rows() < 1 {
+		Ulog("SprintRows: there are no rows\n")
+		return "", ErrRows
+	}
+
+	switch f {
+	case TABLEOUTTEXT:
+		return t.SprintRowsText(f)
+	case TABLEOUTHTML:
+		return t.SprintRowsHTML(f)
+	case TABLEOUTCSV:
+		return t.SprintRowsCSV(f)
+	case TABLEOUTPDF:
+		return t.SprintRowsPDF(f)
+	}
+	Ulog("SprintRows unrecognized format:  %d\n", f)
+	return "", ErrUnKnownFmt
+}
+
+// SprintRow returns a string formatted for output type f with the information in row
+func (t *Table) SprintRow(row, f int) string {
+
+	if row < 0 {
+		Ulog("SprintRow: row number is less than zero , row: %d\n", row)
+		return ""
+	}
+	if row >= len(t.Row) {
+		Ulog("SprintRow: row number > rows in table, row: %d\n", row)
+		return ""
+	}
+
+	switch f {
+	case TABLEOUTTEXT:
+		return t.SprintRowText(row)
+	case TABLEOUTHTML:
+		return t.SprintRowHTML(row)
+	case TABLEOUTCSV:
+		return t.SprintRowCSV(row)
+	case TABLEOUTPDF:
+		return t.SprintRowPDF(row)
+	}
+	Ulog("SprintRow unrecognized format:  %d\n", f)
+	return ErrUnKnownFmt.Error()
 }
 
 // func main() {
