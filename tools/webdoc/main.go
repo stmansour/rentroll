@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"rentroll/rlib"
-	"rentroll/ws"
 	"sort"
 	"strings"
 	"text/scanner"
@@ -54,7 +53,9 @@ type DirectiveData struct {
 	Method      []string       // POST, GET, ...
 	Description template.HTML  // detailed explanation
 	Input       []ProtocolJSON // JSON input data
+	InputEx     template.HTML  // sample JSON
 	Response    []ProtocolJSON // JSON response data
+	ResponseEx  template.HTML  // sample JSON
 	Filename    string         // the name of the html file describing the web service
 	ID          string         // a unique id used in the UI
 }
@@ -89,124 +90,6 @@ var Directives = []Directive{
 	{Cmd: "@response", Handler: handleResponse},
 }
 
-// WSTypeFactory is a map for creating new data types used by the
-// web services routines based on the supplied name.
-var WSTypeFactory = map[string]Creator{
-	"ColSort":                    NewColSort,
-	"GenSearch":                  NewGenSearch,
-	"GetRentableResponse":        NewGetRentableResponse,
-	"GLAccount":                  NewGLAccount,
-	"PrRentableOther":            NewPrRentableOther,
-	"RAPeople":                   NewRAPeople,
-	"RAPeopleResponse":           NewRAPeopleResponse,
-	"RAPets":                     NewRAPets,
-	"RAR":                        NewWSRAR,
-	"RentalAgr":                  NewRentalAgr,
-	"RentalAgreementPet":         NewRentalAgreementPet,
-	"RentalAgrSearchResponse":    NewRentalAgrSearchResponse,
-	"SearchGLAccountsResponse":   NewSearchGLAccountsResponse,
-	"SearchRentablesResponse":    NewSearchRentablesResponse,
-	"SearchTransactantsResponse": NewSearchTransactantsResponse,
-	"SvcStatusResponse":          NewSvcStatusResponse,
-	"WebRequest":                 NewWebRequest,
-	"GetRentalAgreementResponse": NewGetRentalAgreementResponse,
-}
-
-// NewGetRentableResponse is a factory for GetRentableResponse structs
-func NewGetRentableResponse() interface{} {
-	return new(ws.GetRentableResponse)
-}
-
-// NewRAPets is a factory for RAPets structs
-func NewRAPets() interface{} {
-	return new(ws.RAPets)
-}
-
-// NewRAPeopleResponse is a factory for RAPeopleResponse structs
-func NewRAPeopleResponse() interface{} {
-	return new(ws.RAPeopleResponse)
-}
-
-// NewSearchTransactantsResponse is a factory for SearchTransactantsResponse structs
-func NewSearchTransactantsResponse() interface{} {
-	return new(ws.SearchTransactantsResponse)
-}
-
-// NewSearchGLAccountsResponse is a factory for SearchGLAccountsResponse structs
-func NewSearchGLAccountsResponse() interface{} {
-	return new(ws.SearchGLAccountsResponse)
-}
-
-// NewSvcStatusResponse is a factory for SvcStatusResponse structs
-func NewSvcStatusResponse() interface{} {
-	return new(ws.SvcStatusResponse)
-}
-
-// NewGetRentalAgreementResponse is a factory for GetRentalAgreementResponse structs
-func NewGetRentalAgreementResponse() interface{} {
-	return new(ws.GetRentalAgreementResponse)
-}
-
-// NewRentalAgrSearchResponse is a factory for RentalAgrSearchResponse structs
-func NewRentalAgrSearchResponse() interface{} {
-	return new(ws.RentalAgrSearchResponse)
-}
-
-// NewColSort is a factory for ColSort structs
-func NewColSort() interface{} {
-	return new(ws.ColSort)
-}
-
-// NewGenSearch is a factory for GenSearch structs
-func NewGenSearch() interface{} {
-	return new(ws.GenSearch)
-}
-
-// NewRentalAgr is a factory for RentalAgr structs
-func NewRentalAgr() interface{} {
-	return new(ws.RentalAgr)
-}
-
-// NewPrRentableOther is a factory for PrRentableOther structs
-func NewPrRentableOther() interface{} {
-	return new(ws.PrRentableOther)
-}
-
-// NewSearchRentablesResponse is a factory for SearchRentablesResponse structs
-func NewSearchRentablesResponse() interface{} {
-	return new(ws.SearchRentablesResponse)
-}
-
-// NewRentalAgreementPet is a factory for RentalAgreementPet structs
-func NewRentalAgreementPet() interface{} {
-	return new(rlib.RentalAgreementPet)
-}
-
-// NewWSPets is a factory for RAPets structs
-func NewWSPets() interface{} {
-	return new(ws.RAPets)
-}
-
-// NewRAPeople is a factory for RAPeople structs
-func NewRAPeople() interface{} {
-	return new(ws.RAPeople)
-}
-
-// NewWebRequest is a factory for WebRequest structs
-func NewWebRequest() interface{} {
-	return new(ws.WebRequest)
-}
-
-// NewWSRAR is a factory for RAR structs
-func NewWSRAR() interface{} {
-	return new(ws.RAR)
-}
-
-// NewGLAccount is a factory for GLAccount structs
-func NewGLAccount() interface{} {
-	return new(rlib.GLAccount)
-}
-
 // AnalyzeType determines:
 //		if the field is a slice
 //		if the type requires recursion
@@ -228,63 +111,6 @@ func AnalyzeType(t string) (bool, bool, string) {
 	// Is Tname in our factory?
 	_, Recursion := WSTypeFactory[Tname]
 	return IsSlice, Recursion, Tname
-}
-
-// getTermDefinition searches the glossary for the exact string it is provided.
-// It returns the definition it finds or a null string if no match is found.
-func getTermDefinition(f string) template.HTML {
-	fp, ok := GlossaryAbbr[f]
-	if ok {
-		return template.HTML((*fp).Definition)
-	}
-	fp, ok = GlossaryTerm[f]
-	if ok {
-		return template.HTML((*fp).Definition)
-	}
-	return template.HTML("")
-}
-
-// getDefinition looks for term in the glossary maps. It first searches
-// for the string that is the result of downshifting the characters and removing
-// any spaces. So, a string like "Gen Search .Field" becomes "gensearch.field"
-// If this search fails, then it will strip the struct prefix and search for the
-// term after the dot.  That is, "gensearch.field" becomes "field".
-// It will return the definition if it finds one. Otherwise
-// it returns an empty string
-func getDefinition(term string) template.HTML {
-	f := strings.ToLower(rlib.Stripchars(term, " ")) // remove spaces and downshift chars
-	for strings.Contains(f, "&nbsp;") {              // remove non-breaking spaces
-		f = f[6:]
-	}
-	// fmt.Printf("getDefinition: search for %s... ", f)
-	if def := getTermDefinition(f); len(def) > 0 {
-		// fmt.Printf("%t!\n", len(def) > 0)
-		return def
-	}
-
-	// see if we can identified a field name.  If so, remove everything up through
-	// and including the last dot and check the glossary again.
-	for strings.Contains(f, ".") {
-		if i := strings.Index(f, "."); i >= 0 && i+1 < len(f) {
-			f = f[i+1:]
-			if def := getTermDefinition(f); len(def) > 0 {
-				// fmt.Printf("%t!\n", len(def) > 0)
-				return def
-			}
-		}
-	}
-	// fmt.Printf("FALSE!\n")
-	return template.HTML("")
-}
-
-func isGlossaryTerm(t string) bool {
-	s := strings.ToLower(t)
-	_, ok := GlossaryAbbr[s]
-	if ok {
-		return true
-	}
-	_, ok = GlossaryTerm[s]
-	return ok
 }
 
 // ListVars lists the names of the variables within a struct and their types
@@ -371,7 +197,7 @@ func handleGlossaryTerms(src string) template.HTML {
 		if s.TokenText() == ":" {
 			tok = s.Scan()
 			if tok != scanner.EOF {
-				if isGlossaryTerm(s.TokenText()) {
+				if IsGlossaryTerm(s.TokenText()) {
 					s2 += template.HTML(" <span class=\"glossary\">" + s.TokenText() + "</span>")
 				} else {
 					s2 += template.HTML(" " + s.TokenText())
@@ -410,11 +236,13 @@ func handleMethod(s string, d *Directive) {
 func handleInput(s string, d *Directive) {
 	s1 := strings.TrimSpace(s[len(d.Cmd):])
 	d.D.Input = getStructDef(s1, d)
+	d.D.InputEx = GenExample(s1)
 }
 
 func handleResponse(s string, d *Directive) {
 	s1 := strings.TrimSpace(s[len(d.Cmd):])
 	d.D.Response = getStructDef(s1, d)
+	d.D.ResponseEx = GenExample(s1)
 }
 
 func getStructDef(s string, d *Directive) []ProtocolJSON {

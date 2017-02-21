@@ -40,8 +40,8 @@ type RARList struct {
 //  @Title  Rental Agreement Rentables
 //	@URL /v1/rar/:BUI/:RAID ? dt=:DATE
 //	@Method GET
-//	@Synopsis Get the rentables for the rental agreement on date dt
-//  @Description Returns all the rentables associated with the supplied Rental Agreement for the supplied date.
+//	@Synopsis Get Rentables for Rental Agreement :RAID
+//  @Description Returns all the rentables associated Rental Agreement RAID as of :DATE
 //  @Input none
 //  @Response RAR
 // wsdoc }
