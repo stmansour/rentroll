@@ -1,129 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- <link rel="stylesheet" type="text/css" href="/doc/doc.css" /> -->
+    <link rel="stylesheet" type="text/css" href="/doc/doc.css" />
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
 <body>
-<style>
-@import url('https://fonts.googleapis.com/css?family=Roboto');
-code {
-	display: inline-block;
-	margin: 0 0 2px 0;
-	padding: 0 4px;
-	background: #F8F8F8;
-	border: 1px solid #E0E0E0;
-	border-radius: 3px 3px 3px 3px;
-	color: #4411EE;
-	font-family: "Source Code Pro";
-	font-size: 10pt;
-	white-space: pre;
-}
-.glossary {
-	display: inline-block;
-	margin: 0 0 2px 0;
-	padding: 0 4px;
-	background: #F8F8F8;
-	border: 1px solid #E0E0E0;
-	border-radius: 3px 3px 3px 3px;
-	color: #4411EE;
-	font-family: Roboto;
-	font-size: 10pt;
-	font-weight: bold;
-	white-space: pre;
-}
-.title1 {
-	margin: 60px 0 20px 0;
-	color: #0088cc;
-	font-size: 24px;
-	font-weight: bold;
-	line-height: 1em;
-	font-family: "Source Sans Pro", sans-serif;
-}
-.title2 {
-	margin: 40px 0 20px 0;
-	color: #0088cc;
-	font-size: 18px;
-	font-weight: bold;
-	line-height: 1em;
-	font-family: "Source Sans Pro", sans-serif;
-}
-pre > code {
-	display: block;
-	margin: 12px 0;
-	padding: 12px 20px;
-	background: #292b36;
-	border: none;
-	border-radius: 8px;
-	color: #ffffff;
-	overflow: auto;
-}
-.FieldBlueBlock {
-	display: inline-grid;
-	margin: 12px 0;
-	padding: 4px 10px;
-	background: #4b97d4;
-	border: none;
-	border-radius: 3px;
-	color: #ffffff;
-	overflow: auto;
-	font-family: Roboto,"Source Sans Pro",sans-serif;
-	font-size: 10pt;
-	font-weight: bold;
-}
-.FieldHdr {
-	background: #F0F0F0;
-	font-family: "Source Sans Pro",sans-serif;
-	font-weight: bold;
-	text-align: left;
-	font-size: 10pt;
-}
-.FieldBod {
-	text-align: left;
-	font-family: Roboto,"Source Sans Pro",sans-serif;
-	font-size: 10pt;
-}
-.Synopsis {
-	font-family: Roboto,"Source Sans Pro",sans-serif;
-	font-size: 10pt;
-	margin-left: 50px;
-}
-.JSONparams table, .URLparams table {
-	width: 100%;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	border-collapse: collapse;
-	border-spacing: 0;
-}
-.JSONparams td, .URLparams td {
-	padding: 2px 8px;
-	vertical-align: top;
-}
-.JSONparams th, .URLparams th {
-	padding: 4px 8px;
-	background: #F5F5F5;
-	font-weight: bold;
-}
-.JSONparams td, .JSONparams th {
-	border: 1px solid #E0E0E0;
-	text-align: left;
-	font-family: Roboto,"Source Sans Pro",sans-serif;
-	font-size: 10pt;
-}
-.URLparams td, .URLparams th {
-	border: 1px solid #E0E0E0;
-	text-align: left;
-	font-family: Roboto,"Source Sans Pro",sans-serif;
-	font-size: 10pt;
-}
-table {
-	border-collapse: collapse;
-}
-p.indent50 {
-	margin-left: 50px;
-}
-</style>
 <p class="title1">{{.Title}}</p>
 {{if not .URLs}}
   {{else}}
@@ -131,33 +12,32 @@ p.indent50 {
   <pre><code>{{.URL}}</code></pre>
   {{end}}
   <table class="URLparams" style="margin-left: 50px;"><tr><th>Name</th><th>Description</th></tr>
-  {{range .URLs}}
-  {{range .Parts}}<tr><td>{{.Term}}</td><td>{{.Definition}}</td></tr>{{end}}
-  {{end}}
+  {{range .URLs}} {{range .Parts}}<tr><td>{{.Term}}</td><td>{{.Definition}}</td></tr>{{end}} {{end}}
   </table>
 {{end}}
-<p class="Synopsis">{{.Synopsis}}.</p>
-<p class="Synopsis">{{.Description}}</p>
-
+<br>
+<table class="Synopsis" border="0">
+<tr><td valign="baseline"><span class="SynopsisFont">SYNOPSIS:</span> </td><td width="20"></td><td class="Synopsis">{{.Synopsis}}</td></tr>
+<tr><td height="10"></td><td width="20"></td><td></td></tr>
+<tr><td valign="baseline"><span class="SynopsisFont">DESCRIPTION:</span></td><td width="20"></td><td class="Synopsis">{{.Description}}</td></tr>
+</table>
 <p class="title2">Supported Methods</p>
 <p style="margin-left: 50px;">{{range .Method}}<span class="FieldBlueBlock">{{.}}</span>&nbsp;&nbsp;{{end}}</p>
-
 <p class="title2">Input</p>
-{{$length := len .Input}}{{if gt $length 0}}
-<table class="JSONparams" style="margin-left: 50px;">
+{{$length := len .Input}}{{if gt $length 0}}<table class="JSONparams" style="margin-left: 50px;">
   <thead>
   <tr><th >Name</th><th >Type</th><th >Description</th></tr>
   </thead>
   <tbody>
-  {{range .Input}}
-  <tr><td >{{.Field}}</td><td ><code>{{.DataType}}</code></td ><td>{{.Definition}}&nbsp;</td></tr>
-  {{end}}
+  {{range .Input}} <tr><td >{{.Field}}</td><td ><code>{{.DataType}}</code></td ><td>{{.Definition}}&nbsp;</td></tr> {{end}}
    </tbody>
 </table>
+<p class="Synopsis">SAMPLE INPUT JSON
+<pre><code>{{.InputEx}}</code></pre>
+</p>
 {{else}}
 <p class="Synopsis">Not Applicable</p>
 {{end}}
-
 <p class="title2">Response</p>
 <table class="JSONparams" style="margin-left: 50px;">
   <thead>
@@ -169,5 +49,7 @@ p.indent50 {
   {{end}}
    </tbody>
 </table>
+<p class="Synopsis">SAMPLE RESPONSE JSON
+<pre><code>{{.ResponseEx}}</code></pre></p>
 </body>
 </html>

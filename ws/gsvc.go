@@ -48,13 +48,14 @@ type ColSort struct {
 
 // WebRequest is a struct suitable for describing a webservice operation.
 type WebRequest struct {
-	Cmd         string      `json:"cmd"`
-	Limit       int         `json:"limit"`
-	Offset      int         `json:"offset"`
-	Selected    []int       `json:"selected"`
-	SearchLogic string      `json:"searchLogic"`
-	Search      []GenSearch `json:"search"`
-	Sort        []ColSort   `json:"sort"`
+	Cmd         string      `json:"cmd"`         // get, save, delete
+	Limit       int         `json:"limit"`       // max number to return
+	Offset      int         `json:"offset"`      // solution set offset
+	Selected    []int       `json:"selected"`    // selected rows
+	SearchLogic string      `json:"searchLogic"` // OR | AND
+	Search      []GenSearch `json:"search"`      // what fields and what values
+	Sort        []ColSort   `json:"sort"`        // sort criteria
+	SortAlt     ColSort     `json:"sortalt"`     // ***** *****  REMOVE THIS LINE ASAP
 }
 
 // ServiceData is the generalized data gatherer for svcHandler. It allows all the common data

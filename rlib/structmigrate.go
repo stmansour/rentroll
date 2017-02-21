@@ -75,8 +75,8 @@ func MigrateStructVals(pa interface{}, pb interface{}) error {
 		} else {
 			err := XJSONprocess(&fa, &fb)
 			if err != nil {
-				val := reflect.ValueOf(fa.Interface())
-				fb.Set(val.Convert(fb.Type()))
+				val := reflect.ValueOf(fa.Interface()) // instantiate new pa value
+				fb.Set(val.Convert(fb.Type()))         // set pb to the value of the new type value
 			}
 		}
 	}
