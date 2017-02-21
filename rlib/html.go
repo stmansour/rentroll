@@ -59,17 +59,6 @@ func (t *Table) SprintRowHTML(row int) string {
 	// fill the content in rowTextList for the first line
 	for i := 0; i < len(t.Row[row].Col); i++ {
 
-		// text alignment for HTML
-		textAlign := "justify"
-		if t.ColDefs[i].Justify == COLJUSTIFYLEFT {
-			textAlign = "left"
-		} else if t.ColDefs[i].Justify == COLJUSTIFYRIGHT {
-			textAlign = "right"
-		}
-
-		// TODO: confirm with steve which style should be used for alignment
-		textAlign = "right"
-
 		rowCell := ""
 		// append content in TD
 		switch t.Row[row].Col[i].Type {
@@ -78,8 +67,10 @@ func (t *Table) SprintRowHTML(row int) string {
 		case CELLINT:
 			rowCell = fmt.Sprintf(t.ColDefs[i].Pfmt, t.Row[row].Col[i].Ival)
 		case CELLSTRING:
-			textAlign = "left"
-			// FOR HTML, APPEND FULL STRING, THERE ARE NO MULTILINE STRING IN THIS
+			// ******************************************************
+			// FOR HTML, APPEND FULL STRING, THERE ARE NO
+			// MULTILINE TEXT IN THIS
+			// ******************************************************
 			rowCell = fmt.Sprintf("%s", t.Row[row].Col[i].Sval)
 		case CELLDATE:
 			rowCell = fmt.Sprintf("%*.*s", t.ColDefs[i].Width, t.ColDefs[i].Width, t.Row[row].Col[i].Dval.Format(t.DateFmt))
@@ -90,7 +81,7 @@ func (t *Table) SprintRowHTML(row int) string {
 		}
 
 		// format td cell
-		rowCell = "<td style='text-align: " + textAlign + ";'>" + rowCell + "</td>"
+		rowCell = "<td>" + rowCell + "</td>"
 		tRow += rowCell
 	}
 
