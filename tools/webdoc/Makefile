@@ -1,5 +1,5 @@
 TOP=../..
-COUNTOL=${TOP}/test/share/countol.sh
+COUNTOL=${TOP}/tools/bashtools/countol.sh
 PKGDIR=${TOP}/tmp/rentroll
 
 webdoc: *.go

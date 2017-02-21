@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gotable"
 	"net/http"
 	"os"
 	"rentroll/rcsv"
@@ -202,7 +203,7 @@ func dispatchHandler(w http.ResponseWriter, r *http.Request) {
 func RunCommandLine(ctx *DispatchCtx) {
 	rlib.InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
 	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: ctx.xbiz.P.BID, D1: ctx.DtStart, D2: ctx.DtStop, Xbiz: &ctx.xbiz, RptHeader: true, BlankLineAfterRptName: true}
+	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: ctx.xbiz.P.BID, D1: ctx.DtStart, D2: ctx.DtStop, Xbiz: &ctx.xbiz, RptHeader: true, BlankLineAfterRptName: true}
 
 	switch ctx.Report {
 	case 1: // JOURNAL
@@ -311,7 +312,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 	case 21: // backup file list
 		fmt.Print(CreateDBBackupFileList())
 	case 22: // delete business
-		ri := rrpt.ReporterInfo{Xbiz: &ctx.xbiz, OutputFormat: rlib.TABLEOUTTEXT}
+		ri := rrpt.ReporterInfo{Xbiz: &ctx.xbiz, OutputFormat: gotable.TABLEOUTTEXT}
 		rcsv.RRreportBusiness(&ri)
 		fmt.Printf("Deleting business: %d\n", ctx.xbiz.P.BID)
 		rlib.DeleteBusinessFromDB(ctx.xbiz.P.BID)

@@ -1,12 +1,15 @@
 package rrpt
 
-import "rentroll/rlib"
+import (
+	"gotable"
+	"rentroll/rlib"
+)
 
 // VehicleReportTable returns a table containing a report of all
 // vehicles in the supplied business
-func VehicleReportTable(bid int64) rlib.Table {
+func VehicleReportTable(bid int64) gotable.Table {
 	m := rlib.GetVehiclesByBID(bid)
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init()
 	var b rlib.Business
 	rlib.GetBusiness(bid, &b)
@@ -30,22 +33,22 @@ func VehicleReportTable(bid int64) rlib.Table {
 		DtStop              = iota
 	)
 
-	tbl.AddColumn("VID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("BUD", 5, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Make", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Model", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Color", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Year", 5, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
-	tbl.AddColumn("License Plate State", 2, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("License Plate Number", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Parking Permit Number", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("User", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Cell Phone", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Work Phone", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Email", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("DtStart", 8, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("DtStop", 8, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("VID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("BUD", 5, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Make", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Model", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Color", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Year", 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("License Plate State", 2, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("License Plate Number", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Parking Permit Number", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("User", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Cell Phone", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Work Phone", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Email", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("DtStart", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("DtStop", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 
 	for i := 0; i < len(m); i++ {
 		var t rlib.Transactant
@@ -81,5 +84,9 @@ func VehicleReportTable(bid int64) rlib.Table {
 // ri contains the BID needed by this report
 func VehicleReport(ri *ReporterInfo) string {
 	t := VehicleReportTable(ri.Bid)
-	return t.SprintTable(ri.OutputFormat)
+	s, err := t.SprintTable(ri.OutputFormat)
+	if err != nil {
+		rlib.Ulog("VehicleReport: error = %s", err.Error())
+	}
+	return s
 }

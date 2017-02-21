@@ -82,7 +82,11 @@ func CmdCsvAssess(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, 
 		var ri = rrpt.ReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
 		t, err := rcsv.RRAssessmentsTable(&ri)
 		if err == nil || rlib.IsSQLNoResultsError(err) {
-			ui.ReportContent += t.GetTitle() + t.SprintTable(rlib.RPTTEXT)
+			s, err1 := t.SprintTable(rlib.RPTTEXT)
+			if err1 != nil {
+				s += err1.Error()
+			}
+			ui.ReportContent += t.GetTitle() + s
 			if err != nil {
 				ui.ReportContent += "\nNo assessments found during this period\n"
 			}
@@ -113,7 +117,11 @@ func CmdCsvRcpt(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 		var ri = rrpt.ReporterInfo{OutputFormat: rlib.RPTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
 		t := rcsv.RRReceiptsTable(&ri)
 		ui.ReportContent += fmt.Sprintf("\nReceipts\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-		ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
+		s, err := t.SprintTable(rlib.RPTTEXT)
+		if err != nil {
+			s += err.Error()
+		}
+		ui.ReportContent += s
 		removeUploadFile(path, ui)
 	}
 }
@@ -133,7 +141,11 @@ func CmdGenJnl(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 	ri.D1 = ui.D1
 	ri.D2 = ui.D2
 	t := rrpt.JournalReport(&ri)
-	ui.ReportContent += t.SprintTable(rlib.RPTTEXT)
+	s, err := t.SprintTable(rlib.RPTTEXT)
+	if err != nil {
+		s += err.Error()
+	}
+	ui.ReportContent += s
 }
 
 // CmdGenVac is the HTTP handler for generating Vacancy Journal records

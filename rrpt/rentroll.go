@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -41,16 +42,24 @@ func RentRollTextReport(ri *ReporterInfo) {
 func RentRollReportString(ri *ReporterInfo) string {
 	tbl, err := RentRollReport(ri)
 	if err == nil {
-		return tbl.GetTitle() + tbl.SprintRowText(len(tbl.Row)-1) + tbl.SprintLineText() + tbl.SprintTable(rlib.TABLEOUTTEXT)
+		s1, err := tbl.SprintRowText(len(tbl.Row) - 1)
+		if err != nil {
+			rlib.Ulog("RentRollReportString:  error = %s", err)
+		}
+		s2, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+		if err != nil {
+			rlib.Ulog("RentRollReportString:  error = %s", err)
+		}
+		return tbl.GetTitle() + s1 + tbl.SprintLineText() + s2
 	}
 	return err.Error()
 }
 
 // RentRollReport generates a text-based RentRoll report for the business in ri.Xbiz and timeframe d1 to d2.
-func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
+func RentRollReport(ri *ReporterInfo) (gotable.Table, error) {
 	funcname := "RentRollReport"
 	var d1, d2 *time.Time
-	var tbl rlib.Table
+	var tbl gotable.Table
 	d1 = &ri.D1
 	d2 = &ri.D2
 
@@ -61,32 +70,32 @@ func RentRollReport(ri *ReporterInfo) (rlib.Table, error) {
 	ri.BlankLineAfterRptName = true
 	tbl.SetTitle(ReportHeaderBlock("Rentroll", funcname, ri))
 
-	totalsRSet := tbl.CreateRowset()                                                      // a rowset to sum for totals
-	tbl.AddColumn("Rentable", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // column for the Rentable name
-	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)              // RentableType name
-	tbl.AddColumn(custom, 5, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)                          // the Custom Attribute "Square Feet"
-	tbl.AddColumn("Rentable Users", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)             // Users of this rentable
-	tbl.AddColumn("Rentable Payors", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)            // Users of this rentable
-	tbl.AddColumn("Rental Agreement", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)           // the Rental Agreement id
-	tbl.AddColumn("Use Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                    // the possession start date
-	tbl.AddColumn("Use Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                     // the possession start date
-	tbl.AddColumn("Rental Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                 // the rental start date
-	tbl.AddColumn("Rental Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)                  // the rental start date
-	tbl.AddColumn("Rental Agreement Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)       // the possession start date
-	tbl.AddColumn("Rental Agreement Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)        // the possession start date
-	tbl.AddColumn("Rent Cycle", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                 // the rent cycle
-	tbl.AddColumn("GSR Rate", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                   // gross scheduled rent
-	tbl.AddColumn("GSR This Period", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)            // gross scheduled rent
-	tbl.AddColumn(IncomeOffsetGLAccountName, 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)    // GL Account
-	tbl.AddColumn("Contract Rent", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)              // contract rent amounts
-	tbl.AddColumn(OtherIncomeGLAccountName, 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)     // GL Account
-	tbl.AddColumn("Payments Received", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)          // contract rent amounts
-	tbl.AddColumn("Beginning Receivable", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Receivable", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Receivable", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)          // account for the associated RentalAgreement
-	tbl.AddColumn("Beginning Security Deposit", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Security Deposit", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Security Deposit", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
+	totalsRSet := tbl.CreateRowset()                                                            // a rowset to sum for totals
+	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // column for the Rentable name
+	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)              // RentableType name
+	tbl.AddColumn(custom, 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)                          // the Custom Attribute "Square Feet"
+	tbl.AddColumn("Rentable Users", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)             // Users of this rentable
+	tbl.AddColumn("Rentable Payors", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)            // Users of this rentable
+	tbl.AddColumn("Rental Agreement", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // the Rental Agreement id
+	tbl.AddColumn("Use Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)                    // the possession start date
+	tbl.AddColumn("Use Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)                     // the possession start date
+	tbl.AddColumn("Rental Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)                 // the rental start date
+	tbl.AddColumn("Rental Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)                  // the rental start date
+	tbl.AddColumn("Rental Agreement Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)       // the possession start date
+	tbl.AddColumn("Rental Agreement Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)        // the possession start date
+	tbl.AddColumn("Rent Cycle", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                 // the rent cycle
+	tbl.AddColumn("GSR Rate", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                   // gross scheduled rent
+	tbl.AddColumn("GSR This Period", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)            // gross scheduled rent
+	tbl.AddColumn(IncomeOffsetGLAccountName, 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)    // GL Account
+	tbl.AddColumn("Contract Rent", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)              // contract rent amounts
+	tbl.AddColumn(OtherIncomeGLAccountName, 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)     // GL Account
+	tbl.AddColumn("Payments Received", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)          // contract rent amounts
+	tbl.AddColumn("Beginning Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)          // account for the associated RentalAgreement
+	tbl.AddColumn("Beginning Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
 
 	const (
 		RName        = 0

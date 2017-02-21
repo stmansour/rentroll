@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gotable"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -24,12 +25,12 @@ func AdmNewDB(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *
 
 // CreateDBBackupFileList returns a string table of backup files and timestamps
 func CreateDBBackupFileList() string {
-	var t rlib.Table
+	var t gotable.Table
 	errmsg := ""
 	t.Init()
-	t.AddColumn("Filename", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Modified", 23, rlib.CELLDATETIME, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Size (bytes)", 12, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Filename", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Modified", 23, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Size (bytes)", 12, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	t.SetTitle("Database Backup Files\n\n")
 	files, err := ioutil.ReadDir("./bkup")
 	if err != nil {

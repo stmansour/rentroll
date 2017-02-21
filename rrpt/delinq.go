@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -17,26 +18,26 @@ func DelinquencyTextReport(ri *ReporterInfo) error {
 }
 
 // DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyReport(ri *ReporterInfo) (rlib.Table, error) {
+func DelinquencyReport(ri *ReporterInfo) (gotable.Table, error) {
 	funcname := "DelinquencyReport"
-	var tbl rlib.Table
+	var tbl gotable.Table
 
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = true
 	tbl.SetTitle(ReportHeaderBlock("Delinquency Report", funcname, ri))
 
-	tbl.Init()                                                                                      //sets column spacing and date format to default
-	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                              // column for the Rentable name
-	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                        // RentableType name
-	tbl.AddColumn("Rentable Agreement", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // RentableType name
-	tbl.AddColumn("Rentable Payors", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                      // Users of this rentable
-	tbl.AddColumn("Rentable Users", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                       // Users of this rentable
-	tbl.AddColumn("As of "+ri.D2.Format(rlib.RRDATEFMT3), 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT) // the Rental Agreement id
-	tbl.AddColumn("30 Days Prior", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                        // the possession start date
-	tbl.AddColumn("60 Days Prior", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                        // the possession start date
-	tbl.AddColumn("90 Days Prior", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)                        // the rental start date
-	tbl.AddColumn("Collection Notes", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                     // the possession start date
+	tbl.Init()                                                                                            //sets column spacing and date format to default
+	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                              // column for the Rentable name
+	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                        // RentableType name
+	tbl.AddColumn("Rentable Agreement", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // RentableType name
+	tbl.AddColumn("Rentable Payors", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                      // Users of this rentable
+	tbl.AddColumn("Rentable Users", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                       // Users of this rentable
+	tbl.AddColumn("As of "+ri.D2.Format(rlib.RRDATEFMT3), 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // the Rental Agreement id
+	tbl.AddColumn("30 Days Prior", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                        // the possession start date
+	tbl.AddColumn("60 Days Prior", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                        // the possession start date
+	tbl.AddColumn("90 Days Prior", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                        // the rental start date
+	tbl.AddColumn("Collection Notes", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                     // the possession start date
 
 	const (
 		RID     = 0

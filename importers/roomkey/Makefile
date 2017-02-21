@@ -1,5 +1,5 @@
 TOP=../..
-COUNTOL=${TOP}/test/share/countol.sh
+COUNTOL=${TOP}/tools/bashtools/countol.sh
 
 roomkey: *.go
 	@touch fail

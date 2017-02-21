@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"time"
 )
@@ -12,14 +13,14 @@ func RentableMarketRates(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time) {
 	m := rlib.GetRentableTypeRefsByRange(r.RID, d1, d2)
 
 	fmt.Printf("RENTABLE RENT RATES\nRentable: %s  (%s)\nPeriod %s - %s\n\n", r.RentableName, r.IDtoString(), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init()
-	tbl.AddColumn("Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Rent Cycle", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Proration Cycle", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Gross Scheduled Rent", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Rent Cycle", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Proration Cycle", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Gross Scheduled Rent", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
 	dt1 := *d1
 
@@ -61,5 +62,9 @@ func RentableMarketRates(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time) {
 	}
 
 	tbl.TightenColumns()
-	fmt.Print(tbl.SprintTable(rlib.TABLEOUTTEXT))
+	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+	if err != nil {
+		s += err.Error()
+	}
+	fmt.Print(s)
 }

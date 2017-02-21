@@ -2,12 +2,13 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"sort"
 	"time"
 )
 
-func printLedgerHeader(tbl *rlib.Table, xbiz *rlib.XBusiness, l *rlib.GLAccount, d1, d2 *time.Time) {
+func printLedgerHeader(tbl *gotable.Table, xbiz *rlib.XBusiness, l *rlib.GLAccount, d1, d2 *time.Time) {
 	// printTReportDoubleLine()
 	// tbl.AddLineBefore(0)
 	// s := "LEDGER\n"
@@ -44,7 +45,7 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 	return "x", "x", "x"
 }
 
-func reportTextProcessLedgerMarker(tbl *rlib.Table, xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time) {
+func reportTextProcessLedgerMarker(tbl *gotable.Table, xbiz *rlib.XBusiness, lm *rlib.LedgerMarker, d1, d2 *time.Time) {
 	l := rlib.GetLedger(lm.LID)
 	if 0 == l.LID {
 		return
@@ -86,14 +87,14 @@ func reportTextProcessLedgerMarker(tbl *rlib.Table, xbiz *rlib.XBusiness, lm *rl
 	// fmt.Printf("\n\n")
 }
 
-func initTableColumns(tbl *rlib.Table) {
-	tbl.AddColumn("Description", 55, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)      // 0
-	tbl.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)               // 1
-	tbl.AddColumn("Journal ID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)        // 2
-	tbl.AddColumn("Rental Agreement", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // 3
-	tbl.AddColumn("Rentable Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)    // 4
-	tbl.AddColumn("Amount", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)           // 5
-	tbl.AddColumn("Balance", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)          // 6
+func initTableColumns(tbl *gotable.Table) {
+	tbl.AddColumn("Description", 55, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)      // 0
+	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)               // 1
+	tbl.AddColumn("Journal ID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)        // 2
+	tbl.AddColumn("Rental Agreement", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 3
+	tbl.AddColumn("Rentable Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 4
+	tbl.AddColumn("Amount", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)           // 5
+	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)          // 6
 }
 
 type int64arr []int64
@@ -103,8 +104,8 @@ func (a int64arr) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
 
 // LedgerActivityReport generates a Table Ledger for active accounts during the supplied time range
-func LedgerActivityReport(ri *ReporterInfo) []rlib.Table {
-	var m []rlib.Table
+func LedgerActivityReport(ri *ReporterInfo) []gotable.Table {
+	var m []gotable.Table
 	// get the ids of the distinct ledgers that have been updated during &ri.D1-&ri.D2
 	// that is, only 1 occurrence of each LID
 	var t int64arr
@@ -125,7 +126,7 @@ func LedgerActivityReport(ri *ReporterInfo) []rlib.Table {
 		if lm.LMID < 1 {
 			fmt.Printf("LedgerActivityReport: GLAccount %d -- no LedgerMarker on or before: %s\n", t[i], ri.D1.Format(rlib.RRDATEFMT))
 		} else {
-			var tbl rlib.Table
+			var tbl gotable.Table
 			tbl.Init()
 			initTableColumns(&tbl)
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
@@ -136,15 +137,15 @@ func LedgerActivityReport(ri *ReporterInfo) []rlib.Table {
 }
 
 // LedgerReport generates a Table Ledger for the supplied Business and time range
-func LedgerReport(ri *ReporterInfo) []rlib.Table {
-	var m []rlib.Table
+func LedgerReport(ri *ReporterInfo) []gotable.Table {
+	var m []gotable.Table
 	t := rlib.GetLedgerList(ri.Xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {
 		lm := rlib.GetLedgerMarkerOnOrBefore(ri.Xbiz.P.BID, t[i].LID, &ri.D1)
 		if lm.LMID < 1 {
 			fmt.Printf("LedgerReport: GLNumber %s -- no LedgerMarker on or before: %s\n", t[i].GLNumber, ri.D1.Format(rlib.RRDATEFMT))
 		} else {
-			var tbl rlib.Table
+			var tbl gotable.Table
 			tbl.Init()
 			initTableColumns(&tbl)
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)

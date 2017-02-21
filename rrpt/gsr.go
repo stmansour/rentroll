@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 )
 
@@ -13,20 +14,20 @@ func GSRTextReport(ri *ReporterInfo) error {
 }
 
 // GSRReport generates a list of GSR values for all rentables on the specified date
-func GSRReport(ri *ReporterInfo) (rlib.Table, error) {
+func GSRReport(ri *ReporterInfo) (gotable.Table, error) {
 	funcname := "GSRTextReport"
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init() //sets column spacing and date format to default
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = false
 	tbl.SetTitle(ReportHeaderBlock("Gross Scheduled Rent", funcname, ri))
-	tbl.AddColumn("Rentable", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)        // column for the Rentable name
-	tbl.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)           // Rentable name
-	tbl.AddColumn("Rentable Type", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // Rentable Type
-	tbl.AddColumn("Rentable Style", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // Rentable Style
-	tbl.AddColumn("GSR", 8, rlib.CELLFLOAT, rlib.COLJUSTIFYLEFT)              // 4  GSR
-	tbl.AddColumn("Rent Cycle", 13, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)     // 5  Rent Cycle
-	tbl.AddColumn("Prorate Cycle", 13, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // 6  Proration Cycle
+	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)        // column for the Rentable name
+	tbl.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // Rentable name
+	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // Rentable Type
+	tbl.AddColumn("Rentable Style", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // Rentable Style
+	tbl.AddColumn("GSR", 8, gotable.CELLFLOAT, gotable.COLJUSTIFYLEFT)              // 4  GSR
+	tbl.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)     // 5  Rent Cycle
+	tbl.AddColumn("Prorate Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 6  Proration Cycle
 
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
 	rlib.Errcheck(err)

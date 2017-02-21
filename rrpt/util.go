@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"time"
 )
@@ -103,9 +104,17 @@ func ReportHeaderBlock(rn, funcname string, ri *ReporterInfo) string {
 //
 // @return
 //		string version of the report
-func ReportToString(t *rlib.Table, ri *ReporterInfo) string {
+func ReportToString(t *gotable.Table, ri *ReporterInfo) string {
 	if ri.RptHeader {
-		return t.GetTitle() + t.SprintTable(ri.OutputFormat) // note that t.String() forces output type to TABLEOUTTEXT
+		s, err := t.SprintTable(ri.OutputFormat)
+		if nil != err {
+			rlib.Ulog("ReportToString: error = %s", err)
+		}
+		return t.GetTitle() + s
 	}
-	return t.SprintTable(ri.OutputFormat)
+	s, err := t.SprintTable(ri.OutputFormat)
+	if nil != err {
+		rlib.Ulog("ReportToString: error = %s", err)
+	}
+	return s
 }

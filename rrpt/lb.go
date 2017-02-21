@@ -2,22 +2,23 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 )
 
 // LedgerBalanceReport builds a table of trial balance information
-func LedgerBalanceReport(ri *ReporterInfo) rlib.Table {
+func LedgerBalanceReport(ri *ReporterInfo) gotable.Table {
 	bid := ri.Xbiz.P.BID
-	var tbl rlib.Table
+	var tbl gotable.Table
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
 	tbl.SetTitle(ReportHeaderBlock("Trial Balance", "RRreportRentalAgreements", ri))
 	tbl.Init()
-	tbl.AddColumn("LID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("GLNumber", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Name", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Summary Balance", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	tbl.AddColumn("Balance", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	tbl.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Summary Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
 	for i := int64(0); i < int64(len(rlib.RRdb.BizTypes[bid].GLAccounts)); i++ {
 		acct, ok := rlib.RRdb.BizTypes[bid].GLAccounts[i]
@@ -50,6 +51,6 @@ func PrintLedgerBalanceReportString(ri *ReporterInfo) string {
 	//s := fmt.Sprintf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ri.Xbiz.P.Name, ri.D2.Format("January 2, 2006"))
 	tbl := LedgerBalanceReport(ri)
 	tbl.TightenColumns()
-	// return s + tbl.SprintTable(rlib.TABLEOUTTEXT)
+	// return s + tbl.SprintTable(gotable.TABLEOUTTEXT)
 	return ReportToString(&tbl, ri)
 }

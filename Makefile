@@ -1,6 +1,6 @@
 DIRS = db rlib rrpt rcsv admin importers tools test
 TOP = .
-COUNTOL=${TOP}/test/share/countol.sh
+COUNTOL=${TOP}/tools/bashtools/countol.sh
 
 # Force a build for the demo
 
@@ -15,7 +15,7 @@ rentroll: ver.go *.go
 	./mkver.sh
 	go build
 	@rm -rf fail
-	test/share/buildcheck.sh BUILD
+	@tools/bashtools/buildcheck.sh BUILD
 
 stats:
 	@echo "GO SOURCE CODE STATISTICS"
@@ -34,7 +34,7 @@ clean:
 test: package
 	@rm -f test/*/err.txt
 	for dir in $(DIRS); do make -C $$dir test;done
-	@test/share/buildcheck.sh TEST
+	@tools/bashtools/buildcheck.sh TEST
 	@./errcheck.sh
 
 man: rentroll.1
@@ -62,7 +62,7 @@ package: rentroll
 	ln -s tmp/rentroll/rrrestore
 	@echo "*** PACKAGE COMPLETED ***"
 	@rm -f fail
-	@test/share/buildcheck.sh PACKAGE
+	@tools/bashtools/buildcheck.sh PACKAGE
 
 publish: package
 	cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar

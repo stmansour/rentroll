@@ -34,7 +34,13 @@ dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
-dojsonPOST "http://localhost:8270/v1/accounts/1" "w2uiGridReq" "s"  "WebService--ChartOfAccounts"
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "s"  "WebService--ChartOfAccounts"
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sort%22%3A%5B%7B%22field%22%3A%22LastName%22%2C%22direction%22%3A%22asc%22%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/transactants/1" "request" "t"  "WebService--GetTransactants"
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "u"  "WebService--GetRentables"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

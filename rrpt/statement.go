@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -100,11 +101,11 @@ func RentableCountByRentableTypeReport(ri *ReporterInfo) string {
 	return ReportToString(&t, ri)
 }
 
-// RentableCountByRentableTypeReportTbl returns an rlib.Table containing the count of Rentables for each RentableType
+// RentableCountByRentableTypeReportTbl returns an gotable.Table containing the count of Rentables for each RentableType
 // in the specified time range
-func RentableCountByRentableTypeReportTbl(ri *ReporterInfo) rlib.Table {
+func RentableCountByRentableTypeReportTbl(ri *ReporterInfo) gotable.Table {
 	funcname := "RentableCountByRentableTypeReportTbl"
-	var t rlib.Table
+	var t gotable.Table
 	t.Init()
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
@@ -116,10 +117,10 @@ func RentableCountByRentableTypeReportTbl(ri *ReporterInfo) rlib.Table {
 		t.SetTitle(t.GetTitle() + "\n" + fmt.Sprintf("%s: GetRentableCountByRentableType returned error: %s\n", funcname, err.Error()))
 	}
 
-	t.AddColumn("No. Rentables", 9, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Rentable Type Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Style", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Custom Attributes", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("No. Rentables", 9, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Rentable Type Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Style", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Custom Attributes", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// need to sort these into a predictable order... they are messing up the tests as they
 	// seem to come back in random orders on different runs...
@@ -159,20 +160,20 @@ func RentableCountByRentableTypeReportTbl(ri *ReporterInfo) rlib.Table {
 }
 
 // RptStatementForRA generates a text Statement for the supplied rental agreement ra.
-func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) rlib.Table {
+func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table {
 	rlib.LoadXRentalAgreement(ra.RAID, ra, &ri.D1, &ri.D2)
 	payors := ra.GetPayorNameList(&ri.D1, &ri.D2)
 
-	var t rlib.Table
+	var t gotable.Table
 	t.Init()
 	s := fmt.Sprintf("Statement  -  Rental Agreement %s\nPayor(s): %s\n", ra.IDtoString(), strings.Join(payors, ", "))
 	t.SetTitle(ReportHeaderBlock(s, "RptStatementForRA", ri))
-	t.AddColumn("Date", 8, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("ID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Description", 40, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Charge", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Payment", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Balance", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Description", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Charge", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Payment", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
 	m := GetStatementData(ri.Xbiz, ra.RAID, &ri.D1, &ri.D2)
 	var b = rlib.RoundToCent(m[0].amt) // element 0 is always the account balance

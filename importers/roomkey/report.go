@@ -2,6 +2,7 @@ package roomkey
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/importers/core"
 	"rentroll/rcsv"
 	"rentroll/rlib"
@@ -51,12 +52,12 @@ func generateSummaryReport(
 	report += strings.Repeat("=", len(tableTitle))
 	report += "\n"
 
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init()
-	tbl.AddColumn("Data Type", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Total Possible", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Total Imported", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Issues", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Data Type", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Total Possible", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Total Imported", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Issues", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// evaluate import count
 	core.GetImportedCount(summaryCount, BID)
@@ -81,8 +82,11 @@ func generateSummaryReport(
 		tbl.Puts(-1, 3, strconv.Itoa(countMap["issues"]))
 	}
 
-	report += tbl.SprintTable(rlib.RPTTEXT)
-	report += "\n"
+	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	if err != nil {
+		rlib.Ulog("generateDetailedReport: error = %s", err)
+	}
+	report += s + "\n"
 
 	return report
 }
@@ -105,11 +109,11 @@ func generateDetailedReport(
 	detailedReport += strings.Repeat("=", len(tableTitle))
 	detailedReport += "\n"
 
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init()
-	tbl.AddColumn("Input Line", 6, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	// tbl.AddColumn("RentRoll DB Type", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Description", 100, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Input Line", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	// tbl.AddColumn("RentRoll DB Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Description", 100, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	csvErrorIndexes := []int{}
 	for rowIndex := range csvErrors {
@@ -131,7 +135,11 @@ func generateDetailedReport(
 			tbl.Puts(-1, 1, reportError[0])
 
 			// append detailed section
-			detailedReport += tbl.SprintTable(rlib.RPTTEXT)
+			s, err := tbl.SprintTable(rlib.RPTTEXT)
+			if err != nil {
+				rlib.Ulog("generateDetailedReport: error = %s", err)
+			}
+			detailedReport += s
 
 			// return
 			csvReportGenerate = false
@@ -204,8 +212,11 @@ func generateDetailedReport(
 	}
 
 	// append detailed section
-	detailedReport += tbl.SprintTable(rlib.RPTTEXT)
-	detailedReport += "\n"
+	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	if err != nil {
+		rlib.Ulog("generateDetailedReport: error = %s", err)
+	}
+	detailedReport += s + "\n"
 
 	// return
 	return detailedReport, csvReportGenerate

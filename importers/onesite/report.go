@@ -2,6 +2,7 @@ package onesite
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/importers/core"
 	"rentroll/rcsv"
 	"rentroll/rlib"
@@ -48,12 +49,12 @@ func generateSummaryReport(
 	report += strings.Repeat("=", len(tableTitle))
 	report += "\n"
 
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init()
-	tbl.AddColumn("Data Type", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Total Possible", 10, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Total Imported", 10, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Issues", 10, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Data Type", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Total Possible", 10, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Total Imported", 10, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Issues", 10, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
 
 	// evaluate import count
 	core.GetImportedCount(summaryCount, BID)
@@ -78,10 +79,11 @@ func generateSummaryReport(
 		tbl.Puti(-1, 3, int64(countMap["issues"]))
 	}
 
-	report += tbl.SprintTable(rlib.RPTTEXT)
-	report += "\n"
-
-	return report
+	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	if err != nil {
+		rlib.Ulog("generateSummaryReport: error = %s", err.Error())
+	}
+	return report + s + "\n"
 }
 
 // generateDetailedReport gives detailed report with (rowNumber, unit, db type, reason)
@@ -103,12 +105,12 @@ func generateDetailedReport(
 	detailedReport += strings.Repeat("=", len(tableTitle))
 	detailedReport += "\n"
 
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init()
-	tbl.AddColumn("Input Line", 6, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Unit Name", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	// tbl.AddColumn("RentRoll DB Type", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Description", 100, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("Input Line", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Unit Name", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	// tbl.AddColumn("RentRoll DB Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Description", 100, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	csvErrorIndexes := []int{}
 	for rowIndex := range csvErrors {
@@ -131,7 +133,11 @@ func generateDetailedReport(
 			tbl.Puts(-1, 2, reportError[0])
 
 			// append detailed section
-			detailedReport += tbl.SprintTable(rlib.RPTTEXT)
+			s, err := tbl.SprintTable(rlib.RPTTEXT)
+			if err != nil {
+				rlib.Ulog("generateDetailedReport: error = %s", err)
+			}
+			detailedReport += s
 
 			// return
 			csvReportGenerate = false
@@ -209,8 +215,11 @@ func generateDetailedReport(
 	}
 
 	// append detailed section
-	detailedReport += tbl.SprintTable(rlib.RPTTEXT)
-	detailedReport += "\n"
+	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	if err != nil {
+		rlib.Ulog("generateDetailedReport: error = %s", err)
+	}
+	detailedReport += s + "\n"
 
 	// return
 	return detailedReport, csvReportGenerate

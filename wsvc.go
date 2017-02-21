@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gotable"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -35,7 +36,7 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	fmt.Printf("websvcReportHandler: prefix=%s, BID=%d,  d1 = %s, d2 = %s\n", prefix, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-	var ri = rrpt.ReporterInfo{OutputFormat: rlib.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
+	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
 	rlib.InitBizInternals(ri.Bid, xbiz)
 
 	switch strings.ToLower(prefix) {
@@ -43,7 +44,11 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportAssessments(&ri)
 	case "b", "business":
 		t := rcsv.RRreportBusinessTable(&ri)
-		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
+		s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+		if err != nil {
+			s += err.Error()
+		}
+		return t.GetTitle() + s
 	case "coa", "chart of accounts":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		return rcsv.RRreportChartOfAccounts(&ri)
@@ -57,7 +62,11 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		if err != nil {
 			return err.Error()
 		}
-		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
+		s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+		if err != nil {
+			s += err.Error()
+		}
+		return t.GetTitle() + s
 	case "dpm", "deposit methods":
 		return rcsv.RRreportDepositMethods(&ri)
 	case "dep", "depositories":
@@ -68,7 +77,11 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		if err != nil {
 			return err.Error()
 		}
-		return t.GetTitle() + t.SprintTable(rlib.TABLEOUTTEXT)
+		s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+		if err != nil {
+			s += err.Error()
+		}
+		return t.GetTitle() + s
 	case "j":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		ri.RptHeaderD1 = true
@@ -77,7 +90,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rrpt.ReportToString(&t, &ri)
 	case "l", "la":
 		if xbiz.P.BID > 0 {
-			var m []rlib.Table
+			var m []gotable.Table
 			var rn string
 			if prefix == "l" {
 				rn = "Ledgers"
@@ -97,7 +110,11 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 				m = rrpt.LedgerActivityReport(&ri)
 			}
 			for i := 0; i < len(m); i++ {
-				s += m[i].GetTitle() + m[i].SprintTable(rlib.TABLEOUTTEXT) + "\n\n"
+				s1, err := m[i].SprintTable(gotable.TABLEOUTTEXT)
+				if err != nil {
+					s1 += err.Error()
+				}
+				s += m[i].GetTitle() + s1 + "\n\n"
 			}
 			return s
 		}

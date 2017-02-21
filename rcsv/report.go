@@ -2,6 +2,7 @@ package rcsv
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"rentroll/rrpt"
 	"sort"
@@ -10,20 +11,20 @@ import (
 )
 
 // RRreportBusinessTable generates a Table of all Businesses defined in the database.
-func RRreportBusinessTable(ri *rrpt.ReporterInfo) rlib.Table {
+func RRreportBusinessTable(ri *rrpt.ReporterInfo) gotable.Table {
 	rows, err := rlib.RRdb.Prepstmt.GetAllBusinesses.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	var tbl rlib.Table
+	var tbl gotable.Table
 	tbl.Init()
 	tbl.SetTitle("Business Units\n\n")
-	tbl.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("BUD", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Name", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Default Rent Cycle", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Default Proration Cycle", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	tbl.AddColumn("Default GSRPC Cycle", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("BUD", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Name", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Default Rent Cycle", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Default Proration Cycle", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Default GSRPC Cycle", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for rows.Next() {
 		var p rlib.Business
@@ -43,11 +44,15 @@ func RRreportBusinessTable(ri *rrpt.ReporterInfo) rlib.Table {
 // RRreportBusiness generates a String Report of all Businesses defined in the database.
 func RRreportBusiness(ri *rrpt.ReporterInfo) string {
 	tbl := RRreportBusinessTable(ri)
-	return tbl.SprintTable(ri.OutputFormat)
+	s, err := tbl.SprintTable(ri.OutputFormat)
+	if nil != err {
+		rlib.Ulog("RRreportBusiness: error %s", err.Error())
+	}
+	return s
 }
 
 // ReportCOA returns a string representation of the chart of accts
-func ReportCOA(p rlib.GLAccount, t *rlib.Table) {
+func ReportCOA(p rlib.GLAccount, t *gotable.Table) {
 	Pldgr := ""
 	lm := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
 	if lm.LMID == 0 {
@@ -130,25 +135,25 @@ func RRreportChartOfAccounts(ri *rrpt.ReporterInfo) string {
 		}
 	}
 
-	var t rlib.Table
+	var t gotable.Table
 	t.Init()
 
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = false
 	t.SetTitle(rrpt.ReportHeaderBlock("Chart of Accounts", funcname, ri))
-	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("LID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("PLID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("LMID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Type", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("GLNumber", 8, rlib.CELLSTRING, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Name", 40, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Parent", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Quick Books Account Type", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Balance", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Rental Agreement Associated", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Rental Agreement Required", 5, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Description", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("PLID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("LMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Type", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Name", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Parent", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Quick Books Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Rental Agreement Associated", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Rental Agreement Required", 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for i := 0; i < len(a); i++ {
 		ReportCOA(m[a[i]], &t)
@@ -165,17 +170,17 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 	}
 	sort.Ints(keys)
 
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Rentable Types", "RRreportPeople", ri))
 	t.Init()
-	t.AddColumn("RTID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // 0
-	t.AddColumn("Style", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                   // 1
-	t.AddColumn("Name", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // 2
-	t.AddColumn("Rent Cycle", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)               // 3
-	t.AddColumn("Proration Cycle", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)          // 4
-	t.AddColumn("GSRPC", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)                    // 5
-	t.AddColumn("Manage To Budget", 3, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)         // 6
-	t.AddColumn("Dt1 - Dt2 : Market Rate", 96, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // 7
+	t.AddColumn("RTID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 0
+	t.AddColumn("Style", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // 1
+	t.AddColumn("Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 2
+	t.AddColumn("Rent Cycle", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)               // 3
+	t.AddColumn("Proration Cycle", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)          // 4
+	t.AddColumn("GSRPC", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 5
+	t.AddColumn("Manage To Budget", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)         // 6
+	t.AddColumn("Dt1 - Dt2 : Market Rate", 96, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 7
 
 	for _, k := range keys {
 		i := int64(k)
@@ -205,17 +210,17 @@ func RRreportPeople(ri *rrpt.ReporterInfo) string {
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("People", "RRreportPeople", ri))
 	t.Init()
-	t.AddColumn("TCID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("First Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Middle Name", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Last Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Company", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Is Company", 3, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Cell Phone", 17, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Primary Email", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("TCID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("First Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Middle Name", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Last Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Company", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Is Company", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Cell Phone", 17, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Primary Email", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for rows.Next() {
 		var p rlib.XPerson
@@ -242,12 +247,12 @@ func RRreportRentables(ri *rrpt.ReporterInfo) string {
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Rentables", "RRreportRentables", ri))
 	t.Init()
-	t.AddColumn("RID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Assignment Time", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Assignment Time", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for rows.Next() {
 		var p rlib.Rentable
@@ -277,15 +282,15 @@ func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	var t rlib.Table
+	var t gotable.Table
 	t.Init()
 	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes", "RRreportCustomAttributes", ri))
-	t.AddColumn("CID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Value Type", 6, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Name", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Value", 15, rlib.CELLSTRING, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Units", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("CID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Value Type", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Value", 15, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Units", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for rows.Next() {
 		var a rlib.CustomAttribute
@@ -308,13 +313,13 @@ func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributeRefs.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes References", "RRreportCustomAttributeRefs", ri))
 	t.Init()
-	t.AddColumn("Element Type", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("ID", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("CID", 4, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
+	t.AddColumn("Element Type", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("ID", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("CID", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	for rows.Next() {
 		var a rlib.CustomAttributeRef
 		rlib.ReadCustomAttributeRefs(rows, &a)
@@ -334,12 +339,12 @@ func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement Templates", "RRreportRentalAgreementTemplates", ri))
 	t.Init()
-	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("RA Template ID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("RA Template Name", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RA Template ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RA Template Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	for rows.Next() {
 		var p rlib.RentalAgreementTemplate
 		rlib.ReadRentalAgreementTemplates(rows, &p)
@@ -359,24 +364,24 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement", "RRreportRentalAgreements", ri))
 	t.Init()
-	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Payor", 60, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("User", 60, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Agreement Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Agreement Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Possession Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Possession Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Rent Start", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Rent Stop", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Rent Cycle Epoch", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Renewal", 2, rlib.CELLINT, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Unspecified Adults", 6, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Unspecified Children", 6, rlib.CELLINT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Special Provisions", 40, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Notes", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Payor", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("User", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Agreement Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Agreement Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Possession Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Possession Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Cycle Epoch", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Renewal", 2, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Unspecified Adults", 6, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Unspecified Children", 6, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Special Provisions", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Notes", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	var raid int64
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -427,13 +432,13 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 	}
 	sort.Ints(keys)
 
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Payment Types", "RRreportPaymentTypes", ri))
 	t.Init()
-	t.AddColumn("PMTID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("BID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Name", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Description", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Description", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for _, k := range keys {
 		i := int64(k)
@@ -459,12 +464,16 @@ func RRreportAssessments(ri *rrpt.ReporterInfo) string {
 			s += err.Error()
 		}
 	}
-	return s + "\n" + t.SprintTable(ri.OutputFormat)
+	s1, err := t.SprintTable(ri.OutputFormat)
+	if err != nil {
+		rlib.Ulog("RReportAssessments: error = %s", err.Error())
+	}
+	return s + "\n" + s1
 }
 
 // RRAssessmentsTable generates a report of all rlib.GLAccount accounts
-func RRAssessmentsTable(ri *rrpt.ReporterInfo) (rlib.Table, error) {
-	var t rlib.Table
+func RRAssessmentsTable(ri *rrpt.ReporterInfo) (gotable.Table, error) {
+	var t gotable.Table
 	t.Init()
 	funcname := "RRAssessmentsTable"
 	bid := ri.Bid
@@ -478,15 +487,15 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (rlib.Table, error) {
 	ri.BlankLineAfterRptName = true
 	t.SetTitle(rrpt.ReportHeaderBlock("Assessments", funcname, ri))
 
-	t.AddColumn("ASMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("PASMID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("RID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Rent Cycle", 13, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Proration Cycle", 13, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("AsmType", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Account Rule", 80, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("ASMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("PASMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Proration Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("AsmType", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Account Rule", 80, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
 	rlib.Errcheck(err)
@@ -523,23 +532,23 @@ func RRreportReceipts(ri *rrpt.ReporterInfo) string {
 }
 
 // RRReceiptsTable generates a report of all rlib.GLAccount accounts
-func RRReceiptsTable(ri *rrpt.ReporterInfo) rlib.Table {
+func RRReceiptsTable(ri *rrpt.ReporterInfo) gotable.Table {
 	m := rlib.GetReceipts(ri.Bid, &ri.D1, &ri.D2)
-	var t rlib.Table
+	var t gotable.Table
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
 	t.SetTitle(rrpt.ReportHeaderBlock("Receipts", "RRReceiptsTable", ri))
 	t.Init()
-	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("RCPTID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Parent RCPTID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("RAID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("PMTID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Doc No", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Account Rule", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Comment", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RCPTID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Parent RCPTID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Doc No", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Comment", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for _, a := range m {
 		t.AddRow()
@@ -559,15 +568,15 @@ func RRReceiptsTable(ri *rrpt.ReporterInfo) rlib.Table {
 
 // RRreportInvoices generates a report of all rlib.GLAccount accounts
 func RRreportInvoices(ri *rrpt.ReporterInfo) string {
-	var t rlib.Table
+	var t gotable.Table
 	t.Init()
 	t.SetTitle(rrpt.ReportHeaderBlock("Invoices", "RRreportInvoices", ri))
-	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("InvoiceNo", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("BID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Due Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("DeliveredBy", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("InvoiceNo", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Due Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("DeliveredBy", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	m := rlib.GetAllInvoicesInRange(ri.Bid, &Rcsv.DtStart, &Rcsv.DtStop)
 	for i := 0; i < len(m); i++ {
@@ -586,13 +595,13 @@ func RRreportInvoices(ri *rrpt.ReporterInfo) string {
 // RRreportDepository generates a report of all rlib.GLAccount accounts
 func RRreportDepository(ri *rrpt.ReporterInfo) string {
 	m := rlib.GetAllDepositories(ri.Bid)
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Depositories", "RRreportDepository", ri))
 	t.Init()
-	t.AddColumn("DEPID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("BID", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("AccountNo", 12, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Name", 35, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("DEPID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("AccountNo", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	for i := 0; i < len(m); i++ {
 		t.AddRow()
 		t.Puts(-1, 0, rlib.IDtoString("DEP", m[i].DEPID))
@@ -606,12 +615,12 @@ func RRreportDepository(ri *rrpt.ReporterInfo) string {
 
 // RRreportDepositMethods generates a report of all rlib.GLAccount accounts
 func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("Deposit Methods", "RRreportDepositMethods", ri))
 	t.Init()
-	t.AddColumn("DPMID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Name", 30, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("DPMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Name", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	m := rlib.GetAllDepositMethods(ri.Bid)
 	for i := 0; i < len(m); i++ {
@@ -627,13 +636,13 @@ func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
 // RRreportDeposits generates a report of all rlib.GLAccount accounts
 func RRreportDeposits(ri *rrpt.ReporterInfo) string {
 	m := rlib.GetAllDepositsInRange(ri.Bid, &Rcsv.DtStart, &Rcsv.DtStop)
-	var t rlib.Table
+	var t gotable.Table
 	t.Init()
-	t.AddColumn("Date", 10, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("DEPID", 11, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("BID", 9, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Amount", 10, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)
-	t.AddColumn("Receipts", 60, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("DEPID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Receipts", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	for i := 0; i < len(m); i++ {
 		s := ""
 		for j := 0; j < len(m[i].DP); j++ {
@@ -650,7 +659,11 @@ func RRreportDeposits(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 4, s)
 	}
 	t.TightenColumns()
-	return t.SprintTable(ri.OutputFormat)
+	s, err := t.SprintTable(ri.OutputFormat)
+	if nil != err {
+		rlib.Ulog("RRreportDeposits: error = %s", err)
+	}
+	return s
 }
 
 func getCategory(s string) (string, string) {
@@ -675,12 +688,12 @@ func RRreportStringLists(ri *rrpt.ReporterInfo) string {
 	)
 	m := rlib.GetAllStringLists(ri.Bid)
 
-	var t rlib.Table
+	var t gotable.Table
 	t.SetTitle(rrpt.ReportHeaderBlock("String Lists", "RRreportStringLists", ri))
 	t.Init()
-	t.AddColumn("SLSID", 20, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Category", 25, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
-	t.AddColumn("Value", 50, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)
+	t.AddColumn("SLSID", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Category", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Value", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	for i := 0; i < len(m); i++ {
 		t.AddRow()

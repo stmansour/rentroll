@@ -29,7 +29,7 @@ mysqlverify "o"  "${RRCTX}"		"Users"	                    	"select TCID,Points,Da
 mysqlverify "p"  "${RRCTX}"		"Payors"	                    "select TCID,CreditLimit,TaxpayorID,AccountRep,LastModBy from Payor;"
 mysqlverify "q"  "${RRCTX}"		"Prospects"	            		"select TCID,EmployerName,EmployerStreetAddress,EmployerCity,EmployerState,EmployerPostalCode,EmployerEmail,EmployerPhone,Occupation,ApplicationFee,LastModBy from Prospect;"
 mysqlverify "na" "${RRCTX}"		"Vehicles"	            		"select VID,TCID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"
-mysqlverify "k"  "${RRCTX}"		"Rentables"	            		"select RID,BID,Name,AssignmentTime,LastModBy from Rentable;"
+mysqlverify "k"  "${RRCTX}"		"Rentables"	            		"select RID,BID,RentableName,AssignmentTime,LastModBy from Rentable;"
 mysqlverify "l"  "${RRCTX}"		"RentableTypeRef"	    		"select RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
 mysqlverify "m"  "${RRCTX}"		"RentableStatus"	            "select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
 mysqlverify "r"  "${RRCTX}"		"RentalAgreementTemplates"   	"select RATID,BID,RATemplateName,LastModBy from RentalAgreementTemplate;"

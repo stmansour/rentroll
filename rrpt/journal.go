@@ -2,6 +2,7 @@ package rrpt
 
 import (
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -12,14 +13,14 @@ type jprintctx struct {
 	ReportStop  time.Time
 }
 
-// func setTitle(tbl *rlib.Table, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+// func setTitle(tbl *gotable.Table, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 // 	s := "JOURNAL\n"
 // 	s += fmt.Sprintf("Business: %-13s\n", xbiz.P.Name)
 // 	s += fmt.Sprintf("Period:   %s - %s\n\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
 // 	tbl.SetTitle(s)
 // }
 
-func processAcctRuleAmount(tbl *rlib.Table, xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) {
+func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) {
 	funcname := "processAcctRuleAmount"
 	m := rlib.ParseAcctRule(xbiz, rid, &d, &d, rule, amt, float64(1))
 	for i := 0; i < len(m); i++ {
@@ -57,7 +58,7 @@ func processAcctRuleAmount(tbl *rlib.Table, xbiz *rlib.XBusiness, rid int64, d t
 	}
 }
 
-func textPrintJournalAssessment(tbl *rlib.Table, jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
+func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
 	s := rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name
 
 	//-------------------------------------------------------------------------------------
@@ -128,7 +129,7 @@ func textPrintJournalAssessment(tbl *rlib.Table, jctx *jprintctx, xbiz *rlib.XBu
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalReceipt(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
+func textPrintJournalReceipt(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
 	funcname := "textPrintJournalReceipt"
 	rntagr, _ := rlib.GetXRentalAgreement(rcpt.RAID, &jctx.ReportStart, &jctx.ReportStop)
 	// sa := getPayorLastNames(&rntagr, &jctx.ReportStart, &jctx.ReportStop)
@@ -175,7 +176,7 @@ func textPrintJournalReceipt(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *jprint
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalUnassociated(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal) {
+func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal) {
 	var r rlib.Rentable
 	rlib.GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
 	//printJournalSubtitle(s)
@@ -188,7 +189,7 @@ func textPrintJournalUnassociated(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *j
 	tbl.AddRow() // separater line
 }
 
-func textPrintJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
+func textPrintJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
 	case rlib.JNLTYPEUNAS:
 		textPrintJournalUnassociated(tbl, xbiz, jctx, j)
@@ -204,7 +205,7 @@ func textPrintJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, jctx *jprintct
 	}
 }
 
-func textReportJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, j *rlib.Journal, jctx *jprintctx) {
+func textReportJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journal, jctx *jprintctx) {
 	//-------------------------------------------------------------------------------------
 	// over what range of time does this rental apply between jctx.ReportStart & jctx.ReportStop?
 	// the rental possession dates may be different than the report range...
@@ -233,17 +234,17 @@ func textReportJournalEntry(tbl *rlib.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 
 }
 
-// JournalReport returns a Journal report in an rlib.Table for the supplied Business and time range
-func JournalReport(ri *ReporterInfo) rlib.Table {
-	var tbl rlib.Table
+// JournalReport returns a Journal report in an gotable.Table for the supplied Business and time range
+func JournalReport(ri *ReporterInfo) gotable.Table {
+	var tbl gotable.Table
 	tbl.Init()
-	tbl.AddColumn("Journal ID", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)  // 0
-	tbl.AddColumn("Description", 70, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT) // 1
-	tbl.AddColumn("Date", 8, rlib.CELLDATE, rlib.COLJUSTIFYLEFT)           // 2
-	tbl.AddColumn("RntAgr", 10, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)      // 3
-	tbl.AddColumn("Rentable", 15, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)    // 4
-	tbl.AddColumn("GLAccount", 8, rlib.CELLSTRING, rlib.COLJUSTIFYLEFT)    // 5
-	tbl.AddColumn("Amount", 12, rlib.CELLFLOAT, rlib.COLJUSTIFYRIGHT)      // 6
+	tbl.AddColumn("Journal ID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 0
+	tbl.AddColumn("Description", 70, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 1
+	tbl.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)           // 2
+	tbl.AddColumn("RntAgr", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)      // 3
+	tbl.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 4
+	tbl.AddColumn("GLAccount", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 5
+	tbl.AddColumn("Amount", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)      // 6
 
 	jctx := jprintctx{ri.D1, ri.D2}
 	// setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
