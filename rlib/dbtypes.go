@@ -13,6 +13,8 @@ const (
 
 	RPTTEXT = 1
 	RPTHTML = 2
+	RPTPDF  = 3
+	RPTCSV  = 4
 
 	ELEMPERSON          = 1 // people
 	ELEMCOMPANY         = 2 // companies
