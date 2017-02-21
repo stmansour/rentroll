@@ -638,7 +638,6 @@ func (t *Table) TightenColumns() {
 
 // SprintTable renders the entire table to a string
 func (t *Table) SprintTable(f int) string {
-	fmt.Printf("Table Output Format: %d\n\n", f)
 	switch f {
 	case TABLEOUTTEXT:
 		return t.SprintTableText(f)

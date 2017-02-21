@@ -59,7 +59,7 @@ func (t *Table) SprintRowHTML(row int) string {
 	// fill the content in rowTextList for the first line
 	for i := 0; i < len(t.Row[row].Col); i++ {
 
-		rowCell := ""
+		var rowCell string
 		// append content in TD
 		switch t.Row[row].Col[i].Type {
 		case CELLFLOAT:
