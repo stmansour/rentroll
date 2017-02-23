@@ -6,8 +6,12 @@
 # Your script can override the following values:
 #
 # 	BUD="REX"    - name of the business to use for your tests
-# 	RRDATERANGE  - default RentRoll date range. You can override this value with a different range.
+# 	RRDATERANGE  - default RentRoll date range. You can override this 
+#                  value with a different range.
 #############################################################################
+
+TOOLSDIR=${TOP}/tools
+BASHDIR=${TOOLSDIR}/bashtools
 
 #############################################################################
 # Set default values
@@ -20,13 +24,17 @@ MYSQLOPTS=""
 MYSQL=$(which mysql)
 TESTCOUNT=0			## this is an internal counter, your external script should not touch it
 SHOWCOMMAND=0
-CREATENEWDB=1
 SCRIPTPATH=$(pwd -P)
 
+if [ "x${MANAGESERVER}" = "x" ]; then
+	MANAGESERVER=1
+fi
+if [ "x${CREATENEWDB}" = "x" ]; then
+	CREATENEWDB=1
+fi
 if [ "x${RRPORT}" = "x" ]; then
 	RRPORT="8270"
 fi
-
 if [ "x${RRBIN}" = "x" ]; then
 	RRBIN="../../tmp/rentroll"
 else
@@ -207,6 +215,9 @@ OPTIONS
 	-f  Executes all the steps of the test but does not compare the output
 	    to the known-good files. This is useful when making a slight change
 	    to something just to see how it will work.
+
+	-m  Do not run any server mgmt commands. Typically, this is used to
+		run the test commands against an already-running server.
 
 	-n  Do not create a new database, use the current database and simply
 	    add to it.
@@ -672,9 +683,11 @@ genericlogcheck() {
 #   to including base.sh to override the port number
 #########################################################
 startRentRollServer () {
-	stopRentRollServer
-	${RRBIN}/rentroll -p ${RRPORT} > ${RRBIN}/rrlog 2>&1 &
-	sleep 1
+	if [ ${MANAGESERVER} -eq 1 ]; then
+		stopRentRollServer
+		${RRBIN}/rentroll -p ${RRPORT} > ${RRBIN}/rrlog 2>&1 &
+		sleep 1
+	fi
 }
 
 #########################################################
@@ -682,8 +695,10 @@ startRentRollServer () {
 #	Kills any currently running instances of the server
 #########################################################
 stopRentRollServer () {
-	killall rentroll > /dev/null 2>&1
-	sleep 1
+	if [ ${MANAGESERVER} -eq 1 ]; then
+		killall rentroll > /dev/null 2>&1
+		sleep 1
+	fi
 }
 
 ########################################
@@ -730,7 +745,11 @@ dojsonPOST () {
 
 		UDIFFS=$(diff qqx qqy | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
-			echo "PASSED"
+			if [ ${SHOWCOMMAND} -eq 1 ]; then
+				echo "PASSED	cmd: ${CMD}"
+			else
+				echo "PASSED"
+			fi
 		else
 			echo "FAILED...   if correct:  mv ${3} ${GOLD}/${3}.gold" >> ${ERRFILE}
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
@@ -750,7 +769,7 @@ dojsonPOST () {
 #  Handle command line options...
 #--------------------------------------------------------------------------
 tdir
-while getopts "cfornR:" o; do
+while getopts "cfmornR:" o; do
 	echo "o = ${o}"
 	case "${o}" in
 		c | C)
@@ -763,6 +782,9 @@ while getopts "cfornR:" o; do
 			;;
 		f)  SKIPCOMPARE=1
 			echo "SKIPPING COMPARES..."
+			;;
+		m)  MANAGESERVER=0
+			echo "SKIPPING SERVER MGMT CMDS..."
 			;;
 		n)	CREATENEWDB=0
 			echo "DATA WILL BE ADDED TO CURRENT DB"

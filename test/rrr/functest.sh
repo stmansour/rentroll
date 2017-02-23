@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TESTNAME="RentRoll Report / Web Services"
-TESTSUMMARY="Test the RentRoll Report and Web Services"
+TESTNAME="RentRoll Report"
+TESTSUMMARY="Test the RentRoll Report"
 
 RRDATERANGE="-j 2016-07-01 -k 2016-08-01"
 
@@ -30,18 +30,5 @@ dorrtest "o" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
 dorrtest "q" "-r 12,11,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
 dorrtest "q1" "-r 12,9,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
 dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
-
-
-echo "STARTING RENTROLL SERVER"
-startRentRollServer
-echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "s"  "WebService--ChartOfAccounts"
-echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sort%22%3A%5B%7B%22field%22%3A%22LastName%22%2C%22direction%22%3A%22asc%22%7D%5D%7D" > request
-dojsonPOST "http://localhost:8270/v1/transactants/1" "request" "t"  "WebService--GetTransactants"
-echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "u"  "WebService--GetRentables"
-
-stopRentRollServer
-echo "RENTROLL SERVER STOPPED"
 
 logcheck

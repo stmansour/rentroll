@@ -78,7 +78,7 @@ func reportTextProcessLedgerMarker(tbl *gotable.Table, xbiz *rlib.XBusiness, lm 
 	}
 	rlib.Errcheck(rows.Err())
 	// printTReportLine()
-	tbl.AddLineAfter(tbl.Rows() - 1)
+	tbl.AddLineAfter(tbl.RowCount() - 1)
 	// printLedgerDescrAndBal("Closing Balance", d2.AddDate(0, 0, -1), bal)
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Closing Balance")

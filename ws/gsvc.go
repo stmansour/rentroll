@@ -67,6 +67,8 @@ type ServiceData struct {
 	TCID   int64      // TCID if supplied
 	RAID   int64      // RAID if supplied
 	RID    int64      // RAID if supplied
+	RCPTID int64      // RCPTID if supplied
+	ASMID  int64      // ASMID if supplied
 	webreq WebRequest // what did the grid ask for
 	data   string     // the raw unparsed data
 }
@@ -75,7 +77,9 @@ type ServiceData struct {
 var Svcs = []ServiceHandler{
 	{"transactants", SvcSearchHandlerTransactants, true},
 	{"accounts", SvcSearchHandlerGLAccounts, true},
+	{"asm", SvcSearchHandlerAssessments, true},
 	{"rar", SvcRARentables, true},
+	{"receipts", SvcSearchHandlerReceipts, true},
 	{"rentables", SvcSearchHandlerRentables, true},
 	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},

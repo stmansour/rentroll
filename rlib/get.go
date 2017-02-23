@@ -1038,10 +1038,17 @@ func GetAllRatePlanRefSPRates(rprid, rtid int64) []RatePlanRefSPRate {
 
 // GetReceipt returns a Receipt structure for the supplied RCPTID
 func GetReceipt(rcptid int64) Receipt {
+	r := GetReceiptNoAllocations(rcptid)
+	GetReceiptAllocations(rcptid, &r)
+	return r
+}
+
+// GetReceiptNoAllocations returns a Receipt structure for the supplied RCPTID.
+// It does not get the receipt allocations
+func GetReceiptNoAllocations(rcptid int64) Receipt {
 	var r Receipt
 	row := RRdb.Prepstmt.GetReceipt.QueryRow(rcptid)
 	ReadReceipt(row, &r)
-	GetReceiptAllocations(rcptid, &r)
 	return r
 }
 
@@ -1050,7 +1057,6 @@ func GetReceiptDuplicate(dt *time.Time, amt float64, docno string) Receipt {
 	var r Receipt
 	row := RRdb.Prepstmt.GetReceiptDuplicate.QueryRow(dt, amt, docno)
 	ReadReceipt(row, &r)
-	// GetReceiptAllocations(rcptid, &r)  // I don't think we need to spend time on this operation for duplicate checking, but uncomment if needed
 	return r
 }
 

@@ -24,6 +24,8 @@ var WSTypeFactory = map[string]Creator{
 	"SearchGLAccountsResponse":   NewSearchGLAccountsResponse,
 	"SearchRentablesResponse":    NewSearchRentablesResponse,
 	"SearchTransactantsResponse": NewSearchTransactantsResponse,
+	"SearchReceiptsResponse":     NewSearchReceiptsResponse,
+	"PrReceiptGrid":              NewPrReceiptGrid,
 	"SvcStatusResponse":          NewSvcStatusResponse,
 	"WebRequest":                 NewWebRequest,
 	"GetRentalAgreementResponse": NewGetRentalAgreementResponse,
@@ -38,6 +40,16 @@ func FactoryNew(t string) (interface{}, error) {
 		return nil, fmt.Errorf("**** ERROR **** unrecognized factory type = %s", t)
 	}
 	return fact(), nil
+}
+
+// NewPrReceiptGrid is a factory for PrReceiptGrid structs
+func NewPrReceiptGrid() interface{} {
+	return new(ws.PrReceiptGrid)
+}
+
+// NewSearchReceiptsResponse is a factory for SearchReceiptsResponse structs
+func NewSearchReceiptsResponse() interface{} {
+	return new(ws.SearchReceiptsResponse)
 }
 
 // NewGetRentableResponse is a factory for GetRentableResponse structs

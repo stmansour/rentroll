@@ -1194,6 +1194,7 @@ type RRprepSQL struct {
 	UpdateRatePlanRef                  *sql.Stmt
 	UpdateRatePlanRefRTRate            *sql.Stmt
 	UpdateRatePlanRefSPRate            *sql.Stmt
+	UpdateReceipt                      *sql.Stmt
 	UpdateRentable                     *sql.Stmt
 	UpdateRentableSpecialtyRef         *sql.Stmt
 	UpdateRentableStatus               *sql.Stmt
@@ -1346,7 +1347,13 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.BizTypes = make(map[int64]*BusinessTypeLists)
 	buildPreparedStatements()
 	buildPBPreparedStatements()
+
 	RRdb.BUDlist = buildBusinessDesignationMap()
+
+	// fmt.Printf("Initial:  RRdb.BUDlist\n")
+	// for k, v := range RRdb.BUDlist {
+	// 	fmt.Printf("key = %s,  val = %d\n", k, v)
+	// }
 }
 
 // InitBusinessFields initialize the lists in rlib's internal data structures

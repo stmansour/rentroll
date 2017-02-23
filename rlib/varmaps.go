@@ -3,7 +3,7 @@ package rlib
 // This file manages the mapping between the programming data types
 // and the way those types are displayed in the user interface.
 //
-// IF YOU ADD SOMETHING HERE, DO NOT FORGET TO UPDATE assignmap
+
 import (
 	"fmt"
 	"reflect"
@@ -36,6 +36,8 @@ var assignmap = []struct {
 	{a: "int64", b: "XJSONAssignmentTime", mapper: MigrateInt64ToString, valmap: &AssignmentTimeMap},
 	{a: "XJSONCompanyOrPerson", b: "int64", mapper: MigrateStrToInt64, valmap: &CompanyOrPersonMap},
 	{a: "int64", b: "XJSONCompanyOrPerson", mapper: MigrateInt64ToString, valmap: &CompanyOrPersonMap},
+	{a: "XJSONCycleFreq", b: "int64", mapper: MigrateStrToInt64, valmap: &CycleFreqMap},
+	{a: "int64", b: "XJSONCycleFreq", mapper: MigrateInt64ToString, valmap: &CycleFreqMap},
 	{a: "XJSONRenewal", b: "int64", mapper: MigrateStrToInt64, valmap: &RenewalMap},
 	{a: "int64", b: "XJSONRenewal", mapper: MigrateInt64ToString, valmap: &RenewalMap},
 	{a: "int", b: "JSONbool", mapper: Int2Bool},
@@ -63,6 +65,22 @@ func XJSONprocess(a, b *reflect.Value) error {
 		}
 	}
 	return fmt.Errorf("XJSONmap - no conversion between: %s and %s", at, bt)
+}
+
+// XJSONCycleFreq is a UI converter: int64 <===> CycleFreqName
+type XJSONCycleFreq string
+
+// CycleFreqMap is the mapping
+var CycleFreqMap = Str2Int64Map{
+	"Norecur":   int64(CYCLENORECUR),
+	"Secondly":  int64(CYCLESECONDLY),
+	"Minutely":  int64(CYCLEMINUTELY),
+	"Hourly":    int64(CYCLEHOURLY),
+	"Daily":     int64(CYCLEDAILY),
+	"Weekly":    int64(CYCLEWEEKLY),
+	"Monthly":   int64(CYCLEMONTHLY),
+	"Quarterly": int64(CYCLEQUARTERLY),
+	"Yearly":    int64(CYCLEYEARLY),
 }
 
 // XJSONAssignmentTime is a UI converter: backend int64, Front End string
@@ -111,6 +129,9 @@ func MigrateStrToInt64(a, b *reflect.Value, m *Str2Int64Map) error {
 
 // MigrateInt64ToString generic mapping from int64 to enumerated strings
 func MigrateInt64ToString(a, b *reflect.Value, m *Str2Int64Map) error {
+
+	// fmt.Printf("Convert %d to BUD\n", (*a).Interface().(int64))
+
 	s, err := (*m).ReverseMap((*a).Interface().(int64))
 	if err != nil {
 		return err

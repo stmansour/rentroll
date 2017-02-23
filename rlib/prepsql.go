@@ -564,16 +564,18 @@ func buildPreparedStatements() {
 	flds = "RCPTID,PRCPTID,BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment,OtherPayorName,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE Dt=? and Amount=? and DocNo=?")
+	RRdb.Prepstmt.GetReceiptDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE Dt=? AND Amount=? AND DocNo=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from Receipt WHERE BID=? and Dt >= ? and Dt < ?")
+	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND Dt >= ? AND Dt < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from Receipt WHERE BID=? and RAID=? and Dt >= ? and Dt < ?")
+	RRdb.Prepstmt.GetReceiptsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND RAID=? AND Dt >= ? and Dt < ?")
 	Errcheck(err)
-	s1, s2, _, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertReceipt, err = RRdb.Dbrr.Prepare("INSERT INTO Receipt (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteReceipt, err = RRdb.Dbrr.Prepare("DELETE FROM Receipt WHERE RCPTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateReceipt, err = RRdb.Dbrr.Prepare("UPDATE Receipt SET " + s3 + " WHERE RCPTID=?")
 	Errcheck(err)
 
 	//==========================================

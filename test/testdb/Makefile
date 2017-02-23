@@ -1,3 +1,6 @@
+TOP=../..
+TOOLDIR=${TOP}/tools
+BASHDIR=${TOOLDIR}/bashtools
 BINDIR=../../tmp/rentroll
 BKUP=${BINDIR}/rrbkup
 
@@ -14,3 +17,5 @@ clean:
 dbbackup:
 	pushd ${BINDIR};./rrbkup -f rentrolldb;cd bkup;/usr/local/accord/bin/deployfile.sh rentrolldb.sql.gz accord/db;cd ..; rm -rf bkup;popd
 
+get:
+	${BASHDIR}/getdb.sh

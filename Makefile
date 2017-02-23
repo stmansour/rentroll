@@ -90,6 +90,6 @@ all: clean rentroll test
 try: clean rentroll package
 
 testdb:
-	cd test/testdb;make test
+	cd test/testdb;./newdb.sh
 
 rebuild: try testdb

@@ -81,4 +81,5 @@ assignmentTimeList = [ 'unset', 'Pre-Assign', 'Commencement'];
 	io.WriteString(w, s)
 
 	io.WriteString(w, String2Int64MapToJSList("app.renewalMap", &rlib.RenewalMap))
+	io.WriteString(w, String2Int64MapToJSList("app.cycleFreq", &rlib.CycleFreqMap))
 }

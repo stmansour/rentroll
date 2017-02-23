@@ -1,0 +1,42 @@
+{
+    "records": [
+        {
+            "AssignmentTime": "Pre-Assign",
+            "BID": "REX",
+            "LastModBy": 0,
+            "LastModTime": "2/22/2017",
+            "RID": 2,
+            "RentableName": "309 1/2 Rexford",
+            "recid": 0
+        },
+        {
+            "AssignmentTime": "Pre-Assign",
+            "BID": "REX",
+            "LastModBy": 0,
+            "LastModTime": "2/22/2017",
+            "RID": 1,
+            "RentableName": "309 Rexford",
+            "recid": 1
+        },
+        {
+            "AssignmentTime": "Pre-Assign",
+            "BID": "REX",
+            "LastModBy": 0,
+            "LastModTime": "2/22/2017",
+            "RID": 4,
+            "RentableName": "311 1/2 Rexford",
+            "recid": 2
+        },
+        {
+            "AssignmentTime": "Pre-Assign",
+            "BID": "REX",
+            "LastModBy": 0,
+            "LastModTime": "2/22/2017",
+            "RID": 3,
+            "RentableName": "311 Rexford",
+            "recid": 3
+        }
+    ],
+    "status": "success",
+    "total": 4
+}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"rentroll/rlib"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -79,6 +80,36 @@ func main() {
 
 	updatePerson(&biz)
 	updateCustomAttr(&biz)
+	updateReceipt(&biz)
+}
+
+func updateReceipt(biz *rlib.Business) {
+	var r rlib.Receipt
+	r.RAID = 1
+	r.BID = biz.BID
+	r.Amount = float64(42.17)
+	r.Dt = time.Date(2017, time.February, 14, 0, 0, 0, 0, time.UTC)
+	r.DocNo = "12345"
+	r.PMTID = 1
+	_, err := rlib.InsertReceipt(&r)
+	if err != nil {
+		fmt.Printf("Error inserting Receipt: %s\n", err.Error())
+		os.Exit(1)
+	}
+	r.Amount = 4217000.00
+	err = rlib.UpdateReceipt(&r)
+	if err != nil {
+		fmt.Printf("Error updating Receipt: %s\n", err.Error())
+		os.Exit(1)
+	}
+	r1 := rlib.GetReceiptNoAllocations(r.RCPTID)
+	if r1.Amount != r.Amount {
+		if err != nil {
+			fmt.Printf("Updated Receipt (%d) amount error. Expected %12.2f, found %12.2f\n", r.RCPTID, r.Amount, r1.Amount)
+			os.Exit(1)
+		}
+	}
+	fmt.Printf("UpdateReceipt: successful\n")
 
 }
 

@@ -26,6 +26,8 @@ var sService ="Service"
 var sBusinessUnit="Business Unit"
 var sAssessment="Assessment"
 var sReceipt="Receipt"
+var sRentCycle="Rent Cycle"
+var sProrationCycle="Prorate"
 
 // Rental Agreement Detail Form
 var sRAMainTab="Main"

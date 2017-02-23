@@ -258,8 +258,8 @@ function buildPageElements() {
                 nodes: [  { id: 'rentables', text: plural(sRentable), icon: 'fa fa-cube' },
                         { id: 'transactants', text: plural(sTransactant), icon: 'fa fa-users' },
                         { id: 'rentalagrs',  text: 'Rental Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
-                        { id: 'goAssessments',  text: plural(sAssessment),  icon: 'fa fa-star-o', hint: plural(sAssessment) },
-                        { id: 'goReceipts',  text: plural(sReceipt),  icon: 'fa fa-star', hint: plural(sReceipt) },
+                        { id: 'asm',  text: plural(sAssessment),  icon: 'fa fa-star-o', hint: plural(sAssessment) },
+                        { id: 'receipts',  text: plural(sReceipt),  icon: 'fa fa-star', hint: plural(sReceipt) },
                         { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
                         { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
                 ]
@@ -318,6 +318,8 @@ function buildPageElements() {
                 case 'rentables':
                 case 'transactants':
                 case 'rentalagrs':
+                case 'receipts':
+                case 'asm':
                     switchToGrid(event.target);
                     break;
                 case 'asm':
@@ -488,14 +490,14 @@ function buildPageElements() {
             expandColumn: false
         },        
         columns: [
-            {field: 'TCID',         caption: "TCID",          size: '50px',sortable: true, hidden: false},
-            {field: 'FirstName',    caption: "First Name",    size: '10%', sortable: true, hidden: false},
-            {field: 'MiddleName',   caption: "Middle Name",   size: '10%', sortable: true, hidden: true},
-            {field: 'LastName',     caption: "Last Name",     size: '10%', sortable: true, hidden: false},
-            {field: 'CompanyName',  caption: "Company Name",  size: '10%', sortable: true, hidden: true},
-            {field: 'PrimaryEmail', caption: "Primary Email", size: '10%', sortable: true, hidden: false},
-            {field: 'CellPhone',    caption: "Cell Phone",    size: '10%', sortable: true, hidden: false},
-            {field: 'WorkPhone',    caption: "Work Phone",    size: '10%', sortable: true, hidden: false},
+            {field: 'TCID',         caption: "TCID",          size: '50px',  sortable: true, style: 'text-align: right', hidden: false},
+            {field: 'FirstName',    caption: "First Name",    size: '125px', sortable: true, hidden: false},
+            {field: 'MiddleName',   caption: "Middle Name",   size: '20px',  sortable: true, hidden: true},
+            {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false},
+            {field: 'CompanyName',  caption: "Company Name",  size: '125px', sortable: true, hidden: true},
+            {field: 'PrimaryEmail', caption: "Primary Email", size: '175px', sortable: true, attr: 'align=center', hidden: false},
+            {field: 'CellPhone',    caption: "Cell Phone",    size: '100px', sortable: true, hidden: false},
+            {field: 'WorkPhone',    caption: "Work Phone",    size: '100px', sortable: true, hidden: false},
         ],
         onClick: function(event) {
             // var sel = this.getSelection(true);
@@ -672,8 +674,8 @@ function buildPageElements() {
         columns: [
             {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
             {field: 'RID', caption: 'RID', size: '50px', sortable: true},
-            {field: 'RentableName', caption: 'RentableName', size: '15%', sortable: true},
-            {field: 'AssignmentTime', caption: 'Assignment Time', size: '15%', sortable: true},
+            {field: 'RentableName', caption: 'RentableName', size: '150px', sortable: true},
+            {field: 'AssignmentTime', caption: 'Assignment Time', size: '120px', sortable: true},
         ],
         onClick: function(event) {
             // var sel = this.getSelection(true);
@@ -696,7 +698,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     //          rentableForm
     //------------------------------------------------------------------------
-     $().w2form({
+    $().w2form({
         name: 'rentableForm',
         style: 'border: 0px; background-color: transparent;',
         header: sRentable + ' Detail',
@@ -749,10 +751,11 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'BID', hidden: true, caption: 'BID',  size: '40px', sortable: false},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
-            {field: 'Payor', caption: 'Payor', size: '10%', sortable: true},
-            {field: 'AgreementStart', caption: 'Agreement<br>Start', size: '10%', sortable: true, style: 'text-align: right'},
-            {field: 'AgreementStop', caption: 'Agreement<br>Stop',  size: '10%', sortable: true, style: 'text-align: right'},
+            {field: 'Payor', caption: 'Payor', size: '125px', sortable: true},
+            {field: 'AgreementStart', caption: 'Agreement<br>Start', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'AgreementStop', caption: 'Agreement<br>Stop',  size: '80px', sortable: true, style: 'text-align: right'},
         ], 
         actions: {
             save: function () {
@@ -1000,9 +1003,121 @@ function buildPageElements() {
         ]
      });
 
+    //------------------------------------------------------------------------
+    //          receiptsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'receiptsGrid',
+        url: '/v1/receipts',       
+        show: {
+            toolbar: true,
+            footer: true,
+        },
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'RCPTID', caption: 'ReceiptID',  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
+            {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
+            {field: 'PMTID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
+            {field: 'RAID', caption: sRentalAgreement,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'DocNo', caption: 'Document Number',  size: '100px', style: 'text-align: right', sortable: true},
+        ], 
+        actions: {
+            save: function () {
+                var tgrid = w2ui.receiptsGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+            },
+        },
+        onClick: function(event) {
+            //var sel = this.getSelection(true);
+            event.onComplete = function () {
+                var sel = this.getSelection(true);
+                console.log('Get Selection: Rental Agreement');
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        var ob = this.get(sel[i]);
+                        console.log( 'BID = ' + ob.BID + ',   RCPT = ' + ob.RCPTID);
+                        var d = new Date();  // we'll use today for time-sensitive data
+                        setToRAForm(ob.BID,ob.RCPT,d);
+                    }
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
+                }
+            };
+        },
+        onRequest: function(/*event*/) {
+            console.log('On Request.  url = ' + w2ui.receiptsGrid.url);
+        },
+        onSearch: function(/*event*/) {
+            console.log('Search called');
+        }
+    });
 
+    //------------------------------------------------------------------------
+    //          asmGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'asmGrid',
+        url: '/v1/asm',       
+        show: {
+            toolbar: true,
+            footer: true,
+        },
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'ASMID', caption: 'ASMID',  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
+            {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
+            {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
+            {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
+            {field: 'RAID', caption: sRentalAgreement,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'RID', caption: sRentable,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'RentCycle', caption: sRentCycle,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'ProrationCycle', caption: sProrationCycle,  size: '50px', style: 'text-align: right', sortable: true},
+        ], 
+        actions: {
+            save: function () {
+                var tgrid = w2ui.asmGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+            },
+        },
+        onClick: function(event) {
+            //var sel = this.getSelection(true);
+            event.onComplete = function () {
+                var sel = this.getSelection(true);
+                console.log('Get Selection: Rental Agreement');
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        var ob = this.get(sel[i]);
+                        console.log( 'BID = ' + ob.BID + ',   ASMID = ' + ob.ASMID);
+                        var d = new Date();  // we'll use today for time-sensitive data
+                        setToRAForm(ob.BID,ob.ASMID,d);
+                    }
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
+                }
+            };
+        },
+        onRequest: function(/*event*/) {
+            console.log('On Request.  url = ' + w2ui.asmGrid.url);
+        },
+        onSearch: function(/*event*/) {
+            console.log('Search called');
+        }
+    });
+
+ 
 }
-
 
 function createRentalAgreementForm() {
     "use strict";    
