@@ -13,3 +13,6 @@ test:
 
 package:
 	@echo "*** PACKAGE completed in svc ***"
+
+get:
+	../../tools/bashtools/getdb.sh

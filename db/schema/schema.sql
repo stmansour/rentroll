@@ -742,6 +742,7 @@ CREATE TABLE Receipt (
     BID BIGINT NOT NULL DEFAULT 0,
     RAID BIGINT NOT NULL DEFAULT 0,                             -- THIS IS AN ISSUE... It can go away -- ReceiptAllocation has an associated Assessment, which has the RAID
     PMTID BIGINT NOT NULL DEFAULT 0,
+    DID BIGINT NOT NULL DEFAULT 0,                              -- Deposit id to which this receipt belongs
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DocNo VARCHAR(50) NOT NULL DEFAULT '',                      -- Check Number, MoneyOrder number, etc., the traceback for the payment
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,

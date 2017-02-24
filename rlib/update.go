@@ -121,7 +121,7 @@ func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 
 // UpdateReceipt updates a Receipt record in the database
 func UpdateReceipt(a *Receipt) error {
-	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.RAID, a.PMTID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
+	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.RAID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
 	return updateError(err, "Receipt", *a)
 }
 

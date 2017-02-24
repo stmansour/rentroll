@@ -561,7 +561,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT
 	//==========================================
-	flds = "RCPTID,PRCPTID,BID,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment,OtherPayorName,LastModTime,LastModBy"
+	flds = "RCPTID,PRCPTID,BID,RAID,PMTID,DID,Dt,DocNo,Amount,AcctRule,Comment,OtherPayorName,LastModTime,LastModBy"
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE Dt=? AND Amount=? AND DocNo=?")

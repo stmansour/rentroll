@@ -634,6 +634,7 @@ type Receipt struct {
 	BID            int64
 	RAID           int64
 	PMTID          int64
+	DID            int64 // the Deposit ID to which this receipt belongs
 	Dt             time.Time
 	DocNo          string // check number, money order number, etc.; documents the payment
 	Amount         float64

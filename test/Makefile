@@ -11,7 +11,7 @@ clean:
 	@echo "*** CLEAN completed in test ***"
 
 test:
-	@echo "Test Report" > testreport.txt
+	@echo "FUNCTIONAL TEST Report" > testreport.txt
 	@echo "Report Start: \c" >> testreport.txt
 	@date >> testreport.txt
 	@echo >> testreport.txt
