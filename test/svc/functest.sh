@@ -16,8 +16,7 @@ CREATENEWDB=0
 #  Use the testdb for these tests...
 #---------------------------------------------------------------
 echo "Create new database..." 
-echo "Cmd =  ${BASHDIR}/getdb.sh"
-${TOP}/tools/bashtools/getdb.sh
+mysql --no-defaults < restore.sql
 
 source ../share/base.sh
 

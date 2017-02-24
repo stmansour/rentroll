@@ -144,23 +144,13 @@ func isRoomKeyHeaderLine(rowHeaders []string) (bool, map[string]int) {
 
 // isRoomKeyPageRow check row is used for new page records
 func isRoomKeyPageRow(data []string) bool {
-
 	// if first column is not empty then it is
-	if strings.TrimSpace(data[rowTypeDetectionCSVIndex["page"]]) != "" {
-		return true
-	}
-
-	return false
+	return strings.TrimSpace(data[rowTypeDetectionCSVIndex["page"]]) != ""
 }
 
 func isRoomKeyDescriptionRow(data []string) bool {
-
 	// if third column is not empty then it is
-	if strings.TrimSpace(data[rowTypeDetectionCSVIndex["description"]]) != "" {
-		return true
-	}
-
-	return false
+	return strings.TrimSpace(data[rowTypeDetectionCSVIndex["description"]]) != ""
 }
 
 // guestCSVColumnFieldMap contains internal Roomkey Guest Structure fields

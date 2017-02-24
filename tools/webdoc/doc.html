@@ -32,8 +32,13 @@
   {{range .Input}} <tr><td >{{.Field}}</td><td ><code>{{.DataType}}</code></td ><td>{{.Definition}}&nbsp;</td></tr> {{end}}
    </tbody>
 </table>
-<p class="Synopsis">SAMPLE INPUT JSON
-<pre><code>{{.InputEx}}</code></pre>
+<p></p>
+<table style="margin-left: 50px;">
+  <tr><td class="title3">SAMPLE INPUT JSON</td></tr>
+  <tr><td>
+  <pre><code>{{.InputEx}}</code></pre>
+  </td></tr>
+</table>
 </p>
 {{else}}
 <p class="Synopsis">Not Applicable</p>
@@ -49,7 +54,12 @@
   {{end}}
    </tbody>
 </table>
-<p class="Synopsis">SAMPLE RESPONSE JSON
-<pre><code>{{.ResponseEx}}</code></pre></p>
+<p></p>
+<table style="margin-left: 50px;">
+  <tr><td class="title3">SAMPLE RESPONSE JSON</td></tr>
+  <tr><td>
+  <pre><code>{{.ResponseEx}}</code></pre>
+  </td></tr>
+</table>
 </body>
 </html>

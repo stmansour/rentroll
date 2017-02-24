@@ -55,7 +55,6 @@ type WebRequest struct {
 	SearchLogic string      `json:"searchLogic"` // OR | AND
 	Search      []GenSearch `json:"search"`      // what fields and what values
 	Sort        []ColSort   `json:"sort"`        // sort criteria
-	SortAlt     ColSort     `json:"sortalt"`     // ***** *****  REMOVE THIS LINE ASAP
 }
 
 // ServiceData is the generalized data gatherer for svcHandler. It allows all the common data

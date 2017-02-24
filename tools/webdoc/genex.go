@@ -24,26 +24,13 @@ func InitFields(a interface{}) {
 			isArray = true
 			inst = t[ix+2:]
 		}
-		if strings.HasPrefix(inst, "main.") {
-			inst = inst[5:]
-		}
+		strings.TrimPrefix(inst, "main.")
 
 		// fmt.Printf("Name: %s  Kind: %s  Type: %s   inst: %s\n", v.Type().Field(j).Name, f.Kind(), t, inst)
 		if inst != t {
 			if isArray {
 				x := reflect.MakeSlice(f.Type(), 1, 1)
 				f.Set(x)
-				//isSlice, recurse, rtype := AnalyzeType(inst)
-				// fmt.Printf("type = %s, slice = %t, recurse = %t, rtype = %s\n", inst, isSlice, recurse, rtype)
-
-				// y, err := FactoryNew(inst)
-				// if err != nil {
-				// 	continue
-				// }
-				// y1 := reflect.ValueOf(y)
-				// if y1.Kind().String() == "struct" {
-				// 	fmt.Printf("ARRAY RECURSE on y, kind = struct, type = %s\n", inst)
-				// }
 			}
 		} else {
 			switch f.Kind().String() {

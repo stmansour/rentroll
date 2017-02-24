@@ -90,6 +90,6 @@ all: clean rentroll test
 try: clean rentroll package
 
 testdb:
-	cd test/testdb;./newdb.sh
+	cd test/svc;mysql --no-defaults < restore.sql
 
 rebuild: try testdb

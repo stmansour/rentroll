@@ -55,8 +55,8 @@ type AssessmentOther struct {
 	BID rlib.W2uiHTMLSelect
 }
 
-// PrAssessmentGrid is a structure specifically for the UI Grid.
-type PrAssessmentGrid struct {
+// AssessmentGrid is a structure specifically for the UI Grid.
+type AssessmentGrid struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	ASMID          int64 // unique id for this assessment
 	BID            rlib.XJSONBud
@@ -75,9 +75,9 @@ type PrAssessmentGrid struct {
 
 // SearchAssessmentsResponse is a response string to the search request for assessments
 type SearchAssessmentsResponse struct {
-	Status  string             `json:"status"`
-	Total   int64              `json:"total"`
-	Records []PrAssessmentGrid `json:"records"`
+	Status  string           `json:"status"`
+	Total   int64            `json:"total"`
+	Records []AssessmentGrid `json:"records"`
 }
 
 // GetAssessmentResponse is the response to a GetAssessment request
@@ -127,7 +127,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	count := 0
 	for rows.Next() {
 		var p rlib.Assessment
-		var q PrAssessmentGrid
+		var q AssessmentGrid
 		rlib.ReadAssessments(rows, &p)
 		rlib.MigrateStructVals(&p, &q)
 		q.Recid = i

@@ -1,3 +1,7 @@
+/*global
+    w2ui, app, console
+*/
+
 //-----------------------------------------------------------------------------
 // setToForm -  enable form sform in toplayout.  Also, set the forms url and
 //              request data from the server
@@ -5,11 +9,11 @@
 //   sform = name of the form
 //   url   = request URL for the form
 //-----------------------------------------------------------------------------
-function setToForm(sform,url) {
+function setToForm(sform, url) {
     "use strict";
     console.log('sform = ' + sform);
     var f = w2ui[sform];
-    w2ui.toplayout.show('right',true);
+    w2ui.toplayout.show('right', true);
     w2ui.toplayout.content('right', f);
     w2ui.toplayout.sizeTo('right', 700);
     //f.resize();
@@ -28,10 +32,10 @@ function setToForm(sform,url) {
 //  raid = Rental Agreement ID
 //     d = date to use for time sensitive data
 //-----------------------------------------------------------------------------
-function setToRAForm(bid,raid,d) {
+function setToRAForm(bid, raid, d) {
     "use strict";
     w2ui.toplayout.content('right', w2ui.raLayout);
-    w2ui.toplayout.show('right',true);
+    w2ui.toplayout.show('right', true);
     w2ui.toplayout.sizeTo('right', 900);
     w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
     w2ui.rentalagrForm.request();
@@ -56,7 +60,7 @@ function setToRAForm(bid,raid,d) {
     console.log('xrapeople url = ' + w2ui.rapGrid.url);
     w2ui.rapGrid.request();
     w2ui.rapGrid.header = plural(sPayor) + ' as of ' + dateFmtStr(d);
- 
+
     //----------------------------------------------------------------
     // Get the associated Users...
     //      /v1/rapeople/bid/raid[?type=user&d1=2017-02-1]
@@ -101,9 +105,9 @@ function plural(s) {
 //-----------------------------------------------------------------------------
 function dateFromDC(dc) {
     "use strict";
-    var x = new Date(dc.value); 
-    return new Date(x.getTime() + 24*60*60*1000); // for some reason we need to add 1 day to get the right value
- }
+    var x = new Date(dc.value);
+    return new Date(x.getTime() + 24 * 60 * 60 * 1000); // for some reason we need to add 1 day to get the right value
+}
 
 //-----------------------------------------------------------------------------
 // dateTodayStr - return a string with today's date in the form d/m/yyyy
@@ -126,9 +130,9 @@ function dateTodayStr() {
 function dateFmtStr(today) {
     "use strict";
     var dd = today.getDate();
-    var mm = today.getMonth()+1; //January is 0!
+    var mm = today.getMonth() + 1; //January is 0!
     var yyyy = today.getFullYear();
-    return mm+'/'+dd+'/'+yyyy;
+    return mm + '/' + dd + '/' + yyyy;
 }
 
 //-----------------------------------------------------------------------------
@@ -141,8 +145,8 @@ function dateFmtStr(today) {
 function dayBack(dc) {
     "use strict";
     var x = dateFromDC(dc);
-    var y = new Date(x.getTime() - 24*60*60*1000); // one day prior 
-    return setDateControl(dc,y);
+    var y = new Date(x.getTime() - 24 * 60 * 60 * 1000); // one day prior 
+    return setDateControl(dc, y);
 }
 
 //-----------------------------------------------------------------------------
@@ -151,11 +155,11 @@ function dayBack(dc) {
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function dayFwd( dc ) {
+function dayFwd(dc) {
     "use strict";
     var x = dateFromDC(dc);
-    var y = new Date(x.getTime() + 24*60*60*1000); // one day prior
-    return setDateControl(dc,y);
+    var y = new Date(x.getTime() + 24 * 60 * 60 * 1000); // one day prior
+    return setDateControl(dc, y);
 }
 
 //-----------------------------------------------------------------------------
@@ -166,27 +170,27 @@ function dayFwd( dc ) {
 //   y = starting date
 // @return - a date that is one month from y
 //-----------------------------------------------------------------------------
-function dateMonthFwd( y ) {
+function dateMonthFwd(y) {
     "use strict";
-    var m = (y.getMonth() + 1) % 12;    // set m to the correct next month value
-    var my = (y.getMonth() + 1) / 12;   // number of years to add for next month
-    var d = y.getDate();                // this is the target date
+    var m = (y.getMonth() + 1) % 12; // set m to the correct next month value
+    var my = (y.getMonth() + 1) / 12; // number of years to add for next month
+    var d = y.getDate(); // this is the target date
     // console.log('dateMonthFwd: T1 -    d = ' + d);
-   
+
     // If there is a chance that there is no such date next month, then let's make sure we 
     // do this right. If the date is > than the number of days in month m then snap as follows:
     // if d is valid in month m then use d, otherwise snap to the end of the month.
     if (d > 28) {
-        var d0 = new Date(y.getFullYear()+my,m,0, 0,0,0);
+        var d0 = new Date(y.getFullYear() + my, m, 0, 0, 0, 0);
         var daysInCurrentMonth = d0.getDate();
-        var m2 = (y.getMonth() + 2) % 12;   // used to find # days in month m
-        var m2y = (y.getMonth() + 2) / 12;  // number of years to add for month m
-        var d3 = new Date(y.getFullYear() + m2y, m2, 0, 0,0,0);
+        var m2 = (y.getMonth() + 2) % 12; // used to find # days in month m
+        var m2y = (y.getMonth() + 2) / 12; // number of years to add for month m
+        var d3 = new Date(y.getFullYear() + m2y, m2, 0, 0, 0, 0);
         var daysInNextMonth = d3.getDate();
         if (d >= daysInNextMonth || d == daysInCurrentMonth) { d = daysInNextMonth; }
     }
     // console.log('dateMonthFwd:  m = ' + m + '   d = ' + d);
-    var d2 = new Date(y.getFullYear() + my, m, d, 0,0,0);
+    var d2 = new Date(y.getFullYear() + my, m, d, 0, 0, 0);
     return d2;
 }
 
@@ -198,11 +202,11 @@ function dateMonthFwd( y ) {
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function monthFwd( dc ) {
+function monthFwd(dc) {
     "use strict";
     var y = dateFromDC(dc);
     var d2 = dateMonthFwd(y);
-    return setDateControl(dc,d2);
+    return setDateControl(dc, d2);
 }
 
 //-----------------------------------------------------------------------------
@@ -219,19 +223,19 @@ function monthBack(dc) {
     var yb = 0; // assume same year
     var m = y.getMonth() - 1;
     if (m < 0) {
-    	m = 11;
-    	yb = 1;	// we've gone back one year
+        m = 11;
+        yb = 1; // we've gone back one year
     }
     var d = y.getDate();
     if (d >= 28) {
-        var d0 = new Date(y.getFullYear(), ((y.getMonth() + 1) % 12), 0,0,0,0); // date of last day in prev month
+        var d0 = new Date(y.getFullYear(), ((y.getMonth() + 1) % 12), 0, 0, 0, 0); // date of last day in prev month
         var daysInCurrentMonth = d0.getDate();
-        var d3 = new Date(y.getFullYear() - yb, y.getMonth(), 0, 0,0,0); // date() is number of days in month y.getMonth()
+        var d3 = new Date(y.getFullYear() - yb, y.getMonth(), 0, 0, 0, 0); // date() is number of days in month y.getMonth()
         var daysInPrevMonth = d3.getDate();
         if (d == daysInCurrentMonth || d >= daysInPrevMonth) { d = daysInPrevMonth; }
     }
-    var d2 = new Date(y.getFullYear() - yb, m, d, 0,0,0);
-    return setDateControl(dc,d2);
+    var d2 = new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
+    return setDateControl(dc, d2);
 }
 //-----------------------------------------------------------------------------
 // dateControlString
@@ -265,7 +269,7 @@ function dateControlString(dt) {
 //   dt = java date value to set in dc
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function setDateControl(dc,dt) {
+function setDateControl(dc, dt) {
     "use strict";
     var s = dateControlString(dt);
     dc.value = s;

@@ -29,6 +29,13 @@
 	line-height: 1em;
 	font-family: "Source Sans Pro", sans-serif;
 }
+.title3 {
+	color: #0088cc;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 1em;
+	font-family: "Source Sans Pro", sans-serif;
+}
 /*code {
 	display: inline-block;
 	margin-left: 50px;
@@ -154,9 +161,13 @@ pre.example > code > code {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-.JSONparams td, .URLparams td {
+.JSONparams td {
 	padding: 2px 8px;
 	vertical-align: top;
+}
+.URLparams td {
+	padding: 0px 0px;
+	vertical-align: center;
 }
 .JSONparams th, .URLparams th {
 	padding: 4px 8px;

@@ -29,6 +29,30 @@ var WSTypeFactory = map[string]Creator{
 	"SvcStatusResponse":          NewSvcStatusResponse,
 	"WebRequest":                 NewWebRequest,
 	"GetRentalAgreementResponse": NewGetRentalAgreementResponse,
+	"SearchAssessmentsResponse":  NewSearchAssessmentsResponse,
+	"AssessmentGrid":             NewAssessmentGrid,
+	"GetAssessmentResponse":      NewGetAssessmentResponse,
+	"AssessmentForm":             NewAssessmentForm,
+}
+
+// NewAssessmentForm is a factory for AssessmentForm structs
+func NewAssessmentForm() interface{} {
+	return new(ws.AssessmentForm)
+}
+
+// NewGetAssessmentResponse is a factory for GetAssessmentResponse structs
+func NewGetAssessmentResponse() interface{} {
+	return new(ws.GetAssessmentResponse)
+}
+
+// NewAssessmentGrid is a factory for AssessmentGrid structs
+func NewAssessmentGrid() interface{} {
+	return new(ws.AssessmentGrid)
+}
+
+// NewSearchAssessmentsResponse is a factory for SearchAssessmentsResponse structs
+func NewSearchAssessmentsResponse() interface{} {
+	return new(ws.SearchAssessmentsResponse)
 }
 
 // FactoryNew looks for type t in WSTypeFactory. If it is found,

@@ -24,6 +24,12 @@ sidebarL1     - w2ui sidebar
 -->
 
 <script>
+/*global
+    w2ui, app, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm
+*/
+
+/*globals $:false */
+
 // my app object in which to manage key data
 var app = {
     D1: "2016-02-01",
@@ -219,7 +225,6 @@ function buildPageElements() {
                 { text: 'Preview', icon: 'fa fa-folder-open' },
                 { text: 'Details', icon: 'fa fa-folder-open' },
                 { text: 'Footer', icon: 'fa fa-folder-open' },
-                { text: 'NewRAGrid', icon: 'fa fa-folder-open' },
             ]},
         ],
         onClick: function (event) {
@@ -235,14 +240,13 @@ function buildPageElements() {
                 case "menuButton:Details":        w2ui.toplayout.toggle('right',true);       break;
                 case "menuButton:Footer":         w2ui.mainlayout.toggle('bottom',true);     break;
                 case "menuButton:topLayoutMain":  w2ui.toplayout.toggle('main',true);        break;
-                case "menuButton:NewRAGrid":      loadRentalAgreementForm();                 break;
 
                 case "msgButton":
                 case "menuButton:Messages":
                         w2ui.toplayout.toggle('top',true); 
                         w2ui.toplayout.set('top',{ content: w2ui.newsLayout});     
                         w2ui.newsLayout.load('main', '/html/news.html', 'flip-down', function () {console.log('content loaded');});
-                        w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'})
+                        w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
                         break;
             }
         },
@@ -291,7 +295,8 @@ function buildPageElements() {
                 ]
             },
             { id: 'admin', text: 'Admin', img: 'icon-wrench', expanded: false, group: true,
-                nodes: [ { id: 'accounts', text: 'Chart Of Accounts', icon: 'fa fa-folder-o' },
+                nodes: [ 
+                    { id: 'accounts', text: 'Chart Of Accounts', icon: 'fa fa-folder-o' },
                 ]
             },
         ],
@@ -1148,7 +1153,6 @@ function finishInitialization() {
     app.D2 = dateControlString(d2);
 }
 
-
 function handleData(data,status) {
     if (status == "success") {
         eval(data); // defines all the lists; values for the dropdown lists
@@ -1166,7 +1170,8 @@ $(function () {
     .fail( function() { 
         console.log('Error getting /v1/uilists');
      });
-});
+}
+);
 
 </script>
 
