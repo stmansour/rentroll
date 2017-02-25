@@ -12,12 +12,12 @@ import (
 
 // GlossaryDef defines an individual glossary term data structure
 type GlossaryDef struct {
-	Term         string // full term
-	Abbreviation string // abbreviated version of the term
-	Definition   string // definition of the term
-	Selections   string // list of possible values if the term is an enumerated list of choices
-	Example      string // example of the term
-	Module       string // modules where this term applies
+	Term         string        // full term
+	Abbreviation string        // abbreviated version of the term
+	Definition   template.HTML // definition of the term
+	Selections   string        // list of possible values if the term is an enumerated list of choices
+	Example      string        // example of the term
+	Module       string        // modules where this term applies
 }
 
 // Term et all are constants indicating the column in which the data can be found
@@ -60,7 +60,7 @@ func LoadGlossary(fname string) error {
 		ta := t[i]
 		g.Term = ta[Term]
 		g.Abbreviation = ta[Abbreviation]
-		g.Definition = ta[Definition]
+		g.Definition = template.HTML(ta[Definition])
 		g.Selections = ta[Selections]
 		g.Example = ta[Example]
 		g.Module = ta[Module]

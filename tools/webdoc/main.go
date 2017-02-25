@@ -86,6 +86,7 @@ var Directives = []Directive{
 	{Cmd: "@synopsis", Handler: handleSynopsis},
 	{Cmd: "@method", Handler: handleMethod},
 	{Cmd: "@description", Handler: handleDescription},
+	{Cmd: "@desc", Handler: handleDescription},
 	{Cmd: "@input", Handler: handleInput},
 	{Cmd: "@response", Handler: handleResponse},
 }

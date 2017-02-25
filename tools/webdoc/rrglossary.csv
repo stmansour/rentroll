@@ -80,7 +80,7 @@ Rate Plan,,A unique rate schedule applicable by Rentable Type that can be associ
 Rate Plan ID,RPID,A unique identifier associated with each Rate Plan,,,,
 Rate Plan Reference,,,,,,
 Receipt,,Remittance related to one or more Rental Agreements that is applied pursuant to an Account Rule,,"(a) John Jones makes a Payment of $1,150 for June 2016 rent, (b) ABC Company makes a vehicle lease payment of $732 for April 2025, (c) Applicant Edna Jones makes a Payment of $75 for a rental application fee, (e) Ed Jones forfeits $795 of his security deposit upon termination of his Rental Agreement",Rent Roll,
-Receipt ID,,The unique identifier associated with each Payment,,,,
+Receipt ID,RCPTID,The unique identifier associated with each Payment,,,,
 Receivable,,An amount owed by one or more Payors to a Business Unit on account of a Rental Agreement.,,"(a) Mary Jones Rent for 6303-233 is Assessed on 5/1/16 for $1,239, thereby creating a Receivable in that amount, (b)",Rent Roll,
 Recur Cycle,,The recurring period at which Rent or other charge is Assessed for a Rentable.,"nonrecurring, seconds, minutes, hours, days, weeks, months, quarters, years","(a) an hourly Recur Cycle is used for car rental, (b) a daily Recur Cycle is used for hotel rooms, (c) a monthly Recur Cycle is used for rental of a permanent residence",Rent Roll,
 Renewal,,The extension of the term of a Rental Agreement,,"On 4/15/2016, John Jones renewed his lease on 6392-392, thereby extending his lease from 4/30/2016 to 5/3/2017.",Rent Roll,

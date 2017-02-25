@@ -37,27 +37,27 @@ type AssessmentSendForm struct {
 // the data that has changed, which is in the xxxSaveOther struct.  All this data
 // is merged into the appropriate database structure using MigrateStructData.
 type AssessmentSaveForm struct {
-	Recid          int64 `json:"recid"` // this is to support the w2ui form
-	ASMID          int64
-	PASMID         int64
-	RID            int64
-	ATypeLID       int64
-	RAID           int64
-	Amount         float64
-	Start          rlib.JSONTime
-	Stop           rlib.JSONTime
-	RentCycle      rlib.XJSONCycleFreq
-	ProrationCycle rlib.XJSONCycleFreq
-	InvoiceNo      int64
-	AcctRule       string
-	Comment        string
-	LastModTime    rlib.JSONTime
-	LastModBy      int64
+	Recid       int64 `json:"recid"` // this is to support the w2ui form
+	ASMID       int64
+	PASMID      int64
+	RID         int64
+	ATypeLID    int64
+	RAID        int64
+	Amount      float64
+	Start       rlib.JSONTime
+	Stop        rlib.JSONTime
+	InvoiceNo   int64
+	AcctRule    string
+	Comment     string
+	LastModTime rlib.JSONTime
+	LastModBy   int64
 }
 
 // AssessmentSaveOther is a struct to handle the UI list box selections
 type AssessmentSaveOther struct {
-	BID rlib.W2uiHTMLSelect
+	BID            rlib.W2uiHTMLSelect
+	RentCycle      rlib.W2uiHTMLSelect
+	ProrationCycle rlib.W2uiHTMLSelect
 }
 
 // AssessmentGrid is a structure specifically for the UI Grid.
@@ -243,9 +243,22 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// Now just update the database
-	err = rlib.UpdateAssessment(&a)
 	if err != nil {
 		e := fmt.Errorf("%s: Error updating assessment: %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	if a.ASMID == 0 && d.ASMID == 0 {
+		// This is a new record
+		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
+		_, err = rlib.InsertAssessment(&a)
+	} else {
+		// update existing record
+		err = rlib.UpdateAssessment(&a)
+	}
+	if err != nil {
+		e := fmt.Errorf("%s: Error saving assessment (ASMID=%d\n: %s", funcname, d.ASMID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}

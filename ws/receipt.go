@@ -191,8 +191,10 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Title  Save Receipt
 //	@URL /v1/receipt/:BUI/:RCPTID
 //  @Method  GET
-//	@Synopsis Update the information on a Receipt with the supplied data
-//  @Description  This service updates Receipt :RCPTID with the information supplied. All fields must be supplied.
+//	@Synopsis Save a Receipt
+//  @Desc  This service saves a Receipt.  If :RCPTID exists, it will
+//  @Desc  be updated with the information supplied. All fields must
+//  @Desc  be supplied. If RCPTID is 0, then a new receipt is created.
 //	@Input SaveReceiptInput
 //  @Response SvcStatusResponse
 // wsdoc }
@@ -231,12 +233,21 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	fmt.Printf("saveReceipt - second migrate: a = %#v\n", a)
 
-	// Now just update the database
-	if err := rlib.UpdateReceipt(&a); err != nil {
-		e := fmt.Errorf("%s: Error updating receipt: %s", funcname, err.Error())
+	var err error
+	if a.RCPTID == 0 && d.RCPTID == 0 {
+		// This is a new Receipt
+		fmt.Printf(">>>> NEW RECEIPT IS BEING ADDED\n")
+		_, err = rlib.InsertReceipt(&a)
+	} else {
+		// update existing record
+		err = rlib.UpdateReceipt(&a)
+	}
+	if err != nil {
+		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d\n: %s", funcname, d.RCPTID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
 	SvcWriteSuccessResponse(w)
 }
 
