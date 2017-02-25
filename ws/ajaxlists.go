@@ -31,7 +31,7 @@ func String2Int64MapToJSList(name string, m *rlib.Str2Int64Map) string {
 //  @Method  GET, POST
 //	@Synopsis Return string lists that are used in the UI
 //  @Description Return data can be processed by eval() to create the string lists used in the UI
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response string
 // wsdoc }
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {

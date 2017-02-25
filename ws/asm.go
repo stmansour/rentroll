@@ -5,53 +5,58 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"strings"
 )
 
-// // Assessment is a charge associated with a Rentable
-// type Assessment struct {
-// 	ASMID          int64     // unique id for this assessment
-// 	PASMID         int64     // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
-// 	BID            int64     // what Business
-// 	RID            int64     // the Rentable
-// 	ATypeLID       int64     // what type of assessment
-// 	RAID           int64     // associated Rental Agreement
-// 	Amount         float64   // how much
-// 	Start          time.Time // start time
-// 	Stop           time.Time // stop time, may be the same as start time or later
-// 	RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, G = quarterly, 8 = yearly
-// 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-// 	InvoiceNo      int64     // A uniqueID for the invoice number
-// 	AcctRule       string    // expression showing how to account for the amount
-// 	Comment        string
-// 	LastModTime    time.Time
-// 	LastModBy      int64
-// }
-
-// AssessmentForm is a structure specifically for the UI. It will be
-// automatically populated from an rlib.Assessment struct
-type AssessmentForm struct {
+// AssessmentSendForm is the outbound structure specifically for the UI. It will be
+// automatically populated from an rlib.Assessment struct.
+type AssessmentSendForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	ASMID          int64 // unique id for this assessment
 	BID            rlib.XJSONBud
-	PASMID         int64               // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
-	RID            int64               // the Rentable
-	ATypeLID       int64               // what type of assessment
-	RAID           int64               // associated Rental Agreement
-	Amount         float64             // how much
-	Start          rlib.JSONTime       // start time
-	Stop           rlib.JSONTime       // stop time, may be the same as start time or later
-	RentCycle      rlib.XJSONCycleFreq // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, G = quarterly, 8 = yearly
-	ProrationCycle rlib.XJSONCycleFreq // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-	InvoiceNo      int64               // A uniqueID for the invoice number
-	AcctRule       string              // expression showing how to account for the amount
+	PASMID         int64
+	RID            int64
+	ATypeLID       int64
+	RAID           int64
+	Amount         float64
+	Start          rlib.JSONTime
+	Stop           rlib.JSONTime
+	RentCycle      rlib.XJSONCycleFreq
+	ProrationCycle rlib.XJSONCycleFreq
+	InvoiceNo      int64
+	AcctRule       string
 	Comment        string
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
 }
 
-// AssessmentOther is a struct to handle the UI list box selections
-type AssessmentOther struct {
+// AssessmentSaveForm is a structure specifically for the return value from w2ui.
+// Data does not always come back in the same format it was sent. For example,
+// values from dropdown lists come back in the form of a rlib.W2uiHTMLSelect struct.
+// So, we break up the ingest into 2 parts. First, we read back the fields that look
+// just like the xxxSendForm -- this is what is in xxxSaveForm. Then we readback
+// the data that has changed, which is in the xxxSaveOther struct.  All this data
+// is merged into the appropriate database structure using MigrateStructData.
+type AssessmentSaveForm struct {
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	ASMID          int64
+	PASMID         int64
+	RID            int64
+	ATypeLID       int64
+	RAID           int64
+	Amount         float64
+	Start          rlib.JSONTime
+	Stop           rlib.JSONTime
+	RentCycle      rlib.XJSONCycleFreq
+	ProrationCycle rlib.XJSONCycleFreq
+	InvoiceNo      int64
+	AcctRule       string
+	Comment        string
+	LastModTime    rlib.JSONTime
+	LastModBy      int64
+}
+
+// AssessmentSaveOther is a struct to handle the UI list box selections
+type AssessmentSaveOther struct {
 	BID rlib.W2uiHTMLSelect
 }
 
@@ -80,26 +85,40 @@ type SearchAssessmentsResponse struct {
 	Records []AssessmentGrid `json:"records"`
 }
 
+// SaveAssessmentInput is the input data format for a Save command
+type SaveAssessmentInput struct {
+	Status   string             `json:"status"`
+	Recid    int64              `json:"recid"`
+	FormName string             `json:"name"`
+	Record   AssessmentSaveForm `json:"record"`
+}
+
+// SaveAssessmentOther is the input data format for the "other" data on the Save command
+type SaveAssessmentOther struct {
+	Status string              `json:"status"`
+	Recid  int64               `json:"recid"`
+	Name   string              `json:"name"`
+	Record AssessmentSaveOther `json:"record"`
+}
+
 // GetAssessmentResponse is the response to a GetAssessment request
 type GetAssessmentResponse struct {
-	Status string         `json:"status"`
-	Record AssessmentForm `json:"record"`
+	Status string             `json:"status"`
+	Record AssessmentSendForm `json:"record"`
 }
 
 // SvcSearchHandlerAssessments generates a report of all Assessments defined business d.BID
 // wsdoc {
 //  @Title  Search Assessments
-//	@URL /v1/asm/:BUI
+//	@URL /v1/asms/:BUI
 //  @Method  POST
 //	@Synopsis Search Assessments
 //  @Description  Search all Assessments and return those that match the Search Logic
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response SearchAssessmentsResponse
 // wsdoc }
 func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
 	fmt.Printf("Entered SvcSearchHandlerAssessments\n")
-
 	var p rlib.Assessment
 	var err error
 	var g SearchAssessmentsResponse
@@ -185,46 +204,39 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 //  @Method  GET
 //	@Synopsis Update the information on a Assessment with the supplied data
 //  @Description  This service updates Assessment :ASMID with the information supplied. All fields must be supplied.
-//	@Input WebRequest
+//	@Input SaveAssessmentInput
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveAssessment"
-	target := `"record":`
-	fmt.Printf("SvcFormHandlerAssessment save\n")
+	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
-	i := strings.Index(d.data, target)
-	if i < 0 {
-		e := fmt.Errorf("%s: cannot find %s in form json", funcname, target)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	s := d.data[i+len(target):]
-	s = s[:len(s)-1]
-	var foo AssessmentForm
-	err := json.Unmarshal([]byte(s), &foo)
+
+	var foo SaveAssessmentInput
+	data := []byte(d.data)
+	err := json.Unmarshal(data, &foo)
+
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
-	// migrate the variables that transfer without needing special handling...
 	var a rlib.Assessment
-	rlib.MigrateStructVals(&foo, &a)
+	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
-	// now get the stuff that requires special handling...
-	var bar AssessmentOther
-	err = json.Unmarshal([]byte(s), &bar)
+	var bar SaveAssessmentOther
+	err = json.Unmarshal(data, &bar) // and now the other variables
+
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
+	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.BID.ID)
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
@@ -247,7 +259,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Method  GET
 //	@Synopsis Get information on a Assessment
 //  @Description  Return all fields for assessment :ASMID
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response GetAssessmentResponse
 // wsdoc }
 func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -261,7 +273,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	if a.ASMID > 0 {
-		var gg AssessmentForm
+		var gg AssessmentSendForm
 		rlib.MigrateStructVals(&a, &gg)
 		g.Record = gg
 	}

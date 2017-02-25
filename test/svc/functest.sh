@@ -23,16 +23,40 @@ source ../share/base.sh
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
 
+# Get Chart of Accounts
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "s"  "WebService--ChartOfAccounts"
+dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "a"  "WebService--ChartOfAccounts"
+
+# Get Transactants
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sort%22%3A%5B%7B%22field%22%3A%22LastName%22%2C%22direction%22%3A%22asc%22%7D%5D%7D" > request
-dojsonPOST "http://localhost:8270/v1/transactants/1" "request" "t"  "WebService--GetTransactants"
+dojsonPOST "http://localhost:8270/v1/transactants/1" "request" "b"  "WebService--GetTransactants"
+
+# Get Rentables
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "u"  "WebService--GetRentables"
+dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "c"  "WebService--GetRentables"
+
+# Get Receipts
 echo "request%3d%7b%22cmd%22%3a%22get%22%2c%22selected%22%3a%5b%5d%2c%22limit%22%3a100%2c%22offset%22%3a0%7d" > request
-dojsonPOST "http://localhost:8270/v1/receipts/1" "request" "v"  "WebService--GetReceipts"
+dojsonPOST "http://localhost:8270/v1/receipts/1" "request" "d"  "WebService--GetReceipts"
+
+# Get Assessments
 echo "request%3d%7b%22cmd%22%3a%22get%22%2c%22selected%22%3a%5b%5d%2c%22limit%22%3a100%2c%22offset%22%3a0%7d" > request
-dojsonPOST "http://localhost:8270/v1/asm/1" "request" "w"  "WebService--GetAssessments"
+dojsonPOST "http://localhost:8270/v1/asms/1" "request" "e"  "WebService--GetAssessments"
+
+# Get Assessment 1 from REX
+dojsonPOST "http://localhost:8270/v1/asm/REX/1" "request" "f"  "WebService--GetAnAssessment"
+
+# Save the Assessment with an updated comment
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmForm%22%2C%22record%22%3A%7B%0D%0A%22ASMID%22%3A+1%2C%0D%0A%22ATypeLID%22%3A+7%2C%0D%0A%22AcctRule%22%3A+%22d+%24%7BGLGENRCV%7D+_%2C+c+%24%7BGLSECDEP%7D+_%22%2C%0D%0A%22Amount%22%3A+7000%2C%0D%0A%22Comment%22%3A+%22web+service+test+added+this+comment%22%2C%0D%0A%22InvoiceNo%22%3A+0%2C%0D%0A%22LastModBy%22%3A+0%2C%0D%0A%22LastModTime%22%3A+%222%2F23%2F2017%22%2C%0D%0A%22PASMID%22%3A+0%2C%0D%0A%22ProrationCycle%22%3A+%22Norecur%22%2C%0D%0A%22BID%22%3A%7B%22id%22%3A%22REX%22%2C%22text%22%3A%22REX%22%7D%2C%0D%0A%22RAID%22%3A+1%2C%0D%0A%22RID%22%3A+1%2C%0D%0A%22RentCycle%22%3A+%22Norecur%22%2C%0D%0A%22Start%22%3A+%2212%2F1%2F2015%22%2C%0D%0A%22Stop%22%3A+%2212%2F1%2F2015%22%2C%0D%0A%22recid%22%3A+0%0D%0A%7D%0D%0A%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/REX/1" "request" "g"  "WebService--SaveAnAssessment"
+
+# Get Receipt 5 from REX
+echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/receipt/REX/5" "request" "h"  "WebService--GetAnAssessment"
+
+# Save the Receipt 5 with an updated comment
+echo "%7B%0D%0A%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%0D%0A%22record%22%3A+%7B%0D%0A%22AcctRule%22%3A+%22ASM%287%29+c+%24%7BGLGENRCV%7D+_%2C+ASM%287%29+d+%24%7BGLCASH%7D+_%22%2C%0D%0A%22Amount%22%3A+3550%2C%0D%0A%22BID%22%3A+%7B%22id%22%3A%22REX%22%2C%22text%22%3A%22REX%22%7D%2C%0D%0A%22Comment%22%3A+%22This+comment+was+updated+by+a+web-service+test%22%2C%0D%0A%22DocNo%22%3A+%221631%22%2C%0D%0A%22Dt%22%3A+%221%2F4%2F2016%22%2C%0D%0A%22LastModBy%22%3A+0%2C%0D%0A%22LastModTime%22%3A+%222%2F23%2F2017%22%2C%0D%0A%22OtherPayorName%22%3A+%22%22%2C%0D%0A%22PMTID%22%3A+1%2C%0D%0A%22PRCPTID%22%3A+0%2C%0D%0A%22RAID%22%3A+2%2C%0D%0A%22RCPTID%22%3A+5%2C%0D%0A%22recid%22%3A+0%0D%0A%7D%0D%0A%7D" > request
+dojsonPOST "http://localhost:8270/v1/receipt/REX/5" "request" "i"  "WebService--SaveAnAssessment"
 
 
 stopRentRollServer

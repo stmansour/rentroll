@@ -66,7 +66,7 @@ type GetRentableResponse struct {
 //  @Method  POST
 //	@Synopsis Search Rentables
 //  @Description  Search all Rentables and return those that match the Search Logic
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response SearchRentablesResponse
 // wsdoc }
 func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -157,7 +157,7 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 //  @Method  GET
 //	@Synopsis Update the information on a Rentable with the supplied data
 //  @Description  This service updates Rentable :RID with the information supplied. All fields must be supplied.
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -225,7 +225,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Method  GET
 //	@Synopsis Get information on a Rentable
 //  @Description  Return all fields for rentable :RID
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response GetRentableResponse
 // wsdoc }
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {

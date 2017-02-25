@@ -46,8 +46,8 @@ type ColSort struct {
 	Direction string `json:"direction"`
 }
 
-// WebRequest is a struct suitable for describing a webservice operation.
-type WebRequest struct {
+// WebGridSearchRequest is a struct suitable for describing a webservice operation.
+type WebGridSearchRequest struct {
 	Cmd         string      `json:"cmd"`         // get, save, delete
 	Limit       int         `json:"limit"`       // max number to return
 	Offset      int         `json:"offset"`      // solution set offset
@@ -57,28 +57,38 @@ type WebRequest struct {
 	Sort        []ColSort   `json:"sort"`        // sort criteria
 }
 
+// WebFormRequest is a struct suitable for describing a webservice operation.
+type WebFormRequest struct {
+	Cmd      string      `json:"cmd"`    // get, save, delete
+	Recid    int         `json:"recid"`  // max number to return
+	FormName string      `json:"name"`   // solution set offset
+	Record   interface{} `json:"record"` // selected rows
+}
+
 // ServiceData is the generalized data gatherer for svcHandler. It allows all the common data
 // to be centrally parsed and passed to a specific handler, which may need to parse further
 // to get its unique data.
 type ServiceData struct {
-	UID    int64      // user id of requester
-	BID    int64      // which business
-	TCID   int64      // TCID if supplied
-	RAID   int64      // RAID if supplied
-	RID    int64      // RAID if supplied
-	RCPTID int64      // RCPTID if supplied
-	ASMID  int64      // ASMID if supplied
-	webreq WebRequest // what did the grid ask for
-	data   string     // the raw unparsed data
+	UID    int64                // user id of requester
+	BID    int64                // which business
+	TCID   int64                // TCID if supplied
+	RAID   int64                // RAID if supplied
+	RID    int64                // RAID if supplied
+	RCPTID int64                // RCPTID if supplied
+	ASMID  int64                // ASMID if supplied
+	webreq WebGridSearchRequest // what did the grid ask for
+	data   string               // the raw unparsed data
 }
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
 	{"transactants", SvcSearchHandlerTransactants, true},
 	{"accounts", SvcSearchHandlerGLAccounts, true},
-	{"asm", SvcSearchHandlerAssessments, true},
+	{"asms", SvcSearchHandlerAssessments, true},
+	{"asm", SvcFormHandlerAssessment, true},
 	{"rar", SvcRARentables, true},
 	{"receipts", SvcSearchHandlerReceipts, true},
+	{"receipt", SvcFormHandlerReceipt, true},
 	{"rentables", SvcSearchHandlerRentables, true},
 	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
@@ -149,6 +159,10 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		return e
 	}
 	fmt.Printf("htmlData = %s\n", htmlData)
+	if len(htmlData) == 0 {
+		d.webreq.Cmd = "?"
+		return nil
+	}
 	u, err := url.QueryUnescape(string(htmlData))
 	if err != nil {
 		e := fmt.Errorf("%s: Error with QueryUnescape: %s", funcname, err.Error())
@@ -157,12 +171,8 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	}
 	fmt.Printf("Unescaped htmlData = %s\n", u)
 
-	requestHeader := "request=" // this is what w2ui starts all its grid requests with
-	i := strings.Index(u, requestHeader)
-	if i >= 0 {
-		u = u[i+len(requestHeader):]
-		d.data = u
-	}
+	u = strings.TrimPrefix(u, "request=") // strip off "request=" if it is present (w2ui sends this string)
+	d.data = u
 	err = json.Unmarshal([]byte(u), &d.webreq)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
@@ -185,7 +195,7 @@ func showRequestHeaders(r *http.Request) {
 	fmt.Printf("-----------------------\n")
 }
 
-func showWebRequest(d *ServiceData) {
+func showWebGridSearchRequest(d *ServiceData) {
 	fmt.Printf("Cmd         = %s\n", d.webreq.Cmd)
 	fmt.Printf("Limit       = %d\n", d.webreq.Limit)
 	fmt.Printf("Offset      = %d\n", d.webreq.Offset)
@@ -228,7 +238,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		d.webreq.Cmd = r.URL.Query().Get("cmd")
 	}
-	showWebRequest(&d)
+	showWebGridSearchRequest(&d)
 
 	//-----------------------------------------------------------------------
 	// General form is /v1/{subservice}/{BID}/{ID}
@@ -238,7 +248,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 	//-----------------------------------------------------------------------
 	// pathElements: 0         1     2
-	// Break up {subservice}/{BID}/{ID} into an array of strings
+	// Break up {subservice}/{BUI}/{ID} into an array of strings
 	// BID is common to nearly all commands
 	//-----------------------------------------------------------------------
 	ss := strings.Split(subURLPath, "?") // it could be GET command

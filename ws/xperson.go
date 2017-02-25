@@ -157,7 +157,7 @@ type SearchTransactantsResponse struct {
 //	@Method POST
 //	@Synopsis Search transactants
 //  @Description Returns a list of Transactants matching the search criteria
-//  @Input WebRequest
+//  @Input WebGridSearchRequest
 //  @Response SearchTransactantsResponse
 // wsdoc }
 func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -243,7 +243,7 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //	@Method POST
 //	@Synopsis Save a Transactant
 //  @Description
-//  @Input WebRequest
+//  @Input WebGridSearchRequest
 //  @Response SearchTransactantsResponse
 // wsdoc }
 func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -362,8 +362,8 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //	@Method POST
 //	@Synopsis Read a Transactant
 //  @Description
-//  @Input WebRequest
-//  @Response SearchTransactantsResponse
+//  @Input WebGridSearchRequest
+//  @Response GetTransactantResponse
 // wsdoc }
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var g GetTransactantResponse

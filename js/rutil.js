@@ -49,6 +49,7 @@ function setToRAForm(bid, raid, d) {
     console.log('rar url = ' + w2ui.rarGrid.url);
     w2ui.rarGrid.request();
     w2ui.rarGrid.header = plural(sRentable) + ' as of ' + dateFmtStr(d);
+    w2ui.rarGrid.show.toolbarSearch = false;
 
     //----------------------------------------------------------------
     // Get the associated Payors...

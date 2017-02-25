@@ -40,7 +40,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 	rlib.InitBizInternals(ri.Bid, xbiz)
 
 	switch strings.ToLower(prefix) {
-	case "asm", "assessments":
+	case "asmrpt", "assessments":
 		return rcsv.RRreportAssessments(&ri)
 	case "b", "business":
 		t := rcsv.RRreportBusinessTable(&ri)

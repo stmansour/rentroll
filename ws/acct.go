@@ -21,7 +21,7 @@ type SearchGLAccountsResponse struct {
 //  @Method  GET, POST
 //	@Synopsis Return a list of General Ledger Accounts
 //  @Description This service returns a list of General Ledger accounts
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response SearchGLAccountsResponse
 // wsdoc }
 func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {

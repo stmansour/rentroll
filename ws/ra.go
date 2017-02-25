@@ -111,7 +111,7 @@ type GetRentalAgreementResponse struct {
 //  @Method  GET, POST
 //	@Synopsis Return Rental Agreements that match the criteria provided.
 //  @Description
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response RentalAgrSearchResponse
 // wsdoc }
 func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -198,7 +198,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 //  @Method  POST
 //	@Synopsis Save (create or update) a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.
-//	@Input WebRequest
+//	@Input WebGridSearchRequest
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -283,7 +283,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //	@Method POST or GET
 //	@Synopsis Get a Rental Agreement
 //  @Description This service returns the single-valued attributes of a Rental Agreement.
-//  @Input WebRequest
+//  @Input WebGridSearchRequest
 //  @Response GetRentalAgreementResponse
 // wsdoc }
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {

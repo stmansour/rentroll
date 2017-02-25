@@ -27,17 +27,53 @@ var WSTypeFactory = map[string]Creator{
 	"SearchReceiptsResponse":     NewSearchReceiptsResponse,
 	"PrReceiptGrid":              NewPrReceiptGrid,
 	"SvcStatusResponse":          NewSvcStatusResponse,
-	"WebRequest":                 NewWebRequest,
+	"WebGridSearchRequest":       NewWebGridSearchRequest,
 	"GetRentalAgreementResponse": NewGetRentalAgreementResponse,
 	"SearchAssessmentsResponse":  NewSearchAssessmentsResponse,
 	"AssessmentGrid":             NewAssessmentGrid,
 	"GetAssessmentResponse":      NewGetAssessmentResponse,
-	"AssessmentForm":             NewAssessmentForm,
+	"AssessmentSendForm":         NewAssessmentSendForm,
+	"SaveAssessmentInput":        NewSaveAssessmentInput,
+	"GetReceiptResponse":         NewGetReceiptResponse,
+	"ReceiptSendForm":            NewReceiptSendForm,
+	"GetTransactantResponse":     NewGetTransactantResponse,
+	"SaveReceiptInput":           NewSaveReceiptInput,
+	"AssessmentSaveForm":         NewAssessmentSaveForm,
 }
 
-// NewAssessmentForm is a factory for AssessmentForm structs
-func NewAssessmentForm() interface{} {
-	return new(ws.AssessmentForm)
+// NewAssessmentSaveForm is a factory for AssessmentSaveForm structs
+func NewAssessmentSaveForm() interface{} {
+	return new(ws.AssessmentSaveForm)
+}
+
+// NewSaveReceiptInput is a factory for SaveReceiptInput structs
+func NewSaveReceiptInput() interface{} {
+	return new(ws.SaveReceiptInput)
+}
+
+// NewGetTransactantResponse is a factory for GetTransactantResponse structs
+func NewGetTransactantResponse() interface{} {
+	return new(ws.GetTransactantResponse)
+}
+
+// NewReceiptSendForm is a factory for ReceiptSendForm structs
+func NewReceiptSendForm() interface{} {
+	return new(ws.ReceiptSendForm)
+}
+
+// NewGetReceiptResponse is a factory for GetReceiptResponse structs
+func NewGetReceiptResponse() interface{} {
+	return new(ws.GetReceiptResponse)
+}
+
+// NewSaveAssessmentInput is a factory for SaveAssessmentInput structs
+func NewSaveAssessmentInput() interface{} {
+	return new(ws.SaveAssessmentInput)
+}
+
+// NewAssessmentSendForm is a factory for AssessmentSendForm structs
+func NewAssessmentSendForm() interface{} {
+	return new(ws.AssessmentSendForm)
 }
 
 // NewGetAssessmentResponse is a factory for GetAssessmentResponse structs
@@ -156,9 +192,9 @@ func NewRAPeople() interface{} {
 	return new(ws.RAPeople)
 }
 
-// NewWebRequest is a factory for WebRequest structs
-func NewWebRequest() interface{} {
-	return new(ws.WebRequest)
+// NewWebGridSearchRequest is a factory for WebGridSearchRequest structs
+func NewWebGridSearchRequest() interface{} {
+	return new(ws.WebGridSearchRequest)
 }
 
 // NewWSRAR is a factory for RAR structs

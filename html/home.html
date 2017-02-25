@@ -262,7 +262,7 @@ function buildPageElements() {
                 nodes: [  { id: 'rentables', text: plural(sRentable), icon: 'fa fa-cube' },
                         { id: 'transactants', text: plural(sTransactant), icon: 'fa fa-users' },
                         { id: 'rentalagrs',  text: 'Rental Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
-                        { id: 'asm',  text: plural(sAssessment),  icon: 'fa fa-star-o', hint: plural(sAssessment) },
+                        { id: 'asms',  text: plural(sAssessment),  icon: 'fa fa-star-o', hint: plural(sAssessment) },
                         { id: 'receipts',  text: plural(sReceipt),  icon: 'fa fa-star', hint: plural(sReceipt) },
                         { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
                         { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
@@ -270,7 +270,7 @@ function buildPageElements() {
             },
             { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                 nodes: [ 
-                       { id: 'asm', text: 'Assessments', icon: 'fa fa-file-text-o' },
+                       { id: 'asmrpt', text: 'Assessments', icon: 'fa fa-file-text-o' },
                        { id: 'b', text: 'Business Units', icon: 'fa fa-file-text-o' },
                        { id: 'coa', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
                        { id: 'dpm', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
@@ -324,10 +324,10 @@ function buildPageElements() {
                 case 'transactants':
                 case 'rentalagrs':
                 case 'receipts':
-                case 'asm':
+                case 'asms':
                     switchToGrid(event.target);
                     break;
-                case 'asm':
+                case 'asmrpt':
                 case 'b':
                 case 'coa':
                 case 'delinq':
@@ -754,13 +754,19 @@ function buildPageElements() {
             toolbar: true,
             footer: true,
         },
+        multiSearch: true,
+        searches: [
+            { field: 'RAID', caption: 'RAID', type: 'text' },
+            { field: 'AgreementStart', caption: 'Agreement Start Date', type: 'date' },
+            { field: 'AgreementStop', caption: 'Agreement Stop Date', type: 'date' },
+        ],
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'BID', hidden: true, caption: 'BID',  size: '40px', sortable: false},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
             {field: 'Payor', caption: 'Payor', size: '125px', sortable: true},
-            {field: 'AgreementStart', caption: 'Agreement<br>Start', size: '80px', sortable: true, style: 'text-align: right'},
-            {field: 'AgreementStop', caption: 'Agreement<br>Stop',  size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'AgreementStart', caption: 'Agreement<br>Start', render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'AgreementStop', caption: 'Agreement<br>Stop',  render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
         ], 
         actions: {
             save: function () {
@@ -911,13 +917,22 @@ function buildPageElements() {
         name: 'rarGrid',
         show: {
             header: sRentable,
-            toolbar: false,
+            toolbar: true,
             footer: false,
             lineNumbers: false,
             selectColumn: false,
-            expandColumn: false
+            expandColumn: false,
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarEdit: false,
+            toolbarSearch: false,
+            toolbarInput: false,
+            searchAll: false,
+            toolbarReload: false,
+            toolbarColumns: false,
         },
-        url: '/v1/rar/',       
+         url: '/v1/rar/',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', hidden: true, caption: 'RAID',  size: '40px', sortable: true},
@@ -936,11 +951,20 @@ function buildPageElements() {
         name: 'rapGrid',
         show: {
             header: sPayor,
-            toolbar: false,
+            toolbar: true,
             footer: false,
             lineNumbers: false,
             selectColumn: false,
-            expandColumn: false
+            expandColumn: false,
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarEdit: false,
+            toolbarSearch: false,
+            toolbarInput: false,
+            searchAll: false,
+            toolbarReload: false,
+            toolbarColumns: false,
         },
         url: '/v1/rap',       
         columns: [
@@ -961,11 +985,20 @@ function buildPageElements() {
         name: 'rauGrid',
         show: {
             header: sUser,
-            toolbar: false,
+            toolbar: true,
             footer: false,
             lineNumbers: false,
             selectColumn: false,
-            expandColumn: false
+            expandColumn: false,
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarEdit: false,
+            toolbarSearch: false,
+            toolbarInput: false,
+            searchAll: false,
+            toolbarReload: false,
+            toolbarColumns: false,
         },
         url: '/v1/rau',       
         columns: [
@@ -988,11 +1021,17 @@ function buildPageElements() {
         name: 'raPetGrid',
         show: {
             header: sUser,
-            toolbar: false,
+            toolbar: true,
             footer: false,
-            lineNumbers: false,
-            selectColumn: false,
-            expandColumn: false
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarEdit: false,
+            toolbarSearch: false,
+            toolbarInput: false,
+            searchAll: false,
+            toolbarReload: false,
+            toolbarColumns: false,
         },
         url: '/v1/rapet',       
         columns: [
@@ -1063,11 +1102,11 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          asmGrid
+    //          asmsGrid
     //------------------------------------------------------------------------
     $().w2grid({
-        name: 'asmGrid',
-        url: '/v1/asm',       
+        name: 'asmsGrid',
+        url: '/v1/asms',       
         show: {
             toolbar: true,
             footer: true,
@@ -1084,12 +1123,12 @@ function buildPageElements() {
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
             {field: 'RAID', caption: sRentalAgreement,  size: '50px', style: 'text-align: right', sortable: true},
             {field: 'RID', caption: sRentable,  size: '50px', style: 'text-align: right', sortable: true},
-            {field: 'RentCycle', caption: sRentCycle,  size: '50px', style: 'text-align: right', sortable: true},
-            {field: 'ProrationCycle', caption: sProrationCycle,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'RentCycle', caption: sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
+            {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
         ], 
         actions: {
             save: function () {
-                var tgrid = w2ui.asmGrid;
+                var tgrid = w2ui.asmsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
                 console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
@@ -1114,7 +1153,7 @@ function buildPageElements() {
             };
         },
         onRequest: function(/*event*/) {
-            console.log('On Request.  url = ' + w2ui.asmGrid.url);
+            console.log('On Request.  url = ' + w2ui.asmsGrid.url);
         },
         onSearch: function(/*event*/) {
             console.log('Search called');
