@@ -142,6 +142,21 @@ func ListVars(a interface{}, d *Directive, prefix template.HTML) []ProtocolJSON 
 	return m
 }
 
+// handleW2UIreq deals with structs like this:
+//    request={"search":"The search string","max":"Maximum number of return items"}
+// in a GET URL
+func handleW2UIreq(s string, u *URLDef) {
+	sa := strings.Split(s[len("request={"):], ",")
+	for i := 0; i < len(sa); i++ {
+		// "search":<quoted search string>
+		ssa := strings.Split(sa[i], ":")
+		var t URLTerm
+		t.Term = ssa[0]                                                // "search"
+		t.Definition = template.HTML(rlib.Stripchars(ssa[1], "\"<>}")) // "<quoted search string>"
+		u.Parts = append(u.Parts, t)
+	}
+}
+
 // handleURL saves the URL for printing and creates a list of all the
 // parts that need explanation.  The url is expected to be in this format
 //
@@ -163,14 +178,22 @@ func handleURL(s string, d *Directive) {
 		}
 	}
 	if len(s1) > 1 {
+		// There is some strange handling here... W2UI essentially puts a struct
+		// that it should have POSTed on the url command line.  It does this with
+		// `request={"search":"bla","limit":250}`
+		// Handle params containing "request=" in a special fashion
 		sb := strings.Split(s1[1], "&") // separate the params
 		for i := 0; i < len(sb); i++ {
-			sc := strings.Split(sb[i], "=")
-			if len(sc) > 1 && strings.Contains(sc[1], ":") {
-				var t URLTerm
-				t.Term = rlib.Stripchars(sc[1], ":")
-				t.Definition = getDefinition(t.Term)
-				u.Parts = append(u.Parts, t) // yes: add it to the list, remove the colon
+			if strings.Contains(sb[i], "request={") {
+				handleW2UIreq(sb[i], &u)
+			} else {
+				sc := strings.Split(sb[i], "=")
+				if len(sc) > 1 && strings.Contains(sc[1], ":") {
+					var t URLTerm
+					t.Term = rlib.Stripchars(sc[1], ":")
+					t.Definition = getDefinition(t.Term)
+					u.Parts = append(u.Parts, t) // yes: add it to the list, remove the colon
+				}
 			}
 		}
 	}

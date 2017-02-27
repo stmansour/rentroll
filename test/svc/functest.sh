@@ -66,6 +66,9 @@ dojsonPOST "http://localhost:8270/v1/receipt/REX/0" "request" "j"  "WebService--
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmForm%22%2C%22record%22%3A%7B%0D%0A%22ASMID%22%3A+0%2C%0D%0A%22ATypeLID%22%3A+7%2C%0D%0A%22AcctRule%22%3A+%22%22%2C%0D%0A%22Amount%22%3A+9182.46%2C%0D%0A%22Comment%22%3A+%22This+Assessment+was+created+by+a+Web+Service+test%22%2C%0D%0A%22InvoiceNo%22%3A+0%2C%0D%0A%22LastModBy%22%3A+0%2C%0D%0A%22LastModTime%22%3A+%222%2F23%2F2017%22%2C%0D%0A%22PASMID%22%3A+0%2C%0D%0A%22ProrationCycle%22%3A+%7B%22id%22%3A+%22Norecur%22%2C+%22text%22%3A%22Norecur%22%7D%2C%0D%0A%22BID%22%3A%7B%22id%22%3A%22REX%22%2C%22text%22%3A%22REX%22%7D%2C%0D%0A%22RAID%22%3A+1%2C%0D%0A%22RID%22%3A+1%2C%0D%0A%22RentCycle%22%3A+%7B%22id%22%3A+%22Norecur%22%2C+%22text%22%3A%22Norecur%22%7D%2C%0D%0A%22Start%22%3A+%222%2F24%2F2017%22%2C%0D%0A%22Stop%22%3A+%222%2F24%2F2017%22%2C%0D%0A%22recid%22%3A+0%0D%0A%7D%0D%0A%7D" > request
 dojsonPOST "http://localhost:8270/v1/asm/REX/0" "request" "k"  "WebService--InsertAnAssessment"
 
+# Test Transactant Typedown
+dojsonGET "http://localhost:8270/v1/transactantstd/ISO?request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D" "l" "WebService--GetTransactantTypeDown"
+
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED" 

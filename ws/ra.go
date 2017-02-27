@@ -138,7 +138,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := int64(d.webreq.Offset)
+	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
 		var p rlib.RentalAgreement
@@ -148,7 +148,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		rlib.MigrateStructVals(&p, &q)
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
-		if count >= d.webreq.Limit {
+		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 		i++
@@ -178,7 +178,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 
 	fmt.Printf("Requester UID = %d, BID = %d,  RAID = %d\n", d.UID, d.BID, d.RAID)
 
-	switch d.webreq.Cmd {
+	switch d.wsSearchReq.Cmd {
 	case "get":
 		getRentalAgreement(w, r, d)
 		break
@@ -186,7 +186,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 		saveRentalAgreement(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("Unhandled command: %s", d.webreq.Cmd)
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err)
 		return
 	}

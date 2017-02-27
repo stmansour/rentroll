@@ -48,7 +48,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := d.webreq.Offset
+	i := d.wsSearchReq.Offset
 	count := 0
 	for rows.Next() {
 		var p rlib.GLAccount
@@ -56,7 +56,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 		p.Recid = i
 		g.Records = append(g.Records, p)
 		count++ // update the count only after adding the record
-		if count >= d.webreq.Limit {
+		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 		i++ // update the index no matter what

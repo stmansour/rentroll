@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RentRoll TEST: TypeDown</title>
+    <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/w2ui-1.5.rc1.js"></script>
+    <!-- <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script> -->
+</head>
+<body>
+<h1>HELLO WORLD</h1>
+<p>Here is a div with a w2ui-field</p>
+
+<div class="w2ui-field">
+    <label>Multi:</label>
+    <div> <input id="tcidPicker"> </div>
+</div>
+<div style="height: 20px"></div>
+
+<style>
+.w2ui-field input {
+    width: 400px;
+}
+.w2ui-field > div > span {
+    margin-left: 20px;
+}
+</style>
+
+<script>
+$('#tcidPicker').w2field('enum', {
+    url: '/v1/transactantstd/ISO',
+    renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
+    renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
+    compare: function (item, search) {
+        var FirstName = search, 
+            LastName = search;
+        if (search.indexOf(' ') != -1) {
+            FirstName = search.split(' ')[0];
+            LastName = search.split(' ')[1];
+        }
+        var match = false;
+        var re1 = new RegExp(FirstName, 'i');
+        var re2 = new RegExp(LastName, 'i');
+        if (FirstName == LastName) {
+            if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
+        } else {
+            if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
+        }
+        return match;
+    },
+    onNew: function (event) {
+        console.log('++ New Item: Do not forget to submit it to the server too', event);
+        $.extend(event.item, { FirstName: '', LastName : event.item.text });
+    }
+});
+</script>
+
+</body>
+</html>

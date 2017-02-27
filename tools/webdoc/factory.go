@@ -9,36 +9,54 @@ import (
 // WSTypeFactory is a map for creating new data types used by the
 // web services routines based on the supplied name.
 var WSTypeFactory = map[string]Creator{
-	"ColSort":                    NewColSort,
-	"GenSearch":                  NewGenSearch,
-	"GetRentableResponse":        NewGetRentableResponse,
-	"GLAccount":                  NewGLAccount,
-	"PrRentableOther":            NewPrRentableOther,
-	"RAPeople":                   NewRAPeople,
-	"RAPeopleResponse":           NewRAPeopleResponse,
-	"RAPets":                     NewRAPets,
-	"RAR":                        NewWSRAR,
-	"RentalAgr":                  NewRentalAgr,
-	"RentalAgreementPet":         NewRentalAgreementPet,
-	"RentalAgrSearchResponse":    NewRentalAgrSearchResponse,
-	"SearchGLAccountsResponse":   NewSearchGLAccountsResponse,
-	"SearchRentablesResponse":    NewSearchRentablesResponse,
-	"SearchTransactantsResponse": NewSearchTransactantsResponse,
-	"SearchReceiptsResponse":     NewSearchReceiptsResponse,
-	"PrReceiptGrid":              NewPrReceiptGrid,
-	"SvcStatusResponse":          NewSvcStatusResponse,
-	"WebGridSearchRequest":       NewWebGridSearchRequest,
-	"GetRentalAgreementResponse": NewGetRentalAgreementResponse,
-	"SearchAssessmentsResponse":  NewSearchAssessmentsResponse,
-	"AssessmentGrid":             NewAssessmentGrid,
-	"GetAssessmentResponse":      NewGetAssessmentResponse,
-	"AssessmentSendForm":         NewAssessmentSendForm,
-	"SaveAssessmentInput":        NewSaveAssessmentInput,
-	"GetReceiptResponse":         NewGetReceiptResponse,
-	"ReceiptSendForm":            NewReceiptSendForm,
-	"GetTransactantResponse":     NewGetTransactantResponse,
-	"SaveReceiptInput":           NewSaveReceiptInput,
-	"AssessmentSaveForm":         NewAssessmentSaveForm,
+	"ColSort":                      NewColSort,
+	"GenSearch":                    NewGenSearch,
+	"GetRentableResponse":          NewGetRentableResponse,
+	"GLAccount":                    NewGLAccount,
+	"PrRentableOther":              NewPrRentableOther,
+	"RAPeople":                     NewRAPeople,
+	"RAPeopleResponse":             NewRAPeopleResponse,
+	"RAPets":                       NewRAPets,
+	"RAR":                          NewWSRAR,
+	"RentalAgr":                    NewRentalAgr,
+	"RentalAgreementPet":           NewRentalAgreementPet,
+	"RentalAgrSearchResponse":      NewRentalAgrSearchResponse,
+	"SearchGLAccountsResponse":     NewSearchGLAccountsResponse,
+	"SearchRentablesResponse":      NewSearchRentablesResponse,
+	"SearchTransactantsResponse":   NewSearchTransactantsResponse,
+	"SearchReceiptsResponse":       NewSearchReceiptsResponse,
+	"PrReceiptGrid":                NewPrReceiptGrid,
+	"SvcStatusResponse":            NewSvcStatusResponse,
+	"WebGridSearchRequest":         NewWebGridSearchRequest,
+	"GetRentalAgreementResponse":   NewGetRentalAgreementResponse,
+	"SearchAssessmentsResponse":    NewSearchAssessmentsResponse,
+	"AssessmentGrid":               NewAssessmentGrid,
+	"GetAssessmentResponse":        NewGetAssessmentResponse,
+	"AssessmentSendForm":           NewAssessmentSendForm,
+	"SaveAssessmentInput":          NewSaveAssessmentInput,
+	"GetReceiptResponse":           NewGetReceiptResponse,
+	"ReceiptSendForm":              NewReceiptSendForm,
+	"GetTransactantResponse":       NewGetTransactantResponse,
+	"SaveReceiptInput":             NewSaveReceiptInput,
+	"AssessmentSaveForm":           NewAssessmentSaveForm,
+	"TransactantsTypedownResponse": NewTransactantsTypedownResponse,
+	"TransactantTypeDown":          NewTransactantTypeDown,
+	"WebTypeDownRequest":           NewWebTypeDownRequest,
+}
+
+// NewWebTypeDownRequest is a factory for WebTypeDownRequest structs
+func NewWebTypeDownRequest() interface{} {
+	return new(ws.WebTypeDownRequest)
+}
+
+// NewTransactantTypeDown is a factory for TransactantTypeDown structs
+func NewTransactantTypeDown() interface{} {
+	return new(rlib.TransactantTypeDown)
+}
+
+// NewTransactantsTypedownResponse is a factory for TransactantsTypedownResponse structs
+func NewTransactantsTypedownResponse() interface{} {
+	return new(ws.TransactantsTypedownResponse)
 }
 
 // NewAssessmentSaveForm is a factory for AssessmentSaveForm structs

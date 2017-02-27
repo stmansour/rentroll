@@ -1579,6 +1579,27 @@ func GetSLStrings(id int64, a *StringList) {
 //  Transactant, Prospect, User, Payor, XPerson
 //=======================================================
 
+// GetTransactantTypeDown returns the values needed for typedown controls:
+// input:   bid - business
+//            s - string or substring to search for
+//        limit - return no more than this many matches
+// return a slice of TransactantTypeDowns and an error.
+func GetTransactantTypeDown(bid int64, s string, limit int) ([]TransactantTypeDown, error) {
+	var m []TransactantTypeDown
+	s += "%"
+	rows, err := RRdb.Prepstmt.GetTransactantTypeDown.Query(bid, s, s, limit)
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t TransactantTypeDown
+		ReadTransactantTypeDowns(rows, &t)
+		m = append(m, t)
+	}
+	return m, nil
+}
+
 // GetTCIDByNote used to get TCID from Note Comment
 // originally to get it from people csv Notes field
 func GetTCIDByNote(cmt string) int {

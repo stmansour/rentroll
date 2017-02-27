@@ -529,6 +529,15 @@ type User struct {
 	Vehicles                  []Vehicle
 }
 
+// TransactantTypeDown is the struct needed to match names in typedown controls
+type TransactantTypeDown struct {
+	TCID       int64
+	FirstName  string
+	MiddleName string
+	LastName   string
+	Recid      int64 `json:"recid"`
+}
+
 // Vehicle contains all the vehicle information for a User's vehicld
 type Vehicle struct {
 	VID                 int64
@@ -1210,6 +1219,7 @@ type RRprepSQL struct {
 	UpdatePayor                        *sql.Stmt
 	UIRAGrid                           *sql.Stmt
 	GetRARentableForDate               *sql.Stmt
+	GetTransactantTypeDown             *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

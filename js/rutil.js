@@ -238,6 +238,7 @@ function monthBack(dc) {
     var d2 = new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
     return setDateControl(dc, d2);
 }
+
 //-----------------------------------------------------------------------------
 // dateControlString
 //           - return a date string based on the supplied date that can be
@@ -256,6 +257,24 @@ function dateControlString(dt) {
     s += '' + m + '-';
     if (d < 10) { s += '0'; }
     s += d;
+    return s;
+}
+
+//-----------------------------------------------------------------------------
+// w2uiDateControlString
+//           - return a date string formatted the way the w2ui dates are
+//             expected, based on the supplied date that can be
+//             used as the .value attribute of a date control.  That is, in
+//             the format  m/d/yyyy.
+// @params
+//   dt = java date value
+// @return string value yyyy-mm-dd
+//-----------------------------------------------------------------------------
+function w2uiDateControlString(dt) {
+    "use strict";
+    var m = dt.getMonth() + 1;
+    var d = dt.getDate();
+    var s = '' + m + '/' + d+'/' + dt.getFullYear();
     return s;
 }
 

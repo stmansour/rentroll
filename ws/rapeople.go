@@ -65,10 +65,11 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "rar", "CCC", "10"}
 	fmt.Printf("ss = %#v\n", ss)
 
+	var err error
 	//------------------------------------------------------
 	// Handle URL path values
 	//------------------------------------------------------
-	raid, err := rlib.IntFromString(ss[3], "bad RAID value")
+	d.RAID, err = rlib.IntFromString(ss[3], "bad RAID value")
 	if err != nil {
 		SvcGridErrorReturn(w, err)
 		return
@@ -77,7 +78,7 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	// Handle URL parameters
 	//------------------------------------------------------
-	dt := time.Now()                   // default to current date
+	d.Dt = time.Now()                  // default to current date
 	ptype := "payor"                   // default to payor
 	if len(s1) > 1 && len(s1[1]) > 0 { // override with whatever was provided
 		parms := strings.Split(s1[1], "&") // parms is an array of indivdual parameters and their values
@@ -88,8 +89,8 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 			fmt.Printf("param[i] value = %s\n", param[1])
 			switch param[0] {
-			case "dt":
-				dt, err = rlib.StringToDate(param[1])
+			case "d.Dt":
+				d.Dt, err = rlib.StringToDate(param[1])
 				if err != nil {
 					SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", param[1]))
 					return
@@ -112,11 +113,48 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	//------------------------------------------------------
+	// Handle the command
+	//------------------------------------------------------
+	fmt.Printf("\n>>>>>>>>>>>>>>>>>  COMMAND:  %s   <<<<<<<<<<<<<<<<<<<<<\n\n", d.wsSearchReq.Cmd)
+	switch d.wsSearchReq.Cmd {
+	case "get":
+		SvcGetRAPeople(ptype, w, r, d)
+	case "save":
+		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
+	case "delete":
+		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
+	default:
+		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
+	}
+
+}
+
+// SvcGetRAPeople is used to get either the Payor(s) or User(s) associated
+// with a Rental Agreement.
+//
+// wsdoc {
+//  @Title  Rental Agreement People
+//	@URL /v1/rapeople/:BUI/:RAID ? dt=:DATE & type=:PRSTYPE
+//  @Method  GET
+//	@Synopsis Get Rental Agreement payors or users
+//  @Description  Get the Transactants of type :PRSTYPE who are associated with the
+//  @Description  Rental Agreement :RAID on the supplied :DATE.
+//  @Description  Note that :PRSTYPE is optional. If it is not present, :Payor is assumed.
+//	@Input none
+//  @Response RAPeopleResponse
+// wsdoc }
+//
+// URL:
+//       0    1       2    3
+// 		/v1/rapeople/BID/RAID?type={payor|user}&dt=2017-02-01
+//-----------------------------------------------------------------------------
+func SvcGetRAPeople(ptype string, w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
 	var gxp RAPeopleResponse
 	if ptype == "payor" {
-		m := rlib.GetRentalAgreementPayors(raid, &dt, &dt)
+		m := rlib.GetRentalAgreementPayors(d.RAID, &d.Dt, &d.Dt)
 		for i := 0; i < len(m); i++ {
 			var p rlib.Transactant
 			rlib.GetTransactant(m[i].TCID, &p)
@@ -127,12 +165,12 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else if ptype == "user" {
 		// first get the rentables associated with the Rental Agreement...
-		m := rlib.GetRentalAgreementRentables(raid, &dt, &dt)
+		m := rlib.GetRentalAgreementRentables(d.RAID, &d.Dt, &d.Dt)
 		k := 1                        // recid counter
 		for j := 0; j < len(m); j++ { // for each rentable in the Rental Agreement
-			rentable := rlib.GetRentable(m[j].RID)         // get the rentable
-			n := rlib.GetRentableUsers(m[j].RID, &dt, &dt) // get the users associated with that rentable
-			for i := 0; i < len(n); i++ {                  // add an entry for each user associated with this rentable
+			rentable := rlib.GetRentable(m[j].RID)             // get the rentable
+			n := rlib.GetRentableUsers(m[j].RID, &d.Dt, &d.Dt) // get the users associated with that rentable
+			for i := 0; i < len(n); i++ {                      // add an entry for each user associated with this rentable
 				var p rlib.Transactant
 				rlib.GetTransactant(n[i].TCID, &p)
 				var xr RAPeople

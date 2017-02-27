@@ -377,7 +377,7 @@ func ReadSLString(row *sql.Row, a *SLString) {
 	Errcheck(row.Scan(&a.SLSID, &a.BID, &a.SLID, &a.Value, &a.LastModTime, &a.LastModBy))
 }
 
-// ReadSLStrings reads a full SLString structure from the database based on the supplied rows object
+// ReadSLStrings reads a full SLString structure from the database based on the supplied rows
 func ReadSLStrings(rows *sql.Rows, a *SLString) {
 	Errcheck(rows.Scan(&a.SLSID, &a.BID, &a.SLID, &a.Value, &a.LastModTime, &a.LastModBy))
 }
@@ -390,6 +390,11 @@ func ReadTransactant(row *sql.Row, a *Transactant) {
 // ReadTransactants reads a full Transactant structure from the database based on the supplied rows object
 func ReadTransactants(rows *sql.Rows, a *Transactant) {
 	Errcheck(rows.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName, &a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone, &a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadTransactantTypeDowns reads the TCID and full name of Transactants based on the supplied rows object
+func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) {
+	Errcheck(rows.Scan(&a.TCID, &a.FirstName, &a.MiddleName, &a.LastName))
 }
 
 // ReadUser reads a full User structure from the database based on the supplied row object

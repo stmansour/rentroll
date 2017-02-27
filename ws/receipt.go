@@ -132,7 +132,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := int64(d.webreq.Offset)
+	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
 		var p rlib.Receipt
@@ -142,7 +142,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		q.Recid = i
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
-		if count >= d.webreq.Limit {
+		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 		i++
@@ -170,9 +170,9 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		return
 	}
 
-	fmt.Printf("Request: %s:  BID = %d,  RCPTID = %d\n", d.webreq.Cmd, d.BID, d.RCPTID)
+	fmt.Printf("Request: %s:  BID = %d,  RCPTID = %d\n", d.wsSearchReq.Cmd, d.BID, d.RCPTID)
 
-	switch d.webreq.Cmd {
+	switch d.wsSearchReq.Cmd {
 	case "get":
 		getReceipt(w, r, d)
 		break
@@ -180,7 +180,7 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		saveReceipt(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("Unhandled command: %s", d.webreq.Cmd)
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err)
 		return
 	}

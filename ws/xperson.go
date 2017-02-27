@@ -150,6 +150,43 @@ type SearchTransactantsResponse struct {
 	Records []rlib.Transactant `json:"records"`
 }
 
+// TransactantsTypedownResponse is the data structure for the response to a search for people
+type TransactantsTypedownResponse struct {
+	Status  string                     `json:"status"`
+	Total   int64                      `json:"total"`
+	Records []rlib.TransactantTypeDown `json:"records"`
+}
+
+// SvcTransactantTypeDown handles typedown requests for Transactants.  It returns
+// FirstName, LastName, and TCID
+// wsdoc {
+//  @Title  Get Transactants Typedown
+//	@URL /v1/transactanttd/:BUI?request={"search":"The search string","max":"Maximum number of return items"}
+//	@Method GET
+//	@Synopsis Fast Search for Transactants matching typed characters
+//  @Desc Returns TCID, FirstName, Middlename, and LastName of Transactants that
+//  @Desc match supplied chars at the beginning of FirstName or LastName
+//  @Input WebTypeDownRequest
+//  @Response TransactantsTypedownResponse
+// wsdoc }
+func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var g TransactantsTypedownResponse
+	var err error
+	fmt.Printf("handle typedown: GetTransactantsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	g.Records, err = rlib.GetTransactantTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	fmt.Printf("GetTransactantTypeDown returned %d matches\n", len(g.Records))
+	g.Total = int64(len(g.Records))
+	if err != nil {
+		SvcGridErrorReturn(w, fmt.Errorf("Error getting typedown matches: %s", err.Error()))
+		return
+	}
+	for i := 0; i < len(g.Records); i++ {
+		g.Records[i].Recid = int64(i)
+	}
+	g.Status = "success"
+	SvcWriteResponse(&g, w)
+}
+
 // SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
 // wsdoc {
 //  @Title  Search Transactants
@@ -161,7 +198,7 @@ type SearchTransactantsResponse struct {
 //  @Response SearchTransactantsResponse
 // wsdoc }
 func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcSearchHandlerTransactants")
+	fmt.Printf("Entered SvcSearchHandlerTransactants\n")
 	var p rlib.Transactant
 	var err error
 	var g SearchTransactantsResponse
@@ -182,7 +219,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := int64(d.webreq.Offset)
+	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
 		var p rlib.Transactant
@@ -190,7 +227,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 		p.Recid = i
 		g.Records = append(g.Records, p)
 		count++ // update the count only after adding the record
-		if count >= d.webreq.Limit {
+		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 		i++ // update the index no matter what
@@ -220,9 +257,9 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		return
 	}
 
-	fmt.Printf("Request: %s:  BID = %d,  TCID = %d\n", d.webreq.Cmd, d.BID, d.TCID)
+	fmt.Printf("Request: %s:  BID = %d,  TCID = %d\n", d.wsSearchReq.Cmd, d.BID, d.TCID)
 
-	switch d.webreq.Cmd {
+	switch d.wsSearchReq.Cmd {
 	case "get":
 		getXPerson(w, r, d)
 		break
@@ -230,7 +267,7 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		saveXPerson(w, r, d)
 		break
 	default:
-		err = fmt.Errorf("Unhandled command: %s", d.webreq.Cmd)
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err)
 		return
 	}

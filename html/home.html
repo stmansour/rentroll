@@ -25,7 +25,8 @@ sidebarL1     - w2ui sidebar
 
 <script>
 /*global
-    w2ui, app, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm
+    w2ui, app, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
+    w2uiDateControlString, w2popup
 */
 
 /*globals $:false */
@@ -43,7 +44,8 @@ var app = {
     pstyle4: 'border: 1px solid #bbbbbb; padding: 0px;',
     pstyle2: 'border: 1px solid #cfcfcf; padding: 0px;',
     prefmt: 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;',
-    stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777',
+    bgyellow: 'background-color: yellow;',
+    stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777;',
 };
 
 
@@ -180,12 +182,12 @@ function buildPageElements() {
         name: 'toplayout',
         padding: 2,
         panels: [
-            { type: 'top', hidden: true, size: 200, resizable: true, style: app.pstyle2, content: w2ui.newsLayout},
-            { type: 'left', size: 200, style: app.pstyle2, resizable: true, content: 'sidebar' },
-            { type: 'main',  size: 100, style: app.pstyle2 },
-            { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle2, content: 'preview' },
-            { type: 'right', size: 200, resizable: true, style: app.pstyle2, hidden: true },
-            { type: 'bottom', size: 20, resizable: true, style: app.pstyle2, hidden: true, content: 'toplayout - bottom' }
+            { type: 'top',     size: 200, style: app.pstyle2,  hidden: true, resizable: true, content: w2ui.newsLayout},
+            { type: 'left',    size: 200, style: app.pstyle2,                resizable: true, content: 'sidebar' },
+            { type: 'main',               style: app.pstyle2   },
+            { type: 'preview', size: 0,   style: app.bgyellow, hidden: true, resizable: true, content: 'preview' },
+            { type: 'right',   size: 200, style: app.pstyle2,  hidden: true, resizable: true },
+            { type: 'bottom',  size: 0,   style: app.pstyle2,  hidden: true, resizable: true, content: 'toplayout - bottom' }
         ]
     }));
     
@@ -261,7 +263,7 @@ function buildPageElements() {
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
                 nodes: [  { id: 'rentables', text: plural(sRentable), icon: 'fa fa-cube' },
                         { id: 'transactants', text: plural(sTransactant), icon: 'fa fa-users' },
-                        { id: 'rentalagrs',  text: 'Rental Agreements',  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
+                        { id: 'rentalagrs',  text: plural(sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
                         { id: 'asms',  text: plural(sAssessment),  icon: 'fa fa-star-o', hint: plural(sAssessment) },
                         { id: 'receipts',  text: plural(sReceipt),  icon: 'fa fa-star', hint: plural(sReceipt) },
                         { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
@@ -500,7 +502,7 @@ function buildPageElements() {
             {field: 'MiddleName',   caption: "Middle Name",   size: '20px',  sortable: true, hidden: true},
             {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false},
             {field: 'CompanyName',  caption: "Company Name",  size: '125px', sortable: true, hidden: true},
-            {field: 'PrimaryEmail', caption: "Primary Email", size: '175px', sortable: true, attr: 'align=center', hidden: false},
+            {field: 'PrimaryEmail', caption: "Primary Email", size: '175px', sortable: true, hidden: false},
             {field: 'CellPhone',    caption: "Cell Phone",    size: '100px', sortable: true, hidden: false},
             {field: 'WorkPhone',    caption: "Work Phone",    size: '100px', sortable: true, hidden: false},
         ],
@@ -599,13 +601,13 @@ function buildPageElements() {
         ],
         toolbar: {
             items: [
-                { id: 'btnResize', type: 'button', icon: 'fa fa-expand' },
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' }
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
             onClick: function (event) {
-                if (event.target == 'btnResize') {
-                    w2ui.transactantForm.resize();
+                if (event.target == 'btnClose') {
+                    w2ui.toplayout.hide('right',true);
                 }
                 if (event.target == 'btnNotes')  {
                     notesPopUp();
@@ -716,6 +718,20 @@ function buildPageElements() {
             { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
             { field: 'AssignmentTime', type: 'list', options: {items: assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
         ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    w2ui.toplayout.hide('right',true);
+                    break;
+                }
+            },
+        },
         actions: {
             save: function () {
                 //var obj = this;
@@ -794,12 +810,6 @@ function buildPageElements() {
                 }
             };
         },
-        onRequest: function(/*event*/) {
-            console.log('On Request.  url = ' + w2ui.rentalagrsGrid.url);
-        },
-        onSearch: function(/*event*/) {
-            console.log('Search called');
-        }
     });
 
 
@@ -813,9 +823,9 @@ function buildPageElements() {
             { type: 'left', size: '40%', resizable: true, style: app.pstyle, content: 'top' },
             { type: 'top', size: 0, hidden: true },
             { type: 'main', size: '60%', resizable: true, style: app.pstyle, content: 'main' },
-            { type: 'preview', size: '50%', hidden: true },
+            { type: 'preview', size: 0, content: 'PREVIEW',  hidden: true },
             { type: 'bottom', size: 0, hidden: true },
-            { type: 'right', size: '33%', hidden: true }
+            { type: 'right', size: 0, hidden: true }
         ]
     });
     $().w2layout({
@@ -941,7 +951,23 @@ function buildPageElements() {
             {field: 'ContractRent', caption: 'Rent', size: '10%', sortable: true, render: 'money', editable: { type: 'money' }},
             {field: 'RARDtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'RARDtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
-            ]
+            ],
+        onDelete: function(/*event*/) {
+            var sel = w2ui.rarGrid.getSelection(true); // get the record indeces rather than the recids
+            w2ui.rarGrid.postData = {
+                RID: w2ui.rarGrid.records[sel[0]].RID,
+            };
+        },
+        onRefresh: function(/*event*/) {
+            var total = 0.0;
+            //var sumIndex = -1;
+            for (var i = 0; i < w2ui.rarGrid.records.length; i++) {
+                total += w2ui.rarGrid.records[i].ContractRent;
+            }
+             console.log('PUSH SUMMARY RECORD');
+            w2ui.rarGrid.summary.push({recid: 's-1', RAID: 0, RID: 0, RentableName: '', ContractRent: total, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
+        },
+
      });
 
     //------------------------------------------------------------------------
@@ -975,7 +1001,29 @@ function buildPageElements() {
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
             {field: 'DtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
-        ]
+        ],
+        onAdd: function (/*event*/) {
+            // console.log(event);
+            // var y = new Date();
+            // var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+            // var rec = {
+            //     recid: w2ui.rapGrid.records.length,
+            //     TCID: 0,
+            //     FirstName: "first",
+            //     MiddleName: "",
+            //     LastName: "last",
+            //     DtStart: w2uiDateControlString(y),
+            //     DtStop: w2uiDateControlString(ny),
+            // };
+            // w2ui.rapGrid.add(rec,true);
+            popupTCIDPicker('Select Payor');
+        },
+        onDelete: function(/*event*/) {
+            var sel = w2ui.rapGrid.getSelection(true); // get the record indeces rather than the recids
+            w2ui.rapGrid.postData = {
+                TCID: w2ui.rapGrid.records[sel[0]].TCID,
+            };
+        }
      });
 
     //------------------------------------------------------------------------
@@ -1011,7 +1059,13 @@ function buildPageElements() {
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
             {field: 'DtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
-        ]
+        ],
+        onDelete: function(event) {
+            var sel = w2ui.rauGrid.getSelection(true); // get the record indeces rather than the recids
+            w2ui.rauGrid.postData = {
+                TCID: w2ui.rauGrid.records[sel[0]].TCID,
+            };
+        }
      });
 
     //------------------------------------------------------------------------
@@ -1044,7 +1098,14 @@ function buildPageElements() {
             {field: 'Weight',   caption: 'Weight', size: '10%', sortable: true},
             {field: 'DtStart',  caption: 'DtStart', size: '10%', sortable: true, style: 'text-align: right'},
             {field: 'DtStop',   caption: 'DtStop', size: '10%', sortable: true, style: 'text-align: right'},
-        ]
+        ],
+        onDelete: function(event) {
+            var sel = w2ui.rPetGrid.getSelection(true); // get the record indeces rather than the recids
+            w2ui.rPetGrid.postData = {
+                PETID: w2ui.rPetGrid.records[sel[0]].PETID,
+            };
+        }
+
      });
 
     //------------------------------------------------------------------------
@@ -1155,12 +1216,110 @@ function buildPageElements() {
         onRequest: function(/*event*/) {
             console.log('On Request.  url = ' + w2ui.asmsGrid.url);
         },
+        onRefresh: function(/*event*/) {
+            for (var i = 0; i < w2ui.asmsGrid.records.length; i++) {
+                if (w2ui.asmsGrid.records[i].RentCycle !== 'Norecur' &&                         // if this is recurring...
+                    w2ui.asmsGrid.records[i].PASMID === 0) {                                    // and it is NOT and instance... 
+                    w2ui.asmsGrid.records[i].w2ui = { "style": "background-color: #FBFEC0" };   // then turn it green
+                }
+            }
+        },
         onSearch: function(/*event*/) {
             console.log('Search called');
         }
     });
 
+    //------------------------------------------------------------------------
+    //          tcidPicker
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'tcidPicker',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/tcidPicker.html',
+        fields: [
+            { field: 'FirstName', type: 'text', required: true, html: { caption: 'FirstName', page: 0, column: 0 } },
+            { field: 'LastName', type: 'text', required: true, html: { caption: 'LastName', page: 0, column: 0 } },
+            { field: 'TCID', type: 'w2int', required: true },
+            { field: 'tcidPicker', 
+                type: 'enum', 
+                url: '/v1/transactantstd/ISO',
+                renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
+                renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
+                compare: function (item, search) {
+                    var FirstName = search, 
+                        LastName = search;
+                    if (search.indexOf(' ') != -1) {
+                        FirstName = search.split(' ')[0];
+                        LastName = search.split(' ')[1];
+                    }
+                    var match = false;
+                    var re1 = new RegExp(FirstName, 'i');
+                    var re2 = new RegExp(LastName, 'i');
+                    if (FirstName == LastName) {
+                        if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
+                    } else {
+                        if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
+                    }
+                    return match;
+                },
+                onNew: function (event) {
+                    console.log('++ New Item: Do not forget to submit it to the server too', event);
+                    $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                }
+            },
+        ],
+        actions: {
+            save: function () {
+                console.log('SAVE tcidPicker: ' + 
+                            w2ui.tcidPicker.record.FirstName + ' ' + 
+                            w2ui.tcidPicker.record.LastName + ' ' + 
+                            w2ui.tcidPicker.record.TCID);
+                            w2popup.close();
+                var y = new Date();
+                var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+                var rec = {
+                    recid: w2ui.rapGrid.records.length,
+                    TCID: w2ui.tcidPicker.record.TCID,
+                    FirstName: w2ui.tcidPicker.record.FirstName,
+                    MiddleName: "",
+                    LastName: w2ui.tcidPicker.record.LastName,
+                    DtStart: w2uiDateControlString(y),
+                    DtStop: w2uiDateControlString(ny),
+                };
+                w2ui.rapGrid.add(rec,true);
+            },
+        },
+    });
+
  
+}
+
+function popupTCIDPicker(sTitle) {
+    "use strict";    
+    $().w2popup('open', {
+        title   : sTitle,
+        url     : '/html/test/enumtest.html',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 500,
+        height  : 300, 
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.tcidPicker.box).hide();
+            event.onComplete = function () {
+                $(w2ui.tcidPicker.box).show();
+                w2ui.tcidPicker.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead would be equivalent to specifying 
+                // an onBeforeOpen handler, which would make this code execute too 
+                // early and hence not deliver.
+                $('#w2ui-popup #form').w2render('tcidPicker');
+            };
+        }
+    });    
 }
 
 function createRentalAgreementForm() {

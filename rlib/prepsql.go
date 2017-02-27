@@ -806,6 +806,8 @@ func buildPreparedStatements() {
 	//==========================================
 	// TRANSACTANT
 	//==========================================
+	RRdb.Prepstmt.GetTransactantTypeDown, err = RRdb.Dbrr.Prepare("SELECT TCID,FirstName,MiddleName,LastName FROM Transactant WHERE BID=? AND (FirstName LIKE ? OR LastName LIKE ?) LIMIT ?")
+	Errcheck(err)
 	RRdb.Prepstmt.CountBusinessTransactants, err = RRdb.Dbrr.Prepare("SELECT COUNT(TCID) FROM Transactant WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetTransactant, err = RRdb.Dbrr.Prepare("SELECT " + TRNSfields + " FROM Transactant WHERE TCID=?")
