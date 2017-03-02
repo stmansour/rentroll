@@ -62,20 +62,18 @@ type AssessmentSaveOther struct {
 
 // AssessmentGrid is a structure specifically for the UI Grid.
 type AssessmentGrid struct {
-	Recid          int64 `json:"recid"` // this is to support the w2ui form
-	ASMID          int64 // unique id for this assessment
-	BID            rlib.XJSONBud
-	PASMID         int64               // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
-	RID            int64               // the Rentable
-	ATypeLID       int64               // what type of assessment
-	RAID           int64               // associated Rental Agreement
-	Amount         float64             // how much
-	Start          rlib.JSONTime       // start time
-	Stop           rlib.JSONTime       // stop time, may be the same as start time or later
-	RentCycle      rlib.XJSONCycleFreq // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, G = quarterly, 8 = yearly
-	ProrationCycle rlib.XJSONCycleFreq // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-	InvoiceNo      int64               // A uniqueID for the invoice number
-	AcctRule       string              // expression showing how to account for the amount
+	Recid     int64         `json:"recid"` // this is to support the w2ui form
+	ASMID     int64         // unique id for this assessment
+	BID       rlib.XJSONBud // which business
+	PASMID    int64         // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
+	RID       int64         // the Rentable
+	ATypeLID  int64         // what type of assessment
+	RAID      int64         // associated Rental Agreement
+	Amount    float64       // how much
+	Start     rlib.JSONTime // start time
+	Stop      rlib.JSONTime // stop time, may be the same as start time or later
+	InvoiceNo int64         // A uniqueID for the invoice number
+	AcctRule  string        // expression showing how to account for the amount
 }
 
 // SearchAssessmentsResponse is a response string to the search request for assessments
@@ -227,6 +225,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var bar SaveAssessmentOther
 	err = json.Unmarshal(data, &bar) // and now the other variables
+	// fmt.Printf("\n\n#################\nafter unmarshal, bar = %#v\n#################\n", bar)
 
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
@@ -241,6 +240,8 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	a.RentCycle = rlib.CycleFreqMap[bar.Record.RentCycle.ID]
+	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
 
 	// Now just update the database
 	if err != nil {

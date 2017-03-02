@@ -11,13 +11,11 @@
 //-----------------------------------------------------------------------------
 function setToForm(sform, url) {
     "use strict";
-    console.log('sform = ' + sform);
+    console.log('sform = ' + sform + '  url = ' + url);
     var f = w2ui[sform];
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.content('right', f);
     w2ui.toplayout.sizeTo('right', 700);
-    //f.resize();
-    //console.log( 'setToForm:  url = ' + url)
     if (url.length > 0) {
         f.url = url;
         f.request();
@@ -48,7 +46,7 @@ function setToRAForm(bid, raid, d) {
     w2ui.rarGrid.url = '/v1/rar/' + bid + '/' + raid;
     console.log('rar url = ' + w2ui.rarGrid.url);
     w2ui.rarGrid.request();
-    w2ui.rarGrid.header = plural(sRentable) + ' as of ' + dateFmtStr(d);
+    w2ui.rarGrid.header = plural(app.sRentable) + ' as of ' + dateFmtStr(d);
     w2ui.rarGrid.show.toolbarSearch = false;
 
     //----------------------------------------------------------------
@@ -60,7 +58,7 @@ function setToRAForm(bid, raid, d) {
     w2ui.rapGrid.url = '/v1/rapeople/' + bid + '/' + raid;
     console.log('xrapeople url = ' + w2ui.rapGrid.url);
     w2ui.rapGrid.request();
-    w2ui.rapGrid.header = plural(sPayor) + ' as of ' + dateFmtStr(d);
+    w2ui.rapGrid.header = plural(app.sPayor) + ' as of ' + dateFmtStr(d);
 
     //----------------------------------------------------------------
     // Get the associated Users...
@@ -70,7 +68,7 @@ function setToRAForm(bid, raid, d) {
     w2ui.rauGrid.url = '/v1/rapeople/' + bid + '/' + raid + '?type=user';
     console.log('rapeople url = ' + w2ui.rauGrid.url);
     w2ui.rauGrid.request();
-    w2ui.rauGrid.header = plural(sUser) + ' as of ' + dateFmtStr(d);
+    w2ui.rauGrid.header = plural(app.sUser) + ' as of ' + dateFmtStr(d);
 
     //----------------------------------------------------------------
     // Get the associated Pets...

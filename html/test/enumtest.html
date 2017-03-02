@@ -1,31 +1,12 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <title>RentRoll TEST: TypeDown</title>
-    <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/w2ui-1.5.rc1.js"></script>
-    <!-- <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script> -->
+    <title>Remote Source Enum</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 </head>
 <body>
-<h1>HELLO WORLD</h1>
-<p>Here is a div with a w2ui-field</p>
-
-<div class="w2ui-field">
-    <label>Multi:</label>
-    <div> <input id="tcidPicker"> </div>
-</div>
-<div style="height: 20px"></div>
-
-<style>
-.w2ui-field input {
-    width: 400px;
-}
-.w2ui-field > div > span {
-    margin-left: 20px;
-}
-</style>
-
+<div class="w2ui-field"><label>Name Picker:</label><div> <input id="tcidPicker"></div></div>
 <script>
 $('#tcidPicker').w2field('enum', {
     url: '/v1/transactantstd/ISO',
@@ -47,13 +28,8 @@ $('#tcidPicker').w2field('enum', {
             if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
         }
         return match;
-    },
-    onNew: function (event) {
-        console.log('++ New Item: Do not forget to submit it to the server too', event);
-        $.extend(event.item, { FirstName: '', LastName : event.item.text });
     }
 });
 </script>
-
 </body>
 </html>

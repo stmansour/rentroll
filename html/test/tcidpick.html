@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>W2UI Demo: forms-8</title>
+    <title>Popup Form - Name Picker</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
@@ -19,44 +19,38 @@ function openPopup () {
             name: 'foo',
             style: 'border: 0px; background-color: transparent;',
             formHTML: 
-                '<div class="w2ui-page page-0">'+
-                '    <div class="w2ui-field">'+
-                '        <label>First Name:</label>'+
-                '        <div>'+
-                '           <input name="first_name" type="text" maxlength="100" style="width: 250px"/>'+
-                '        </div>'+
-                '    </div>'+
-                '    <div class="w2ui-field">'+
-                '        <label>Last Name:</label>'+
-                '        <div>'+
-                '            <input name="last_name" type="text" maxlength="100" style="width: 250px"/>'+
-                '        </div>'+
-                '    </div>'+
-                '    <div class="w2ui-field">'+
-                '        <label>Email:</label>'+
-                '        <div>'+
-                '            <input name="email" type="text" style="width: 250px"/>'+
-                '        </div>'+
-                '    </div>'+
-                '</div>'+
-                '<div class="w2ui-buttons">'+
-                '    <button class="w2ui-btn" name="reset">Reset</button>'+
-                '    <button class="w2ui-btn" name="save">Save</button>'+
+                '<div id="foo" class="w2ui-page page-0">'+
+	    		'<div class="w2ui-field"><label>Name Picker:</label></div><div><input id="tcidPicker" name="tcidPicker"></div>'+
                 '</div>',
-            fields: [
-                { field: 'first_name', type: 'text', required: true },
-                { field: 'last_name', type: 'text', required: true },
-                { field: 'email', type: 'email' }
-            ],
-            record: { 
-                first_name    : 'John',
-                last_name     : 'Doe',
-                email         : 'jdoe@email.com'
-            },
-            actions: {
-                "save": function () { this.validate(); },
-                "reset": function () { this.clear(); }
-            }
+	        fields: [
+	            { field: 'tcidPicker', 
+	                type: 'enum', 
+	                url: '/v1/transactantstd/ISO',
+	                renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
+	                renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
+	                compare: function (item, search) {
+	                    var FirstName = search, 
+	                        LastName = search;
+	                    if (search.indexOf(' ') != -1) {
+	                        FirstName = search.split(' ')[0];
+	                        LastName = search.split(' ')[1];
+	                    }
+	                    var match = false;
+	                    var re1 = new RegExp(FirstName, 'i');
+	                    var re2 = new RegExp(LastName, 'i');
+	                    if (FirstName == LastName) {
+	                        if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
+	                    } else {
+	                        if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
+	                    }
+	                    return match;
+	                },
+	                onNew: function (event) {
+	                    console.log('++ New Item: Do not forget to submit it to the server too', event);
+	                    $.extend(event.item, { FirstName: '', LastName : event.item.text });
+	                }
+	            },
+             ],
         });
     }
     $().w2popup('open', {
@@ -75,7 +69,6 @@ function openPopup () {
         },
         onOpen: function (event) {
             event.onComplete = function () {
-                // specifying an onOpen handler instead is equivalent to specifying an onBeforeOpen handler, which would make this code execute too early and hence not deliver.
                 $('#w2ui-popup #form').w2render('foo');
             }
         }

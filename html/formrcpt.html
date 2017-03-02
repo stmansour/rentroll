@@ -1,0 +1,51 @@
+<html>
+<body>
+<div id="receiptForm">
+    <div class="w2ui-page page-0">	<!-- Receipt -->
+	    <div class="w2ui-field">
+	        <input name="recid" type="hidden" />
+	    </div>
+	    <div class="w2ui-field">
+	        <input name="RCPTID" type="hidden" />
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Business Unit:</label><div><input name="BID" type="list" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Parent RCPTID:</label><div><input name="PRCPTID" type="w2int" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>RAID:</label><div><input name="RAID" type="w2int" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Payment Type:</label><div><input name="PMTID" type="w2int" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Date:</label>
+	        <div><input name="Dt" type="us-date1" size="11"></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Document Number:</label><div><input name="DocNo" type="text" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Amount:</label><div><input name="Amount" type="w2float" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Account Rule:</label><div><input name="AcctRule" type="text" style="width: 100%"/></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Other Payor Name:</label><div><input name="OtherPayorName" type="text" style="width: 100%" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Comment:</label><div><input name="Comment" type="text" style="width: 100%"/></div>
+	    </div>
+	    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
+	    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
+	</div>  <!-- end of page 0, Rentable -->
+
+	<div class="w2ui-buttons">
+	    <button class="w2ui-btn" name="reset">Reset</button>
+	    <button class="w2ui-btn" name="save">Save</button>
+	</div>
+</div>
+</body>

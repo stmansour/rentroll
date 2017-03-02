@@ -206,9 +206,6 @@ func LoadCSV(fname string) [][]string {
 			os.Exit(1)
 		}
 		t = append(t, rawCSVdata...)
-		// for _, sa := range rawCSVdata {
-		// 	t = append(t, sa)
-		// }
 	} else {
 		Ulog("LoadCSV: could not open CSV file. err = %v\n", err)
 	}

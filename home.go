@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"rentroll/rlib"
 	"strings"
 )
@@ -14,7 +15,7 @@ import (
 //		/home/<lang>
 //		/home/<lang>/<tmpl>
 //
-// <lang> specifies the language.  The default is us-en
+// <lang> specifies the language.  The default is en-us
 // <tmpl> specifies which template to use. The default is "dflt"
 //------------------------------------------------------------------
 func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
@@ -22,11 +23,18 @@ func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	funcname := "HomeUIHandler"
 	appPage := "home.html"
-	lang := "us-en"
-	tmpl := "dflt"
+	lang := "en-us"
+	tmpl := "default"
 
 	path := "/home/"                // this is the part of the URL that got us into this handler
 	uri := r.RequestURI[len(path):] // this pulls off the specific request
+
+	s, err := url.QueryUnescape(strings.TrimSpace(r.URL.String()))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Printf("HOME HANDLER:  RL = %s\n", s)
 
 	f := rlib.Stripchars(r.FormValue("filename"), `"`)
 	if len(f) > 0 {
@@ -47,8 +55,8 @@ func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ui.Lang = lang
-	ui.Tmpl = tmpl
+	ui.Language = lang
+	ui.Template = tmpl
 	ui.BL, err = rlib.GetAllBusinesses()
 	if err != nil {
 		rlib.Ulog("GetAllBusinesses: err = %s\n", err.Error())
