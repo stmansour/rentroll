@@ -273,6 +273,15 @@ func DeleteRentableStatus(rid int64, dtstart, dtstop *time.Time) error {
 	return err
 }
 
+// DeleteRentalAgreementPayor deletes the payor from the RentalAgreement
+func DeleteRentalAgreementPayor(raid, bid, tcid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentalAgreementPayor.Exec(raid, bid, tcid)
+	if err != nil {
+		Ulog("Error deleting raid=%d, bid=%d, tcid=%d error: %s\n", raid, bid, tcid, err.Error())
+	}
+	return err
+}
+
 // DeleteRentalAgreementPet deletes the pet with the specified petid from the database
 func DeleteRentalAgreementPet(petid int64) error {
 	_, err := RRdb.Prepstmt.DeleteRentalAgreementPet.Exec(petid)

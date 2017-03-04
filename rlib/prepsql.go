@@ -646,7 +646,14 @@ func buildPreparedStatements() {
 
 	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
+
+	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.InsertRentalAgreementPayor, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPayors (RAID,BID,TCID,DtStart,DtStop,FLAGS) VALUES(?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentalAgreementPayor, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPayors SET DtStart=?,DtStop=?,FLAGS=? WHERE RAID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentalAgreementPayor, err = RRdb.Dbrr.Prepare("DELETE from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
 
 	RRdb.Prepstmt.InsertRentalAgreementRentable, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementRentables (" + flds + ") VALUES(?,?,?,?,?,?,?)")

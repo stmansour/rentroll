@@ -75,9 +75,14 @@ pubjs:
 	cd tmp/rentroll;tar czvf rrjs.tar.gz ./js;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
 
 pubdb:
+	# testing db
 	cd ./test/testdb;make dbbackup
 
-pub: pubjs pubimages pubdb
+pubfa:
+	# font awesome
+	cd tmp/rentroll;tar czvf fa.tar.gz ./html/fa;/usr/local/accord/bin/deployfile.sh fa.tar.gz jenkins-snapshot/rentroll/latest
+
+pub: pubjs pubimages pubdb pubfa
 
 
 all: clean rentroll test

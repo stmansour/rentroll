@@ -131,6 +131,12 @@ func UpdateRentalAgreement(a *RentalAgreement) error {
 	return updateError(err, "RentalAgreement", *a)
 }
 
+// UpdateRentalAgreementPayor updates a RentalAgreementPayor record in the database
+func UpdateRentalAgreementPayor(a *RentalAgreementPayor) error {
+	_, err := RRdb.Prepstmt.UpdateRentalAgreementPayor.Exec(a.DtStart, a.DtStop, a.FLAGS, a.RAID, a.BID, a.TCID)
+	return updateError(err, "RentalAgreementPayor", *a)
+}
+
 // UpdateRentalAgreementPet updates a RentalAgreementPet record in the database
 func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
 	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)

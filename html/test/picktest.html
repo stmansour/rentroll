@@ -18,25 +18,27 @@ $(function () {
         fields: [
             { field: 'tcidPicker', 
                 type: 'enum', 
-                url: '/v1/transactantstd/ISO',
-                renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
-                renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
-                compare: function (item, search) {
-                    var FirstName = search, 
-                        LastName = search;
-                    if (search.indexOf(' ') != -1) {
-                        FirstName = search.split(' ')[0];
-                        LastName = search.split(' ')[1];
-                    }
-                    var match = false;
-                    var re1 = new RegExp(FirstName, 'i');
-                    var re2 = new RegExp(LastName, 'i');
-                    if (FirstName == LastName) {
-                        if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
-                    } else {
-                        if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
-                    }
-                    return match;
+                options: {
+                    url: '/v1/transactantstd/ISO',
+                    renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
+                    renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
+                    compare: function (item, search) {
+                        var FirstName = search, 
+                            LastName = search;
+                        if (search.indexOf(' ') != -1) {
+                            FirstName = search.split(' ')[0];
+                            LastName = search.split(' ')[1];
+                        }
+                        var match = false;
+                        var re1 = new RegExp(FirstName, 'i');
+                        var re2 = new RegExp(LastName, 'i');
+                        if (FirstName == LastName) {
+                            if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
+                        } else {
+                            if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
+                        }
+                        return match;
+                    },
                 },
             },
         ],

@@ -2,10 +2,8 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script> -->
     <script src="/js/jquery.min.js"></script>
     <script src="/js/w2ui-1.5.rc1.js"></script>
-    <!-- <script src="https://use.fontawesome.com/6e18d0f7c3.js"></script> -->
     <link rel="stylesheet" href="/html/fa/css/font-awesome.min.css">
     <script src="/js/rutil.js"></script>
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
@@ -25,8 +23,8 @@ sidebarL1     - w2ui sidebar
 
 <script>
 /*global
-    w2ui, app, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
-    w2uiDateControlString, w2popup
+    w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd
 */
 
 /*globals $:false */
@@ -37,6 +35,7 @@ var app = {
     D2: "2016-03-01",
     uid: 211,
     lastCmd: '',
+    TCIDPicker: {BID: 0},
     language: "{{.Language}}",
     template: "{{.Template}}",
     pstyle: 'border: 1px solid #dfdfdf; padding: 0px;',
@@ -70,12 +69,6 @@ function showReport(rptname) {
     w2ui.reportslayout.load('main', url);
 }
 
-
-function getCurrentBusiness() {
-    "use strict";
-    var x = document.getElementsByName("BusinessSelect");
-    return x[0];
-}
 
 // // urlPrefix returns the standard for values for the web services
 // // url ending:  <userid>/<business id>
@@ -986,7 +979,7 @@ function buildPageElements() {
             toolbarReload: false,
             toolbarColumns: false,
         },
-        url: '/v1/rap',       
+        url: '/v1/rapayor',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'TCID', hidden: true, caption: 'TCID',  size: '40px', sortable: true},
@@ -997,20 +990,11 @@ function buildPageElements() {
             {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
         ],
         onAdd: function (/*event*/) {
-            // console.log(event);
-            // var y = new Date();
-            // var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
-            // var rec = {
-            //     recid: w2ui.rapGrid.records.length,
-            //     TCID: 0,
-            //     FirstName: "first",
-            //     MiddleName: "",
-            //     LastName: "last",
-            //     DtStart: w2uiDateControlString(y),
-            //     DtStop: w2uiDateControlString(ny),
-            // };
-            // w2ui.rapGrid.add(rec,true);
-            popupTCIDPicker('Select Payor');
+            var x = getCurrentBusiness();
+            popupTCIDPicker('Select Payor', x.value );
+        },
+        onSave: function() {
+            console.log('save payors')
         },
         onDelete: function(/*event*/) {
             var sel = w2ui.rapGrid.getSelection(true); // get the record indeces rather than the recids
@@ -1454,16 +1438,6 @@ function buildPageElements() {
                     });
                 };
             }
-            // No title yet for the epoch Assessments
-            // var hdr = '';
-            // if (r.RentCycle !== 'Norecur' && r.PASMID === 0) {
-            //     // EPOCH
-            //     hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
-            // } else {
-            //     // INSTANCE has 3 variables: ParentASM, RentCycle, Proration
-            //     hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle, r.ProrationCycle);
-            // }
-            // document.getElementById("AssessmentEpochOrInstance").innerHTML = hdr;
         }
     });
 
@@ -1475,56 +1449,87 @@ function buildPageElements() {
         style: 'border: 0px; background-color: transparent;',
         formURL: '/html/tcidPicker.html',
         fields: [
-            // { field: 'FirstName', type: 'text', required: true, html: { caption: 'FirstName', page: 0, column: 0 } },
-            // { field: 'LastName', type: 'text', required: true, html: { caption: 'LastName', page: 0, column: 0 } },
             { field: 'TCID', type: 'w2int', required: true },
-            { field: 'tcidPicker', 
+            { field: 'pickedName', 
                 type: 'enum', 
-                url: '/v1/transactantstd/ISO',
-                renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
-                renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
-                compare: function (item, search) {
-                    var FirstName = search, 
-                        LastName = search;
-                    if (search.indexOf(' ') != -1) {
-                        FirstName = search.split(' ')[0];
-                        LastName = search.split(' ')[1];
+                options: {
+                    url: '/v1/transactantstd/' + app.TCIDPicker.BID,
+                    max: 1,
+                    renderItem: function (item) {
+                        var s = item.FirstName + ' ' + item.LastName;
+                        w2ui.tcidPicker.record = {
+                            TCID: item.TCID, 
+                            pickedName: s, 
+                            DtStart: w2ui.tcidPicker.record.DtStart, 
+                            DtStop: w2ui.tcidPicker.record.DtStop,
+                            FirstName: item.FirstName,
+                            LastName: item.LastName,
+                        };
+                        // w2ui.tcidPicker.reload(); // seems like it could be recursive; BEWARE
+                        return s; 
+                    },
+                    renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
+                    compare: function (item, search) {
+                        var FirstName = search, 
+                            LastName = search;
+                        if (search.indexOf(' ') != -1) {
+                            FirstName = search.split(' ')[0];
+                            LastName = search.split(' ')[1];
+                        }
+                        var match = false;
+                        var re1 = new RegExp(FirstName, 'i');
+                        var re2 = new RegExp(LastName, 'i');
+                        if (FirstName == LastName) {
+                            if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
+                        } else {
+                            if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
+                        }
+                        return match;
+                    },
+                    onNew: function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { FirstName: '', LastName : event.item.text });
                     }
-                    var match = false;
-                    var re1 = new RegExp(FirstName, 'i');
-                    var re2 = new RegExp(LastName, 'i');
-                    if (FirstName == LastName) {
-                        if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
-                    } else {
-                        if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
-                    }
-                    return match;
                 },
-                onNew: function (event) {
-                    console.log('++ New Item: Do not forget to submit it to the server too', event);
-                    $.extend(event.item, { FirstName: '', LastName : event.item.text });
-                }
             },
+            { field: 'DtStart', type: 'date', required: true },
+            { field: 'DtStop', type: 'date', required: true },
+            { field: 'FirstName', type: 'text', required: false },
+            { field: 'LastName', type: 'text', required: false },
         ],
+        onRefresh: function(/*event*/) {
+            w2ui.tcidPicker.fields[1].options.url = '/v1/transactantstd/' + app.TCIDPicker.BID;
+            console.log('SAVE tcidPicker: TCID = ' + w2ui.tcidPicker.record.TCID + '  DtStart = ' + w2ui.tcidPicker.record.DtStart + '  DtStop = ' + w2ui.tcidPicker.record.DtStop);
+        },
+        onChange: function (event) {
+            console.log(event);
+        },
         actions: {
             save: function () {
-                console.log('SAVE tcidPicker: ' + 
-                            w2ui.tcidPicker.record.FirstName + ' ' + 
-                            w2ui.tcidPicker.record.LastName + ' ' + 
-                            w2ui.tcidPicker.record.TCID);
-                            w2popup.close();
+                console.log('SAVE tcidPicker: TCID = ' + w2ui.tcidPicker.record.TCID + '  DtStart = ' + w2ui.tcidPicker.record.DtStart + '  DtStop = ' + w2ui.tcidPicker.record.DtStop);
+                w2popup.close();
                 var y = new Date();
                 var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
                 var rec = {
-                    recid: w2ui.rapGrid.records.length,
-                    TCID: w2ui.tcidPicker.record.TCID,
-                    FirstName: w2ui.tcidPicker.record.FirstName,
-                    MiddleName: "",
-                    LastName: w2ui.tcidPicker.record.LastName,
-                    DtStart: w2uiDateControlString(y),
-                    DtStop: w2uiDateControlString(ny),
+                    recid: w2ui.rapGrid.records.length,             // + 1
+                    BID: w2ui.rentalagrForm.record.BID,             // BID of RAID we're editing
+                    TCID: w2ui.tcidPicker.record.TCID,              // The TCID from the person picked
+                    RAID: w2ui.rentalagrForm.record.RAID,           // the RAID we're editing
+                    FirstName: w2ui.tcidPicker.record.FirstName,    // ignored
+                    MiddleName: "",                                 // ignored
+                    LastName: w2ui.tcidPicker.record.LastName,      // ignored
+                    DtStart: w2uiDateControlString(y),              // start
+                    DtStop: w2uiDateControlString(ny),              // end
                 };
+                console.log('rec = ' + rec);
                 w2ui.rapGrid.add(rec,true);
+                var params = {cmd: 'save', formname: 'tcidPicker', record: rec };
+                var dat = JSON.stringify(params);
+                console.log('url = ' + w2ui.rapGrid.url);
+                $.post(w2ui.rapGrid.url, dat, function(data,status) {
+                    console.log('data = ' + data);
+                    console.log('status = ' + status);
+                });
             },
         },
     });
@@ -1532,8 +1537,18 @@ function buildPageElements() {
  
 }
 
-function popupTCIDPicker(sTitle) {
-    "use strict";    
+function popupTCIDPicker(sTitle,bid) {
+    "use strict";
+    console.log('sTitle = ' + sTitle +', BID = ' + bid);
+    app.TCIDPicker = {BID: bid};  // used by tcidPicker form
+    
+    var y = new Date();
+    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+    w2ui.tcidPicker.record.DtStart = w2uiDateControlString(y);
+    w2ui.tcidPicker.record.DtStop = w2uiDateControlString(ny);
+    w2ui.tcidPicker.record.TCID = -1;
+    w2ui.tcidPicker.refresh();
+
     $().w2popup('open', {
         title   : sTitle,
         url     : '/html/test/enumtest.html',
@@ -1557,7 +1572,7 @@ function popupTCIDPicker(sTitle) {
                 $('#w2ui-popup #form').w2render('tcidPicker');
             };
         }
-    });    
+    });   
 }
 
 function createRentalAgreementForm() {

@@ -1220,6 +1220,9 @@ type RRprepSQL struct {
 	UIRAGrid                           *sql.Stmt
 	GetRARentableForDate               *sql.Stmt
 	GetTransactantTypeDown             *sql.Stmt
+	GetRentalAgreementPayor            *sql.Stmt
+	UpdateRentalAgreementPayor         *sql.Stmt
+	DeleteRentalAgreementPayor         *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

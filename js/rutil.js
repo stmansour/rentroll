@@ -3,6 +3,18 @@
 */
 
 //-----------------------------------------------------------------------------
+// getCurrentBusiness - return the Business Unit currently slected in the
+//                      main toolbar
+// @params
+// @return  the BUD of the currently selected business
+//-----------------------------------------------------------------------------
+function getCurrentBusiness() {
+    "use strict";
+    var x = document.getElementsByName("BusinessSelect");
+    return x[0];
+}
+
+//-----------------------------------------------------------------------------
 // setToForm -  enable form sform in toplayout.  Also, set the forms url and
 //              request data from the server
 // @params
@@ -55,8 +67,8 @@ function setToRAForm(bid, raid, d) {
     //      if no date is specified, today's date is used as the default.
     //      if no person type is provided, payor is assumed
     //----------------------------------------------------------------
-    w2ui.rapGrid.url = '/v1/rapeople/' + bid + '/' + raid;
-    console.log('xrapeople url = ' + w2ui.rapGrid.url);
+    w2ui.rapGrid.url = '/v1/rapayor/' + bid + '/' + raid;
+    console.log('rapGrid url = ' + w2ui.rapGrid.url);
     w2ui.rapGrid.request();
     w2ui.rapGrid.header = plural(app.sPayor) + ' as of ' + dateFmtStr(d);
 
@@ -66,7 +78,7 @@ function setToRAForm(bid, raid, d) {
     //      if no date is specified, today's date is used as the default.
     //----------------------------------------------------------------
     w2ui.rauGrid.url = '/v1/rapeople/' + bid + '/' + raid + '?type=user';
-    console.log('rapeople url = ' + w2ui.rauGrid.url);
+    console.log('rauGrid url = ' + w2ui.rauGrid.url);
     w2ui.rauGrid.request();
     w2ui.rauGrid.header = plural(app.sUser) + ' as of ' + dateFmtStr(d);
 

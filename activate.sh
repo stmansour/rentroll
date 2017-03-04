@@ -106,6 +106,8 @@ start() {
 		tar xzvf rrimages.tar.gz
 		${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz
 		tar xzvf rrjs.tar.gz
+		${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz
+		tar xzvf fa.tar.gz
 	fi
 
 	./${PROGNAME} >log.out 2>&1 &

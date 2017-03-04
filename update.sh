@@ -68,3 +68,5 @@ ${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz
 tar xzvf rrimages.tar.gz
 ${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz
 tar xzvf rrjs.tar.gz
+${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz
+tar xzvf fa.tar.gz

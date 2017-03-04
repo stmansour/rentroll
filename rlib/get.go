@@ -1488,6 +1488,15 @@ func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreemen
 	return t
 }
 
+// GetRentalAgreementPayor returns Rental Agreement Payor record matchin the supplied
+// RAID, BID, TCID
+func GetRentalAgreementPayor(raid, bid, tcid int64) (RentalAgreementPayor, error) {
+	row := RRdb.Prepstmt.GetRentalAgreementPayor.QueryRow(raid, bid, tcid)
+	var r RentalAgreementPayor
+	err := ReadRentalAgreementPayor(row, &r)
+	return r, err
+}
+
 // GetRentalAgreementPayors returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
 // during the time range d1-d2
 func GetRentalAgreementPayors(raid int64, d1, d2 *time.Time) []RentalAgreementPayor {

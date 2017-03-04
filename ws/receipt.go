@@ -186,7 +186,7 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	}
 }
 
-// GetReceipt returns the requested receipt
+// saveReceipt returns the requested receipt
 // wsdoc {
 //  @Title  Save Receipt
 //	@URL /v1/receipt/:BUI/:RCPTID
