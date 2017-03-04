@@ -1447,10 +1447,11 @@ function buildPageElements() {
     $().w2form({
         name: 'tcidPicker',
         style: 'border: 0px; background-color: transparent;',
-        formURL: '/html/tcidPicker.html',
+        formURL: '/html/tcidpicker.html',
+        focus  : 0,
         fields: [
             { field: 'TCID', type: 'w2int', required: true },
-            { field: 'pickedName', 
+            { field: 'pickedName', required: true, 
                 type: 'enum', 
                 options: {
                     url: '/v1/transactantstd/' + app.TCIDPicker.BID,
@@ -1551,7 +1552,7 @@ function popupTCIDPicker(sTitle,bid) {
 
     $().w2popup('open', {
         title   : sTitle,
-        url     : '/html/test/enumtest.html',
+        //  url     : '/html/tcidpicker.html',
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
         style   : 'padding: 15px 0px 0px 0px',
         width   : 500,
