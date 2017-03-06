@@ -105,15 +105,13 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, u
 	if xbiz.P.BID > 0 {
 		tbl, err := rrpt.RentRollReport(&ri)
 		if err == nil {
-			s1, err := tbl.SprintRowText(len(tbl.Row) - 1)
+			tout, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
 			if err != nil {
-				s1 += err.Error()
+				rlib.Ulog("RptRentRoll:  error = %s", err)
+				ui.ReportContent = err.Error()
+			} else {
+				ui.ReportContent = tout
 			}
-			s2, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
-			if err != nil {
-				s2 += err.Error()
-			}
-			ui.ReportContent = tbl.GetTitle() + s1 + tbl.SprintLineText() + s2
 		} else {
 			ui.ReportContent = fmt.Sprintf("Error generating RentRoll report:  %s\n", err)
 		}
