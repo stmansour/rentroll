@@ -139,8 +139,8 @@
                 },
                 change: function() {
                     var field = $("#field_select").w2field();
-                    if (field == null) { 
-                        console.log('unable to select #field_select')
+                    if (field === null) { 
+                        console.log('unable to select #field_select');
                     } else {
                         field.options.items = ["my", "new", "items"];
                         field.setIndex(0);

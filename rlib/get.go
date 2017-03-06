@@ -1142,6 +1142,15 @@ func GetXRentable(rid int64, x *XRentable) {
 	x.S = GetAllRentableSpecialtyRefs(x.R.BID, x.R.RID)
 }
 
+// GetRentableUser returns a Rentable User record matchin the supplied
+// RID, BID, TCID
+func GetRentableUser(rid, bid, tcid int64) (RentableUser, error) {
+	row := RRdb.Prepstmt.GetRentableUser.QueryRow(rid, bid, tcid)
+	var r RentableUser
+	err := ReadRentableUser(row, &r)
+	return r, err
+}
+
 // GetRentableSpecialtyTypeByName returns a list of specialties associated with the supplied Rentable
 func GetRentableSpecialtyTypeByName(bid int64, name string) RentableSpecialty {
 	var rsp RentableSpecialty

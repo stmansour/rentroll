@@ -616,19 +616,13 @@ func InsertRentableTypeRef(a *RentableTypeRef) error {
 }
 
 // InsertRentableUser writes a new User record to the database
-func InsertRentableUser(a *RentableUser) (int64, error) {
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			tid = int64(id)
-		}
-	} else {
+func InsertRentableUser(a *RentableUser) error {
+	_, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop)
+	if nil != err {
 		Ulog("InsertRentableUser: error inserting RentableUser:  %v\n", err)
 		Ulog("RentableUser = %#v\n", *a)
 	}
-	return tid, err
+	return err
 }
 
 // InsertStringList writes a new StringList record to the database

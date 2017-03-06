@@ -357,6 +357,11 @@ func ReadRentalAgreementTemplates(rows *sql.Rows, a *RentalAgreementTemplate) er
 	return rows.Scan(&a.RATID, &a.BID, &a.RATemplateName, &a.LastModTime, &a.LastModBy)
 }
 
+// ReadRentableUser reads a full RentableUser structure of data from the database based on the supplied Row pointer.
+func ReadRentableUser(row *sql.Row, a *RentableUser) error {
+	return row.Scan(&a.RID, &a.BID, &a.TCID, &a.DtStart, &a.DtStop)
+}
+
 // ReadRentableUsers reads a full RentableUser structure of data from the database based on the supplied Rows pointer.
 func ReadRentableUsers(rows *sql.Rows, a *RentableUser) error {
 	return rows.Scan(&a.RID, &a.BID, &a.TCID, &a.DtStart, &a.DtStop)

@@ -156,6 +156,12 @@ func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	return updateError(err, "RentableTypeRef", *a)
 }
 
+// UpdateRentableUser updates a RentableUser record in the database
+func UpdateRentableUser(a *RentableUser) error {
+	_, err := RRdb.Prepstmt.UpdateRentableUser.Exec(a.DtStart, a.DtStop, a.RID, a.BID, a.TCID)
+	return updateError(err, "RentableUser", *a)
+}
+
 // UpdateStringList updates a StringList record in the database. It also updates the string list. It does this by
 // deleting all the strings first, then inserting the ones it has.
 func UpdateStringList(a *StringList) error {

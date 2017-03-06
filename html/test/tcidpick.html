@@ -67,12 +67,12 @@ function openPopup () {
             event.onComplete = function () {
                 $(w2ui.foo.box).show();
                 w2ui.foo.resize();
-            }
+            };
         },
         onOpen: function (event) {
             event.onComplete = function () {
                 $('#w2ui-popup #form').w2render('foo');
-            }
+            };
         }
     });
 }

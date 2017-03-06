@@ -42,6 +42,7 @@ type RAPeople struct {
 type RAPeopleFormSave struct {
 	RAID    int64
 	TCID    int64         // the payor's transactant id
+	RID     int64         // same struct type used for adding Users.  RID will be populated here, not RAID
 	DtStart rlib.JSONTime // start date/time for this Payor
 	DtStop  rlib.JSONTime // stop date/time
 	FLAGS   uint64        // 1<<0 is the bit that indicates this payor is a 'guarantor'
@@ -122,14 +123,19 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("ss = %#v\n", ss)
 	ctx := raPeopleContext{pType: ss[1]} // pType will be user or payor
 
-	var err error
 	//------------------------------------------------------
 	// Handle URL path values
 	//------------------------------------------------------
-	d.RAID, err = rlib.IntFromString(ss[3], "bad RAID value")
+	id, err := rlib.IntFromString(ss[3], "bad ID value")
 	if err != nil {
 		SvcGridErrorReturn(w, err)
 		return
+	}
+	switch ctx.pType {
+	case "rapayor":
+		d.RAID = id
+	case "ruser":
+		d.RID = id
 	}
 
 	//------------------------------------------------------
@@ -180,29 +186,71 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			saveRAPayor(w, r, d)
 			return
 		}
-		if ctx.pType == "rauser" {
-
+		if ctx.pType == "ruser" {
+			saveRUser(w, r, d)
+			return
 		}
 		SvcGridErrorReturn(w, fmt.Errorf("unhandled command for %s:  %s", ctx.pType, d.wsSearchReq.Cmd))
 	case "delete":
-		deleteRAPayor(w, r, d)
+		if ctx.pType == "rapayor" {
+			deleteRAPayor(w, r, d)
+			return
+		}
+		if ctx.pType == "ruser" {
+			deleteRUser(w, r, d)
+			return
+		}
 	default:
 		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
 	}
-
 }
 
-// deleteRAPayor saves or adds a new payor to the RentalAgreementsPayor
+// deleteRUser deletes a rentable user
+// wsdoc {
+//  @Title  Delete RAPayor
+//	@URL /v1/ruser/:BUI/:RID
+//  @Method  GET
+//	@Synopsis Delete a Rentable User
+//  @Desc  This service deletes a Rentable User.
+//  @Desc  then an error is returned
+//	@Input DeleteRAPeople
+//  @Response SvcStatusResponse
+// wsdoc }
+func deleteRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "deleteRUser"
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+	var del DeleteRAPeople
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	fmt.Printf("Delete:  RID = %d, BID = %d, TCID = %d\n", d.RID, d.BID, del.TCID)
+
+	_, err := rlib.GetRentableUser(d.RID, d.BID, del.TCID)
+	if err != nil {
+		e := fmt.Errorf("Error retrieving RentableUser: %s", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	if err := rlib.DeleteRentableUser(d.RID, d.BID, del.TCID); err != nil {
+		SvcGridErrorReturn(w, err)
+		return
+	}
+	SvcWriteSuccessResponse(w)
+	return
+}
+
+// deleteRAPayor deletes a payor from a rental agreement
 // wsdoc {
 //  @Title  Delete RAPayor
 //	@URL /v1/rapayor/:BUI/:RAID
 //  @Method  GET
-//	@Synopsis Save RAPayor
-//  @Desc  This service saves a RAPayor.  If :RAID exists, it will
-//  @Desc  be updated with the information supplied. All fields must
-//  @Desc  be supplied. If RAID is 0, then a new RAPayor is created.
-//	@Input RAPeopleOtherSave
-//	@Input SaveRAPeopleInput
+//	@Synopsis Delete a Rental Agreement Payor
+//  @Desc  This service deletes a RAPayor. If this is the only payor
+//  @Desc  then an error is returned
+//	@Input DeleteRAPeople
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -313,6 +361,84 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving RAPayor (RAID=%d\n: %s", funcname, d.RAID, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
+}
+
+// saveRUser saves or adds a new user to the RentalAgreementsUser
+// wsdoc {
+//  @Title  Save RUser
+//	@URL /v1/ruser/:BUI/:RID
+//  @Method  POST
+//	@Synopsis Save an RUser
+//  @Desc  This service saves a RAUser.  If :RAID exists, it will
+//  @Desc  be updated with the information supplied. All fields must
+//  @Desc  be supplied. If RAID is 0, then a new RAUser is created.
+//	@Input RAPeopleOtherSave
+//	@Input SaveRAPeopleInput
+//  @Response SvcStatusResponse
+// wsdoc }
+func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "saveRUser"
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	var foo SaveRAPeopleInput
+	data := []byte(d.data)
+	if err := json.Unmarshal(data, &foo); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	var a rlib.RentableUser
+	fmt.Printf("foo.Record = %#v\n", foo.Record)
+	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
+
+	fmt.Printf("saveRUser - first migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
+		a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
+
+	var bar SaveRAPeopleOther
+	if err := json.Unmarshal(data, &bar); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	var ok bool
+	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
+	if !ok {
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	fmt.Printf("saveRUser - second migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
+		a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
+
+	var err error
+	// Try to read an existing record...
+	_, err = rlib.GetRentableUser(a.RID, a.BID, a.TCID)
+	if err != nil && !strings.Contains(err.Error(), "no rows") {
+		fmt.Printf("Error reading RentaableUsers: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+
+	if err != nil {
+		// This is a new RUser
+		fmt.Printf(">>>> NEW RUser IS BEING ADDED\n")
+		err = rlib.InsertRentableUser(&a)
+	} else {
+		// update existing record
+		fmt.Printf(">>>> Updating existing RUser\n")
+		err = rlib.UpdateRentableUser(&a)
+	}
+	if err != nil {
+		e := fmt.Errorf("%s: Error saving RUser (RID=%d\n: %s", funcname, d.RID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}

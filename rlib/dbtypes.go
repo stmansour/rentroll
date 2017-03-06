@@ -1223,6 +1223,9 @@ type RRprepSQL struct {
 	GetRentalAgreementPayor            *sql.Stmt
 	UpdateRentalAgreementPayor         *sql.Stmt
 	DeleteRentalAgreementPayor         *sql.Stmt
+	GetRentableUser                    *sql.Stmt
+	UpdateRentableUser                 *sql.Stmt
+	DeleteRentableUser                 *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
