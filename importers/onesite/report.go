@@ -79,7 +79,7 @@ func generateSummaryReport(
 		tbl.Puti(-1, 3, int64(countMap["issues"]))
 	}
 
-	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
 	if err != nil {
 		rlib.Ulog("generateSummaryReport: error = %s", err.Error())
 	}
@@ -133,7 +133,7 @@ func generateDetailedReport(
 			tbl.Puts(-1, 2, reportError[0])
 
 			// append detailed section
-			s, err := tbl.SprintTable(rlib.RPTTEXT)
+			s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
 			if err != nil {
 				rlib.Ulog("generateDetailedReport: error = %s", err)
 			}
@@ -215,7 +215,7 @@ func generateDetailedReport(
 	}
 
 	// append detailed section
-	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
 	if err != nil {
 		rlib.Ulog("generateDetailedReport: error = %s", err)
 	}
@@ -233,12 +233,12 @@ func generateRCSVReport(
 ) string {
 
 	var r = []rrpt.ReporterInfo{
-		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
-		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
-		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
-		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
-		{ReportNo: 14, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportCustomAttributes, Bid: business.BID},
-		{ReportNo: 15, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportCustomAttributeRefs, Bid: business.BID},
+		{ReportNo: 5, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
+		{ReportNo: 6, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
+		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
+		{ReportNo: 9, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
+		{ReportNo: 14, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportCustomAttributes, Bid: business.BID},
+		{ReportNo: 15, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportCustomAttributeRefs, Bid: business.BID},
 	}
 
 	var rcsvReport string
