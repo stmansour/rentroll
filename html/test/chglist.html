@@ -13,12 +13,17 @@
 
 <script type="text/javascript">
 $(function () {
-    $.get("/v1/uilists/211/4",HandleData)
+    "use strict";
+    $.get("/v1/uilists/",HandleData);
 });
 
 function HandleData(data,status) {
+    "use strict";
+    var app = {};
     if (status == "success") {
-        eval(data)
+        /* jshint ignore:start */
+        eval(data);
+        /* jshint ignore:end */
     }
     
     $('#form').w2form({ 
@@ -37,12 +42,12 @@ function HandleData(data,status) {
                 if (event.target == 'btnChangeList') {
                     var newlist = ['Elrod', 'Jerome', 'T-Baby', 'Slinky', 'Jivin Ivan'];
                     console.log( 'Change field_select to contain: ' + newlist);
-                    var f = w2ui['form'].get('field_select');
-                    console.log( 'f.options.items = ' + f.options.items)
+                    var f = w2ui.form.get('field_select');
+                    console.log( 'f.options.items = ' + f.options.items);
                     for (i = 0; i < f.options.items.length; i++ ) {
                         x = f.options.items[i];
                         console.log('item '+i);
-                        Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
+                        //Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
                     }
                 }
             }
@@ -58,7 +63,7 @@ function HandleData(data,status) {
             { field: 'field_enum', type: 'enum', required: true, 
                 options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
             { field: 'field_textarea', type: 'text'},
-            { field: 'yesnolist', type: 'select', required: false, options: {items: yesNoList} },
+            { field: 'yesnolist', type: 'select', required: false, options: {items: app.yesNoList} },
             { field: 'field_select', type: 'select', required: false, options: { items: ['first', 'second'] } },
             { field: 'IsCompany', type: 'checkbox', required: false }
             //{ field: 'field_radio', type: 'radio', required: false }

@@ -991,10 +991,10 @@ function buildPageElements() {
         ],
         onAdd: function (/*event*/) {
             var x = getCurrentBusiness();
-            popupTCIDPicker('Select Payor', x.value );
+            popupTCIDPicker('Add A New ' + app.sPayor, x.value );
         },
         onSave: function() {
-            console.log('save payors')
+            console.log('save payors');
         },
         onDelete: function(/*event*/) {
             var sel = w2ui.rapGrid.getSelection(true); // get the record indeces rather than the recids
@@ -1555,8 +1555,8 @@ function popupTCIDPicker(sTitle,bid) {
         //  url     : '/html/tcidpicker.html',
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
         style   : 'padding: 15px 0px 0px 0px',
-        width   : 500,
-        height  : 300, 
+        width   : 400,
+        height  : 200, 
         showMax : true,
         onToggle: function (event) {
             $(w2ui.tcidPicker.box).hide();
@@ -1607,7 +1607,9 @@ function finishInitialization() {
 
 function handleData(data,status) {
     if (status == "success") {
+        /* jshint ignore:start */
         eval(data); // defines all the lists; values for the dropdown lists
+        /* jshint ignore:end */
         console.log("SUCCESSFULLY LOADED LISTS");
     } else {
         console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + status);

@@ -2,8 +2,6 @@ DIRS = db rlib rrpt rcsv admin importers tools test
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
-# Force a build for the demo
-
 .PHONY:  test
 
 rentroll: ver.go *.go
@@ -16,6 +14,20 @@ rentroll: ver.go *.go
 	go build
 	@rm -rf fail
 	@tools/bashtools/buildcheck.sh BUILD
+
+all: clean rentroll test stats
+
+jshint:
+	@touch fail
+	@${COUNTOL} "jshint --extract=always html/*.html html/test/*.html js/rutil.js"
+	@rm -rf fail
+
+try: clean rentroll package
+
+testdb:
+	cd test/svc;mysql --no-defaults < restore.sql
+
+rebuild: try testdb
 
 stats:
 	@echo "GO SOURCE CODE STATISTICS"
@@ -82,19 +94,7 @@ pubfa:
 	# font awesome
 	cd tmp/rentroll;tar czvf fa.tar.gz ./html/fa;/usr/local/accord/bin/deployfile.sh fa.tar.gz jenkins-snapshot/rentroll/latest
 
+# publish all the non-os-dependent files to the repo
 pub: pubjs pubimages pubdb pubfa
 
 
-all: clean rentroll test
-	@echo
-	@echo "GO SOURCE CODE STATISTICS"
-	@echo "----------------------------------------"
-	@find . -name "*.go" | srcstats
-	@echo "----------------------------------------"
-
-try: clean rentroll package
-
-testdb:
-	cd test/svc;mysql --no-defaults < restore.sql
-
-rebuild: try testdb

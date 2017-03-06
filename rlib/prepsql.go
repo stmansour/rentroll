@@ -644,6 +644,13 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RID=? and ?<RARDtStop and ?>RARDtStart")
 	Errcheck(err)
 
+	RRdb.Prepstmt.GetRentableUser, err = RRdb.Dbrr.Prepare("SELECT RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentableUser, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET DtStart=?,DtStop=? WHERE RID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentableUser, err = RRdb.Dbrr.Prepare("DELETE from RentableUsers WHERE RID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+
 	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
 

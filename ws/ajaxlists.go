@@ -3,7 +3,6 @@ package ws
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -129,14 +128,16 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
-		log.Fatal(err)
+		SvcGridErrorReturn(w, err)
+		return
 	}
 	fname := folderPath + "/html/" + language + "/" + template + "/strings.csv"
 	fmt.Printf("fname = %s\n", fname)
 	_, err = os.Stat(fname)
 	if nil != err {
-		fmt.Printf("RRReadConfig: error reading %s: %v\n", fname, err)
-		os.Exit(1)
+		e := fmt.Errorf("Unknown language / template :   %s / %s", language, template)
+		SvcGridErrorReturn(w, e)
+		return
 	}
 	m := rlib.LoadCSV(fname)
 	for i := 0; i < len(m); i++ {

@@ -83,6 +83,45 @@ func main() {
 	updateCustomAttr(&biz)
 	updateReceipt(&biz)
 	updateRAPayor(&biz)
+	updateRUser(&biz)
+}
+
+func updateRUser(biz *rlib.Business) {
+	tcid := int64(14)
+	rid := int64(1)
+	_, err := rlib.GetRentableUser(rid, biz.BID, tcid)
+	if err == nil {
+		fmt.Printf("The database is messed up.  There should not be any RentalAgreementPayors\n")
+		os.Exit(1)
+	}
+	if !strings.Contains(err.Error(), "no rows") {
+		fmt.Printf("The database is messed up.  There should not be any RentalAgreementPayors\n")
+		os.Exit(1)
+	}
+	now := time.Now()
+	nextYear := now.AddDate(1, 0, 0)
+	rap := rlib.RentableUser{RID: rid, BID: biz.BID, TCID: tcid, DtStart: now, DtStop: nextYear}
+	err = rlib.InsertRentableUser(&rap)
+	if err != nil {
+		fmt.Printf("Error inserting RentalAgreementPayor: %s\n", err.Error())
+		os.Exit(1)
+	}
+	nextYear = nextYear.AddDate(0, 11, 0)
+	rap.DtStop = nextYear
+	if err = rlib.UpdateRentableUser(&rap); err != nil {
+		fmt.Printf("Error updating RentalAgreementPayor: %s\n", err.Error())
+		os.Exit(1)
+	}
+	r1, err := rlib.GetRentableUser(rid, biz.BID, tcid)
+	if err != nil {
+		fmt.Printf("Error getting RentalAgreementPayor: %s\n", err.Error())
+		os.Exit(1)
+	}
+	if r1.DtStop.Equal(nextYear) {
+		fmt.Printf("Error expected time = %s, found time = %s\n", r1.DtStop.Format(rlib.RRDATEFMT4), nextYear.Format(rlib.RRDATEFMT4))
+		os.Exit(1)
+	}
+	fmt.Printf("UpdateRentableUser: successful\n")
 }
 
 func updateRAPayor(biz *rlib.Business) {

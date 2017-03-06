@@ -69,6 +69,19 @@ dojsonPOST "http://localhost:8270/v1/asm/REX/0" "request" "k"  "WebService--Inse
 # Test Transactant Typedown
 dojsonGET "http://localhost:8270/v1/transactantstd/ISO?request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D" "l" "WebService--GetTransactantTypeDown"
 
+# Create a NEW Rentable User
+echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A%7B%22id%22%3A%22ISO%22%2C%22text%22%3A%22ISO%22%7D%2C%22TCID%22%3A373%2C%22RID%22%3A16%2C%22FirstName%22%3A%22Jason%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Thomas%22%2C%22DtStart%22%3A%223%2F5%2F2017%22%2C%22DtStop%22%3A%223%2F5%2F2018%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/ruser/ISO/16" "request" "m"  "WebService--InsertARentableUser"
+
+# Create another NEW Rentable User -- same TCID
+echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A%7B%22id%22%3A%22ISO%22%2C%22text%22%3A%22ISO%22%7D%2C%22TCID%22%3A373%2C%22RID%22%3A16%2C%22FirstName%22%3A%22Jason%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Thomas%22%2C%22DtStart%22%3A%223%2F5%2F2017%22%2C%22DtStop%22%3A%223%2F5%2F2018%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/ruser/ISO/16" "request" "m"  "WebService--InsertARentableUser"
+
+# Delete a Rentable User
+echo "request%3D%7B%22cmd%22%3A%22delete%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A373%7D" > request
+dojsonPOST "http://localhost:8270/v1/ruser/ISO/16" "request" "n"  "WebService--DeleteARentableUser"
+
+
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED" 
