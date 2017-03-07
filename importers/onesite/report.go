@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// getReportHeader used to get report header first
-func getReportHeader(importTime time.Time, csvFile string) string {
+// getSummaryReportSection1 used to get summary for table's section1
+func getSummaryReportSection1(importTime time.Time, csvFile string) string {
 	// get date
 	importYear, importMonth, importDate := importTime.Date()
 	importDt := fmt.Sprintf("%d/%d/%d", importMonth, importDate, importYear)
@@ -27,8 +27,7 @@ func getReportHeader(importTime time.Time, csvFile string) string {
 
 	importLocalTime := kitchenFormat + " " + tz
 
-	reportHeader := ""
-	reportHeader += "Accord RentRoll Onesite Importer\n"
+	var reportHeader string
 	reportHeader += "Date: " + importDt + "\n"
 	reportHeader += "Time: " + importLocalTime + "\n"
 	reportHeader += "Import File: " + csvFile + "\n"
@@ -40,17 +39,16 @@ func getReportHeader(importTime time.Time, csvFile string) string {
 func generateSummaryReport(
 	summaryCount map[int]map[string]int,
 	BID int64,
+	currentTime time.Time,
+	csvFile string,
 ) string {
-	var report string
-
-	tableTitle := "SUMMARY"
-	report += strings.Repeat("=", len(tableTitle))
-	report += "\n" + tableTitle + "\n"
-	report += strings.Repeat("=", len(tableTitle))
-	report += "\n"
 
 	var tbl gotable.Table
 	tbl.Init()
+	tbl.SetTitle("Accord RentRoll Onesite Importer\n")
+	tbl.SetSection1(getSummaryReportSection1(currentTime, csvFile))
+	tbl.SetSection2("Summary")
+
 	tbl.AddColumn("Data Type", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Total Possible", 10, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Total Imported", 10, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
@@ -83,7 +81,7 @@ func generateSummaryReport(
 	if err != nil {
 		rlib.Ulog("generateSummaryReport: error = %s", err.Error())
 	}
-	return report + s + "\n"
+	return s
 }
 
 // generateDetailedReport gives detailed report with (rowNumber, unit, db type, reason)
@@ -98,15 +96,10 @@ func generateDetailedReport(
 
 	csvReportGenerate := true
 
-	var detailedReport string
-	tableTitle := "DETAILED REPORT BY UNIT"
-	detailedReport += strings.Repeat("=", len(tableTitle))
-	detailedReport += "\n" + tableTitle + "\n"
-	detailedReport += strings.Repeat("=", len(tableTitle))
-	detailedReport += "\n"
-
 	var tbl gotable.Table
 	tbl.Init()
+	tbl.SetTitle("DETAILED REPORT BY UNIT")
+
 	tbl.AddColumn("Input Line", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Unit Name", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	// tbl.AddColumn("RentRoll DB Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -137,11 +130,10 @@ func generateDetailedReport(
 			if err != nil {
 				rlib.Ulog("generateDetailedReport: error = %s", err)
 			}
-			detailedReport += s
 
 			// return
 			csvReportGenerate = false
-			return detailedReport, csvReportGenerate
+			return s, csvReportGenerate
 		}
 
 		// get unit from map
@@ -219,10 +211,9 @@ func generateDetailedReport(
 	if err != nil {
 		rlib.Ulog("generateDetailedReport: error = %s", err)
 	}
-	detailedReport += s + "\n"
 
 	// return
-	return detailedReport, csvReportGenerate
+	return s, csvReportGenerate
 }
 
 // generateRCSVReport return report for all type of csv defined here from rcsv
@@ -247,11 +238,11 @@ func generateRCSVReport(
 	rcsvReport += strings.Repeat("=", len(title))
 	rcsvReport += "\n" + title + "\n"
 	rcsvReport += strings.Repeat("=", len(title))
-	rcsvReport += "\n"
+	rcsvReport += "\n\n"
 
 	for i := 0; i < len(r); i++ {
 		rcsvReport += r[i].Handler(&r[i])
-		rcsvReport += strings.Repeat("=", 80)
+		rcsvReport += strings.Repeat("=", len(title))
 		rcsvReport += "\n"
 	}
 
@@ -269,11 +260,9 @@ func successReport(
 
 	var report string
 
-	// import header line for report
-	report = getReportHeader(currentTime, csvFile)
-
 	// append summary report
-	report += generateSummaryReport(summaryCount, business.BID)
+	report += generateSummaryReport(summaryCount, business.BID, currentTime, csvFile)
+	report += "\n"
 
 	// csv report for all types if testmode is on
 	if debugMode == 1 {
@@ -297,15 +286,14 @@ func errorReporting(
 
 	var errReport string
 
-	// import header line for report
-	errReport = getReportHeader(currentTime, csvFile)
-
 	// first generate detailed report because summary count also be used in it
 	// but append it after summary report
 	detailedReport, csvReportGenerate := generateDetailedReport(csvErrors, unitMap, summaryCount)
+	detailedReport += "\n"
 
 	// append summary report
-	errReport += generateSummaryReport(summaryCount, business.BID)
+	errReport += generateSummaryReport(summaryCount, business.BID, currentTime, csvFile)
+	errReport += "\n"
 
 	// append detailedReport
 	errReport += detailedReport
