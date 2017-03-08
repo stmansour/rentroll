@@ -128,12 +128,13 @@ func UpdateReceipt(a *Receipt) error {
 // UpdateRentalAgreement updates a RentalAgreement record in the database
 func UpdateRentalAgreement(a *RentalAgreement) error {
 	_, err := RRdb.Prepstmt.UpdateRentalAgreement.Exec(a.RATID, a.BID, a.NLID, a.AgreementStart, a.AgreementStop, a.PossessionStart, a.PossessionStop, a.RentStart, a.RentStop, a.RentCycleEpoch, a.UnspecifiedAdults, a.UnspecifiedChildren, a.Renewal, a.SpecialProvisions, a.LeaseType, a.ExpenseAdjustmentType, a.ExpensesStop, a.ExpenseStopCalculation, a.BaseYearEnd, a.ExpenseAdjustment, a.EstimatedCharges, a.RateChange, a.NextRateChange, a.PermittedUses, a.ExclusiveUses, a.ExtensionOption, a.ExtensionOptionNotice, a.ExpansionOption, a.ExpansionOptionNotice, a.RightOfFirstRefusal, a.LastModBy, a.RAID)
+
 	return updateError(err, "RentalAgreement", *a)
 }
 
-// UpdateRentalAgreementPayor updates a RentalAgreementPayor record in the database
-func UpdateRentalAgreementPayor(a *RentalAgreementPayor) error {
-	_, err := RRdb.Prepstmt.UpdateRentalAgreementPayor.Exec(a.DtStart, a.DtStop, a.FLAGS, a.RAID, a.BID, a.TCID)
+// UpdateRentalAgreementPayorByRBT updates a RentalAgreementPayor record in the database
+func UpdateRentalAgreementPayorByRBT(a *RentalAgreementPayor) error {
+	_, err := RRdb.Prepstmt.UpdateRentalAgreementPayorByRBT.Exec(a.DtStart, a.DtStop, a.FLAGS, a.RAID, a.BID, a.TCID)
 	return updateError(err, "RentalAgreementPayor", *a)
 }
 
@@ -141,6 +142,12 @@ func UpdateRentalAgreementPayor(a *RentalAgreementPayor) error {
 func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
 	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
 	return updateError(err, "RentalAgreementPet", *a)
+}
+
+// UpdateRentalAgreementRentable updates a RentalAgreementRentable record in the database
+func UpdateRentalAgreementRentable(a *RentalAgreementRentable) error {
+	_, err := RRdb.Prepstmt.UpdateRentalAgreementRentable.Exec(a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop, a.RARID)
+	return updateError(err, "RentalAgreementRentable", *a)
 }
 
 // UpdateRentableSpecialtyRef updates a RentableSpecialtyRef record in the database
@@ -156,9 +163,9 @@ func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	return updateError(err, "RentableTypeRef", *a)
 }
 
-// UpdateRentableUser updates a RentableUser record in the database
-func UpdateRentableUser(a *RentableUser) error {
-	_, err := RRdb.Prepstmt.UpdateRentableUser.Exec(a.DtStart, a.DtStop, a.RID, a.BID, a.TCID)
+// UpdateRentableUserByRBT updates a RentableUser record in the database
+func UpdateRentableUserByRBT(a *RentableUser) error {
+	_, err := RRdb.Prepstmt.UpdateRentableUserByRBT.Exec(a.DtStart, a.DtStop, a.RID, a.BID, a.TCID)
 	return updateError(err, "RentableUser", *a)
 }
 

@@ -27,6 +27,10 @@ try: clean rentroll package
 testdb:
 	cd test/svc;mysql --no-defaults < restore.sql
 
+dbschemachange:
+	cd test/testdb;make clean test dbbackup;cd ../svc;make get
+	@tools/bashtools/buildcheck.sh SCHEMA_UPDATE
+
 rebuild: try testdb
 
 stats:

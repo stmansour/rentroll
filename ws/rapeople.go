@@ -92,20 +92,18 @@ type raPeopleContext struct {
 
 var pTypeList = []string{"payor", "user"}
 
-// SvcRAPeople is used to get the Payor(s) or the User(s) associated with the
-// RAID supplied.
+// SvcRAPeople is read/update/save/delete the Payor(s) or the User(s) associated with a
+// RAID or Rentable.
 //
-// wsdoc {
 //  @Title  Rental Agreement People
-//	@URL /v1/rapeople/:BUI/:RAID ? dt=:DATE & type=:PRSTYPE
+//	@URL /v1/{rapayor|ruser}/:BUI/:ID ? dt=:DATE & type=:PRSTYPE & cmd={get|save|delete}
 //  @Method  GET
 //	@Synopsis Get Rental Agreement payors or users
 //  @Description  Get the Transactants of type :PRSTYPE who are associated with the
-//  @Description  Rental Agreement :RAID on the supplied :DATE.
+//  @Description  ID is RentableID for ruser, Rental Agreement ID for rapayor.
 //  @Description  Note that :PRSTYPE is optional. If it is not present, :Payor is assumed.
 //	@Input none
 //  @Response RAPeopleResponse
-// wsdoc }
 //
 // URL can be user or payor:
 //       0    1       2    3
@@ -131,18 +129,23 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	switch ctx.pType {
-	case "rapayor":
+	if d.wsSearchReq.Cmd == "get" {
 		d.RAID = id
-	case "ruser":
-		d.RID = id
+	} else {
+		switch ctx.pType {
+		case "rapayor":
+			d.RAID = id
+		case "ruser":
+			d.RID = id
+		}
 	}
 
 	//------------------------------------------------------
 	// Handle URL parameters
 	//------------------------------------------------------
-	d.Dt = time.Now()                  // default to current date
-	if len(s1) > 1 && len(s1[1]) > 0 { // override with whatever was provided
+	now := time.Now()
+	d.Dt = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC) // default to current date
+	if len(s1) > 1 && len(s1[1]) > 0 {                                         // override with whatever was provided
 		parms := strings.Split(s1[1], "&") // parms is an array of indivdual parameters and their values
 		for i := 0; i < len(parms); i++ {
 			param := strings.Split(parms[i], "=") // an individual parameter and its value
@@ -151,7 +154,9 @@ func SvcRAPeople(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 			fmt.Printf("param[i] value = %s\n", param[1])
 			switch param[0] {
-			case "d.Dt":
+			case "cmd":
+				d.wsSearchReq.Cmd = strings.TrimSpace(param[1])
+			case "dt":
 				d.Dt, err = rlib.StringToDate(param[1])
 				if err != nil {
 					SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", param[1]))
@@ -228,13 +233,13 @@ func deleteRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	fmt.Printf("Delete:  RID = %d, BID = %d, TCID = %d\n", d.RID, d.BID, del.TCID)
 
-	_, err := rlib.GetRentableUser(d.RID, d.BID, del.TCID)
+	_, err := rlib.GetRentableUserByRBT(d.RID, d.BID, del.TCID)
 	if err != nil {
 		e := fmt.Errorf("Error retrieving RentableUser: %s", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	if err := rlib.DeleteRentableUser(d.RID, d.BID, del.TCID); err != nil {
+	if err := rlib.DeleteRentableUserByRBT(d.RID, d.BID, del.TCID); err != nil {
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -280,7 +285,7 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if m[i].TCID != del.TCID {
 			continue
 		}
-		if e := rlib.DeleteRentalAgreementPayor(d.RAID, d.BID, del.TCID); e != nil {
+		if e := rlib.DeleteRentalAgreementPayorByRBT(d.RAID, d.BID, del.TCID); e != nil {
 			SvcGridErrorReturn(w, e)
 			return
 		}
@@ -357,7 +362,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else {
 		// update existing record
 		fmt.Printf(">>>> Updating existing RAPayor\n")
-		err = rlib.UpdateRentalAgreementPayor(&a)
+		err = rlib.UpdateRentalAgreementPayorByRBT(&a)
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving RAPayor (RAID=%d\n: %s", funcname, d.RAID, err.Error())
@@ -385,6 +390,11 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveRUser"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
+
+	// First determine if it is a new record, or a change...
+	if strings.Contains(d.data, `"changes":`) {
+		fmt.Printf("This is an UPDATE TO AN EXISTING RECORD\n")
+	}
 
 	var foo SaveRAPeopleInput
 	data := []byte(d.data)
@@ -421,7 +431,7 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var err error
 	// Try to read an existing record...
-	_, err = rlib.GetRentableUser(a.RID, a.BID, a.TCID)
+	_, err = rlib.GetRentableUserByRBT(a.RID, a.BID, a.TCID)
 	if err != nil && !strings.Contains(err.Error(), "no rows") {
 		fmt.Printf("Error reading RentaableUsers: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
@@ -435,7 +445,7 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else {
 		// update existing record
 		fmt.Printf(">>>> Updating existing RUser\n")
-		err = rlib.UpdateRentableUser(&a)
+		err = rlib.UpdateRentableUserByRBT(&a)
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving RUser (RID=%d\n: %s", funcname, d.RID, err.Error())
@@ -486,17 +496,20 @@ func SvcGetRAPeople(ptype string, w http.ResponseWriter, r *http.Request, d *Ser
 			xr.Recid = int64(i + 1) // must set AFTER MigrateStructVals in case src contains recid
 			gxp.Records = append(gxp.Records, xr)
 		}
-	} else if ptype == "user" {
+	} else if ptype == "ruser" {
 		// first get the rentables associated with the Rental Agreement...
 		m := rlib.GetRentalAgreementRentables(d.RAID, &d.Dt, &d.Dt)
+		fmt.Printf("GetRentalAgreementRentables for RAID = %d, date = %s,  return count = %d\n", d.RAID, d.Dt.Format(rlib.RRDATEFMT3), len(m))
 		k := 1                        // recid counter
 		for j := 0; j < len(m); j++ { // for each rentable in the Rental Agreement
-			rentable := rlib.GetRentable(m[j].RID)             // get the rentable
-			n := rlib.GetRentableUsers(m[j].RID, &d.Dt, &d.Dt) // get the users associated with that rentable
-			for i := 0; i < len(n); i++ {                      // add an entry for each user associated with this rentable
+			rentable := rlib.GetRentable(m[j].RID)                    // get the rentable
+			n := rlib.GetRentableUsersInRange(m[j].RID, &d.Dt, &d.Dt) // get the users associated with that rentable
+			fmt.Printf("Rentable: %d, date = %s, rentable user count: %d\n", m[j].RID, d.Dt.Format(rlib.RRDATEFMT3), len(n))
+			for i := 0; i < len(n); i++ { // add an entry for each user associated with this rentable
 				var p rlib.Transactant
 				rlib.GetTransactant(n[i].TCID, &p)
 				var xr RAPeople
+				rlib.MigrateStructVals(&n[i], &xr)
 				rlib.MigrateStructVals(&rentable, &xr)
 				rlib.MigrateStructVals(&p, &xr)
 				xr.Recid = int64(k) // must set AFTER MigrateStructVals in case src contains recid

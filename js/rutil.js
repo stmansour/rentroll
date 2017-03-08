@@ -74,10 +74,10 @@ function setToRAForm(bid, raid, d) {
 
     //----------------------------------------------------------------
     // Get the associated Users...
-    //      /v1/rapeople/bid/raid[?type=user&d1=2017-02-1]
+    //      /v1/ruser/bid/raid[?&d1=2017-02-1]
     //      if no date is specified, today's date is used as the default.
     //----------------------------------------------------------------
-    w2ui.rauGrid.url = '/v1/rapeople/' + bid + '/' + raid + '?type=user';
+    w2ui.rauGrid.url = '/v1/ruser/' + bid + '/' + raid;
     console.log('rauGrid url = ' + w2ui.rauGrid.url);
     w2ui.rauGrid.request();
     w2ui.rauGrid.header = plural(app.sUser) + ' as of ' + dateFmtStr(d);
@@ -93,6 +93,80 @@ function setToRAForm(bid, raid, d) {
 
 }
 
+//-----------------------------------------------------------------------------
+// tcidPickerDropRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - the name to render
+//-----------------------------------------------------------------------------
+function tcidPickerDropRender (item) {
+    "use strict";
+    return item.FirstName + ' ' + item.LastName; 
+}
+
+//-----------------------------------------------------------------------------
+// tcidPickerCompare - Compare two items to see if they match
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function tcidPickerCompare(item, search) {
+    "use strict";
+    var FirstName = search, 
+        LastName = search;
+    if (search.indexOf(' ') != -1) {
+        FirstName = search.split(' ')[0];
+        LastName = search.split(' ')[1];
+    }
+    var match = false;
+    var re1 = new RegExp(FirstName, 'i');
+    var re2 = new RegExp(LastName, 'i');
+    if (FirstName == LastName) {
+        if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
+    } else {
+        if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
+    }
+    return match;
+}
+
+//-----------------------------------------------------------------------------
+// tcidRAPayorPickerRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function tcidRAPayorPickerRender(item) {
+    "use strict";
+    var s = item.FirstName + ' ' + item.LastName;
+    w2ui.tcidRAPayorPicker.record = {
+        TCID: item.TCID, 
+        pickedName: s, 
+        DtStart: w2ui.tcidRAPayorPicker.record.DtStart, 
+        DtStop: w2ui.tcidRAPayorPicker.record.DtStop,
+        FirstName: item.FirstName,
+        LastName: item.LastName,
+    };
+    return s; 
+}
+//-----------------------------------------------------------------------------
+// tcidRUserPickerRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function tcidRUserPickerRender(item) {
+    "use strict";
+    var s = item.FirstName + ' ' + item.LastName;
+    w2ui.tcidRUserPicker.record = {
+        TCID: item.TCID, 
+        pickedName: s, 
+        DtStart: w2ui.tcidRUserPicker.record.DtStart, 
+        DtStop: w2ui.tcidRUserPicker.record.DtStop,
+        FirstName: item.FirstName,
+        LastName: item.LastName,
+    };
+    return s; 
+}
 //-----------------------------------------------------------------------------
 // plural - return the plural of the provided word.  Totally simplistic at
 //          this point, it just adds an 's'.  It will need serious updates

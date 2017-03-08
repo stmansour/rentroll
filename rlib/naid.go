@@ -167,7 +167,7 @@ func (t *Vehicle) IDtoString() string {
 // GetUserNameList returns an array of strings with all the User names associated with the Rentable. the strings are sorted alphabetically
 func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
 	var m []string
-	users := GetRentableUsers(t.RID, d1, d2) // get all defined renters for this period
+	users := GetRentableUsersInRange(t.RID, d1, d2) // get all defined renters for this period
 	for i := 0; i < len(users); i++ {
 		var tr Transactant
 		GetTransactant(users[i].TCID, &tr)

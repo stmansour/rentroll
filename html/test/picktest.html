@@ -8,7 +8,7 @@
 <body>
 <div id="form">
     <div class="w2ui-field">
-    <label>Name Picker:</label><input id="tcidPicker" name="tcidPicker">
+    <label>Name Picker:</label><input id="tcidRAPayorPicker" name="tcidRAPayorPicker">
     </div>
 </div>
 <script type="text/javascript">
@@ -16,7 +16,7 @@ $(function () {
     $('#form').w2form({ 
         name  : 'form',
         fields: [
-            { field: 'tcidPicker', 
+            { field: 'tcidRAPayorPicker', 
                 type: 'enum', 
                 options: {
                     url: '/v1/transactantstd/ISO',

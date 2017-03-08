@@ -6,9 +6,9 @@
     <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 </head>
 <body>
-<div class="w2ui-field"><label>Name Picker:</label><div> <input id="tcidPicker"></div></div>
+<div class="w2ui-field"><label>Name Picker:</label><div> <input id="tcidRAPayorPicker"></div></div>
 <script>
-$('#tcidPicker').w2field('enum', {
+$('#tcidRAPayorPicker').w2field('enum', {
     url: '/v1/transactantstd/ISO',
     renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
     renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },

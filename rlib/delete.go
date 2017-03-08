@@ -273,18 +273,18 @@ func DeleteRentableStatus(rid int64, dtstart, dtstop *time.Time) error {
 	return err
 }
 
-// DeleteRentalAgreementPayor deletes the payor from the RentalAgreement
-func DeleteRentalAgreementPayor(raid, bid, tcid int64) error {
-	_, err := RRdb.Prepstmt.DeleteRentalAgreementPayor.Exec(raid, bid, tcid)
+// DeleteRentalAgreementPayorByRBT deletes the payor from the RentalAgreement
+func DeleteRentalAgreementPayorByRBT(raid, bid, tcid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentalAgreementPayorByRBT.Exec(raid, bid, tcid)
 	if err != nil {
 		Ulog("Error deleting raid=%d, bid=%d, tcid=%d error: %s\n", raid, bid, tcid, err.Error())
 	}
 	return err
 }
 
-// DeleteRentableUser deletes the payor from the RentalAgreement
-func DeleteRentableUser(rid, bid, tcid int64) error {
-	_, err := RRdb.Prepstmt.DeleteRentableUser.Exec(rid, bid, tcid)
+// DeleteRentableUserByRBT deletes the payor from the RentalAgreement
+func DeleteRentableUserByRBT(rid, bid, tcid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentableUserByRBT.Exec(rid, bid, tcid)
 	if err != nil {
 		Ulog("Error deleting rid=%d, bid=%d, tcid=%d error: %s\n", rid, bid, tcid, err.Error())
 	}

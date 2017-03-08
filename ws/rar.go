@@ -38,10 +38,11 @@ type RARList struct {
 // 		/v1/rar/BID/RAID?dt=2017-01-03
 // wsdoc {
 //  @Title  Rental Agreement Rentables
-//	@URL /v1/rar/:BUI/:RAID ? dt=:DATE
+//	@URL /v1/rar/:BUI/:RAID [ ? dt=:DATE ]
 //	@Method GET
 //	@Synopsis Get Rentables for Rental Agreement :RAID
-//  @Description Returns all the rentables associated Rental Agreement RAID as of :DATE
+//  @Desc Returns all the rentables associated Rental Agreement RAID as of :DATE
+//  @Desc If DATE is not provided, then the current date is assumed.
 //  @Input none
 //  @Response RAR
 // wsdoc }
