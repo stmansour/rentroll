@@ -15,6 +15,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"gotable"
 	"os"
 	"rentroll/rcsv"
 	"rentroll/rlib"
@@ -299,31 +300,31 @@ func main() {
 	// Now do all the reporting
 	//----------------------------------------------------
 	var r = []rrpt.ReporterInfo{
-		{ReportNo: 3, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportBusiness},
-		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentableTypes},
-		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentables},
-		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPeople},
-		{ReportNo: 8, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementTemplates},
-		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreements},
-		{ReportNo: 10, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportChartOfAccounts},
-		{ReportNo: 11, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportAssessments},
-		{ReportNo: 12, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPaymentTypes},
-		{ReportNo: 13, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportReceipts},
-		{ReportNo: 14, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributes},
-		{ReportNo: 15, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributeRefs},
-		{ReportNo: 16, OutputFormat: rlib.RPTTEXT, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementPets},
-		{ReportNo: 17, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportNoteTypes},
-		{ReportNo: 18, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepository},
-		{ReportNo: 19, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDeposits},
-		{ReportNo: 20, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportInvoices},
-		{ReportNo: 21, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialties},
-		{ReportNo: 22, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialtyAssigns},
-		{ReportNo: 23, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepositMethods},
-		{ReportNo: 24, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSources},
-		{ReportNo: 25, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportStringLists},
-		{ReportNo: 26, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
-		{ReportNo: 27, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
-		{ReportNo: 28, OutputFormat: rlib.RPTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
+		{ReportNo: 3, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: false, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportBusiness},
+		{ReportNo: 5, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentableTypes},
+		{ReportNo: 6, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentables},
+		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPeople},
+		{ReportNo: 8, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementTemplates},
+		{ReportNo: 9, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRentalAgreements},
+		{ReportNo: 10, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportChartOfAccounts},
+		{ReportNo: 11, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportAssessments},
+		{ReportNo: 12, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportPaymentTypes},
+		{ReportNo: 13, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportReceipts},
+		{ReportNo: 14, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributes},
+		{ReportNo: 15, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportCustomAttributeRefs},
+		{ReportNo: 16, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementPets},
+		{ReportNo: 17, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportNoteTypes},
+		{ReportNo: 18, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepository},
+		{ReportNo: 19, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDeposits},
+		{ReportNo: 20, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportInvoices},
+		{ReportNo: 21, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialties},
+		{ReportNo: 22, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialtyAssigns},
+		{ReportNo: 23, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDepositMethods},
+		{ReportNo: 24, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSources},
+		{ReportNo: 25, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportStringLists},
+		{ReportNo: 26, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
+		{ReportNo: 27, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
+		{ReportNo: 28, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
 	}
 
 	if len(App.Report) > 0 {
