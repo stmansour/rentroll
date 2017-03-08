@@ -11,11 +11,6 @@ const (
 	NO  = int64(0) // std negative value
 	YES = int64(1)
 
-	RPTTEXT = 1
-	RPTHTML = 2
-	RPTPDF  = 3
-	RPTCSV  = 4
-
 	ELEMPERSON          = 1 // people
 	ELEMCOMPANY         = 2 // companies
 	ELEMCLASS           = 3 // classes
