@@ -84,6 +84,37 @@ func main() {
 	updateReceipt(&biz)
 	updateRAPayor(&biz)
 	updateRUser(&biz)
+	updateRAR(&biz)
+}
+
+func updateRAR(biz *rlib.Business) {
+	var rar = rlib.RentalAgreementRentable{BID: 1, RAID: 2, RID: 3, ContractRent: float64(4500.00),
+		RARDtStart: time.Date(2017, time.March, 7, 0, 0, 0, 0, time.UTC),
+		RARDtStop:  time.Date(2018, time.March, 7, 0, 0, 0, 0, time.UTC)}
+	rarid, err := rlib.InsertRentalAgreementRentable(&rar)
+	if err != nil {
+		fmt.Printf("Error inserting Rental Agreement Rentable: %s\n", err.Error())
+		os.Exit(1)
+	}
+	rar.RARDtStop = rar.RARDtStop.AddDate(0, 4, 1)
+	err = rlib.UpdateRentalAgreementRentable(&rar)
+	if err != nil {
+		fmt.Printf("Error inserting Rental Agreement Rentable: %s\n", err.Error())
+		os.Exit(1)
+	}
+	rar2, err := rlib.GetRentalAgreementRentable(rarid)
+	if err != nil {
+		fmt.Printf("Error getting Rental Agreement Rentable: %s\n", err.Error())
+		os.Exit(1)
+	}
+	if rar2.RARDtStart.Equal(rar.RARDtStart) && rar2.RARDtStop.Equal(rar.RARDtStop) &&
+		rar.BID == rar2.BID && rar.RAID == rar2.RAID && rar.RID == rar2.RID &&
+		rar.ContractRent == rar2.ContractRent && rar.CLID == rar2.CLID {
+		fmt.Printf("UpdateRentalAgreementRentable: successful\n")
+	} else {
+		fmt.Printf("rar miscompared with rar2\n")
+		os.Exit(1)
+	}
 }
 
 func updateRUser(biz *rlib.Business) {

@@ -1641,14 +1641,26 @@ function saveNewRUser() {
         DtStart: w2uiDateControlString(y),                  // start
         DtStop: w2uiDateControlString(ny),                  // end
     };
-    console.log('rec = ' + rec);
-    w2ui.rauGrid.add(rec,true);
     var params = {cmd: 'save', formname: 'tcidRUserPicker', record: rec };
     var dat = JSON.stringify(params);
-    console.log('url = ' + url);
-    $.post(url, dat, function(data,status) {
+
+    // save the record to the server, insert into grid if successful
+    $.post(url, dat)
+    .done(function(data) {
+        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+            var msg = JSON.parse(data);
+            w2ui.rauGrid.message(msg.message);
+            return;
+        }
+        if (data.status == 'success') {
+            rec.recid = data.recid; // success reply returns RUID of record just added
+            w2ui.rauGrid.add(rec,true);
+        } else {
+            w2ui.rauGrid.message(data.message);
+        }
+    })
+    .fail(function(data) {
         console.log('data = ' + data);
-        console.log('status = ' + status);
     });
 }
 

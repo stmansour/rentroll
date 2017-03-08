@@ -61,6 +61,14 @@ type SaveRAPeopleInput struct {
 	Record   RAPeopleFormSave `json:"record"`
 }
 
+// UpdateRAPeopleInput is the input from the RUsers grid.
+type UpdateRAPeopleInput struct {
+	Cmd     string     `json:"cmd"`
+	Limit   int64      `json:"limit"`
+	Offset  int64      `json:"offset"`
+	Changes []RAPeople `json:"changes"`
+}
+
 // SaveRAPeopleOther is the input data format for the "other" data on the Save command
 type SaveRAPeopleOther struct {
 	Status string            `json:"status"`
@@ -393,7 +401,8 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// First determine if it is a new record, or a change...
 	if strings.Contains(d.data, `"changes":`) {
-		fmt.Printf("This is an UPDATE TO AN EXISTING RECORD\n")
+		SvcUpdateRUser(w, r, d)
+		return
 	}
 
 	var foo SaveRAPeopleInput
@@ -408,8 +417,8 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("foo.Record = %#v\n", foo.Record)
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
-	fmt.Printf("saveRUser - first migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
-		a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
+	// fmt.Printf("saveRUser - first migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
+	// 	a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 
 	var bar SaveRAPeopleOther
 	if err := json.Unmarshal(data, &bar); err != nil {
@@ -433,26 +442,67 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Try to read an existing record...
 	_, err = rlib.GetRentableUserByRBT(a.RID, a.BID, a.TCID)
 	if err != nil && !strings.Contains(err.Error(), "no rows") {
-		fmt.Printf("Error reading RentaableUsers: %s\n", err.Error())
+		fmt.Printf("Error from GetRentableUserByRBT: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+	if err == nil {
+		var t rlib.Transactant
+		err = rlib.GetTransactant(a.TCID, &t)
+		err = fmt.Errorf("%s (%s) is already listed as a user", t.GetUserName(), t.IDtoString())
 		SvcGridErrorReturn(w, err)
 		return
 	}
 
-	if err != nil {
-		// This is a new RUser
-		fmt.Printf(">>>> NEW RUser IS BEING ADDED\n")
-		err = rlib.InsertRentableUser(&a)
-	} else {
-		// update existing record
-		fmt.Printf(">>>> Updating existing RUser\n")
-		err = rlib.UpdateRentableUserByRBT(&a)
-	}
-	if err != nil {
+	// This is a new RUser
+	if err = rlib.InsertRentableUser(&a); err != nil {
 		e := fmt.Errorf("%s: Error saving RUser (RID=%d\n: %s", funcname, d.RID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	SvcWriteSuccessResponseWithID(w, a.RUID)
+}
 
+// SvcUpdateRUser is called when a Rentable User is updated from the RentableUserGrid
+func SvcUpdateRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "SvcUpdateRUser"
+	var foo UpdateRAPeopleInput
+	data := []byte(d.data)
+	if err := json.Unmarshal(data, &foo); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	// This will only contain updates.  Spin through each recid and update
+	// From the grid, we only allow the following changes:  DtStart, DtStop
+	for i := 0; i < len(foo.Changes); i++ {
+		changes := 0
+		ruser, err := rlib.GetRentableUser(foo.Changes[i].Recid)
+		if err != nil {
+			e := fmt.Errorf("%s: Error getting RentableUser:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e)
+			return
+		}
+		fmt.Printf("Found ruser: %#v\n", ruser)
+		dt := time.Time(foo.Changes[i].DtStart)
+		if dt.Year() > 1969 {
+			ruser.DtStart = dt
+			changes++
+		}
+		dt = time.Time(foo.Changes[i].DtStop)
+		if dt.Year() > 1969 {
+			ruser.DtStop = dt
+			changes++
+		}
+		if changes > 0 {
+			if err := rlib.UpdateRentableUser(&ruser); err != nil {
+				e := fmt.Errorf("%s: Error updating RentableUser:  %s", funcname, err.Error())
+				SvcGridErrorReturn(w, e)
+				return
+			}
+		}
+	}
 	SvcWriteSuccessResponse(w)
 }
 
@@ -512,7 +562,8 @@ func SvcGetRAPeople(ptype string, w http.ResponseWriter, r *http.Request, d *Ser
 				rlib.MigrateStructVals(&n[i], &xr)
 				rlib.MigrateStructVals(&rentable, &xr)
 				rlib.MigrateStructVals(&p, &xr)
-				xr.Recid = int64(k) // must set AFTER MigrateStructVals in case src contains recid
+				// xr.Recid = int64(k) // must set AFTER MigrateStructVals in case src contains recid
+				xr.Recid = n[j].RUID
 				k++
 				gxp.Records = append(gxp.Records, xr)
 			}

@@ -388,8 +388,8 @@ func ReadSLStrings(rows *sql.Rows, a *SLString) {
 }
 
 // ReadTransactant reads a full Transactant structure from the database based on the supplied row object
-func ReadTransactant(row *sql.Row, a *Transactant) {
-	Errcheck(row.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName, &a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone, &a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.LastModTime, &a.LastModBy))
+func ReadTransactant(row *sql.Row, a *Transactant) error {
+	return row.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName, &a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone, &a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadTransactants reads a full Transactant structure from the database based on the supplied rows object

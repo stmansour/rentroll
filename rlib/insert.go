@@ -542,6 +542,7 @@ func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			tid = int64(id)
+			a.RARID = tid
 		}
 	} else {
 		Ulog("InsertRentalAgreementRentable: error inserting RentalAgreementRentable:  %v\n", err)
@@ -617,10 +618,15 @@ func InsertRentableTypeRef(a *RentableTypeRef) error {
 
 // InsertRentableUser writes a new User record to the database
 func InsertRentableUser(a *RentableUser) error {
-	_, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop)
+	res, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop)
 	if nil != err {
 		Ulog("InsertRentableUser: error inserting RentableUser:  %v\n", err)
 		Ulog("RentableUser = %#v\n", *a)
+		return err
+	}
+	id, err := res.LastInsertId()
+	if err == nil {
+		a.RUID = int64(id)
 	}
 	return err
 }

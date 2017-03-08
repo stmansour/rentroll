@@ -1142,7 +1142,15 @@ func GetXRentable(rid int64, x *XRentable) {
 	x.S = GetAllRentableSpecialtyRefs(x.R.BID, x.R.RID)
 }
 
-// GetRentableUserByRBT returns a Rentable User record matchin the supplied
+// GetRentableUser returns a Rentable User record with the supplied RUID
+func GetRentableUser(ruid int64) (RentableUser, error) {
+	row := RRdb.Prepstmt.GetRentableUser.QueryRow(ruid)
+	var r RentableUser
+	err := ReadRentableUser(row, &r)
+	return r, err
+}
+
+// GetRentableUserByRBT returns a Rentable User record matching the supplied
 // RID, BID, TCID
 func GetRentableUserByRBT(rid, bid, tcid int64) (RentableUser, error) {
 	row := RRdb.Prepstmt.GetRentableUserByRBT.QueryRow(rid, bid, tcid)
@@ -1481,6 +1489,14 @@ func GetRARentableForDate(raid int64, d1 *time.Time, rar *RentalAgreementRentabl
 	return ReadRentalAgreementRentable(row, rar)
 }
 
+// GetRentalAgreementRentable returns Rentable record matching the supplied RARID
+func GetRentalAgreementRentable(rarid int64) (RentalAgreementRentable, error) {
+	row := RRdb.Prepstmt.GetRentalAgreementRentable.QueryRow(rarid)
+	var r RentalAgreementRentable
+	err := ReadRentalAgreementRentable(row, &r)
+	return r, err
+}
+
 // GetRentalAgreementRentables returns an array of RentalAgreementRentables associated with the supplied RentalAgreement ID
 // during the time range d1-d2
 func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreementRentable {
@@ -1497,7 +1513,7 @@ func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreemen
 	return t
 }
 
-// GetRentalAgreementPayor returns Rental Agreement Payor record matchin the supplied
+// GetRentalAgreementPayor returns Rental Agreement Payor record matching the supplied
 // RAID, BID, TCID
 func GetRentalAgreementPayor(raid, bid, tcid int64) (RentalAgreementPayor, error) {
 	row := RRdb.Prepstmt.GetRentalAgreementPayor.QueryRow(raid, bid, tcid)
@@ -1654,8 +1670,8 @@ func GetTransactantByPhoneOrEmail(BID int64, s string) Transactant {
 }
 
 // GetTransactant reads a Transactant structure based on the supplied Transactant id
-func GetTransactant(tid int64, t *Transactant) {
-	ReadTransactant(RRdb.Prepstmt.GetTransactant.QueryRow(tid), t)
+func GetTransactant(tid int64, t *Transactant) error {
+	return ReadTransactant(RRdb.Prepstmt.GetTransactant.QueryRow(tid), t)
 }
 
 // GetProspect reads a Prospect structure based on the supplied Transactant id

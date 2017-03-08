@@ -950,13 +950,12 @@ type GLAccount struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
-	CountBusinessCustomAttrRefs   *sql.Stmt
-	CountBusinessCustomAttributes *sql.Stmt
-	CountBusinessRentableTypes    *sql.Stmt
-	CountBusinessTransactants     *sql.Stmt
-	CountBusinessRentables        *sql.Stmt
-	CountBusinessRentalAgreements *sql.Stmt
-	// GetRABalanceLedger                       *sql.Stmt
+	CountBusinessCustomAttributes      *sql.Stmt
+	CountBusinessCustomAttrRefs        *sql.Stmt
+	CountBusinessRentables             *sql.Stmt
+	CountBusinessRentableTypes         *sql.Stmt
+	CountBusinessRentalAgreements      *sql.Stmt
+	CountBusinessTransactants          *sql.Stmt
 	DeleteAllRentalAgreementPets       *sql.Stmt
 	DeleteCustomAttribute              *sql.Stmt
 	DeleteCustomAttributeRef           *sql.Stmt
@@ -986,6 +985,8 @@ type RRprepSQL struct {
 	DeleteRentableSpecialtyRef         *sql.Stmt
 	DeleteRentableStatus               *sql.Stmt
 	DeleteRentableTypeRef              *sql.Stmt
+	DeleteRentableUserByRBT            *sql.Stmt
+	DeleteRentalAgreementPayorByRBT    *sql.Stmt
 	DeleteRentalAgreementPet           *sql.Stmt
 	DeleteRentalAgreementTax           *sql.Stmt
 	DeleteSLString                     *sql.Stmt
@@ -993,8 +994,8 @@ type RRprepSQL struct {
 	DeleteStringList                   *sql.Stmt
 	DeleteVehicle                      *sql.Stmt
 	FindAgreementByRentable            *sql.Stmt
-	FindTransactantByPhoneOrEmail      *sql.Stmt
 	FindTCIDByNote                     *sql.Stmt
+	FindTransactantByPhoneOrEmail      *sql.Stmt
 	GetAgreementsForRentable           *sql.Stmt
 	GetAllAssessmentsByBusiness        *sql.Stmt
 	GetAllAssessmentsByRAID            *sql.Stmt
@@ -1087,6 +1088,7 @@ type RRprepSQL struct {
 	GetPayor                           *sql.Stmt
 	GetProspect                        *sql.Stmt
 	GetRALedgerMarkerOnOrBefore        *sql.Stmt
+	GetRARentableForDate               *sql.Stmt
 	GetRatePlan                        *sql.Stmt
 	GetRatePlanByName                  *sql.Stmt
 	GetRatePlanRef                     *sql.Stmt
@@ -1111,12 +1113,16 @@ type RRprepSQL struct {
 	GetRentableType                    *sql.Stmt
 	GetRentableTypeByStyle             *sql.Stmt
 	GetRentableTypeRefsByRange         *sql.Stmt
+	GetRentableUser                    *sql.Stmt
+	GetRentableUserByRBT               *sql.Stmt
 	GetRentableUsersInRange            *sql.Stmt
 	GetRentalAgreement                 *sql.Stmt
 	GetRentalAgreementByBusiness       *sql.Stmt
 	GetRentalAgreementByRATemplateName *sql.Stmt
+	GetRentalAgreementPayor            *sql.Stmt
 	GetRentalAgreementPayors           *sql.Stmt
 	GetRentalAgreementPet              *sql.Stmt
+	GetRentalAgreementRentable         *sql.Stmt
 	GetRentalAgreementRentables        *sql.Stmt
 	GetRentalAgreementsForRentable     *sql.Stmt
 	GetRentalAgreementTax              *sql.Stmt
@@ -1127,6 +1133,7 @@ type RRprepSQL struct {
 	GetStringList                      *sql.Stmt
 	GetStringListByName                *sql.Stmt
 	GetTransactant                     *sql.Stmt
+	GetTransactantTypeDown             *sql.Stmt
 	GetUnitAssessments                 *sql.Stmt
 	GetUser                            *sql.Stmt
 	GetVehicle                         *sql.Stmt
@@ -1188,6 +1195,7 @@ type RRprepSQL struct {
 	InsertVehicle                      *sql.Stmt
 	ReadRatePlan                       *sql.Stmt
 	ReadRatePlanRef                    *sql.Stmt
+	UIRAGrid                           *sql.Stmt
 	UpdateAssessment                   *sql.Stmt
 	UpdateBusiness                     *sql.Stmt
 	UpdateCustomAttribute              *sql.Stmt
@@ -1195,12 +1203,12 @@ type RRprepSQL struct {
 	UpdateDeposit                      *sql.Stmt
 	UpdateDepositMethod                *sql.Stmt
 	UpdateDepository                   *sql.Stmt
-	UpdateRentalAgreementTax           *sql.Stmt
 	UpdateInvoice                      *sql.Stmt
 	UpdateLedger                       *sql.Stmt
 	UpdateLedgerMarker                 *sql.Stmt
 	UpdateNote                         *sql.Stmt
 	UpdateNoteType                     *sql.Stmt
+	UpdatePayor                        *sql.Stmt
 	UpdateProspect                     *sql.Stmt
 	UpdateRatePlan                     *sql.Stmt
 	UpdateRatePlanRef                  *sql.Stmt
@@ -1211,25 +1219,18 @@ type RRprepSQL struct {
 	UpdateRentableSpecialtyRef         *sql.Stmt
 	UpdateRentableStatus               *sql.Stmt
 	UpdateRentableTypeRef              *sql.Stmt
+	UpdateRentableUser                 *sql.Stmt
+	UpdateRentableUserByRBT            *sql.Stmt
 	UpdateRentalAgreement              *sql.Stmt
+	UpdateRentalAgreementPayorByRBT    *sql.Stmt
 	UpdateRentalAgreementPet           *sql.Stmt
+	UpdateRentalAgreementRentable      *sql.Stmt
+	UpdateRentalAgreementTax           *sql.Stmt
 	UpdateSLString                     *sql.Stmt
 	UpdateStringList                   *sql.Stmt
 	UpdateTransactant                  *sql.Stmt
-	UpdateVehicle                      *sql.Stmt
 	UpdateUser                         *sql.Stmt
-	UpdatePayor                        *sql.Stmt
-	UIRAGrid                           *sql.Stmt
-	GetRARentableForDate               *sql.Stmt
-	GetTransactantTypeDown             *sql.Stmt
-	GetRentalAgreementPayor            *sql.Stmt
-	UpdateRentalAgreementPayorByRBT    *sql.Stmt
-	DeleteRentalAgreementPayorByRBT    *sql.Stmt
-	GetRentableUserByRBT               *sql.Stmt
-	UpdateRentableUserByRBT            *sql.Stmt
-	DeleteRentableUserByRBT            *sql.Stmt
-	GetRentalAgreementRentable         *sql.Stmt
-	UpdateRentalAgreementRentable      *sql.Stmt
+	UpdateVehicle                      *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

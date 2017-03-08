@@ -163,6 +163,12 @@ func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	return updateError(err, "RentableTypeRef", *a)
 }
 
+// UpdateRentableUser updates a RentableUser record in the database
+func UpdateRentableUser(a *RentableUser) error {
+	_, err := RRdb.Prepstmt.UpdateRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.RUID)
+	return updateError(err, "RentableUser", *a)
+}
+
 // UpdateRentableUserByRBT updates a RentableUser record in the database
 func UpdateRentableUserByRBT(a *RentableUser) error {
 	_, err := RRdb.Prepstmt.UpdateRentableUserByRBT.Exec(a.DtStart, a.DtStop, a.RID, a.BID, a.TCID)
