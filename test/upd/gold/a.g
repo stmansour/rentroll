@@ -1,5 +1,3 @@
-Business Units
-
                                                         Default     Default   
                                             Default     Proration   GSRPC     
 BID        BUD        Name                  Rent Cycle  Cycle       Cycle     
