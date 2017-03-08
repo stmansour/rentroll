@@ -203,22 +203,36 @@ CREATE TABLE RentalAgreement (
 );
 
 CREATE TABLE RentalAgreementRentables (
+    RARID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
     CLID BIGINT NOT NULL DEFAULT 0,                           -- Commission Ledger (for outside salespeople to get a commission)
     ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
     RARDtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when this Rentable was added to the agreement
-    RARDtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'     -- date when this Rentable was no longer being billed to this agreement
+    RARDtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- date when this Rentable was no longer being billed to this agreement
+    PRIMARY KEY (RARID)
 );
 
 CREATE TABLE RentalAgreementPayors (
+    RAPID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     TCID BIGINT NOT NULL DEFAULT 0,                           -- who is the Payor for this agreement
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this Payor was no longer being billed to this agreement
-    FLAGS BIGINT NOT NULL DEFAULT 0                           -- 1 << 0 is the bit that indicates this payor is a 'guarantor'
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1 << 0 is the bit that indicates this payor is a 'guarantor'
+    PRIMARY KEY (RAPID)
+);
+
+CREATE TABLE RentableUsers (
+    RUID BIGINT NOT NULL AUTO_INCREMENT,                      -- internal unique id
+    RID BIGINT NOT NULL DEFAULT 0,                            -- the associated Rentable
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
+    TCID BIGINT NOT NULL DEFAULT 0,                           -- the Users of the rentable
+    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
+    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00' ,      -- date when this User was no longer being billed to this agreement
+    PRIMARY KEY (RUID)
 );
 
 CREATE TABLE RentalAgreementTax (
@@ -227,14 +241,6 @@ CREATE TABLE RentalAgreementTax (
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this flag went into effect
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this flag was no longer in effect
     FLAGS BIGINT NOT NULL DEFAULT 0                           -- 1 << 0 is the bit that indicates whether or not the rental agreement is taxable
-);
-
-CREATE TABLE RentableUsers (
-    RID BIGINT NOT NULL DEFAULT 0,                            -- the associated Rentable
-    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
-    TCID BIGINT NOT NULL DEFAULT 0,                           -- the Users of the rentable
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00'        -- date when this User was no longer being billed to this agreement
 );
 
 CREATE TABLE RentalAgreementPets (

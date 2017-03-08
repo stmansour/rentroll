@@ -1142,10 +1142,10 @@ func GetXRentable(rid int64, x *XRentable) {
 	x.S = GetAllRentableSpecialtyRefs(x.R.BID, x.R.RID)
 }
 
-// GetRentableUser returns a Rentable User record matchin the supplied
+// GetRentableUserByRBT returns a Rentable User record matchin the supplied
 // RID, BID, TCID
-func GetRentableUser(rid, bid, tcid int64) (RentableUser, error) {
-	row := RRdb.Prepstmt.GetRentableUser.QueryRow(rid, bid, tcid)
+func GetRentableUserByRBT(rid, bid, tcid int64) (RentableUser, error) {
+	row := RRdb.Prepstmt.GetRentableUserByRBT.QueryRow(rid, bid, tcid)
 	var r RentableUser
 	err := ReadRentableUser(row, &r)
 	return r, err
@@ -1373,10 +1373,10 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 	return float64(0)
 }
 
-// GetRentableUsers returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
+// GetRentableUsersInRange returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
 // during the time range d1-d2
-func GetRentableUsers(rid int64, d1, d2 *time.Time) []RentableUser {
-	rows, err := RRdb.Prepstmt.GetRentableUsers.Query(rid, d1, d2)
+func GetRentableUsersInRange(rid int64, d1, d2 *time.Time) []RentableUser {
+	rows, err := RRdb.Prepstmt.GetRentableUsersInRange.Query(rid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	var t []RentableUser
@@ -1426,7 +1426,7 @@ func LoadXRentalAgreement(raid int64, r *RentalAgreement, d1, d2 *time.Time) err
 		r.P = append(r.P, xp)
 	}
 
-	n := GetRentableUsers(raid, d1, d2)
+	n := GetRentableUsersInRange(raid, d1, d2)
 	r.T = make([]XPerson, 0)
 	for i := 0; i < len(n); i++ {
 		var xp XPerson

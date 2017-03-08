@@ -6,13 +6,15 @@ clean:
 	@echo "*** CLEAN completed in svc ***"
 
 test:
-	touch fail
+	@touch fail
 	./functest.sh
 	@echo "*** TEST completed in svc ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in svc ***"
 
 get:
+	@touch fail
 	../../tools/bashtools/getdb.sh
+	@rm -f fail

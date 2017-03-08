@@ -632,43 +632,44 @@ func buildPreparedStatements() {
 	//====================================================
 	//  Rental Agreement { Rentable | Users | Payors }
 	//====================================================
-	flds = "RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop"
+	flds = "RARID,RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop"
 	RRdb.Prepstmt.GetRARentableForDate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RAID=? AND ?>=RARDtStart AND ?<RARDtStop")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementRentables, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RAID=? and ?<RARDtStop and ?>RARDtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RID=? and ?<RARDtStop and ?>RARDtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableUsers, err = RRdb.Dbrr.Prepare("SELECT RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? and ?<DtStop and ?>DtStart")
-	Errcheck(err)
 	RRdb.Prepstmt.GetAgreementsForRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RID=? and ?<RARDtStop and ?>RARDtStart")
 	Errcheck(err)
-
-	RRdb.Prepstmt.GetRentableUser, err = RRdb.Dbrr.Prepare("SELECT RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? AND BID=? AND TCID=?")
+	RRdb.Prepstmt.GetRentalAgreementRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RARID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableUser, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET DtStart=?,DtStop=? WHERE RID=? AND BID=? AND TCID=?")
+	RRdb.Prepstmt.InsertRentalAgreementRentable, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementRentables (RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop) VALUES(?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableUser, err = RRdb.Dbrr.Prepare("DELETE from RentableUsers WHERE RID=? AND BID=? AND TCID=?")
-	Errcheck(err)
-
-	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>DtStart")
-	Errcheck(err)
-
-	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertRentalAgreementPayor, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPayors (RAID,BID,TCID,DtStart,DtStop,FLAGS) VALUES(?,?,?,?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentalAgreementPayor, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPayors SET DtStart=?,DtStop=?,FLAGS=? WHERE RAID=? AND BID=? AND TCID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentalAgreementPayor, err = RRdb.Dbrr.Prepare("DELETE from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
-	Errcheck(err)
-
-	RRdb.Prepstmt.InsertRentalAgreementRentable, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementRentables (" + flds + ") VALUES(?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.UpdateRentalAgreementRentable, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementRentables SET RAID=?,BID=?,RID=?,CLID=?,ContractRent=?,RARDtStart=?,RARDtStop=? WHERE RARID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementRentables WHERE RID=? AND RARDtStop>? AND RARDtStart<=?")
 	Errcheck(err)
 
+	RRdb.Prepstmt.GetRentableUsersInRange, err = RRdb.Dbrr.Prepare("SELECT RUID,RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? and ?<DtStop and ?>=DtStart")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentableUserByRBT, err = RRdb.Dbrr.Prepare("SELECT RUID,RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentableUserByRBT, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET DtStart=?,DtStop=? WHERE RID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentableUserByRBT, err = RRdb.Dbrr.Prepare("DELETE from RentableUsers WHERE RID=? AND BID=? AND TCID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.InsertRentableUser, err = RRdb.Dbrr.Prepare("INSERT INTO RentableUsers (RID,BID,TCID,DtStart,DtStop) VALUES(?,?,?,?,?)")
+	Errcheck(err)
+
+	RRdb.Prepstmt.GetRentalAgreementPayors, err = RRdb.Dbrr.Prepare("SELECT RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>DtStart")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertRentalAgreementPayor, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPayors (RAID,BID,TCID,DtStart,DtStop,FLAGS) VALUES(?,?,?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPayors SET DtStart=?,DtStop=?,FLAGS=? WHERE RAID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("DELETE from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
 
 	//===============================

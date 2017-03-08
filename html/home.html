@@ -24,7 +24,8 @@ sidebarL1     - w2ui sidebar
 <script>
 /*global
     w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
-    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
 */
 
 /*globals $:false */
@@ -35,7 +36,8 @@ var app = {
     D2: "2016-03-01",
     uid: 211,
     lastCmd: '',
-    TCIDPicker: {BID: 0},
+    TcidRAPayorPicker: {BID: 0},
+    TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     language: "{{.Language}}",
     template: "{{.Template}}",
     pstyle: 'border: 1px solid #dfdfdf; padding: 0px;',
@@ -951,7 +953,6 @@ function buildPageElements() {
             for (var i = 0; i < w2ui.rarGrid.records.length; i++) {
                 total += w2ui.rarGrid.records[i].ContractRent;
             }
-            console.log('PUSH SUMMARY RECORD');
             w2ui.rarGrid.summary.push({recid: 's-1', RAID: 0, RID: 0, RentableName: '', ContractRent: total, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
         },
 
@@ -991,7 +992,7 @@ function buildPageElements() {
         ],
         onAdd: function (/*event*/) {
             var x = getCurrentBusiness();
-            popupTCIDPicker('Add A New ' + app.sPayor, x.value );
+            popupTcidRAPayorPicker(app.sPayor, x.value );
         },
         onSave: function() {
             console.log('save payors');
@@ -1026,11 +1027,12 @@ function buildPageElements() {
             toolbarReload: false,
             toolbarColumns: false,
         },
-        url: '/v1/rau',       
+        url: '/v1/ruser',       
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'TCID', hidden: true, caption: 'TCID',  size: '40px', sortable: true},
             {field: 'RID', hidden: true, caption: 'RID',  size: '40px', sortable: true},
+            {field: 'BID', hidden: true, caption: 'RID',  size: '40px', sortable: true},
             {field: 'RentableName', caption: app.sRentable,  size: '10%', sortable: true},
             {field: 'FirstName', caption: 'First Name',  size: '10%', sortable: true},
             {field: 'MiddleName', caption: 'MI',  size: '30px', sortable: true},
@@ -1038,11 +1040,21 @@ function buildPageElements() {
             {field: 'DtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
         ],
-        onDelete: function(event) {
+        onAdd: function (/*event*/) {
+            var x = getCurrentBusiness();
+            console.log('rentalagrForm.record.RAID = ' + w2ui.rentalagrForm.record.RAID);
+            popupTcidRUserPicker(app.sUser, x.value, w2ui.rentalagrForm.record.RAID );
+        },
+        onSave: function() {
+            console.log('save users');
+        },
+        onDelete: function(/*event*/) {
             var sel = w2ui.rauGrid.getSelection(true); // get the record indeces rather than the recids
+            var x = getCurrentBusiness();
             w2ui.rauGrid.postData = {
                 TCID: w2ui.rauGrid.records[sel[0]].TCID,
             };
+            w2ui.rauGrid.url = '/v1/ruser/' + x.value + '/' + w2ui.rauGrid.records[sel[0]].RID;
         }
      });
 
@@ -1442,51 +1454,23 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          tcidPicker
+    //          tcidRAPayorPicker
     //------------------------------------------------------------------------
     $().w2form({
-        name: 'tcidPicker',
+        name: 'tcidRAPayorPicker',
         style: 'border: 0px; background-color: transparent;',
-        formURL: '/html/tcidpicker.html',
+        formURL: '/html/tcidrapayorpicker.html',
         focus  : 0,
         fields: [
             { field: 'TCID', type: 'w2int', required: true },
             { field: 'pickedName', required: true, 
                 type: 'enum', 
                 options: {
-                    url: '/v1/transactantstd/' + app.TCIDPicker.BID,
-                    max: 1,
-                    renderItem: function (item) {
-                        var s = item.FirstName + ' ' + item.LastName;
-                        w2ui.tcidPicker.record = {
-                            TCID: item.TCID, 
-                            pickedName: s, 
-                            DtStart: w2ui.tcidPicker.record.DtStart, 
-                            DtStop: w2ui.tcidPicker.record.DtStop,
-                            FirstName: item.FirstName,
-                            LastName: item.LastName,
-                        };
-                        // w2ui.tcidPicker.reload(); // seems like it could be recursive; BEWARE
-                        return s; 
-                    },
-                    renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
-                    compare: function (item, search) {
-                        var FirstName = search, 
-                            LastName = search;
-                        if (search.indexOf(' ') != -1) {
-                            FirstName = search.split(' ')[0];
-                            LastName = search.split(' ')[1];
-                        }
-                        var match = false;
-                        var re1 = new RegExp(FirstName, 'i');
-                        var re2 = new RegExp(LastName, 'i');
-                        if (FirstName == LastName) {
-                            if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
-                        } else {
-                            if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
-                        }
-                        return match;
-                    },
+                    url:        '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
+                    max:        1,
+                    renderItem: tcidRAPayorPickerRender,
+                    renderDrop: tcidPickerDropRender,
+                    compare:    tcidPickerCompare,
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
@@ -1499,70 +1483,122 @@ function buildPageElements() {
             { field: 'LastName', type: 'text', required: false },
         ],
         onRefresh: function(/*event*/) {
-            w2ui.tcidPicker.fields[1].options.url = '/v1/transactantstd/' + app.TCIDPicker.BID;
-            console.log('SAVE tcidPicker: TCID = ' + w2ui.tcidPicker.record.TCID + '  DtStart = ' + w2ui.tcidPicker.record.DtStart + '  DtStop = ' + w2ui.tcidPicker.record.DtStop);
+            w2ui.tcidRAPayorPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRAPayorPicker.BID;
+            console.log('SAVE tcidRAPayorPicker: TCID = ' + w2ui.tcidRAPayorPicker.record.TCID + '  DtStart = ' + w2ui.tcidRAPayorPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRAPayorPicker.record.DtStop);
         },
         onChange: function (event) {
             console.log(event);
         },
         actions: {
             save: function () {
-                console.log('SAVE tcidPicker: TCID = ' + w2ui.tcidPicker.record.TCID + '  DtStart = ' + w2ui.tcidPicker.record.DtStart + '  DtStop = ' + w2ui.tcidPicker.record.DtStop);
+                var errs = w2ui.tcidRUserPicker.validate(true);
+                if (errs.length > 0) { 
+                    return; 
+                }
                 w2popup.close();
-                var y = new Date();
-                var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
-                var rec = {
-                    recid: w2ui.rapGrid.records.length,             // + 1
-                    BID: w2ui.rentalagrForm.record.BID,             // BID of RAID we're editing
-                    TCID: w2ui.tcidPicker.record.TCID,              // The TCID from the person picked
-                    RAID: w2ui.rentalagrForm.record.RAID,           // the RAID we're editing
-                    FirstName: w2ui.tcidPicker.record.FirstName,    // ignored
-                    MiddleName: "",                                 // ignored
-                    LastName: w2ui.tcidPicker.record.LastName,      // ignored
-                    DtStart: w2uiDateControlString(y),              // start
-                    DtStop: w2uiDateControlString(ny),              // end
-                };
-                console.log('rec = ' + rec);
-                w2ui.rapGrid.add(rec,true);
-                var params = {cmd: 'save', formname: 'tcidPicker', record: rec };
-                var dat = JSON.stringify(params);
-                console.log('url = ' + w2ui.rapGrid.url);
-                $.post(w2ui.rapGrid.url, dat, function(data,status) {
-                    console.log('data = ' + data);
-                    console.log('status = ' + status);
-                });
+                saveNewRAPayor();
             },
         },
     });
-
- 
+    //------------------------------------------------------------------------
+    //          tcidRUserPicker
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'tcidRUserPicker',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/tcidruserpicker.html',
+        focus  : 0,
+        fields: [
+            { field: 'TCID', type: 'w2int', required: true },
+            { field: 'pickedName', required: true, 
+                type: 'enum', 
+                options: {
+                    url:        '/v1/transactantstd/' + app.TcidRUserPicker.BID,
+                    max:        1,
+                    renderItem: tcidRAPayorPickerRender,
+                    renderDrop: tcidPickerDropRender,
+                    compare:    tcidPickerCompare,
+                    onNew: function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                    }
+                },
+            },
+            { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
+            { field: 'DtStart', type: 'date', required: true },
+            { field: 'DtStop', type: 'date', required: true },
+            { field: 'FirstName', type: 'text', required: false },
+            { field: 'LastName', type: 'text', required: false },
+        ],
+        onRefresh: function(/*event*/) {
+            w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
+            w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
+        },
+        onChange: function (event) {
+            console.log(event);
+        },
+        actions: {
+            save: function () {
+                var errs = w2ui.tcidRUserPicker.validate(true);
+                if (errs.length > 0) { return; }
+                console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
+                w2popup.close();
+                saveNewRUser();
+            },
+        },
+    });
 }
 
-function popupTCIDPicker(sTitle,bid) {
+
+function saveNewRAPayor() {
     "use strict";
-    console.log('sTitle = ' + sTitle +', BID = ' + bid);
-    app.TCIDPicker = {BID: bid};  // used by tcidPicker form
-    
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
-    w2ui.tcidPicker.record.DtStart = w2uiDateControlString(y);
-    w2ui.tcidPicker.record.DtStop = w2uiDateControlString(ny);
-    w2ui.tcidPicker.record.TCID = -1;
-    w2ui.tcidPicker.refresh();
+    var rec = {
+        recid: w2ui.rapGrid.records.length,                 // + 1
+        BID: w2ui.rentalagrForm.record.BID,                 // BID of RAID we're editing
+        TCID: w2ui.tcidRAPayorPicker.record.TCID,           // The TCID from the person picked
+        RAID: w2ui.rentalagrForm.record.RAID,               // the RAID we're editing
+        FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
+        MiddleName: "",                                     // ignored
+        LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
+        DtStart: w2uiDateControlString(y),                  // start
+        DtStop: w2uiDateControlString(ny),                  // end
+    };
+    //console.log('rec = ' + rec);
+    w2ui.rapGrid.add(rec,true);
+    var params = {cmd: 'save', formname: 'tcidRAPayorPicker', record: rec };
+    var dat = JSON.stringify(params);
+    // console.log('url = ' + w2ui.rapGrid.url);
+    $.post(w2ui.rapGrid.url, dat, function(data,status) {
+        console.log('data = ' + data);
+        if (status != "success") {
+            console.log('status = ' + status);
+        }
+    });
+}
 
+function popupTcidRAPayorPicker(sTitle,bid) {
+    "use strict";
+    app.TcidRAPayorPicker = {BID: bid, Title: sTitle};  // used by tcidRAPayorPicker form
+    var y = new Date();
+    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+    w2ui.tcidRAPayorPicker.record.DtStart = w2uiDateControlString(y);
+    w2ui.tcidRAPayorPicker.record.DtStop = w2uiDateControlString(ny);
+    w2ui.tcidRAPayorPicker.record.TCID = -1;
+    w2ui.tcidRAPayorPicker.refresh();
     $().w2popup('open', {
-        title   : sTitle,
-        //  url     : '/html/tcidpicker.html',
+        title   : 'Add A New ' + sTitle,
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
         style   : 'padding: 15px 0px 0px 0px',
         width   : 400,
         height  : 200, 
         showMax : true,
         onToggle: function (event) {
-            $(w2ui.tcidPicker.box).hide();
+            $(w2ui.tcidRAPayorPicker.box).hide();
             event.onComplete = function () {
-                $(w2ui.tcidPicker.box).show();
-                w2ui.tcidPicker.resize();
+                $(w2ui.tcidRAPayorPicker.box).show();
+                w2ui.tcidRAPayorPicker.resize();
             };
         },
         onOpen: function (event) {
@@ -1570,10 +1606,95 @@ function popupTCIDPicker(sTitle,bid) {
                 // specifying an onOpen handler instead would be equivalent to specifying 
                 // an onBeforeOpen handler, which would make this code execute too 
                 // early and hence not deliver.
-                $('#w2ui-popup #form').w2render('tcidPicker');
+                $('#w2ui-popup #form').w2render('tcidRAPayorPicker');
             };
         }
     });   
+}
+
+function saveNewRUser() {
+    "use strict";
+    var y = new Date();
+    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+    var myRID = -1;
+    var rname = w2ui.tcidRUserPicker.record.RentableName.text;
+    var url = '/v1/ruser/';
+    for (var i = 0; i < app.TcidRUserPicker.RAR.records.length; i++) {
+        if (app.TcidRUserPicker.RAR.records[i].RentableName == rname) {
+            myRID = app.TcidRUserPicker.RAR.records[i].RID;
+            url += '' + app.TcidRUserPicker.RAR.records[i].BID + '/' + myRID;
+        }
+    }
+    if (myRID < 1) { 
+        console.log('RID = ' + myRID);
+        return; 
+    }
+    var rec = {
+        recid: w2ui.rapGrid.records.length,                 // + 1
+        BID: w2ui.rentalagrForm.record.BID,                 // BID of RID we're editing
+        TCID: w2ui.tcidRAPayorPicker.record.TCID,           // The TCID from the person picked
+        RID: myRID,                                         // the selected RID
+        RentableName: rname,                                // the name of the rentable
+        FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
+        MiddleName: "",                                     // ignored
+        LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
+        DtStart: w2uiDateControlString(y),                  // start
+        DtStop: w2uiDateControlString(ny),                  // end
+    };
+    console.log('rec = ' + rec);
+    w2ui.rauGrid.add(rec,true);
+    var params = {cmd: 'save', formname: 'tcidRUserPicker', record: rec };
+    var dat = JSON.stringify(params);
+    console.log('url = ' + url);
+    $.post(url, dat, function(data,status) {
+        console.log('data = ' + data);
+        console.log('status = ' + status);
+    });
+}
+
+function popupTcidRUserPicker(sTitle,bid,raid) {
+    "use strict";
+    app.TcidRUserPicker = {BID: bid, Title: sTitle, RAID: raid, RARentablesNames: [], RAR: []};  // used by tcidRUserPicker form
+    var y = new Date();
+    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+    w2ui.tcidRUserPicker.record.DtStart = w2uiDateControlString(y);
+    w2ui.tcidRUserPicker.record.DtStop = w2uiDateControlString(ny);
+    w2ui.tcidRUserPicker.record.TCID = -1;
+    w2ui.tcidRUserPicker.refresh();
+    var url = '/v1/rar/' + bid + '/' + raid;
+    $.get(url,function(data,status) {
+        if (status != "success") {
+            console.log('>>>>>>>>>>>>>>>  status = ' + status);
+            return;
+        }
+        app.TcidRUserPicker.RAR = JSON.parse(data);
+        for (var i = 0; i < app.TcidRUserPicker.RAR.records.length; i++) {
+            app.TcidRUserPicker.RARentablesNames.push(app.TcidRUserPicker.RAR.records[i].RentableName);
+        }
+    });
+    $().w2popup('open', {
+        title   : 'Add A New ' + sTitle,
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 400,
+        height  : 250, 
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.tcidRUserPicker.box).hide();
+            event.onComplete = function () {
+                $(w2ui.tcidRUserPicker.box).show();
+                w2ui.tcidRUserPicker.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead would be equivalent to specifying 
+                // an onBeforeOpen handler, which would make this code execute too 
+                // early and hence not deliver.
+                $('#w2ui-popup #form').w2render('tcidRUserPicker');
+            };
+        }
+    });
 }
 
 function createRentalAgreementForm() {

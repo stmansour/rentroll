@@ -1,9 +1,10 @@
-newdb:
-	#mysql --no-defaults < schema.sql
+newdb: doit
 	@echo "*** completed in db/schema ***"
 
 doit:
+	@touch fail
 	mysql --no-defaults < schema.sql
+	@rm -rf fail
 
 clean:
 	@echo "*** CLEAN completed in db/schema ***"

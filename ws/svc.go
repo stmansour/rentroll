@@ -363,7 +363,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("**** YIPES! **** %s - Handler not found\n", subURLPath)
 		e := fmt.Errorf("Service not recognized: %s", requestedSvc)
 		fmt.Printf("***ERROR IN URL***  %s", e.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, e)
 	}
 	fmt.Printf("\n-------------------------------------\n\n")
 }

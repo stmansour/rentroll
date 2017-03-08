@@ -388,6 +388,7 @@ type RentalAgreement struct {
 
 // RentalAgreementRentable describes a Rentable associated with a rental agreement
 type RentalAgreementRentable struct {
+	RARID        int64     // unique id
 	RAID         int64     // associated rental agreement
 	BID          int64     // Business
 	RID          int64     // the Rentable
@@ -399,6 +400,7 @@ type RentalAgreementRentable struct {
 
 // RentalAgreementPayor describes a Payor associated with a rental agreement
 type RentalAgreementPayor struct {
+	RAPID   int64 // unique id
 	RAID    int64
 	BID     int64     // Business
 	TCID    int64     // the payor's transactant id
@@ -418,6 +420,7 @@ type RentalAgreementTax struct {
 
 // RentableUser describes a User associated with a rental agreement
 type RentableUser struct {
+	RUID    int64     // unique id
 	RID     int64     // associated Rentable
 	BID     int64     // associated business
 	TCID    int64     // pointer to Transactant
@@ -954,62 +957,61 @@ type RRprepSQL struct {
 	CountBusinessRentables        *sql.Stmt
 	CountBusinessRentalAgreements *sql.Stmt
 	// GetRABalanceLedger                       *sql.Stmt
-	DeleteAllRentalAgreementPets  *sql.Stmt
-	DeleteCustomAttribute         *sql.Stmt
-	DeleteCustomAttributeRef      *sql.Stmt
-	DeleteDemandSource            *sql.Stmt
-	DeleteDeposit                 *sql.Stmt
-	DeleteDepositMethod           *sql.Stmt
-	DeleteDepository              *sql.Stmt
-	DeleteDepositParts            *sql.Stmt
-	DeleteInvoice                 *sql.Stmt
-	DeleteInvoiceAssessments      *sql.Stmt
-	DeleteInvoicePayors           *sql.Stmt
-	DeleteJournalAllocations      *sql.Stmt
-	DeleteJournalEntry            *sql.Stmt
-	DeleteJournalMarker           *sql.Stmt
-	DeleteLedger                  *sql.Stmt
-	DeleteLedgerEntry             *sql.Stmt
-	DeleteLedgerMarker            *sql.Stmt
-	DeleteNote                    *sql.Stmt
-	DeleteNoteList                *sql.Stmt
-	DeleteNoteType                *sql.Stmt
-	DeleteRatePlan                *sql.Stmt
-	DeleteRatePlanRef             *sql.Stmt
-	DeleteRatePlanRefRTRate       *sql.Stmt
-	DeleteRatePlanRefSPRate       *sql.Stmt
-	DeleteReceipt                 *sql.Stmt
-	DeleteReceiptAllocations      *sql.Stmt
-	DeleteRentableSpecialtyRef    *sql.Stmt
-	DeleteRentableStatus          *sql.Stmt
-	DeleteRentableTypeRef         *sql.Stmt
-	DeleteRentalAgreementPet      *sql.Stmt
-	DeleteRentalAgreementTax      *sql.Stmt
-	DeleteSLString                *sql.Stmt
-	DeleteSLStrings               *sql.Stmt
-	DeleteStringList              *sql.Stmt
-	DeleteVehicle                 *sql.Stmt
-	FindAgreementByRentable       *sql.Stmt
-	FindTransactantByPhoneOrEmail *sql.Stmt
-	FindTCIDByNote                *sql.Stmt
-	GetAgreementsForRentable      *sql.Stmt
-	GetAllAssessmentsByBusiness   *sql.Stmt
-	GetAllAssessmentsByRAID       *sql.Stmt
-	GetAllBusinesses              *sql.Stmt
-	GetAllBusinessRentableTypes   *sql.Stmt
-	GetAllBusinessSpecialtyTypes  *sql.Stmt
-	GetAllCustomAttributeRefs     *sql.Stmt
-	GetAllCustomAttributes        *sql.Stmt
-	GetAllDemandSources           *sql.Stmt
-	GetAllDepositMethods          *sql.Stmt
-	GetAllDepositories            *sql.Stmt
-	GetAllDepositsInRange         *sql.Stmt
-	GetAllInvoicesInRange         *sql.Stmt
-	GetAllJournalsInRange         *sql.Stmt
-	GetAllLedgerEntriesForRAID    *sql.Stmt
-	GetAllLedgerEntriesForRID     *sql.Stmt
-	GetAllLedgerEntriesInRange    *sql.Stmt
-	//	GetAllLedgerMarkersOnOrBefore      *sql.Stmt
+	DeleteAllRentalAgreementPets       *sql.Stmt
+	DeleteCustomAttribute              *sql.Stmt
+	DeleteCustomAttributeRef           *sql.Stmt
+	DeleteDemandSource                 *sql.Stmt
+	DeleteDeposit                      *sql.Stmt
+	DeleteDepositMethod                *sql.Stmt
+	DeleteDepository                   *sql.Stmt
+	DeleteDepositParts                 *sql.Stmt
+	DeleteInvoice                      *sql.Stmt
+	DeleteInvoiceAssessments           *sql.Stmt
+	DeleteInvoicePayors                *sql.Stmt
+	DeleteJournalAllocations           *sql.Stmt
+	DeleteJournalEntry                 *sql.Stmt
+	DeleteJournalMarker                *sql.Stmt
+	DeleteLedger                       *sql.Stmt
+	DeleteLedgerEntry                  *sql.Stmt
+	DeleteLedgerMarker                 *sql.Stmt
+	DeleteNote                         *sql.Stmt
+	DeleteNoteList                     *sql.Stmt
+	DeleteNoteType                     *sql.Stmt
+	DeleteRatePlan                     *sql.Stmt
+	DeleteRatePlanRef                  *sql.Stmt
+	DeleteRatePlanRefRTRate            *sql.Stmt
+	DeleteRatePlanRefSPRate            *sql.Stmt
+	DeleteReceipt                      *sql.Stmt
+	DeleteReceiptAllocations           *sql.Stmt
+	DeleteRentableSpecialtyRef         *sql.Stmt
+	DeleteRentableStatus               *sql.Stmt
+	DeleteRentableTypeRef              *sql.Stmt
+	DeleteRentalAgreementPet           *sql.Stmt
+	DeleteRentalAgreementTax           *sql.Stmt
+	DeleteSLString                     *sql.Stmt
+	DeleteSLStrings                    *sql.Stmt
+	DeleteStringList                   *sql.Stmt
+	DeleteVehicle                      *sql.Stmt
+	FindAgreementByRentable            *sql.Stmt
+	FindTransactantByPhoneOrEmail      *sql.Stmt
+	FindTCIDByNote                     *sql.Stmt
+	GetAgreementsForRentable           *sql.Stmt
+	GetAllAssessmentsByBusiness        *sql.Stmt
+	GetAllAssessmentsByRAID            *sql.Stmt
+	GetAllBusinesses                   *sql.Stmt
+	GetAllBusinessRentableTypes        *sql.Stmt
+	GetAllBusinessSpecialtyTypes       *sql.Stmt
+	GetAllCustomAttributeRefs          *sql.Stmt
+	GetAllCustomAttributes             *sql.Stmt
+	GetAllDemandSources                *sql.Stmt
+	GetAllDepositMethods               *sql.Stmt
+	GetAllDepositories                 *sql.Stmt
+	GetAllDepositsInRange              *sql.Stmt
+	GetAllInvoicesInRange              *sql.Stmt
+	GetAllJournalsInRange              *sql.Stmt
+	GetAllLedgerEntriesForRAID         *sql.Stmt
+	GetAllLedgerEntriesForRID          *sql.Stmt
+	GetAllLedgerEntriesInRange         *sql.Stmt
 	GetAllNotes                        *sql.Stmt
 	GetAllNoteTypes                    *sql.Stmt
 	GetAllRatePlanRefRTRates           *sql.Stmt
@@ -1109,7 +1111,7 @@ type RRprepSQL struct {
 	GetRentableType                    *sql.Stmt
 	GetRentableTypeByStyle             *sql.Stmt
 	GetRentableTypeRefsByRange         *sql.Stmt
-	GetRentableUsers                   *sql.Stmt
+	GetRentableUsersInRange            *sql.Stmt
 	GetRentalAgreement                 *sql.Stmt
 	GetRentalAgreementByBusiness       *sql.Stmt
 	GetRentalAgreementByRATemplateName *sql.Stmt
@@ -1221,11 +1223,13 @@ type RRprepSQL struct {
 	GetRARentableForDate               *sql.Stmt
 	GetTransactantTypeDown             *sql.Stmt
 	GetRentalAgreementPayor            *sql.Stmt
-	UpdateRentalAgreementPayor         *sql.Stmt
-	DeleteRentalAgreementPayor         *sql.Stmt
-	GetRentableUser                    *sql.Stmt
-	UpdateRentableUser                 *sql.Stmt
-	DeleteRentableUser                 *sql.Stmt
+	UpdateRentalAgreementPayorByRBT    *sql.Stmt
+	DeleteRentalAgreementPayorByRBT    *sql.Stmt
+	GetRentableUserByRBT               *sql.Stmt
+	UpdateRentableUserByRBT            *sql.Stmt
+	DeleteRentableUserByRBT            *sql.Stmt
+	GetRentalAgreementRentable         *sql.Stmt
+	UpdateRentalAgreementRentable      *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
