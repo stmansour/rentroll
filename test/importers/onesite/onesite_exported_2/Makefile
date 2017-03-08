@@ -4,7 +4,7 @@ onesite_exported_2:
 	@echo "*** Completed in test/importers/onesite/onesite_exported_2 ***"
 
 clean:
-	rm -f [a-z] onesite.log log *.txt ${TEMPCSVSTORE}/*.csv *.g ./gold/*.g fail
+	rm -f [a-z] onesite.log log ${TEMPCSVSTORE}/*.csv *.g ./gold/*.g err.txt fail
 	@echo "*** CLEAN completed in test/importers/onesite/onesite_exported_2 ***"
 
 test:
