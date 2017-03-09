@@ -101,7 +101,7 @@ func generateDetailedReport(
 
 	var tbl gotable.Table
 	tbl.Init()
-	tbl.SetTitle("DETAILED REPORT BY UNIT")
+	tbl.SetTitle("DETAILED REPORT")
 
 	tbl.AddColumn("Input Line", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	// tbl.AddColumn("RentRoll DB Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -236,7 +236,7 @@ func generateRCSVReport(
 
 	for i := 0; i < len(r); i++ {
 		rcsvReport += r[i].Handler(&r[i])
-		rcsvReport += strings.Repeat("=", 80)
+		rcsvReport += strings.Repeat("=", len(title))
 		rcsvReport += "\n"
 	}
 
