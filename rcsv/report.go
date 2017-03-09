@@ -725,9 +725,9 @@ func RRreportRentalAgreementPets(ri *rrpt.ReporterInfo) string {
 	s := fmt.Sprintf("%-11s  %-10s  %-25s  %-15s  %-15s  %-15s  %-9s  %-10s  %-10s\n", "PETID", "RAID", "Name", "Type", "Breed", "Color", "Weight", "DtStart", "DtStop")
 	for i := 0; i < len(m); i++ {
 		switch ri.OutputFormat {
-		case rlib.RPTTEXT:
+		case gotable.TABLEOUTTEXT:
 			s += ReportRentalAgreementPetToText(&m[i])
-		case rlib.RPTHTML:
+		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportRentalAgreementPets: unrecognized print format: %d\n", ri.OutputFormat)
@@ -749,9 +749,9 @@ func RRreportNoteTypes(ri *rrpt.ReporterInfo) string {
 	s := fmt.Sprintf("%-10s  %-9s  %-50s\n", "NTID", "BID", "Name")
 	for i := 0; i < len(m); i++ {
 		switch ri.OutputFormat {
-		case rlib.RPTTEXT:
+		case gotable.TABLEOUTTEXT:
 			s += ReportNoteTypeToText(&m[i])
-		case rlib.RPTHTML:
+		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportNoteTypes: unrecognized print format: %d\n", ri.OutputFormat)
@@ -786,10 +786,10 @@ func RRreportSpecialties(ri *rrpt.ReporterInfo) string {
 	for i := 0; i < len(m); i++ {
 		v := xbiz.US[m[i]]
 		switch ri.OutputFormat {
-		case rlib.RPTTEXT:
+		case gotable.TABLEOUTTEXT:
 			s += fmt.Sprintf("%11s  B%08d  %-30s  %10s  %s\n",
 				v.IDtoString(), v.BID, v.Name, rlib.RRCommaf(v.Fee), v.Description)
-		case rlib.RPTHTML:
+		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportSpecialties: unrecognized print format: %d\n", ri.OutputFormat)
@@ -813,10 +813,10 @@ func RRreportSpecialtyAssigns(ri *rrpt.ReporterInfo) string {
 		rlib.Errcheck(rows.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
 
 		switch ri.OutputFormat {
-		case rlib.RPTTEXT:
+		case gotable.TABLEOUTTEXT:
 			s += fmt.Sprintf("B%08d  R%08d  %-30s  %10s  %10s\n",
 				a.BID, a.RID, xbiz.US[a.RSPID].Name, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
-		case rlib.RPTHTML:
+		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportSpecialtyAssigns: unrecognized print format: %d\n", ri.OutputFormat)
@@ -834,9 +834,9 @@ func RRreportSources(ri *rrpt.ReporterInfo) string {
 	s := fmt.Sprintf("%-9s  %-9s  %-35s  %-35s\n", "SourceSLSID", "BID", "Name", "Industry")
 	for i := 0; i < len(m); i++ {
 		switch ri.OutputFormat {
-		case rlib.RPTTEXT:
+		case gotable.TABLEOUTTEXT:
 			s += fmt.Sprintf("S%08d  B%08d  %-35s  %-35s\n", m[i].SourceSLSID, m[i].BID, m[i].Name, m[i].Industry)
-		case rlib.RPTHTML:
+		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportSources: unrecognized print format: %d\n", ri.OutputFormat)
@@ -855,9 +855,9 @@ func RRreportRatePlans(ri *rrpt.ReporterInfo) string {
 
 	for i := 0; i < len(m); i++ {
 		switch ri.OutputFormat {
-		case rlib.RPTTEXT:
+		case gotable.TABLEOUTTEXT:
 			s += fmt.Sprintf("RP%08d  B%08d  %-50s\n", m[i].RPID, m[i].BID, m[i].Name)
-		case rlib.RPTHTML:
+		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", ri.OutputFormat)
@@ -888,13 +888,13 @@ func RRreportRatePlanRefs(ri *rrpt.ReporterInfo) string {
 		rlib.GetRatePlan(p.RPID, &rp)
 		rlib.GetRatePlanRefFull(p.RPRID, &p)
 		switch ri.OutputFormat {
-		case rlib.RPTTEXT:
+		case gotable.TABLEOUTTEXT:
 			s += fmt.Sprintf("%-15.15s  RPR%08d  %10s  %10s  %8d  %6d  %9.2f  %9.2f  %s\n",
 				rp.Name, p.RPRID, p.DtStart.Format(rlib.RRDATEFMT4), p.DtStop.Format(rlib.RRDATEFMT4),
 				p.MaxNoFeeUsers, p.FeeAppliesAge, p.AdditionalUserFee, p.CancellationFee, p.PromoCode)
 			s += RRreportRatePlanRefRTRates(&p, &xbiz)
 			s += "\n"
-		case rlib.RPTHTML:
+		case gotable.TABLEOUTHTML:
 			fmt.Printf("UNIMPLEMENTED\n")
 		default:
 			fmt.Printf("RRreportRatePlans: unrecognized print format: %d\n", ri.OutputFormat)

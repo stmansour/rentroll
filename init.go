@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gotable"
 	"os"
 	"rentroll/rlib"
 	"strings"
@@ -64,6 +65,6 @@ func createStartupCtx() DispatchCtx {
 	ctx.CSVLoadStr = strings.TrimSpace(App.CSVLoad)
 	// fmt.Printf("ctx.CSVLoadStr = %s\n", ctx.CSVLoadStr)
 	ctx.Cmd = 1
-	ctx.OutputFormat = rlib.RPTTEXT
+	ctx.OutputFormat = gotable.TABLEOUTTEXT
 	return ctx
 }

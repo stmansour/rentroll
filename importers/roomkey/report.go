@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// getReportHeader used to get report header first
-func getReportHeader(importTime time.Time, csvFile string, guestCsv string) string {
+// getSummaryReportSection1 used to get summary for table's section1
+func getSummaryReportSection1(importTime time.Time, csvFile string, guestCsv string) string {
 	// get date
 	importYear, importMonth, importDate := importTime.Date()
 	importDt := fmt.Sprintf("%d/%d/%d", importMonth, importDate, importYear)
@@ -27,8 +27,7 @@ func getReportHeader(importTime time.Time, csvFile string, guestCsv string) stri
 
 	importLocalTime := kitchenFormat + " " + tz
 
-	reportHeader := ""
-	reportHeader += "Accord RentRoll RoomKey Importer\n"
+	var reportHeader string
 	reportHeader += "Date: " + importDt + "\n"
 	reportHeader += "Time: " + importLocalTime + "\n"
 	reportHeader += "Import File: " + csvFile + "\n"
@@ -43,17 +42,17 @@ func getReportHeader(importTime time.Time, csvFile string, guestCsv string) stri
 func generateSummaryReport(
 	summaryCount map[int]map[string]int,
 	BID int64,
+	currentTime time.Time,
+	csvFile string,
+	guestCsv string,
 ) string {
-	var report string
-
-	tableTitle := "SUMMARY"
-	report += strings.Repeat("=", len(tableTitle))
-	report += "\n" + tableTitle + "\n"
-	report += strings.Repeat("=", len(tableTitle))
-	report += "\n"
 
 	var tbl gotable.Table
 	tbl.Init()
+	tbl.SetTitle("Accord RentRoll RoomKey Importer\n")
+	tbl.SetSection1(getSummaryReportSection1(currentTime, csvFile, guestCsv))
+	tbl.SetSection2("Summary")
+
 	tbl.AddColumn("Data Type", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Total Possible", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Total Imported", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -82,13 +81,11 @@ func generateSummaryReport(
 		tbl.Puts(-1, 3, strconv.Itoa(countMap["issues"]))
 	}
 
-	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
 	if err != nil {
 		rlib.Ulog("generateDetailedReport: error = %s", err)
 	}
-	report += s + "\n"
-
-	return report
+	return s
 }
 
 // generateDetailedReport gives detailed report with (rowNumber, db type, reason)
@@ -102,15 +99,10 @@ func generateDetailedReport(
 
 	csvReportGenerate := true
 
-	var detailedReport string
-	tableTitle := "DETAILED REPORT"
-	detailedReport += strings.Repeat("=", len(tableTitle))
-	detailedReport += "\n" + tableTitle + "\n"
-	detailedReport += strings.Repeat("=", len(tableTitle))
-	detailedReport += "\n"
-
 	var tbl gotable.Table
 	tbl.Init()
+	tbl.SetTitle("DETAILED REPORT")
+
 	tbl.AddColumn("Input Line", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	// tbl.AddColumn("RentRoll DB Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Description", 100, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -135,15 +127,14 @@ func generateDetailedReport(
 			tbl.Puts(-1, 1, reportError[0])
 
 			// append detailed section
-			s, err := tbl.SprintTable(rlib.RPTTEXT)
+			s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
 			if err != nil {
 				rlib.Ulog("generateDetailedReport: error = %s", err)
 			}
-			detailedReport += s
 
 			// return
 			csvReportGenerate = false
-			return detailedReport, csvReportGenerate
+			return s, csvReportGenerate
 		}
 
 		// used to separate errors, warnings
@@ -212,14 +203,13 @@ func generateDetailedReport(
 	}
 
 	// append detailed section
-	s, err := tbl.SprintTable(rlib.RPTTEXT)
+	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
 	if err != nil {
 		rlib.Ulog("generateDetailedReport: error = %s", err)
 	}
-	detailedReport += s + "\n"
 
 	// return
-	return detailedReport, csvReportGenerate
+	return s, csvReportGenerate
 }
 
 // generateRCSVReport return report for all type of csv defined here from rcsv
@@ -230,10 +220,10 @@ func generateRCSVReport(
 ) string {
 
 	var r = []rrpt.ReporterInfo{
-		{ReportNo: 5, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
-		{ReportNo: 6, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
-		{ReportNo: 7, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
-		{ReportNo: 9, OutputFormat: rlib.RPTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
+		{ReportNo: 5, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
+		{ReportNo: 6, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
+		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
+		{ReportNo: 9, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
 	}
 
 	var rcsvReport string
@@ -242,11 +232,11 @@ func generateRCSVReport(
 	rcsvReport += strings.Repeat("=", len(title))
 	rcsvReport += "\n" + title + "\n"
 	rcsvReport += strings.Repeat("=", len(title))
-	rcsvReport += "\n"
+	rcsvReport += "\n\n"
 
 	for i := 0; i < len(r); i++ {
 		rcsvReport += r[i].Handler(&r[i])
-		rcsvReport += strings.Repeat("=", 80)
+		rcsvReport += strings.Repeat("=", len(title))
 		rcsvReport += "\n"
 	}
 
@@ -265,11 +255,9 @@ func successReport(
 
 	var report string
 
-	// import header line for report
-	report = getReportHeader(currentTime, csvFile, guestCsv)
-
 	// append summary report
-	report += generateSummaryReport(summaryCount, business.BID)
+	report += generateSummaryReport(summaryCount, business.BID, currentTime, csvFile, guestCsv)
+	report += "\n"
 
 	// csv report for all types if testmode is on
 	if debugMode == 1 {
@@ -293,15 +281,14 @@ func errorReporting(
 
 	var errReport string
 
-	// import header line for report
-	errReport = getReportHeader(currentTime, csvFile, guestCsv)
-
 	// first generate detailed report because summary count also be used in it
 	// but append it after summary report
 	detailedReport, csvReportGenerate := generateDetailedReport(csvErrors, summaryCount)
+	detailedReport += "\n"
 
 	// append summary report
-	errReport += generateSummaryReport(summaryCount, business.BID)
+	errReport += generateSummaryReport(summaryCount, business.BID, currentTime, csvFile, guestCsv)
+	errReport += "\n"
 
 	// append detailedReport
 	errReport += detailedReport

@@ -1,11 +1,9 @@
 Accord RentRoll RoomKey Importer
-Date: 2/17/2017
-Time: 11:51PM IST
+Date: 3/9/2017
+Time: 10:09AM IST
 Import File: ./roomkey.csv
 
-=======
-SUMMARY
-=======
+Summary
                                 Total       Total                 
 Data Type                       Possible    Imported    Issues    
 ------------------------------  ----------  ----------  ----------
@@ -17,6 +15,13 @@ Rental Agreements               23          21          0
 ==================================================
 RECORDS FOR BUSINESS UNIT DESIGNATION: Isola Bella
 ==================================================
+
+ISO
+Accord/OKC Members, LLC
+6303 NW 63rd Street
+Oklahoma City, OK 73132 USA
+
+Rentable Types
                                                                              Manage                         
                                                   Rent     Proration         To                             
 RTID        Style         Name                    Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate
@@ -40,7 +45,13 @@ RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes
             NS/POC-                                                                                         
 RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes                            
             Flat-QQQQ                                                                                       
-================================================================================
+==================================================
+ISO
+Accord/OKC Members, LLC
+6303 NW 63rd Street
+Oklahoma City, OK 73132 USA
+
+Rentables
 RID        Name     Assignment Time
 ---------  -------  ---------------
 R00000001  6608118  pre-assign     
@@ -64,7 +75,13 @@ R00000018  6359238  pre-assign
 R00000019  6389345  pre-assign     
 R00000020  6331122  pre-assign     
 R00000021  6343172  pre-assign     
-================================================================================
+==================================================
+ISO
+Accord/OKC Members, LLC
+6303 NW 63rd Street
+Oklahoma City, OK 73132 USA
+
+People
                          Middle                               Is                                
 TCID        First Name   Name    Last Name   Company          Company  Cell Phone  Primary Email
 ----------  -----------  ------  ----------  ---------------  -------  ----------  -------------
@@ -95,7 +112,13 @@ TC00000020  Barta                Josiah                       No
 TC00000021  Baussan              Bernadette                   No                                
 TC00000022  Baussan              Daniel                       No                                
 TC00000023  Baxter               Addison                      No                                
-================================================================================
+==================================================
+ISO
+Accord/OKC Members, LLC
+6303 NW 63rd Street
+Oklahoma City, OK 73132 USA
+
+Rental Agreement
                                                         Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
 RAID        Payor                 User                  Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
 ----------  --------------------  --------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
@@ -120,5 +143,5 @@ RA00000018  Barletta Giovanni     Barletta Giovanni     12/26/2016  04/01/2017  
 RA00000019  Barta Josiah          Barta Josiah          10/04/2016  04/07/2017  10/04/2016  04/07/2017  10/04/2016  04/07/2017  10/04/2016  2                  2            0                           
 RA00000020  Baussan Bernadette    Baussan Bernadette    12/05/2016  02/10/2017  12/05/2016  02/10/2017  12/05/2016  02/10/2017  12/05/2016  2                  1            0                           
 RA00000021  Baxter Addison        Baxter Addison        11/22/2016  02/14/2017  11/22/2016  02/14/2017  11/22/2016  02/14/2017  11/22/2016  2                  1            0                           
-================================================================================
+==================================================
 

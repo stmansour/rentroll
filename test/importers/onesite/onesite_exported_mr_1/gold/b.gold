@@ -1,11 +1,9 @@
 Accord RentRoll Onesite Importer
-Date: 2/17/2017
-Time: 11:50PM IST
+Date: 3/9/2017
+Time: 9:52AM IST
 Import File: ./onesite_mr_1.csv
 
-=======
-SUMMARY
-=======
+Summary
                                 Total       Total                 
 Data Type                       Possible    Imported    Issues    
 ------------------------------  ----------  ----------  ----------
@@ -16,9 +14,7 @@ Transactants                    770         770         237
 Rentables                       855         855         0         
 Rental Agreements               770         770         0         
 
-=======================
 DETAILED REPORT BY UNIT
-=======================
 Input                                                                                                                             
 Line    Unit Name             Description                                                                                         
 ------  --------------------  ----------------------------------------------------------------------------------------------------

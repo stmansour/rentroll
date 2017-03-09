@@ -1,9 +1,16 @@
+REX
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+Rentable Types
                                                          Manage                                  
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   2/13/17 - 12/31/99 $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  800.00
 

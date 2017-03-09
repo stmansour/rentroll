@@ -8,7 +8,7 @@ notes: *.go
 	rm -f fail
 
 clean:
-	rm -f notes.log log notes [a-z] fail
+	rm -f notes.log log *.g ./gold/*.g err.txt notes [a-z] fail
 	@echo "*** CLEAN completed in Notes ***"
 
 test:	notes

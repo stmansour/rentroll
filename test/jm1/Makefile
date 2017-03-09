@@ -2,7 +2,7 @@ all:
 	@echo "*** Completed in jm1 ***"
 
 clean:
-	rm -f rentroll.log log llog ll.g err.txt [a-z] [a-z][a-z0-9] [a-z][a-z1-9][0-9] fail
+	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] [a-z][a-z1-9][0-9] fail
 	@echo "*** CLEAN completed in jm1 ***"
 
 test:

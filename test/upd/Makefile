@@ -3,7 +3,7 @@ upd: *.go
 	@echo "*** Completed in upd ***"
 
 clean:
-	rm -f rentroll.log log llog ll.g err.txt [a-z] [a-z][a-z1-9] qq? upd fail
+	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z1-9] qq? upd fail
 	@echo "*** CLEAN completed in upd ***"
 
 test: upd
