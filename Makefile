@@ -48,7 +48,7 @@ clean:
 	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example fail GoAnalyzerError.log
 
 test: package
-	@find . -name "fail" -exec rm -r "{}" \;
+	@find ./test -name "fail" -exec rm -r "{}" \;
 	@rm -f test/*/err.txt
 	for dir in $(DIRS); do make -C $$dir test;done
 	@tools/bashtools/buildcheck.sh TEST

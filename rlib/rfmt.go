@@ -80,6 +80,13 @@ func CheckLogAndPrintError(funcname string, err error) {
 	}
 }
 
+// Errlog - logs the error, but does not stop or quit
+func Errlog(err error) {
+	if err != nil {
+		Ulog("error = %v\n", err)
+	}
+}
+
 // Tline returns a string of dashes that is the specified length
 func Tline(n int) string {
 	p := make([]byte, n)
@@ -87,13 +94,6 @@ func Tline(n int) string {
 		p[i] = '-'
 	}
 	return string(p)
-}
-
-// Errlog - logs the error, but does not stop or quit
-func Errlog(err error) {
-	if err != nil {
-		Ulog("error = %v\n", err)
-	}
 }
 
 // Mkstr returns a string of n of the supplied character that is the specified length
