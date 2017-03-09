@@ -1,6 +1,8 @@
+Business Units
+
                                                         Default     Default   
                                             Default     Proration   GSRPC     
 BID        BUD        Name                  Rent Cycle  Cycle       Cycle     
 ---------  ---------  --------------------  ----------  ----------  ----------
-B00000001  ISO                              monthly     daily       daily     
+B00000001  ISO        Isola Bella           monthly     daily       daily     
 
