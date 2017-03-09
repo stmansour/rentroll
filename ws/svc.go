@@ -82,8 +82,10 @@ type WebTypeDownRequest struct {
 // need to parse further to get its unique data.  It includes fields for
 // common data elements in web svc requests
 type ServiceData struct {
+	Service       string               // the service requested (position 1)
+	BID           int64                // which business (position 2)
+	ID            int64                // the numeric id parsed from position 3
 	UID           int64                // user id of requester
-	BID           int64                // which business
 	TCID          int64                // TCID if supplied
 	RAID          int64                // RAID if supplied
 	RID           int64                // RAID if supplied
@@ -111,9 +113,9 @@ var Svcs = []ServiceHandler{
 	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
 	{"person", SvcFormHandlerXPerson, true},
-	{"rapeople", SvcRAPeople, true},
-	{"rapayor", SvcRAPeople, true},
-	{"ruser", SvcRAPeople, true},
+	//	{"rapeople", SvcRAPeople, true},
+	{"rapayor", SvcRAPayor, true},
+	{"ruser", SvcRUser, true},
 	{"rapets", SvcRAPets, true},
 	{"rentable", SvcFormHandlerRentable, true},
 	{"uilists", SvcUILists, false},
@@ -178,7 +180,8 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		SvcGridErrorReturn(w, e)
 		return e
 	}
-	fmt.Printf("htmlData = %s\n", htmlData)
+	fmt.Printf("\t- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
+	fmt.Printf("\thtmlData = %s\n", htmlData)
 	if len(htmlData) == 0 {
 		d.wsSearchReq.Cmd = "?"
 		return nil
@@ -189,7 +192,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		SvcGridErrorReturn(w, e)
 		return e
 	}
-	fmt.Printf("Unescaped htmlData = %s\n", u)
+	fmt.Printf("\tUnescaped htmlData = %s\n", u)
 
 	u = strings.TrimPrefix(u, "request=") // strip off "request=" if it is present (w2ui sends this string)
 	d.data = u
@@ -232,35 +235,61 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 }
 
 func showRequestHeaders(r *http.Request) {
-	fmt.Printf("Request Headers\n")
-	fmt.Printf("-----------------------\n")
+	fmt.Printf("Headers:\n")
 	for k, v := range r.Header {
-		fmt.Printf("%s: ", k)
+		fmt.Printf("\t%s: ", k)
 		for i := 0; i < len(v); i++ {
 			fmt.Printf("%q  ", v[i])
 		}
 		fmt.Printf("\n")
 	}
-	fmt.Printf("-----------------------\n")
 }
 
 func showWebRequest(d *ServiceData) {
 	if d.wsSearchReq.Cmd == "typedown" {
-		fmt.Printf("TYPEDOWN REQUEST\n")
-		fmt.Printf("Search  = %q\n", d.wsTypeDownReq.Search)
-		fmt.Printf("Max     = %d\n", d.wsTypeDownReq.Max)
+		fmt.Printf("Typedown:\n")
+		fmt.Printf("\tSearch  = %q\n", d.wsTypeDownReq.Search)
+		fmt.Printf("\tMax     = %d\n", d.wsTypeDownReq.Max)
 	} else {
-		fmt.Printf("Cmd         = %s\n", d.wsSearchReq.Cmd)
-		fmt.Printf("Limit       = %d\n", d.wsSearchReq.Limit)
-		fmt.Printf("Offset      = %d\n", d.wsSearchReq.Offset)
-		fmt.Printf("searchLogic = %s\n", d.wsSearchReq.SearchLogic)
+		fmt.Printf("\tSearchReq:\n")
+		fmt.Printf("\t\tCmd         = %s\n", d.wsSearchReq.Cmd)
+		fmt.Printf("\t\tLimit       = %d\n", d.wsSearchReq.Limit)
+		fmt.Printf("\t\tOffset      = %d\n", d.wsSearchReq.Offset)
+		fmt.Printf("\t\tsearchLogic = %s\n", d.wsSearchReq.SearchLogic)
 		for i := 0; i < len(d.wsSearchReq.Search); i++ {
-			fmt.Printf("search[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.wsSearchReq.Search[i].Field, d.wsSearchReq.Search[i].Type, d.wsSearchReq.Search[i].Value, d.wsSearchReq.Search[i].Operator)
+			fmt.Printf("\t\tsearch[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.wsSearchReq.Search[i].Field, d.wsSearchReq.Search[i].Type, d.wsSearchReq.Search[i].Value, d.wsSearchReq.Search[i].Operator)
 		}
 		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			fmt.Printf("sort[%d] - Field = %s,  Direction = %s\n", i, d.wsSearchReq.Sort[i].Field, d.wsSearchReq.Sort[i].Direction)
+			fmt.Printf("\t\tsort[%d] - Field = %s,  Direction = %s\n", i, d.wsSearchReq.Sort[i].Field, d.wsSearchReq.Sort[i].Direction)
 		}
 	}
+}
+
+func svcDebugTxn(funcname string, r *http.Request) {
+	fmt.Printf("\n%s\n", rlib.Mkstr(80, '-'))
+	fmt.Printf("URL:      %s\n", r.URL.String())
+	fmt.Printf("METHOD:   %s\n", r.Method)
+	fmt.Printf("Handler:  %s\n", funcname)
+}
+
+func svcDebugURL(r *http.Request, d *ServiceData) {
+	//-----------------------------------------------------------------------
+	// pathElements: 0         1     2
+	// Break up {subservice}/{BUI}/{ID} into an array of strings
+	// BID is common to nearly all commands
+	//-----------------------------------------------------------------------
+	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
+	pathElements := strings.Split(ss[0], "/")
+	fmt.Printf("\t%s\n", r.URL.String()) // print before we strip it off
+	for i := 0; i < len(pathElements); i++ {
+		fmt.Printf("\t\t%d. %s\n", i, pathElements[i])
+	}
+	fmt.Printf("BUSINESS: %d\n", d.BID)
+	fmt.Printf("ID:       %d\n", d.ID)
+}
+
+func svcDebugTxnEnd() {
+	fmt.Printf("END\n")
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -281,12 +310,38 @@ func showWebRequest(d *ServiceData) {
 //-----------------------------------------------------------------------------------------------------------
 func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "V1ServiceHandler"
-	fmt.Printf("==========================================================================================\n")
-	fmt.Printf("Entered %s. r.Method = %s, URL = %s \n", funcname, r.Method, r.URL.String())
+	svcDebugTxn(funcname, r)
 	var err error
 	var d ServiceData
 
+	//-----------------------------------------------------------------------
+	// pathElements:  0   1            2     3
+	//               /v1/{subservice}/{BUI}/{ID} into an array of strings
+	// BID is common to nearly all commands
+	//-----------------------------------------------------------------------
+	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
+	pathElements := strings.Split(ss[0], "/")
+	d.Service = pathElements[1]
+	if len(pathElements) >= 3 {
+		d.BID, err = rlib.IntFromString(pathElements[2], "bad request integer value") // assume it's a BID
+		if err != nil {
+			var ok bool // OK, let's see if it's a BUD
+			d.BID, ok = rlib.RRdb.BUDlist[pathElements[2]]
+			if !ok {
+				d.BID = 0
+			}
+		}
+	}
+	if len(pathElements) >= 4 {
+		d.ID, err = rlib.IntFromString(pathElements[3], "bad request integer value") // assume it's a BID
+		if err != nil {
+			d.ID = 0
+		}
+	}
+
+	svcDebugURL(r, &d)
 	showRequestHeaders(r)
+
 	switch r.Method {
 	case "POST":
 		if nil != getPOSTdata(w, r, &d) {
@@ -297,61 +352,17 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
 	showWebRequest(&d)
-
-	//-----------------------------------------------------------------------
-	// General form is /v1/{subservice}/{BID}/{ID}
-	//-----------------------------------------------------------------------
-	path := "/v1/"                         // this is the part of the URL that got us into this handler
-	subURLPath := r.RequestURI[len(path):] // this pulls off the specific request
-
-	//-----------------------------------------------------------------------
-	// pathElements: 0         1     2
-	// Break up {subservice}/{BUI}/{ID} into an array of strings
-	// BID is common to nearly all commands
-	//-----------------------------------------------------------------------
-	ss := strings.Split(subURLPath, "?") // it could be GET command
-	pathElements := strings.Split(ss[0], "/")
-	requestedSvc := pathElements[0]
-
-	//-----------------------------------------------------------------------
-	//  DEBUGGING INFORMATION
-	//-----------------------------------------------------------------------
-	fmt.Printf("Command specific info in URL:  %s\n", subURLPath) // print before we strip it off
-	for i := 0; i < len(pathElements); i++ {
-		fmt.Printf("%d. %s\n", i, pathElements[i])
-	}
-
-	//-----------------------------------------------------------------------
-	// There are commands that have associated ID (UILists, for example), and
-	// if we're processing such a GET request there may be "?param1=val1&..."
-	// on the end of this string.  So, before we try to parse the BID/BUD,
-	// we'll split it at the '?' character and
-	// process the first bit for the BID...
-	//-----------------------------------------------------------------------
-	var abud []string
-	if len(pathElements) >= 2 {
-		abud = strings.Split(pathElements[1], "?")                            // in this array, abud[0] will always be what want to parse
-		d.BID, err = rlib.IntFromString(abud[0], "bad request integer value") // assume it's a BID
-		if err != nil {
-			var ok bool // OK, let's see if it's a BUD
-			d.BID, ok = rlib.RRdb.BUDlist[abud[0]]
-			if !ok {
-				d.BID = 0
-			}
-		}
-	}
-
-	fmt.Printf("d.BID = %d\n", d.BID)
 
 	//-----------------------------------------------------------------------
 	//  Now call the appropriate handler to do the rest
 	//-----------------------------------------------------------------------
 	found := false
 	for i := 0; i < len(Svcs); i++ {
-		if Svcs[i].Cmd == requestedSvc {
+		if Svcs[i].Cmd == d.Service {
 			if Svcs[i].NeedBiz && d.BID == 0 {
-				e := fmt.Errorf("Could not identify business: %s", abud[0])
+				e := fmt.Errorf("Could not identify business: %s", pathElements[3])
 				fmt.Printf("***ERROR IN URL***  %s", e.Error())
 				SvcGridErrorReturn(w, err)
 			}
@@ -361,12 +372,12 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !found {
-		fmt.Printf("**** YIPES! **** %s - Handler not found\n", subURLPath)
-		e := fmt.Errorf("Service not recognized: %s", requestedSvc)
+		fmt.Printf("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
+		e := fmt.Errorf("Service not recognized: %s", d.Service)
 		fmt.Printf("***ERROR IN URL***  %s", e.Error())
 		SvcGridErrorReturn(w, e)
 	}
-	fmt.Printf("\n-------------------------------------\n\n")
+	svcDebugTxnEnd()
 }
 
 func gridHandleField(q, logic, field, value, format string, count *int) string {

@@ -10,3 +10,6 @@ test:
 
 package:
 	@echo "*** PACKAGE completed in setup ***"
+
+newdb:
+	mysqldump --no-defaults accord > accord.sql
