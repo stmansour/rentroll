@@ -650,9 +650,13 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementRentables WHERE RID=? AND RARDtStop>? AND RARDtStart<=?")
 	Errcheck(err)
 
+	RRdb.Prepstmt.GetRentableUser, err = RRdb.Dbrr.Prepare("SELECT RUID,RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RUID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetRentableUsersInRange, err = RRdb.Dbrr.Prepare("SELECT RUID,RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableUserByRBT, err = RRdb.Dbrr.Prepare("SELECT RUID,RID,BID,TCID,DtStart,DtStop from RentableUsers WHERE RID=? AND BID=? AND TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentableUser, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET RID=?,BID=?,TCID=?,DtStart=?,DtStop=? WHERE RUID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateRentableUserByRBT, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET DtStart=?,DtStop=? WHERE RID=? AND BID=? AND TCID=?")
 	Errcheck(err)

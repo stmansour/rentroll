@@ -23,7 +23,8 @@ type SvcGridError struct {
 // SvcStatusResponse is the response to return status when no other data
 // needs to be returned
 type SvcStatusResponse struct {
-	Status string `json:"status"`
+	Status string `json:"status"` // typically "success"
+	Recid  int64  `json:"recid"`  // set to id of newly inserted record
 }
 
 // ServiceHandler describes the handler for all services
@@ -501,8 +502,14 @@ func SvcWrite(w http.ResponseWriter, b []byte) {
 
 // SvcWriteSuccessResponse is used to complete a successful write operation on w2ui form save requests.
 func SvcWriteSuccessResponse(w http.ResponseWriter) {
-	var g SvcStatusResponse
-	g.Status = "success"
+	var g = SvcStatusResponse{Status: "success"}
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
+}
+
+// SvcWriteSuccessResponseWithID is used to complete a successful write operation on w2ui form save requests.
+func SvcWriteSuccessResponseWithID(w http.ResponseWriter, id int64) {
+	var g = SvcStatusResponse{Status: "success", Recid: id}
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }

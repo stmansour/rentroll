@@ -232,6 +232,11 @@ func (t *XPerson) IDtoString() string {
 	return IDtoString("TC", t.Trn.TCID)
 }
 
+// IDtoString for XPerson returns a unique identifier string.
+func (t *Transactant) IDtoString() string {
+	return IDtoString("TC", t.TCID)
+}
+
 // GetUserName returns a string with the user's first, middle, and last name
 func (t *Transactant) GetUserName() string {
 	if t.IsCompany > 0 {

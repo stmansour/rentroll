@@ -11,20 +11,8 @@
             "RentableName": "",
             "TCID": 23,
             "recid": 1
-        },
-        {
-            "BID": 5,
-            "DtStart": "3/6/2017",
-            "DtStop": "3/6/2018",
-            "FirstName": "Eric",
-            "LastName": "Wilson",
-            "MiddleName": "",
-            "RID": 0,
-            "RentableName": "",
-            "TCID": 367,
-            "recid": 2
         }
     ],
     "status": "success",
-    "total": 2
+    "total": 1
 }

@@ -1,18 +1,4 @@
 {
-    "records": [
-        {
-            "BID": 5,
-            "DtStart": "10/25/2016",
-            "DtStop": "10/31/2017",
-            "FirstName": "Corporate",
-            "LastName": "Housing",
-            "MiddleName": "",
-            "RID": 0,
-            "RentableName": "",
-            "TCID": 23,
-            "recid": 1
-        }
-    ],
-    "status": "success",
-    "total": 1
+    "recid": 0,
+    "status": "success"
 }

@@ -171,8 +171,8 @@ var acceptedDateFmts = []string{
 	RRDATETIMEINPFMT,
 }
 
-// StringToDate tries to convert the supplied string to a time.Time value. It will use the two
-// formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2
+// StringToDate tries to convert the supplied string to a time.Time value. It will use the
+// formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2, ...
 func StringToDate(s string) (time.Time, error) {
 	// try the ansi std date format first
 	var Dt time.Time

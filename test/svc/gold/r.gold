@@ -1,3 +1,4 @@
 {
-    "status": "success"
+    "message": "Error: Payor with TCID 373 is not a payor for Rental Agreement RA00000016\n",
+    "status": "error"
 }

@@ -1,3 +1,4 @@
 {
-    "status": "success"
+    "message": "Error: Jason Thomas (TC00000373) is already listed as a user\n",
+    "status": "error"
 }
