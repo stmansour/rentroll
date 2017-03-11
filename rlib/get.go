@@ -1447,7 +1447,7 @@ func LoadXRentalAgreement(raid int64, r *RentalAgreement, d1, d2 *time.Time) err
 		r.R = append(r.R, xu)
 	}
 
-	m := GetRentalAgreementPayors(raid, d1, d2)
+	m := GetRentalAgreementPayorsInRange(raid, d1, d2)
 	r.P = make([]XPerson, 0)
 	for i := 0; i < len(m); i++ {
 		var xp XPerson
@@ -1534,19 +1534,27 @@ func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreemen
 	return t
 }
 
-// GetRentalAgreementPayor returns Rental Agreement Payor record matching the supplied
+// GetRentalAgreementPayorByRBT returns Rental Agreement Payor record matching the supplied
 // RAID, BID, TCID
-func GetRentalAgreementPayor(raid, bid, tcid int64) (RentalAgreementPayor, error) {
-	row := RRdb.Prepstmt.GetRentalAgreementPayor.QueryRow(raid, bid, tcid)
+func GetRentalAgreementPayorByRBT(raid, bid, tcid int64) (RentalAgreementPayor, error) {
+	row := RRdb.Prepstmt.GetRentalAgreementPayorByRBT.QueryRow(raid, bid, tcid)
 	var r RentalAgreementPayor
 	err := ReadRentalAgreementPayor(row, &r)
 	return r, err
 }
 
-// GetRentalAgreementPayors returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
+// GetRentalAgreementPayor returns Rental Agreement Payor record matching the supplied id
+func GetRentalAgreementPayor(id int64) (RentalAgreementPayor, error) {
+	row := RRdb.Prepstmt.GetRentalAgreementPayor.QueryRow(id)
+	var r RentalAgreementPayor
+	err := ReadRentalAgreementPayor(row, &r)
+	return r, err
+}
+
+// GetRentalAgreementPayorsInRange returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
 // during the time range d1-d2
-func GetRentalAgreementPayors(raid int64, d1, d2 *time.Time) []RentalAgreementPayor {
-	rows, err := RRdb.Prepstmt.GetRentalAgreementPayors.Query(raid, d1, d2)
+func GetRentalAgreementPayorsInRange(raid int64, d1, d2 *time.Time) []RentalAgreementPayor {
+	rows, err := RRdb.Prepstmt.GetRentalAgreementPayorsInRange.Query(raid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	var t []RentalAgreementPayor

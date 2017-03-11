@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strings"
 	"time"
 )
 
 // RAR is the web service structure for RentalAgreementRentables
 type RAR struct {
-	Recid        int64         `json:"recid"` // this is to support the w2ui form
+	Recid        int64         `json:"recid"` // set to RARID
 	RAID         int64         // associated rental agreement
 	BID          int64         // Business
 	RID          int64         // the Rentable
@@ -61,6 +62,14 @@ type DeleteRARentable struct {
 	RID      int64   `json:"RID"`
 }
 
+// UpdateRARentableInput is the input from the RARentables grid in the Rental Agreement dialog.
+type UpdateRARentableInput struct {
+	Cmd     string               `json:"cmd"`
+	Limit   int64                `json:"limit"`
+	Offset  int64                `json:"offset"`
+	Changes []RARentableFormSave `json:"changes"`
+}
+
 // SvcRARentables is the dispatcher for RARentable commands
 // URL:
 //       0   1   2   3
@@ -80,6 +89,9 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 			SvcGridErrorReturn(w, e)
 			return
+		}
+		if strings.Contains(d.data, `"changes":`) {
+			rcmd.Cmd = "update"
 		}
 	}
 
@@ -101,17 +113,17 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	//    Handle the command
 	//------------------------------------------------------
-	fmt.Printf("\nCOMMAND:  %s\n\n", d.wsSearchReq.Cmd)
+	fmt.Printf("\nCOMMAND:  %s\n\n", rcmd.Cmd)
 	d.RAID = d.ID
 	switch rcmd.Cmd {
 	case "get":
 		GetRARentables(w, r, d)
 	case "save":
 		saveRARentable(w, r, d)
-		return
+	case "update":
+		SvcUpdateRARentable(w, r, d)
 	case "delete":
 		deleteRARentable(w, r, d)
-		return
 	default:
 		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
 	}
@@ -180,6 +192,50 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponseWithID(w, a.RARID) // send the new id back with the status message
 }
 
+// SvcUpdateRARentable is called when a Rentable is updated from the RentableUserGrid in the RentalAgreementDialog
+func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "SvcUpdateRARentable"
+	fmt.Printf("Entered: %s\n", funcname)
+	var foo UpdateRARentableInput
+	data := []byte(d.data)
+	if err := json.Unmarshal(data, &foo); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	// This will only contain updates.  Spin through each recid and update
+	// From the grid, we only allow the following changes:  RARDtStart, RARDtStop
+	for i := 0; i < len(foo.Changes); i++ {
+		changes := 0
+		rec, err := rlib.GetRentalAgreementRentable(foo.Changes[i].Recid)
+		if err != nil {
+			e := fmt.Errorf("%s: Error getting RentalAgreementRentable:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e)
+			return
+		}
+		// The only updates allowed are to the dates.  We check those directly...
+		dt := time.Time(foo.Changes[i].RARDtStart)
+		if dt.Year() > 1969 {
+			rec.RARDtStart = dt
+			changes++
+		}
+		dt = time.Time(foo.Changes[i].RARDtStop)
+		if dt.Year() > 1969 {
+			rec.RARDtStop = dt
+			changes++
+		}
+		if changes > 0 {
+			if err := rlib.UpdateRentalAgreementRentable(&rec); err != nil {
+				e := fmt.Errorf("%s: Error updating RentalAgreementRentable:  %s", funcname, err.Error())
+				SvcGridErrorReturn(w, e)
+				return
+			}
+		}
+	}
+	SvcWriteSuccessResponse(w)
+}
+
 // deleteRARentable deletes a rentable from a rental agreement
 // wsdoc {
 //  @Title  Delete RARentable
@@ -231,10 +287,10 @@ func GetRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("d.ID = %d, d.DT = %s, len(m) = %d\n", d.ID, d.Dt.Format(rlib.RRDATEFMT3), len(m))
 	for i := 0; i < len(m); i++ {
 		var xr RAR
-		xr.Recid = int64(i + 1)
 		r := rlib.GetRentable(m[i].RID)
 		rlib.MigrateStructVals(&m[i], &xr)
 		xr.RentableName = r.RentableName
+		xr.Recid = m[i].RARID
 		rar.Records = append(rar.Records, xr)
 	}
 	rar.Status = "success"

@@ -1,4 +1,4 @@
 {
-    "message": "Error: Payor with TCID 373 is not a payor for Rental Agreement RA00000016\n",
+    "message": "Error: deleteRAPayor: Payor is was not listed as a payor for Rental Agreement 16 during that time period\n",
     "status": "error"
 }

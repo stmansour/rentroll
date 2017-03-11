@@ -185,6 +185,7 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // SvcUpdateRUser is called when a Rentable User is updated from the RentableUserGrid
 func SvcUpdateRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcUpdateRUser"
+	fmt.Printf("Entered: %s\n", funcname)
 	var foo UpdateRAPeopleInput
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {

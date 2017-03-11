@@ -1120,8 +1120,8 @@ type RRprepSQL struct {
 	GetRentalAgreement                 *sql.Stmt
 	GetRentalAgreementByBusiness       *sql.Stmt
 	GetRentalAgreementByRATemplateName *sql.Stmt
-	GetRentalAgreementPayor            *sql.Stmt
-	GetRentalAgreementPayors           *sql.Stmt
+	GetRentalAgreementPayorByRBT       *sql.Stmt
+	GetRentalAgreementPayorsInRange    *sql.Stmt
 	GetRentalAgreementPet              *sql.Stmt
 	GetRentalAgreementRentable         *sql.Stmt
 	GetRentalAgreementRentables        *sql.Stmt
@@ -1223,6 +1223,7 @@ type RRprepSQL struct {
 	UpdateRentableUser                 *sql.Stmt
 	UpdateRentableUserByRBT            *sql.Stmt
 	UpdateRentalAgreement              *sql.Stmt
+	UpdateRentalAgreementPayor         *sql.Stmt
 	UpdateRentalAgreementPayorByRBT    *sql.Stmt
 	UpdateRentalAgreementPet           *sql.Stmt
 	UpdateRentalAgreementRentable      *sql.Stmt
@@ -1236,6 +1237,7 @@ type RRprepSQL struct {
 	DeleteRentalAgreementRentable      *sql.Stmt
 	DeleteRentalAgreementPayor         *sql.Stmt
 	DeleteRentableUser                 *sql.Stmt
+	GetRentalAgreementPayor            *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

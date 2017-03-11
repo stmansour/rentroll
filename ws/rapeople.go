@@ -106,7 +106,7 @@ func SvcGetRAPeople(ptype string, w http.ResponseWriter, r *http.Request, d *Ser
 	//------------------------------------------------------
 	var gxp RAPeopleResponse
 	if ptype == "rapayor" {
-		m := rlib.GetRentalAgreementPayors(d.RAID, &d.Dt, &d.Dt)
+		m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &d.Dt, &d.Dt)
 		for i := 0; i < len(m); i++ {
 			var p rlib.Transactant
 			rlib.GetTransactant(m[i].TCID, &p)

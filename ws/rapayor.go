@@ -64,6 +64,8 @@ type DeleteRAPayor struct {
 	Selected []int64 `json:"selected"` // this will contain the RAPIDs of the payors to delete
 	Limit    int     `json:"limit"`
 	Offset   int     `json:"offset"`
+	DtStart  rlib.JSONTime
+	DtStop   rlib.JSONTime
 }
 
 // RARPostCmd is the input data format for a Save command
@@ -79,6 +81,14 @@ type SaveRAPayorInput struct {
 	Recid    int64           `json:"recid"`
 	FormName string          `json:"name"`
 	Record   RAPayorFormSave `json:"record"`
+}
+
+// UpdateRAPayorInput is the input from the RUsers grid.
+type UpdateRAPayorInput struct {
+	Cmd     string            `json:"cmd"`
+	Limit   int64             `json:"limit"`
+	Offset  int64             `json:"offset"`
+	Changes []RAPayorFormSave `json:"changes"`
 }
 
 // SvcRAPayor is the dispatcher for RAPayor commands
@@ -150,40 +160,25 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	dtStart := time.Time(del.DtStart)
+	dtStop := time.Time(del.DtStop)
+
 	for i := 0; i < len(del.Selected); i++ {
-		if err := rlib.DeleteRentalAgreementPayor(del.Selected[i]); err != nil {
-			SvcGridErrorReturn(w, err)
-			return
+		// first validate that the selected ids are part of the supplied raid
+		m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &dtStart, &dtStop)
+		for j := 0; j < len(m); j++ {
+			if m[j].RAPID == del.Selected[i] {
+				if err := rlib.DeleteRentalAgreementPayor(del.Selected[i]); err != nil {
+					SvcGridErrorReturn(w, err)
+					return
+				}
+				SvcWriteSuccessResponse(w)
+				return
+			}
 		}
 	}
-	SvcWriteSuccessResponse(w)
-
-	// fmt.Printf("Delete:  RAID = %d, BID = %d, TCID = %d\n", d.RAID, d.BID, del.TCID)
-
-	// m := rlib.GetRentalAgreementPayors(d.RAID, &d.Dt, &d.Dt)
-	// if len(m) == 0 {
-	// 	e := fmt.Errorf("%s: There are no payors for this Rental Agreement", funcname)
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-	// if len(m) == 1 {
-	// 	e := fmt.Errorf("%s: Cannot delete the only payor from a Rental Agreement.  Add another payor, then delete", funcname)
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-	// for i := 0; i < len(m); i++ {
-	// 	if m[i].TCID != del.TCID {
-	// 		continue
-	// 	}
-	// 	if e := rlib.DeleteRentalAgreementPayorByRBT(d.RAID, d.BID, del.TCID); e != nil {
-	// 		SvcGridErrorReturn(w, e)
-	// 		return
-	// 	}
-	// 	SvcWriteSuccessResponse(w)
-	// 	return
-	// }
-	// e := fmt.Errorf("Payor with TCID %d is not a payor for Rental Agreement %s", del.TCID, rlib.IDtoString("RA", d.RAID))
-	// SvcGridErrorReturn(w, e)
+	e := fmt.Errorf("%s: Payor is was not listed as a payor for Rental Agreement %d during that time period", funcname, d.RAID)
+	SvcGridErrorReturn(w, e)
 }
 
 // saveRAPayor saves or adds a new payor to the RentalAgreementsPayor
@@ -204,6 +199,11 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
+	// First determine if it is a new record, or a change...
+	if strings.Contains(d.data, `"changes":`) {
+		SvcUpdateRAPayor(w, r, d)
+		return
+	}
 	var foo SaveRAPayorInput
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
@@ -238,7 +238,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var err error
 	// Try to read an existing record...
-	_, err = rlib.GetRentalAgreementPayor(a.RAID, a.BID, a.TCID)
+	_, err = rlib.GetRentalAgreementPayorByRBT(a.RAID, a.BID, a.TCID)
 	if err != nil && !strings.Contains(err.Error(), "no rows") {
 		fmt.Printf("Error reading RentalAgreementPayors: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
@@ -262,6 +262,50 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	SvcWriteSuccessResponseWithID(w, a.RAPID)
+}
+
+// SvcUpdateRAPayor is called when a Rentable User is updated from the RentableUserGrid
+func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "SvcUpdateRAPayor"
+	fmt.Printf("Entered: %s\n", funcname)
+	var foo UpdateRAPayorInput
+	data := []byte(d.data)
+	if err := json.Unmarshal(data, &foo); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	// This will only contain updates.  Spin through each recid and update
+	// From the grid, we only allow the following changes:  DtStart, DtStop
+	for i := 0; i < len(foo.Changes); i++ {
+		changes := 0
+		rapayor, err := rlib.GetRentalAgreementPayor(foo.Changes[i].Recid)
+		if err != nil {
+			e := fmt.Errorf("%s: Error getting RentalAgreementPayor:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e)
+			return
+		}
+		fmt.Printf("Found rapayor: %#v\n", rapayor)
+		dt := time.Time(foo.Changes[i].DtStart)
+		if dt.Year() > 1969 {
+			rapayor.DtStart = dt
+			changes++
+		}
+		dt = time.Time(foo.Changes[i].DtStop)
+		if dt.Year() > 1969 {
+			rapayor.DtStop = dt
+			changes++
+		}
+		if changes > 0 {
+			if err := rlib.UpdateRentalAgreementPayor(&rapayor); err != nil {
+				e := fmt.Errorf("%s: Error updating RentalAgreementPayor:  %s", funcname, err.Error())
+				SvcGridErrorReturn(w, e)
+				return
+			}
+		}
+	}
+	SvcWriteSuccessResponse(w)
 }
 
 // SvcGetRAPayor is used to get either the Payor(s) or User(s) associated
@@ -289,7 +333,7 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
 	var gxp RAPayorResponse
-	m := rlib.GetRentalAgreementPayors(d.RAID, &d.Dt, &d.Dt)
+	m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &d.Dt, &d.Dt)
 	for i := 0; i < len(m); i++ {
 		var p rlib.Transactant
 		rlib.GetTransactant(m[i].TCID, &p)

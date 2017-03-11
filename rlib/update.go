@@ -132,16 +132,22 @@ func UpdateRentalAgreement(a *RentalAgreement) error {
 	return updateError(err, "RentalAgreement", *a)
 }
 
+// UpdateRentalAgreementPayor updates a RentalAgreementPayor record in the database
+func UpdateRentalAgreementPayor(a *RentalAgreementPayor) error {
+	_, err := RRdb.Prepstmt.UpdateRentalAgreementPayor.Exec(a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS, a.RAPID)
+	return updateError(err, "UpdateRentalAgreementPayor", *a)
+}
+
 // UpdateRentalAgreementPayorByRBT updates a RentalAgreementPayor record in the database
 func UpdateRentalAgreementPayorByRBT(a *RentalAgreementPayor) error {
 	_, err := RRdb.Prepstmt.UpdateRentalAgreementPayorByRBT.Exec(a.DtStart, a.DtStop, a.FLAGS, a.RAID, a.BID, a.TCID)
-	return updateError(err, "RentalAgreementPayor", *a)
+	return updateError(err, "UpdateRentalAgreementPayorByRBT", *a)
 }
 
 // UpdateRentalAgreementPet updates a RentalAgreementPet record in the database
 func UpdateRentalAgreementPet(a *RentalAgreementPet) error {
 	_, err := RRdb.Prepstmt.UpdateRentalAgreementPet.Exec(a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID)
-	return updateError(err, "RentalAgreementPet", *a)
+	return updateError(err, "UpdateRentalAgreementPet", *a)
 }
 
 // UpdateRentalAgreementRentable updates a RentalAgreementRentable record in the database

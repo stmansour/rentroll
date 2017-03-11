@@ -192,7 +192,7 @@ func (t *RentalAgreement) GetPayorLastNames(d1, d2 *time.Time) []string {
 // GetPayorNameList returns an array of strings with all the Payor names associated with the Rental Agreement
 func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
 	var m []string
-	payors := GetRentalAgreementPayors(t.RAID, d1, d2) // get all defined renters for this period
+	payors := GetRentalAgreementPayorsInRange(t.RAID, d1, d2) // get all defined renters for this period
 	for i := 0; i < len(payors); i++ {
 		var tr Transactant
 		GetTransactant(payors[i].TCID, &tr)
