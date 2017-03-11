@@ -89,18 +89,24 @@ dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "p"  "WebService-
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
 dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "q"  "WebService--GetRAIDPayors"
 
-# Delete a RAID Payor that does not exist for the the specified RAID
-echo "request%3D%7B%22cmd%22%3A%22delete%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A373%7D" > request
-dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "r"  "WebService--DeleteARentablePayor-forceError"
+# # Delete a RAID Payor that does not exist for the the specified RAID
+# echo "request%3D%7B%22cmd%22%3A%22delete%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A373%7D" > request
+# dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "r"  "WebService--DeleteARentablePayor-forceError"
 
 # Delete a RAID Payor that does not exist for the the specified RAID
-echo "request%3D%7B%22cmd%22%3A%22delete%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A367%7D" > request
-dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "s"  "WebService--DeleteARentablePayor"
+# echo "request%3D%7B%22cmd%22%3A%22delete%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A367%7D" > request
+# dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "s"  "WebService--DeleteARentablePayor"
 
-# Read RAID Payors
-echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "t"  "WebService--GetRAIDPayors"
+# # Read RAID Payors
+# echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+# dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "t"  "WebService--GetRAIDPayors"
 
+# Read RAID Users
+echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A52%7D" > request
+dojsonPOST "http://localhost:8270/v1/ruser/CCC/10" "request" "u"  "WebService--GetRAIDPayors"
+
+# Test Transactant Typedown
+dojsonGET "http://localhost:8270/v1/rentablestd/ISO?request%3D%7B%22search%22%3A%226%22%2C%22max%22%3A250%7D" "v" "WebService--GetRentableTypeDown"
 
 
 

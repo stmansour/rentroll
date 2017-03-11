@@ -130,6 +130,43 @@ function tcidPickerCompare(item, search) {
 }
 
 //-----------------------------------------------------------------------------
+// ridRentablePickerRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function ridRentablePickerRender(item) {
+    "use strict";
+    w2ui.ridRentablePicker.record.RID = item.recid;
+    return item.RentableName + '  (RI0' + item.recid + ')';
+}
+
+//-----------------------------------------------------------------------------
+// ridRentableDropRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - the name to render
+//-----------------------------------------------------------------------------
+function ridRentableDropRender (item) {
+    "use strict";
+    // w2ui.ridRentablePicker.RID = item.RID;
+    return item.RentableName + '  (RI0' + item.recid + ')'; 
+}
+
+//-----------------------------------------------------------------------------
+// ridRentableCompare - Compare two items to see if they match
+// @params
+//   item = an object assumed to have a RentableName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function ridRentableCompare(item, search) {
+    "use strict";
+    var s = item.RentableName.toLowerCase();
+    return s.includes(search.toLowerCase());
+}
+
+
+//-----------------------------------------------------------------------------
 // tcidRAPayorPickerRender - renders a name during typedown.
 // @params
 //   item = an object assumed to have a FirstName and LastName

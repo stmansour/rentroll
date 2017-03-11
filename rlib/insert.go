@@ -510,6 +510,7 @@ func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			tid = int64(id)
+			a.RAPID = tid
 		}
 	} else {
 		Ulog("InsertRentalAgreementPayor: error inserting RentalAgreementPayor:  %v\n", err)

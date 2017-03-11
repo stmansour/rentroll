@@ -9,6 +9,78 @@ import (
 	"time"
 )
 
+// RAPayor defines a person for the web service interface
+type RAPayor struct {
+	Recid        int64         `json:"recid"` // this the RAPID
+	TCID         int64         // associated rental agreement
+	BID          int64         // Business
+	FirstName    string        // person name
+	MiddleName   string        // person name
+	LastName     string        // person name
+	RID          int64         // Rentable ID
+	RentableName string        // rentable name
+	DtStart      rlib.JSONTime // start date/time for this Rentable
+	DtStop       rlib.JSONTime // stop date/time
+}
+
+// RAPayorFormSave defines a person for the web service interface
+type RAPayorFormSave struct {
+	Recid        int64         `json:"recid"` // this the RAPID
+	TCID         int64         // associated rental agreement
+	RAID         int64         // which rental agreement
+	FirstName    string        // person name
+	MiddleName   string        // person name
+	LastName     string        // person name
+	RID          int64         // Rentable ID
+	RentableName string        // rentable name
+	DtStart      rlib.JSONTime // start date/time for this Rentable
+	DtStop       rlib.JSONTime // stop date/time
+}
+
+// RAPayorResponse is the struct containing the JSON return values for this web service
+type RAPayorResponse struct {
+	Status  string    `json:"status"`
+	Total   int64     `json:"total"`
+	Records []RAPayor `json:"records"`
+}
+
+// RAPayorOtherSave is the structure of data we will receive from a UI form save
+type RAPayorOtherSave struct {
+	BID rlib.W2uiHTMLSelect // Business
+}
+
+// SaveRAPayorOther is the input data format for the "other" data on the Save command
+type SaveRAPayorOther struct {
+	Status string           `json:"status"`
+	Recid  int64            `json:"recid"`
+	Name   string           `json:"name"`
+	Record RAPayorOtherSave `json:"record"`
+}
+
+// DeleteRAPayor is the command structure returned when a Payor is
+// deleted from the PayorList grid in the RentalAgreement Details dialog
+type DeleteRAPayor struct {
+	Cmd      string  `json:"cmd"`
+	Selected []int64 `json:"selected"` // this will contain the RAPIDs of the payors to delete
+	Limit    int     `json:"limit"`
+	Offset   int     `json:"offset"`
+}
+
+// RARPostCmd is the input data format for a Save command
+type RARPostCmd struct {
+	Cmd      string `json:"cmd"`
+	Recid    int64  `json:"recid"`
+	FormName string `json:"name"`
+}
+
+// SaveRAPayorInput is the input data format for a Save command
+type SaveRAPayorInput struct {
+	Status   string          `json:"status"`
+	Recid    int64           `json:"recid"`
+	FormName string          `json:"name"`
+	Record   RAPayorFormSave `json:"record"`
+}
+
 // SvcRAPayor is the dispatcher for RAPayor commands
 // URL:
 //       0   1       2    3
@@ -16,45 +88,23 @@ import (
 func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var err error
 	fmt.Printf("\tentered SvcRAPayor\n")
-	s := r.URL.String()                 // ex: /v1/rar/CCC/10?dt=2017-02-01
-	fmt.Printf("\ts = %s\n", s)         // x
-	s1 := strings.Split(s, "?")         // ex: /v1/rar/CCC/10?dt=2017-02-01
-	fmt.Printf("\ts1 = %#v\n", s1)      // x
-	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "rar", "CCC", "10"}
-	fmt.Printf("\tss = %#v\n", ss)
 
-	//------------------------------------------------------
-	// Handle URL path values
-	//------------------------------------------------------
-	d.RAID, err = rlib.IntFromString(ss[3], "bad ID value")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
-		return
-	}
-
-	//------------------------------------------------------
-	// Handle URL parameters
-	//------------------------------------------------------
 	now := time.Now()
 	d.Dt = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC) // default to current date
-	if len(s1) > 1 && len(s1[1]) > 0 {                                         // override with whatever was provided
-		parms := strings.Split(s1[1], "&") // parms is an array of indivdual parameters and their values
-		for i := 0; i < len(parms); i++ {
-			param := strings.Split(parms[i], "=") // an individual parameter and its value
-			if len(param) < 2 {
-				continue
-			}
-			fmt.Printf("param[i] value = %s\n", param[1])
-			switch param[0] {
-			case "cmd":
-				d.wsSearchReq.Cmd = strings.TrimSpace(param[1])
-			case "dt":
-				d.Dt, err = rlib.StringToDate(param[1])
-				if err != nil {
-					SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", param[1]))
-					return
-				}
-			}
+	d.RAID = d.ID
+
+	//----------------------------------------------------
+	// pick up any HTTP GET params of interest
+	//----------------------------------------------------
+	q := r.URL.Query()
+	if f := q["cmd"]; len(f) > 0 {
+		d.wsSearchReq.Cmd = f[0]
+	}
+	if f := q["dt"]; len(f) > 0 {
+		d.Dt, err = rlib.StringToDate(f[0])
+		if err != nil {
+			SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", f[0]))
+			return
 		}
 	}
 
@@ -62,9 +112,11 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//    Handle the command
 	//------------------------------------------------------
 	fmt.Printf("\nCOMMAND:  %s\n\n", d.wsSearchReq.Cmd)
+	fmt.Printf("\tRAID = %d\n", d.RAID)
+
 	switch d.wsSearchReq.Cmd {
 	case "get":
-		SvcGetRAPeople("rapayor", w, r, d)
+		SvcGetRAPayor(w, r, d)
 	case "save":
 		saveRAPayor(w, r, d)
 		return
@@ -80,49 +132,58 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc {
 //  @Title  Delete RAPayor
 //	@URL /v1/rapayor/:BUI/:RAID
-//  @Method  GET
+//  @Method  POST
 //	@Synopsis Delete a Rental Agreement Payor
 //  @Desc  This service deletes a RAPayor. If this is the only payor
 //  @Desc  then an error is returned
-//	@Input DeleteRAPeople
+//	@Input DeleteRAPayor
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "deleteRAPayor"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
-	var del DeleteRAPeople
+	var del DeleteRAPayor
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("Delete:  RAID = %d, BID = %d, TCID = %d\n", d.RAID, d.BID, del.TCID)
 
-	m := rlib.GetRentalAgreementPayors(d.RAID, &d.Dt, &d.Dt)
-	if len(m) == 0 {
-		e := fmt.Errorf("%s: There are no payors for this Rental Agreement", funcname)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	if len(m) == 1 {
-		e := fmt.Errorf("%s: Cannot delete the only payor from a Rental Agreement.  Add another payor, then delete", funcname)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	for i := 0; i < len(m); i++ {
-		if m[i].TCID != del.TCID {
-			continue
-		}
-		if e := rlib.DeleteRentalAgreementPayorByRBT(d.RAID, d.BID, del.TCID); e != nil {
-			SvcGridErrorReturn(w, e)
+	for i := 0; i < len(del.Selected); i++ {
+		if err := rlib.DeleteRentalAgreementPayor(del.Selected[i]); err != nil {
+			SvcGridErrorReturn(w, err)
 			return
 		}
-		SvcWriteSuccessResponse(w)
-		return
 	}
-	e := fmt.Errorf("Payor with TCID %d is not a payor for Rental Agreement %s", del.TCID, rlib.IDtoString("RA", d.RAID))
-	SvcGridErrorReturn(w, e)
+	SvcWriteSuccessResponse(w)
+
+	// fmt.Printf("Delete:  RAID = %d, BID = %d, TCID = %d\n", d.RAID, d.BID, del.TCID)
+
+	// m := rlib.GetRentalAgreementPayors(d.RAID, &d.Dt, &d.Dt)
+	// if len(m) == 0 {
+	// 	e := fmt.Errorf("%s: There are no payors for this Rental Agreement", funcname)
+	// 	SvcGridErrorReturn(w, e)
+	// 	return
+	// }
+	// if len(m) == 1 {
+	// 	e := fmt.Errorf("%s: Cannot delete the only payor from a Rental Agreement.  Add another payor, then delete", funcname)
+	// 	SvcGridErrorReturn(w, e)
+	// 	return
+	// }
+	// for i := 0; i < len(m); i++ {
+	// 	if m[i].TCID != del.TCID {
+	// 		continue
+	// 	}
+	// 	if e := rlib.DeleteRentalAgreementPayorByRBT(d.RAID, d.BID, del.TCID); e != nil {
+	// 		SvcGridErrorReturn(w, e)
+	// 		return
+	// 	}
+	// 	SvcWriteSuccessResponse(w)
+	// 	return
+	// }
+	// e := fmt.Errorf("Payor with TCID %d is not a payor for Rental Agreement %s", del.TCID, rlib.IDtoString("RA", d.RAID))
+	// SvcGridErrorReturn(w, e)
 }
 
 // saveRAPayor saves or adds a new payor to the RentalAgreementsPayor
@@ -134,8 +195,8 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Desc  This service saves a RAPayor.  If :RAID exists, it will
 //  @Desc  be updated with the information supplied. All fields must
 //  @Desc  be supplied. If RAID is 0, then a new RAPayor is created.
-//	@Input RAPeopleOtherSave
-//	@Input SaveRAPeopleInput
+//	@Input RAPayorOtherSave
+//	@Input SaveRAPayorInput
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -143,7 +204,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
-	var foo SaveRAPeopleInput
+	var foo SaveRAPayorInput
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
@@ -157,7 +218,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("saveRAPayor - first migrate: a = RAID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
 		a.RAID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 
-	var bar SaveRAPeopleOther
+	var bar SaveRAPayorOther
 	if err := json.Unmarshal(data, &bar); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
@@ -188,6 +249,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// This is a new RAPayor
 		fmt.Printf(">>>> NEW RAPayor IS BEING ADDED\n")
 		_, err = rlib.InsertRentalAgreementPayor(&a)
+		fmt.Printf("NEWLY INSERTED RAPAYOR =  %#v\n", a)
 	} else {
 		// update existing record
 		fmt.Printf(">>>> Updating existing RAPayor\n")
@@ -199,5 +261,52 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponseWithID(w, a.RAPID)
+}
+
+// SvcGetRAPayor is used to get either the Payor(s) or User(s) associated
+// with a Rental Agreement.
+//
+// wsdoc {
+//  @Title  Rental Agreement Payor
+//	@URL /v1/rapayor/:BUI/:RAID ? dt=:DATE & type=:PRSTYPE
+//  @Method  GET
+//	@Synopsis Get Rental Agreement payors or users
+//  @Description  Get the Transactants of type :PRSTYPE who are associated with the
+//  @Description  Rental Agreement :RAID on the supplied :DATE.
+//  @Description  Note that :PRSTYPE is optional. If it is not present, :Payor is assumed.
+//	@Input none
+//  @Response RAPayorResponse
+// wsdoc }
+//
+// URL:
+//       0    1       2    3
+// 		/v1/RAPayor/BID/RAID?type={payor|user}&dt=2017-02-01
+//      /v1/rapayor/REX/5
+//-----------------------------------------------------------------------------
+func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	//------------------------------------------------------
+	// Get the transactants... either payors or users...
+	//------------------------------------------------------
+	var gxp RAPayorResponse
+	m := rlib.GetRentalAgreementPayors(d.RAID, &d.Dt, &d.Dt)
+	for i := 0; i < len(m); i++ {
+		var p rlib.Transactant
+		rlib.GetTransactant(m[i].TCID, &p)
+		var xr RAPayor
+		fmt.Printf("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
+		rlib.MigrateStructVals(&p, &xr)
+		rlib.MigrateStructVals(&m[i], &xr)
+		xr1 := time.Time(xr.DtStart)
+		xr2 := time.Time(xr.DtStop)
+		fmt.Printf("after migrate: xr.DtStart = %s, xr.DtStop = %s\n", xr1.Format(rlib.RRDATEFMT3), xr2.Format(rlib.RRDATEFMT3))
+		xr.Recid = m[i].RAPID // must set AFTER MigrateStructVals in case src contains recid
+		gxp.Records = append(gxp.Records, xr)
+	}
+	//------------------------------------------------------
+	// marshal gxp and send it!
+	//------------------------------------------------------
+	gxp.Status = "success"
+	gxp.Total = int64(len(gxp.Records))
+	SvcWriteResponse(&gxp, w)
 }

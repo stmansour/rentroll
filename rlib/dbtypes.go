@@ -536,6 +536,12 @@ type TransactantTypeDown struct {
 	Recid      int64 `json:"recid"`
 }
 
+// RentableTypeDown is the struct needed to match names in typedown controls
+type RentableTypeDown struct {
+	Recid        int64 `json:"recid"` // this will hold the RID
+	RentableName string
+}
+
 // Vehicle contains all the vehicle information for a User's vehicld
 type Vehicle struct {
 	VID                 int64
@@ -1226,6 +1232,10 @@ type RRprepSQL struct {
 	UpdateTransactant                  *sql.Stmt
 	UpdateUser                         *sql.Stmt
 	UpdateVehicle                      *sql.Stmt
+	GetRentableTypeDown                *sql.Stmt
+	DeleteRentalAgreementRentable      *sql.Stmt
+	DeleteRentalAgreementPayor         *sql.Stmt
+	DeleteRentableUser                 *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

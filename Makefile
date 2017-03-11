@@ -22,16 +22,14 @@ jshint:
 	@${COUNTOL} "jshint --extract=always html/*.html html/test/*.html js/rutil.js"
 	@rm -rf fail
 
-try: clean rentroll package
+try: clean rentroll package testdb
 
 testdb:
-	cd test/svc;mysql --no-defaults < restore.sql
+	cd test/ws;mysql --no-defaults < restore.sql
 
 dbschemachange:
-	cd test/testdb;make clean test dbbackup;cd ../svc;make get
+	cd test/testdb;make clean test dbbackup;cd ../ws;make get
 	@tools/bashtools/buildcheck.sh SCHEMA_UPDATE
-
-rebuild: try testdb
 
 stats:
 	@echo "GO SOURCE CODE STATISTICS"

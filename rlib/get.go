@@ -1134,6 +1134,27 @@ func GetRentableByName(name string, bid int64) (Rentable, error) {
 	return r, err
 }
 
+// GetRentableTypeDown returns the values needed for typedown controls:
+// input:   bid - business
+//            s - string or substring to search for
+//        limit - return no more than this many matches
+// return a slice of RentableTypeDowns and an error.
+func GetRentableTypeDown(bid int64, s string, limit int) ([]RentableTypeDown, error) {
+	var m []RentableTypeDown
+	s += "%"
+	rows, err := RRdb.Prepstmt.GetRentableTypeDown.Query(bid, s, limit)
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t RentableTypeDown
+		ReadRentableTypeDown(rows, &t)
+		m = append(m, t)
+	}
+	return m, nil
+}
+
 // GetXRentable reads an XRentable structure based on the RID.
 func GetXRentable(rid int64, x *XRentable) {
 	if x.R.RID == 0 && rid > 0 {

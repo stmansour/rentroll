@@ -22,47 +22,23 @@ type UpdateRAPeopleInput struct {
 //        0   1   2    3
 // 		/v1/ruser/BID/RID?&dt=2017-02-01
 func SvcRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var err error
 	fmt.Printf("\tentered SvcRUser\n")
-	s := r.URL.String()                 // ex: /v1/rar/CCC/10?dt=2017-02-01
-	fmt.Printf("\ts = %s\n", s)         // x
-	s1 := strings.Split(s, "?")         // ex: /v1/rar/CCC/10?dt=2017-02-01
-	fmt.Printf("\ts1 = %#v\n", s1)      // x
-	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "rar", "CCC", "10"}
-	fmt.Printf("\tss = %#v\n", ss)
-
-	//------------------------------------------------------
-	// Handle URL path values
-	//------------------------------------------------------
-	d.RID, err = rlib.IntFromString(ss[3], "bad ID value")
-	if err != nil {
-		SvcGridErrorReturn(w, err)
-		return
-	}
-
-	//------------------------------------------------------
-	// Handle URL parameters
-	//------------------------------------------------------
+	var err error
 	now := time.Now()
 	d.Dt = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC) // default to current date
-	if len(s1) > 1 && len(s1[1]) > 0 {                                         // override with whatever was provided
-		parms := strings.Split(s1[1], "&") // parms is an array of indivdual parameters and their values
-		for i := 0; i < len(parms); i++ {
-			param := strings.Split(parms[i], "=") // an individual parameter and its value
-			if len(param) < 2 {
-				continue
-			}
-			fmt.Printf("param[i] value = %s\n", param[1])
-			switch param[0] {
-			case "cmd":
-				d.wsSearchReq.Cmd = strings.TrimSpace(param[1])
-			case "dt":
-				d.Dt, err = rlib.StringToDate(param[1])
-				if err != nil {
-					SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", param[1]))
-					return
-				}
-			}
+
+	//----------------------------------------------------
+	// pick up any HTTP GET params of interest
+	//----------------------------------------------------
+	q := r.URL.Query()
+	if f := q["cmd"]; len(f) > 0 {
+		d.wsSearchReq.Cmd = f[0]
+	}
+	if f := q["dt"]; len(f) > 0 {
+		d.Dt, err = rlib.StringToDate(f[0])
+		if err != nil {
+			SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", f[0]))
+			return
 		}
 	}
 
@@ -72,12 +48,14 @@ func SvcRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("\nCOMMAND:  %s\n\n", d.wsSearchReq.Cmd)
 	switch d.wsSearchReq.Cmd {
 	case "get":
-		d.RAID = d.RID // in this case the ID is the RAID; we get users for all rentables under the RAID
+		d.RAID = d.ID // in this case the ID is the RAID; we get users for all rentables under the RAID
 		SvcGetRAPeople("ruser", w, r, d)
 	case "save":
+		d.RID = d.ID // id is rid for this command
 		saveRUser(w, r, d)
 		return
 	case "delete":
+		d.RID = d.ID // id is rid for this command
 		deleteRUser(w, r, d)
 		return
 	default:

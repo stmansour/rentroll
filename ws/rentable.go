@@ -59,6 +59,40 @@ type GetRentableResponse struct {
 	Record PrRentableOther `json:"record"`
 }
 
+// RentableTypedownResponse is the data structure for the response to a search for people
+type RentableTypedownResponse struct {
+	Status  string                  `json:"status"`
+	Total   int64                   `json:"total"`
+	Records []rlib.RentableTypeDown `json:"records"`
+}
+
+// SvcRentableTypeDown handles typedown requests for Rentables.  It returns
+// FirstName, LastName, and TCID
+// wsdoc {
+//  @Title  Get Rentables Typedown
+//	@URL /v1/Rentabletd/:BUI?request={"search":"The search string","max":"Maximum number of return items"}
+//	@Method GET
+//	@Synopsis Fast Search for Rentables matching typed characters
+//  @Desc Returns TCID, FirstName, Middlename, and LastName of Rentables that
+//  @Desc match supplied chars at the beginning of FirstName or LastName
+//  @Input WebTypeDownRequest
+//  @Response RentablesTypedownResponse
+// wsdoc }
+func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var g RentableTypedownResponse
+	var err error
+	fmt.Printf("handle typedown: GetRentablesTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	g.Records, err = rlib.GetRentableTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	if err != nil {
+		SvcGridErrorReturn(w, fmt.Errorf("Error getting typedown matches: %s", err.Error()))
+		return
+	}
+	fmt.Printf("GetRentableTypeDown returned %d matches\n", len(g.Records))
+	g.Total = int64(len(g.Records))
+	g.Status = "success"
+	SvcWriteResponse(&g, w)
+}
+
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
 // wsdoc {
 //  @Title  Search Rentables

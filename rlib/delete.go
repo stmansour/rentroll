@@ -273,6 +273,15 @@ func DeleteRentableStatus(rid int64, dtstart, dtstop *time.Time) error {
 	return err
 }
 
+// DeleteRentalAgreementPayor deletes the Payor with the specified id from the database
+func DeleteRentalAgreementPayor(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentalAgreementPayor.Exec(id)
+	if err != nil {
+		Ulog("Error deleting RAPID=%d error: %v\n", id, err)
+	}
+	return err
+}
+
 // DeleteRentalAgreementPayorByRBT deletes the payor from the RentalAgreement
 func DeleteRentalAgreementPayorByRBT(raid, bid, tcid int64) error {
 	_, err := RRdb.Prepstmt.DeleteRentalAgreementPayorByRBT.Exec(raid, bid, tcid)
@@ -300,11 +309,29 @@ func DeleteRentalAgreementPet(petid int64) error {
 	return err
 }
 
+// DeleteRentalAgreementRentable deletes the rentable with the specified id from the database
+func DeleteRentalAgreementRentable(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentalAgreementRentable.Exec(id)
+	if err != nil {
+		Ulog("Error deleting id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
 // DeleteAllRentalAgreementPets deletes all pets associated with the specified raid
 func DeleteAllRentalAgreementPets(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementPets.Exec(id)
 	if err != nil {
 		Ulog("Error deleting pets for rental agreement=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteRentableUser deletes the User with the specified id from the database
+func DeleteRentableUser(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentableUser.Exec(id)
+	if err != nil {
+		Ulog("Error deleting RUID=%d error: %v\n", id, err)
 	}
 	return err
 }

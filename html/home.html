@@ -26,11 +26,12 @@ sidebarL1     - w2ui sidebar
     w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
     w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
     tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
+    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare,
 */
 
 /*globals $:false */
 
-// my app object in which to manage key data
+// The rentroll app object. Used to manage app-level data.
 var app = {
     D1: "2016-02-01",
     D2: "2016-03-01",
@@ -38,6 +39,7 @@ var app = {
     lastCmd: '',
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
+    ridRentablePicker: {BID: 0, Title: '', RAID: 0},
     language: "{{.Language}}",
     template: "{{.Template}}",
     pstyle: 'border: 1px solid #dfdfdf; padding: 0px;',
@@ -72,15 +74,10 @@ function showReport(rptname) {
 }
 
 
-// // urlPrefix returns the standard for values for the web services
-// // url ending:  <userid>/<business id>
-// function urlSuffix() {
-//     "use strict";
-//     user = "211"; // hardcoded for now
-//     return user+x[0].value;
-// }
-
-// ChangeBusiness updates the UI to the newly selected business
+// ChangeBusiness updates the UI to the newly selected business.
+// This routine is indeed used, in spite of what JSHint thinks. It
+// is embedded in a string defining the OnClick handler for a button
+// in the main toolbar.
 function ChangeBusiness() {
     "use strict";
     w2ui.toplayout.content('main', ' ');
@@ -249,8 +246,16 @@ function buildPageElements() {
     w2ui.toplayout.content('left',$().w2sidebar({
         name: 'sidebarL1',
         nodes: [
+            { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: false, group: true,
+                nodes: [  
+                        { id: 'updatera', text: 'Update Rental Agreement', icon: 'fa fa-pencil' },
+                        { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
+                        { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
+                ]
+            },
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
-                nodes: [  { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
+                nodes: [  
+                        { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
                         { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
                         { id: 'rentalagrs',  text: plural(app.sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
                         { id: 'asms',  text: plural(app.sAssessment),  icon: 'fa fa-star-o', hint: plural(app.sAssessment) },
@@ -940,13 +945,20 @@ function buildPageElements() {
             {field: 'ContractRent', caption: 'Rent', size: '10%', sortable: true, render: 'money', editable: { type: 'money' }},
             {field: 'RARDtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'RARDtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
-            ],
-        onDelete: function(/*event*/) {
-            var sel = w2ui.rarGrid.getSelection(true); // get the record indeces rather than the recids
-            w2ui.rarGrid.postData = {
-                RID: w2ui.rarGrid.records[sel[0]].RID,
-            };
+        ],
+        onAdd: function (/*event*/) {
+            var x = getCurrentBusiness();
+            popupRidRentablePicker(app.sRentable, x.value);
         },
+        onSave: function() {
+            console.log('save payors');
+        },
+        // onDelete: function(/*event*/) {
+        //     var sel = w2ui.rarGrid.getSelection(true); // get the record indeces rather than the recids
+        //     w2ui.rarGrid.postData = {
+        //         RID: w2ui.rarGrid.records[sel[0]].RID,
+        //     };
+        // },
         onRefresh: function(/*event*/) {
             var total = 0.0;
             //var sumIndex = -1;
@@ -957,6 +969,7 @@ function buildPageElements() {
         },
 
      });
+
 
     //------------------------------------------------------------------------
     //          rapGrid
@@ -1089,7 +1102,7 @@ function buildPageElements() {
             {field: 'DtStart',  caption: 'DtStart', size: '10%', sortable: true, style: 'text-align: right'},
             {field: 'DtStop',   caption: 'DtStop', size: '10%', sortable: true, style: 'text-align: right'},
         ],
-        onDelete: function(event) {
+        onDelete: function(/*event*/) {
             var sel = w2ui.rPetGrid.getSelection(true); // get the record indeces rather than the recids
             w2ui.rPetGrid.postData = {
                 PETID: w2ui.rPetGrid.records[sel[0]].PETID,
@@ -1533,6 +1546,9 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
             w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
+            if (app.TcidRUserPicker.RARentablesNames.length == 1) {
+                w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
+            }
         },
         onChange: function (event) {
             console.log(event);
@@ -1547,10 +1563,59 @@ function buildPageElements() {
             },
         },
     });
-}
+
+    //------------------------------------------------------------------------
+    //          ridRentablePicker
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'ridRentablePicker',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/ridrentablepicker.html',
+        focus  : 0,
+        openOnFocus: true,
+        fields: [
+            { field: 'RentableName', required: true, 
+                type: 'enum', 
+                options: {
+                    url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
+                    max:        1,
+                    cacheMax:   50,
+                    renderItem: ridRentablePickerRender,
+                    renderDrop: ridRentableDropRender,
+                    compare:    ridRentableCompare,
+                    onNew: function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { RentableName : event.item.text });
+                    }
+                },
+            },
+            { field: 'DtStart', type: 'date',  required: true },
+            { field: 'DtStop',  type: 'date',  required: true },
+            { field: 'Amount',  type: 'money', required: true },
+            { field: 'RID',     type: 'wsint' },
+        ],
+        onRefresh: function(/*event*/) {
+            w2ui.ridRentablePicker.fields[0].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+        },
+        onChange: function (event) {
+            console.log(event);
+        },
+        actions: {
+            save: function () {
+                var errs = w2ui.ridRentablePicker.validate(true);
+                if (errs.length > 0) { return; }
+                console.log('SAVE ridRentablePicker: TCID = ' + w2ui.ridRentablePicker.record.TCID + '  DtStart = ' + w2ui.ridRentablePicker.record.DtStart + '  DtStop = ' + w2ui.ridRentablePicker.record.DtStop);
+                w2popup.close();
+                saveNewRARentable();
+            },
+        },
+    });
 
 
-function saveNewRAPayor() {
+}  // buildPageElements
+
+
+function saveNewRentable() {
     "use strict";
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -1578,6 +1643,34 @@ function saveNewRAPayor() {
     });
 }
 
+function saveNewRAPayor() {
+    "use strict";
+    var y = new Date();
+    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+    var rec = {
+        recid: w2ui.rapGrid.records.length,                 // + 1
+        BID: w2ui.rentalagrForm.record.BID,                 // BID of RAID we're editing
+        TCID: w2ui.tcidRAPayorPicker.record.TCID,           // The TCID from the person picked
+        RAID: w2ui.rentalagrForm.record.RAID,               // the RAID we're editing
+        FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
+        MiddleName: "",                                     // ignored
+        LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
+        DtStart: w2uiDateControlString(y),                  // start
+        DtStop: w2uiDateControlString(ny),                  // end
+    };
+    //console.log('rec = ' + rec);
+    var params = {cmd: 'save', formname: 'tcidRAPayorPicker', record: rec };
+    var dat = JSON.stringify(params);
+    $.post(w2ui.rapGrid.url, dat, function(data,status) {
+        console.log('data = ' + data);
+        if (status != "success") {
+            console.log('status = ' + status);
+        }
+        rec.recid = data.recid;
+        w2ui.rapGrid.add(rec,true);
+    });
+}
+
 function popupTcidRAPayorPicker(sTitle,bid) {
     "use strict";
     app.TcidRAPayorPicker = {BID: bid, Title: sTitle};  // used by tcidRAPayorPicker form
@@ -1586,9 +1679,11 @@ function popupTcidRAPayorPicker(sTitle,bid) {
     w2ui.tcidRAPayorPicker.record.DtStart = w2uiDateControlString(y);
     w2ui.tcidRAPayorPicker.record.DtStop = w2uiDateControlString(ny);
     w2ui.tcidRAPayorPicker.record.TCID = -1;
+    w2ui.tcidRAPayorPicker.record.pickedName = '';
     w2ui.tcidRAPayorPicker.refresh();
+    var raid = w2ui.rentalagrForm.record.RAID; 
     $().w2popup('open', {
-        title   : 'Add A New ' + sTitle,
+        title   : 'Add New ' + sTitle + ' to RA0'+raid,
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
         style   : 'padding: 15px 0px 0px 0px',
         width   : 400,
@@ -1607,6 +1702,41 @@ function popupTcidRAPayorPicker(sTitle,bid) {
                 // an onBeforeOpen handler, which would make this code execute too 
                 // early and hence not deliver.
                 $('#w2ui-popup #form').w2render('tcidRAPayorPicker');
+            };
+        }
+    });   
+}
+
+function popupRidRentablePicker(sTitle,bid) {
+    "use strict";
+    app.ridRentablePicker = {BID: bid, Title: sTitle};  // used by RidRentablePicker form
+    var y = new Date();
+    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+    w2ui.ridRentablePicker.record.DtStart = w2uiDateControlString(y);
+    w2ui.ridRentablePicker.record.DtStop = w2uiDateControlString(ny);
+    w2ui.ridRentablePicker.record.TCID = -1;
+    w2ui.ridRentablePicker.refresh();
+    var raid = w2ui.rentalagrForm.record.RAID; 
+    $().w2popup('open', {
+        title   : 'Add New ' + sTitle + ' to RA0' + raid,
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 400,
+        height  : 240, 
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.ridRentablePicker.box).hide();
+            event.onComplete = function () {
+                $(w2ui.ridRentablePicker.box).show();
+                w2ui.ridRentablePicker.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead would be equivalent to specifying 
+                // an onBeforeOpen handler, which would make this code execute too 
+                // early and hence not deliver.
+                $('#w2ui-popup #form').w2render('ridRentablePicker');
             };
         }
     });   
@@ -1664,6 +1794,45 @@ function saveNewRUser() {
     });
 }
 
+function saveNewRARentable() {
+    "use strict";
+    var rec = {
+        recid: 0,                                                   // new
+        BUI: w2ui.rentalagrForm.record.BID.text,                         // BID of RID we're editing
+        RAID: w2ui.rentalagrForm.record.RAID,                       // The RAID from the form being edited
+        RID: w2ui.ridRentablePicker.record.RID,                     // the selected RID
+        RentableName: w2ui.ridRentablePicker.record.RentableName[0].RentableName,   // the name of the rentable
+        RARDtStart: w2ui.ridRentablePicker.record.DtStart,          // start
+        RARDtStop: w2ui.ridRentablePicker.record.DtStop,            // end
+        ContractRent: w2ui.ridRentablePicker.record.Amount,         // end
+    };
+    var params = {cmd: 'save', formname: 'ridRentablePicker', record: rec };
+    var dat = JSON.stringify(params);
+
+    // save the record to the server, insert into grid. We need the
+    // RARID of the record just saved so that we can store it along
+    // with the rest of the record information that we insert into the grid.
+    // We pick this up in the "success" return information
+    var url = '/v1/rar/' + rec.BUI + '/' + rec.RAID;
+    $.post(url, dat)
+    .done(function(data) {
+        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+            var msg = JSON.parse(data);
+            w2ui.rarGrid.message(msg.message);
+            return;
+        }
+        if (data.status == 'success') {
+            rec.recid = data.recid; // success reply returns RARID of record just added
+            w2ui.rarGrid.add(rec,true);
+        } else {
+            w2ui.rarGrid.message(data.message);
+        }
+    })
+    .fail(function(data) {
+        console.log('data = ' + data);
+    });
+}
+
 function popupTcidRUserPicker(sTitle,bid,raid) {
     "use strict";
     app.TcidRUserPicker = {BID: bid, Title: sTitle, RAID: raid, RARentablesNames: [], RAR: []};  // used by tcidRUserPicker form
@@ -1672,6 +1841,8 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
     w2ui.tcidRUserPicker.record.DtStart = w2uiDateControlString(y);
     w2ui.tcidRUserPicker.record.DtStop = w2uiDateControlString(ny);
     w2ui.tcidRUserPicker.record.TCID = -1;
+    w2ui.tcidRUserPicker.record.pickedName = '';
+    w2ui.tcidRUserPicker.record.RentableName = '';
     w2ui.tcidRUserPicker.refresh();
     var url = '/v1/rar/' + bid + '/' + raid;
     $.get(url,function(data,status) {
@@ -1740,9 +1911,9 @@ function finishInitialization() {
 
 function handleData(data,status) {
     if (status == "success") {
-        /* jshint ignore:start */
+/* jshint ignore:start */
         eval(data); // defines all the lists; values for the dropdown lists
-        /* jshint ignore:end */
+/* jshint ignore:end */
         console.log("SUCCESSFULLY LOADED LISTS");
     } else {
         console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + status);

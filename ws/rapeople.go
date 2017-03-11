@@ -12,20 +12,6 @@ import (
 // type defaults to "payor" unless it is provided.  If provided it must be
 // one of {payor|user}
 
-// RAPeople defines a person for the web service interface
-type RAPeople struct {
-	Recid        int64         `json:"recid"` // this is to support the w2ui form
-	TCID         int64         // associated rental agreement
-	BID          int64         // Business
-	FirstName    string        // person name
-	MiddleName   string        // person name
-	LastName     string        // person name
-	RID          int64         // Rentable ID
-	RentableName string        // rentable name
-	DtStart      rlib.JSONTime // start date/time for this Rentable
-	DtStop       rlib.JSONTime // stop date/time
-}
-
 // RAPeopleFormSave is the structure of data we will receive from a UI form save
 type RAPeopleFormSave struct {
 	RAID    int64
@@ -57,13 +43,6 @@ type SaveRAPeopleOther struct {
 	Record RAPeopleOtherSave `json:"record"`
 }
 
-// RAPeopleResponse is the struct containing the JSON return values for this web service
-type RAPeopleResponse struct {
-	Status  string     `json:"status"`
-	Total   int64      `json:"total"`
-	Records []RAPeople `json:"records"`
-}
-
 // DeleteRAPeople is the command structure returned when a Payor is
 // deleted from the PayorList grid in the RentalAgreement Details dialog
 type DeleteRAPeople struct {
@@ -72,6 +51,27 @@ type DeleteRAPeople struct {
 	Limit    int    `json:"limit"`
 	Offset   int    `json:"offset"`
 	TCID     int64  `json:"TCID"`
+}
+
+// RAPeople defines a person for the web service interface
+type RAPeople struct {
+	Recid        int64         `json:"recid"` // this the RAPID
+	TCID         int64         // associated rental agreement
+	BID          int64         // Business
+	FirstName    string        // person name
+	MiddleName   string        // person name
+	LastName     string        // person name
+	RID          int64         // Rentable ID
+	RentableName string        // rentable name
+	DtStart      rlib.JSONTime // start date/time for this Rentable
+	DtStop       rlib.JSONTime // stop date/time
+}
+
+// RAPeopleResponse is the struct containing the JSON return values for this web service
+type RAPeopleResponse struct {
+	Status  string     `json:"status"`
+	Total   int64      `json:"total"`
+	Records []RAPeople `json:"records"`
 }
 
 type raPeopleContext struct {
