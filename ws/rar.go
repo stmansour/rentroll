@@ -164,27 +164,19 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		a.RARID, a.RAID, a.BID, a.RID, a.ContractRent, a.RARDtStart.Format(rlib.RRDATEFMT3), a.RARDtStop.Format(rlib.RRDATEFMT3))
 
 	var err error
-	// // Try to read an existing record...
-	// if a.RARID > 0 {
-	// 	_, err = rlib.GetRentalAgreementRentable(rarid)
-	// 	if err != nil && !strings.Contains(err.Error(), "no rows") {
-	// 		fmt.Printf("Error reading RentalAgreementPayors: %s\n", err.Error())
-	// 		SvcGridErrorReturn(w, err)
-	// 		return
-	// 	}
-	// }
-
-	if a.RARID == 0 {
-		// This is a new RARentable
-		fmt.Printf(">>>> NEW RARentable IS BEING ADDED\n")
-		_, err = rlib.InsertRentalAgreementRentable(&a)
-	} else {
-		// update existing record
-		fmt.Printf(">>>> Updating existing RARentable\n")
-		err = rlib.UpdateRentalAgreementRentable(&a)
+	m := rlib.GetRentalAgreementRentables(d.RAID, &a.RARDtStart, &a.RARDtStop)
+	for i := 0; i < len(m); i++ {
+		if a.RID == m[i].RID {
+			e := fmt.Errorf("That Rentable already exists in RentalAgreement %s and overlaps the time range %s - %s",
+				rlib.IDtoString("RA", d.RAID), a.RARDtStart.Format(rlib.RRDATEFMT4), a.RARDtStop.Format(rlib.RRDATEFMT4))
+			SvcGridErrorReturn(w, e)
+			return
+		}
 	}
+	fmt.Printf(">>>> NEW RARentable IS BEING ADDED\n")
+	_, err = rlib.InsertRentalAgreementRentable(&a)
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving RARentable (RAID=%d\n: %s", funcname, d.RAID, err.Error())
+		e := fmt.Errorf("Error saving Rentable (RAID=%d): %s", d.RAID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
