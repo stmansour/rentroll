@@ -98,7 +98,7 @@ func AssessmentCheckReportText(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 		return
 	}
 	for i := 0; i < len(m); i++ {
-		s := ""
+		var s string
 		if len(m[i].msg) > 0 {
 			s = m[i].msg
 		} else {

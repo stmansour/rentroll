@@ -65,7 +65,7 @@ func ReportCOA(p rlib.GLAccount, t *gotable.Table) {
 		s = fmt.Sprintf("%d", p.Type)
 	}
 
-	sp := ""
+	var sp string
 	switch p.RAAssociated {
 	case 0:
 		sp = "unknown"

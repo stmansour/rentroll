@@ -416,3 +416,52 @@ function setDateControl(dc, dt) {
     dc.value = s;
     return s;
 }
+
+//-----------------------------------------------------------------------------
+// calcRarGridContractRent
+//          - Sum the Contract Rent column of rarGrid and return the total.
+//            used to set the control.
+// @params
+//          grid - The grid to work on
+// @return  The total of the column
+//-----------------------------------------------------------------------------
+function calcRarGridContractRent(grid) {
+//     "use strict";
+//     var total = 0.0;
+//     for (var i = 0; i < w2ui.rarGrid.records.length; i++) {
+//         total += w2ui.rarGrid.records[i].ContractRent;
+//     }
+//     return total;
+// function updateTotal(grid) {
+    "use strict";
+    grid = w2ui.rarGrid || grid;
+    var chgs = grid.getChanges();
+    var amts = [];
+    //
+    // Build up a list of amounts...
+    //
+    for (var i = 0; i < grid.records.length; i++) {
+        if (typeof grid.records[i].ContractRent == "number") {
+            amts.push({recid: grid.records[i].recid, ContractRent: grid.records[i].ContractRent});
+        }
+    }
+    //
+    // Any changes override these ContractRents...
+    //
+    for (i = 0; i < chgs.length; i++) {
+        if (typeof chgs[i].ContractRent == "number") {
+            for (var j = 0; j < amts.length; j++ ) {
+                if (chgs[i].recid == amts[j].recid) {
+                    amts[j] = {recid: chgs[i].recid, ContractRent: chgs[i].ContractRent};
+                    break;
+                }
+            }
+        }
+    }
+    // now total everything...
+    var total = 0.0;
+    for (i = 0; i < amts.length; i++) {
+        total += amts[i].ContractRent;
+    }
+    grid.set('s-1', {ContractRent: total });
+}

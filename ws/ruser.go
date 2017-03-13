@@ -154,8 +154,20 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("saveRUser - second migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
-		a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
+	// fmt.Printf("saveRUser - second migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
+	// 	a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
+
+	// make sure we don't already have this user and that there's no overlap
+	// with an existing record...
+	n := rlib.GetRentableUsersInRange(a.RID, &a.DtStart, &a.DtStop)
+	for i := 0; i < len(n); i++ {
+		if a.TCID == n[i].TCID && rlib.DateRangeOverlap(&a.DtStart, &a.DtStop, &n[i].DtStart, &n[i].DtStop) {
+			e := fmt.Errorf("There is already an overlapping record for this user from %s to %s",
+				n[i].DtStart.Format(rlib.RRDATEFMT4), n[i].DtStop.Format(rlib.RRDATEFMT4))
+			SvcGridErrorReturn(w, e)
+			return
+		}
+	}
 
 	var err error
 	// Try to read an existing record...
@@ -173,7 +185,6 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// This is a new RUser
 	if err = rlib.InsertRentableUser(&a); err != nil {
 		e := fmt.Errorf("%s: Error saving RUser (RID=%d): %s", funcname, d.RID, err.Error())
 		SvcGridErrorReturn(w, e)

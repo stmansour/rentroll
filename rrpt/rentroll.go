@@ -20,7 +20,7 @@ func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rl
 	x, _, _, _ := rlib.CalculateLoadedGSR(p, dtStart, dtStop, xbiz)
 
 	// Compute the GSR Rate
-	gsrRate := float64(0)                                           //initialize
+	var gsrRate float64                                             //initialize
 	prt := rlib.SelectRentableTypeRefForDate(&p.RT, dtStart)        // The RentableType at the start of the period
 	n2 := rlib.CycleDuration(xbiz.RT[prt.RTID].RentCycle, *dtStart) // rent cycle duration
 	n1 := dtStop.Sub(*dtStart)                                      // duration of this particular period
@@ -132,11 +132,11 @@ func RentRollReport(ri *ReporterInfo) (gotable.Table, error) {
 		rlib.Errcheck(rows.Scan(&p.RID, &p.BID, &p.RentableName, &p.AssignmentTime, &p.LastModTime, &p.LastModBy)) // read the rentable
 		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2)                                                      // its RentableType is time sensitive
 
-		rtid := p.RT[0].RTID // select its value at the beginning of this period
-		sqft := int64(0)     // assume no custom attribute
-		usernames := ""      // this will be the list of renters
-		payornames := ""     // this will be the list of Payors
-		rentCycle := ""
+		rtid := p.RT[0].RTID  // select its value at the beginning of this period
+		sqft := int64(0)      // assume no custom attribute
+		var usernames string  // this will be the list of renters
+		var payornames string // this will be the list of Payors
+		var rentCycle string
 
 		if len(ri.Xbiz.RT[rtid].CA) > 0 { // if there are custom attributes
 			c, ok := ri.Xbiz.RT[rtid].CA[custom] // see if Square Feet is among them

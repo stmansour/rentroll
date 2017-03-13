@@ -236,25 +236,27 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("saveRAPayor - second migrate: a = RAID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
 		a.RAID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 
-	var err error
 	// Try to read an existing record...
-	_, err = rlib.GetRentalAgreementPayorByRBT(a.RAID, a.BID, a.TCID)
-	if err != nil && !strings.Contains(err.Error(), "no rows") {
-		fmt.Printf("Error reading RentalAgreementPayors: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
+	m := rlib.GetRentalAgreementPayorsInRange(a.RAID, &a.DtStart, &a.DtStop)
+	fmt.Printf("found %d payors for RAID %d during period %s - %s\n", len(m), a.RAID, a.DtStart.Format(rlib.RRDATEFMT4), a.DtStop.Format(rlib.RRDATEFMT4))
+	for i := 0; i < len(m); i++ {
+		fmt.Printf("m[i].TCID = %d, a.TCID = %d, %s - %s,  %s - %s\n",
+			m[i].TCID, a.TCID,
+			a.DtStart.Format(rlib.RRDATEFMT4), a.DtStop.Format(rlib.RRDATEFMT4),
+			m[i].DtStart.Format(rlib.RRDATEFMT4), m[i].DtStop.Format(rlib.RRDATEFMT4))
+		fmt.Printf("DateRangeOverlap = %t\n", rlib.DateRangeOverlap(&a.DtStart, &a.DtStop, &m[i].DtStart, &m[i].DtStop))
+		if m[i].TCID == a.TCID && rlib.DateRangeOverlap(&a.DtStart, &a.DtStop, &m[i].DtStart, &m[i].DtStop) {
+			e := fmt.Errorf("There is already an overlapping record for %s %s from %s to %s",
+				foo.Record.FirstName, foo.Record.LastName,
+				time.Time(foo.Record.DtStart).Format(rlib.RRDATEFMT4),
+				time.Time(foo.Record.DtStop).Format(rlib.RRDATEFMT4))
+			SvcGridErrorReturn(w, e)
+			return
+		}
 	}
 
-	if err != nil {
-		// This is a new RAPayor
-		fmt.Printf(">>>> NEW RAPayor IS BEING ADDED\n")
-		_, err = rlib.InsertRentalAgreementPayor(&a)
-		fmt.Printf("NEWLY INSERTED RAPAYOR =  %#v\n", a)
-	} else {
-		// update existing record
-		fmt.Printf(">>>> Updating existing RAPayor\n")
-		err = rlib.UpdateRentalAgreementPayorByRBT(&a)
-	}
+	// This is a new RAPayor
+	_, err := rlib.InsertRentalAgreementPayor(&a)
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving RAPayor (RAID=%d\n: %s", funcname, d.RAID, err.Error())
 		SvcGridErrorReturn(w, e)

@@ -135,6 +135,9 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 			var ru rlib.RentableUser // struct for the data in this 3-tuple
 			name := strings.TrimSpace(ss[0])
 			n, err := CSVLoaderTransactantList(r.BID, name)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error Loading transactant list: %s", funcname, lineno, err.Error())
+			}
 			if len(n) == 0 || n[0].TCID == 0 {
 				rerr := fmt.Sprintf("%s: line %d - could not find Transactant with contact information %s\n", funcname, lineno, name)
 				return CsvErrorSensitivity, fmt.Errorf("%s", rerr)

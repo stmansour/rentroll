@@ -214,7 +214,7 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			SvcGridErrorReturn(w, e)
 			return
 		}
-		// The only updates allowed are to the dates.  We check those directly...
+		// The only updates allowed are to the dates and the amount.  We check those directly...
 		dt := time.Time(foo.Changes[i].RARDtStart)
 		if dt.Year() > 1969 {
 			rec.RARDtStart = dt
@@ -223,6 +223,10 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		dt = time.Time(foo.Changes[i].RARDtStop)
 		if dt.Year() > 1969 {
 			rec.RARDtStop = dt
+			changes++
+		}
+		if foo.Changes[i].ContractRent > float64(0) {
+			rec.ContractRent = foo.Changes[i].ContractRent
 			changes++
 		}
 		if changes > 0 {

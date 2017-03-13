@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>grid sum test</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
+</head>
+<body>
+
+<div id="grid" style="width: 100%; height: 250px;"></div>
+<p >w2ui.grid.summary[0].amount = <span id="gridtotal">$0.00</span></p>
+<button class="w2ui-btn" onclick="updateTotal();">Call updateTotal()</button>
+<script>
+/*global
+    w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
+    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
+*/
+
+/*globals $:false */
+
+$(function() {
+    "use strict";
+    $('#grid').w2grid({
+    name: 'grid',
+    columns: [
+        {field: 'recid', caption: 'recid', size: '50px', sortable: true, attr: 'align=center'},
+        {field: 'lname', caption: 'Last Name', size: '150px', sortable: true }, 
+        {field: 'amount', caption: 'Amount', size: '100px', render: 'money', editable: {type: 'money'}},
+     ],
+    records: [
+        {recid: 1, fname: 'Jane', amount: 1000.00 },
+        {recid: 2, fname: 'Stuart', amount: 1000.00 },
+        {recid: 3, fname: 'Jin', amount: 1000.00 },
+        {recid: 's-1', fname: '', amount: 0, w2ui: {summary: true } },
+    ],
+    onRender: function(event) {
+      var obj = this;
+      event.done(function() {updateTotal(obj); 
+      });
+    },
+    onChange: function(event) {
+      var obj = this;
+      event.done(function() {
+        updateTotal(obj);
+      });
+    },        
+  });
+});
+
+function updateTotal(grid) {
+    "use strict";
+    grid = w2ui.grid || grid;
+    var chgs = grid.getChanges();
+    var amts = [];
+    //
+    // Build up a list of amounts...
+    //
+    for (var i = 0; i < grid.records.length; i++) {
+        if (typeof grid.records[i].amount == "number") {
+            amts.push({recid: grid.records[i].recid, amount: grid.records[i].amount});
+        }
+    }
+    //
+    // Any changes override these amounts...
+    //
+    for (i = 0; i < chgs.length; i++) {
+        if (typeof chgs[i].amount == "number") {
+            for (var j = 0; j < amts.length; j++ ) {
+                if (chgs[i].recid == amts[j].recid) {
+                    amts[j] = {recid: chgs[i].recid, amount: chgs[i].amount};
+                    break;
+                }
+            }
+        }
+    }
+    // now total everything...
+    var total = 0.0;
+    for (i = 0; i < amts.length; i++) {
+        total += amts[i].amount;
+    }
+
+
+    grid.set('s-1', {amount: total });
+    var d = new Date();
+    document.getElementById("gridtotal").innerHTML = '' + grid.summary[0].amount + '<br>w2ui.grid.records[0].amount = ' + grid.records[0].amount + '<br>' + d.toString();
+}
+</script>
+
+</body>
+</html>
