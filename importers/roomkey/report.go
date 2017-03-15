@@ -81,7 +81,7 @@ func generateSummaryReport(
 		tbl.Puts(-1, 3, strconv.Itoa(countMap["issues"]))
 	}
 
-	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+	s, err := tbl.SprintTable()
 	if err != nil {
 		rlib.Ulog("generateDetailedReport: error = %s", err)
 	}
@@ -127,7 +127,7 @@ func generateDetailedReport(
 			tbl.Puts(-1, 1, reportError[0])
 
 			// append detailed section
-			s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+			s, err := tbl.SprintTable()
 			if err != nil {
 				rlib.Ulog("generateDetailedReport: error = %s", err)
 			}
@@ -203,7 +203,7 @@ func generateDetailedReport(
 	}
 
 	// append detailed section
-	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+	s, err := tbl.SprintTable()
 	if err != nil {
 		rlib.Ulog("generateDetailedReport: error = %s", err)
 	}

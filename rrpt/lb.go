@@ -51,6 +51,6 @@ func PrintLedgerBalanceReportString(ri *ReporterInfo) string {
 	//s := fmt.Sprintf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ri.Xbiz.P.Name, ri.D2.Format("January 2, 2006"))
 	tbl := LedgerBalanceReport(ri)
 	tbl.TightenColumns()
-	// return s + tbl.SprintTable(gotable.TABLEOUTTEXT)
+	// return s + tbl.SprintTable()
 	return ReportToString(&tbl, ri)
 }
