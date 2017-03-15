@@ -1147,7 +1147,7 @@ function buildPageElements() {
             };
         },
         onRequest: function(/*event*/) {
-            w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2}
+            w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
         onRefresh: function(event) {
             if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
@@ -1162,7 +1162,8 @@ function buildPageElements() {
     w2ui.receiptsGrid.toolbar.add( genDateRangeNavigator('receipts') );
     w2ui.receiptsGrid.toolbar.on('click', function(event) { 
         handleDateToolbarAction(event,'receipts'); // adjusts dates and loads into date controls
-        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url)
+        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
     });
     w2ui.receiptsGrid.toolbar.on('refresh', function (/*event*/) { setDateControlsInToolbar('receipts'); } );
 
