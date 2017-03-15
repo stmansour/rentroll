@@ -93,24 +93,25 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	AsmFlds := "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,Comment,LastModTime,LastModBy"
-	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE ASMID=?")
+	flds = "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,Comment,LastModTime,LastModBy"
+	RRdb.DBFields["Assessments"] = flds
+	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentInstance, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE Start=? and PASMID=?")
+	RRdb.Prepstmt.GetAssessmentInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? and PASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE Start=? and Amount=? and PASMID=? and RID=? and RAID=? and ATypeLID=?")
+	RRdb.Prepstmt.GetAssessmentDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? and Amount=? and PASMID=? and RID=? and RAID=? and ATypeLID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and (PASMID=0 or RentCycle=0) and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? and (PASMID=0 or RentCycle=0) and Start<? and Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRecurringAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and PASMID=0 and RentCycle>0 and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetRecurringAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? and PASMID=0 and RentCycle>0 and Start<? and Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE BID=? and (PASMID!=0 or RentCycle=0) and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? and (PASMID!=0 or RentCycle=0) and Start<? and Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE (RentCycle=0  or (RentCycle>0 and PASMID>0)) and RAID=? and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  or (RentCycle>0 and PASMID>0)) and RAID=? and Start<? and Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + AsmFlds + " FROM Assessments WHERE RID=? and Stop >= ? and Start < ?")
+	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RID=? and Stop >= ? and Start < ?")
 	Errcheck(err)
-	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(AsmFlds)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateAssessment, err = RRdb.Dbrr.Prepare("UPDATE Assessments SET " + s3 + " WHERE ASMID=?")
@@ -562,6 +563,7 @@ func buildPreparedStatements() {
 	// RECEIPT
 	//==========================================
 	flds = "RCPTID,PRCPTID,BID,RAID,PMTID,DID,Dt,DocNo,Amount,AcctRule,Comment,OtherPayorName,LastModTime,LastModBy"
+	RRdb.DBFields["Receipt"] = flds
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE Dt=? AND Amount=? AND DocNo=?")
@@ -592,6 +594,7 @@ func buildPreparedStatements() {
 	//  Rentable
 	//===============================
 	flds = "RID,BID,RentableName,AssignmentTime,LastModTime,LastModBy"
+	RRdb.DBFields["Rentable"] = flds
 	RRdb.Prepstmt.CountBusinessRentables, err = RRdb.Dbrr.Prepare("SELECT COUNT(RID) FROM Rentable WHERE BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableTypeDown, err = RRdb.Dbrr.Prepare("SELECT RID,RentableName FROM Rentable WHERE BID=? AND (RentableName LIKE ?) LIMIT ?")

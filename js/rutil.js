@@ -56,7 +56,7 @@ function setToRAForm(bid, raid, d) {
     //      if no date is specified, today's date is used as the default.
     //----------------------------------------------------------------
     w2ui.rarGrid.url = '/v1/rar/' + bid + '/' + raid;
-    console.log('rar url = ' + w2ui.rarGrid.url);
+    // console.log('rar url = ' + w2ui.rarGrid.url);
     w2ui.rarGrid.request();
     w2ui.rarGrid.header = plural(app.sRentable) + ' as of ' + dateFmtStr(d);
     w2ui.rarGrid.show.toolbarSearch = false;
@@ -68,7 +68,7 @@ function setToRAForm(bid, raid, d) {
     //      if no person type is provided, payor is assumed
     //----------------------------------------------------------------
     w2ui.rapGrid.url = '/v1/rapayor/' + bid + '/' + raid;
-    console.log('rapGrid url = ' + w2ui.rapGrid.url);
+    // console.log('rapGrid url = ' + w2ui.rapGrid.url);
     w2ui.rapGrid.request();
     w2ui.rapGrid.header = plural(app.sPayor) + ' as of ' + dateFmtStr(d);
 
@@ -78,7 +78,7 @@ function setToRAForm(bid, raid, d) {
     //      if no date is specified, today's date is used as the default.
     //----------------------------------------------------------------
     w2ui.rauGrid.url = '/v1/ruser/' + bid + '/' + raid;
-    console.log('rauGrid url = ' + w2ui.rauGrid.url);
+    // console.log('rauGrid url = ' + w2ui.rauGrid.url);
     w2ui.rauGrid.request();
     w2ui.rauGrid.header = plural(app.sUser) + ' as of ' + dateFmtStr(d);
 
@@ -87,10 +87,9 @@ function setToRAForm(bid, raid, d) {
     //      /v1/xrapets/bid/raid
     //----------------------------------------------------------------
     w2ui.raPetGrid.url = '/v1/rapets/' + bid + '/' + raid;
-    console.log('xrapets url = ' + w2ui.rarGrid.url);
+    // console.log('xrapets url = ' + w2ui.rarGrid.url);
     w2ui.raPetGrid.request();
     w2ui.raPetGrid.header = 'Pets as of ' + dateFmtStr(d);
-
 }
 
 //-----------------------------------------------------------------------------
@@ -332,16 +331,13 @@ function monthFwd(dc) {
 }
 
 //-----------------------------------------------------------------------------
-// monthBack - supply the date control, this function will go to the previous 
-//             month. It will snap the date to the end of the month if the 
-//             current date is the end of the month.
+// dateMonthBack - return a date which is a month prior to the supplied date
 // @params
-//   dc = date control
-// @return string value that was set in dc
+//   y = input date
+// @return date which is y - 1 month
 //-----------------------------------------------------------------------------
-function monthBack(dc) {
+function dateMonthBack(y) {
     "use strict";
-    var y = dateFromDC(dc);
     var yb = 0; // assume same year
     var m = y.getMonth() - 1;
     if (m < 0) {
@@ -356,7 +352,21 @@ function monthBack(dc) {
         var daysInPrevMonth = d3.getDate();
         if (d == daysInCurrentMonth || d >= daysInPrevMonth) { d = daysInPrevMonth; }
     }
-    var d2 = new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
+    return new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
+}
+
+//-----------------------------------------------------------------------------
+// monthBack - supply the date control, this function will go to the previous 
+//             month. It will snap the date to the end of the month if the 
+//             current date is the end of the month.
+// @params
+//   dc = date control
+// @return string value that was set in dc
+//-----------------------------------------------------------------------------
+function monthBack(dc) {
+    "use strict";
+    var y = dateFromDC(dc);
+    var d2 =  dateMonthBack(y);
     return setDateControl(dc, d2);
 }
 
@@ -426,13 +436,6 @@ function setDateControl(dc, dt) {
 // @return  The total of the column
 //-----------------------------------------------------------------------------
 function calcRarGridContractRent(grid) {
-//     "use strict";
-//     var total = 0.0;
-//     for (var i = 0; i < w2ui.rarGrid.records.length; i++) {
-//         total += w2ui.rarGrid.records[i].ContractRent;
-//     }
-//     return total;
-// function updateTotal(grid) {
     "use strict";
     grid = w2ui.rarGrid || grid;
     var chgs = grid.getChanges();
@@ -442,7 +445,7 @@ function calcRarGridContractRent(grid) {
     //
     for (var i = 0; i < grid.records.length; i++) {
         if (typeof grid.records[i].ContractRent == "number") {
-            amts.push({recid: grid.records[i].recid, ContractRent: grid.records[i].ContractRent});
+            amts.push({ recid: grid.records[i].recid, ContractRent: grid.records[i].ContractRent });
         }
     }
     //
@@ -450,9 +453,9 @@ function calcRarGridContractRent(grid) {
     //
     for (i = 0; i < chgs.length; i++) {
         if (typeof chgs[i].ContractRent == "number") {
-            for (var j = 0; j < amts.length; j++ ) {
+            for (var j = 0; j < amts.length; j++) {
                 if (chgs[i].recid == amts[j].recid) {
-                    amts[j] = {recid: chgs[i].recid, ContractRent: chgs[i].ContractRent};
+                    amts[j] = { recid: chgs[i].recid, ContractRent: chgs[i].ContractRent };
                     break;
                 }
             }
@@ -463,5 +466,87 @@ function calcRarGridContractRent(grid) {
     for (i = 0; i < amts.length; i++) {
         total += amts[i].ContractRent;
     }
-    grid.set('s-1', {ContractRent: total });
+    grid.set('s-1', { ContractRent: total });
+}
+
+//-----------------------------------------------------------------------------
+// handleDateToolbarAction
+//          - based on the button selected, perform the appropriate date
+//            modification, update the dates in the App structure, and update
+//            the toolbar widgets.
+// @params
+//          event - the event that occurred on the button bar
+//          prefix - the prefix of the name of the date controls.  For example,
+//                  if the date control is named receiptsD1, then the prefix
+//                  is 'receipts'.
+// @return  <no return value>
+//-----------------------------------------------------------------------------
+function handleDateToolbarAction(event,prefix) {
+    "use strict";
+    var xd1 = document.getElementsByName(prefix + 'D1')[0];
+    var xd2 = document.getElementsByName(prefix + 'D2')[0];
+    switch (event.target) {
+        case 'monthback':
+            app.D1 = monthBack(xd1);
+            app.D2 = monthBack(xd2);
+            break;
+        case 'monthfwd':
+            app.D1 = monthFwd(xd1);
+            app.D2 = monthFwd(xd2);
+            break;
+        case 'dayback':
+            app.D1 = dayBack(xd1);
+            app.D2 = dayBack(xd2);
+            break;
+        case 'dayfwd':
+            app.D1 = dayFwd(xd1);
+            app.D2 = dayFwd(xd2);
+            break;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// setDateControlsInToolbar
+//           -  Utility routine to set the date in a toolbar date navigation
+//              area to the date values in app.D1 and app.D2
+// @params
+//   prefix = the prefix of the name of the date controls.  For example,
+//            if the date control is named receiptsD1, then the prefix is 
+//            'receipts'.
+// @return  <no return value>
+//-----------------------------------------------------------------------------
+function setDateControlsInToolbar(prefix) {
+    "use strict";
+    var xd1 = document.getElementsByName(prefix + 'D1')[0];
+    var xd2 = document.getElementsByName(prefix + 'D2')[0];
+    if (typeof xd1 != "undefined") { xd1.value = app.D1; }
+    if (typeof xd2 != "undefined") { xd2.value = app.D2; }
+}
+
+
+//-----------------------------------------------------------------------------
+// genDateRangeNavigator
+//           -  Utility routine create an array of fields that form
+//              a date range navigator.  The prefix is applied to the
+//              <input type="date"> controls so that they can be
+//              uniquely identified.
+// @params
+//   prefix = the prefix of the name of the date controls.  For example,
+//            if the date control is named receiptsD1, then the prefix is 
+//            'receipts'.
+// @return  an array of fields that can be passed into toolbar.add()
+//-----------------------------------------------------------------------------
+function genDateRangeNavigator(prefix) {
+    "use strict";
+    var html1 = '<div style="padding: 0px 5px;">Start: <input type="date" name="' + prefix + 'D1"></div>';
+    var html2 = '<div style="padding: 0px 5px;">Stop: <input type="date" name="' + prefix + 'D2">' + '</div>';
+    var tmp = [{ type: 'break', id: 'break1' },
+        { type: 'button', id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
+        { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' }, 
+        { type: 'html', id: 'D1', html: function() {return html1; } },
+        { type: 'html', id: 'D2', html: function() {return html2; } },
+        { type: 'button', id: 'dayfwd', icon: 'fa fa-chevron-circle-right', tooltip: 'day forward' },
+        { type: 'button', id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
+    ];
+    return tmp;
 }

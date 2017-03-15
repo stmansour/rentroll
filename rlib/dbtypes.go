@@ -110,6 +110,7 @@ const (
 	RRDATEFMT3       = "1/2/2006"
 	RRDATEFMT4       = "01/02/2006"
 	RRDATEINPFMT     = "2006-01-02"
+	RRDATEFMTSQL     = RRDATEINPFMT
 	RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 	RRDATEREPORTFMT  = "Jan 2, 2006"
 )
@@ -1355,6 +1356,7 @@ var RRdb struct {
 	Dbrr     *sql.DB                      //rentroll db
 	BizTypes map[int64]*BusinessTypeLists // details about a business
 	BUDlist  Str2Int64Map                 //list of known business Designations
+	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
 }
 
 func buildBusinessDesignationMap() map[string]int64 {
@@ -1374,6 +1376,7 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.Dbdir = dbdir
 	RRdb.Dbrr = dbrr
 	RRdb.BizTypes = make(map[int64]*BusinessTypeLists)
+	RRdb.DBFields = map[string]string{}
 	buildPreparedStatements()
 	buildPBPreparedStatements()
 
