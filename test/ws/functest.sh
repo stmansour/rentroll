@@ -36,7 +36,8 @@ echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3
 dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "c"  "WebService--GetRentables"
 
 # Get Receipts
-echo "request%3d%7b%22cmd%22%3a%22get%22%2c%22selected%22%3a%5b%5d%2c%22limit%22%3a100%2c%22offset%22%3a0%7d" > request
+# echo "request%3d%7b%22cmd%22%3a%22get%22%2c%22selected%22%3a%5b%5d%2c%22limit%22%3a100%2c%22offset%22%3a0%7d" > request
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222016-08-01%22%2C%22searchDtStop%22%3A%222016-09-01%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/receipts/1" "request" "d"  "WebService--GetReceipts"
 
 # Get Assessments

@@ -47,15 +47,32 @@ type ColSort struct {
 	Direction string `json:"direction"`
 }
 
+// WebGridSearchRequestJSON is a struct suitable for describing a webservice operation.
+// It is the wire format data. It will be merged into another object where JSONTime values
+// are converted to time.Time
+type WebGridSearchRequestJSON struct {
+	Cmd           string        `json:"cmd"`           // get, save, delete
+	Limit         int           `json:"limit"`         // max number to return
+	Offset        int           `json:"offset"`        // solution set offset
+	Selected      []int         `json:"selected"`      // selected rows
+	SearchLogic   string        `json:"searchLogic"`   // OR | AND
+	Search        []GenSearch   `json:"search"`        // what fields and what values
+	Sort          []ColSort     `json:"sort"`          // sort criteria
+	SearchDtStart rlib.JSONTime `json:"searchDtStart"` // for time-sensitive searches
+	SearchDtStop  rlib.JSONTime `json:"searchDtStop"`  // for time-sensitive searches
+}
+
 // WebGridSearchRequest is a struct suitable for describing a webservice operation.
 type WebGridSearchRequest struct {
-	Cmd         string      `json:"cmd"`         // get, save, delete
-	Limit       int         `json:"limit"`       // max number to return
-	Offset      int         `json:"offset"`      // solution set offset
-	Selected    []int       `json:"selected"`    // selected rows
-	SearchLogic string      `json:"searchLogic"` // OR | AND
-	Search      []GenSearch `json:"search"`      // what fields and what values
-	Sort        []ColSort   `json:"sort"`        // sort criteria
+	Cmd           string      `json:"cmd"`           // get, save, delete
+	Limit         int         `json:"limit"`         // max number to return
+	Offset        int         `json:"offset"`        // solution set offset
+	Selected      []int       `json:"selected"`      // selected rows
+	SearchLogic   string      `json:"searchLogic"`   // OR | AND
+	Search        []GenSearch `json:"search"`        // what fields and what values
+	Sort          []ColSort   `json:"sort"`          // sort criteria
+	SearchDtStart time.Time   `json:"searchDtStart"` // for time-sensitive searches
+	SearchDtStop  time.Time   `json:"searchDtStop"`  // for time-sensitive searches
 }
 
 // WebFormRequest is a struct suitable for describing a webservice operation.
@@ -152,14 +169,6 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	pathElements := strings.Split(ss[0], "/")
 	d.Service = pathElements[1]
 	if len(pathElements) >= 3 {
-		// d.BID, err = rlib.IntFromString(pathElements[2], "bad request integer value") // assume it's a BID
-		// if err != nil {
-		// 	var ok bool // OK, let's see if it's a BUD
-		// 	d.BID, ok = rlib.RRdb.BUDlist[pathElements[2]]
-		// 	if !ok {
-		// 		d.BID = 0
-		// 	}
-		// }
 		d.BID = getBIDfromBUI(pathElements[2])
 	}
 	if len(pathElements) >= 4 {
@@ -192,8 +201,12 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(Svcs); i++ {
 		if Svcs[i].Cmd == d.Service {
 			if Svcs[i].NeedBiz && d.BID == 0 {
-				e := fmt.Errorf("Could not identify business: %s", pathElements[3])
-				fmt.Printf("***ERROR IN URL***  %s", e.Error())
+				var sbid = "<missing>"
+				if len(pathElements) > 3 {
+					sbid = pathElements[3]
+				}
+				e := fmt.Errorf("Could not identify business: %s", sbid)
+				fmt.Printf("***ERROR IN URL***  %s\n", e.Error())
 				SvcGridErrorReturn(w, err)
 			}
 			Svcs[i].Handler(w, r, &d)
@@ -303,12 +316,14 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 
 	u = strings.TrimPrefix(u, "request=") // strip off "request=" if it is present (w2ui sends this string)
 	d.data = u
-	err = json.Unmarshal([]byte(u), &d.wsSearchReq)
+	var wjs WebGridSearchRequestJSON
+	err = json.Unmarshal([]byte(u), &wjs)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return e
 	}
+	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
 	return err
 }
 
@@ -359,10 +374,12 @@ func showWebRequest(d *ServiceData) {
 		fmt.Printf("\tMax     = %d\n", d.wsTypeDownReq.Max)
 	} else {
 		fmt.Printf("\tSearchReq:\n")
-		fmt.Printf("\t\tCmd         = %s\n", d.wsSearchReq.Cmd)
-		fmt.Printf("\t\tLimit       = %d\n", d.wsSearchReq.Limit)
-		fmt.Printf("\t\tOffset      = %d\n", d.wsSearchReq.Offset)
-		fmt.Printf("\t\tsearchLogic = %s\n", d.wsSearchReq.SearchLogic)
+		fmt.Printf("\t\tCmd           = %s\n", d.wsSearchReq.Cmd)
+		fmt.Printf("\t\tLimit         = %d\n", d.wsSearchReq.Limit)
+		fmt.Printf("\t\tOffset        = %d\n", d.wsSearchReq.Offset)
+		fmt.Printf("\t\tsearchLogic   = %s\n", d.wsSearchReq.SearchLogic)
+		fmt.Printf("\t\tsearchDtStart = %s\n", time.Time(d.wsSearchReq.SearchDtStart).Format(rlib.RRDATEFMT4))
+		fmt.Printf("\t\tsearchDtStop  = %s\n", time.Time(d.wsSearchReq.SearchDtStop).Format(rlib.RRDATEFMT4))
 		for i := 0; i < len(d.wsSearchReq.Search); i++ {
 			fmt.Printf("\t\tsearch[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.wsSearchReq.Search[i].Field, d.wsSearchReq.Search[i].Type, d.wsSearchReq.Search[i].Value, d.wsSearchReq.Search[i].Operator)
 		}

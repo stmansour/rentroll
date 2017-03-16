@@ -101,35 +101,49 @@ type GetReceiptResponse struct {
 //	@URL /v1/receipts/:BUI
 //  @Method  POST
 //	@Synopsis Search Receipts
-//  @Description  Search all Receipts and return those that match the Search Logic
+//  @Description  Search all Receipts and return those that match the Search Logic.
+//  @Desc By default, the search is made for receipts from "today" to 31 days prior.
 //	@Input WebGridSearchRequest
 //  @Response SearchReceiptsResponse
 // wsdoc }
 func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcSearchHandlerReceipts"
 	fmt.Printf("Entered %s\n", funcname)
+	var (
+		err error
+		g   SearchReceiptsResponse
+	)
+	order := "Dt ASC, RAID ASC"                                                // default ORDER
+	q := fmt.Sprintf("SELECT %s FROM Receipt ", rlib.RRdb.DBFields["Receipt"]) // the fields we want
+	qw := fmt.Sprintf("BID=%d AND Dt >= %q and Dt < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+	q += "WHERE " + qw + " ORDER BY "
+	if len(d.wsSearchReq.Sort) > 0 {
+		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
+			if i > 0 {
+				q += ","
+			}
+			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
+		}
+	} else {
+		q += order
+	}
 
-	var p rlib.Receipt
-	var err error
-	var g SearchReceiptsResponse
+	// now set up the offset and limit
+	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
+	fmt.Printf("db query = %s\n", q)
 
-	// TODO: Add dates to default search -- this month
-	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "Dt ASC"                    // default ORDER
-	q, qw := gridBuildQuery("Receipt", srch, order, d, &p)
-
-	// set g.Total to the total number of rows of this data...
 	g.Total, err = GetRowCount("Receipt", qw)
 	if err != nil {
 		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-
-	fmt.Printf("db query = %s\n", q)
-
 	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
+	if err != nil {
+		fmt.Printf("Error from DB Query: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
 	defer rows.Close()
 
 	i := int64(d.wsSearchReq.Offset)
@@ -139,7 +153,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		var q PrReceiptGrid
 		rlib.ReadReceipts(rows, &p)
 		rlib.MigrateStructVals(&p, &q)
-		q.Recid = i
+		q.Recid = p.RCPTID
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {

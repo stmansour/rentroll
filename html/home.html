@@ -25,8 +25,9 @@ sidebarL1     - w2ui sidebar
 /*global
     w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
     w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
-    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare, dateMonthBack,
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
+    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator,
 */
 
 /*globals $:false */
@@ -49,6 +50,8 @@ var app = {
     prefmt: 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;',
     bgyellow: 'background-color: yellow;',
     stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777;',
+    refreshInhibit: false,
+    receiptsToolbarOnClickAdded: false,
 };
 
 
@@ -63,6 +66,9 @@ function showReport(rptname) {
     w2ui.toplayout.content('main', w2ui.reportslayout);
     w2ui.toplayout.hide('right',true);
     var y = document.getElementsByName("dateD1");
+    if (y.length === 0) {
+        return; // the toolbar has not been rendered yet.  Just return now, we'll get called back.
+    }
     var d = y[0].value;
     app.D1 = d;
     url += '&dtstart=' + d;
@@ -102,7 +108,15 @@ function switchToGrid(svc) {
     var x = getCurrentBusiness();
     var url = '/v1/' + svc + '/' + x.value;
     w2ui[grid].url = url;
-    console.log('url = ' + url);
+    // console.log('url = ' + url);
+
+    // Special Handling
+    // switch(svc) {
+    // case 'rentalagrs':
+    //     break;
+    // case 'receipts':
+    //     break;
+    // }
     w2ui.toplayout.content('main', w2ui[grid]);
     w2ui.toplayout.hide('right',true);
 }
@@ -149,7 +163,7 @@ function buildPageElements() {
             { type: 'main', style: app.pstyle, content: 'main' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle, content: 'preview' },
             { type: 'right', size: 200, resizable: true, style: app.pstyle, hidden: true, content: 'Details' },
-            { type: 'bottom', size: 23, resizable: true, style: app.stdfmt, content: '&copy; 2015-2016 Accord Interests' }
+            { type: 'bottom', size: 23, resizable: true, style: app.stdfmt, content: '&copy; 2015-2017 Accord Interests' }
         ]
     });
 
@@ -207,7 +221,7 @@ function buildPageElements() {
                 html: //'<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">'+
                     '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-building-o"></i> &nbsp;' + app.sBusinessUnit +
                     ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
-                    '{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}'+
+                    '{{range .BL}}<option value="{{.BID}}" name="{{.Designation}}">{{.Designation}}</option>{{end}}'+
                     '</select>&nbsp;&nbsp;&nbsp;' //+ '</div>'
             },
             { type: 'break', id: 'break2' },
@@ -251,7 +265,7 @@ function buildPageElements() {
         nodes: [
             { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: false, group: true,
                 nodes: [  
-                        { id: 'updatera', text: 'Update Rental Agreement', icon: 'fa fa-pencil' },
+                        { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
                         { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
                         { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
                 ]
@@ -324,7 +338,18 @@ function buildPageElements() {
                 case 'rentalagrs':
                 case 'receipts':
                 case 'asms':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
+                    break;
+                case 'goRatePlan':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                    w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Rate Plan...  Not Available</h2><h3>But coming soon!</h3>');
+                    w2ui.toplayout.hide('right',true);
+                    break;
+                case 'goServiceMenu':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                    w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Service Menu...  Not Available</h2><h3>But coming soon!</h3>');
+                    w2ui.toplayout.hide('right',true);
                     break;
                 case 'asmrpt':
                 case 'b':
@@ -365,7 +390,7 @@ function buildPageElements() {
         name: 'reportslayout',
         padding: 0,
         panels: [
-            { type: 'top',size: 40, content: 'reports toolbar'},
+            { type: 'top',size: 34, content: 'reports toolbar'},
             { type: 'left', size: 20, style: app.prefmt, hidden: false },
             { type: 'main',  size: 100, style: app.prefmt},
             { type: 'preview', size: 0, hidden: true, content: 'reports preview' },
@@ -378,56 +403,17 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     //          reportstoolbar
     //------------------------------------------------------------------------
+    var tmp = genDateRangeNavigator('date');
+    tmp.push.apply(tmp, [{ type: 'break',  id: 'break2' },
+                         { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+                         { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'PDF' },
+                        ]);
+
     w2ui.reportslayout.content('top', $().w2toolbar({
         name: 'reportstoolbar',
-        items: [
-            { type: 'break', id: 'break1' },
-            { type: 'button',  id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
-            { type: 'button',  id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' },
-            { type: 'html',    id: 'reportsD1', html: function () {
-                    var html =
-                      '<div style="padding: 3px 10px;">'+
-                      ' Start: <input type="date" name="dateD1">'+
-                      '</div>';
-                    return html;
-                }
-            },
-            { type: 'html',    id: 'reportsD2', html: function () {
-                    var html =
-                      '<div style="padding: 3px 10px;">'+
-                      ' Stop: <input type="date" name="dateD2">'+
-                      '</div>';
-                    return html;
-                }
-            },
-            { type: 'button',  id: 'dayfwd', icon: 'fa fa-chevron-circle-right', tooltip: 'day forward' },
-            { type: 'button',  id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
-            { type: 'break', id: 'break2' },
-            { type: 'button',  id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-            { type: 'button',  id: 'printreport', icon: 'fa fa-print', tooltip: 'PDF' },
-        ],
+        items: tmp,
         onClick: function (event) {
-            var xd1 = document.getElementsByName("dateD1")[0];
-            var xd2 = document.getElementsByName("dateD2")[0];
-
-            switch (event.target) {
-            case 'monthback':
-                app.D1 = monthBack(xd1);
-                app.D2 = monthBack(xd2);
-                break;
-            case 'monthfwd':
-                app.D1 = monthFwd(xd1);
-                app.D2 = monthFwd(xd2);
-                break;
-            case 'dayback':
-                app.D1 = dayBack(xd1);
-                app.D2 = dayBack(xd2);
-                break;
-            case 'dayfwd':
-                app.D1 = dayFwd(xd1);
-                app.D2 = dayFwd(xd2);
-                break;
-            }
+            handleDateToolbarAction(event,'date');
             showReport(app.lastCmd);
         },
         onRefresh: function (event) {
@@ -627,7 +613,8 @@ function buildPageElements() {
                 });
             },
             reset: function () {
-                w2ui.transactantForm.resize();
+                w2ui.mainlayout.refresh();
+
             }
         },
         onRefresh: function() {
@@ -820,9 +807,9 @@ function buildPageElements() {
             { type: 'left', size: '40%', resizable: true, style: app.pstyle, content: 'top' },
             { type: 'top', size: 0, hidden: true },
             { type: 'main', size: '60%', resizable: true, style: app.pstyle, content: 'main' },
-            { type: 'preview', size: 0, content: 'PREVIEW',  hidden: true },
-            { type: 'bottom', size: 0, hidden: true },
-            { type: 'right', size: 0, hidden: true }
+            { type: 'preview', size: 0, maxSize: 1, content: 'PREVIEW',  hidden: true },
+            { type: 'bottom', size: 0, minSize: 0, maxSize: 1, hidden: true },
+            { type: 'right', size: 0, minSize: 0, maxSize: 1, hidden: true }
         ]
     });
     $().w2layout({
@@ -902,14 +889,8 @@ function buildPageElements() {
                 });
             },
             reset: function() {
-                w2ui.toplayout.resize();
-                w2ui.raLayout.resize();
-                w2ui.rentalagrForm.resize();
-                w2ui.raLayoutSub1.resize();
-                w2ui.transactantForm.resize();
-                var f = w2ui.rentalagrForm;
-                console.log('f:   recid = ' + f.record.recid + '   RAID = ' + f.record.RID);
-            }
+                w2ui.mainlayout.refresh();
+            },
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentalagrForm;
@@ -965,7 +946,7 @@ function buildPageElements() {
         onLoad: function(event) {
                 event.done(function () {
                     if (w2ui.rarGrid.summary.length === 0) {
-                        w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: '', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
+                        w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
                     }
             });
         },        
@@ -975,16 +956,9 @@ function buildPageElements() {
                 calcRarGridContractRent(obj); 
             });
         },
-        // onDelete: function(/*event*/) {
-        //     var sel = w2ui.rarGrid.getSelection(true); // get the record indeces rather than the recids
-        //     w2ui.rarGrid.postData = {
-        //         RID: w2ui.rarGrid.records[sel[0]].RID,
-        //     };
-        // },
         onRefresh: function(/*event*/) {
             calcRarGridContractRent(this);
         },
-
      });
 
 
@@ -1044,13 +1018,13 @@ function buildPageElements() {
         show: {
             header: app.sUser,
             toolbar: true,
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: true,
             footer: false,
             lineNumbers: false,
             selectColumn: false,
             expandColumn: false,
-            toolbarAdd: true,
-            toolbarDelete: true,
-            toolbarSave: true,
             toolbarEdit: false,
             toolbarSearch: false,
             toolbarInput: false,
@@ -1134,10 +1108,22 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'receiptsGrid',
-        url: '/v1/receipts',       
+        url: '/v1/receipts',
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
-            toolbar: true,
-            footer: true,
+            toolbar        : true,
+            footer         : true,
+            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarSave    : true,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarReload   : false,
+            toolbarColumns  : false,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
@@ -1154,18 +1140,16 @@ function buildPageElements() {
                 var tgrid = w2ui.receiptsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
-                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+                // console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
             },
         },
         onClick: function(event) {
-            //var sel = this.getSelection(true);
             event.onComplete = function () {
-                var sel = this.getSelection(true);
+                var sel = this.getSelection();
                 console.log('Get Selection: Receipt');
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        console.log( 'BID = ' + ob.BID + ',   RCPT = ' + ob.RCPTID);
                         setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID);
                     }
                 } else {
@@ -1175,11 +1159,56 @@ function buildPageElements() {
             };
         },
         onRequest: function(/*event*/) {
-            console.log('On Request.  url = ' + w2ui.receiptsGrid.url);
+            w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
-        onSearch: function(/*event*/) {
-            console.log('Search called');
-        }
+        onRefresh: function(event) {
+            if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
+                setDateControlsInToolbar('receipts');
+                w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+            }
+        },
+        onAdd: function (/*event*/) {
+            var x = getCurrentBusiness();
+            var BID=x.value;
+            var BUD;
+            for (var i=0; i<app.BizMap.length; i++) {
+                if (BID == app.BizMap[i].BID) {
+                    BUD = app.BizMap[i].BUD;
+                }
+            }
+            var y = new Date();
+            var record = {
+                recid: 0,
+                RCPTID: 0,
+                PRCPTID: 0,
+                RID: 0,
+                BID: BUD,
+                RentableName: '',
+                RAID: 0,
+                PMTID: 0,
+                Dt: w2uiDateControlString(y),
+                DocNo: 0,
+                Amount: 0,
+                AcctRule: '',
+                Comment: '',
+                OtherPayorName: '',
+            };
+            w2ui.receiptForm.record = record;
+            w2ui.toplayout.content('right', w2ui.receiptForm);
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.sizeTo('right', 700);
+        },
+    });
+
+    w2ui.receiptsGrid.toolbar.add( genDateRangeNavigator('receipts') );
+    w2ui.receiptsGrid.toolbar.on('click', function(event) { 
+        handleDateToolbarAction(event,'receipts'); // adjusts dates and loads into date controls
+        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
+    });
+    w2ui.receiptsGrid.toolbar.on('refresh', function (/*event*/) { 
+        setDateControlsInToolbar('receipts');
+        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
     });
 
     //------------------------------------------------------------------------
@@ -1192,9 +1221,9 @@ function buildPageElements() {
         url: '/v1/receipt',
         formURL: '/html/formrcpt.html',
         fields: [
-            { field: 'recid', type: 'int', required: false },
-            { field: 'RID', type: 'int', required: false },
-            { field: 'BID', type: 'list', options: {items: app.businesses}, required: true },
+            { field: 'recid',          type: 'int',   required: false },
+            { field: 'RID',            type: 'int',   required: false },
+            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},
             { field: 'RentableName',   type: 'text',  required: false, },
             { field: 'RCPTID',         type: 'w2int', required: true },
             { field: 'PRCPTID',        type: 'w2int', required: false },
@@ -1257,13 +1286,24 @@ function buildPageElements() {
         name: 'asmsGrid',
         url: '/v1/asms',       
         show: {
-            toolbar: true,
-            footer: true,
+            toolbar        : true,
+            footer         : true,
+            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarSave    : true,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarReload   : false,
+            toolbarColumns  : false,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'epoch', size: '10px', style: 'text-align: center', sortable: true},
-            {field: 'ASMID', caption: 'ASMID',  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
@@ -1271,8 +1311,8 @@ function buildPageElements() {
             {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
-            {field: 'RAID', caption: app.sRentalAgreement,  size: '50px', style: 'text-align: right', sortable: true},
-            {field: 'RID', caption: app.sRentable,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
+            {field: 'RID', caption: app.sRentable,  size: '80px', style: 'text-align: right', sortable: true},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
         ], 
@@ -1285,9 +1325,8 @@ function buildPageElements() {
             },
         },
         onClick: function(event) {
-            //var sel = this.getSelection(true);
             event.onComplete = function () {
-                var sel = this.getSelection(true);
+                var sel = this.getSelection();
                 console.log('Get Selection: Assessment');
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
@@ -1304,9 +1343,13 @@ function buildPageElements() {
             };
         },
         onRequest: function(/*event*/) {
-            console.log('On Request.  url = ' + w2ui.asmsGrid.url);
+            w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
-        onRefresh: function(/*event*/) {
+        onRefresh: function(event) {
+            if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
+                setDateControlsInToolbar('asms');
+                w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+            }
             for (var i = 0; i < w2ui.asmsGrid.records.length; i++) {
                 if (w2ui.asmsGrid.records[i].RentCycle !== 'Norecur' &&                         // if this is recurring...
                     w2ui.asmsGrid.records[i].PASMID === 0) {                                    // and it is NOT and instance... 
@@ -1314,10 +1357,19 @@ function buildPageElements() {
                 }
             }
         },
-        onSearch: function(/*event*/) {
-            console.log('Search called');
-        }
     });
+
+    w2ui.asmsGrid.toolbar.add( genDateRangeNavigator('asms') );
+    w2ui.asmsGrid.toolbar.on('click', function(event) { 
+        handleDateToolbarAction(event,'asms'); // adjusts dates and loads into date controls
+        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
+    });
+    w2ui.asmsGrid.toolbar.on('refresh', function (/*event*/) { 
+        setDateControlsInToolbar('asms');
+        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+    });
+
 
     //------------------------------------------------------------------------
     //          asmInstForm  -  assessment instance
