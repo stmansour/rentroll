@@ -83,7 +83,7 @@ func CmdCsvAssess(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, 
 		var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
 		t, err := rcsv.RRAssessmentsTable(&ri)
 		if err == nil || rlib.IsSQLNoResultsError(err) {
-			s, err1 := t.SprintTable(gotable.TABLEOUTTEXT)
+			s, err1 := t.SprintTable()
 			if err1 != nil {
 				s += err1.Error()
 			}
@@ -118,7 +118,7 @@ func CmdCsvRcpt(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 		var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
 		t := rcsv.RRReceiptsTable(&ri)
 		ui.ReportContent += fmt.Sprintf("\nReceipts\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-		s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+		s, err := t.SprintTable()
 		if err != nil {
 			s += err.Error()
 		}
@@ -142,7 +142,7 @@ func CmdGenJnl(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 	ri.D1 = ui.D1
 	ri.D2 = ui.D2
 	t := rrpt.JournalReport(&ri)
-	s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+	s, err := t.SprintTable()
 	if err != nil {
 		s += err.Error()
 	}

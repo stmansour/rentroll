@@ -32,7 +32,7 @@ func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RR
 		ri.D2 = ui.D2
 		tbl, err := rrpt.GSRReport(&ri)
 		if err == nil {
-			s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+			s, err := tbl.SprintTable()
 			if nil != err {
 				s += err.Error()
 			}
@@ -50,7 +50,7 @@ func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 		ri.RptHeader = true
 		ri.RptHeaderD1 = true
 		ri.RptHeaderD2 = true
-		// ui.ReportContent = tbl.Title + tbl.SprintTable(gotable.TABLEOUTTEXT)
+		// ui.ReportContent = tbl.Title + tbl.SprintTable()
 		ui.ReportContent = rrpt.ReportToString(&tbl, &ri)
 	}
 }
@@ -80,7 +80,7 @@ func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusine
 		}
 		ui.ReportContent = ""
 		for i := 0; i < len(m); i++ {
-			s, err := m[i].SprintTable(gotable.TABLEOUTTEXT)
+			s, err := m[i].SprintTable()
 			if err != nil {
 				s += err.Error()
 			}
@@ -105,7 +105,7 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, u
 	if xbiz.P.BID > 0 {
 		tbl, err := rrpt.RentRollReport(&ri)
 		if err == nil {
-			tout, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+			tout, err := tbl.SprintTable()
 			if err != nil {
 				rlib.Ulog("RptRentRoll:  error = %s", err)
 				ui.ReportContent = err.Error()
@@ -125,7 +125,7 @@ func RptTrialBalance(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusines
 	if xbiz.P.BID > 0 {
 		tbl := rrpt.LedgerBalanceReport(&ri)
 		if err == nil {
-			s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+			s, err := tbl.SprintTable()
 			if err != nil {
 				s += err.Error()
 			}

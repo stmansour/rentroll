@@ -44,7 +44,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportAssessments(&ri)
 	case "b", "business":
 		t := rcsv.RRreportBusinessTable(&ri)
-		s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+		s, err := t.SprintTable()
 		if err != nil {
 			s += err.Error()
 		}
@@ -62,7 +62,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		if err != nil {
 			return err.Error()
 		}
-		s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+		s, err := t.SprintTable()
 		if err != nil {
 			s += err.Error()
 		}
@@ -77,7 +77,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		if err != nil {
 			return err.Error()
 		}
-		s, err := t.SprintTable(gotable.TABLEOUTTEXT)
+		s, err := t.SprintTable()
 		if err != nil {
 			s += err.Error()
 		}
@@ -110,7 +110,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 				m = rrpt.LedgerActivityReport(&ri)
 			}
 			for i := 0; i < len(m); i++ {
-				s1, err := m[i].SprintTable(gotable.TABLEOUTTEXT)
+				s1, err := m[i].SprintTable()
 				if err != nil {
 					s1 += err.Error()
 				}

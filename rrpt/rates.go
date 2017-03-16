@@ -62,7 +62,7 @@ func RentableMarketRates(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time) {
 	}
 
 	tbl.TightenColumns()
-	s, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+	s, err := tbl.SprintTable()
 	if err != nil {
 		s += err.Error()
 	}

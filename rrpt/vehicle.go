@@ -84,7 +84,7 @@ func VehicleReportTable(bid int64) gotable.Table {
 // ri contains the BID needed by this report
 func VehicleReport(ri *ReporterInfo) string {
 	t := VehicleReportTable(ri.Bid)
-	s, err := t.SprintTable(ri.OutputFormat)
+	s, err := t.SprintTable()
 	if err != nil {
 		rlib.Ulog("VehicleReport: error = %s", err.Error())
 	}

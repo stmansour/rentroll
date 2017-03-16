@@ -44,7 +44,7 @@ func RRreportBusinessTable(ri *rrpt.ReporterInfo) gotable.Table {
 // RRreportBusiness generates a String Report of all Businesses defined in the database.
 func RRreportBusiness(ri *rrpt.ReporterInfo) string {
 	tbl := RRreportBusinessTable(ri)
-	s, err := tbl.SprintTable(ri.OutputFormat)
+	s, err := tbl.SprintTable()
 	if nil != err {
 		rlib.Ulog("RRreportBusiness: error %s", err.Error())
 	}
@@ -464,7 +464,7 @@ func RRreportAssessments(ri *rrpt.ReporterInfo) string {
 			s += err.Error()
 		}
 	}
-	s1, err := t.SprintTable(ri.OutputFormat)
+	s1, err := t.SprintTable()
 	if err != nil {
 		rlib.Ulog("RReportAssessments: error = %s", err.Error())
 	}
@@ -659,7 +659,7 @@ func RRreportDeposits(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 4, s)
 	}
 	t.TightenColumns()
-	s, err := t.SprintTable(ri.OutputFormat)
+	s, err := t.SprintTable()
 	if nil != err {
 		rlib.Ulog("RRreportDeposits: error = %s", err)
 	}

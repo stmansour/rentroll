@@ -106,13 +106,13 @@ func ReportHeaderBlock(rn, funcname string, ri *ReporterInfo) string {
 //		string version of the report
 func ReportToString(t *gotable.Table, ri *ReporterInfo) string {
 	if ri.RptHeader {
-		s, err := t.SprintTable(ri.OutputFormat)
+		s, err := t.SprintTable()
 		if nil != err {
 			rlib.Ulog("ReportToString: error = %s", err)
 		}
 		return t.GetTitle() + s
 	}
-	s, err := t.SprintTable(ri.OutputFormat)
+	s, err := t.SprintTable()
 	if nil != err {
 		rlib.Ulog("ReportToString: error = %s", err)
 	}

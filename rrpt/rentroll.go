@@ -42,7 +42,7 @@ func RentRollTextReport(ri *ReporterInfo) {
 func RentRollReportString(ri *ReporterInfo) string {
 	tbl, err := RentRollReport(ri)
 	if err == nil {
-		tout, err := tbl.SprintTable(gotable.TABLEOUTTEXT)
+		tout, err := tbl.SprintTable()
 		if err != nil {
 			rlib.Ulog("RentRollReportString:  error = %s", err)
 			return err.Error()
