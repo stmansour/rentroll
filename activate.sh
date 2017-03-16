@@ -68,10 +68,16 @@ makeProdNode() {
 }
 
 #--------------------------------------------------------------
-#  For QA, Sandbox, and Production nodes, do some ease of
-#  use setup...
+#  For QA, Sandbox, and Production nodes, go through the
+#  laundry list of details...
+#  1. Set up permissions for the database on QA and Sandbox nodes
+#  2. Install a database with some data for testing
+#  3. For PDF printing, install wkhtmltopdf
 #--------------------------------------------------------------
 setupAppNode() {
+	#---------------------
+	# database
+	#---------------------
 	rm -rf ${DATABASENAME}db*
 	${GETFILE} accord/db/${DATABASENAME}db.sql.gz
 	gunzip ${DATABASENAME}db.sql
@@ -79,6 +85,12 @@ setupAppNode() {
 	echo "source ${DATABASENAME}db.sql" >> restore.sql
 	echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
 	mysql ${MYSQLOPTS} < restore.sql
+
+	#---------------------
+	# wkhtmltopdf
+	#---------------------
+	./pdfinstall.sh
+	
 	echo "Done."
 }
 

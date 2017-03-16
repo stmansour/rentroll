@@ -69,6 +69,7 @@ package: rentroll
 	cp rentroll ./tmp/rentroll/
 	cp conf.json ./tmp/rentroll/
 	cp -r html ./tmp/rentroll/
+	cp ../gotable/pdfinstall.sh tmp/rentroll/
 	if [ -e js ]; then cp -r js ./tmp/rentroll/ ; fi
 	cp activate.sh update.sh ./tmp/rentroll/
 	rm -f ./rrnewdb ./rrbkup ./rrrestore
