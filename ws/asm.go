@@ -111,33 +111,109 @@ type GetAssessmentResponse struct {
 //	@URL /v1/asms/:BUI
 //  @Method  POST
 //	@Synopsis Search Assessments
-//  @Description  Search all Assessments and return those that match the Search Logic
+//  @Description  Search all Assessments and return those that match the Search Logic.
+//  @Descr The search criteria includes start and stop dates of interest.
 //	@Input WebGridSearchRequest
 //  @Response SearchAssessmentsResponse
 // wsdoc }
 func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcSearchHandlerAssessments\n")
-	var p rlib.Assessment
-	var err error
-	var g SearchAssessmentsResponse
+	funcname := "SvcSearchHandlerAssessments"
+	fmt.Printf("Entered %s\n", funcname)
+	var (
+		g   SearchAssessmentsResponse
+		err error
+	)
 
-	// TODO: Add dates to default search -- this month
-	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "Start ASC"                 // default ORDER
-	q, qw := gridBuildQuery("Assessments", srch, order, d, &p)
+	// // TODO: Add dates to default search -- this month
+	// srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
+	// order := "Start ASC"                 // default ORDER
+	// q, qw := gridBuildQuery("Assessments", srch, order, d, &p)
 
-	// set g.Total to the total number of rows of this data...
+	// // set g.Total to the total number of rows of this data...
+	// g.Total, err = GetRowCount("Assessments", qw)
+	// if err != nil {
+	// 	fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+	// 	SvcGridErrorReturn(w, err)
+	// 	return
+	// }
+
+	// fmt.Printf("db query = %s\n", q)
+
+	// rows, err := rlib.RRdb.Dbrr.Query(q)
+	// rlib.Errcheck(err)
+	// defer rows.Close()
+
+	// i := int64(d.wsSearchReq.Offset)
+	// count := 0
+	// for rows.Next() {
+	// 	var p rlib.Assessment
+	// 	var q AssessmentGrid
+	// 	rlib.ReadAssessments(rows, &p)
+	// 	rlib.MigrateStructVals(&p, &q)
+	// 	q.Recid = i
+	// 	g.Records = append(g.Records, q)
+	// 	count++ // update the count only after adding the record
+	// 	if count >= d.wsSearchReq.Limit {
+	// 		break // if we've added the max number requested, then exit
+	// 	}
+	// 	i++
+	// }
+	// fmt.Printf("g.Total = %d\n", g.Total)
+	// rlib.Errcheck(rows.Err())
+	// w.Header().Set("Content-Type", "application/json")
+	// g.Status = "success"
+	// SvcWriteResponse(&g, w)
+
+	// type Assessment struct {
+	// ASMID          int64     // unique id for this assessment
+	// PASMID         int64     // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
+	// BID            int64     // what Business
+	// RID            int64     // the Rentable
+	// ATypeLID       int64     // what type of assessment
+	// RAID           int64     // associated Rental Agreement
+	// Amount         float64   // how much
+	// Start          time.Time // start time
+	// Stop           time.Time // stop time, may be the same as start time or later
+	// RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, G = quarterly, 8 = yearly
+	// ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
+	// InvoiceNo      int64     // A uniqueID for the invoice number
+	// AcctRule       string    // expression showing how to account for the amount
+	// Comment        string
+	// LastModTime    time.Time
+	// LastModBy      int64
+	// }
+
+	order := "Start ASC, RAID ASC"                                                     // default ORDER
+	q := fmt.Sprintf("SELECT %s FROM Assessments ", rlib.RRdb.DBFields["Assessments"]) // the fields we want
+	qw := fmt.Sprintf("BID=%d AND Stop > %q and Start < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+	q += "WHERE " + qw + " ORDER BY "
+	if len(d.wsSearchReq.Sort) > 0 {
+		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
+			if i > 0 {
+				q += ","
+			}
+			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
+		}
+	} else {
+		q += order
+	}
+
+	// now set up the offset and limit
+	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
+	fmt.Printf("db query = %s\n", q)
+
 	g.Total, err = GetRowCount("Assessments", qw)
 	if err != nil {
 		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-
-	fmt.Printf("db query = %s\n", q)
-
 	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
+	if err != nil {
+		fmt.Printf("Error from DB Query: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
 	defer rows.Close()
 
 	i := int64(d.wsSearchReq.Offset)
@@ -147,7 +223,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 		var q AssessmentGrid
 		rlib.ReadAssessments(rows, &p)
 		rlib.MigrateStructVals(&p, &q)
-		q.Recid = i
+		q.Recid = p.ASMID
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -160,6 +236,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
+
 }
 
 // SvcFormHandlerAssessment formats a complete data record for an assessment for use with the w2ui Form

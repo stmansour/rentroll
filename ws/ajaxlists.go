@@ -76,6 +76,17 @@ var ssliceToJS = []struct {
 	{"usStateAbbr", &USStateAbbr},
 }
 
+// sendBusinessMap creates a map that can be used by the client to associate
+// a BUD with a BID.
+//
+func sendBusinessMap(w http.ResponseWriter) {
+	io.WriteString(w, "app.BizMap=[")
+	for k, v := range rlib.RRdb.BUDlist {
+		fmt.Fprintf(w, "{BUD: %q, BID: %d},\n", k, v)
+	}
+	io.WriteString(w, "];\n")
+}
+
 // SvcUILists returns JSON for the Javascript lists needed for the UI.  Typically,
 // these lists are put into a map such as rlib.Str2Int64Map or a slice of strings.
 // Then the map or slice is entered into either smapToJS or ssliceToJS so that it
@@ -118,14 +129,24 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	fmt.Printf("Language: %s\nTemplate: %s\n", language, template)
 
+	//------------------------------------------
+	// send the maps...
+	//------------------------------------------
 	for i := 0; i < len(smapToJS); i++ {
 		io.WriteString(w, String2Int64MapToJSList("app."+smapToJS[i].name, smapToJS[i].valmap))
 	}
+	sendBusinessMap(w)
 
+	//------------------------------------------
+	// now the slices...
+	//------------------------------------------
 	for i := 0; i < len(ssliceToJS); i++ {
 		io.WriteString(w, StringListToJSList("app."+ssliceToJS[i].name, ssliceToJS[i].valslice))
 	}
 
+	//------------------------------------------
+	// now the language/template strings...
+	//------------------------------------------
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
 		SvcGridErrorReturn(w, err)

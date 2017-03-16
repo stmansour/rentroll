@@ -538,8 +538,8 @@ function setDateControlsInToolbar(prefix) {
 //-----------------------------------------------------------------------------
 function genDateRangeNavigator(prefix) {
     "use strict";
-    var html1 = '<div style="padding: 0px 5px;">Start: <input type="date" name="' + prefix + 'D1"></div>';
-    var html2 = '<div style="padding: 0px 5px;">Stop: <input type="date" name="' + prefix + 'D2">' + '</div>';
+    var html1 = '<div style="padding: 0px 5px;">From: <input type="date" name="' + prefix + 'D1"></div>';
+    var html2 = '<div style="padding: 0px 5px;">To: <input type="date" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
         { type: 'button', id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
         { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' }, 

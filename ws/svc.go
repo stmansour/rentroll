@@ -201,8 +201,12 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(Svcs); i++ {
 		if Svcs[i].Cmd == d.Service {
 			if Svcs[i].NeedBiz && d.BID == 0 {
-				e := fmt.Errorf("Could not identify business: %s", pathElements[3])
-				fmt.Printf("***ERROR IN URL***  %s", e.Error())
+				var sbid = "<missing>"
+				if len(pathElements) > 3 {
+					sbid = pathElements[3]
+				}
+				e := fmt.Errorf("Could not identify business: %s", sbid)
+				fmt.Printf("***ERROR IN URL***  %s\n", e.Error())
 				SvcGridErrorReturn(w, err)
 			}
 			Svcs[i].Handler(w, r, &d)

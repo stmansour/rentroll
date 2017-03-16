@@ -1,16 +1,6 @@
 {
     "records": [
         {
-            "Amount": 3309.68,
-            "BID": "REX",
-            "DocNo": "1948",
-            "Dt": "8/5/2016",
-            "PMTID": 1,
-            "RAID": 2,
-            "RCPTID": 22,
-            "recid": 0
-        },
-        {
             "Amount": 3750,
             "BID": "REX",
             "DocNo": "2153",
@@ -18,7 +8,7 @@
             "PMTID": 1,
             "RAID": 1,
             "RCPTID": 21,
-            "recid": 1
+            "recid": 21
         },
         {
             "Amount": 4150,
@@ -28,7 +18,17 @@
             "PMTID": 1,
             "RAID": 4,
             "RCPTID": 23,
-            "recid": 2
+            "recid": 23
+        },
+        {
+            "Amount": 3309.68,
+            "BID": "REX",
+            "DocNo": "1948",
+            "Dt": "8/5/2016",
+            "PMTID": 1,
+            "RAID": 2,
+            "RCPTID": 22,
+            "recid": 22
         }
     ],
     "status": "success",

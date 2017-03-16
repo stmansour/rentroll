@@ -66,6 +66,9 @@ function showReport(rptname) {
     w2ui.toplayout.content('main', w2ui.reportslayout);
     w2ui.toplayout.hide('right',true);
     var y = document.getElementsByName("dateD1");
+    if (y.length === 0) {
+        return; // the toolbar has not been rendered yet.  Just return now, we'll get called back.
+    }
     var d = y[0].value;
     app.D1 = d;
     url += '&dtstart=' + d;
@@ -218,7 +221,7 @@ function buildPageElements() {
                 html: //'<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">'+
                     '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-building-o"></i> &nbsp;' + app.sBusinessUnit +
                     ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
-                    '{{range .BL}}<option value="{{.BID}}">{{.Designation}}</option>{{end}}'+
+                    '{{range .BL}}<option value="{{.BID}}" name="{{.Designation}}">{{.Designation}}</option>{{end}}'+
                     '</select>&nbsp;&nbsp;&nbsp;' //+ '</div>'
             },
             { type: 'break', id: 'break2' },
@@ -335,7 +338,18 @@ function buildPageElements() {
                 case 'rentalagrs':
                 case 'receipts':
                 case 'asms':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
+                    break;
+                case 'goRatePlan':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                    w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Rate Plan...  Not Available</h2><h3>But coming soon!</h3>');
+                    w2ui.toplayout.hide('right',true);
+                    break;
+                case 'goServiceMenu':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                    w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Service Menu...  Not Available</h2><h3>But coming soon!</h3>');
+                    w2ui.toplayout.hide('right',true);
                     break;
                 case 'asmrpt':
                 case 'b':
@@ -1130,14 +1144,12 @@ function buildPageElements() {
             },
         },
         onClick: function(event) {
-            //var sel = this.getSelection(true);
             event.onComplete = function () {
-                var sel = this.getSelection(true);
+                var sel = this.getSelection();
                 console.log('Get Selection: Receipt');
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        // console.log( 'BID = ' + ob.BID + ',   RCPT = ' + ob.RCPTID);
                         setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID);
                     }
                 } else {
@@ -1152,11 +1164,40 @@ function buildPageElements() {
         onRefresh: function(event) {
             if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
                 setDateControlsInToolbar('receipts');
+                w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
             }
         },
-        onSearch: function(/*event*/) {
-            console.log('Search called');
-        }
+        onAdd: function (/*event*/) {
+            var x = getCurrentBusiness();
+            var BID=x.value;
+            var BUD;
+            for (var i=0; i<app.BizMap.length; i++) {
+                if (BID == app.BizMap[i].BID) {
+                    BUD = app.BizMap[i].BUD;
+                }
+            }
+            var y = new Date();
+            var record = {
+                recid: 0,
+                RCPTID: 0,
+                PRCPTID: 0,
+                RID: 0,
+                BID: BUD,
+                RentableName: '',
+                RAID: 0,
+                PMTID: 0,
+                Dt: w2uiDateControlString(y),
+                DocNo: 0,
+                Amount: 0,
+                AcctRule: '',
+                Comment: '',
+                OtherPayorName: '',
+            };
+            w2ui.receiptForm.record = record;
+            w2ui.toplayout.content('right', w2ui.receiptForm);
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.sizeTo('right', 700);
+        },
     });
 
     w2ui.receiptsGrid.toolbar.add( genDateRangeNavigator('receipts') );
@@ -1165,7 +1206,10 @@ function buildPageElements() {
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
     });
-    w2ui.receiptsGrid.toolbar.on('refresh', function (/*event*/) { setDateControlsInToolbar('receipts'); } );
+    w2ui.receiptsGrid.toolbar.on('refresh', function (/*event*/) { 
+        setDateControlsInToolbar('receipts');
+        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+    });
 
     //------------------------------------------------------------------------
     //          receiptForm
@@ -1242,13 +1286,24 @@ function buildPageElements() {
         name: 'asmsGrid',
         url: '/v1/asms',       
         show: {
-            toolbar: true,
-            footer: true,
+            toolbar        : true,
+            footer         : true,
+            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarSave    : true,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarReload   : false,
+            toolbarColumns  : false,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'epoch', size: '10px', style: 'text-align: center', sortable: true},
-            {field: 'ASMID', caption: 'ASMID',  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
@@ -1256,8 +1311,8 @@ function buildPageElements() {
             {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
-            {field: 'RAID', caption: app.sRentalAgreement,  size: '50px', style: 'text-align: right', sortable: true},
-            {field: 'RID', caption: app.sRentable,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
+            {field: 'RID', caption: app.sRentable,  size: '80px', style: 'text-align: right', sortable: true},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
         ], 
@@ -1270,9 +1325,8 @@ function buildPageElements() {
             },
         },
         onClick: function(event) {
-            //var sel = this.getSelection(true);
             event.onComplete = function () {
-                var sel = this.getSelection(true);
+                var sel = this.getSelection();
                 console.log('Get Selection: Assessment');
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
@@ -1289,9 +1343,13 @@ function buildPageElements() {
             };
         },
         onRequest: function(/*event*/) {
-            console.log('On Request.  url = ' + w2ui.asmsGrid.url);
+            w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
-        onRefresh: function(/*event*/) {
+        onRefresh: function(event) {
+            if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
+                setDateControlsInToolbar('asms');
+                w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+            }
             for (var i = 0; i < w2ui.asmsGrid.records.length; i++) {
                 if (w2ui.asmsGrid.records[i].RentCycle !== 'Norecur' &&                         // if this is recurring...
                     w2ui.asmsGrid.records[i].PASMID === 0) {                                    // and it is NOT and instance... 
@@ -1299,10 +1357,19 @@ function buildPageElements() {
                 }
             }
         },
-        onSearch: function(/*event*/) {
-            console.log('Search called');
-        }
     });
+
+    w2ui.asmsGrid.toolbar.add( genDateRangeNavigator('asms') );
+    w2ui.asmsGrid.toolbar.on('click', function(event) { 
+        handleDateToolbarAction(event,'asms'); // adjusts dates and loads into date controls
+        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
+    });
+    w2ui.asmsGrid.toolbar.on('refresh', function (/*event*/) { 
+        setDateControlsInToolbar('asms');
+        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+    });
+
 
     //------------------------------------------------------------------------
     //          asmInstForm  -  assessment instance
