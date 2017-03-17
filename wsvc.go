@@ -34,6 +34,129 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 	}
 }
 
+func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w http.ResponseWriter) {
+	fmt.Printf("v1ReportHandler: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
+	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTHTML, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
+	rlib.InitBizInternals(ri.Bid, xbiz)
+
+	switch strings.ToLower(reportname) {
+	// case "asmrpt", "assessments":
+	// 	return rcsv.RRreportAssessments(&ri)
+	// case "b", "business":
+	// 	t := rcsv.RRreportBusinessTable(&ri)
+	// 	s, err := t.SprintTable()
+	// 	if err != nil {
+	// 		s += err.Error()
+	// 	}
+	// 	return t.GetTitle() + s
+	// case "coa", "chart of accounts":
+	// 	rlib.InitBizInternals(ri.Bid, xbiz)
+	// 	return rcsv.RRreportChartOfAccounts(&ri)
+	// case "c", "custom attributes":
+	// 	return rcsv.RRreportCustomAttributes(&ri)
+	// case "cr", "custom attribute refs":
+	// 	return rcsv.RRreportCustomAttributeRefs(&ri)
+	// case "delinq":
+	// 	rlib.InitBizInternals(ri.Bid, xbiz)
+	// 	t, err := rrpt.DelinquencyReport(&ri)
+	// 	if err != nil {
+	// 		return err.Error()
+	// 	}
+	// 	s, err := t.SprintTable()
+	// 	if err != nil {
+	// 		s += err.Error()
+	// 	}
+	// 	return t.GetTitle() + s
+	// case "dpm", "deposit methods":
+	// 	return rcsv.RRreportDepositMethods(&ri)
+	// case "dep", "depositories":
+	// 	return rcsv.RRreportDepository(&ri)
+	// case "gsr":
+	// 	ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
+	// 	t, err := rrpt.GSRReport(&ri)
+	// 	if err != nil {
+	// 		return err.Error()
+	// 	}
+	// 	s, err := t.SprintTable()
+	// 	if err != nil {
+	// 		s += err.Error()
+	// 	}
+	// 	return t.GetTitle() + s
+	case "j":
+		fmt.Printf("Handling report: j\n")
+		rlib.InitBizInternals(ri.Bid, xbiz)
+		ri.RptHeaderD1 = true
+		ri.RptHeaderD2 = true
+		t := rrpt.JournalReport(&ri)
+		fmt.Printf("Calling t.HTMLprintTable(w)\n")
+		err := t.HTMLprintTable(w)
+		if err != nil {
+			s := fmt.Sprintf("Error in t.HTMLprintTable: %s\n", err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		// return rrpt.ReportToString(&t, &ri)
+	// case "l", "la":
+	// 	if xbiz.P.BID > 0 {
+	// 		var m []gotable.Table
+	// 		var rn string
+	// 		if prefix == "l" {
+	// 			rn = "Ledgers"
+	// 		} else {
+	// 			rn = "Ledger Activity"
+	// 		}
+	// 		ri.RptHeaderD1 = true
+	// 		ri.RptHeaderD2 = true
+	// 		s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
+	// 		if err != nil {
+	// 			s += "\n" + err.Error()
+	// 		}
+	// 		switch prefix {
+	// 		case "l": // all ledgers
+	// 			m = rrpt.LedgerReport(&ri)
+	// 		case "la": // ledger activity
+	// 			m = rrpt.LedgerActivityReport(&ri)
+	// 		}
+	// 		for i := 0; i < len(m); i++ {
+	// 			s1, err := m[i].SprintTable()
+	// 			if err != nil {
+	// 				s1 += err.Error()
+	// 			}
+	// 			s += m[i].GetTitle() + s1 + "\n\n"
+	// 		}
+	// 		return s
+	// 	}
+
+	// case "pmt", "payment types":
+	// 	return rcsv.RRreportPaymentTypes(&ri)
+	// case "r", "rentables":
+	// 	return rcsv.RRreportRentables(&ri)
+	// case "ra", "rental agreements":
+	// 	return rcsv.RRreportRentalAgreements(&ri)
+	// case "rat", "rental agreement templates":
+	// 	return rcsv.RRreportRentalAgreementTemplates(&ri)
+	// case "rcpt", "receipts":
+	// 	return rcsv.RRreportReceipts(&ri)
+	// case "rr":
+	// 	rlib.InitBizInternals(ri.Bid, xbiz)
+	// 	return rrpt.RentRollReportString(&ri)
+	// case "rt", "rentable types":
+	// 	return rcsv.RRreportRentableTypes(&ri)
+	// case "rcbt", "rentable Count By Type":
+	// 	return rrpt.RentableCountByRentableTypeReport(&ri)
+	// case "sl", "string lists":
+	// 	return rcsv.RRreportStringLists(&ri)
+	// case "statements":
+	// 	return rrpt.RptStatementTextReport(&ri)
+	// case "t", "people": // t = transactant
+	// 	return rcsv.RRreportPeople(&ri)
+	// case "tb":
+	// 	return rrpt.PrintLedgerBalanceReportString(&ri)
+	default:
+		fmt.Fprintf(w, "Unknown report type: %s", reportname)
+	}
+}
+
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
 	fmt.Printf("websvcReportHandler: prefix=%s, BID=%d,  d1 = %s, d2 = %s\n", prefix, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
@@ -233,6 +356,13 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	// switch strings.ToLower(reportname) {
+	// case "j":
+	// 	v1ReportHandler(reportname, &xbiz, &ui, w)
+	// default:
+	// 	ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
+	// 	SendWebSvcPage(w, r, &ui)
+	// }
 	ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
 	SendWebSvcPage(w, r, &ui)
 }

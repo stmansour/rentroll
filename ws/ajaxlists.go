@@ -137,6 +137,17 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	sendBusinessMap(w)
 
+	fmt.Fprintf(w, "app.pmtTypes=[];\n")
+	for k, v := range rlib.RRdb.BUDlist {
+		m := rlib.GetPaymentTypesByBusiness(v) // get the payment types for this business
+		as := fmt.Sprintf("app.pmtTypes['%s']=[", k)
+		for pmt, a := range m {
+			as += fmt.Sprintf("{PMTID: %d, Name: %q},", pmt, a.Name)
+		}
+		as += "];\n"
+		io.WriteString(w, as)
+	}
+
 	//------------------------------------------
 	// now the slices...
 	//------------------------------------------

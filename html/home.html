@@ -1127,12 +1127,12 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'RCPTID', caption: 'ReceiptID',  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'RCPTID', caption: 'ReceiptID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PMTID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
-            {field: 'RAID', caption: app.sRentalAgreement,  size: '50px', style: 'text-align: right', sortable: true},
+            {field: 'RAID', caption: app.sRentalAgreement,  size: '150px', style: 'text-align: right', sortable: true},
             {field: 'DocNo', caption: 'Document Number',  size: '100px', style: 'text-align: right', sortable: true},
         ], 
         actions: {
@@ -1187,12 +1187,17 @@ function buildPageElements() {
                 RAID: 0,
                 PMTID: 0,
                 Dt: w2uiDateControlString(y),
-                DocNo: 0,
+                DocNo: '',
                 Amount: 0,
                 AcctRule: '',
                 Comment: '',
                 OtherPayorName: '',
             };
+            var options = [];
+            for (i = 0; i < app.pmtTypes[BUD].length; i++ ) {
+                options[i] = app.pmtTypes[BUD][i].Name;
+            }
+            w2ui.receiptForm.fields[0].options.items = options;
             w2ui.receiptForm.record = record;
             w2ui.toplayout.content('right', w2ui.receiptForm);
             w2ui.toplayout.show('right', true);
@@ -1221,15 +1226,16 @@ function buildPageElements() {
         url: '/v1/receipt',
         formURL: '/html/formrcpt.html',
         fields: [
+            { field: 'PmtTypeName',    type: 'list', required: true, options: {items: []},}, // keep this at position 0 as the list changes and we need to update it
             { field: 'recid',          type: 'int',   required: false },
             { field: 'RID',            type: 'int',   required: false },
             { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},
             { field: 'RentableName',   type: 'text',  required: false, },
-            { field: 'RCPTID',         type: 'w2int', required: true },
-            { field: 'PRCPTID',        type: 'w2int', required: false },
-            { field: 'RAID',           type: 'w2int', required: true },
-            { field: 'PMTID',          type: 'w2int', required: false },
-            { field: 'Dt',             type: 'date',  required: true },
+            { field: 'RCPTID',         type: 'int', required: true },
+            { field: 'PRCPTID',        type: 'int', required: false },
+            { field: 'RAID',           type: 'int', required: true },
+            { field: 'PMTID',          type: 'int', required: false },
+             { field: 'Dt',             type: 'date',  required: true },
             { field: 'DocNo',          type: 'text',  required: false },
             { field: 'Amount',         type: 'money', required: true },
             { field: 'AcctRule',       type: 'text',  required: true },
@@ -1253,16 +1259,17 @@ function buildPageElements() {
         actions: {
             save: function () {
                 //var obj = this;
-                var tgrid = w2ui.receiptsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                w2ui.receiptForm.url = '/v1/receipt/' + w2ui.receiptForm.record.BID.text + '/0';
+                var grid = w2ui.receiptsGrid;
+                var sel = grid.getSelection();
+                grid.unselect(sel);
                 this.save({}, function (data) { 
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    tgrid.reload();
+                    grid.reload();
                 });
 
             },

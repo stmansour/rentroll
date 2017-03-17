@@ -878,7 +878,6 @@ func GetPaymentTypes() map[int64]PaymentType {
 	for rows.Next() {
 		var a PaymentType
 		ReadPaymentTypes(rows, &a)
-		// Errcheck(rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.PMTID] = a
 	}
 	Errcheck(rows.Err())
@@ -901,7 +900,6 @@ func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
 	for rows.Next() {
 		var a PaymentType
 		ReadPaymentTypes(rows, &a)
-		// Errcheck(rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.LastModTime, &a.LastModBy))
 		t[a.PMTID] = a
 	}
 	Errcheck(rows.Err())
