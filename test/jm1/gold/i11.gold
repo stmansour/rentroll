@@ -1,16 +1,15 @@
-REX
+REX Receipts
+Nov 1, 2016 - Dec 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Receipts
-Nov 1, 2016 - Dec 1, 2016
 
-                          Parent                                                                                                      
-Date        RCPTID        RCPTID  RAID        PMTID        Doc No      Amount  Account Rule                                    Comment
-----------  ------------  ------  ----------  -----------  ------  ----------  ----------------------------------------------  -------
-11/01/2016  RCPT00000029  0       RA00000001  PMT00000001  2163      3,750.00  ASM(39) c ${GLGENRCV} _, ASM(39) d ${GLCASH} _         
-11/01/2016  RCPT00000030  0       RA00000004  PMT00000004  3279      4,150.00  ASM(40) c ${GLGENRCV} _, ASM(40) d ${GLCASH} _         
-11/02/2016  RCPT00000031  0       RA00000005  PMT00000005  8745     11,985.00  ASM(41) c ${GLGENRCV} _, ASM(41) d ${GLCASH} _         
+                          Parent                                                                                          
+Date        RCPTID        RCPTID  PMTID        Doc No      Amount  Account Rule                                    Comment
+----------  ------------  ------  -----------  ------  ----------  ----------------------------------------------  -------
+11/01/2016  RCPT00000029  0       PMT00000001  2163      3,750.00  ASM(39) c ${GLGENRCV} _, ASM(39) d ${GLCASH} _         
+11/01/2016  RCPT00000030  0       PMT00000001  3279      4,150.00  ASM(40) c ${GLGENRCV} _, ASM(40) d ${GLCASH} _         
+11/02/2016  RCPT00000031  0       PMT00000001  8745     11,985.00  ASM(41) c ${GLGENRCV} _, ASM(41) d ${GLCASH} _         
 

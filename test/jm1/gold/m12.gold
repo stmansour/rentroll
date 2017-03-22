@@ -11,11 +11,11 @@ Account:  10000 - Cash
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               93,883.01
-Payment #3283 - Gross Scheduled Rent-Taxable             12/01/2016  J00000089          4   311 Rexford          4,150.00     98,033.01
-Payment #2167 - Gross Scheduled Rent-Taxable             12/01/2016  J00000088          1   309 Rexford          3,750.00    101,783.01
+Opening Balance                                                                                                               93,017.72
+Payment #3283 - Gross Scheduled Rent-Taxable             12/01/2016  J00000090          4   309 Rexford          4,150.00     97,167.72
+Payment #2167 - Gross Scheduled Rent-Taxable             12/01/2016  J00000089          1   309 1/2 Rexford      3,750.00    100,917.72
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          12/31/2016                                                          101,783.01
+Closing Balance                                          12/31/2016                                                          100,917.72
 
 
 Account:  11000 - Credit Card Clearing
@@ -32,11 +32,11 @@ Account:  12000 - Accounts Receivable
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               31,685.00
-Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000085          4   311 Rexford          4,150.00     35,835.00
-Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000086          5   309 1/2 Rexford      4,000.00     39,835.00
-Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000084          1   309 Rexford          3,750.00     43,585.00
-Payment #2167 - Gross Scheduled Rent-Taxable             12/01/2016  J00000088          1   309 Rexford         -3,750.00     39,835.00
-Payment #3283 - Gross Scheduled Rent-Taxable             12/01/2016  J00000089          4   311 Rexford         -4,150.00     35,685.00
+Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000086          4   311 Rexford          4,150.00     35,835.00
+Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000087          5   309 1/2 Rexford      4,000.00     39,835.00
+Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000085          1   309 Rexford          3,750.00     43,585.00
+Payment #2167 - Gross Scheduled Rent-Taxable             12/01/2016  J00000089          1   309 1/2 Rexford     -3,750.00     39,835.00
+Payment #3283 - Gross Scheduled Rent-Taxable             12/01/2016  J00000090          4   309 Rexford         -4,150.00     35,685.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2016                                                           35,685.00
 
@@ -45,9 +45,9 @@ Account:  30000 - Security Deposits
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                              -21,600.00
+Opening Balance                                                                                                              -18,300.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          12/31/2016                                                          -21,600.00
+Closing Balance                                          12/31/2016                                                          -18,300.00
 
 
 Account:  30100 - Accrued Taxes
@@ -100,10 +100,10 @@ Account:  41000 - Gross Scheduled Rent-Taxable
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                             -155,850.00
-Unassociated                                             12/31/2016  J00000087          0   311 1/2 Rexford     -2,500.00   -158,350.00
-Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000084          1   309 Rexford         -3,750.00   -162,100.00
-Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000086          5   309 1/2 Rexford     -4,000.00   -166,100.00
-Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000085          4   311 Rexford         -4,150.00   -170,250.00
+Unassociated                                             12/31/2016  J00000088              311 1/2 Rexford     -2,500.00   -158,350.00
+Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000085          1   309 Rexford         -3,750.00   -162,100.00
+Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000087          5   309 1/2 Rexford     -4,000.00   -166,100.00
+Assessment - Gross Scheduled Rent-Taxable                12/01/2016  J00000086          4   311 Rexford         -4,150.00   -170,250.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2016                                                         -170,250.00
 
@@ -130,9 +130,9 @@ Account:  41003 - Other Income
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                 -111.26
+Opening Balance                                                                                                               -2,545.97
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          12/31/2016                                                             -111.26
+Closing Balance                                          12/31/2016                                                           -2,545.97
 
 
 Account:  41100 - Unit Income Offsets
@@ -149,7 +149,7 @@ Account:  41101 - Vacancy
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               51,978.25
-Unassociated                                             12/31/2016  J00000087          0   311 1/2 Rexford      2,500.00     54,478.25
+Unassociated                                             12/31/2016  J00000088              311 1/2 Rexford      2,500.00     54,478.25
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2016                                                           54,478.25
 
@@ -374,9 +374,9 @@ Account:  41400 - Miscellaneous Income
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                    0.00
+Opening Balance                                                                                                               -2,434.71
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          12/31/2016                                                                0.00
+Closing Balance                                          12/31/2016                                                           -2,434.71
 
 
 Account:  41401 - Application Fees
@@ -491,9 +491,9 @@ Account:  41413 - Forfeited Security Deposit
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                                    0.00
+Opening Balance                                                                                                               -2,434.71
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          12/31/2016                                                                0.00
+Closing Balance                                          12/31/2016                                                           -2,434.71
 
 
 Account:  41414 - Damage Fee

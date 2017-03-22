@@ -12,10 +12,11 @@ Account:  10000 - Cash
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               32,973.33
-Payment #2003 - Gross Scheduled Rent-Taxable             03/01/2016  J00000025          1   309 Rexford          3,750.00     36,723.33
-Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000026          2   309 1/2 Rexford      3,550.00     40,273.33
+Payment #2003 - Gross Scheduled Rent-Taxable             03/01/2016  J00000026          1   309 Rexford          3,750.00     36,723.33
+Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000027          2   309 1/2 Rexford      3,550.00     40,273.33
+Assessment - Security Deposits                           03/02/2016  J00000024          3   311 Rexford           -865.29     39,408.04
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          03/31/2016                                                           40,273.33
+Closing Balance                                          03/31/2016                                                           39,408.04
 
 
 Account:  11000 - Credit Card Clearing
@@ -33,9 +34,9 @@ Description                                              Date        ID         
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000023          1   309 Rexford          3,750.00      3,750.00
-Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000024          2   309 1/2 Rexford      3,550.00      7,300.00
-Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000026          2   309 1/2 Rexford     -3,550.00      3,750.00
-Payment #2003 - Gross Scheduled Rent-Taxable             03/01/2016  J00000025          1   309 Rexford         -3,750.00          0.00
+Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000025          2   309 1/2 Rexford      3,550.00      7,300.00
+Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000027          2   309 1/2 Rexford     -3,550.00      3,750.00
+Payment #2003 - Gross Scheduled Rent-Taxable             03/01/2016  J00000026          1   309 Rexford         -3,750.00          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          03/31/2016                                                                0.00
 
@@ -45,8 +46,9 @@ Account:  30000 - Security Deposits
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              -13,300.00
+Assessment - Security Deposits                           03/02/2016  J00000024          3   311 Rexford          3,300.00    -10,000.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          03/31/2016                                                          -13,300.00
+Closing Balance                                          03/31/2016                                                          -10,000.00
 
 
 Account:  30100 - Accrued Taxes
@@ -99,10 +101,10 @@ Account:  41000 - Gross Scheduled Rent-Taxable
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              -27,900.00
-Unassociated                                             03/31/2016  J00000028          0   311 1/2 Rexford     -2,500.00    -30,400.00
-Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000024          2   309 1/2 Rexford     -3,550.00    -33,950.00
+Unassociated                                             03/31/2016  J00000029              311 1/2 Rexford     -2,500.00    -30,400.00
+Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000025          2   309 1/2 Rexford     -3,550.00    -33,950.00
 Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000023          1   309 Rexford         -3,750.00    -37,700.00
-Unassociated                                             03/31/2016  J00000027          0   311 Rexford         -4,400.00    -42,100.00
+Unassociated                                             03/31/2016  J00000028              311 Rexford         -4,400.00    -42,100.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          03/31/2016                                                          -42,100.00
 
@@ -148,8 +150,8 @@ Account:  41101 - Vacancy
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                8,337.93
-Unassociated                                             03/31/2016  J00000027          0   311 Rexford          4,400.00     12,737.93
-Unassociated                                             03/31/2016  J00000028          0   311 1/2 Rexford      2,500.00     15,237.93
+Unassociated                                             03/31/2016  J00000028              311 Rexford          4,400.00     12,737.93
+Unassociated                                             03/31/2016  J00000029              311 1/2 Rexford      2,500.00     15,237.93
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          03/31/2016                                                           15,237.93
 
@@ -492,8 +494,9 @@ Account:  41413 - Forfeited Security Deposit
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
+Assessment - Security Deposits                           03/02/2016  J00000024          3   311 Rexford         -2,434.71     -2,434.71
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          03/31/2016                                                                0.00
+Closing Balance                                          03/31/2016                                                           -2,434.71
 
 
 Account:  41414 - Damage Fee

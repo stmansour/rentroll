@@ -85,6 +85,14 @@ func DeleteInvoiceAssessments(id int64) error {
 	return err
 }
 
+// DeleteJournalAllocation deletes the allocation record with the supplied jid
+func DeleteJournalAllocation(id int64) {
+	_, err := RRdb.Prepstmt.DeleteJournalAllocation.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Journal allocation for JAID = %d, error: %v\n", id, err)
+	}
+}
+
 // DeleteJournalAllocations deletes the allocation records associated with the supplied jid
 func DeleteJournalAllocations(jid int64) {
 	_, err := RRdb.Prepstmt.DeleteJournalAllocations.Exec(jid)
@@ -234,11 +242,20 @@ func DeleteReceipt(rcptid int64) error {
 	return err
 }
 
+// DeleteReceiptAllocation deletes the ReceiptAllocation record with the supplied id
+func DeleteReceiptAllocation(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteReceiptAllocation.Exec(id)
+	if err != nil {
+		Ulog("Error deleting ReceiptAllocation for RCPAID = %d, error: %v\n", id, err)
+	}
+	return err
+}
+
 // DeleteReceiptAllocations deletes ReceiptAllocation records with the supplied rcptid
 func DeleteReceiptAllocations(rcptid int64) error {
 	_, err := RRdb.Prepstmt.DeleteReceiptAllocations.Exec(rcptid)
 	if err != nil {
-		Ulog("Error deleting ReceiptAllocation for RCPTID = %d, error: %v\n", rcptid, err)
+		Ulog("Error deleting ReceiptAllocations for RCPTID = %d, error: %v\n", rcptid, err)
 	}
 	return err
 }

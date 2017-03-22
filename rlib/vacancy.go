@@ -28,9 +28,9 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 		// TODO: fix the next line
 		j.Dt = m[i].DtStop.AddDate(0, 0, -1) // associated date is period end - 1 proration cycle (or 1 sec if no proration)
 		j.Type = JNLTYPEUNAS                 // this is an unassociated entry
-		j.RAID = 0                           // we really mean it, it is unassociated
-		j.ID = r.RID                         // mark the associated Rentable
-		j.Comment = m[i].Comment             // this will note consecutive days for vacancy
+		// j.RAID = 0                           // we really mean it, it is unassociated
+		j.ID = r.RID             // mark the associated Rentable
+		j.Comment = m[i].Comment // this will note consecutive days for vacancy
 		// fmt.Printf("ProcessRentable: insert journal entry: %s - %s, %8.2f\n", j.Dt.Format(RRDATEINPFMT), j.Comment, j.Amount)
 
 		// TODO: this check must be more thorough. Examine the RentCycle, query over the time of the rent cycle

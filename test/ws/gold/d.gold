@@ -6,7 +6,6 @@
             "DocNo": "2153",
             "Dt": "8/1/2016",
             "PMTID": 1,
-            "RAID": 1,
             "RCPTID": 21,
             "recid": 21
         },
@@ -16,7 +15,6 @@
             "DocNo": "8733",
             "Dt": "8/1/2016",
             "PMTID": 1,
-            "RAID": 4,
             "RCPTID": 23,
             "recid": 23
         },
@@ -26,7 +24,6 @@
             "DocNo": "1948",
             "Dt": "8/5/2016",
             "PMTID": 1,
-            "RAID": 2,
             "RCPTID": 22,
             "recid": 22
         }

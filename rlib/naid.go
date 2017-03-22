@@ -177,6 +177,26 @@ func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
 	return m
 }
 
+// GetFullTransactantName returns the full user name if the Transactant is a person or the CompanyName if it is a company
+func (t *Transactant) GetFullTransactantName() string {
+	if t.IsCompany > 0 {
+		return t.CompanyName
+	}
+	s := t.FirstName
+	if len(t.MiddleName) > 0 {
+		s += " " + t.MiddleName
+	}
+	return s + " " + t.LastName
+}
+
+// GetTransactantLastName returns the Last name of the user if the Transactant is a person or the CompanyName if it is a company
+func (t *Transactant) GetTransactantLastName() string {
+	if t.IsCompany > 0 {
+		return t.CompanyName
+	}
+	return t.LastName
+}
+
 // GetPayorLastNames returns an array of strings that contains the last names
 // of every Payor responsible for this Rental Agreement during the timespan d1,d2.
 func (t *RentalAgreement) GetPayorLastNames(d1, d2 *time.Time) []string {

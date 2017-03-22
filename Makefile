@@ -67,7 +67,7 @@ package: rentroll
 	cp rentroll.1 tmp/rentroll/man/man1
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp rentroll ./tmp/rentroll/
-	cp conf.json ./tmp/rentroll/
+	cp conf.json report.css table.tmpl ./tmp/rentroll/
 	cp -r html ./tmp/rentroll/
 	cp ../gotable/pdfinstall.sh tmp/rentroll/
 	if [ -e js ]; then cp -r js ./tmp/rentroll/ ; fi

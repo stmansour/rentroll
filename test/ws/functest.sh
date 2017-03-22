@@ -16,7 +16,7 @@ CREATENEWDB=0
 #  Use the testdb for these tests...
 #---------------------------------------------------------------
 echo "Create new database..." 
-mysql --no-defaults < restore.sql
+mysql --no-defaults rentroll < restore.sql
 
 source ../share/base.sh
 
@@ -53,7 +53,7 @@ dojsonPOST "http://localhost:8270/v1/asm/REX/1" "request" "g"  "WebService--Save
 
 # Get Receipt 5 from REX
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/receipt/REX/5" "request" "h"  "WebService--GetAnAssessment"
+dojsonPOST "http://localhost:8270/v1/receipt/REX/5" "request" "h"  "WebService--GetAReceipt"
 
 # Save the Receipt 5 with an updated comment
 echo "%7B%0D%0A%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%0D%0A%22record%22%3A+%7B%0D%0A%22AcctRule%22%3A+%22ASM%287%29+c+%24%7BGLGENRCV%7D+_%2C+ASM%287%29+d+%24%7BGLCASH%7D+_%22%2C%0D%0A%22Amount%22%3A+3550%2C%0D%0A%22BID%22%3A+%7B%22id%22%3A%22REX%22%2C%22text%22%3A%22REX%22%7D%2C%0D%0A%22Comment%22%3A+%22This+comment+was+updated+by+a+web-service+test%22%2C%0D%0A%22DocNo%22%3A+%221631%22%2C%0D%0A%22Dt%22%3A+%221%2F4%2F2016%22%2C%0D%0A%22LastModBy%22%3A+0%2C%0D%0A%22LastModTime%22%3A+%222%2F23%2F2017%22%2C%0D%0A%22OtherPayorName%22%3A+%22%22%2C%0D%0A%22PMTID%22%3A+1%2C%0D%0A%22PRCPTID%22%3A+0%2C%0D%0A%22RAID%22%3A+2%2C%0D%0A%22RCPTID%22%3A+5%2C%0D%0A%22recid%22%3A+0%0D%0A%7D%0D%0A%7D" > request

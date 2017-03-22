@@ -115,7 +115,13 @@ func ReportCOA(p rlib.GLAccount, t *gotable.Table) {
 
 // RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
 func RRreportChartOfAccounts(ri *rrpt.ReporterInfo) string {
-	funcname := "RRreportChartOfAccounts"
+	t := RRreportChartOfAccountsTable(ri)
+	return rrpt.ReportToString(&t, ri)
+}
+
+// RRreportChartOfAccountsTable generates a table of all rlib.GLAccount accounts
+func RRreportChartOfAccountsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportChartOfAccountsTable"
 	rlib.InitBusinessFields(ri.Bid)
 	rlib.RRdb.BizTypes[ri.Bid].GLAccounts = rlib.GetGLAccountMap(ri.Bid)
 
@@ -140,7 +146,12 @@ func RRreportChartOfAccounts(ri *rrpt.ReporterInfo) string {
 
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = false
-	t.SetTitle(rrpt.ReportHeaderBlock("Chart of Accounts", funcname, ri))
+
+	err := rrpt.TableReportHeaderBlock(&t, "Chart of Accounts", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("PLID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -158,7 +169,7 @@ func RRreportChartOfAccounts(ri *rrpt.ReporterInfo) string {
 	for i := 0; i < len(a); i++ {
 		ReportCOA(m[a[i]], &t)
 	}
-	return rrpt.ReportToString(&t, ri)
+	return t
 }
 
 // RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
@@ -456,19 +467,20 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 // RRreportAssessments generates a report of all rlib.GLAccount accounts
 func RRreportAssessments(ri *rrpt.ReporterInfo) string {
 	t, err := RRAssessmentsTable(ri)
-	s := t.GetTitle()
+	//s := t.GetTitle()
+	var s string
 	if err != nil {
 		if rlib.IsSQLNoResultsError(err) {
 			s += "\nNo assessments found in this period\n"
 		} else {
-			s += err.Error()
+			s += err.Error() + "\n"
 		}
 	}
 	s1, err := t.SprintTable()
 	if err != nil {
 		rlib.Ulog("RReportAssessments: error = %s", err.Error())
 	}
-	return s + "\n" + s1
+	return s + s1
 }
 
 // RRAssessmentsTable generates a report of all rlib.GLAccount accounts
@@ -485,7 +497,12 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (gotable.Table, error) {
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
-	t.SetTitle(rrpt.ReportHeaderBlock("Assessments", funcname, ri))
+
+	err := rrpt.TableReportHeaderBlock(&t, "Assessments", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError("JournalReport", err)
+	}
+	// t.SetTitle(rrpt.ReportHeaderBlock("Assessments", funcname, ri))
 
 	t.AddColumn("ASMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("PASMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -538,12 +555,11 @@ func RRReceiptsTable(ri *rrpt.ReporterInfo) gotable.Table {
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
-	t.SetTitle(rrpt.ReportHeaderBlock("Receipts", "RRReceiptsTable", ri))
+	rrpt.TableReportHeaderBlock(&t, "Receipts", "RRReceiptsTable", ri)
 	t.Init()
 	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("RCPTID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Parent RCPTID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Doc No", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
@@ -555,12 +571,11 @@ func RRReceiptsTable(ri *rrpt.ReporterInfo) gotable.Table {
 		t.Putd(-1, 0, a.Dt)
 		t.Puts(-1, 1, a.IDtoString())
 		t.Puts(-1, 2, rlib.IDtoString("RCPT", a.PRCPTID))
-		t.Puts(-1, 3, rlib.IDtoString("RA", a.RAID))
-		t.Puts(-1, 4, rlib.IDtoString("PMT", a.RAID))
-		t.Puts(-1, 5, a.DocNo)
-		t.Putf(-1, 6, a.Amount)
-		t.Puts(-1, 7, a.AcctRule)
-		t.Puts(-1, 8, a.Comment)
+		t.Puts(-1, 3, rlib.IDtoString("PMT", a.PMTID))
+		t.Puts(-1, 4, a.DocNo)
+		t.Putf(-1, 5, a.Amount)
+		t.Puts(-1, 6, a.AcctRule)
+		t.Puts(-1, 7, a.Comment)
 	}
 	t.TightenColumns()
 	return t

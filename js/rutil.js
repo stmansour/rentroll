@@ -2,6 +2,83 @@
     w2ui, app, console
 */
 
+
+//-----------------------------------------------------------------------------
+// getBUDfromBID  - given the BID return the associated BUD. Returns
+//                  an empty string if BID is not found
+// @params  BUD   - the BUD for the business of interest
+//          PMTID - the payment type id for which we want the name
+// @return  the BUD (or empty string if not found)
+//-----------------------------------------------------------------------------
+function getBUDfromBID(BID) {
+    "use strict";
+    var BUD = '';
+    for (var i=0; i<app.BizMap.length; i++) {
+        if (BID == app.BizMap[i].BID) {
+            BUD = app.BizMap[i].BUD;
+        }
+    }
+    return BUD;
+}
+
+//-----------------------------------------------------------------------------
+// getPaymentTypeName - searches BUD's Payment Types for PMTID.  If found the
+//                  Name is returned, else an empty string is returned.
+// @params  BUD   - the BUD for the business of interest
+//          PMTID - the payment type id for which we want the name
+// @return  the Payment Type Name (or empty string if not found)
+//-----------------------------------------------------------------------------
+function getPaymentTypeName(BUD,PMTID) {
+    "use strict";
+    if (typeof BUD == "undefined") {
+        return '';
+    }
+    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
+        if (app.pmtTypes[BUD][i].PMTID == PMTID) {
+            return app.pmtTypes[BUD][i].Name;
+        }
+    }
+    return '';
+}
+
+//-----------------------------------------------------------------------------
+// getPaymentTypeID - searches BUD's Payment Types for Name.  If found the
+//                  PMTID is returned. Otherwise it returns -1
+// @params  BUD   - the BUD for the business of interest
+//          Name  - the Name of the payment type
+// @return  PMTID (or -1 if not found)
+//-----------------------------------------------------------------------------
+function getPaymentTypeID(BUD,Name) {
+    "use strict";
+    if (typeof BUD == "undefined") {
+        return -1;
+    }
+    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
+        if (app.pmtTypes[BUD][i].Name == Name) {
+            return app.pmtTypes[BUD][i].PMTID;
+        }
+    }
+    return -1;
+}
+
+//-----------------------------------------------------------------------------
+// buildPaymentTypeOptions - creates a list suitable for a dropdown menu
+//                  with the payment types for the supplied BUD
+// @params  BUD   - the BUD for the business of interest
+// @return  the list of Payment Type Names (or empty list if BUD not found)
+//-----------------------------------------------------------------------------
+function buildPaymentTypeOptions(BUD) {
+    "use strict";
+    var options = [];
+    if (typeof BUD == "undefined") {
+        return options;
+    }
+    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
+        options[i] = app.pmtTypes[BUD][i].Name;
+    }
+    return options;
+}
+
 //-----------------------------------------------------------------------------
 // getCurrentBusiness - return the Business Unit currently slected in the
 //                      main toolbar
@@ -18,16 +95,20 @@ function getCurrentBusiness() {
 // setToForm -  enable form sform in toplayout.  Also, set the forms url and
 //              request data from the server
 // @params
-//   sform = name of the form
-//   url   = request URL for the form
+//   sform   = name of the form
+//   url     = request URL for the form
+//   [width] = optional, if specified it is the width of the form
 //-----------------------------------------------------------------------------
-function setToForm(sform, url) {
+function setToForm(sform, url, width) {
     "use strict";
+    if (width === undefined) {
+        width = 700;
+    }
     console.log('sform = ' + sform + '  url = ' + url);
     var f = w2ui[sform];
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.content('right', f);
-    w2ui.toplayout.sizeTo('right', 700);
+    w2ui.toplayout.sizeTo('right', width);
     if (url.length > 0) {
         f.url = url;
         f.request();

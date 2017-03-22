@@ -746,7 +746,7 @@ CREATE TABLE Receipt (
     RCPTID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this Receipt
     PRCPTID BIGINT NOT NULL DEFAULT 0,                          -- Parent RCPT, if non-zero then it is the RCPTID of a receipt with an error that we're correcting in this receipt
     BID BIGINT NOT NULL DEFAULT 0,
-    RAID BIGINT NOT NULL DEFAULT 0,                             -- THIS IS AN ISSUE... It can go away -- ReceiptAllocation has an associated Assessment, which has the RAID
+    TCID BIGINT NOT NULL DEFAULT 0,                             -- Payor
     PMTID BIGINT NOT NULL DEFAULT 0,
     DID BIGINT NOT NULL DEFAULT 0,                              -- Deposit id to which this receipt belongs
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
@@ -755,19 +755,21 @@ CREATE TABLE Receipt (
     AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
-    -- ApplyToGeneralReceivable DECIMAL(19,4),                  -- Breakdown is in ReceiptAllocation table
-    -- ApplyToSecurityDeposit DECIMAL(19,4),                    -- Can we just handle this as part of Receipt allocation
     LastModTime TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (RCPTID)
 );
 
 CREATE TABLE ReceiptAllocation (
-    RCPTID BIGINT NOT NULL DEFAULT 0,                              -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
+    RCPAID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this allocation
+    RCPTID BIGINT NOT NULL DEFAULT 0,                           -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
     BID BIGINT NOT NULL DEFAULT 0,
+    RAID BIGINT NOT NULL DEFAULT 0,
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    ASMID BIGINT NOT NULL DEFAULT 0,                               -- the id of the assessment that caused this payment
-    AcctRule VARCHAR(150)
+    ASMID BIGINT NOT NULL DEFAULT 0,                            -- the id of the assessment that caused this payment
+    AcctRule VARCHAR(150),
+    PRIMARY KEY (RCPAID)
 );  
 
 -- **************************************
@@ -849,15 +851,16 @@ CREATE TABLE InvoicePayor (
 CREATE TABLE Journal (
     JID BIGINT NOT NULL AUTO_INCREMENT,                            -- a Journal entry
     BID BIGINT NOT NULL DEFAULT 0,                                 -- Business id
-    RAID BIGINT NOT NULL DEFAULT 0,                                -- associated rental agreement
+    -- RAID BIGINT NOT NULL DEFAULT 0,                                -- associated rental agreement
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- date when it occurred
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- how much
     Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unassociated with RA, 1 = assessment, 2 = payment/Receipt
-    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 0 then it is the RentableID, if Type == 1 then it is the ASMID that caused this entry, if Type ==2 then it is the RCPTID
-    -- no last mod by, etc., this is all handled in the JournalAudit table
-    Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
-    LastModTime TIMESTAMP,                                    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it 
+    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 0 then it is the RentableID, 
+                                                                   -- if Type == 1 then it is the ASMID that caused this entry,
+                                                                   -- if Type == 2 then it is the RCPTID
+    Comment VARCHAR(256) NOT NULL DEFAULT '',                      -- for notes like "prior period adjustment"
+    LastModTime TIMESTAMP,                                         -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it 
     PRIMARY KEY (JID)
 );
 
@@ -866,7 +869,8 @@ CREATE TABLE JournalAllocation (
     BID BIGINT NOT NULL DEFAULT 0,                                 -- Business id
     JID BIGINT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
     RID BIGINT NOT NULL DEFAULT 0,                                 -- associated Rentable
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
+    RAID BIGINT NOT NULL DEFAULT 0,                                -- associated Rental Agreement
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- 
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
     PRIMARY KEY (JAID)
@@ -902,7 +906,6 @@ CREATE TABLE JournalMarkerAudit (
 -- ****           LEDGERS            ****
 -- ****                              ****
 -- **************************************
--- RENAME to Ledger
 CREATE TABLE LedgerEntry (
     LEID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this LedgerEntry
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id

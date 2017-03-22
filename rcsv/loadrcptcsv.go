@@ -2,6 +2,7 @@ package rcsv
 
 import (
 	"fmt"
+	"os"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -22,7 +23,7 @@ import (
 // REH, RA00000001, 1,     "2015-11-21", 883789238746, 294.66,  "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
 
 // GenerateReceiptAllocations processes the AcctRule for the supplied rlib.Receipt and generates rlib.ReceiptAllocation records
-func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error {
+func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusiness) error {
 	var d1 = time.Date(rcpt.Dt.Year(), rcpt.Dt.Month(), 1, 0, 0, 0, 0, time.UTC)
 	var d2 = d1.AddDate(0, 0, 31)
 	t := rlib.ParseAcctRule(xbiz, 0, &d1, &d2, rcpt.AcctRule, rcpt.Amount, 1.0)
@@ -39,6 +40,8 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 		a.ASMID = k
 		a.Amount = t[int(v[0])].Amount
 		a.RCPTID = rcpt.RCPTID
+		a.RAID = raid
+		a.Dt = rcpt.Dt
 
 		// make sure the referenced assessment actually exists
 		a1, _ := rlib.GetAssessment(a.ASMID)
@@ -56,7 +59,11 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, xbiz *rlib.XBusiness) error 
 			}
 		}
 		a.BID = rcpt.BID
-		rlib.InsertReceiptAllocation(&a)
+		_, err := rlib.InsertReceiptAllocation(&a)
+		if err != nil {
+			fmt.Printf("GenerateReceiptAllocations: Error inserting ReceiptAllocation: %s\n", err.Error())
+			os.Exit(1)
+		}
 		rcpt.RA = append(rcpt.RA, a)
 	}
 	return nil
@@ -118,9 +125,9 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Find Rental Agreement
 	//-------------------------------------------------------------------
-	r.RAID = CSVLoaderGetRAID(sa[RAID]) // this should probably go away, we should select it from an Assessment in the AcctRule
+	raid := CSVLoaderGetRAID(sa[RAID]) // this should probably go away, we should select it from an Assessment in the AcctRule
 
-	_, err = rlib.GetRentalAgreement(r.RAID)
+	_, err = rlib.GetRentalAgreement(raid)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s, err = %v", funcname, lineno, sa[RAID], err)
 	}
@@ -163,8 +170,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...
 	//-------------------------------------------------------------------
-	if len(r.AcctRule) == 0 || r.PMTID == 0 ||
-		r.Amount == 0 || r.RAID == 0 || r.BID == 0 {
+	if len(r.AcctRule) == 0 || r.PMTID == 0 || r.Amount == 0 || r.BID == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("Skipping this record")
 	}
 
@@ -185,7 +191,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Create the allocations...
 	//-------------------------------------------------------------------
-	err = GenerateReceiptAllocations(&r, &xbiz)
+	err = GenerateReceiptAllocations(&r, raid, &xbiz)
 	if err != nil {
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)

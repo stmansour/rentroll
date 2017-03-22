@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
-	"strings"
 	"time"
 )
 
@@ -47,6 +46,7 @@ func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, 
 			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
 			continue
 		}
+
 		// printDatedJournalEntryRJ(l.Name, d, fmt.Sprintf("%d", raid), r.RentableName, m[i].Account, amt)
 		tbl.AddRow()
 		tbl.Puts(-1, 1, l.Name)
@@ -116,28 +116,63 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	}
 	s += "] " + j.Comment
 
-	// printJournalSubtitle(s)
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoString())
 	tbl.Puts(-1, 1, s)
 
 	for i := 0; i < len(j.JA); i++ {
-		processAcctRuleAmount(tbl, xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.RAID, r, j.JA[i].Amount)
+		processAcctRuleAmount(tbl, xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.JA[i].RAID, r, j.JA[i].Amount)
 	}
 
-	// printJournalSubtitle("")
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
 func textPrintJournalReceipt(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
 	funcname := "textPrintJournalReceipt"
-	rntagr, _ := rlib.GetXRentalAgreement(rcpt.RAID, &jctx.ReportStart, &jctx.ReportStop)
-	// sa := getPayorLastNames(&rntagr, &jctx.ReportStart, &jctx.ReportStop)
-	sa := rntagr.GetPayorLastNames(&jctx.ReportStart, &jctx.ReportStop)
-	ps := strings.Join(sa, ",")
+	// fmt.Printf("Entered: %s,   JID = %d, RCPTID = %d\n", funcname, j.JID, rcpt.RCPTID)
+	// The receipt has the payor TCID.  We get the payor name from the receipt
+	var t rlib.Transactant
+	var ps string
+	if err := rlib.GetTransactant(rcpt.TCID, &t); err != nil {
+		// fmt.Printf("<< rcpt.TCID = %d   db err = %s>>\n", rcpt.TCID, err.Error())
+		// No transactant ID.  See if ther is an OtherPayor. If so use it, if not, get the payors associated with this journal entry...
+		if len(rcpt.OtherPayorName) > 0 {
+			ps = rcpt.OtherPayorName
+		} else {
+			// fmt.Printf("Will look up all RAIDs in ReceiptAllocations. len(rcpt.RA) = %d\n", len(rcpt.RA))
+			var mm = map[int64]int64{} // mm[raid]raid -- just to keep track of what we've found
+			for i := 0; i < len(rcpt.RA); i++ {
+				raid := rcpt.RA[i].RAID
+				// fmt.Printf("rcpt.RA[i].RAID = %d\n", raid)
+				_, ok := mm[raid]
+				if !ok {
+					// fmt.Printf("mm[raid] was not found. Will search RAID %d for payors on %s\n", raid, j.Dt.Format(rlib.RRDATEFMT4))
+					mm[raid] = raid
+					n := rlib.GetRentalAgreementPayorsInRange(raid, &j.Dt, &j.Dt)
+					// fmt.Printf("found %d payors\n", len(n))
+					for j := 0; j < len(n); j++ {
+						var t rlib.Transactant
+						if err := rlib.GetTransactant(n[j].TCID, &t); err != nil {
+							rlib.LogAndPrintError(funcname, err)
+							continue
+						}
+						if len(ps) > 0 {
+							ps += ","
+						}
+						ps += t.GetTransactantLastName() // could be multiple names, use Lastname only
+					}
+					// fmt.Printf("ps = %s\n", ps)
+					if len(ps) == 0 {
+						ps = fmt.Sprintf("No payors for RAID %d on %s\n", raid, j.Dt.Format(rlib.RRDATEFMT4))
+					}
+				}
+			}
+		}
+	} else {
+		ps = t.GetFullTransactantName() // we know this will be only one name, so we should have the space for the full name
+	}
 
 	s := fmt.Sprintf("Payment - %s   #%s  %.2f", ps, rcpt.DocNo, rcpt.Amount)
-	// printJournalSubtitle(s)
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoString())
 	tbl.Puts(-1, 1, s)
@@ -172,14 +207,12 @@ func textPrintJournalReceipt(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jpr
 			tbl.Putf(-1, 6, amt)
 		}
 	}
-	// printJournalSubtitle("")
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
 func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal) {
 	var r rlib.Rentable
 	rlib.GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
-	//printJournalSubtitle(s)
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoString())
 	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
@@ -212,9 +245,12 @@ func textReportJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Jo
 	//--------------------------------------------------------------------------------------
 	start := jctx.ReportStart // start with the report range
 	stop := jctx.ReportStop   // start with the report range
-	if j.RAID > 0 {           // is there an associated rental agreement?
-		ra, _ := rlib.GetRentalAgreement(j.RAID) // if so, get it
-		if ra.RentStart.After(start) {           // if possession of rental starts later...
+
+	// TODO:  THIS NEEDS TO BE BETTER GENERALIZED...
+
+	if len(j.JA) > 0 { // is there an associated rental agreement?
+		ra, _ := rlib.GetRentalAgreement(j.JA[0].RAID) // if so, get it
+		if ra.RentStart.After(start) {                 // if possession of rental starts later...
 			start = ra.RentStart // ...then make an adjustment
 		}
 		stop = ra.AgreementStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE
@@ -251,15 +287,17 @@ func JournalReport(ri *ReporterInfo) gotable.Table {
 
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
-	tbl.SetTitle(ReportHeaderBlock("Journal", "JournalReport", ri))
+	err := TableReportHeaderBlock(&tbl, "Journal", "JournalReport", ri)
+	if err != nil {
+		rlib.LogAndPrintError("JournalReport", err)
+	}
 
 	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
 	rlib.Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var j rlib.Journal
-		rlib.Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
-		// fmt.Printf("JournalReportText: JID = %d\n", j.JID)
+		rlib.ReadJournals(rows, &j)
 		rlib.GetJournalAllocations(j.JID, &j)
 		textReportJournalEntry(&tbl, ri.Xbiz, &j, &jctx)
 	}

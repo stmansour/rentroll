@@ -1,18 +1,17 @@
-REX
+REX Receipts
+Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Receipts
-Jul 1, 2016 - Aug 1, 2016
 
-                          Parent                                                                                                    
-Date        RCPTID        RCPTID  RAID        PMTID        Doc No      Amount  Account Rule                                  Comment
-----------  ------------  ------  ----------  -----------  ------  ----------  --------------------------------------------  -------
-07/02/2016  RCPT00000001  0       RA00000003  PMT00000003  2111      2,500.00  ASM(5) d ${GLCASH} _,ASM(5) c ${GLGENRCV} _          
-07/15/2016  RCPT00000002  0       RA00000001  PMT00000001  2283        308.35  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _         
-07/16/2016  RCPT00000003  0       RA00000002  PMT00000002  3999        400.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _         
-07/03/2016  RCPT00000004  0       RA00000004  PMT00000004  1039        750.00  ASM(4) c ${GLGENRCV} _, ASM(4) d ${GLCASH} _         
-07/04/2016  RCPT00000005  0       RA00000005  PMT00000005  6430      4,200.00  ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _         
+                          Parent                                                                                        
+Date        RCPTID        RCPTID  PMTID        Doc No      Amount  Account Rule                                  Comment
+----------  ------------  ------  -----------  ------  ----------  --------------------------------------------  -------
+07/02/2016  RCPT00000001  0       PMT00000001  2111      2,500.00  ASM(5) d ${GLCASH} _,ASM(5) c ${GLGENRCV} _          
+07/15/2016  RCPT00000002  0       PMT00000001  2283        308.35  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _         
+07/16/2016  RCPT00000003  0       PMT00000001  3999        400.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _         
+07/03/2016  RCPT00000004  0       PMT00000001  1039        750.00  ASM(4) c ${GLGENRCV} _, ASM(4) d ${GLCASH} _         
+07/04/2016  RCPT00000005  0       PMT00000001  6430      4,200.00  ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _         
 

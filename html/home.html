@@ -27,7 +27,8 @@ sidebarL1     - w2ui sidebar
     w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
     tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare, dateMonthBack,
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
-    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator,
+    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
+    getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID
 */
 
 /*globals $:false */
@@ -47,7 +48,8 @@ var app = {
     pstyleNB: 'border: 0px solid #dfdfdf; padding: 0px;',
     pstyle4: 'border: 1px solid #bbbbbb; padding: 0px;',
     pstyle2: 'border: 1px solid #cfcfcf; padding: 0px;',
-    prefmt: 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;',
+    //prefmt: 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;',
+    prefmt: 'border:4px; solid #bbbbbb; background-color: white;',
     bgyellow: 'background-color: yellow;',
     stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777;',
     refreshInhibit: false,
@@ -455,13 +457,13 @@ function buildPageElements() {
             console.log(event);
         },
         onClick: function(event) {
-            event.onComplete = function () {
-                // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
-                //   console.log(val + ' -> ' + this[val]);
-                // });   
-                var sel = this.getSelection(true);
-                console.log('Current selection is ' + sel );
-            };
+            // event.onComplete = function () {
+            //     // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
+            //     //   console.log(val + ' -> ' + this[val]);
+            //     // });   
+            //     var sel = this.getSelection(true);
+            //     console.log('Current selection is ' + sel );
+            // };
         }
     });
 
@@ -1127,13 +1129,12 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'RCPTID', caption: 'ReceiptID',  size: '60px', style: 'text-align: right', sortable: true},
+            {field: 'RCPTID', caption: 'ReceiptID',  size: '80px', style: 'text-align: right', sortable: true},
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PMTID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
-            {field: 'RAID', caption: app.sRentalAgreement,  size: '150px', style: 'text-align: right', sortable: true},
-            {field: 'DocNo', caption: 'Document Number',  size: '100px', style: 'text-align: right', sortable: true},
+            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
         ], 
         actions: {
             save: function () {
@@ -1150,7 +1151,7 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID);
+                        setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 500);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -1170,13 +1171,10 @@ function buildPageElements() {
         onAdd: function (/*event*/) {
             var x = getCurrentBusiness();
             var BID=x.value;
-            var BUD;
-            for (var i=0; i<app.BizMap.length; i++) {
-                if (BID == app.BizMap[i].BID) {
-                    BUD = app.BizMap[i].BUD;
-                }
-            }
+            var BUD = getBUDfromBID(BID);
             var y = new Date();
+            var options = buildPaymentTypeOptions(BUD);
+            var ptInit = (options.length > 0) ? options[0] : '';
             var record = {
                 recid: 0,
                 RCPTID: 0,
@@ -1184,8 +1182,8 @@ function buildPageElements() {
                 RID: 0,
                 BID: BUD,
                 RentableName: '',
-                RAID: 0,
                 PMTID: 0,
+                PmtTypeName: ptInit,
                 Dt: w2uiDateControlString(y),
                 DocNo: '',
                 Amount: 0,
@@ -1193,10 +1191,6 @@ function buildPageElements() {
                 Comment: '',
                 OtherPayorName: '',
             };
-            var options = [];
-            for (i = 0; i < app.pmtTypes[BUD].length; i++ ) {
-                options[i] = app.pmtTypes[BUD][i].Name;
-            }
             w2ui.receiptForm.fields[0].options.items = options;
             w2ui.receiptForm.record = record;
             w2ui.toplayout.content('right', w2ui.receiptForm);
@@ -1230,12 +1224,12 @@ function buildPageElements() {
             { field: 'recid',          type: 'int',   required: false },
             { field: 'RID',            type: 'int',   required: false },
             { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},
-            { field: 'RentableName',   type: 'text',  required: false, },
+            { field: 'RentableName',   type: 'text',  required: false, 
+            },
             { field: 'RCPTID',         type: 'int', required: true },
             { field: 'PRCPTID',        type: 'int', required: false },
-            { field: 'RAID',           type: 'int', required: true },
             { field: 'PMTID',          type: 'int', required: false },
-             { field: 'Dt',             type: 'date',  required: true },
+            { field: 'Dt',             type: 'date',  required: true },
             { field: 'DocNo',          type: 'text',  required: false },
             { field: 'Amount',         type: 'money', required: true },
             { field: 'AcctRule',       type: 'text',  required: true },
@@ -1256,6 +1250,43 @@ function buildPageElements() {
                 }
             },
         },
+        onRefresh: function(/*event*/) {
+            var f = w2ui.receiptForm;
+            var r = f.record;
+            f.header = 'Edit ' + app.sReceipt + ' (' + r.RCPTID + ')';
+            var BUD = (typeof r.BID == "object") ? r.BID.id : r.BID;
+            f.fields[0].options.items = buildPaymentTypeOptions( BUD );
+            r.PmtTypeName = getPaymentTypeName(BUD,r.PMTID);
+        },
+        onValidate: function (event) {
+            // create your own validation and display error
+            if (this.record.DocNo == '' && this.record.PmtTypeName.id != 'Cash') {
+              $(this.get('DocNo').el).w2tag('<--- Error Here');
+              // cancel default error handling
+              event.preventDefault();
+            }
+            // event.errors.push({
+            //     field: this.get('date1'),
+            //     error: 'Registration date should be prior to submission date'
+            // });        
+        },
+        onChange: function(event) {
+            console.log('Form Value changed:  event = ', event);
+            var r = w2ui.receiptForm.record;
+            if (event.target == "PmtTypeName") {
+                var PMTID = getPaymentTypeID(r.BID.id,event.value_new.id);
+                if (PMTID >= 0) {
+                    r.PMTID = PMTID;
+                    console.log('record.PMTID set to ' + r.PMTID);
+                }
+            }
+        },
+        onLoad: function(event) {
+            event.onComplete = function () {
+            var r = w2ui.receiptForm.record;
+                r.PmtTypeName = getPaymentTypeName(r.BID,r.PMTID); // we have the PMTID, set the name
+             };
+        },
         actions: {
             save: function () {
                 //var obj = this;
@@ -1271,19 +1302,13 @@ function buildPageElements() {
                     w2ui.toplayout.hide('right',true);
                     grid.reload();
                 });
-
             },
             reset: function() {
                 var f = w2ui.receiptForm;
                 console.log('f:   recid = ' + f.record.recid + '   RCPTID = ' + f.record.RCPTID );
             }
         },
-        onRefresh: function(/*event*/) {
-            var f = w2ui.receiptForm;
-            var r = f.record;
-            f.header = 'Edit ' + app.sReceipt + ' (' + r.RCPTID + ')';
-        }
-    });
+   });
 
 
     //------------------------------------------------------------------------

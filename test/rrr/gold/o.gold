@@ -137,11 +137,11 @@ Assessment - Unit Gross Scheduled Rent-Taxable           07/27/2016  J00000027  
 Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000028          3   6303-231               -56.87     -3,436.53
 Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000029          3   6303-231               -56.87     -3,493.40
 Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000030          3   6303-231               -56.87     -3,550.27
-Unassociated                                             07/31/2016  J00000077          0   6303-231               -56.87     -3,607.14
+Unassociated                                             07/31/2016  J00000077              6303-231               -56.87     -3,607.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000001          1   6303-231               -76.00     -3,683.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/02/2016  J00000002          1   6303-231               -76.00     -3,759.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/03/2016  J00000003          1   6303-231               -76.00     -3,835.14
-Unassociated                                             07/04/2016  J00000075          0   6303-231               -76.00     -3,911.14
+Unassociated                                             07/04/2016  J00000075              6303-231               -76.00     -3,911.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/05/2016  J00000008          2   6303-231               -92.00     -4,003.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/06/2016  J00000009          2   6303-231               -92.00     -4,095.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000032          5   6392-930              -125.00     -4,220.14
@@ -175,9 +175,9 @@ Assessment - Unit Gross Scheduled Rent-Taxable           07/28/2016  J00000059  
 Assessment - Unit Gross Scheduled Rent-Taxable           07/29/2016  J00000060          5   6392-930              -125.00     -7,720.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/30/2016  J00000061          5   6392-930              -125.00     -7,845.14
 Assessment - Unit Gross Scheduled Rent-Taxable           07/31/2016  J00000062          5   6392-930              -125.00     -7,970.14
-Unassociated                                             07/05/2016  J00000078          0   6323-303              -258.06     -8,228.20
-Unassociated                                             07/09/2016  J00000076          0   6303-231              -276.00     -8,504.20
-Unassociated                                             07/11/2016  J00000079          0   6323-303              -309.68     -8,813.88
+Unassociated                                             07/05/2016  J00000078              6323-303              -258.06     -8,228.20
+Unassociated                                             07/09/2016  J00000076              6303-231              -276.00     -8,504.20
+Unassociated                                             07/11/2016  J00000079              6323-303              -309.68     -8,813.88
 Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000031          4   6323-301              -755.00     -9,568.88
 Assessment - Unit Gross Scheduled Rent-Taxable           07/01/2016  J00000066          6   6323-302            -3,319.35    -12,888.23
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -198,11 +198,11 @@ Account:  41101 - Vacancy
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                2,356.00
-Unassociated                                             07/11/2016  J00000079          0   6323-303               309.68      2,665.68
-Unassociated                                             07/09/2016  J00000076          0   6303-231               276.00      2,941.68
-Unassociated                                             07/05/2016  J00000078          0   6323-303               258.06      3,199.74
-Unassociated                                             07/04/2016  J00000075          0   6303-231                76.00      3,275.74
-Unassociated                                             07/31/2016  J00000077          0   6303-231                56.87      3,332.61
+Unassociated                                             07/11/2016  J00000079              6323-303               309.68      2,665.68
+Unassociated                                             07/09/2016  J00000076              6303-231               276.00      2,941.68
+Unassociated                                             07/05/2016  J00000078              6323-303               258.06      3,199.74
+Unassociated                                             07/04/2016  J00000075              6303-231                76.00      3,275.74
+Unassociated                                             07/31/2016  J00000077              6303-231                56.87      3,332.61
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          07/31/2016                                                            3,332.61
 

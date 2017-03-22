@@ -27,6 +27,81 @@ type ReporterInfo struct {
 	Xbiz                  *rlib.XBusiness // may not be set in all cases
 }
 
+// TableReportHeader returns a title block of text for a report. The format is:
+//
+// 			Title:     <BUD> <Report Name>
+//			Section1:  <date or dateRange>
+//			Section2:  <Business name and address>
+//
+// @params
+//	rn	     = Report Name
+//	funcname = name of calling routine in case of error
+//  ri       = reporter info struct, please ensure RptHeaderD1 and RptHeaderD2 are set correctly
+//
+// @return
+//		string = title string
+//         err = any problem that occurred
+func TableReportHeader(t *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+	t.SetTitle(ri.Xbiz.P.Designation + " " + rn)
+
+	var s string
+	if ri.RptHeaderD1 && ri.RptHeaderD2 {
+		s = ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + ri.D2.Format(rlib.RRDATEREPORTFMT)
+	} else if ri.RptHeaderD1 {
+		s = ri.D1.Format(rlib.RRDATEREPORTFMT)
+	} else if ri.RptHeaderD2 {
+		s = ri.D2.Format(rlib.RRDATEREPORTFMT)
+	}
+	t.SetSection1(s)
+
+	var s1 string
+	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
+	if err != nil {
+		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
+		return e
+	}
+	if bu.CoCode == 0 {
+		s1 = bu.Name + "\n\n"
+	} else {
+		c, err := rlib.GetCompany(int64(bu.CoCode))
+		if err != nil {
+			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
+			return e
+		}
+		s1 += fmt.Sprintf("%s\n", c.LegalName)
+		s1 += fmt.Sprintf("%s\n", c.Address)
+		if len(c.Address2) > 0 {
+			s1 += fmt.Sprintf("%s\n", c.Address2)
+		}
+		s1 += fmt.Sprintf("%s, %s %s %s\n\n", c.City, c.State, c.PostalCode, c.Country)
+	}
+
+	if ri.BlankLineAfterRptName {
+		s1 += "\n"
+	}
+	t.SetSection2(s1)
+
+	return nil
+}
+
+// TableReportHeaderBlock is a wrapper for Report header. It ensures that ri.Xbiz is valid
+//		and will append any error messages to the title.
+//
+// @params
+//		  t = table containing the report
+//	funcname = name of calling routine in case of error
+//        ri = reporter info struct, please ensure RptHeaderD1 and RptHeaderD2 are set correctly
+//
+// @return
+//		string = title string
+func TableReportHeaderBlock(t *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+	if ri.Xbiz == nil {
+		ri.Xbiz = new(rlib.XBusiness)
+		rlib.GetXBusiness(ri.Bid, ri.Xbiz)
+	}
+	return TableReportHeader(t, rn, funcname, ri)
+}
+
 // ReportHeader returns a title block of text for a report.
 // @params
 //		  rn = Report Name

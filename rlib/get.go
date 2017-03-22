@@ -1041,6 +1041,14 @@ func GetReceipt(rcptid int64) Receipt {
 	return r
 }
 
+// GetReceiptAllocation returns a ReceiptAllocation structure for the supplied RCPTID
+func GetReceiptAllocation(id int64) ReceiptAllocation {
+	var r ReceiptAllocation
+	row := RRdb.Prepstmt.GetReceiptAllocation.QueryRow(id)
+	ReadReceiptAllocation(row, &r)
+	return r
+}
+
 // GetReceiptNoAllocations returns a Receipt structure for the supplied RCPTID.
 // It does not get the receipt allocations
 func GetReceiptNoAllocations(rcptid int64) Receipt {
@@ -1090,18 +1098,17 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 	return t
 }
 
-// GetReceiptsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2)
-func GetReceiptsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []Receipt {
-	rows, err := RRdb.Prepstmt.GetReceiptsInRAIDDateRange.Query(bid, raid, d1, d2)
+// GetReceiptAllocationsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2).
+// To do this we select all the ReceiptAllocations that occurred during d1-d2 that involved
+// raid.
+func GetReceiptAllocationsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []ReceiptAllocation {
+	rows, err := RRdb.Prepstmt.GetReceiptAllocationsInRAIDDateRange.Query(bid, raid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
-	var t []Receipt
-	t = make([]Receipt, 0)
+	var t = []ReceiptAllocation{}
 	for rows.Next() {
-		var r Receipt
-		ReadReceipts(rows, &r)
-		r.RA = make([]ReceiptAllocation, 0)
-		GetReceiptAllocations(r.RCPTID, &r)
+		var r ReceiptAllocation
+		ReadReceiptAllocations(rows, &r)
 		t = append(t, r)
 	}
 	return t

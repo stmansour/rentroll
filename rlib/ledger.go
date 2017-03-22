@@ -62,7 +62,9 @@ func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.
 			var l LedgerEntry
 			l.BID = xbiz.P.BID
 			l.JID = j.JID
+			l.RID = j.JA[i].RID
 			l.JAID = j.JA[i].JAID
+			l.RAID = j.JA[i].RAID
 			l.Dt = j.Dt
 			l.Amount = RoundToCent(m[k].Amount)
 			if m[k].Action == "c" {
@@ -70,8 +72,6 @@ func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.
 			}
 			ledger := GetCachedLedgerByGL(l.BID, m[k].Account)
 			l.LID = ledger.LID
-			l.RAID = j.RAID
-			l.RID = j.JA[i].RID
 			if l.Amount >= float64(0.005) || l.Amount < float64(-0.005) { // ignore rounding errors
 				dup := GetLedgerEntryByJAID(l.BID, l.LID, l.JAID) //
 				if dup.LEID == 0 {
@@ -248,7 +248,7 @@ func GenerateLedgerRecords(xbiz *XBusiness, d1, d2 *time.Time) int {
 	defer rows.Close()
 	for rows.Next() {
 		var j Journal
-		Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
+		ReadJournals(rows, &j)
 		GetJournalAllocations(j.JID, &j)
 		nr += GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
 	}

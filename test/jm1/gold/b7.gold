@@ -1,27 +1,16 @@
-REX
+REX Assessments
+Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Assessments
-Jul 1, 2016 - Aug 1, 2016
-
-
-REX
-BH Rexford Group, Inc.
-11719 Bee Cave Road
-Suite 301
-Austin, TX 78738 USA
-
-Assessments
-Jul 1, 2016 - Aug 1, 2016
 
                                                            Proration                                                                                                            
 ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType                       Account Rule                                                
 -----------  ------  ----------  ---------  -------------  -------------  ----------  ----------------------------  ------------------------------------------------------------
 ASM00000014  0       RA00000001  R00000001  monthly        daily            3,750.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000019  0       RA00000002  R00000002  monthly        daily            3,800.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000024  0       RA00000004  R00000003  monthly        daily            4,150.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000026  0       RA00000004  R00000003  non-recurring  non-recurring    8,300.00  Security Deposits             d ${GLGENRCV} _, c ${GLSECDEP} _                            
+ASM00000020  0       RA00000002  R00000002  monthly        daily            3,800.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000025  0       RA00000004  R00000003  monthly        daily            4,150.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000027  0       RA00000004  R00000003  non-recurring  non-recurring    8,300.00  Security Deposits             d ${GLGENRCV} _, c ${GLSECDEP} _                            
 

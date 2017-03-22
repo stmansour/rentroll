@@ -21,8 +21,11 @@ func printLedgerHeader(tbl *gotable.Table, xbiz *rlib.XBusiness, l *rlib.GLAccou
 
 // returns the payment/accessment reason, Rentable name
 func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
+	sra := ""
 	j := rlib.GetJournal(l.JID)
-	sra := fmt.Sprintf("%9d", j.RAID)
+	if l.RAID > 0 {
+		sra = fmt.Sprintf("%9d", l.RAID)
+	}
 	switch j.Type {
 	case rlib.JNLTYPEUNAS:
 		r := rlib.GetRentable(j.ID) // j.ID is set to RID when the type is unassociated

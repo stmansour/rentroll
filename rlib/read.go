@@ -115,22 +115,22 @@ func ReadInvoicePayors(rows *sql.Rows, a *InvoicePayor) {
 
 // ReadJournal reads a full Journal structure of data from the database based on the supplied Rows pointer.
 func ReadJournal(row *sql.Row, a *Journal) {
-	Errcheck(row.Scan(&a.JID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.JID, &a.BID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadJournals reads a full Journal structure of data from the database based on the supplied Rows pointer.
 func ReadJournals(rows *sql.Rows, a *Journal) {
-	Errcheck(rows.Scan(&a.JID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.JID, &a.BID, &a.Dt, &a.Amount, &a.Type, &a.ID, &a.Comment, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadJournalAllocation reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocation(row *sql.Row, a *JournalAllocation) {
-	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
+	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.Amount, &a.ASMID, &a.AcctRule))
 }
 
 // ReadJournalAllocations reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocations(rows *sql.Rows, a *JournalAllocation) {
-	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.Amount, &a.ASMID, &a.AcctRule))
+	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.Amount, &a.ASMID, &a.AcctRule))
 }
 
 // ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
@@ -255,19 +255,24 @@ func ReadRatePlanRefSPRates(rows *sql.Rows, a *RatePlanRefSPRate) {
 
 // ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.
 func ReadReceipt(row *sql.Row, a *Receipt) {
-	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.RAID, &a.PMTID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
+	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.PMTID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
 		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadReceipts reads a full Receipt structure of data from the database based on the supplied Rows pointer.
 func ReadReceipts(rows *sql.Rows, a *Receipt) {
-	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.RAID, &a.PMTID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
+	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.PMTID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.Comment,
 		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadReceiptAllocation reads a full ReceiptAllocation structure of data from the database based on the supplied Rows pointer.
+func ReadReceiptAllocation(row *sql.Row, a *ReceiptAllocation) {
+	Errcheck(row.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.AcctRule))
 }
 
 // ReadReceiptAllocations reads a full ReceiptAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadReceiptAllocations(rows *sql.Rows, a *ReceiptAllocation) {
-	Errcheck(rows.Scan(&a.RCPTID, &a.BID, &a.Amount, &a.ASMID, &a.AcctRule))
+	Errcheck(rows.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.AcctRule))
 }
 
 // ReadRentableTypeDown reads a full RentableTypeDown structure of data from the database based on the supplied Row pointer.

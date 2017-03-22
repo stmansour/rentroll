@@ -200,7 +200,7 @@ func InsertInvoicePayor(a *InvoicePayor) error {
 // InsertJournalEntry writes a new Journal entry to the database
 func InsertJournalEntry(j *Journal) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertJournal.Exec(j.BID, j.RAID, j.Dt, j.Amount, j.Type, j.ID, j.Comment, j.LastModBy)
+	res, err := RRdb.Prepstmt.InsertJournal.Exec(j.BID, j.Dt, j.Amount, j.Type, j.ID, j.Comment, j.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -211,9 +211,16 @@ func InsertJournalEntry(j *Journal) (int64, error) {
 	return rid, err
 }
 
-// InsertJournalAllocationEntry writes a new JournalAllocation record to the database
+// InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its
+// newly assigned id.
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
-	_, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.Amount, ja.ASMID, ja.AcctRule)
+	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.Amount, ja.ASMID, ja.AcctRule)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			ja.JAID = int64(id)
+		}
+	}
 	return err
 }
 
@@ -456,7 +463,7 @@ func InsertRentable(a *Rentable) (int64, error) {
 // the RCPTID field is set to its new value.
 func InsertReceipt(r *Receipt) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.RAID, r.PMTID, r.DID, r.Dt, r.DocNo, r.Amount, r.AcctRule, r.Comment, r.OtherPayorName, r.LastModBy)
+	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.PMTID, r.DID, r.Dt, r.DocNo, r.Amount, r.AcctRule, r.Comment, r.OtherPayorName, r.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -471,9 +478,9 @@ func InsertReceipt(r *Receipt) (int64, error) {
 }
 
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
-func InsertReceiptAllocation(r *ReceiptAllocation) (int64, error) {
+func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(r.RCPTID, r.BID, r.Amount, r.ASMID, r.AcctRule)
+	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.AcctRule)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -481,7 +488,7 @@ func InsertReceiptAllocation(r *ReceiptAllocation) (int64, error) {
 		}
 	} else {
 		Ulog("InsertReceiptAllocation: error inserting ReceiptAllocation:  %v\n", err)
-		Ulog("ReceiptAllocation = %#v\n", *r)
+		Ulog("ReceiptAllocation = %#v\n", *a)
 	}
 	return tid, err
 }

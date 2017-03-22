@@ -1,11 +1,10 @@
-REX
+REX Journal
+Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Journal
-Feb 1, 2016 - Mar 1, 2016
 
 Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
@@ -35,7 +34,8 @@ J00000019   Payment - Costea,Costea   #1652  3550.00
             Accounts Receivable                                                     02/02/20  RA00000002  309 1/2 Rexford  12000         -3,550.00
             Cash                                                                    02/02/20  RA00000002  309 1/2 Rexford  10000          3,550.00
                                                                                                                                                   
-J00000020   Payment - Haroutunian   #268  1173.33                                                                                                 
+J00000020   Payment - No payors for RAID 3 on 02/16/2016                                                                                          
+               #268  1173.33                                                                                                                      
             Gross Scheduled Rent-Taxable                                                                                                          
             Accounts Receivable                                                     02/16/20  RA00000003  311 Rexford      12000         -1,062.07
             Cash                                                                    02/16/20  RA00000003  311 Rexford      10000          1,062.07

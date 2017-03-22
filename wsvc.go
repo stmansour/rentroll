@@ -34,24 +34,39 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 	}
 }
 
+func v1HTMLPrint(w http.ResponseWriter, t *gotable.Table, e error) {
+	if e != nil {
+		if rlib.IsSQLNoResultsError(e) {
+			fmt.Fprintf(w, "Nothing to report")
+		} else {
+			fmt.Fprintf(w, "Error: %s", e)
+		}
+		return
+	}
+	err := t.HTMLprintTable(w)
+	if err != nil {
+		s := fmt.Sprintf("Error in t.HTMLprintTable: %s\n", err.Error())
+		fmt.Print(s)
+		fmt.Fprintf(w, "%s\n", s)
+	}
+}
+
 func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w http.ResponseWriter) {
 	fmt.Printf("v1ReportHandler: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTHTML, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
 	rlib.InitBizInternals(ri.Bid, xbiz)
 
 	switch strings.ToLower(reportname) {
-	// case "asmrpt", "assessments":
-	// 	return rcsv.RRreportAssessments(&ri)
-	// case "b", "business":
-	// 	t := rcsv.RRreportBusinessTable(&ri)
-	// 	s, err := t.SprintTable()
-	// 	if err != nil {
-	// 		s += err.Error()
-	// 	}
-	// 	return t.GetTitle() + s
-	// case "coa", "chart of accounts":
-	// 	rlib.InitBizInternals(ri.Bid, xbiz)
-	// 	return rcsv.RRreportChartOfAccounts(&ri)
+	case "asmrpt", "assessments":
+		t, err := rcsv.RRAssessmentsTable(&ri)
+		v1HTMLPrint(w, &t, err)
+	case "b", "business":
+		t := rcsv.RRreportBusinessTable(&ri)
+		v1HTMLPrint(w, &t, nil)
+	case "coa", "chart of accounts":
+		rlib.InitBizInternals(ri.Bid, xbiz)
+		t := rcsv.RRreportChartOfAccountsTable(&ri)
+		v1HTMLPrint(w, &t, nil)
 	// case "c", "custom attributes":
 	// 	return rcsv.RRreportCustomAttributes(&ri)
 	// case "cr", "custom attribute refs":
@@ -88,44 +103,44 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		ri.RptHeaderD1 = true
 		ri.RptHeaderD2 = true
 		t := rrpt.JournalReport(&ri)
-		fmt.Printf("Calling t.HTMLprintTable(w)\n")
-		err := t.HTMLprintTable(w)
-		if err != nil {
-			s := fmt.Sprintf("Error in t.HTMLprintTable: %s\n", err.Error())
-			fmt.Print(s)
-			fmt.Fprintf(w, "%s\n", s)
-		}
+		v1HTMLPrint(w, &t, nil)
+		// err := t.HTMLprintTable(w)
+		// if err != nil {
+		// 	s := fmt.Sprintf("Error in t.HTMLprintTable: %s\n", err.Error())
+		// 	fmt.Print(s)
+		// 	fmt.Fprintf(w, "%s\n", s)
+		// }
 		// return rrpt.ReportToString(&t, &ri)
 	// case "l", "la":
-	// 	if xbiz.P.BID > 0 {
-	// 		var m []gotable.Table
-	// 		var rn string
-	// 		if prefix == "l" {
-	// 			rn = "Ledgers"
-	// 		} else {
-	// 			rn = "Ledger Activity"
-	// 		}
-	// 		ri.RptHeaderD1 = true
-	// 		ri.RptHeaderD2 = true
-	// 		s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
-	// 		if err != nil {
-	// 			s += "\n" + err.Error()
-	// 		}
-	// 		switch prefix {
-	// 		case "l": // all ledgers
-	// 			m = rrpt.LedgerReport(&ri)
-	// 		case "la": // ledger activity
-	// 			m = rrpt.LedgerActivityReport(&ri)
-	// 		}
-	// 		for i := 0; i < len(m); i++ {
-	// 			s1, err := m[i].SprintTable()
-	// 			if err != nil {
-	// 				s1 += err.Error()
-	// 			}
-	// 			s += m[i].GetTitle() + s1 + "\n\n"
-	// 		}
-	// 		return s
+	// if xbiz.P.BID > 0 {
+	// 	var m []gotable.Table
+	// 	var rn string
+	// 	if prefix == "l" {
+	// 		rn = "Ledgers"
+	// 	} else {
+	// 		rn = "Ledger Activity"
 	// 	}
+	// 	ri.RptHeaderD1 = true
+	// 	ri.RptHeaderD2 = true
+	// 	s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
+	// 	if err != nil {
+	// 		s += "\n" + err.Error()
+	// 	}
+	// 	switch prefix {
+	// 	case "l": // all ledgers
+	// 		m = rrpt.LedgerReport(&ri)
+	// 	case "la": // ledger activity
+	// 		m = rrpt.LedgerActivityReport(&ri)
+	// 	}
+	// 	for i := 0; i < len(m); i++ {
+	// 		s1, err := m[i].SprintTable()
+	// 		if err != nil {
+	// 			s1 += err.Error()
+	// 		}
+	// 		s += m[i].GetTitle() + s1 + "\n\n"
+	// 	}
+	// 	// return s
+	// }
 
 	// case "pmt", "payment types":
 	// 	return rcsv.RRreportPaymentTypes(&ri)
@@ -135,8 +150,9 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// 	return rcsv.RRreportRentalAgreements(&ri)
 	// case "rat", "rental agreement templates":
 	// 	return rcsv.RRreportRentalAgreementTemplates(&ri)
-	// case "rcpt", "receipts":
-	// 	return rcsv.RRreportReceipts(&ri)
+	case "rcpt", "receipts":
+		t := rcsv.RRReceiptsTable(&ri)
+		v1HTMLPrint(w, &t, nil)
 	// case "rr":
 	// 	rlib.InitBizInternals(ri.Bid, xbiz)
 	// 	return rrpt.RentRollReportString(&ri)
@@ -356,13 +372,13 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	// switch strings.ToLower(reportname) {
-	// case "j":
-	// 	v1ReportHandler(reportname, &xbiz, &ui, w)
-	// default:
-	// 	ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
-	// 	SendWebSvcPage(w, r, &ui)
-	// }
-	ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
-	SendWebSvcPage(w, r, &ui)
+	switch strings.ToLower(reportname) {
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "j", "rcpt", "receipts":
+		v1ReportHandler(reportname, &xbiz, &ui, w)
+	default:
+		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
+		SendWebSvcPage(w, r, &ui)
+	}
+	// ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
+	// SendWebSvcPage(w, r, &ui)
 }

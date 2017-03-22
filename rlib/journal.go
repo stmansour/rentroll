@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -97,7 +98,7 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 	// fmt.Printf("ProrateAssessment: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// fmt.Printf("pf = %f, num = %d, den = %d, start = %s, stop = %s\n", pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 
-	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID, RAID: a.RAID}
+	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID}
 
 	// fmt.Printf("calling ParseAcctRule:\n  asmt = %d\n  rid = %d, d1 = %s, d2 = %s\n  a.Amount = %f\n", a.ASMID, a.RID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Amount)
 	// fmt.Printf("RRdb.BizTypes[bid].DefaultAccts = %#v\n", RRdb.BizTypes[a.BID].DefaultAccts)
@@ -166,7 +167,8 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 
 	jid, err := InsertJournalEntry(&j)
 	if err != nil {
-		Ulog("error inserting Journal entry: %v\n", err)
+		LogAndPrintError("error inserting Journal entry: %v\n", err)
+		os.Exit(1)
 	} else {
 		s := ""
 		for i := 0; i < len(m); i++ {
@@ -183,7 +185,14 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 			ja.Amount = RoundToCent(j.Amount)
 			ja.AcctRule = s
 			ja.BID = a.BID
-			InsertJournalAllocationEntry(&ja)
+			ja.RAID = a.RAID
+
+			// fmt.Printf("INSERTING JOURNAL-ALLOCATION: ja.JID = %d, ja.ASMID = %d, ja.RAID = %d\n", ja.JID, ja.ASMID, ja.RAID)
+			if err = InsertJournalAllocationEntry(&ja); err != nil {
+				LogAndPrintError("journalAssessment", err)
+				os.Exit(1)
+			}
+
 		}
 	}
 
@@ -201,7 +210,7 @@ func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 	defer rows.Close()
 	for rows.Next() {
 		var j Journal
-		Errcheck(rows.Scan(&j.JID, &j.BID, &j.RAID, &j.Dt, &j.Amount, &j.Type, &j.ID, &j.Comment, &j.LastModTime, &j.LastModBy))
+		ReadJournals(rows, &j)
 		DeleteJournalAllocations(j.JID)
 		DeleteJournalEntry(j.JID)
 	}
@@ -220,13 +229,9 @@ func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 //=================================================================================================
 func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessment) error {
 	funcname := "ProcessNewAssessmentInstance"
-	var noerr error
 	if a.PASMID == 0 && a.RentCycle != RECURNONE { // if this assessment is not a single instance recurrence, then return an error
 		return fmt.Errorf("%s: Function only accepts non-recurring instances", funcname)
 	}
-	// if a.ASMID != 0 && a.RentCycle { // if this assessment has already been written to db, then return error
-	// 	return fmt.Errorf("%s: Function only accepts unsaved instances. Found ASMID = %d", funcname, a.ASMID)
-	// }
 	if a.ASMID == 0 && a.RentCycle != RECURNONE {
 		ASMID, err := InsertAssessment(a)
 		if nil != err {
@@ -235,26 +240,20 @@ func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessm
 		a.ASMID = ASMID
 	}
 
-	// fmt.Println("c1")
-
 	journalAssessment(xbiz, a.Start, a, d1, d2)
-
-	// fmt.Println("d1")
-
-	return noerr
+	return nil
 }
 
 // ProcessNewReceipt creates a Journal entry for the supplied receipt
 //=================================================================================================
 func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
-	rntagr, _ := GetRentalAgreement(r.RAID)
 	var j Journal
-	j.BID = rntagr.BID
+	j.BID = xbiz.P.BID
 	j.Amount = RoundToCent(r.Amount)
 	j.Dt = r.Dt
 	j.Type = JNLTYPERCPT
 	j.ID = r.RCPTID
-	j.RAID = r.RAID
+	// j.RAID = r.RAID
 	jid, err := InsertJournalEntry(&j)
 	if err != nil {
 		Ulog("Error inserting Journal entry: %v\n", err)
@@ -263,6 +262,7 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
 	if jid > 0 {
 		// now add the Journal allocation records...
 		for j := 0; j < len(r.RA); j++ {
+			// rntagr, _ := GetRentalAgreement(r.RA[j].RAID) // what Rental Agreements did this payment affect and the amounts for each
 			var ja JournalAllocation
 			ja.JID = jid
 			ja.Amount = RoundToCent(r.RA[j].Amount)
@@ -271,7 +271,11 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
 			a, _ := GetAssessment(ja.ASMID)
 			ja.RID = a.RID
 			ja.BID = a.BID
-			InsertJournalAllocationEntry(&ja)
+			ja.RAID = r.RA[j].RAID
+			if err = InsertJournalAllocationEntry(&ja); err != nil {
+				LogAndPrintError("ProcessNewReceipt", err)
+				os.Exit(1)
+			}
 		}
 	}
 	return err

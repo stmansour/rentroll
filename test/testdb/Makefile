@@ -7,11 +7,17 @@ BKUP=${BINDIR}/rrbkup
 test:
 	@touch fail
 	./functest.sh
+	mysqldump --no-defaults rentroll >restore.sql
+	mv restore.sql ../ws/
 	@rm -f fail
+
+package:
+	@echo "*** package completed in testdb ***"
+
 
 clean:
 	rm -f onesite.log log llog ll.g err.txt [a-z] [a-z][a-z1-9] [a-z].g gold/*.g fail
-	@echo "*** CLEAN completed in 1site ***"
+	@echo "*** CLEAN completed in testdb ***"
 
 # This target deploys the file used as the database for interactive test nodes.
 dbbackup:

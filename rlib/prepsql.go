@@ -296,13 +296,13 @@ func buildPreparedStatements() {
 	//==========================================
 	// JOURNAL
 	//==========================================
-	flds = "JID,BID,RAID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy"
+	flds = "JID,BID,Dt,Amount,Type,ID,Comment,LastModTime,LastModBy"
 	RRdb.DBFields["Journal"] = flds
 	RRdb.Prepstmt.GetJournal, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE JID=?")
 	Errcheck(err)
 	// RRdb.Prepstmt.GetJournalInstance, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=0 and Raid=0 and ID=? and ?<=Dt and Dt<?")
 	// Errcheck(err)
-	RRdb.Prepstmt.GetJournalVacancy, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=0 and Raid=0 and ID=? and ?<=Dt and Dt<?")
+	RRdb.Prepstmt.GetJournalVacancy, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=0 and ID=? and ?<=Dt and Dt<?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalByReceiptID, err = RRdb.Dbrr.Prepare("select " + flds + " from Journal WHERE Type=2 and ID=?")
 	Errcheck(err)
@@ -316,28 +316,33 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteJournalEntry, err = RRdb.Dbrr.Prepare("DELETE FROM Journal WHERE JID=?")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,Amount,ASMID,AcctRule from JournalAllocation WHERE JAID=?")
+	// Journal Allocation
+	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,Amount,ASMID,AcctRule from JournalAllocation WHERE JAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC")
-	Errcheck(err)
-
-	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO JournalAllocation (BID,JID,RID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?,?)")
-	Errcheck(err)
-	RRdb.Prepstmt.InsertJournalMarker, err = RRdb.Dbrr.Prepare("INSERT INTO JournalMarker (BID,State,DtStart,DtStop) VALUES(?,?,?,?)")
+	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC")
 	Errcheck(err)
 
+	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO JournalAllocation (BID,JID,RID,RAID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?,?,?)")
+	Errcheck(err)
+
+	RRdb.Prepstmt.DeleteJournalAllocation, err = RRdb.Dbrr.Prepare("DELETE FROM JournalAllocation WHERE JAID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.DeleteJournalAllocations, err = RRdb.Dbrr.Prepare("DELETE FROM JournalAllocation WHERE JID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteJournalMarker, err = RRdb.Dbrr.Prepare("DELETE FROM JournalMarker WHERE JMID=?")
-	Errcheck(err)
 
+	RRdb.Prepstmt.UpdateJournalAllocation, err = RRdb.Dbrr.Prepare("UPDATE JournalAllocation SET BID=?,JID=?,RID=?,RAID=?,Amount=?,ASMID=?,AcctRule=? WHERE JAID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetJournalMarker, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker WHERE JMID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalMarkers, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker ORDER BY JMID DESC LIMIT ?")
 	Errcheck(err)
+	RRdb.Prepstmt.InsertJournalMarker, err = RRdb.Dbrr.Prepare("INSERT INTO JournalMarker (BID,State,DtStart,DtStop) VALUES(?,?,?,?)")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteJournalMarker, err = RRdb.Dbrr.Prepare("DELETE FROM JournalMarker WHERE JMID=?")
+	Errcheck(err)
 
 	//==========================================
-	// LEDGER;  GLAccount
+	// LEDGER-->  GLAccount
 	//==========================================
 	flds = "LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,RARequired,ManageToBudget,Description,LastModTime,LastModBy"
 	RRdb.DBFields["GLAccount"] = flds
@@ -579,15 +584,13 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT
 	//==========================================
-	flds = "RCPTID,PRCPTID,BID,RAID,PMTID,DID,Dt,DocNo,Amount,AcctRule,Comment,OtherPayorName,LastModTime,LastModBy"
+	flds = "RCPTID,PRCPTID,BID,PMTID,DID,Dt,DocNo,Amount,AcctRule,Comment,OtherPayorName,LastModTime,LastModBy"
 	RRdb.DBFields["Receipt"] = flds
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE Dt=? AND Amount=? AND DocNo=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND Dt >= ? AND Dt < ?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND RAID=? AND Dt >= ? and Dt < ?")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertReceipt, err = RRdb.Dbrr.Prepare("INSERT INTO Receipt (" + s1 + ") VALUES(" + s2 + ")")
@@ -600,11 +603,22 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT ALLOCATION
 	//==========================================
-	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.Dbrr.Prepare("SELECT RCPTID,BID,Amount,ASMID,AcctRule from ReceiptAllocation WHERE RCPTID=? ORDER BY Amount DESC")
+	flds = "RCPAID,RCPTID,BID,RAID,Dt,Amount,ASMID,AcctRule"
+	RRdb.DBFields["ReceiptAllocation"] = flds
+	RRdb.Prepstmt.GetReceiptAllocation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.InsertReceiptAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO ReceiptAllocation (RCPTID,BID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?)")
+	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPTID=? ORDER BY Amount DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteReceiptAllocations, err = RRdb.Dbrr.Prepare("DELETE FROM ReceiptAllocation WHERE RCPTID=?")
+	RRdb.Prepstmt.GetReceiptAllocationsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE BID=? AND RAID=? AND Dt >= ? and Dt < ?")
+	Errcheck(err)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertReceiptAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO ReceiptAllocation (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteReceiptAllocation, err = RRdb.Dbrr.Prepare("DELETE FROM ReceiptAllocation WHERE RCPAID=?") // delete just this allocation
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteReceiptAllocations, err = RRdb.Dbrr.Prepare("DELETE FROM ReceiptAllocation WHERE RCPTID=?") // delete all associated with the receipt
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateReceiptAllocation, err = RRdb.Dbrr.Prepare("UPDATE ReceiptAllocation SET RCPTID=?,BID=?,RAID=?,Dt=?,Amount=?,ASMID=?,AcctRule=? WHERE RCPAID=?")
 	Errcheck(err)
 
 	//===============================

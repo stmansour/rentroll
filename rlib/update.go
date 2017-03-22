@@ -68,6 +68,12 @@ func UpdateLedger(a *GLAccount) error {
 	return updateError(err, "GLAccount", *a)
 }
 
+// UpdateJournalAllocation updates a JournalAllocation record
+func UpdateJournalAllocation(a *JournalAllocation) error {
+	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.Amount, a.ASMID, a.AcctRule, a.JAID)
+	return updateError(err, "JournalAllocation", *a)
+}
+
 // UpdatePayor updates a Payor record in the database
 func UpdatePayor(a *Payor) error {
 	_, err := RRdb.Prepstmt.UpdatePayor.Exec(a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.LastModBy, a.TCID)
@@ -121,8 +127,14 @@ func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 
 // UpdateReceipt updates a Receipt record in the database
 func UpdateReceipt(a *Receipt) error {
-	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.RAID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
+	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
 	return updateError(err, "Receipt", *a)
+}
+
+// UpdateReceiptAllocation updates a ReceiptAllocation record in the database
+func UpdateReceiptAllocation(a *Receipt) error {
+	_, err := RRdb.Prepstmt.UpdateReceiptAllocation.Exec(a.RCPTID, a.PRCPTID, a.BID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.Comment, a.OtherPayorName, a.LastModTime, a.LastModBy)
+	return updateError(err, "ReceiptAllocation", *a)
 }
 
 // UpdateRentalAgreement updates a RentalAgreement record in the database

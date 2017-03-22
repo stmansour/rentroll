@@ -14,7 +14,6 @@ type ReceiptSendForm struct {
 	RCPTID         int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
 	BID            rlib.XJSONBud
-	RAID           int64
 	PMTID          int64
 	Dt             rlib.JSONTime
 	DocNo          string // check number, money order number, etc.; documents the payment
@@ -37,7 +36,6 @@ type ReceiptSaveForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RCPTID         int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
-	RAID           int64
 	PMTID          int64
 	Dt             rlib.JSONTime
 	DocNo          string // check number, money order number, etc.; documents the payment
@@ -59,7 +57,7 @@ type PrReceiptGrid struct {
 	Recid  int64 `json:"recid"` // this is to support the w2ui form
 	RCPTID int64
 	BID    rlib.XJSONBud
-	RAID   int64
+	//RAID   int64
 	PMTID  int64
 	Dt     rlib.JSONTime
 	DocNo  string // check number, money order number, etc.; documents the payment
@@ -113,7 +111,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		err error
 		g   SearchReceiptsResponse
 	)
-	order := "Dt ASC, RAID ASC"                                                // default ORDER
+	order := "Dt ASC"                                                          // default ORDER
 	q := fmt.Sprintf("SELECT %s FROM Receipt ", rlib.RRdb.DBFields["Receipt"]) // the fields we want
 	qw := fmt.Sprintf("BID=%d AND Dt >= %q and Dt < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	q += "WHERE " + qw + " ORDER BY "
@@ -262,7 +260,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponseWithID(w, a.RCPTID)
 }
 
 // GetReceipt returns the requested receipt

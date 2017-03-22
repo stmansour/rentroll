@@ -1,29 +1,16 @@
-CreateAssessmentsFromCSV: line 3 - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: 0
-Rental Agreement start/stop: 8/12/2010 - 2/8/2016 
-      Assessment start/stop: 3/2/2016 - 3/3/2016 
-REX
+REX Assessments
+Mar 1, 2016 - Apr 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Assessments
-Mar 1, 2016 - Apr 1, 2016
 
-
-REX
-BH Rexford Group, Inc.
-11719 Bee Cave Road
-Suite 301
-Austin, TX 78738 USA
-
-Assessments
-Mar 1, 2016 - Apr 1, 2016
-
-                                                        Proration                                                                                                        
-ASMID        PASMID  RAID        RID        Rent Cycle  Cycle          Amount  AsmType                       Account Rule                                                
------------  ------  ----------  ---------  ----------  ---------  ----------  ----------------------------  ------------------------------------------------------------
-ASM00000004  0       RA00000001  R00000001  monthly     daily        3,500.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000006  0       RA00000002  R00000002  monthly     daily        3,550.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000014  0       RA00000001  R00000001  monthly     daily        3,750.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+                                                           Proration                                                                                                            
+ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType                       Account Rule                                                
+-----------  ------  ----------  ---------  -------------  -------------  ----------  ----------------------------  ------------------------------------------------------------
+ASM00000004  0       RA00000001  R00000001  monthly        daily            3,500.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000006  0       RA00000002  R00000002  monthly        daily            3,550.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000014  0       RA00000001  R00000001  monthly        daily            3,750.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000016  0       RA00000003  R00000003  non-recurring  non-recurring    3,300.00  Security Deposits             d ${GLSECDEP} _, c ${GLCASH} 865.29, c 41413 _ 865.29 -     
 

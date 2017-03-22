@@ -212,7 +212,6 @@ func updateRAPayor(biz *rlib.Business) {
 
 func updateReceipt(biz *rlib.Business) {
 	var r rlib.Receipt
-	r.RAID = 1
 	r.BID = biz.BID
 	r.Amount = float64(42.17)
 	r.Dt = time.Date(2017, time.February, 14, 0, 0, 0, 0, time.UTC)

@@ -241,18 +241,17 @@ func RentRollReport(ri *ReporterInfo) (gotable.Table, error) {
 			// Payments received... or more precisely that portion of a Receipt that went to pay an Assessment on
 			// on this Rentable during this period d1 - d2.  We expand the search range to the entire report range
 			//-------------------------------------------------------------------------------------------------------
-			rcpts := rlib.GetReceiptsInRAIDDateRange(p.BID, ra.RAID, d1, d2) // receipts for ra.RAID during d1-d2, ReceiptAllocations are also loaded
+			// fmt.Printf("GetReceiptAllocationsInRAIDDateRange: BID = %d, RAID = %d, d1-d2 = %s - %s\n", p.BID, ra.RAID, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
+			m := rlib.GetReceiptAllocationsInRAIDDateRange(p.BID, ra.RAID, d1, d2) // receipts for ra.RAID during d1-d2, ReceiptAllocations are also loaded
 			totpmt := float64(0)
-			for j := 0; j < len(rcpts); j++ {
-				for k := 0; k < len(rcpts[j].RA); k++ { // for each ReceiptAllocation read the Assessment
-					a, err := rlib.GetAssessment(rcpts[j].RA[k].ASMID) // if Rentable == p.RID, we found the PaymentReceived value
-					if err != nil {
-						fmt.Printf("%s: Error calculating GSR for Rentable %d: err = %s\n", funcname, p.RID, err.Error())
-						continue
-					}
-					if a.RID == p.RID {
-						totpmt += rcpts[j].RA[k].Amount
-					}
+			for k := 0; k < len(m); k++ { // for each ReceiptAllocation read the Assessment
+				a, err := rlib.GetAssessment(m[k].ASMID) // if Rentable == p.RID, we found the PaymentReceived value
+				if err != nil {
+					fmt.Printf("%s: Error from GetAssessment(%d): err = %s\n", funcname, m[k].ASMID, err.Error())
+					continue
+				}
+				if a.RID == p.RID {
+					totpmt += m[k].Amount
 				}
 			}
 
