@@ -9,6 +9,8 @@ test:
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in jm1 ***"
+	mysqldump --no-defaults rentroll >rex.sql
+	cp rex.sql ../testdb/
 	rm -f fail
 
 package:

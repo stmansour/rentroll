@@ -276,7 +276,7 @@ func JournalReport(ri *ReporterInfo) gotable.Table {
 	tbl.Init()
 	tbl.AddColumn("Journal ID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 0
 	tbl.AddColumn("Description", 70, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 1
-	tbl.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)           // 2
+	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)          // 2
 	tbl.AddColumn("RntAgr", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)      // 3
 	tbl.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 4
 	tbl.AddColumn("GLAccount", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 5

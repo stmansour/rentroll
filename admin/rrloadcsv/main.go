@@ -189,6 +189,7 @@ type csvimporter struct {
 }
 
 func rrDoLoad(fname string, handler func(string) []error) {
+	// fmt.Printf("calling handler for: %q\n", fname)
 	m := handler(fname)
 	fmt.Print(rcsv.ErrlistToString(&m))
 }

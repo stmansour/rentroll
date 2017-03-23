@@ -4,6 +4,9 @@ BASHDIR=${TOOLDIR}/bashtools
 BINDIR=../../tmp/rentroll
 BKUP=${BINDIR}/rrbkup
 
+testdb:
+	@echo "**** build complete in testdb ***"
+
 test:
 	@touch fail
 	./functest.sh

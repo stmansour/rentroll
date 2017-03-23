@@ -25,7 +25,7 @@ jshint:
 try: clean rentroll package testdb
 
 testdb:
-	cd test/ws;mysql --no-defaults < restore.sql
+	cd test/ws;mysql --no-defaults rentroll < restore.sql
 
 dbschemachange:
 	cd test/testdb;make clean test dbbackup;cd ../ws;make get

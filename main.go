@@ -55,14 +55,6 @@ var App struct {
 	PageHandlers []RRPageHandler // table of http requests and handlers
 }
 
-// WebContext is a struct of information that is essentially session information
-// associated with a login session.
-// type WebContext struct {
-// 	Biz string // the 3 character designation for a business
-// 	D1  string // start date/time for reports, etc.
-// 	D2  string // stop date/time
-// }
-
 // RRfuncMap is a map of functions passed to each html page that can be referenced
 // as needed to produce the page
 var RRfuncMap map[string]interface{}

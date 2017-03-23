@@ -6,48 +6,48 @@ Suite 301
 Austin, TX 78738 USA
 
 
-Journal ID  Description                                                             Date      RntAgr      Rentable         GLAccount        Amount
-----------  ----------------------------------------------------------------------  --------  ----------  ---------------  ---------  ------------
-J00000014   Gross Scheduled Rent-Taxable  309 Rexford [Rex1, monthly]                                                                             
-            Accounts Receivable                                                     02/01/20  RA00000001  309 Rexford      12000          3,500.00
-            Gross Scheduled Rent-Taxable                                            02/01/20  RA00000001  309 Rexford      41000         -3,500.00
-                                                                                                                                                  
-J00000015   Gross Scheduled Rent-Taxable  309 1/2 Rexford [Rex2, monthly]                                                                         
-            Accounts Receivable                                                     02/01/20  RA00000002  309 1/2 Rexford  12000          3,550.00
-            Gross Scheduled Rent-Taxable                                            02/01/20  RA00000002  309 1/2 Rexford  41000         -3,550.00
-                                                                                                                                                  
-J00000016   Gross Scheduled Rent-Taxable (7/29 days)  311 Rexford [Rex3, monthly]                                                                 
-            Accounts Receivable                                                     02/01/20  RA00000003  311 Rexford      12000          1,062.07
-            Gross Scheduled Rent-Taxable                                            02/01/20  RA00000003  311 Rexford      41000         -1,062.07
-                                                                                                                                                  
-J00000017   Employee Concessions  311 Rexford [Rex3]                                                                                              
-            Accounts Receivable                                                     02/01/20  RA00000003  311 Rexford      12000            111.26
-            Food Services                                                           02/01/20  RA00000003  311 Rexford      41202           -111.26
-                                                                                                                                                  
-J00000018   Payment - Read,Read   #1193  3500.00                                                                                                  
-            Gross Scheduled Rent-Taxable                                                                                                          
-            Accounts Receivable                                                     02/01/20  RA00000001  309 Rexford      12000         -3,500.00
-            Cash                                                                    02/01/20  RA00000001  309 Rexford      10000          3,500.00
-                                                                                                                                                  
-J00000019   Payment - Costea,Costea   #1652  3550.00                                                                                              
-            Gross Scheduled Rent-Taxable                                                                                                          
-            Accounts Receivable                                                     02/02/20  RA00000002  309 1/2 Rexford  12000         -3,550.00
-            Cash                                                                    02/02/20  RA00000002  309 1/2 Rexford  10000          3,550.00
-                                                                                                                                                  
-J00000020   Payment - No payors for RAID 3 on 02/16/2016                                                                                          
-               #268  1173.33                                                                                                                      
-            Gross Scheduled Rent-Taxable                                                                                                          
-            Accounts Receivable                                                     02/16/20  RA00000003  311 Rexford      12000         -1,062.07
-            Cash                                                                    02/16/20  RA00000003  311 Rexford      10000          1,062.07
-            Employee Concessions                                                                                                                  
-            Accounts Receivable                                                     02/16/20  RA00000003  311 Rexford      12000           -111.26
-            Cash                                                                    02/16/20  RA00000003  311 Rexford      10000            111.26
-                                                                                                                                                  
-J00000021   Unassociated: 311 Rexford vacant Feb 8 - Mar 1                                                                                        
-            Gross Scheduled Rent-Taxable                                            02/29/20  0           311 Rexford      41000         -3,337.93
-            Vacancy                                                                 02/29/20  0           311 Rexford      41101          3,337.93
-                                                                                                                                                  
-J00000022   Unassociated: 311 1/2 Rexford vacant Feb 1 - Mar 1                                                                                    
-            Gross Scheduled Rent-Taxable                                            02/29/20  0           311 1/2 Rexford  41000         -2,500.00
-            Vacancy                                                                 02/29/20  0           311 1/2 Rexford  41101          2,500.00
-                                                                                                                                                  
+Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
+----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
+J00000014   Gross Scheduled Rent-Taxable  309 Rexford [Rex1, monthly]                                                                               
+            Accounts Receivable                                                     02/01/2016  RA00000001  309 Rexford      12000          3,500.00
+            Gross Scheduled Rent-Taxable                                            02/01/2016  RA00000001  309 Rexford      41000         -3,500.00
+                                                                                                                                                    
+J00000015   Gross Scheduled Rent-Taxable  309 1/2 Rexford [Rex2, monthly]                                                                           
+            Accounts Receivable                                                     02/01/2016  RA00000002  309 1/2 Rexford  12000          3,550.00
+            Gross Scheduled Rent-Taxable                                            02/01/2016  RA00000002  309 1/2 Rexford  41000         -3,550.00
+                                                                                                                                                    
+J00000016   Gross Scheduled Rent-Taxable (7/29 days)  311 Rexford [Rex3, monthly]                                                                   
+            Accounts Receivable                                                     02/01/2016  RA00000003  311 Rexford      12000          1,062.07
+            Gross Scheduled Rent-Taxable                                            02/01/2016  RA00000003  311 Rexford      41000         -1,062.07
+                                                                                                                                                    
+J00000017   Employee Concessions  311 Rexford [Rex3]                                                                                                
+            Accounts Receivable                                                     02/01/2016  RA00000003  311 Rexford      12000            111.26
+            Food Services                                                           02/01/2016  RA00000003  311 Rexford      41202           -111.26
+                                                                                                                                                    
+J00000018   Payment - Read,Read   #1193  3500.00                                                                                                    
+            Gross Scheduled Rent-Taxable                                                                                                            
+            Accounts Receivable                                                     02/01/2016  RA00000001  309 Rexford      12000         -3,500.00
+            Cash                                                                    02/01/2016  RA00000001  309 Rexford      10000          3,500.00
+                                                                                                                                                    
+J00000019   Payment - Costea,Costea   #1652  3550.00                                                                                                
+            Gross Scheduled Rent-Taxable                                                                                                            
+            Accounts Receivable                                                     02/02/2016  RA00000002  309 1/2 Rexford  12000         -3,550.00
+            Cash                                                                    02/02/2016  RA00000002  309 1/2 Rexford  10000          3,550.00
+                                                                                                                                                    
+J00000020   Payment - No payors for RAID 3 on 02/16/2016                                                                                            
+               #268  1173.33                                                                                                                        
+            Gross Scheduled Rent-Taxable                                                                                                            
+            Accounts Receivable                                                     02/16/2016  RA00000003  311 Rexford      12000         -1,062.07
+            Cash                                                                    02/16/2016  RA00000003  311 Rexford      10000          1,062.07
+            Employee Concessions                                                                                                                    
+            Accounts Receivable                                                     02/16/2016  RA00000003  311 Rexford      12000           -111.26
+            Cash                                                                    02/16/2016  RA00000003  311 Rexford      10000            111.26
+                                                                                                                                                    
+J00000021   Unassociated: 311 Rexford vacant Feb 8 - Mar 1                                                                                          
+            Gross Scheduled Rent-Taxable                                            02/29/2016  0           311 Rexford      41000         -3,337.93
+            Vacancy                                                                 02/29/2016  0           311 Rexford      41101          3,337.93
+                                                                                                                                                    
+J00000022   Unassociated: 311 1/2 Rexford vacant Feb 1 - Mar 1                                                                                      
+            Gross Scheduled Rent-Taxable                                            02/29/2016  0           311 1/2 Rexford  41000         -2,500.00
+            Vacancy                                                                 02/29/2016  0           311 1/2 Rexford  41101          2,500.00
+                                                                                                                                                    

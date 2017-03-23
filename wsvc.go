@@ -56,17 +56,17 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTHTML, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
 	rlib.InitBizInternals(ri.Bid, xbiz)
 
+	var t gotable.Table
+	var err error
+
 	switch strings.ToLower(reportname) {
 	case "asmrpt", "assessments":
-		t, err := rcsv.RRAssessmentsTable(&ri)
-		v1HTMLPrint(w, &t, err)
+		t, err = rcsv.RRAssessmentsTable(&ri)
 	case "b", "business":
-		t := rcsv.RRreportBusinessTable(&ri)
-		v1HTMLPrint(w, &t, nil)
+		t = rcsv.RRreportBusinessTable(&ri)
 	case "coa", "chart of accounts":
 		rlib.InitBizInternals(ri.Bid, xbiz)
-		t := rcsv.RRreportChartOfAccountsTable(&ri)
-		v1HTMLPrint(w, &t, nil)
+		t = rcsv.RRreportChartOfAccountsTable(&ri)
 	// case "c", "custom attributes":
 	// 	return rcsv.RRreportCustomAttributes(&ri)
 	// case "cr", "custom attribute refs":
@@ -102,8 +102,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		ri.RptHeaderD1 = true
 		ri.RptHeaderD2 = true
-		t := rrpt.JournalReport(&ri)
-		v1HTMLPrint(w, &t, nil)
+		t = rrpt.JournalReport(&ri)
 		// err := t.HTMLprintTable(w)
 		// if err != nil {
 		// 	s := fmt.Sprintf("Error in t.HTMLprintTable: %s\n", err.Error())
@@ -151,8 +150,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// case "rat", "rental agreement templates":
 	// 	return rcsv.RRreportRentalAgreementTemplates(&ri)
 	case "rcpt", "receipts":
-		t := rcsv.RRReceiptsTable(&ri)
-		v1HTMLPrint(w, &t, nil)
+		t = rcsv.RRReceiptsTable(&ri)
 	// case "rr":
 	// 	rlib.InitBizInternals(ri.Bid, xbiz)
 	// 	return rrpt.RentRollReportString(&ri)
@@ -170,7 +168,12 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// 	return rrpt.PrintLedgerBalanceReportString(&ri)
 	default:
 		fmt.Fprintf(w, "Unknown report type: %s", reportname)
+		return
 	}
+	// folderPath, _ := osext.ExecutableFolder()
+	// t.SetHTMLTemplate(folderPath)
+	// t.SetHTMLTemplateCSS(folderPath)
+	v1HTMLPrint(w, &t, err)
 }
 
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {

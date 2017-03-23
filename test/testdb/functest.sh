@@ -7,7 +7,12 @@ BUD="OKC"
 
 source ../share/base.sh
 
-pushd ../jm1;./functest.sh ;popd
+if [ -f rex.sql ]; then
+	mysql --no-defaults rentroll < rex.sql
+else
+	pushd ../jm1;./functest.sh ;popd
+fi
+
 pushd ../ccc;./functest.sh  -n -f;popd
 pushd ../importers/onesite/onesite_exported_2;./functest.sh -n -f;popd
 pushd ../importers/roomkey/roomkey_exported_guest;./functest.sh -n -f;popd
