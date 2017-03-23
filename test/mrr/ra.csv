@@ -1,0 +1,3 @@
+BUD,RA Template Name,Agreement Start,Agreement Stop,Possession Start,Possession Stop,Rent Start,Rent Stop,Rent Cycle Epoch,PayorSpec,UserSpec,UnspecifiedAdults,UnspecifiedChildren,Renewal,Special Provisions,RentableSpec,Notes
+REX,StdDwelling.doc,2/1/17,7/1/17,,,,,,"info@abc.com,,","JJones@abc.com,,",,,1,,"6303-231,1000",
+REX,StdDwelling.doc,2/1/17,7/1/17,,,,,,"info@abc.com,,","asmith@gmail.com,,",,,1,,"6323-301,1000",

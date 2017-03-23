@@ -1,0 +1,116 @@
+Account:  10000 - Cash
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Payment #2111 - Unit Gross Scheduled Rent-Taxable        02/03/2017  J00000003          1   6303-231             1,000.00      1,000.00
+Payment #2111 - Unit Gross Scheduled Rent-Taxable        02/03/2017  J00000003          1   6323-301             1,000.00      2,000.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                            2,000.00
+
+
+Account:  12000 - Accounts Receivable
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Unit Gross Scheduled Rent-Taxable           02/01/2017  J00000001          1   6303-231             1,000.00      1,000.00
+Assessment - Unit Gross Scheduled Rent-Taxable           02/01/2017  J00000002          2   6323-301             1,000.00      2,000.00
+Payment #2111 - Unit Gross Scheduled Rent-Taxable        02/03/2017  J00000003          1   6303-231            -1,000.00      1,000.00
+Payment #2111 - Unit Gross Scheduled Rent-Taxable        02/03/2017  J00000003          1   6323-301            -1,000.00          0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  30000 - Security Deposits
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  39000 - Owners' Equity
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  41000 - Unit Gross Scheduled Rent-Taxable
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Unit Gross Scheduled Rent-Taxable           02/01/2017  J00000001          1   6303-231            -1,000.00     -1,000.00
+Assessment - Unit Gross Scheduled Rent-Taxable           02/01/2017  J00000002          2   6323-301            -1,000.00     -2,000.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                           -2,000.00
+
+
+Account:  41100 - Income Offsets
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  41101 - Vacancy
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  41102 - Loss (Gain) to Lease
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  41104 - Resident Concessions
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  41300 - Other Income
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  41306 - Gas Overage
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
+Account:  41413 - Forfeited Security Deposit
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          02/28/2017                                                                0.00
+
+
