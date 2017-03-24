@@ -150,17 +150,17 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		t = rcsv.RRreportPaymentTypesTable(&ri)
 	case "r", "rentables":
 		t = rcsv.RRreportRentablesTable(&ri)
-	// case "ra", "rental agreements":
-	// 	return rcsv.RRreportRentalAgreements(&ri)
-	// case "rat", "rental agreement templates":
-	// 	return rcsv.RRreportRentalAgreementTemplates(&ri)
+	case "ra", "rental agreements":
+		t = rcsv.RRreportRentalAgreementsTable(&ri)
+	case "rat", "rental agreement templates":
+		t = rcsv.RRreportRentalAgreementTemplatesTable(&ri)
 	case "rcpt", "receipts":
 		t = rcsv.RRReceiptsTable(&ri)
 	// case "rr":
 	// 	rlib.InitBizInternals(ri.Bid, xbiz)
 	// 	return rrpt.RentRollReportString(&ri)
-	// case "rt", "rentable types":
-	// 	return rcsv.RRreportRentableTypes(&ri)
+	case "rt", "rentable types":
+		t = rcsv.RRreportRentableTypesTable(&ri)
 	case "rcbt", "rentable type counts":
 		t = rrpt.RentableCountByRentableTypeReportTbl(&ri)
 	// case "sl", "string lists":
@@ -384,7 +384,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables":
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables", "ra", "rental agreements", "rat", "rental agreement templates", "rt", "rentable types":
 		v1ReportHandler(reportname, &xbiz, &ui, w)
 	default:
 		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)

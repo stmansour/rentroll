@@ -172,8 +172,10 @@ func RRreportChartOfAccountsTable(ri *rrpt.ReporterInfo) gotable.Table {
 	return t
 }
 
-// RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
-func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
+// RRreportRentableTypesTable generates a table object of all Rentable Types defined in the database, for all businesses.
+func RRreportRentableTypesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentableTypesTable"
+
 	m := rlib.GetBusinessRentableTypes(ri.Bid)
 	var keys []int
 	for k := range m {
@@ -182,8 +184,12 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 	sort.Ints(keys)
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rentable Types", "RRreportPeople", ri))
 	t.Init()
+	err := rrpt.TableReportHeaderBlock(&t, "Rentable Types", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("RTID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 0
 	t.AddColumn("Style", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // 1
 	t.AddColumn("Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 2
@@ -212,6 +218,12 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 7, s)
 	}
 	t.TightenColumns()
+	return t
+}
+
+// RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
+func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentableTypesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
@@ -370,14 +382,21 @@ func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
-func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
+// RRreportRentalAgreementTemplatesTable generates a table object for all rental agreement templates
+func RRreportRentalAgreementTemplatesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentalAgreementTemplatesTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement Templates", "RRreportRentalAgreementTemplates", ri))
+
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Rental Agreement Templates", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("RA Template ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("RA Template Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -391,18 +410,32 @@ func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportRentalAgreementTemplates generates a report for all rental agreement templates
+func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentalAgreementTemplatesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportRentalAgreements generates a report of all Businesses defined in the database.
-func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
-	rs := ""
+// RRreportRentalAgreementsTable generates a table object for All rental agreements related with Business
+func RRreportRentalAgreementsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentalAgreementsTable"
+
+	var err error
+	totalErrs := 0
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
+
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement", "RRreportRentalAgreements", ri))
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Rental Agreement", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Payor", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("User", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -427,7 +460,8 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 		rlib.Errcheck(rows.Scan(&raid))
 		p, err = rlib.GetXRentalAgreement(raid, &d1, &d2)
 		if err != nil {
-			rs += fmt.Sprintf("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
+			totalErrs++
+			rlib.Ulog("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
 			continue
 		}
 		note := ""
@@ -456,7 +490,24 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return rs + rrpt.ReportToString(&t, ri)
+	if totalErrs > 0 {
+		errMsg := fmt.Sprintf("Encountered %d errors while creating this report. See log.", totalErrs)
+		t.SetSection3(errMsg)
+
+		// use section3 for errors and apply red color
+		cssListSection3 := []*gotable.CSSProperty{
+			{Name: "color", Value: "red"},
+			{Name: "font-family", Value: "monospace"},
+		}
+		t.SetSection3CSS(cssListSection3)
+	}
+	return t
+}
+
+// RRreportRentalAgreements generates a report of all Businesses defined in the database.
+func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentalAgreementsTable(ri)
+	return rrpt.ReportToString(&t, ri)
 }
 
 // RRreportPaymentTypesTable generates a table object of all rlib.PaymentType for BID
