@@ -1,13 +1,12 @@
-REX
+REX Rental Agreement
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Rental Agreement
                                            Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
 RAID        Payor            User          Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
 ----------  ---------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
-RA00000001  ABC Corporation  Joshua Jones  03/01/2017  07/01/2017  03/01/2017  07/01/2017  03/01/2017  07/01/2017  03/01/2017  1                  0            0                           
-RA00000002  ABC Corporation  Amanda Smith  03/01/2017  07/01/2017  03/01/2017  07/01/2017  03/01/2017  07/01/2017  03/01/2017  1                  0            0                           
+RA00000001  ABC Corporation  Joshua Jones  02/01/2017  07/01/2017  02/01/2017  07/01/2017  02/01/2017  07/01/2017  02/01/2017  1                  0            0                           
+RA00000002  ABC Corporation  Amanda Smith  02/01/2017  07/01/2017  02/01/2017  07/01/2017  02/01/2017  07/01/2017  02/01/2017  1                  0            0                           
 
