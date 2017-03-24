@@ -14,12 +14,8 @@ func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 		var ri rrpt.ReporterInfo
 		ri.Xbiz = xbiz
 		ri.D2 = ui.D2
-		tbl, err := rrpt.DelinquencyReport(&ri)
-		if err == nil {
-			ui.ReportContent = tbl.String()
-		} else {
-			ui.ReportContent = fmt.Sprintf("Error generating Delinquency report:  %s\n", err)
-		}
+		rpt := rrpt.DelinquencyReport(&ri)
+		ui.ReportContent = rpt
 	}
 }
 

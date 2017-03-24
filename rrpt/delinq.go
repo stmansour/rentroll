@@ -9,25 +9,26 @@ import (
 )
 
 // DelinquencyTextReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyTextReport(ri *ReporterInfo) error {
-	tbl, err := DelinquencyReport(ri)
-	if err == nil {
-		fmt.Print(tbl)
-	}
-	return err
+func DelinquencyTextReport(ri *ReporterInfo) {
+	tbl := DelinquencyReport(ri)
+	fmt.Print(tbl)
 }
 
-// DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyReport(ri *ReporterInfo) (gotable.Table, error) {
-	funcname := "DelinquencyReport"
+// DelinquencyReportTable generates a table object for Delinqency report for the business in xbiz and timeframe d1 to d2.
+func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
+	funcname := "DelinquencyReportTable"
 	var tbl gotable.Table
 
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = true
-	tbl.SetTitle(ReportHeaderBlock("Delinquency Report", funcname, ri))
 
-	tbl.Init()                                                                                            //sets column spacing and date format to default
+	tbl.Init() //sets column spacing and date format to default
+	err := TableReportHeaderBlock(&tbl, "Delinquency Report", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                              // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                        // RentableType name
 	tbl.AddColumn("Rentable Agreement", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // RentableType name
@@ -99,5 +100,11 @@ func DelinquencyReport(ri *ReporterInfo) (gotable.Table, error) {
 	}
 	rlib.Errcheck(rows.Err())
 
-	return tbl, nil
+	return tbl
+}
+
+// DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
+func DelinquencyReport(ri *ReporterInfo) string {
+	t := DelinquencyReportTable(ri)
+	return ReportToString(&t, ri)
 }

@@ -813,16 +813,22 @@ func getCategory(s string) (string, string) {
 	return cat, val
 }
 
-// RRreportStringLists generates a report of all StringLists for the supplied business (ri.Bid)
-func RRreportStringLists(ri *rrpt.ReporterInfo) string {
+// RRreportStringListsTable generates a table object of all StringLists for the supplied business (ri.Bid)
+func RRreportStringListsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportStringListsTable"
+
 	var (
 		cat, val string
 	)
 	m := rlib.GetAllStringLists(ri.Bid)
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("String Lists", "RRreportStringLists", ri))
 	t.Init()
+	err := rrpt.TableReportHeaderBlock(&t, "String Lists", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("SLSID", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Category", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Value", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -838,6 +844,12 @@ func RRreportStringLists(ri *rrpt.ReporterInfo) string {
 			t.Puts(-1, 2, val)
 		}
 	}
+	return t
+}
+
+// RRreportStringLists generates a report of all StringLists for the supplied business (ri.Bid)
+func RRreportStringLists(ri *rrpt.ReporterInfo) string {
+	t := RRreportStringListsTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 

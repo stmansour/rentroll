@@ -286,10 +286,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 			os.Exit(1)
 		}
 		ri.D2 = dt
-		err = rrpt.DelinquencyTextReport(&ri)
-		if err != nil {
-			fmt.Printf("Delinquency text report error: %s\n", err.Error())
-		}
+		rrpt.DelinquencyTextReport(&ri)
 	case 15: // Process Vacancy...
 		rlib.GenVacancyJournals(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 16: // Process LedgerMarkers Only

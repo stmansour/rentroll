@@ -74,17 +74,9 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// 	return rcsv.RRreportCustomAttributes(&ri)
 	// case "cr", "custom attribute refs":
 	// 	return rcsv.RRreportCustomAttributeRefs(&ri)
-	// case "delinq":
-	// 	rlib.InitBizInternals(ri.Bid, xbiz)
-	// 	t, err := rrpt.DelinquencyReport(&ri)
-	// 	if err != nil {
-	// 		return err.Error()
-	// 	}
-	// 	s, err := t.SprintTable()
-	// 	if err != nil {
-	// 		s += err.Error()
-	// 	}
-	// 	return t.GetTitle() + s
+	case "delinq", "delinquency":
+		rlib.InitBizInternals(ri.Bid, xbiz)
+		t = rrpt.DelinquencyReportTable(&ri)
 	case "dpm", "deposit methods":
 		t = rcsv.RRreportDepositMethodsTable(&ri)
 	case "dep", "depositories":
@@ -163,14 +155,14 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		t = rcsv.RRreportRentableTypesTable(&ri)
 	case "rcbt", "rentable type counts":
 		t = rrpt.RentableCountByRentableTypeReportTbl(&ri)
-	// case "sl", "string lists":
-	// 	return rcsv.RRreportStringLists(&ri)
+	case "sl", "string lists":
+		t = rcsv.RRreportStringListsTable(&ri)
 	// case "statements":
 	// 	return rrpt.RptStatementTextReport(&ri)
 	case "t", "people": // t = transactant
 		t = rcsv.RRreportPeopleTable(&ri)
-	// case "tb":
-	// 	return rrpt.PrintLedgerBalanceReportString(&ri)
+	case "tb", "trial balance":
+		t = rrpt.LedgerBalanceReport(&ri)
 	default:
 		fmt.Fprintf(w, "Unknown report type: %s", reportname)
 		return
@@ -203,17 +195,9 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportCustomAttributes(&ri)
 	case "cr", "custom attribute refs":
 		return rcsv.RRreportCustomAttributeRefs(&ri)
-	case "delinq":
+	case "delinq", "delinquency":
 		rlib.InitBizInternals(ri.Bid, xbiz)
-		t, err := rrpt.DelinquencyReport(&ri)
-		if err != nil {
-			return err.Error()
-		}
-		s, err := t.SprintTable()
-		if err != nil {
-			s += err.Error()
-		}
-		return t.GetTitle() + s
+		return rrpt.DelinquencyReport(&ri)
 	case "dpm", "deposit methods":
 		return rcsv.RRreportDepositMethods(&ri)
 	case "dep", "depositories":
@@ -292,7 +276,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rrpt.RptStatementTextReport(&ri)
 	case "t", "people": // t = transactant
 		return rcsv.RRreportPeople(&ri)
-	case "tb":
+	case "tb", "trial balance":
 		return rrpt.PrintLedgerBalanceReportString(&ri)
 	}
 	return "unhandled loader type: " + prefix
@@ -384,7 +368,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables", "ra", "rental agreements", "rat", "rental agreement templates", "rt", "rentable types":
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "delinq", "delinquency", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables", "ra", "rental agreements", "rat", "rental agreement templates", "rt", "rentable types", "sl", "string lists", "tb", "trial balance":
 		v1ReportHandler(reportname, &xbiz, &ui, w)
 	default:
 		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
