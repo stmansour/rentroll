@@ -146,10 +146,10 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			return
 		}
 
-	// case "pmt", "payment types":
-	// 	return rcsv.RRreportPaymentTypes(&ri)
-	// case "r", "rentables":
-	// 	return rcsv.RRreportRentables(&ri)
+	case "pmt", "payment types":
+		t = rcsv.RRreportPaymentTypesTable(&ri)
+	case "r", "rentables":
+		t = rcsv.RRreportRentablesTable(&ri)
 	// case "ra", "rental agreements":
 	// 	return rcsv.RRreportRentalAgreements(&ri)
 	// case "rat", "rental agreement templates":
@@ -161,14 +161,14 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// 	return rrpt.RentRollReportString(&ri)
 	// case "rt", "rentable types":
 	// 	return rcsv.RRreportRentableTypes(&ri)
-	// case "rcbt", "rentable Count By Type":
-	// 	return rrpt.RentableCountByRentableTypeReport(&ri)
+	case "rcbt", "rentable type counts":
+		t = rrpt.RentableCountByRentableTypeReportTbl(&ri)
 	// case "sl", "string lists":
 	// 	return rcsv.RRreportStringLists(&ri)
 	// case "statements":
 	// 	return rrpt.RptStatementTextReport(&ri)
-	// case "t", "people": // t = transactant
-	// 	return rcsv.RRreportPeople(&ri)
+	case "t", "people": // t = transactant
+		t = rcsv.RRreportPeopleTable(&ri)
 	// case "tb":
 	// 	return rrpt.PrintLedgerBalanceReportString(&ri)
 	default:
@@ -284,7 +284,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rrpt.RentRollReportString(&ri)
 	case "rt", "rentable types":
 		return rcsv.RRreportRentableTypes(&ri)
-	case "rcbt", "rentable Count By Type":
+	case "rcbt", "rentable type counts":
 		return rrpt.RentableCountByRentableTypeReport(&ri)
 	case "sl", "string lists":
 		return rcsv.RRreportStringLists(&ri)
@@ -384,7 +384,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "rcpt", "receipts":
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables":
 		v1ReportHandler(reportname, &xbiz, &ui, w)
 	default:
 		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)

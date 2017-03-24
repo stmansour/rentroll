@@ -215,15 +215,22 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportPeople generates a report of all Businesses defined in the database.
-func RRreportPeople(ri *rrpt.ReporterInfo) string {
+// RRreportPeopleTable generates a table object of all transactants relavant to BID in the database.
+func RRreportPeopleTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportPeopleTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllTransactantsForBID.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("People", "RRreportPeople", ri))
 	t.Init()
+
+	err = rrpt.TableReportHeaderBlock(&t, "People", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("TCID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("First Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Middle Name", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -249,18 +256,30 @@ func RRreportPeople(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportPeople generates a report of all Businesses defined in the database.
+func RRreportPeople(ri *rrpt.ReporterInfo) string {
+	t := RRreportPeopleTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportRentables generates a report of all Businesses defined in the database.
-func RRreportRentables(ri *rrpt.ReporterInfo) string {
+// RRreportRentablesTable generates a table of all rentables for BUD defined in the database.
+func RRreportRentablesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentablesTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rentables", "RRreportRentables", ri))
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Rentables", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("RID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Assignment Time", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -284,6 +303,12 @@ func RRreportRentables(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportRentables generates a report of all Businesses defined in the database.
+func RRreportRentables(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentablesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
@@ -434,8 +459,10 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 	return rs + rrpt.ReportToString(&t, ri)
 }
 
-// RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
-func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
+// RRreportPaymentTypesTable generates a table object of all rlib.PaymentType for BID
+func RRreportPaymentTypesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportPaymentTypesTable"
+
 	m := rlib.GetPaymentTypesByBusiness(ri.Bid)
 	var keys []int
 	for k := range m {
@@ -444,8 +471,13 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 	sort.Ints(keys)
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Payment Types", "RRreportPaymentTypes", ri))
 	t.Init()
+
+	err := rrpt.TableReportHeaderBlock(&t, "Payment Types", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -461,6 +493,12 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 3, v.Description)
 	}
 	t.TightenColumns()
+	return t
+}
+
+// RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
+func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
+	t := RRreportPaymentTypesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 

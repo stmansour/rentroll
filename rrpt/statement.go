@@ -109,7 +109,10 @@ func RentableCountByRentableTypeReportTbl(ri *ReporterInfo) gotable.Table {
 	t.Init()
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
-	t.SetTitle(ReportHeaderBlock("Rentable Counts By Rentable Type", funcname, ri))
+	err := TableReportHeaderBlock(&t, "Rentable Counts By Rentable Type", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
 	// RentableCountByRentableTypeReport returns a structure containing the count of Rentables for each RentableType
 	// in the specified time range
 	m, err := GetRentableCountByRentableType(ri.Xbiz, &ri.D1, &ri.D2)
