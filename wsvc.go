@@ -148,17 +148,29 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		t = rcsv.RRreportRentalAgreementTemplatesTable(&ri)
 	case "rcpt", "receipts":
 		t = rcsv.RRReceiptsTable(&ri)
-	// case "rr":
-	// 	rlib.InitBizInternals(ri.Bid, xbiz)
-	// 	return rrpt.RentRollReportString(&ri)
+	case "rr", "rentroll":
+		rlib.InitBizInternals(ri.Bid, xbiz)
+		t = rrpt.RentRollReport(&ri)
 	case "rt", "rentable types":
 		t = rcsv.RRreportRentableTypesTable(&ri)
 	case "rcbt", "rentable type counts":
 		t = rrpt.RentableCountByRentableTypeReportTbl(&ri)
 	case "sl", "string lists":
 		t = rcsv.RRreportStringListsTable(&ri)
-	// case "statements":
-	// 	return rrpt.RptStatementTextReport(&ri)
+	case "statements":
+		var s string
+		m := rrpt.RptStatementReportTable(&ri)
+		for i := 0; i < len(m); i++ {
+			temp := bytes.Buffer{}
+			err := m[i].HTMLprintTable(&temp)
+			if err != nil {
+				s += fmt.Sprintf("Error at %s in ledger reports in t.HTMLprintTable: %s\n", funcname, err.Error())
+				fmt.Print(s)
+				fmt.Fprintf(w, "%s\n", s)
+			}
+			w.Write(temp.Bytes())
+		}
+		return
 	case "t", "people": // t = transactant
 		t = rcsv.RRreportPeopleTable(&ri)
 	case "tb", "trial balance":
@@ -263,7 +275,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportRentalAgreementTemplates(&ri)
 	case "rcpt", "receipts":
 		return rcsv.RRreportReceipts(&ri)
-	case "rr":
+	case "rr", "rentroll":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		return rrpt.RentRollReportString(&ri)
 	case "rt", "rentable types":
@@ -368,7 +380,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "delinq", "delinquency", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables", "ra", "rental agreements", "rat", "rental agreement templates", "rt", "rentable types", "sl", "string lists", "tb", "trial balance":
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "delinq", "delinquency", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables", "ra", "rental agreements", "rat", "rental agreement templates", "rt", "rentable types", "rr", "rentroll", "statements", "sl", "string lists", "tb", "trial balance":
 		v1ReportHandler(reportname, &xbiz, &ui, w)
 	default:
 		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)

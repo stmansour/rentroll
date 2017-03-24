@@ -40,32 +40,33 @@ func RentRollTextReport(ri *ReporterInfo) {
 
 // RentRollReportString returns a string containin a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
 func RentRollReportString(ri *ReporterInfo) string {
-	tbl, err := RentRollReport(ri)
-	if err == nil {
-		tout, err := tbl.SprintTable()
-		if err != nil {
-			rlib.Ulog("RentRollReportString:  error = %s", err)
-			return err.Error()
-		}
-		return tout
+	tbl := RentRollReport(ri)
+	tout, err := tbl.SprintTable()
+	if err != nil {
+		rlib.Ulog("RentRollReportString:  error = %s", err)
+		return err.Error()
 	}
-	return err.Error()
+	return tout
 }
 
-// RentRollReport generates a text-based RentRoll report for the business in ri.Xbiz and timeframe d1 to d2.
-func RentRollReport(ri *ReporterInfo) (gotable.Table, error) {
+// RentRollReport generates a table object for RentRoll report for the business in ri.Xbiz and timeframe d1 to d2.
+func RentRollReport(ri *ReporterInfo) gotable.Table {
 	funcname := "RentRollReport"
 	var d1, d2 *time.Time
-	var tbl gotable.Table
 	d1 = &ri.D1
 	d2 = &ri.D2
 
 	custom := "Square Feet"
-	tbl.Init() //sets column spacing and date format to default
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
-	tbl.SetTitle(ReportHeaderBlock("Rentroll", funcname, ri))
+
+	var tbl gotable.Table
+	tbl.Init() //sets column spacing and date format to default
+	err := TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
 
 	totalsRSet := tbl.CreateRowset()                                                            // a rowset to sum for totals
 	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // column for the Rentable name
@@ -362,5 +363,5 @@ func RentRollReport(ri *ReporterInfo) (gotable.Table, error) {
 		tbl.TightenColumns()
 	}
 
-	return tbl, nil
+	return tbl
 }

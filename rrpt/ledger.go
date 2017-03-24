@@ -137,13 +137,13 @@ func LedgerActivityReport(ri *ReporterInfo) []gotable.Table {
 			// set custom template for ledger reports
 			if i == 0 {
 				// set first ledger table layout template
-				tbl.SetHTMLTemplate("./html/ledgerfirsttable.html")
+				tbl.SetHTMLTemplate("./html/firsttable.html")
 			} else if i == len(t)-1 {
 				// set last ledger table layout template
-				tbl.SetHTMLTemplate("./html/ledgerlasttable.html")
+				tbl.SetHTMLTemplate("./html/lasttable.html")
 			} else {
 				// set middle ledger table layout template
-				tbl.SetHTMLTemplate("./html/ledgermiddletable.html")
+				tbl.SetHTMLTemplate("./html/middletable.html")
 			}
 
 			m = append(m, tbl)
@@ -169,13 +169,13 @@ func LedgerReport(ri *ReporterInfo) []gotable.Table {
 			// set custom template for ledger reports
 			if i == 0 {
 				// set first ledger table layout template
-				tbl.SetHTMLTemplate("./html/ledgerfirsttable.html")
+				tbl.SetHTMLTemplate("./html/firsttable.html")
 			} else if i == len(t)-1 {
 				// set last ledger table layout template
-				tbl.SetHTMLTemplate("./html/ledgerlasttable.html")
+				tbl.SetHTMLTemplate("./html/lasttable.html")
 			} else {
 				// set middle ledger table layout template
-				tbl.SetHTMLTemplate("./html/ledgermiddletable.html")
+				tbl.SetHTMLTemplate("./html/middletable.html")
 			}
 
 			m = append(m, tbl)

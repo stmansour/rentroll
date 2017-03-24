@@ -164,13 +164,19 @@ func RentableCountByRentableTypeReportTbl(ri *ReporterInfo) gotable.Table {
 
 // RptStatementForRA generates a text Statement for the supplied rental agreement ra.
 func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table {
+	funcname := "RptStatementForRA"
+
 	rlib.LoadXRentalAgreement(ra.RAID, ra, &ri.D1, &ri.D2)
 	payors := ra.GetPayorNameList(&ri.D1, &ri.D2)
 
 	var t gotable.Table
 	t.Init()
 	s := fmt.Sprintf("Statement  -  Rental Agreement %s\nPayor(s): %s\n", ra.IDtoString(), strings.Join(payors, ", "))
-	t.SetTitle(ReportHeaderBlock(s, "RptStatementForRA", ri))
+	err := TableReportHeaderBlock(&t, s, funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Description", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -215,9 +221,9 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 	return t
 }
 
-// RptStatementTextReport is a text version of a Statement for a RentalAgreement
-func RptStatementTextReport(ri *ReporterInfo) string {
-	s := ""
+// RptStatementReportTable is a returns list of table object for all Statement for a RentalAgreement
+func RptStatementReportTable(ri *ReporterInfo) []gotable.Table {
+	var m []gotable.Table
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementsByRange.Query(ri.Xbiz.P.BID, ri.D1, ri.D2)
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -228,6 +234,28 @@ func RptStatementTextReport(ri *ReporterInfo) string {
 		var ra rlib.RentalAgreement
 		rlib.ReadRentalAgreements(rows, &ra)
 		t := RptStatementForRA(ri, &ra)
+
+		// first table custom template
+		if len(m) == 0 {
+			t.SetHTMLTemplate("./html/firsttable.html")
+		} else {
+			// middle table custom template
+			t.SetHTMLTemplate("./html/middletable.html")
+		}
+
+		m = append(m, t)
+	}
+	// last table custom template
+	m[len(m)-1].SetHTMLTemplate("./html/lasttable.html")
+	return m
+}
+
+// RptStatementTextReport is a text version of a Statement for a RentalAgreement
+func RptStatementTextReport(ri *ReporterInfo) string {
+	m := RptStatementReportTable(ri)
+	var s string
+	// Spin through all the RentalAgreements that are active in this timeframe
+	for _, t := range m {
 		s += ReportToString(&t, ri) + "\n"
 	}
 	return s

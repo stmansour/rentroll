@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"gotable"
 	"net/http"
 	"rentroll/rlib"
@@ -99,17 +99,14 @@ func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusin
 func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
-		tbl, err := rrpt.RentRollReport(&ri)
-		if err == nil {
-			tout, err := tbl.SprintTable()
-			if err != nil {
-				rlib.Ulog("RptRentRoll:  error = %s", err)
-				ui.ReportContent = err.Error()
-			} else {
-				ui.ReportContent = tout
-			}
+		tbl := rrpt.RentRollReport(&ri)
+
+		tout, err := tbl.SprintTable()
+		if err != nil {
+			rlib.Ulog("RptRentRoll:  error = %s", err)
+			ui.ReportContent = err.Error()
 		} else {
-			ui.ReportContent = fmt.Sprintf("Error generating RentRoll report:  %s\n", err)
+			ui.ReportContent = tout
 		}
 	}
 }
