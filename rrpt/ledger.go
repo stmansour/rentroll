@@ -133,6 +133,19 @@ func LedgerActivityReport(ri *ReporterInfo) []gotable.Table {
 			tbl.Init()
 			initTableColumns(&tbl)
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
+
+			// set custom template for ledger reports
+			if i == 0 {
+				// set first ledger table layout template
+				tbl.SetHTMLTemplate("./html/ledgerfirsttable.html")
+			} else if i == len(t)-1 {
+				// set last ledger table layout template
+				tbl.SetHTMLTemplate("./html/ledgerlasttable.html")
+			} else {
+				// set middle ledger table layout template
+				tbl.SetHTMLTemplate("./html/ledgermiddletable.html")
+			}
+
 			m = append(m, tbl)
 		}
 	}
@@ -152,6 +165,19 @@ func LedgerReport(ri *ReporterInfo) []gotable.Table {
 			tbl.Init()
 			initTableColumns(&tbl)
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
+
+			// set custom template for ledger reports
+			if i == 0 {
+				// set first ledger table layout template
+				tbl.SetHTMLTemplate("./html/ledgerfirsttable.html")
+			} else if i == len(t)-1 {
+				// set last ledger table layout template
+				tbl.SetHTMLTemplate("./html/ledgerlasttable.html")
+			} else {
+				// set middle ledger table layout template
+				tbl.SetHTMLTemplate("./html/ledgermiddletable.html")
+			}
+
 			m = append(m, tbl)
 		}
 	}

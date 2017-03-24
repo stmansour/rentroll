@@ -8,19 +8,24 @@ import (
 
 // GSRTextReport generates a list of GSR values for all rentables on the specified date
 func GSRTextReport(ri *ReporterInfo) error {
-	tbl, err := GSRReport(ri)
+	tbl, err := GSRReportTable(ri)
 	fmt.Print(tbl)
 	return err
 }
 
-// GSRReport generates a list of GSR values for all rentables on the specified date
-func GSRReport(ri *ReporterInfo) (gotable.Table, error) {
-	funcname := "GSRTextReport"
+// GSRReportTable generates a list of GSR values for all rentables on the specified date
+func GSRReportTable(ri *ReporterInfo) (gotable.Table, error) {
+	funcname := "GSRReportTable"
 	var tbl gotable.Table
 	tbl.Init() //sets column spacing and date format to default
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = false
-	tbl.SetTitle(ReportHeaderBlock("Gross Scheduled Rent", funcname, ri))
+
+	err := TableReportHeaderBlock(&tbl, "Gross Scheduled Rent", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)        // column for the Rentable name
 	tbl.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // Rentable Type

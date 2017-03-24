@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"gotable"
 	"html/template"
@@ -56,6 +57,8 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTHTML, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
 	rlib.InitBizInternals(ri.Bid, xbiz)
 
+	funcname := "v1ReportHandler"
+
 	var t gotable.Table
 	var err error
 
@@ -86,17 +89,13 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		t = rcsv.RRreportDepositMethodsTable(&ri)
 	case "dep", "depositories":
 		t = rcsv.RRreportDepositoryTable(&ri)
-	// case "gsr":
-	// 	ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
-	// 	t, err := rrpt.GSRReport(&ri)
-	// 	if err != nil {
-	// 		return err.Error()
-	// 	}
-	// 	s, err := t.SprintTable()
-	// 	if err != nil {
-	// 		s += err.Error()
-	// 	}
-	// 	return t.GetTitle() + s
+	case "gsr":
+		ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
+		t, err = rrpt.GSRReportTable(&ri)
+		if err != nil {
+			fmt.Fprintf(w, "%s\n", err.Error())
+			return
+		}
 	case "j":
 		fmt.Printf("Handling report: j\n")
 		rlib.InitBizInternals(ri.Bid, xbiz)
@@ -110,36 +109,42 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		// 	fmt.Fprintf(w, "%s\n", s)
 		// }
 		// return rrpt.ReportToString(&t, &ri)
-	// case "l", "la":
-	// if xbiz.P.BID > 0 {
-	// 	var m []gotable.Table
-	// 	var rn string
-	// 	if prefix == "l" {
-	// 		rn = "Ledgers"
-	// 	} else {
-	// 		rn = "Ledger Activity"
-	// 	}
-	// 	ri.RptHeaderD1 = true
-	// 	ri.RptHeaderD2 = true
-	// 	s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
-	// 	if err != nil {
-	// 		s += "\n" + err.Error()
-	// 	}
-	// 	switch prefix {
-	// 	case "l": // all ledgers
-	// 		m = rrpt.LedgerReport(&ri)
-	// 	case "la": // ledger activity
-	// 		m = rrpt.LedgerActivityReport(&ri)
-	// 	}
-	// 	for i := 0; i < len(m); i++ {
-	// 		s1, err := m[i].SprintTable()
-	// 		if err != nil {
-	// 			s1 += err.Error()
-	// 		}
-	// 		s += m[i].GetTitle() + s1 + "\n\n"
-	// 	}
-	// 	// return s
-	// }
+	case "l", "ledger", "la", "ledger activity":
+		if xbiz.P.BID > 0 {
+			var m []gotable.Table
+			var rn string
+
+			if strings.ToLower(reportname) == "l" || strings.ToLower(reportname) == "ledger" {
+				rn = "Ledgers"
+			} else {
+				rn = "Ledger Activity"
+			}
+
+			ri.RptHeaderD1 = true
+			ri.RptHeaderD2 = true
+			s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
+			if err != nil {
+				s += "\n" + err.Error()
+			}
+
+			if strings.ToLower(reportname) == "l" || strings.ToLower(reportname) == "ledger" {
+				m = rrpt.LedgerReport(&ri)
+			} else {
+				m = rrpt.LedgerActivityReport(&ri)
+			}
+
+			for i := 0; i < len(m); i++ {
+				temp := bytes.Buffer{}
+				err := m[i].HTMLprintTable(&temp)
+				if err != nil {
+					s := fmt.Sprintf("Error at %s in ledger reports in t.HTMLprintTable: %s\n", funcname, err.Error())
+					fmt.Print(s)
+					fmt.Fprintf(w, "%s\n", s)
+				}
+				w.Write(temp.Bytes())
+			}
+			return
+		}
 
 	// case "pmt", "payment types":
 	// 	return rcsv.RRreportPaymentTypes(&ri)
@@ -215,7 +220,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportDepository(&ri)
 	case "gsr":
 		ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
-		t, err := rrpt.GSRReport(&ri)
+		t, err := rrpt.GSRReportTable(&ri)
 		if err != nil {
 			return err.Error()
 		}
@@ -230,33 +235,36 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		ri.RptHeaderD2 = true
 		t := rrpt.JournalReport(&ri)
 		return rrpt.ReportToString(&t, &ri)
-	case "l", "la":
+	case "l", "ledger", "la", "ledger activity":
 		if xbiz.P.BID > 0 {
 			var m []gotable.Table
 			var rn string
-			if prefix == "l" {
+
+			if strings.ToLower(prefix) == "l" || strings.ToLower(prefix) == "ledger" {
 				rn = "Ledgers"
 			} else {
 				rn = "Ledger Activity"
 			}
+
 			ri.RptHeaderD1 = true
 			ri.RptHeaderD2 = true
 			s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
 			if err != nil {
 				s += "\n" + err.Error()
 			}
-			switch prefix {
-			case "l": // all ledgers
+
+			if strings.ToLower(prefix) == "l" || strings.ToLower(prefix) == "ledger" {
 				m = rrpt.LedgerReport(&ri)
-			case "la": // ledger activity
+			} else {
 				m = rrpt.LedgerActivityReport(&ri)
 			}
+
 			for i := 0; i < len(m); i++ {
 				s1, err := m[i].SprintTable()
 				if err != nil {
 					s1 += err.Error()
 				}
-				s += m[i].GetTitle() + s1 + "\n\n"
+				s += s1 + "\n\n"
 			}
 			return s
 		}
@@ -376,7 +384,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "j", "rcpt", "receipts":
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "rcpt", "receipts":
 		v1ReportHandler(reportname, &xbiz, &ui, w)
 	default:
 		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)

@@ -30,7 +30,7 @@ func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RR
 		ri.Xbiz = xbiz
 		ri.D1 = ui.D2 // set both dates to the range end
 		ri.D2 = ui.D2
-		tbl, err := rrpt.GSRReport(&ri)
+		tbl, err := rrpt.GSRReportTable(&ri)
 		if err == nil {
 			s, err := tbl.SprintTable()
 			if nil != err {
