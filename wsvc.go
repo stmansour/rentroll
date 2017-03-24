@@ -82,10 +82,10 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// 		s += err.Error()
 	// 	}
 	// 	return t.GetTitle() + s
-	// case "dpm", "deposit methods":
-	// 	return rcsv.RRreportDepositMethods(&ri)
-	// case "dep", "depositories":
-	// 	return rcsv.RRreportDepository(&ri)
+	case "dpm", "deposit methods":
+		t = rcsv.RRreportDepositMethodsTable(&ri)
+	case "dep", "depositories":
+		t = rcsv.RRreportDepositoryTable(&ri)
 	// case "gsr":
 	// 	ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
 	// 	t, err := rrpt.GSRReport(&ri)
@@ -376,7 +376,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "j", "rcpt", "receipts":
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dep", "Depositories", "dpm", "deposit methods", "j", "rcpt", "receipts":
 		v1ReportHandler(reportname, &xbiz, &ui, w)
 	default:
 		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)

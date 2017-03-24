@@ -500,7 +500,7 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (gotable.Table, error) {
 
 	err := rrpt.TableReportHeaderBlock(&t, "Assessments", funcname, ri)
 	if err != nil {
-		rlib.LogAndPrintError("JournalReport", err)
+		rlib.LogAndPrintError(funcname, err)
 	}
 	// t.SetTitle(rrpt.ReportHeaderBlock("Assessments", funcname, ri))
 
@@ -607,16 +607,24 @@ func RRreportInvoices(ri *rrpt.ReporterInfo) string {
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportDepository generates a report of all rlib.GLAccount accounts
-func RRreportDepository(ri *rrpt.ReporterInfo) string {
+// RRreportDepositoryTable generates a table object for all rlib.Depository
+func RRreportDepositoryTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportDepositoryTable"
+
 	m := rlib.GetAllDepositories(ri.Bid)
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Depositories", "RRreportDepository", ri))
 	t.Init()
+
+	err := rrpt.TableReportHeaderBlock(&t, "Depositories", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("DEPID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("AccountNo", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+
 	for i := 0; i < len(m); i++ {
 		t.AddRow()
 		t.Puts(-1, 0, rlib.IDtoString("DEP", m[i].DEPID))
@@ -625,14 +633,26 @@ func RRreportDepository(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 3, m[i].Name)
 	}
 	t.TightenColumns()
+	return t
+}
+
+// RRreportDepository generates a report of all rlib.Depository
+func RRreportDepository(ri *rrpt.ReporterInfo) string {
+	t := RRreportDepositoryTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportDepositMethods generates a report of all rlib.GLAccount accounts
-func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
+// RRreportDepositMethodsTable generates a table for all rlib.DepositMethod
+func RRreportDepositMethodsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportDepositMethodsTable"
+
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Deposit Methods", "RRreportDepositMethods", ri))
 	t.Init()
+	err := rrpt.TableReportHeaderBlock(&t, "Deposit Methods", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("DPMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -645,19 +665,27 @@ func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 2, m[i].Name)
 	}
 	t.TightenColumns()
+	return t
+}
+
+// RRreportDepositMethods generates a report of all rlib.DepositMethod
+func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
+	t := RRreportDepositMethodsTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportDeposits generates a report of all rlib.GLAccount accounts
+// RRreportDeposits generates a report of all rlib.Deposit
 func RRreportDeposits(ri *rrpt.ReporterInfo) string {
 	m := rlib.GetAllDepositsInRange(ri.Bid, &Rcsv.DtStart, &Rcsv.DtStop)
 	var t gotable.Table
 	t.Init()
+
 	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("DEPID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	t.AddColumn("Receipts", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+
 	for i := 0; i < len(m); i++ {
 		s := ""
 		for j := 0; j < len(m[i].DP); j++ {
