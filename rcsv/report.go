@@ -614,7 +614,6 @@ func RRreportDepositoryTable(ri *rrpt.ReporterInfo) gotable.Table {
 	m := rlib.GetAllDepositories(ri.Bid)
 	var t gotable.Table
 	t.Init()
-
 	err := rrpt.TableReportHeaderBlock(&t, "Depositories", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
@@ -648,6 +647,7 @@ func RRreportDepositMethodsTable(ri *rrpt.ReporterInfo) gotable.Table {
 
 	var t gotable.Table
 	t.Init()
+
 	err := rrpt.TableReportHeaderBlock(&t, "Deposit Methods", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)

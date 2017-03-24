@@ -409,7 +409,7 @@ func ReadTransactants(rows *sql.Rows, a *Transactant) {
 
 // ReadTransactantTypeDowns reads the TCID and full name of Transactants based on the supplied rows object
 func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) {
-	Errcheck(rows.Scan(&a.TCID, &a.FirstName, &a.MiddleName, &a.LastName))
+	Errcheck(rows.Scan(&a.TCID, &a.FirstName, &a.MiddleName, &a.LastName, &a.CompanyName, &a.IsCompany))
 }
 
 // ReadUser reads a full User structure from the database based on the supplied row object

@@ -530,11 +530,13 @@ type User struct {
 
 // TransactantTypeDown is the struct needed to match names in typedown controls
 type TransactantTypeDown struct {
-	TCID       int64
-	FirstName  string
-	MiddleName string
-	LastName   string
-	Recid      int64 `json:"recid"`
+	TCID        int64
+	FirstName   string
+	MiddleName  string
+	LastName    string
+	CompanyName string
+	IsCompany   int64
+	Recid       int64 `json:"recid"`
 }
 
 // RentableTypeDown is the struct needed to match names in typedown controls
