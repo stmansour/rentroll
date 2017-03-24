@@ -7,14 +7,13 @@ import (
 )
 
 // GSRTextReport generates a list of GSR values for all rentables on the specified date
-func GSRTextReport(ri *ReporterInfo) error {
-	tbl, err := GSRReportTable(ri)
+func GSRTextReport(ri *ReporterInfo) {
+	tbl := GSRReportTable(ri)
 	fmt.Print(tbl)
-	return err
 }
 
 // GSRReportTable generates a list of GSR values for all rentables on the specified date
-func GSRReportTable(ri *ReporterInfo) (gotable.Table, error) {
+func GSRReportTable(ri *ReporterInfo) gotable.Table {
 	funcname := "GSRReportTable"
 	var tbl gotable.Table
 	tbl.Init() //sets column spacing and date format to default
@@ -65,5 +64,5 @@ func GSRReportTable(ri *ReporterInfo) (gotable.Table, error) {
 		tbl.Puts(-1, 6, rlib.RentalPeriodToString(pc))
 	}
 	rlib.Errcheck(rows.Err())
-	return tbl, err
+	return tbl
 }

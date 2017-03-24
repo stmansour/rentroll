@@ -83,11 +83,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		t = rcsv.RRreportDepositoryTable(&ri)
 	case "gsr":
 		ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
-		t, err = rrpt.GSRReportTable(&ri)
-		if err != nil {
-			fmt.Fprintf(w, "%s\n", err.Error())
-			return
-		}
+		t = rrpt.GSRReportTable(&ri)
 	case "j":
 		fmt.Printf("Handling report: j\n")
 		rlib.InitBizInternals(ri.Bid, xbiz)
@@ -189,7 +185,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		if err != nil {
 			s += err.Error()
 		}
-		return t.GetTitle() + s
+		return s
 	case "coa", "chart of accounts":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		return rcsv.RRreportChartOfAccounts(&ri)
@@ -206,15 +202,12 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 		return rcsv.RRreportDepository(&ri)
 	case "gsr":
 		ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
-		t, err := rrpt.GSRReportTable(&ri)
-		if err != nil {
-			return err.Error()
-		}
+		t := rrpt.GSRReportTable(&ri)
 		s, err := t.SprintTable()
 		if err != nil {
 			s += err.Error()
 		}
-		return t.GetTitle() + s
+		return s
 	case "j":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		ri.RptHeaderD1 = true

@@ -23,6 +23,8 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = true
 
+	totalErrs := 0
+
 	tbl.Init() //sets column spacing and date format to default
 	err := TableReportHeaderBlock(&tbl, "Delinquency Report", funcname, ri)
 	if err != nil {
@@ -71,6 +73,7 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 		for i := 0; i < len(rra); i++ {                          //for each rental agreement id
 			ra, err := rlib.GetRentalAgreement(rra[i].RAID) // load the agreement
 			if err != nil {
+				totalErrs++
 				fmt.Printf("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
 				continue
 			}
@@ -99,7 +102,17 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 		}
 	}
 	rlib.Errcheck(rows.Err())
+	if totalErrs > 0 {
+		errMsg := fmt.Sprintf("Encountered %d errors while creating this report. See log.", totalErrs)
+		tbl.SetSection3(errMsg)
 
+		// use section3 for errors and apply red color
+		cssListSection3 := []*gotable.CSSProperty{
+			{Name: "color", Value: "red"},
+			{Name: "font-family", Value: "monospace"},
+		}
+		tbl.SetSection3CSS(cssListSection3)
+	}
 	return tbl
 }
 

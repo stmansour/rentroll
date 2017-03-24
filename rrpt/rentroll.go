@@ -61,6 +61,8 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
 
+	totalErrs := 0
+
 	var tbl gotable.Table
 	tbl.Init() //sets column spacing and date format to default
 	err := TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
@@ -156,6 +158,7 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 		for i := 0; i < len(rra); i++ {                     // for each rental agreement id
 			ra, err := rlib.GetRentalAgreement(rra[i].RAID) // load the agreement
 			if err != nil {
+				totalErrs++
 				rlib.Ulog("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
 				continue
 			}
@@ -196,6 +199,7 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 			//-------------------------------------------------------------------------------------------------------
 			rar, err := rlib.FindAgreementByRentable(p.RID, &dtstart, &dtstop)
 			if err != nil {
+				totalErrs++
 				rlib.Ulog("Error getting RentalAgreementRentable for RID = %d, period = %s - %s: err = %s\n",
 					p.RID, dtstart.Format(rlib.RRDATEFMT3), dtstop.Format(rlib.RRDATEFMT3), err.Error())
 				continue
@@ -248,6 +252,7 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 			for k := 0; k < len(m); k++ { // for each ReceiptAllocation read the Assessment
 				a, err := rlib.GetAssessment(m[k].ASMID) // if Rentable == p.RID, we found the PaymentReceived value
 				if err != nil {
+					totalErrs++
 					fmt.Printf("%s: Error from GetAssessment(%d): err = %s\n", funcname, m[k].ASMID, err.Error())
 					continue
 				}
@@ -362,6 +367,16 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 
 		tbl.TightenColumns()
 	}
+	if totalErrs > 0 {
+		errMsg := fmt.Sprintf("Encountered %d errors while creating this report. See log.", totalErrs)
+		tbl.SetSection3(errMsg)
 
+		// use section3 for errors and apply red color
+		cssListSection3 := []*gotable.CSSProperty{
+			{Name: "color", Value: "red"},
+			{Name: "font-family", Value: "monospace"},
+		}
+		tbl.SetSection3CSS(cssListSection3)
+	}
 	return tbl
 }
