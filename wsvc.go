@@ -137,7 +137,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 				temp := bytes.Buffer{}
 				err := m[i].HTMLprintTable(&temp)
 				if err != nil {
-					s := fmt.Sprintf("Error at %s in ledger reports in t.HTMLprintTable: %s\n", funcname, err.Error())
+					s += fmt.Sprintf("Error at %s in ledger reports in t.HTMLprintTable: %s\n", funcname, err.Error())
 					fmt.Print(s)
 					fmt.Fprintf(w, "%s\n", s)
 				}
