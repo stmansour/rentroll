@@ -28,7 +28,8 @@ sidebarL1     - w2ui sidebar
     tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare, dateMonthBack,
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
-    getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID
+    getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
+    tcidReceiptPayorPickerRender
 */
 
 /*globals $:false */
@@ -54,8 +55,8 @@ var app = {
     stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777;',
     refreshInhibit: false,
     receiptsToolbarOnClickAdded: false,
+    paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
 };
-
 
 function showReport(rptname) {
     "use strict";
@@ -113,12 +114,14 @@ function switchToGrid(svc) {
     // console.log('url = ' + url);
 
     // Special Handling
-    // switch(svc) {
-    // case 'rentalagrs':
-    //     break;
-    // case 'receipts':
-    //     break;
-    // }
+    switch(svc) {
+    case 'receipts':
+        // need to set up Payment Type list -- varies by business
+        var BUD = getBUDfromBID(x.value);
+        app.paymentTypeList = buildPaymentTypeSelectList( BUD );
+        w2ui.receiptsGrid.columns[7].editable.items = app.paymentTypeList;
+        break;
+    }
     w2ui.toplayout.content('main', w2ui[grid]);
     w2ui.toplayout.hide('right',true);
 }
@@ -486,7 +489,15 @@ function buildPageElements() {
             {field: 'FirstName',    caption: "First Name",    size: '125px', sortable: true, hidden: false},
             {field: 'MiddleName',   caption: "Middle Name",   size: '20px',  sortable: true, hidden: true},
             {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false},
-            {field: 'CompanyName',  caption: "Company Name",  size: '125px', sortable: true, hidden: true},
+            {field: 'CompanyName',  caption: "Company Name",  size: '125px', sortable: true, hidden: false,
+                render: function (record) {
+                    var s = '';
+                    if (record.IsCompany > 0) {
+                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-university" aria-hidden="true"></i></span>';
+                    }
+                    return s + ' ' + record.CompanyName;
+                }
+            },
             {field: 'PrimaryEmail', caption: "Primary Email", size: '175px', sortable: true, hidden: false},
             {field: 'CellPhone',    caption: "Cell Phone",    size: '100px', sortable: true, hidden: false},
             {field: 'WorkPhone',    caption: "Work Phone",    size: '100px', sortable: true, hidden: false},
@@ -1128,12 +1139,22 @@ function buildPageElements() {
             toolbarColumns  : false,
         },
         columns: [
-            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'RCPTID', caption: 'ReceiptID',  size: '80px', style: 'text-align: right', sortable: true},
-            {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
-            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
-            {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
-            {field: 'PMTID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
+            {field: 'RCPTID', caption: 'Receipt ID',  size: '80px', style: 'text-align: right', sortable: true},                // 1
+            {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
+            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
+            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 4
+            {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 5
+            {field: 'TCID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},                                     // 6
+            {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true, editable: {type: 'select', items: []},     // 7 - if this changes, update switchToGrid()
+                    render: function (record, index, col_index) {
+                        var html = '';
+                        for (var p in app.paymentTypeList) {
+                            if (app.paymentTypeList[p].id == this.getCellValue(index, col_index)) html = app.paymentTypeList[p].text;
+                        }
+                        return html;
+                    },
+            },
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
         ], 
         actions: {
@@ -1151,7 +1172,7 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 500);
+                        setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -1179,13 +1200,13 @@ function buildPageElements() {
                 recid: 0,
                 RCPTID: 0,
                 PRCPTID: 0,
-                RID: 0,
                 BID: BUD,
-                RentableName: '',
                 PMTID: 0,
                 PmtTypeName: ptInit,
                 Dt: w2uiDateControlString(y),
                 DocNo: '',
+                Payor: '',
+                TCID: 0,
                 Amount: 0,
                 AcctRule: '',
                 Comment: '',
@@ -1195,7 +1216,7 @@ function buildPageElements() {
             w2ui.receiptForm.record = record;
             w2ui.toplayout.content('right', w2ui.receiptForm);
             w2ui.toplayout.show('right', true);
-            w2ui.toplayout.sizeTo('right', 700);
+            w2ui.toplayout.sizeTo('right', 400);
         },
     });
 
@@ -1221,16 +1242,28 @@ function buildPageElements() {
         formURL: '/html/formrcpt.html',
         fields: [
             { field: 'PmtTypeName',    type: 'list', required: true, options: {items: []},}, // keep this at position 0 as the list changes and we need to update it
-            { field: 'recid',          type: 'int',   required: false },
-            { field: 'RID',            type: 'int',   required: false },
-            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},
-            { field: 'RentableName',   type: 'text',  required: false, 
+            { field: 'recid',          type: 'int',   required: false },                                    // 1
+            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},    // 2
+            { field: 'RCPTID',         type: 'int',   required: true },     // 3
+            { field: 'PRCPTID',        type: 'int',   required: false },    // 4
+            { field: 'PMTID',          type: 'int',   required: false },    // 5
+            { field: 'Dt',             type: 'date',  required: true },     // 6
+            { field: 'DocNo',          type: 'text',  required: false },    // 7
+            { field: 'Payor', required: false,                              // 8   <<<<<<********
+                type: 'enum', 
+                options: {
+                    url:        '/v1/transactantstd/',
+                    max:        1,
+                    renderItem: tcidReceiptPayorPickerRender,
+                    renderDrop: tcidPickerDropRender,
+                    compare:    tcidPickerCompare,
+                    onNew: function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                    }
+                },
             },
-            { field: 'RCPTID',         type: 'int', required: true },
-            { field: 'PRCPTID',        type: 'int', required: false },
-            { field: 'PMTID',          type: 'int', required: false },
-            { field: 'Dt',             type: 'date',  required: true },
-            { field: 'DocNo',          type: 'text',  required: false },
+            { field: 'TCID',           type: 'int64', required: false },
             { field: 'Amount',         type: 'money', required: true },
             { field: 'AcctRule',       type: 'text',  required: true },
             { field: 'Comment',        type: 'text',  required: false },
@@ -1256,15 +1289,16 @@ function buildPageElements() {
             f.header = 'Edit ' + app.sReceipt + ' (' + r.RCPTID + ')';
             var BUD = (typeof r.BID == "object") ? r.BID.id : r.BID;
             f.fields[0].options.items = buildPaymentTypeOptions( BUD );
+            f.fields[8].options.url = '/v1/transactantstd/'+ BUD;
             r.PmtTypeName = getPaymentTypeName(BUD,r.PMTID);
         },
         onValidate: function (event) {
             // create your own validation and display error
-            if (this.record.DocNo == '' && this.record.PmtTypeName.id != 'Cash') {
-              $(this.get('DocNo').el).w2tag('<--- Error Here');
-              // cancel default error handling
-              event.preventDefault();
-            }
+            // if (this.record.DocNo == '' && this.record.PmtTypeName.id != 'Cash') {
+            //   $(this.get('DocNo').el).w2tag('<--- Error Here');
+            //   // cancel default error handling
+            //   event.preventDefault();
+            // }
             // event.errors.push({
             //     field: this.get('date1'),
             //     error: 'Registration date should be prior to submission date'
@@ -1334,7 +1368,14 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'epoch', size: '10px', style: 'text-align: center', sortable: true},
+            {field: 'epoch', size: '10px', style: 'text-align: center', sortable: true,
+                    render: function (record /*, index, col_index*/) {
+                        if (record.RentCycle !== 'Norecur' && record.PASMID === 0) {
+                            return '<i class="fa fa-refresh" aria-hidden="true"></i>';
+                        }
+                        return '';
+                    },
+            },
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
@@ -1381,12 +1422,6 @@ function buildPageElements() {
             if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
                 setDateControlsInToolbar('asms');
                 w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-            }
-            for (var i = 0; i < w2ui.asmsGrid.records.length; i++) {
-                if (w2ui.asmsGrid.records[i].RentCycle !== 'Norecur' &&                         // if this is recurring...
-                    w2ui.asmsGrid.records[i].PASMID === 0) {                                    // and it is NOT and instance... 
-                    w2ui.asmsGrid.records[i].epoch = '<i class="fa fa-refresh" aria-hidden="true"></i>';
-                }
             }
         },
     });

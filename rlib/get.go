@@ -1146,7 +1146,7 @@ func GetRentableByName(name string, bid int64) (Rentable, error) {
 // return a slice of RentableTypeDowns and an error.
 func GetRentableTypeDown(bid int64, s string, limit int) ([]RentableTypeDown, error) {
 	var m []RentableTypeDown
-	s += "%"
+	s = "%" + s + "%"
 	rows, err := RRdb.Prepstmt.GetRentableTypeDown.Query(bid, s, limit)
 	if err != nil {
 		return m, err
@@ -1654,8 +1654,8 @@ func GetSLStrings(id int64, a *StringList) {
 // return a slice of TransactantTypeDowns and an error.
 func GetTransactantTypeDown(bid int64, s string, limit int) ([]TransactantTypeDown, error) {
 	var m []TransactantTypeDown
-	s += "%"
-	rows, err := RRdb.Prepstmt.GetTransactantTypeDown.Query(bid, s, s, limit)
+	s = "%" + s + "%"
+	rows, err := RRdb.Prepstmt.GetTransactantTypeDown.Query(bid, s, s, s, s, limit)
 	if err != nil {
 		return m, err
 	}

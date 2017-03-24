@@ -80,6 +80,24 @@ function buildPaymentTypeOptions(BUD) {
 }
 
 //-----------------------------------------------------------------------------
+// buildPaymentTypeSelectList - creates a list suitable for a dropdown menu
+//                  with the payment types for the supplied BUD
+// @params  BUD   - the BUD for the business of interest
+// @return  the list of Payment Type Names (or empty list if BUD not found)
+//-----------------------------------------------------------------------------
+function buildPaymentTypeSelectList(BUD) {
+    "use strict";
+    var options = [];
+    if (typeof BUD == "undefined") {
+        return options;
+    }
+    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
+        options[i] = {id: app.pmtTypes[BUD][i].PMTID, text: app.pmtTypes[BUD][i].Name};
+    }
+    return options;
+}
+
+//-----------------------------------------------------------------------------
 // getCurrentBusiness - return the Business Unit currently slected in the
 //                      main toolbar
 // @params
@@ -104,7 +122,7 @@ function setToForm(sform, url, width) {
     if (width === undefined) {
         width = 700;
     }
-    console.log('sform = ' + sform + '  url = ' + url);
+    console.log('sform = ' + sform + '  url = ' + url + '   <<<<   WIDTH = ' + width);
     var f = w2ui[sform];
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.content('right', f);
@@ -174,42 +192,6 @@ function setToRAForm(bid, raid, d) {
 }
 
 //-----------------------------------------------------------------------------
-// tcidPickerDropRender - renders a name during typedown.
-// @params
-//   item = an object assumed to have a FirstName and LastName
-// @return - the name to render
-//-----------------------------------------------------------------------------
-function tcidPickerDropRender (item) {
-    "use strict";
-    return item.FirstName + ' ' + item.LastName; 
-}
-
-//-----------------------------------------------------------------------------
-// tcidPickerCompare - Compare two items to see if they match
-// @params
-//   item = an object assumed to have a FirstName and LastName
-// @return - true if the names match, false otherwise
-//-----------------------------------------------------------------------------
-function tcidPickerCompare(item, search) {
-    "use strict";
-    var FirstName = search, 
-        LastName = search;
-    if (search.indexOf(' ') != -1) {
-        FirstName = search.split(' ')[0];
-        LastName = search.split(' ')[1];
-    }
-    var match = false;
-    var re1 = new RegExp(FirstName, 'i');
-    var re2 = new RegExp(LastName, 'i');
-    if (FirstName == LastName) {
-        if (re1.test(item.FirstName) || re2.test(item.LastName)) match = true;
-    } else {
-        if (re1.test(item.FirstName) && re2.test(item.LastName)) match = true;
-    }
-    return match;
-}
-
-//-----------------------------------------------------------------------------
 // ridRentablePickerRender - renders a name during typedown.
 // @params
 //   item = an object assumed to have a FirstName and LastName
@@ -245,7 +227,6 @@ function ridRentableCompare(item, search) {
     return s.includes(search.toLowerCase());
 }
 
-
 //-----------------------------------------------------------------------------
 // tcidRAPayorPickerRender - renders a name during typedown.
 // @params
@@ -265,6 +246,77 @@ function tcidRAPayorPickerRender(item) {
     };
     return s; 
 }
+
+//-----------------------------------------------------------------------------
+// getFullName - returns a string with the full name based on the item supplied.
+// @params
+//   item = an object assumed to have a FirstName, MiddleName, and LastName
+// @return - the full name concatenated together
+//-----------------------------------------------------------------------------
+function getFullName(item) {
+    "use strict";
+    var s = item.FirstName;
+    if (item.MiddleName.length > 0) { s += ' ' + item.MiddleName; }
+    if (item.LastName.length > 0 ) { s += ' ' + item.LastName; }
+    return s;
+}
+
+//-----------------------------------------------------------------------------
+// getTCIDName - returns an appropriate name for the supplied item. If
+//          the item is a person, then the person's full name is returned.
+//          If the item is a company, then the company name is returned.
+// @params
+//   item = an object assumed to have a FirstName, MiddleName, LastName,
+//          IsCompany, and CompanyName.
+// @return - the name to render
+//-----------------------------------------------------------------------------
+function getTCIDName(item) {
+    "use strict";
+    return (item.IsCompany > 0) ? item.CompanyName : getFullName(item); 
+}
+
+//-----------------------------------------------------------------------------
+// tcidPickerCompare - Compare item to the search string. Verify that the
+//          supplied search string can be found in item
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the search string is found, false otherwise
+//-----------------------------------------------------------------------------
+function tcidPickerCompare(item, search) {
+    "use strict";
+    var s = getTCIDName(item);
+    s = s.toLowerCase();
+    var srch = search.toLowerCase();
+    var match = (s.indexOf(srch) >= 0);
+    return match;
+}
+
+//-----------------------------------------------------------------------------
+// tcidPickerDropRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - the name to render
+//-----------------------------------------------------------------------------
+function tcidPickerDropRender(item) {
+    "use strict";
+    return getTCIDName(item); 
+}
+
+//-----------------------------------------------------------------------------
+// tcidReceiptPayorPickerRender - renders a name during typedown in the
+//          receiptForm. It also sets the TCID for the record.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function tcidReceiptPayorPickerRender(item) {
+    "use strict";
+    var s = getTCIDName(item);
+    w2ui.receiptForm.record.TCID = item.TCID;
+    w2ui.receiptForm.record.Payor = s;
+    return s; 
+}
+
 //-----------------------------------------------------------------------------
 // tcidRUserPickerRender - renders a name during typedown.
 // @params

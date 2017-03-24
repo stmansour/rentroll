@@ -15,6 +15,8 @@ type ReceiptSendForm struct {
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
 	BID            rlib.XJSONBud
 	PMTID          int64
+	Payor          string // name of the payor
+	TCID           int64  // TCID of payor
 	Dt             rlib.JSONTime
 	DocNo          string // check number, money order number, etc.; documents the payment
 	Amount         float64
@@ -40,6 +42,8 @@ type ReceiptSaveForm struct {
 	Dt             rlib.JSONTime
 	DocNo          string // check number, money order number, etc.; documents the payment
 	Amount         float64
+	Payor          string // name of the payor
+	TCID           int64  // TCID of payor
 	AcctRule       string
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
@@ -57,7 +61,8 @@ type PrReceiptGrid struct {
 	Recid  int64 `json:"recid"` // this is to support the w2ui form
 	RCPTID int64
 	BID    rlib.XJSONBud
-	//RAID   int64
+	Payor  string // name of the payor
+	TCID   int64  // TCID of payor
 	PMTID  int64
 	Dt     rlib.JSONTime
 	DocNo  string // check number, money order number, etc.; documents the payment

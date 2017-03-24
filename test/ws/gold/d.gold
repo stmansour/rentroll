@@ -6,7 +6,9 @@
             "DocNo": "2153",
             "Dt": "8/1/2016",
             "PMTID": 1,
+            "Payor": "",
             "RCPTID": 21,
+            "TCID": 0,
             "recid": 21
         },
         {
@@ -15,7 +17,9 @@
             "DocNo": "8733",
             "Dt": "8/1/2016",
             "PMTID": 1,
+            "Payor": "",
             "RCPTID": 23,
+            "TCID": 0,
             "recid": 23
         },
         {
@@ -24,7 +28,9 @@
             "DocNo": "1948",
             "Dt": "8/5/2016",
             "PMTID": 1,
+            "Payor": "",
             "RCPTID": 22,
+            "TCID": 0,
             "recid": 22
         }
     ],

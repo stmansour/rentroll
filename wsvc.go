@@ -82,8 +82,8 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// 		s += err.Error()
 	// 	}
 	// 	return t.GetTitle() + s
-	// case "dpm", "deposit methods":
-	// 	return rcsv.RRreportDepositMethods(&ri)
+	case "dpm", "deposit methods":
+		t = rcsv.RRreportDepositMethodsTable(&ri)
 	// case "dep", "depositories":
 	// 	return rcsv.RRreportDepository(&ri)
 	// case "gsr":
@@ -376,7 +376,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "j", "rcpt", "receipts":
+	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "dpm", "deposit methods", "j", "rcpt", "receipts":
 		v1ReportHandler(reportname, &xbiz, &ui, w)
 	default:
 		ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)

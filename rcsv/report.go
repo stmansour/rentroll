@@ -630,8 +630,17 @@ func RRreportDepository(ri *rrpt.ReporterInfo) string {
 
 // RRreportDepositMethods generates a report of all rlib.GLAccount accounts
 func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
+	t := RRreportDepositMethodsTable(ri)
+	return rrpt.ReportToString(&t, ri)
+}
+
+// RRreportDepositMethodsTable generates a report of all rlib.GLAccount accounts
+func RRreportDepositMethodsTable(ri *rrpt.ReporterInfo) gotable.Table {
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Deposit Methods", "RRreportDepositMethods", ri))
+	err := rrpt.TableReportHeaderBlock(&t, "Deposit Methods", "RRreportDepositMethodsTable", ri)
+	if err != nil {
+		rlib.LogAndPrintError("JournalReport", err)
+	}
 	t.Init()
 	t.AddColumn("DPMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -645,7 +654,7 @@ func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 2, m[i].Name)
 	}
 	t.TightenColumns()
-	return rrpt.ReportToString(&t, ri)
+	return t
 }
 
 // RRreportDeposits generates a report of all rlib.GLAccount accounts

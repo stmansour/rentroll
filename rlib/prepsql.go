@@ -319,7 +319,7 @@ func buildPreparedStatements() {
 	// Journal Allocation
 	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,Amount,ASMID,AcctRule from JournalAllocation WHERE JAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC")
+	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
 	Errcheck(err)
 
 	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO JournalAllocation (BID,JID,RID,RAID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?,?,?)")
@@ -607,7 +607,7 @@ func buildPreparedStatements() {
 	RRdb.DBFields["ReceiptAllocation"] = flds
 	RRdb.Prepstmt.GetReceiptAllocation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPTID=? ORDER BY Amount DESC")
+	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPTID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptAllocationsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE BID=? AND RAID=? AND Dt >= ? and Dt < ?")
 	Errcheck(err)
@@ -879,7 +879,8 @@ func buildPreparedStatements() {
 	//==========================================
 	// TRANSACTANT
 	//==========================================
-	RRdb.Prepstmt.GetTransactantTypeDown, err = RRdb.Dbrr.Prepare("SELECT TCID,FirstName,MiddleName,LastName FROM Transactant WHERE BID=? AND (FirstName LIKE ? OR LastName LIKE ?) LIMIT ?")
+	// "TCID,BID,NLID,FirstName,MiddleName,LastName,PreferredName,CompanyName,IsCompany,PrimaryEmail,SecondaryEmail,WorkPhone,CellPhone,Address,Address2,City,State,PostalCode,Country,Website,LastModTime,LastModBy"
+	RRdb.Prepstmt.GetTransactantTypeDown, err = RRdb.Dbrr.Prepare("SELECT TCID,FirstName,MiddleName,LastName,CompanyName,IsCompany FROM Transactant WHERE BID=? AND (FirstName LIKE ? OR MiddleName LIKE ? OR LastName LIKE ? OR CompanyName LIKE ?) LIMIT ?")
 	Errcheck(err)
 	RRdb.Prepstmt.CountBusinessTransactants, err = RRdb.Dbrr.Prepare("SELECT COUNT(TCID) FROM Transactant WHERE BID=?")
 	Errcheck(err)
