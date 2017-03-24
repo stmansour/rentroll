@@ -1,6 +1,6 @@
 Accord RentRoll RoomKey Importer
-Date: 3/9/2017
-Time: 10:09AM IST
+Date: 3/25/2017
+Time: 12:48AM IST
 Import File: ./roomkey.csv
 
 Summary
@@ -16,12 +16,11 @@ Rental Agreements               23          21          0
 RECORDS FOR BUSINESS UNIT DESIGNATION: Isola Bella
 ==================================================
 
-ISO
+ISO Rentable Types
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
 
-Rentable Types
                                                                              Manage                         
                                                   Rent     Proration         To                             
 RTID        Style         Name                    Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate
@@ -46,12 +45,11 @@ RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes
 RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes                            
             Flat-QQQQ                                                                                       
 ==================================================
-ISO
+ISO Rentables
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
 
-Rentables
 RID        Name     Assignment Time
 ---------  -------  ---------------
 R00000001  6608118  pre-assign     
@@ -76,12 +74,11 @@ R00000019  6389345  pre-assign
 R00000020  6331122  pre-assign     
 R00000021  6343172  pre-assign     
 ==================================================
-ISO
+ISO People
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
 
-People
                          Middle                               Is                                
 TCID        First Name   Name    Last Name   Company          Company  Cell Phone  Primary Email
 ----------  -----------  ------  ----------  ---------------  -------  ----------  -------------
@@ -113,12 +110,11 @@ TC00000021  Baussan              Bernadette                   No
 TC00000022  Baussan              Daniel                       No                                
 TC00000023  Baxter               Addison                      No                                
 ==================================================
-ISO
+ISO Rental Agreement
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
 
-Rental Agreement
                                                         Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
 RAID        Payor                 User                  Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
 ----------  --------------------  --------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
