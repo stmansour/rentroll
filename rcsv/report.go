@@ -324,15 +324,21 @@ func RRreportRentables(ri *rrpt.ReporterInfo) string {
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
+// RRreportCustomAttributesTable generates a table object for custom attributes
+func RRreportCustomAttributesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportCustomAttributesTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributes.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
 
 	var t gotable.Table
 	t.Init()
-	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes", "RRreportCustomAttributes", ri))
+	err = rrpt.TableReportHeaderBlock(&t, "Custom Attributes", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("CID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Value Type", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -353,17 +359,30 @@ func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
+func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
+	t := RRreportCustomAttributesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
+// RRreportCustomAttributeRefsTable generates a table object of custom attrib references
+func RRreportCustomAttributeRefsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportCustomAttributeRefsTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributeRefs.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
+
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes References", "RRreportCustomAttributeRefs", ri))
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Custom Attributes References", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("Element Type", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("ID", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
@@ -379,6 +398,12 @@ func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
+func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
+	t := RRreportCustomAttributeRefsTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 

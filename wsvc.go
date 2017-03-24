@@ -70,10 +70,10 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	case "coa", "chart of accounts":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		t = rcsv.RRreportChartOfAccountsTable(&ri)
-	// case "c", "custom attributes":
-	// 	return rcsv.RRreportCustomAttributes(&ri)
-	// case "cr", "custom attribute refs":
-	// 	return rcsv.RRreportCustomAttributeRefs(&ri)
+	case "c", "custom attributes":
+		t = rcsv.RRreportCustomAttributesTable(&ri)
+	case "cr", "custom attribute refs":
+		t = rcsv.RRreportCustomAttributeRefsTable(&ri)
 	case "delinq", "delinquency":
 		rlib.InitBizInternals(ri.Bid, xbiz)
 		t = rrpt.DelinquencyReportTable(&ri)
@@ -94,13 +94,6 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		ri.RptHeaderD1 = true
 		ri.RptHeaderD2 = true
 		t = rrpt.JournalReport(&ri)
-		// err := t.HTMLprintTable(w)
-		// if err != nil {
-		// 	s := fmt.Sprintf("Error in t.HTMLprintTable: %s\n", err.Error())
-		// 	fmt.Print(s)
-		// 	fmt.Fprintf(w, "%s\n", s)
-		// }
-		// return rrpt.ReportToString(&t, &ri)
 	case "l", "ledger", "la", "ledger activity":
 		if xbiz.P.BID > 0 {
 			var m []gotable.Table
@@ -179,9 +172,6 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		fmt.Fprintf(w, "Unknown report type: %s", reportname)
 		return
 	}
-	// folderPath, _ := osext.ExecutableFolder()
-	// t.SetHTMLTemplate(folderPath)
-	// t.SetHTMLTemplateCSS(folderPath)
 	v1HTMLPrint(w, &t, err)
 }
 
