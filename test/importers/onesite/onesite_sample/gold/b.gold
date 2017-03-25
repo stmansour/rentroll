@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 3/8/2017
-Time: 12:16PM IST
+Date: 3/25/2017
+Time: 2:19AM IST
 Import File: ./onesite.csv
 
 Summary
@@ -18,29 +18,27 @@ Rental Agreements               5           5           0
 RECORDS FOR BUSINESS UNIT DESIGNATION: JGM First, LLC
 =====================================================
 
-REX
+REX Rentable Types
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Rentable Types
                                                          Manage                                  
                               Rent     Proration         To                                      
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
 ----------  -------  -------  -------  ---------  -----  ------  --------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |    3/8/17 - 12/31/99 $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     |   3/25/17 - 12/31/99 $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     |   3/25/17 - 12/31/99 $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     |   3/25/17 - 12/31/99 $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     |   3/25/17 - 12/31/99 $  800.00
 =====================================================
-REX
+REX Rentables
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Rentables
 RID        Name      Assignment Time
 ---------  --------  ---------------
 R00000001  6303-016  pre-assign     
@@ -50,13 +48,12 @@ R00000004  6339-156  pre-assign
 R00000005  6343-165  pre-assign     
 R00000006  6343-166  pre-assign     
 =====================================================
-REX
+REX People
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-People
                         Middle                      Is                                             
 TCID        First Name  Name    Last Name  Company  Company  Cell Phone  Primary Email             
 ----------  ----------  ------  ---------  -------  -------  ----------  --------------------------
@@ -66,13 +63,12 @@ TC00000003  Mercedes            White               No                   mercede
 TC00000004  Fawad               Kahn                No                   fawadkhan405@gmail.com    
 TC00000005  Crescent            Clark               No                                             
 =====================================================
-REX
+REX Rental Agreement
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Rental Agreement
                                             Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
 RAID        Payor           User            Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
 ----------  --------------  --------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
@@ -82,13 +78,12 @@ RA00000003  Mercedes White  Mercedes White  02/02/2016  01/31/2017  02/02/2016  
 RA00000004  Fawad Kahn      Fawad Kahn      02/01/2016  01/31/2017  12/05/2010  01/31/2017  02/01/2016  01/31/2017  02/01/2016  2                  0            0                           
 RA00000005  Crescent Clark  Crescent Clark  02/01/2016  07/31/2016  07/11/2014  07/31/2016  02/01/2016  07/31/2016  02/01/2016  2                  0            0                           
 =====================================================
-REX
+REX Custom Attributes
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Custom Attributes
                       Value                           
 CID        BID        Type   Name         Value  Units
 ---------  ---------  -----  -----------  -----  -----
@@ -97,13 +92,12 @@ C00000002  B00000002  int    Square Feet    840  sqft
 C00000003  B00000002  int    Square Feet    852  sqft 
 C00000004  B00000002  int    Square Feet    657  sqft 
 =====================================================
-REX
+REX Custom Attributes References
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Custom Attributes References
 Element                       
    Type  BID          ID   CID
 -------  ---------  ----  ----

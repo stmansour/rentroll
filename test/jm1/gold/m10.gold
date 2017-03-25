@@ -1,4 +1,5 @@
-Account:   - Security Deposit Receivable
+Security Deposit Receivable
+GL Account: 
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -7,7 +8,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  10000 - Cash
+Cash
+GL Account: 10000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -19,7 +21,8 @@ Payment #2160 - Gross Scheduled Rent-Taxable             10/01/2016  J00000074  
 Closing Balance                                          10/31/2016                                                          104,917.72
 
 
-Account:  11000 - Credit Card Clearing
+Credit Card Clearing
+GL Account: 11000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -28,7 +31,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  12000 - Accounts Receivable
+Accounts Receivable
+GL Account: 12000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -43,7 +47,8 @@ Payment #8739 - Gross Scheduled Rent-Taxable             10/02/2016  J00000075  
 Closing Balance                                          10/31/2016                                                            7,900.00
 
 
-Account:  30000 - Security Deposits
+Security Deposits
+GL Account: 30000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -52,7 +57,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                          -18,300.00
 
 
-Account:  30100 - Accrued Taxes
+Accrued Taxes
+GL Account: 30100
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -61,7 +67,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  30101 - Sales Taxes
+Sales Taxes
+GL Account: 30101
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -70,7 +77,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  30102 - Transient Occupancy Taxes
+Transient Occupancy Taxes
+GL Account: 30102
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -79,7 +87,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  30199 - Other Accrued Taxes
+Other Accrued Taxes
+GL Account: 30199
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -88,7 +97,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  39000 - Owners' Equity
+Owners' Equity
+GL Account: 39000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -97,7 +107,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41000 - Gross Scheduled Rent-Taxable
+Gross Scheduled Rent-Taxable
+GL Account: 41000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -110,7 +121,8 @@ Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000072  
 Closing Balance                                          10/31/2016                                                         -141,450.00
 
 
-Account:  41001 - Gross Scheduled Rent-Not Taxable
+Gross Scheduled Rent-Not Taxable
+GL Account: 41001
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -119,7 +131,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41002 - Income Offsets
+Income Offsets
+GL Account: 41002
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -128,7 +141,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                           46,978.25
 
 
-Account:  41003 - Other Income
+Other Income
+GL Account: 41003
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -137,7 +151,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                           -2,545.97
 
 
-Account:  41100 - Unit Income Offsets
+Unit Income Offsets
+GL Account: 41100
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -146,7 +161,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                           46,978.25
 
 
-Account:  41101 - Vacancy
+Vacancy
+GL Account: 41101
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -156,7 +172,8 @@ Unassociated                                             10/31/2016  J00000073  
 Closing Balance                                          10/31/2016                                                           49,478.25
 
 
-Account:  41102 - Loss (Gain) to Lease
+Loss (Gain) to Lease
+GL Account: 41102
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -165,7 +182,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41103 - Employee Concessions
+Employee Concessions
+GL Account: 41103
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -174,7 +192,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41104 - Resident Concessions
+Resident Concessions
+GL Account: 41104
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -183,7 +202,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41105 - Owner Concession
+Owner Concession
+GL Account: 41105
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -192,7 +212,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41106 - Administrative Concession
+Administrative Concession
+GL Account: 41106
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -201,7 +222,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41107 - Off Line Renovations
+Off Line Renovations
+GL Account: 41107
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -210,7 +232,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41108 - Off Line Maintenance
+Off Line Maintenance
+GL Account: 41108
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -219,7 +242,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41199 - Othe Income Offsets
+Othe Income Offsets
+GL Account: 41199
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -228,7 +252,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41200 - Serviced Fees
+Serviced Fees
+GL Account: 41200
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -237,7 +262,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                             -111.26
 
 
-Account:  41201 - Broadcast and IT Services
+Broadcast and IT Services
+GL Account: 41201
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -246,7 +272,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41202 - Food Services
+Food Services
+GL Account: 41202
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -255,7 +282,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                             -111.26
 
 
-Account:  41203 - Linen Services
+Linen Services
+GL Account: 41203
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -264,7 +292,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41204 - Wash N Fold Services
+Wash N Fold Services
+GL Account: 41204
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -273,7 +302,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41299 - Other Service Fees
+Other Service Fees
+GL Account: 41299
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -282,7 +312,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41300 - Utility Fees
+Utility Fees
+GL Account: 41300
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -291,7 +322,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41301 - Electric Base Fee
+Electric Base Fee
+GL Account: 41301
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -300,7 +332,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41302 - Electric Overage
+Electric Overage
+GL Account: 41302
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -309,7 +342,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41303 - Water and Sewer Base Fee
+Water and Sewer Base Fee
+GL Account: 41303
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -318,7 +352,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41304 - Water and Sewer Overage
+Water and Sewer Overage
+GL Account: 41304
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -327,7 +362,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41305 - Gas Base Fee
+Gas Base Fee
+GL Account: 41305
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -336,7 +372,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41306 - Gas Overage
+Gas Overage
+GL Account: 41306
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -345,7 +382,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41307 - Trash Collection Base Fee
+Trash Collection Base Fee
+GL Account: 41307
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -354,7 +392,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41308 - Trash Collection Overage
+Trash Collection Overage
+GL Account: 41308
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -363,7 +402,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41399 - Other Utility Fee
+Other Utility Fee
+GL Account: 41399
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -372,7 +412,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41400 - Miscellaneous Income
+Miscellaneous Income
+GL Account: 41400
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -381,7 +422,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                           -2,434.71
 
 
-Account:  41401 - Application Fees
+Application Fees
+GL Account: 41401
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -390,7 +432,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41402 - Late Fees
+Late Fees
+GL Account: 41402
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -399,7 +442,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41403 - Insufficient Funds Fee
+Insufficient Funds Fee
+GL Account: 41403
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -408,7 +452,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41404 - Month to Month Fee
+Month to Month Fee
+GL Account: 41404
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -417,7 +462,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41405 - Premium Upgrades
+Premium Upgrades
+GL Account: 41405
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -426,7 +472,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41406 - No Show or Termination Fee
+No Show or Termination Fee
+GL Account: 41406
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -435,7 +482,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41407 - Pet Fees
+Pet Fees
+GL Account: 41407
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -444,7 +492,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41408 - Pet Rent
+Pet Rent
+GL Account: 41408
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -453,7 +502,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41409 - Expense Reimbursement
+Expense Reimbursement
+GL Account: 41409
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -462,7 +512,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41410 - Special Cleaning Fee
+Special Cleaning Fee
+GL Account: 41410
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -471,7 +522,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41411 - Eviction Fee Reimbursement
+Eviction Fee Reimbursement
+GL Account: 41411
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -480,7 +532,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41412 - Extra Person Charge
+Extra Person Charge
+GL Account: 41412
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -489,7 +542,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41413 - Forfeited Security Deposit
+Forfeited Security Deposit
+GL Account: 41413
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -498,7 +552,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                           -2,434.71
 
 
-Account:  41414 - Damage Fee
+Damage Fee
+GL Account: 41414
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -507,7 +562,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41415 - CAM Fees
+CAM Fees
+GL Account: 41415
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -516,7 +572,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41499 - Other Miscellaneous Income
+Other Miscellaneous Income
+GL Account: 41499
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -525,7 +582,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41500 - Taxes Collected in Trust
+Taxes Collected in Trust
+GL Account: 41500
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -534,7 +592,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41501 - Sales Taxes
+Sales Taxes
+GL Account: 41501
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -543,7 +602,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  41502 - Transient Occupancy Taxes
+Transient Occupancy Taxes
+GL Account: 41502
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -552,7 +612,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  42000 - Business Income
+Business Income
+GL Account: 42000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -561,7 +622,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  42100 - Convenience Store
+Convenience Store
+GL Account: 42100
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -570,7 +632,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  42200 - Fitness Center Revenue
+Fitness Center Revenue
+GL Account: 42200
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -579,7 +642,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  42300 - Vending Income
+Vending Income
+GL Account: 42300
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -588,7 +652,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  42400 - Restaurant Sales
+Restaurant Sales
+GL Account: 42400
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -597,7 +662,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  42500 - Bar Sales
+Bar Sales
+GL Account: 42500
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -606,7 +672,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  42600 - Spa Sales
+Spa Sales
+GL Account: 42600
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -615,7 +682,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  49991 - Cash Over/Short
+Cash Over/Short
+GL Account: 49991
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -624,7 +692,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  49992 - Bad Debt
+Bad Debt
+GL Account: 49992
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -633,7 +702,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  49998 - Income Suspense
+Income Suspense
+GL Account: 49998
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -642,7 +712,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                                0.00
 
 
-Account:  49999 - Other Business Income
+Other Business Income
+GL Account: 49999
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------

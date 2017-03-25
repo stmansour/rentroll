@@ -8,12 +8,19 @@ import (
 
 // LedgerBalanceReport builds a table of trial balance information
 func LedgerBalanceReport(ri *ReporterInfo) gotable.Table {
+	funcname := "LedgerBalanceReport"
+
 	bid := ri.Xbiz.P.BID
-	var tbl gotable.Table
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
-	tbl.SetTitle(ReportHeaderBlock("Trial Balance", "RRreportRentalAgreements", ri))
+
+	var tbl gotable.Table
 	tbl.Init()
+	err := TableReportHeaderBlock(&tbl, "Trial Balance", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	tbl.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)

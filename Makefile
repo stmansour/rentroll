@@ -5,7 +5,7 @@ COUNTOL=${TOP}/tools/bashtools/countol.sh
 .PHONY:  test
 
 rentroll: ver.go *.go
-	@find ./test -name "fail" -exec rm -r "{}" \;
+	@find . -name "fail" -exec rm -r "{}" \;
 	@touch fail
 	cp confdev.json conf.json
 	for dir in $(DIRS); do make -C $$dir;done
@@ -47,7 +47,7 @@ clean:
 	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example fail GoAnalyzerError.log
 
 test: package
-	@find ./test -name "fail" -exec rm -r "{}" \;
+	@find . -name "fail" -exec rm -r "{}" \;
 	@rm -f test/*/err.txt
 	for dir in $(DIRS); do make -C $$dir test;done
 	@tools/bashtools/buildcheck.sh TEST

@@ -1,4 +1,5 @@
-Account:  10000 - Cash
+Cash
+GL Account: 10000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -11,7 +12,8 @@ Payment #268 - Employee Concessions                      02/16/2016  J00000020  
 Closing Balance                                          02/29/2016                                                           32,973.33
 
 
-Account:  12000 - Accounts Receivable
+Accounts Receivable
+GL Account: 12000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -28,7 +30,8 @@ Payment #1652 - Gross Scheduled Rent-Taxable             02/02/2016  J00000019  
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Account:  41000 - Gross Scheduled Rent-Taxable
+Gross Scheduled Rent-Taxable
+GL Account: 41000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -42,7 +45,8 @@ Assessment - Gross Scheduled Rent-Taxable                02/01/2016  J00000015  
 Closing Balance                                          02/29/2016                                                          -27,900.00
 
 
-Account:  41101 - Vacancy
+Vacancy
+GL Account: 41101
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -53,7 +57,8 @@ Unassociated                                             02/29/2016  J00000022  
 Closing Balance                                          02/29/2016                                                            8,337.93
 
 
-Account:  30000 - Security Deposits
+Security Deposits
+GL Account: 30000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -62,7 +67,8 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                          -13,300.00
 
 
-Account:  41202 - Food Services
+Food Services
+GL Account: 41202
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------

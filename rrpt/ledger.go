@@ -16,7 +16,8 @@ func printLedgerHeader(tbl *gotable.Table, xbiz *rlib.XBusiness, l *rlib.GLAccou
 	// s += fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name)
 	// s += fmt.Sprintf("Period:   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
 	// tbl.SetTitle(s)
-	tbl.SetTitle(fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name))
+	tbl.SetTitle(fmt.Sprintf("%s\n", l.Name))
+	tbl.SetSection1(fmt.Sprintf("GL Account: %s\n", l.GLNumber))
 }
 
 // returns the payment/accessment reason, Rentable name
@@ -133,6 +134,19 @@ func LedgerActivityReport(ri *ReporterInfo) []gotable.Table {
 			tbl.Init()
 			initTableColumns(&tbl)
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
+
+			// set custom template for ledger reports
+			if i == 0 {
+				// set first ledger table layout template
+				tbl.SetHTMLTemplate("./html/firsttable.html")
+			} else if i == len(t)-1 {
+				// set last ledger table layout template
+				tbl.SetHTMLTemplate("./html/lasttable.html")
+			} else {
+				// set middle ledger table layout template
+				tbl.SetHTMLTemplate("./html/middletable.html")
+			}
+
 			m = append(m, tbl)
 		}
 	}
@@ -152,6 +166,19 @@ func LedgerReport(ri *ReporterInfo) []gotable.Table {
 			tbl.Init()
 			initTableColumns(&tbl)
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
+
+			// set custom template for ledger reports
+			if i == 0 {
+				// set first ledger table layout template
+				tbl.SetHTMLTemplate("./html/firsttable.html")
+			} else if i == len(t)-1 {
+				// set last ledger table layout template
+				tbl.SetHTMLTemplate("./html/lasttable.html")
+			} else {
+				// set middle ledger table layout template
+				tbl.SetHTMLTemplate("./html/middletable.html")
+			}
+
 			m = append(m, tbl)
 		}
 	}

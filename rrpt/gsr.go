@@ -7,25 +7,29 @@ import (
 )
 
 // GSRTextReport generates a list of GSR values for all rentables on the specified date
-func GSRTextReport(ri *ReporterInfo) error {
-	tbl, err := GSRReport(ri)
+func GSRTextReport(ri *ReporterInfo) {
+	tbl := GSRReportTable(ri)
 	fmt.Print(tbl)
-	return err
 }
 
-// GSRReport generates a list of GSR values for all rentables on the specified date
-func GSRReport(ri *ReporterInfo) (gotable.Table, error) {
-	funcname := "GSRTextReport"
+// GSRReportTable generates a list of GSR values for all rentables on the specified date
+func GSRReportTable(ri *ReporterInfo) gotable.Table {
+	funcname := "GSRReportTable"
 	var tbl gotable.Table
 	tbl.Init() //sets column spacing and date format to default
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = false
-	tbl.SetTitle(ReportHeaderBlock("Gross Scheduled Rent", funcname, ri))
+
+	err := TableReportHeaderBlock(&tbl, "Gross Scheduled Rent", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)        // column for the Rentable name
 	tbl.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // Rentable Type
 	tbl.AddColumn("Rentable Style", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // Rentable Style
-	tbl.AddColumn("GSR", 8, gotable.CELLFLOAT, gotable.COLJUSTIFYLEFT)              // 4  GSR
+	tbl.AddColumn("GSR", 8, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)             // 4  GSR
 	tbl.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)     // 5  Rent Cycle
 	tbl.AddColumn("Prorate Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 6  Proration Cycle
 
@@ -60,5 +64,5 @@ func GSRReport(ri *ReporterInfo) (gotable.Table, error) {
 		tbl.Puts(-1, 6, rlib.RentalPeriodToString(pc))
 	}
 	rlib.Errcheck(rows.Err())
-	return tbl, err
+	return tbl
 }

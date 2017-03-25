@@ -352,11 +352,11 @@ docsvtest () {
 			fi
 			rm -f ${1}.g ${GOLD}/${1}.g
 		else
-			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
-			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
+			echo "FAILED..." >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-			# diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
 			diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
+			echo "If correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1
@@ -570,10 +570,11 @@ dorrtest () {
 				echo "PASSED"
 			fi
 		else
-			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
-			echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
+			echo "FAILED..." >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
 			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
+			echo "If correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
 			exit 1

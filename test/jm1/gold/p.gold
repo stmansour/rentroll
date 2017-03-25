@@ -1,13 +1,12 @@
-REX
+REX Gross Scheduled Rent
+Dec 1, 2015
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
 
-Gross Scheduled Rent
-Dec 1, 2015
 
-Rentable   Name             Rentable Type    Rentable Style   GSR       Rent Cycle     Prorate Cycle
+Rentable   Name             Rentable Type    Rentable Style        GSR  Rent Cycle     Prorate Cycle
 ---------  ---------------  ---------------  ---------------  --------  -------------  -------------
 R00000001  309 Rexford      309 Rexford      Rex1             3,500.00  monthly        daily        
 R00000002  309 1/2 Rexford  309 1/2 Rexford  Rex2             3,550.00  monthly        daily        

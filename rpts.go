@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"gotable"
 	"net/http"
 	"rentroll/rlib"
@@ -14,12 +14,8 @@ func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 		var ri rrpt.ReporterInfo
 		ri.Xbiz = xbiz
 		ri.D2 = ui.D2
-		tbl, err := rrpt.DelinquencyReport(&ri)
-		if err == nil {
-			ui.ReportContent = tbl.String()
-		} else {
-			ui.ReportContent = fmt.Sprintf("Error generating Delinquency report:  %s\n", err)
-		}
+		rpt := rrpt.DelinquencyReport(&ri)
+		ui.ReportContent = rpt
 	}
 }
 
@@ -30,14 +26,12 @@ func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RR
 		ri.Xbiz = xbiz
 		ri.D1 = ui.D2 // set both dates to the range end
 		ri.D2 = ui.D2
-		tbl, err := rrpt.GSRReport(&ri)
-		if err == nil {
-			s, err := tbl.SprintTable()
-			if nil != err {
-				s += err.Error()
-			}
-			ui.ReportContent = s
+		tbl := rrpt.GSRReportTable(&ri)
+		s, err := tbl.SprintTable()
+		if nil != err {
+			s += err.Error()
 		}
+		ui.ReportContent = s
 	}
 }
 
@@ -103,17 +97,14 @@ func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusin
 func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
-		tbl, err := rrpt.RentRollReport(&ri)
-		if err == nil {
-			tout, err := tbl.SprintTable()
-			if err != nil {
-				rlib.Ulog("RptRentRoll:  error = %s", err)
-				ui.ReportContent = err.Error()
-			} else {
-				ui.ReportContent = tout
-			}
+		tbl := rrpt.RentRollReport(&ri)
+
+		tout, err := tbl.SprintTable()
+		if err != nil {
+			rlib.Ulog("RptRentRoll:  error = %s", err)
+			ui.ReportContent = err.Error()
 		} else {
-			ui.ReportContent = fmt.Sprintf("Error generating RentRoll report:  %s\n", err)
+			ui.ReportContent = tout
 		}
 	}
 }

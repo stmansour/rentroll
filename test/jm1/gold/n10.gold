@@ -1,4 +1,5 @@
-Account:  10000 - Cash
+Cash
+GL Account: 10000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -10,7 +11,8 @@ Payment #2160 - Gross Scheduled Rent-Taxable             10/01/2016  J00000074  
 Closing Balance                                          10/31/2016                                                          104,917.72
 
 
-Account:  12000 - Accounts Receivable
+Accounts Receivable
+GL Account: 12000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -25,7 +27,8 @@ Payment #8739 - Gross Scheduled Rent-Taxable             10/02/2016  J00000075  
 Closing Balance                                          10/31/2016                                                            7,900.00
 
 
-Account:  41000 - Gross Scheduled Rent-Taxable
+Gross Scheduled Rent-Taxable
+GL Account: 41000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -38,7 +41,8 @@ Assessment - Gross Scheduled Rent-Taxable                10/01/2016  J00000072  
 Closing Balance                                          10/31/2016                                                         -141,450.00
 
 
-Account:  41101 - Vacancy
+Vacancy
+GL Account: 41101
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -48,7 +52,8 @@ Unassociated                                             10/31/2016  J00000073  
 Closing Balance                                          10/31/2016                                                           49,478.25
 
 
-Account:  30000 - Security Deposits
+Security Deposits
+GL Account: 30000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -57,7 +62,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                          -18,300.00
 
 
-Account:  41202 - Food Services
+Food Services
+GL Account: 41202
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -66,7 +72,8 @@ Opening Balance                                                                 
 Closing Balance                                          10/31/2016                                                             -111.26
 
 
-Account:  41413 - Forfeited Security Deposit
+Forfeited Security Deposit
+GL Account: 41413
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
