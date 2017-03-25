@@ -463,7 +463,7 @@ func InsertRentable(a *Rentable) (int64, error) {
 // the RCPTID field is set to its new value.
 func InsertReceipt(r *Receipt) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.PMTID, r.DID, r.Dt, r.DocNo, r.Amount, r.AcctRule, r.Comment, r.OtherPayorName, r.LastModBy)
+	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.TCID, r.PMTID, r.DID, r.Dt, r.DocNo, r.Amount, r.AcctRule, r.Comment, r.OtherPayorName, r.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

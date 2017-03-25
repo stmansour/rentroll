@@ -636,10 +636,11 @@ func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
 
 // RRreportDepositMethodsTable generates a report of all rlib.GLAccount accounts
 func RRreportDepositMethodsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportDepositMethodsTable"
 	var t gotable.Table
-	err := rrpt.TableReportHeaderBlock(&t, "Deposit Methods", "RRreportDepositMethodsTable", ri)
+	err := rrpt.TableReportHeaderBlock(&t, "Deposit Methods", funcname, ri)
 	if err != nil {
-		rlib.LogAndPrintError("JournalReport", err)
+		rlib.LogAndPrintError(funcname, err)
 	}
 	t.Init()
 	t.AddColumn("DPMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)

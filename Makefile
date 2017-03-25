@@ -5,6 +5,7 @@ COUNTOL=${TOP}/tools/bashtools/countol.sh
 .PHONY:  test
 
 rentroll: ver.go *.go
+	@find ./test -name "fail" -exec rm -r "{}" \;
 	@touch fail
 	cp confdev.json conf.json
 	for dir in $(DIRS); do make -C $$dir;done

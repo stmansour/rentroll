@@ -17,6 +17,13 @@ type W2uiHTMLSelect struct {
 	Text string `json:"text"`
 }
 
+// W2uiHTMLIdTextSelect is a struct that covers the way w2ui sends back the
+// selection from a dropdown list.
+type W2uiHTMLIdTextSelect struct {
+	ID   int    `json:"id"`
+	Text string `json:"text"`
+}
+
 // Str2Int64Map is a generic type for mapping strings and int64s
 type Str2Int64Map map[string]int64
 

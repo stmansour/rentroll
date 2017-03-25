@@ -10,16 +10,17 @@ import (
 
 // RPerson contains attributes of Transactant, User, Payor, Prospect, Applicant
 type RPerson struct {
-	Recid                     int64 `json:"recid"` // this is to support the w2ui form
-	TCID                      int64
-	BID                       rlib.XJSONBud
-	NLID                      int64
-	FirstName                 string
-	MiddleName                string
-	LastName                  string
-	PreferredName             string
-	CompanyName               string                    // sometimes the entity will be a company
-	IsCompany                 rlib.XJSONCompanyOrPerson // 1 => the entity is a company, 0 = not a company
+	Recid         int64 `json:"recid"` // this is to support the w2ui form
+	TCID          int64
+	BID           rlib.XJSONBud
+	NLID          int64
+	FirstName     string
+	MiddleName    string
+	LastName      string
+	PreferredName string
+	CompanyName   string // sometimes the entity will be a company
+	// IsCompany                 rlib.XJSONCompanyOrPerson // 1 => the entity is a company, 0 = not a company
+	IsCompany                 int64 // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail              string
 	SecondaryEmail            string
 	WorkPhone                 string
@@ -129,7 +130,7 @@ type RPersonForm struct {
 // RPersonOther contains the data from selections boxes in the UI. These come back
 // in structure form rather than as a single string value.
 type RPersonOther struct {
-	IsCompany           rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
+	IsCompany           rlib.W2uiHTMLIdTextSelect // 1 => the entity is a company, 0 = not a company
 	BID                 rlib.W2uiHTMLSelect
 	State               rlib.W2uiHTMLSelect
 	EmployerState       rlib.W2uiHTMLSelect
@@ -343,6 +344,8 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	xp.Usr.BID = xp.Trn.BID
 	xp.Pay.BID = xp.Trn.BID
 	xp.Psp.BID = xp.Trn.BID
+
+	xp.Trn.IsCompany = int64(gxpo.IsCompany.ID)
 
 	xp.Trn.State = gxpo.State.ID
 	xp.Usr.EligibleFutureUser, ok = rlib.YesNoMap[gxpo.EligibleFutureUser.ID]

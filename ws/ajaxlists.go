@@ -39,6 +39,23 @@ func String2Int64MapToJSList(name string, m *rlib.Str2Int64Map) string {
 	return s
 }
 
+// String2Int64MapToJSIdTextList generates a string of JS code that assigns
+// all the map strings in m to an array.  Suitable for a JS eval call.
+func String2Int64MapToJSIdTextList(name string, m *rlib.Str2Int64Map) string {
+	s := name + "=["
+	l := len(*m)
+	i := 0
+	for k, v := range *m {
+		s += fmt.Sprintf("{id:%d,text:%q}", v, k)
+		if i+1 < l {
+			s += ","
+		}
+		i++
+	}
+	s += "];\n"
+	return s
+}
+
 // StringListToJSList generates a string of JS code that assigns
 // all the map strings in m to an array.  Suitable for a JS eval call.
 func StringListToJSList(name string, m *[]string) string {
@@ -62,9 +79,15 @@ var smapToJS = []struct {
 }{
 	{"assignmentTimeList", &rlib.AssignmentTimeMap},
 	{"businesses", &rlib.RRdb.BUDlist},
-	{"companyOrPerson", &rlib.CompanyOrPersonMap},
 	{"renewalMap", &rlib.RenewalMap},
 	{"cycleFreq", &rlib.CycleFreqMap},
+}
+
+var idTextMaps = []struct {
+	name   string
+	valmap *rlib.Str2Int64Map
+}{
+	{"companyOrPerson", &rlib.CompanyOrPersonMap},
 }
 
 var ssliceToJS = []struct {
@@ -129,13 +152,20 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	fmt.Printf("Language: %s\nTemplate: %s\n", language, template)
 
+	sendBusinessMap(w)
+
 	//------------------------------------------
 	// send the maps...
 	//------------------------------------------
 	for i := 0; i < len(smapToJS); i++ {
 		io.WriteString(w, String2Int64MapToJSList("app."+smapToJS[i].name, smapToJS[i].valmap))
 	}
-	sendBusinessMap(w)
+	//------------------------------------------
+	// send the idText maps...
+	//------------------------------------------
+	for i := 0; i < len(idTextMaps); i++ {
+		io.WriteString(w, String2Int64MapToJSIdTextList("app."+idTextMaps[i].name, idTextMaps[i].valmap))
+	}
 
 	fmt.Fprintf(w, "app.pmtTypes=[];\n")
 	for k, v := range rlib.RRdb.BUDlist {
