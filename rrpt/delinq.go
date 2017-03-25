@@ -9,25 +9,28 @@ import (
 )
 
 // DelinquencyTextReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyTextReport(ri *ReporterInfo) error {
-	tbl, err := DelinquencyReport(ri)
-	if err == nil {
-		fmt.Print(tbl)
-	}
-	return err
+func DelinquencyTextReport(ri *ReporterInfo) {
+	tbl := DelinquencyReport(ri)
+	fmt.Print(tbl)
 }
 
-// DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
-func DelinquencyReport(ri *ReporterInfo) (gotable.Table, error) {
-	funcname := "DelinquencyReport"
+// DelinquencyReportTable generates a table object for Delinqency report for the business in xbiz and timeframe d1 to d2.
+func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
+	funcname := "DelinquencyReportTable"
 	var tbl gotable.Table
 
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = true
-	tbl.SetTitle(ReportHeaderBlock("Delinquency Report", funcname, ri))
 
-	tbl.Init()                                                                                            //sets column spacing and date format to default
+	totalErrs := 0
+
+	tbl.Init() //sets column spacing and date format to default
+	err := TableReportHeaderBlock(&tbl, "Delinquency Report", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                              // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                        // RentableType name
 	tbl.AddColumn("Rentable Agreement", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // RentableType name
@@ -70,6 +73,7 @@ func DelinquencyReport(ri *ReporterInfo) (gotable.Table, error) {
 		for i := 0; i < len(rra); i++ {                          //for each rental agreement id
 			ra, err := rlib.GetRentalAgreement(rra[i].RAID) // load the agreement
 			if err != nil {
+				totalErrs++
 				fmt.Printf("Error loading rental agreement %d: err = %s\n", rra[i].RAID, err.Error())
 				continue
 			}
@@ -98,6 +102,22 @@ func DelinquencyReport(ri *ReporterInfo) (gotable.Table, error) {
 		}
 	}
 	rlib.Errcheck(rows.Err())
+	if totalErrs > 0 {
+		errMsg := fmt.Sprintf("Encountered %d errors while creating this report. See log.", totalErrs)
+		tbl.SetSection3(errMsg)
 
-	return tbl, nil
+		// use section3 for errors and apply red color
+		cssListSection3 := []*gotable.CSSProperty{
+			{Name: "color", Value: "red"},
+			{Name: "font-family", Value: "monospace"},
+		}
+		tbl.SetSection3CSS(cssListSection3)
+	}
+	return tbl
+}
+
+// DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
+func DelinquencyReport(ri *ReporterInfo) string {
+	t := DelinquencyReportTable(ri)
+	return ReportToString(&t, ri)
 }

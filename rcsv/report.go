@@ -172,8 +172,10 @@ func RRreportChartOfAccountsTable(ri *rrpt.ReporterInfo) gotable.Table {
 	return t
 }
 
-// RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
-func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
+// RRreportRentableTypesTable generates a table object of all Rentable Types defined in the database, for all businesses.
+func RRreportRentableTypesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentableTypesTable"
+
 	m := rlib.GetBusinessRentableTypes(ri.Bid)
 	var keys []int
 	for k := range m {
@@ -182,8 +184,12 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 	sort.Ints(keys)
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rentable Types", "RRreportPeople", ri))
 	t.Init()
+	err := rrpt.TableReportHeaderBlock(&t, "Rentable Types", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("RTID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 0
 	t.AddColumn("Style", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // 1
 	t.AddColumn("Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 2
@@ -212,18 +218,31 @@ func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 7, s)
 	}
 	t.TightenColumns()
+	return t
+}
+
+// RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
+func RRreportRentableTypes(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentableTypesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportPeople generates a report of all Businesses defined in the database.
-func RRreportPeople(ri *rrpt.ReporterInfo) string {
+// RRreportPeopleTable generates a table object of all transactants relavant to BID in the database.
+func RRreportPeopleTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportPeopleTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllTransactantsForBID.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("People", "RRreportPeople", ri))
 	t.Init()
+
+	err = rrpt.TableReportHeaderBlock(&t, "People", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("TCID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("First Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Middle Name", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -249,18 +268,30 @@ func RRreportPeople(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportPeople generates a report of all Businesses defined in the database.
+func RRreportPeople(ri *rrpt.ReporterInfo) string {
+	t := RRreportPeopleTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportRentables generates a report of all Businesses defined in the database.
-func RRreportRentables(ri *rrpt.ReporterInfo) string {
+// RRreportRentablesTable generates a table of all rentables for BUD defined in the database.
+func RRreportRentablesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentablesTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rentables", "RRreportRentables", ri))
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Rentables", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("RID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Assignment Time", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -284,18 +315,30 @@ func RRreportRentables(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportRentables generates a report of all Businesses defined in the database.
+func RRreportRentables(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentablesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
+// RRreportCustomAttributesTable generates a table object for custom attributes
+func RRreportCustomAttributesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportCustomAttributesTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributes.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
 
 	var t gotable.Table
 	t.Init()
-	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes", "RRreportCustomAttributes", ri))
+	err = rrpt.TableReportHeaderBlock(&t, "Custom Attributes", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("CID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Value Type", 6, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -316,17 +359,30 @@ func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
+func RRreportCustomAttributes(ri *rrpt.ReporterInfo) string {
+	t := RRreportCustomAttributesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
+// RRreportCustomAttributeRefsTable generates a table object of custom attrib references
+func RRreportCustomAttributeRefsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportCustomAttributeRefsTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributeRefs.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
+
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Custom Attributes References", "RRreportCustomAttributeRefs", ri))
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Custom Attributes References", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("Element Type", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("ID", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
@@ -342,17 +398,30 @@ func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
+func RRreportCustomAttributeRefs(ri *rrpt.ReporterInfo) string {
+	t := RRreportCustomAttributeRefsTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportRentalAgreementTemplates generates a report of all Businesses defined in the database.
-func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
+// RRreportRentalAgreementTemplatesTable generates a table object for all rental agreement templates
+func RRreportRentalAgreementTemplatesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentalAgreementTemplatesTable"
+
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
 	rlib.Errcheck(err)
 	defer rows.Close()
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement Templates", "RRreportRentalAgreementTemplates", ri))
+
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Rental Agreement Templates", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("RA Template ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("RA Template Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -366,18 +435,32 @@ func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
+	return t
+}
+
+// RRreportRentalAgreementTemplates generates a report for all rental agreement templates
+func RRreportRentalAgreementTemplates(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentalAgreementTemplatesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportRentalAgreements generates a report of all Businesses defined in the database.
-func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
-	rs := ""
+// RRreportRentalAgreementsTable generates a table object for All rental agreements related with Business
+func RRreportRentalAgreementsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportRentalAgreementsTable"
+
+	var err error
+	totalErrs := 0
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(ri.Bid)
 	rlib.Errcheck(err)
 	defer rows.Close()
+
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Rental Agreement", "RRreportRentalAgreements", ri))
 	t.Init()
+	err = rrpt.TableReportHeaderBlock(&t, "Rental Agreement", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Payor", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("User", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -402,7 +485,8 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 		rlib.Errcheck(rows.Scan(&raid))
 		p, err = rlib.GetXRentalAgreement(raid, &d1, &d2)
 		if err != nil {
-			rs += fmt.Sprintf("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
+			totalErrs++
+			rlib.Ulog("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
 			continue
 		}
 		note := ""
@@ -431,11 +515,30 @@ func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
 	}
 	rlib.Errcheck(rows.Err())
 	t.TightenColumns()
-	return rs + rrpt.ReportToString(&t, ri)
+	if totalErrs > 0 {
+		errMsg := fmt.Sprintf("Encountered %d errors while creating this report. See log.", totalErrs)
+		t.SetSection3(errMsg)
+
+		// use section3 for errors and apply red color
+		cssListSection3 := []*gotable.CSSProperty{
+			{Name: "color", Value: "red"},
+			{Name: "font-family", Value: "monospace"},
+		}
+		t.SetSection3CSS(cssListSection3)
+	}
+	return t
 }
 
-// RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
-func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
+// RRreportRentalAgreements generates a report of all Businesses defined in the database.
+func RRreportRentalAgreements(ri *rrpt.ReporterInfo) string {
+	t := RRreportRentalAgreementsTable(ri)
+	return rrpt.ReportToString(&t, ri)
+}
+
+// RRreportPaymentTypesTable generates a table object of all rlib.PaymentType for BID
+func RRreportPaymentTypesTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportPaymentTypesTable"
+
 	m := rlib.GetPaymentTypesByBusiness(ri.Bid)
 	var keys []int
 	for k := range m {
@@ -444,8 +547,13 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 	sort.Ints(keys)
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Payment Types", "RRreportPaymentTypes", ri))
 	t.Init()
+
+	err := rrpt.TableReportHeaderBlock(&t, "Payment Types", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -461,6 +569,12 @@ func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 3, v.Description)
 	}
 	t.TightenColumns()
+	return t
+}
+
+// RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
+func RRreportPaymentTypes(ri *rrpt.ReporterInfo) string {
+	t := RRreportPaymentTypesTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
@@ -500,7 +614,7 @@ func RRAssessmentsTable(ri *rrpt.ReporterInfo) (gotable.Table, error) {
 
 	err := rrpt.TableReportHeaderBlock(&t, "Assessments", funcname, ri)
 	if err != nil {
-		rlib.LogAndPrintError("JournalReport", err)
+		rlib.LogAndPrintError(funcname, err)
 	}
 	// t.SetTitle(rrpt.ReportHeaderBlock("Assessments", funcname, ri))
 
@@ -607,16 +721,23 @@ func RRreportInvoices(ri *rrpt.ReporterInfo) string {
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportDepository generates a report of all rlib.GLAccount accounts
-func RRreportDepository(ri *rrpt.ReporterInfo) string {
+// RRreportDepositoryTable generates a table object for all rlib.Depository
+func RRreportDepositoryTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportDepositoryTable"
+
 	m := rlib.GetAllDepositories(ri.Bid)
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("Depositories", "RRreportDepository", ri))
 	t.Init()
+	err := rrpt.TableReportHeaderBlock(&t, "Depositories", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("DEPID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("AccountNo", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+
 	for i := 0; i < len(m); i++ {
 		t.AddRow()
 		t.Puts(-1, 0, rlib.IDtoString("DEP", m[i].DEPID))
@@ -625,23 +746,27 @@ func RRreportDepository(ri *rrpt.ReporterInfo) string {
 		t.Puts(-1, 3, m[i].Name)
 	}
 	t.TightenColumns()
+	return t
+}
+
+// RRreportDepository generates a report of all rlib.Depository
+func RRreportDepository(ri *rrpt.ReporterInfo) string {
+	t := RRreportDepositoryTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
-// RRreportDepositMethods generates a report of all rlib.GLAccount accounts
-func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
-	t := RRreportDepositMethodsTable(ri)
-	return rrpt.ReportToString(&t, ri)
-}
-
-// RRreportDepositMethodsTable generates a report of all rlib.GLAccount accounts
+// RRreportDepositMethodsTable generates a table for all rlib.DepositMethod
 func RRreportDepositMethodsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportDepositMethodsTable"
+
 	var t gotable.Table
-	err := rrpt.TableReportHeaderBlock(&t, "Deposit Methods", "RRreportDepositMethodsTable", ri)
-	if err != nil {
-		rlib.LogAndPrintError("JournalReport", err)
-	}
 	t.Init()
+
+	err := rrpt.TableReportHeaderBlock(&t, "Deposit Methods", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("DPMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Name", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -657,16 +782,24 @@ func RRreportDepositMethodsTable(ri *rrpt.ReporterInfo) gotable.Table {
 	return t
 }
 
-// RRreportDeposits generates a report of all rlib.GLAccount accounts
+// RRreportDepositMethods generates a report of all rlib.DepositMethod
+func RRreportDepositMethods(ri *rrpt.ReporterInfo) string {
+	t := RRreportDepositMethodsTable(ri)
+	return rrpt.ReportToString(&t, ri)
+}
+
+// RRreportDeposits generates a report of all rlib.Deposit
 func RRreportDeposits(ri *rrpt.ReporterInfo) string {
 	m := rlib.GetAllDepositsInRange(ri.Bid, &Rcsv.DtStart, &Rcsv.DtStop)
 	var t gotable.Table
 	t.Init()
+
 	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("DEPID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	t.AddColumn("Receipts", 60, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+
 	for i := 0; i < len(m); i++ {
 		s := ""
 		for j := 0; j < len(m[i].DP); j++ {
@@ -705,16 +838,22 @@ func getCategory(s string) (string, string) {
 	return cat, val
 }
 
-// RRreportStringLists generates a report of all StringLists for the supplied business (ri.Bid)
-func RRreportStringLists(ri *rrpt.ReporterInfo) string {
+// RRreportStringListsTable generates a table object of all StringLists for the supplied business (ri.Bid)
+func RRreportStringListsTable(ri *rrpt.ReporterInfo) gotable.Table {
+	funcname := "RRreportStringListsTable"
+
 	var (
 		cat, val string
 	)
 	m := rlib.GetAllStringLists(ri.Bid)
 
 	var t gotable.Table
-	t.SetTitle(rrpt.ReportHeaderBlock("String Lists", "RRreportStringLists", ri))
 	t.Init()
+	err := rrpt.TableReportHeaderBlock(&t, "String Lists", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+	}
+
 	t.AddColumn("SLSID", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Category", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Value", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -730,6 +869,12 @@ func RRreportStringLists(ri *rrpt.ReporterInfo) string {
 			t.Puts(-1, 2, val)
 		}
 	}
+	return t
+}
+
+// RRreportStringLists generates a report of all StringLists for the supplied business (ri.Bid)
+func RRreportStringLists(ri *rrpt.ReporterInfo) string {
+	t := RRreportStringListsTable(ri)
 	return rrpt.ReportToString(&t, ri)
 }
 
