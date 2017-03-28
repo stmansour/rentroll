@@ -14,26 +14,74 @@ $(function () {
     "use strict";
     var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
     var whitebg = 'border: 1px solid #dfdfdf; padding: 5px; background-color: white;';
+
+    $().w2toolbar({
+        name: 'testtoolbar',
+        items: [
+            { type: 'button', id: 'minify',   caption: 'Minify',   icon: 'fa fa-download'},
+            { type: 'button', id: 'encode',   caption: 'Encode',   icon: 'fa fa-expand'},
+            { type: 'button', id: 'decode',   caption: 'Decode',   icon: 'fa fa-compress'},
+            { type: 'button', id: 'beautify', caption: 'Beautify', icon: 'fa fa-indent'},
+        ],
+        onClick: function (event) {
+            var s;
+            switch(event.target) {
+                case 'minify':
+                    s = document.getElementById("sendthis").value;
+                    document.getElementById("sendthis").value = JSON.stringify(JSON.parse(s));
+                    break;
+                case 'encode':
+                    s = document.getElementById("sendthis").value;
+                    document.getElementById("sendthis").value = encodeURI(s);
+                    break;
+                case 'decode':
+                    s = document.getElementById("sendthis").value;
+                    document.getElementById("sendthis").value = decodeURI(s);
+                    break;
+               case 'beautify':
+                    s = document.getElementById("sendthis").value;
+                    document.getElementById("sendthis").value = JSON.stringify(JSON.parse(s),null,4);
+                    break;
+            }
+        },
+    });
+
+    $('#layout').w2layout({
+        name: 'testerLayout',
+        panels: [
+            { type: 'top', size: 34, style: pstyle, content: w2ui.testtoolbar },
+            { type: 'main', size: '100%', style: whitebg, content: 'main' },
+        ]
+    });
+
     $('#layout').w2layout({
         name: 'layout',
         panels: [
             { type: 'top', size: 75, style: pstyle, content: 'top' },
-            { type: 'left', size: 300, style: pstyle, content: 'left' },
-            { type: 'main', style: whitebg, content: 'main' }
+            { type: 'left', size: 260, style: pstyle, content: 'left' },
+            { type: 'main', style: whitebg, content: 'main' },
+            { type: 'preview', size: '50%', resizable: true, style: whitebg, content: w2ui.testerLayout },
         ]
     });
 
     w2ui.layout.content('top', $().w2toolbar({
 		    name: 'toptoolbar',
 		    items: [
-		         { type: 'html',  id: 'title',
+		        { type: 'html',  id: 'title',
 		            html: '<div style="padding: 4px 0px; font-size: 8pt;">'+
-		                  '<h1 class=>RentRoll Web Service API</h1>'+
+		                  '<h2 class=>RentRoll Web Service API&nbsp;&nbsp;&nbsp;</h2>'+
 		                  '<p style="color: #777777;"><br>API Version: {{.Version}}<br>Generated: {{.Date}}</p>'+
 		                  '</div>' 
 		        },
-		    	]
-			})
+                { type: 'button', id: 'tester', text: 'Tester', icon: 'fa fa-star' },
+		    ],
+            onClick: function(event) {
+                switch (event.target) {
+                    case 'tester':
+                        w2ui.layout.toggle('preview', true);
+                }
+            }
+		})
 	);
 
     w2ui.layout.content('left',$().w2sidebar({
@@ -57,6 +105,7 @@ $(function () {
     {{$d := index .TOC 0}}
     w2ui.sidebar.select('{{$d.ID}}'); // select the first doc automatically
     w2ui.sidebar.click('{{$d.ID}}'); // show the first doc automatically
+    w2ui.testerLayout.load('main', '/doc/tester.html')
 
 
 })

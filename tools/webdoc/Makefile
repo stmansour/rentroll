@@ -28,6 +28,7 @@ docs:
 package: docs
 	rm -rf ${PKGDIR}/doc
 	mkdir -p ${PKGDIR}/doc
+	cp tester.html doc/
 	cp doc/*.html ${PKGDIR}/doc/
 	cp doc.css ${PKGDIR}/doc/
 	@echo "*** PACKAGE completed in webdoc ***"

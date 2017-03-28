@@ -36,32 +36,7 @@
 	line-height: 1em;
 	font-family: "Source Sans Pro", sans-serif;
 }
-/*code {
-	display: inline-block;
-	margin-left: 50px;
-	margin: 0 0 2px 0;
-	padding: 0 4px;
-	background: #F8F8F8;
-	border: 1px solid #E0E0E0;
-	border-radius: 3px 3px 3px 3px;
-	color: #4411EE;
-	font-family: "Source Code Pro";
-	font-size: 10pt;
-	white-space: pre;
-}
-pre > code {
-	display: block;
-	margin-left: 50px;
-	margin: 12px 0;
-	padding: 12px 20px;
-	background: #EEEEEE;
-	border: none;
-	border-radius: 8px;
-	color: #222222;
-	overflow: auto;
-	font-family: "Source Sans Pro", sans-serif;
-}
-*/
+
 code {
 	display: inline-block;
 	margin: 0 0 2px 0;
@@ -73,6 +48,11 @@ code {
 	font-family: "Source Code Pro";
 	font-size: 14px;
 	white-space: pre;
+}
+
+textarea {
+	font-family: "Source Code Pro";
+	font-size: 11px;
 }
 
 code > code {
