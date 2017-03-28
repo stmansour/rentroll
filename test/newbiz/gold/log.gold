@@ -1,11 +1,11 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Thu Feb 23 15:59:35 PST 2017
+Date/Time:    Tue Mar 28 12:19:58 PDT 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/02/23 15:59:36 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2017/03/28 12:20:00 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -57,11 +57,11 @@ Rental Agreement start/stop: 11/21/2015 - 11/21/2016
 CreateLedgerMarkers: rlib.Business with designation QQQ does not exist
 CreateReceiptsFromCSV: line 5 -  error loading Rental Agreement RA00099991, err = sql: no rows in result set
 CreateReceiptsFromCSV: line 6 -  Payment type is invalid: 999
-CreateReceiptsFromCSV: line 7 -  invalid rlib.Receipt date:  12-11-2015
+CreateReceiptsFromCSV: line 7 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 1999 does not exist
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 CreateCustomAttributes: line 6 - Type value must be a number from 0 to 4
 CreateCustomAttributes: line 7 - IntFromString: Value cannot be converted to an integer: ab827
 CreateCustomAttributes: line 8 - IntFromString: Value cannot be converted to an unsigned integer: ab827
 ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Thu Feb 23 15:59:38 PST 2017
+Test completed: Tue Mar 28 12:20:02 PDT 2017

@@ -47,7 +47,9 @@ func LoadRentRollCSV(fname string, handler func([]string, int) (int, error)) []e
 	var m []error
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
-
+		if len(t[i][0]) == 0 {
+			continue
+		}
 		if t[i][0][0] == '#' { // if it's a comment line, don't process it, just move on
 			continue
 		}

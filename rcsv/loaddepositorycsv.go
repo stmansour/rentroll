@@ -3,6 +3,7 @@ package rcsv
 import (
 	"fmt"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
@@ -18,12 +19,14 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 
 	const (
 		BUD       = 0
+		LID       = iota
 		Name      = iota
 		AccountNo = iota
 	)
 	// csvCols is an array that defines all the columns that should be in this csv file
 	var csvCols = []CSVColumn{
 		{"BUD", BUD},
+		{"LID", LID},
 		{"Name", Name},
 		{"AccountNo", AccountNo},
 	}
@@ -45,6 +48,13 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		d.BID = b1.BID
+	}
+
+	if len(sa[LID]) > 0 {
+		i, err := strconv.Atoi(sa[LID])
+		if err == nil {
+			d.LID = int64(i)
+		}
 	}
 
 	//-------------------------------------------------------------------
