@@ -650,6 +650,7 @@ type Receipt struct {
 	BID            int64     // which business
 	TCID           int64     // payor that sent in the payment
 	PMTID          int64     // what type of payment
+	DEPID          int64     // the depository where this receipt will be deposited
 	DID            int64     // the Deposit ID to which this receipt belongs
 	Dt             time.Time // date payment was received
 	DocNo          string    // check number, money order number, etc.; documents the payment
@@ -678,6 +679,7 @@ type ReceiptAllocation struct {
 type Depository struct {
 	DEPID       int64     // unique id for a depository
 	BID         int64     // which business
+	LID         int64     // which GL Account represents this depository
 	Name        string    // Name of Depository: First Data, Nyax, CCI, Oklahoma Fidelity
 	AccountNo   string    // account number at this Depository
 	LastModTime time.Time // when was this record last written

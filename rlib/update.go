@@ -46,7 +46,7 @@ func UpdateDepositMethod(a *DepositMethod) error {
 
 // UpdateDepository updates a Depository record
 func UpdateDepository(a *Depository) error {
-	_, err := RRdb.Prepstmt.UpdateDepository.Exec(a.BID, a.Name, a.AccountNo, a.LastModBy, a.DEPID)
+	_, err := RRdb.Prepstmt.UpdateDepository.Exec(a.BID, a.LID, a.Name, a.AccountNo, a.LastModBy, a.DEPID)
 	return updateError(err, "Depository", *a)
 }
 
@@ -127,7 +127,7 @@ func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 
 // UpdateReceipt updates a Receipt record in the database
 func UpdateReceipt(a *Receipt) error {
-	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.TCID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
+	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.TCID, a.PMTID, a.DEPID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
 	return updateError(err, "Receipt", *a)
 }
 

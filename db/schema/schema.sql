@@ -748,6 +748,7 @@ CREATE TABLE Receipt (
     BID BIGINT NOT NULL DEFAULT 0,
     TCID BIGINT NOT NULL DEFAULT 0,                             -- Payor
     PMTID BIGINT NOT NULL DEFAULT 0,
+    DEPID BIGINT NOT NULL DEFAULT 0,                            -- Depository for this payment
     DID BIGINT NOT NULL DEFAULT 0,                              -- Deposit id to which this receipt belongs
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DocNo VARCHAR(50) NOT NULL DEFAULT '',                      -- Check Number, MoneyOrder number, etc., the traceback for the payment
@@ -787,6 +788,7 @@ CREATE TABLE DepositMethod (
 CREATE TABLE Depository (
     DEPID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for a depository
     BID BIGINT NOT NULL DEFAULT 0,                              -- business id
+    LID BIGINT NOT NULL DEFAULT 0,                              -- the GL account that represents this depository
     Name VARCHAR(256),                                          -- Name of Depository: First Data, Nyax, Oklahoma Fidelity
     AccountNo VARCHAR(256),                                     -- account number at this Depository
     LastModTime TIMESTAMP,                                      -- when was this record last written

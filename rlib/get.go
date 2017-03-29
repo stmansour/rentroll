@@ -264,7 +264,8 @@ func GetAllDemandSources(id int64) ([]DemandSource, error) {
 // GetDeposit reads a Deposit structure based on the supplied Deposit id
 func GetDeposit(id int64) (Deposit, error) {
 	var a Deposit
-	err := RRdb.Prepstmt.GetDeposit.QueryRow(id).Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy)
+	row := RRdb.Prepstmt.GetDeposit.QueryRow(id)
+	err := ReadDeposit(row, &a)
 	return a, err
 }
 
@@ -276,7 +277,7 @@ func GetAllDepositsInRange(bid int64, d1, d2 *time.Time) []Deposit {
 	defer rows.Close()
 	for rows.Next() {
 		var a Deposit
-		Errcheck(rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.LastModTime, &a.LastModBy))
+		ReadDeposits(rows, &a)
 		a.DP, err = GetDepositParts(a.DID)
 		Errcheck(err)
 		t = append(t, a)
@@ -288,7 +289,8 @@ func GetAllDepositsInRange(bid int64, d1, d2 *time.Time) []Deposit {
 // GetDepository reads a Depository structure based on the supplied Depository id
 func GetDepository(id int64) (Depository, error) {
 	var a Depository
-	err := RRdb.Prepstmt.GetDepository.QueryRow(id).Scan(&a.DEPID, &a.BID, &a.Name, &a.AccountNo, &a.LastModTime, &a.LastModBy)
+	row := RRdb.Prepstmt.GetDepository.QueryRow(id)
+	err := ReadDepository(row, &a)
 	return a, err
 }
 
@@ -308,7 +310,7 @@ func GetAllDepositories(bid int64) []Depository {
 	defer rows.Close()
 	for rows.Next() {
 		var r Depository
-		Errcheck(rows.Scan(&r.DEPID, &r.BID, &r.Name, &r.AccountNo, &r.LastModTime, &r.LastModBy))
+		Errcheck(ReadDepositories(rows, &r))
 		t = append(t, r)
 	}
 	Errcheck(rows.Err())

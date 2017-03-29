@@ -17,10 +17,10 @@ import (
 // }
 
 // CVS record format:
-// 0    1           2      3             4             5        6                                           7
-// BID, RAID,       PMTID, Dt,           DocNo,        Amount,  AcctRule,                                   Comment
-// REH, RA00000001, 2,     "2004-01-01", 1254,         1000.00, "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _",
-// REH, RA00000001, 1,     "2015-11-21", 883789238746, 294.66,  "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
+// 0    1           2      3      4            5              6        7                                           8
+// BID, RAID,       PMTID, DEPID, Dt,           DocNo,        Amount,  AcctRule,                                   Comment
+// REH, RA00000001, 2,     1,     "2004-01-01", 1254,         1000.00, "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _",
+// REH, RA00000001, 1,     1,     "2015-11-21", 883789238746, 294.66,  "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
 
 // GenerateReceiptAllocations processes the AcctRule for the supplied rlib.Receipt and generates rlib.ReceiptAllocation records
 func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusiness) error {
@@ -83,6 +83,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 		BUD      = 0
 		RAID     = iota
 		PMTID    = iota
+		DEPID    = iota
 		Dt       = iota
 		DocNo    = iota
 		Amount   = iota
@@ -95,6 +96,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 		{"BUD", BUD},
 		{"RAID", RAID},
 		{"PMTID", PMTID},
+		{"DEPID", DEPID},
 		{"Dt", Dt},
 		{"DocNo", DocNo},
 		{"Amount", Amount},
@@ -139,6 +141,14 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	_, ok := pmtTypes[r.PMTID]
 	if !ok {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Payment type is invalid: %s", funcname, lineno, sa[PMTID])
+	}
+
+	//-------------------------------------------------------------------
+	// Get the Depository
+	//-------------------------------------------------------------------
+	r.DEPID, err = rlib.IntFromString(sa[DEPID], "Depository ID is invalid")
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Depository ID is invalid: %s", funcname, lineno, sa[DEPID])
 	}
 
 	//-------------------------------------------------------------------
