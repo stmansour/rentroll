@@ -81,19 +81,14 @@ func CmdCsvAssess(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, 
 		m := rcsv.LoadAssessmentsCSV(path)
 		ui.ReportContent += rcsv.ErrlistToString(&m)
 		var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
-		t, err := rcsv.RRAssessmentsTable(&ri)
-		if err == nil || rlib.IsSQLNoResultsError(err) {
-			s, err1 := t.SprintTable()
-			if err1 != nil {
-				s += err1.Error()
-			}
-			ui.ReportContent += t.GetTitle() + s
-			if err != nil {
-				ui.ReportContent += "\nNo assessments found during this period\n"
-			}
-		} else {
-			ui.ReportContent += err.Error()
+		t := rrpt.RRAssessmentsTable(&ri)
+
+		s, err1 := t.SprintTable()
+		if err1 != nil {
+			s += err1.Error()
 		}
+		ui.ReportContent += s
+
 		removeUploadFile(path, ui)
 	}
 }
@@ -141,7 +136,7 @@ func CmdGenJnl(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 	ri.Xbiz = xbiz
 	ri.D1 = ui.D1
 	ri.D2 = ui.D2
-	t := rrpt.JournalReport(&ri)
+	t := rrpt.JournalReportTable(&ri)
 	s, err := t.SprintTable()
 	if err != nil {
 		s += err.Error()

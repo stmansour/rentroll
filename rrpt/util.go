@@ -1,11 +1,38 @@
 package rrpt
 
 import (
+	"bytes"
 	"fmt"
 	"gotable"
+	"io"
 	"rentroll/rlib"
 	"time"
 )
+
+// RReportTableErrorSectionCSS holds css for errors placed in section3 of gotable
+var RReportTableErrorSectionCSS = []*gotable.CSSProperty{
+	{Name: "color", Value: "red"},
+	{Name: "font-family", Value: "monospace"},
+}
+
+const (
+	// NoRecordsFoundMsg message to show when there are no results found from db
+	NoRecordsFoundMsg = "no records found"
+)
+
+// SingleTableReportHandler : single table report handler, used to get report from a table in a required output format
+type SingleTableReportHandler struct {
+	Found        bool
+	ReportNames  []string
+	TableHandler func(*ReporterInfo) gotable.Table
+}
+
+// MultiTableReportHandler : multi table report handler, used to get report from multiple tables in a required output format
+type MultiTableReportHandler struct {
+	Found        bool
+	ReportNames  []string
+	TableHandler func(*ReporterInfo) []gotable.Table
+}
 
 // ReporterInfo is for routines that want to table-ize their reporting using
 // the CSV library's simple report routines.
@@ -192,4 +219,74 @@ func ReportToString(t *gotable.Table, ri *ReporterInfo) string {
 		rlib.Ulog("ReportToString: error = %s", err)
 	}
 	return s
+}
+
+// MultiTableTextPrint writes text output from each table to w io.Writer
+func MultiTableTextPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTableTextPrint"
+
+	for i := 0; i < len(m); i++ {
+		temp := bytes.Buffer{}
+		err := m[i].TextprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.TextprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		w.Write(temp.Bytes())
+	}
+}
+
+// MultiTableCSVPrint writes csv output from each table to w io.Writer
+func MultiTableCSVPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTableCSVPrint"
+
+	// TODO: how to handle multiple csv writer
+	// add one line between reports??
+
+	for i := 0; i < len(m); i++ {
+		temp := bytes.Buffer{}
+		err := m[i].CSVprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.CSVprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		w.Write(temp.Bytes())
+	}
+}
+
+// MultiTableHTMLPrint writes html output from each table to w io.Writer
+func MultiTableHTMLPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTableHTMLPrint"
+
+	for i := 0; i < len(m); i++ {
+		temp := bytes.Buffer{}
+		err := m[i].HTMLprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.HTMLprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		w.Write(temp.Bytes())
+	}
+}
+
+// MultiTablePDFPrint writes pdf output from each table to w io.Writer
+func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTablePDFPrint"
+
+	// TODO: how to handle multiple pdf writer
+	// zip multiple files on one files??
+
+	for i := 0; i < len(m); i++ {
+		temp := bytes.Buffer{}
+		err := m[i].PDFprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.PDFprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		w.Write(temp.Bytes())
+	}
 }

@@ -35,23 +35,6 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 	}
 }
 
-func v1HTMLPrint(w http.ResponseWriter, t *gotable.Table, e error) {
-	if e != nil {
-		if rlib.IsSQLNoResultsError(e) {
-			fmt.Fprintf(w, "Nothing to report")
-		} else {
-			fmt.Fprintf(w, "Error: %s", e)
-		}
-		return
-	}
-	err := t.HTMLprintTable(w)
-	if err != nil {
-		s := fmt.Sprintf("Error in t.HTMLprintTable: %s\n", err.Error())
-		fmt.Print(s)
-		fmt.Fprintf(w, "%s\n", s)
-	}
-}
-
 func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w http.ResponseWriter) {
 	fmt.Printf("v1ReportHandler: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTHTML, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
@@ -59,37 +42,164 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 
 	funcname := "v1ReportHandler"
 
-	var t gotable.Table
+	var tbl gotable.Table
 	var err error
 
+	// ********************************************************************************************
+	// ********************************************************************************************
+
+	var wsr = []rrpt.SingleTableReportHandler{
+		{ReportNames: []string{"asmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable},
+		{ReportNames: []string{"b", "business"}, TableHandler: rrpt.RRreportBusinessTable},
+		{ReportNames: []string{"coa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable},
+		{ReportNames: []string{"c", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable},
+		{ReportNames: []string{"cr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable},
+		{ReportNames: []string{"delinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable},
+		{ReportNames: []string{"dpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable},
+		{ReportNames: []string{"dep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
+		{ReportNames: []string{"gsr"}, TableHandler: rrpt.GSRReportTable},
+		{ReportNames: []string{"j"}, TableHandler: rrpt.JournalReportTable},
+		{ReportNames: []string{"pmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
+		{ReportNames: []string{"r", "rentables"}, TableHandler: rcsv.RRreportRentablesTable},
+		{ReportNames: []string{"ra", "rental agreements"}, TableHandler: rcsv.RRreportRentalAgreementsTable},
+		{ReportNames: []string{"rat", "rental agreement templates"}, TableHandler: rcsv.RRreportRentalAgreementTemplatesTable},
+		{ReportNames: []string{"rcpt", "receipts"}, TableHandler: rcsv.RRReceiptsTable},
+		{ReportNames: []string{"rr", "rentroll"}, TableHandler: rrpt.RentRollReport},
+		{ReportNames: []string{"rt", "rentable types"}, TableHandler: rcsv.RRreportRentableTypesTable},
+		{ReportNames: []string{"rcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTbl},
+		{ReportNames: []string{"sl", "string lists"}, TableHandler: rcsv.RRreportStringListsTable},
+		{ReportNames: []string{"t", "people"}, TableHandler: rrpt.RRreportPeopleTable},
+		{ReportNames: []string{"tb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReport},
+	}
+
+	var wmr = []rrpt.MultiTableReportHandler{
+		{ReportNames: []string{"l", "ledger"}, TableHandler: rrpt.LedgerReport},
+		{ReportNames: []string{"la", "ledger activity"}, TableHandler: rrpt.LedgerActivityReport},
+		{ReportNames: []string{"statements"}, TableHandler: rrpt.RptStatementReportTable},
+	}
+
+	// debug
+	fmt.Println("ReportOutputFormat: ", ui.ReportOutputFormat)
+
+	// find reportname from list of report handler
+	// first find it from single table handler
+	var tsh rrpt.SingleTableReportHandler
+	for j := 0; j < len(wsr); j++ {
+		for _, rn := range wsr[j].ReportNames {
+			if rn == strings.ToLower(reportname) {
+				tsh = wsr[j]
+				tsh.Found = true
+				// if found then break inner loop
+				break
+			}
+		}
+		// if found then break outer loop
+		if tsh.Found {
+			break
+		}
+	}
+	// debug
+	fmt.Println("single Report handler found: ", tsh.Found)
+	// if found then handle service for request
+	if tsh.Found {
+		tbl = tsh.TableHandler(&ri)
+
+		switch ui.ReportOutputFormat {
+		case gotable.TABLEOUTTEXT:
+			w.Header().Set("Content-Type", "text/plain")
+			w.Header().Set("Content-Disposition", "attachment; filename=sample.text")
+			tbl.TextprintTable(w)
+			if err != nil {
+				s := fmt.Sprintf("Error in TextprintTable: %s\n", err.Error())
+				fmt.Print(s)
+				fmt.Fprintf(w, "%s\n", s)
+			}
+			return
+		case gotable.TABLEOUTHTML:
+			err := tbl.HTMLprintTable(w)
+			if err != nil {
+				s := fmt.Sprintf("Error in HTMLprintTable: %s\n", err.Error())
+				fmt.Print(s)
+				fmt.Fprintf(w, "%s\n", s)
+			}
+			return
+		case gotable.TABLEOUTCSV:
+			w.Header().Set("Content-Type", "text/csv")
+			w.Header().Set("Content-Disposition", "attachment; filename=sample.csv")
+			tbl.CSVprintTable(w)
+			if err != nil {
+				s := fmt.Sprintf("Error in CSVprintTable: %s\n", err.Error())
+				fmt.Print(s)
+				fmt.Fprintf(w, "%s\n", s)
+			}
+			return
+		case gotable.TABLEOUTPDF:
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Disposition", "attachment; filename=sample.pdf")
+			tbl.PDFprintTable(w)
+			if err != nil {
+				s := fmt.Sprintf("Error in PDFprintTable: %s\n", err.Error())
+				fmt.Print(s)
+				fmt.Fprintf(w, "%s\n", s)
+			}
+			return
+		default:
+			fmt.Fprintf(w, "%s", "Unsupported format output of report")
+		}
+	}
+
+	// if not found from single, then find it from multi table handler
+	var tmh rrpt.MultiTableReportHandler
+	for j := 0; j < len(wmr); j++ {
+		for _, rn := range wmr[j].ReportNames {
+			if rn == strings.ToLower(reportname) {
+				tmh = wmr[j]
+				tmh.Found = true
+				// if found then break inner loop
+				break
+			}
+		}
+		// if found then break outer loop
+		if tmh.Found {
+			break
+		}
+	}
+	// if found then handle service for request
+	if tmh.Found {
+		m := tmh.TableHandler(&ri)
+
+		switch ui.ReportOutputFormat {
+		case gotable.TABLEOUTTEXT:
+			w.Header().Set("Content-Type", "text/plain")
+			w.Header().Set("Content-Disposition", "attachment; filename=sample.text")
+			rrpt.MultiTableTextPrint(m, w)
+			return
+		case gotable.TABLEOUTHTML:
+			rrpt.MultiTableHTMLPrint(m, w)
+			return
+		case gotable.TABLEOUTCSV:
+			w.Header().Set("Content-Type", "text/csv")
+			w.Header().Set("Content-Disposition", "attachment; filename=sample.csv")
+			rrpt.MultiTableCSVPrint(m, w)
+			return
+		case gotable.TABLEOUTPDF:
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Disposition", "attachment; filename=sample.pdf")
+			rrpt.MultiTablePDFPrint(m, w)
+			return
+		default:
+			fmt.Fprintf(w, "%s", "Unsupported format output of report")
+		}
+	}
+
+	if !tsh.Found && !tmh.Found {
+		panic("NO reports found")
+	}
+
+	// ********************************************************************************************
+	// ********************************************************************************************
+
 	switch strings.ToLower(reportname) {
-	case "asmrpt", "assessments":
-		t, err = rcsv.RRAssessmentsTable(&ri)
-	case "b", "business":
-		t = rcsv.RRreportBusinessTable(&ri)
-	case "coa", "chart of accounts":
-		rlib.InitBizInternals(ri.Bid, xbiz)
-		t = rcsv.RRreportChartOfAccountsTable(&ri)
-	case "c", "custom attributes":
-		t = rcsv.RRreportCustomAttributesTable(&ri)
-	case "cr", "custom attribute refs":
-		t = rcsv.RRreportCustomAttributeRefsTable(&ri)
-	case "delinq", "delinquency":
-		rlib.InitBizInternals(ri.Bid, xbiz)
-		t = rrpt.DelinquencyReportTable(&ri)
-	case "dpm", "deposit methods":
-		t = rcsv.RRreportDepositMethodsTable(&ri)
-	case "dep", "depositories":
-		t = rcsv.RRreportDepositoryTable(&ri)
-	case "gsr":
-		ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
-		t = rrpt.GSRReportTable(&ri)
-	case "j":
-		fmt.Printf("Handling report: j\n")
-		rlib.InitBizInternals(ri.Bid, xbiz)
-		ri.RptHeaderD1 = true
-		ri.RptHeaderD2 = true
-		t = rrpt.JournalReport(&ri)
 	case "l", "ledger", "la", "ledger activity":
 		if xbiz.P.BID > 0 {
 			var m []gotable.Table
@@ -126,26 +236,23 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			}
 			return
 		}
-
-	case "pmt", "payment types":
-		t = rcsv.RRreportPaymentTypesTable(&ri)
 	case "r", "rentables":
-		t = rcsv.RRreportRentablesTable(&ri)
+		tbl = rcsv.RRreportRentablesTable(&ri)
 	case "ra", "rental agreements":
-		t = rcsv.RRreportRentalAgreementsTable(&ri)
+		tbl = rcsv.RRreportRentalAgreementsTable(&ri)
 	case "rat", "rental agreement templates":
-		t = rcsv.RRreportRentalAgreementTemplatesTable(&ri)
+		tbl = rcsv.RRreportRentalAgreementTemplatesTable(&ri)
 	case "rcpt", "receipts":
-		t = rcsv.RRReceiptsTable(&ri)
+		tbl = rcsv.RRReceiptsTable(&ri)
 	case "rr", "rentroll":
 		rlib.InitBizInternals(ri.Bid, xbiz)
-		t = rrpt.RentRollReport(&ri)
+		tbl = rrpt.RentRollReport(&ri)
 	case "rt", "rentable types":
-		t = rcsv.RRreportRentableTypesTable(&ri)
+		tbl = rcsv.RRreportRentableTypesTable(&ri)
 	case "rcbt", "rentable type counts":
-		t = rrpt.RentableCountByRentableTypeReportTbl(&ri)
+		tbl = rrpt.RentableCountByRentableTypeReportTbl(&ri)
 	case "sl", "string lists":
-		t = rcsv.RRreportStringListsTable(&ri)
+		tbl = rcsv.RRreportStringListsTable(&ri)
 	case "statements":
 		var s string
 		m := rrpt.RptStatementReportTable(&ri)
@@ -160,15 +267,12 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			w.Write(temp.Bytes())
 		}
 		return
-	case "t", "people": // t = transactant
-		t = rcsv.RRreportPeopleTable(&ri)
 	case "tb", "trial balance":
-		t = rrpt.LedgerBalanceReport(&ri)
+		tbl = rrpt.LedgerBalanceReport(&ri)
 	default:
 		fmt.Fprintf(w, "Unknown report type: %s", reportname)
 		return
 	}
-	v1HTMLPrint(w, &t, err)
 }
 
 func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
@@ -178,42 +282,30 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 
 	switch strings.ToLower(prefix) {
 	case "asmrpt", "assessments":
-		return rcsv.RRreportAssessments(&ri)
+		return rrpt.RRreportAssessments(&ri)
 	case "b", "business":
-		t := rcsv.RRreportBusinessTable(&ri)
+		t := rrpt.RRreportBusinessTable(&ri)
 		s, err := t.SprintTable()
 		if err != nil {
 			s += err.Error()
 		}
 		return s
 	case "coa", "chart of accounts":
-		rlib.InitBizInternals(ri.Bid, xbiz)
-		return rcsv.RRreportChartOfAccounts(&ri)
+		return rrpt.RRreportChartOfAccounts(&ri)
 	case "c", "custom attributes":
-		return rcsv.RRreportCustomAttributes(&ri)
+		return rrpt.RRreportCustomAttributes(&ri)
 	case "cr", "custom attribute refs":
-		return rcsv.RRreportCustomAttributeRefs(&ri)
+		return rrpt.RRreportCustomAttributeRefs(&ri)
 	case "delinq", "delinquency":
-		rlib.InitBizInternals(ri.Bid, xbiz)
 		return rrpt.DelinquencyReport(&ri)
 	case "dpm", "deposit methods":
-		return rcsv.RRreportDepositMethods(&ri)
+		return rrpt.RRreportDepositMethods(&ri)
 	case "dep", "depositories":
-		return rcsv.RRreportDepository(&ri)
+		return rrpt.RRreportDepository(&ri)
 	case "gsr":
-		ri.D1 = ui.D2 // we want to look at the end of the range.  Set both D1 and D2 to the end of the range
-		t := rrpt.GSRReportTable(&ri)
-		s, err := t.SprintTable()
-		if err != nil {
-			s += err.Error()
-		}
-		return s
+		return rrpt.GSRReport(&ri)
 	case "j":
-		rlib.InitBizInternals(ri.Bid, xbiz)
-		ri.RptHeaderD1 = true
-		ri.RptHeaderD2 = true
-		t := rrpt.JournalReport(&ri)
-		return rrpt.ReportToString(&t, &ri)
+		return rrpt.JournalReport(&ri)
 	case "l", "ledger", "la", "ledger activity":
 		if xbiz.P.BID > 0 {
 			var m []gotable.Table
@@ -247,9 +339,8 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 			}
 			return s
 		}
-
 	case "pmt", "payment types":
-		return rcsv.RRreportPaymentTypes(&ri)
+		return rrpt.RRreportPaymentTypes(&ri)
 	case "r", "rentables":
 		return rcsv.RRreportRentables(&ri)
 	case "ra", "rental agreements":
@@ -270,7 +361,7 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 	case "statements":
 		return rrpt.RptStatementTextReport(&ri)
 	case "t", "people": // t = transactant
-		return rcsv.RRreportPeople(&ri)
+		return rrpt.RRreportPeople(&ri)
 	case "tb", "trial balance":
 		return rrpt.PrintLedgerBalanceReportString(&ri)
 	}
@@ -361,7 +452,18 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 				// return
 			}
 		}
+		var rof int // report output format indicator
+		x, ok = m["rof"]
+		if ok && len(x[0]) > 0 {
+			if rof, ok = rlib.StringToInt(x[0]); !ok {
+				rof = gotable.TABLEOUTHTML
+			}
+		} else {
+			rof = gotable.TABLEOUTHTML
+		}
+		ui.ReportOutputFormat = rof
 	}
+
 	switch strings.ToLower(reportname) {
 	case "asmrpt", "assessments", "b", "business", "coa", "chart of accounts", "delinq", "delinquency", "dep", "Depositories", "dpm", "deposit methods", "gsr", "j", "l", "ledger", "la", "ledger activity", "t", "people", "pmt", "payment types", "rcbt", "rentable type counts", "rcpt", "receipts", "r", "rentables", "ra", "rental agreements", "rat", "rental agreement templates", "rt", "rentable types", "rr", "rentroll", "statements", "sl", "string lists", "tb", "trial balance":
 		v1ReportHandler(reportname, &xbiz, &ui, w)

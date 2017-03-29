@@ -226,10 +226,10 @@ func generateRCSVReport(
 	var r = []rrpt.ReporterInfo{
 		{ReportNo: 5, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
 		{ReportNo: 6, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
-		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
+		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportPeople, Bid: business.BID},
 		{ReportNo: 9, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
-		{ReportNo: 14, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportCustomAttributes, Bid: business.BID},
-		{ReportNo: 15, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportCustomAttributeRefs, Bid: business.BID},
+		{ReportNo: 14, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportCustomAttributes, Bid: business.BID},
+		{ReportNo: 15, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportCustomAttributeRefs, Bid: business.BID},
 	}
 
 	var rcsvReport string

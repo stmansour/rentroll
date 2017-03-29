@@ -270,10 +270,22 @@ func textReportJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Jo
 
 }
 
-// JournalReport returns a Journal report in an gotable.Table for the supplied Business and time range
-func JournalReport(ri *ReporterInfo) gotable.Table {
+// JournalReportTable returns a Journal report in a gotable.Table for the supplied Business and time range
+func JournalReportTable(ri *ReporterInfo) gotable.Table {
+	funcname := "JournalReportTable"
+
+	// init and prepare some values before table init
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+
 	var tbl gotable.Table
 	tbl.Init()
+
+	// after table is ready then set css only
+	// section3 will be used as error section
+	// so apply css here
+	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+
 	tbl.AddColumn("Journal ID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 0
 	tbl.AddColumn("Description", 70, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 1
 	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)          // 2
@@ -285,16 +297,24 @@ func JournalReport(ri *ReporterInfo) gotable.Table {
 	jctx := jprintctx{ri.D1, ri.D2}
 	// setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
 
-	ri.RptHeaderD1 = true
-	ri.RptHeaderD2 = true
 	err := TableReportHeaderBlock(&tbl, "Journal", "JournalReport", ri)
 	if err != nil {
-		rlib.LogAndPrintError("JournalReport", err)
+		rlib.LogAndPrintError(funcname, err)
+
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
 	}
 
 	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return tbl
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var j rlib.Journal
 		rlib.ReadJournals(rows, &j)
@@ -303,4 +323,10 @@ func JournalReport(ri *ReporterInfo) gotable.Table {
 	}
 	rlib.Errcheck(rows.Err())
 	return tbl
+}
+
+// JournalReport generates a text-based report based on JournalReportTable table object
+func JournalReport(ri *ReporterInfo) string {
+	tbl := JournalReportTable(ri)
+	return ReportToString(&tbl, ri)
 }

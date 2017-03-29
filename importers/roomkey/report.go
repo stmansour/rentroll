@@ -222,7 +222,7 @@ func generateRCSVReport(
 	var r = []rrpt.ReporterInfo{
 		{ReportNo: 5, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
 		{ReportNo: 6, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
-		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportPeople, Bid: business.BID},
+		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportPeople, Bid: business.BID},
 		{ReportNo: 9, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
 	}
 

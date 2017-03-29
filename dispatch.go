@@ -310,7 +310,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		fmt.Print(CreateDBBackupFileList())
 	case 22: // delete business
 		ri := rrpt.ReporterInfo{Xbiz: &ctx.xbiz, OutputFormat: gotable.TABLEOUTTEXT}
-		rcsv.RRreportBusiness(&ri)
+		rrpt.RRreportBusiness(&ri)
 		fmt.Printf("Deleting business: %d\n", ctx.xbiz.P.BID)
 		rlib.DeleteBusinessFromDB(ctx.xbiz.P.BID)
 
