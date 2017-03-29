@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gotable"
 	"rentroll/importers/core"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
 	"sort"
@@ -220,10 +219,10 @@ func generateRCSVReport(
 ) string {
 
 	var r = []rrpt.ReporterInfo{
-		{ReportNo: 5, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentableTypes, Bid: business.BID},
-		{ReportNo: 6, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentables, Bid: business.BID},
+		{ReportNo: 5, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportRentableTypes, Bid: business.BID},
+		{ReportNo: 6, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportRentables, Bid: business.BID},
 		{ReportNo: 7, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportPeople, Bid: business.BID},
-		{ReportNo: 9, OutputFormat: gotable.TABLEOUTTEXT, Handler: rcsv.RRreportRentalAgreements, Bid: business.BID},
+		{ReportNo: 9, OutputFormat: gotable.TABLEOUTTEXT, Handler: rrpt.RRreportRentalAgreements, Bid: business.BID},
 	}
 
 	var rcsvReport string

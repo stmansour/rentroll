@@ -111,7 +111,7 @@ func CmdCsvRcpt(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 		m := rcsv.LoadReceiptsCSV(path)
 		ui.ReportContent = rcsv.ErrlistToString(&m)
 		var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2}
-		t := rcsv.RRReceiptsTable(&ri)
+		t := rrpt.RRReceiptsTable(&ri)
 		ui.ReportContent += fmt.Sprintf("\nReceipts\nBusiness:  %s  (%s)\nPeriod:  %s - %s\n\n", xbiz.P.Name, xbiz.P.Designation, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 		s, err := t.SprintTable()
 		if err != nil {

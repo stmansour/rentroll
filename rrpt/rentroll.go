@@ -35,23 +35,20 @@ func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rl
 
 // RentRollTextReport prints a text-based RentRoll report for the business in xbiz and timeframe d1 to d2 to stdout
 func RentRollTextReport(ri *ReporterInfo) {
-	fmt.Print(RentRollReportString(ri))
+	fmt.Print(RentRollReport(ri))
 }
 
-// RentRollReportString returns a string containin a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
-func RentRollReportString(ri *ReporterInfo) string {
-	tbl := RentRollReport(ri)
-	tout, err := tbl.SprintTable()
-	if err != nil {
-		rlib.Ulog("RentRollReportString:  error = %s", err)
-		return err.Error()
-	}
-	return tout
+// RentRollReport returns a string containin a text-based RentRoll report for the business in xbiz and timeframe d1 to d2.
+func RentRollReport(ri *ReporterInfo) string {
+	tbl := RentRollReportTable(ri)
+	return ReportToString(&tbl, ri)
 }
 
-// RentRollReport generates a table object for RentRoll report for the business in ri.Xbiz and timeframe d1 to d2.
-func RentRollReport(ri *ReporterInfo) gotable.Table {
-	funcname := "RentRollReport"
+// RentRollReportTable generates a table object for RentRoll report for the business in ri.Xbiz and timeframe d1 to d2.
+func RentRollReportTable(ri *ReporterInfo) gotable.Table {
+	funcname := "RentRollReportTable"
+
+	// init and prepare some value before table init
 	var d1, d2 *time.Time
 	d1 = &ri.D1
 	d2 = &ri.D2
@@ -63,14 +60,15 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 
 	totalErrs := 0
 
+	// table init
 	var tbl gotable.Table
-	tbl.Init() //sets column spacing and date format to default
-	err := TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
-	if err != nil {
-		rlib.LogAndPrintError(funcname, err)
-	}
+	tbl.Init()
 
-	totalsRSet := tbl.CreateRowset()                                                            // a rowset to sum for totals
+	// after table is ready then set css only
+	// section3 will be used as error section
+	// so apply css here
+	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+
 	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)              // RentableType name
 	tbl.AddColumn(custom, 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)                          // the Custom Attribute "Square Feet"
@@ -96,6 +94,15 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Beginning Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
 	tbl.AddColumn("Change In Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
 	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
+
+	err := TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 
 	const (
 		RName        = 0
@@ -128,7 +135,14 @@ func RentRollReport(ri *ReporterInfo) gotable.Table {
 	// loop through the Rentables...
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return tbl
+	}
 	defer rows.Close()
+
+	totalsRSet := tbl.CreateRowset() // a rowset to sum for totals
 
 	for rows.Next() {
 		var p rlib.Rentable

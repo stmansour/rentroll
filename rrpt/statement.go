@@ -94,156 +94,107 @@ func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []Stm
 	return m
 }
 
-// RentableCountByRentableTypeReport returns a string report containing the count of Rentables for each RentableType
-// in the specified time range
-func RentableCountByRentableTypeReport(ri *ReporterInfo) string {
-	t := RentableCountByRentableTypeReportTbl(ri)
-	return ReportToString(&t, ri)
-}
-
-// RentableCountByRentableTypeReportTbl returns an gotable.Table containing the count of Rentables for each RentableType
-// in the specified time range
-func RentableCountByRentableTypeReportTbl(ri *ReporterInfo) gotable.Table {
-	funcname := "RentableCountByRentableTypeReportTbl"
-	var t gotable.Table
-	t.Init()
-	ri.RptHeaderD1 = true
-	ri.RptHeaderD2 = true
-	err := TableReportHeaderBlock(&t, "Rentable Counts By Rentable Type", funcname, ri)
-	if err != nil {
-		rlib.LogAndPrintError(funcname, err)
-	}
-	// RentableCountByRentableTypeReport returns a structure containing the count of Rentables for each RentableType
-	// in the specified time range
-	m, err := GetRentableCountByRentableType(ri.Xbiz, &ri.D1, &ri.D2)
-	if err != nil {
-		t.SetTitle(t.GetTitle() + "\n" + fmt.Sprintf("%s: GetRentableCountByRentableType returned error: %s\n", funcname, err.Error()))
-	}
-
-	t.AddColumn("No. Rentables", 9, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
-	t.AddColumn("Rentable Type Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("Style", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("Custom Attributes", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-
-	// need to sort these into a predictable order... they are messing up the tests as they
-	// seem to come back in random orders on different runs...
-	var keys []int
-	for i := 0; i < len(m); i++ {
-		keys = append(keys, i)
-	}
-
-	for i := 0; i < len(keys); i++ {
-		for j := i + 1; j < len(keys); j++ {
-			if m[keys[i]].RT.Name > m[keys[j]].RT.Name {
-				k := keys[i]
-				keys[i] = keys[j]
-				keys[j] = k
-			}
-		}
-	}
-
-	for i := 0; i < len(keys); i++ {
-		j := int64(keys[i])
-		// fmt.Printf("%13d  %-20.20s  %-6s", m[j].Count, m[j].RT.Name, m[j].RT.Style)
-		t.AddRow()
-		t.Puti(-1, 0, m[j].Count)
-		t.Puts(-1, 1, m[j].RT.Name)
-		t.Puts(-1, 2, m[j].RT.Style)
-		s := ""
-		for k, v := range m[j].RT.CA {
-			if len(s) > 0 {
-				s += ", "
-			}
-			s += fmt.Sprintf("%s: %s %s", k, v.Value, v.Units)
-		}
-		t.Puts(-1, 3, s)
-	}
-	t.TightenColumns()
-	return t
-}
-
 // RptStatementForRA generates a text Statement for the supplied rental agreement ra.
 func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table {
 	funcname := "RptStatementForRA"
 
+	// init and prepare some values before table init
 	rlib.LoadXRentalAgreement(ra.RAID, ra, &ri.D1, &ri.D2)
 	payors := ra.GetPayorNameList(&ri.D1, &ri.D2)
 
-	var t gotable.Table
-	t.Init()
+	// table init
+	var tbl gotable.Table
+	tbl.Init()
+
+	// after table is ready then set css only
+	// section3 will be used as error section
+	// so apply css here
+	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+
+	tbl.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Description", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Charge", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Payment", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+
 	s := fmt.Sprintf("Statement  -  Rental Agreement %s\nPayor(s): %s\n", ra.IDtoString(), strings.Join(payors, ", "))
-	err := TableReportHeaderBlock(&t, s, funcname, ri)
+	err := TableReportHeaderBlock(&tbl, s, funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-	}
 
-	t.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("Description", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("Charge", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
-	t.AddColumn("Payment", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
-	t.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 
 	m := GetStatementData(ri.Xbiz, ra.RAID, &ri.D1, &ri.D2)
 	var b = rlib.RoundToCent(m[0].amt) // element 0 is always the account balance
 	var c = float64(0)                 // credit
 	var d = float64(0)                 // debit
 	for i := 0; i < len(m); i++ {
-		t.AddRow()
+		tbl.AddRow()
 		switch m[i].t {
 		case 1: // assessments
 			amt := rlib.RoundToCent(m[i].amt)
 			c += amt
 			b += amt
-			t.Puts(-1, 1, rlib.IDtoString("ASM", m[i].id))
-			t.Puts(-1, 2, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].asmtlid].Name)
-			t.Putf(-1, 3, amt)
+			tbl.Puts(-1, 1, rlib.IDtoString("ASM", m[i].id))
+			tbl.Puts(-1, 2, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].asmtlid].Name)
+			tbl.Putf(-1, 3, amt)
 		case 2: // receipts
 			amt := rlib.RoundToCent(m[i].amt)
 			d += amt
 			b += amt
-			t.Puts(-1, 1, rlib.IDtoString("RCPT", m[i].id))
-			t.Puts(-1, 2, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].asmtlid].Name)
-			t.Putf(-1, 4, amt)
+			tbl.Puts(-1, 1, rlib.IDtoString("RCPT", m[i].id))
+			tbl.Puts(-1, 2, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].asmtlid].Name)
+			tbl.Putf(-1, 4, amt)
 		case 3: // opening balance
-			t.Puts(-1, 2, "Opening Balance")
+			tbl.Puts(-1, 2, "Opening Balance")
 		}
-		t.Putd(-1, 0, m[i].dt)
-		t.Putf(-1, 5, b)
-
+		tbl.Putd(-1, 0, m[i].dt)
+		tbl.Putf(-1, 5, b)
 	}
-	t.AddLineAfter(t.RowCount() - 1)
-	t.AddRow()
-	t.Putf(-1, 3, c)
-	t.Putf(-1, 4, d)
-	t.Putf(-1, 5, c+d+m[0].amt)
+	tbl.AddLineAfter(tbl.RowCount() - 1)
+	tbl.AddRow()
+	tbl.Putf(-1, 3, c)
+	tbl.Putf(-1, 4, d)
+	tbl.Putf(-1, 5, c+d+m[0].amt)
 
-	return t
+	return tbl
 }
 
 // RptStatementReportTable is a returns list of table object for all Statement for a RentalAgreement
 func RptStatementReportTable(ri *ReporterInfo) []gotable.Table {
 	var m []gotable.Table
-	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementsByRange.Query(ri.Xbiz.P.BID, ri.D1, ri.D2)
-	rlib.Errcheck(err)
-	defer rows.Close()
+
+	// init some values
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
+
+	// get records from db
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementsByRange.Query(ri.Xbiz.P.BID, ri.D1, ri.D2)
+	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		return m
+	}
+	defer rows.Close()
+
 	// Spin through all the RentalAgreements that are active in this timeframe
 	for rows.Next() {
 		var ra rlib.RentalAgreement
 		rlib.ReadRentalAgreements(rows, &ra)
-		t := RptStatementForRA(ri, &ra)
+		tbl := RptStatementForRA(ri, &ra)
 
 		// first table custom template
 		if len(m) == 0 {
-			t.SetHTMLTemplate("./html/firsttable.html")
+			tbl.SetHTMLTemplate("./html/firsttable.html")
 		} else {
 			// middle table custom template
-			t.SetHTMLTemplate("./html/middletable.html")
+			tbl.SetHTMLTemplate("./html/middletable.html")
 		}
 
-		m = append(m, t)
+		m = append(m, tbl)
 	}
 	// last table custom template
 	m[len(m)-1].SetHTMLTemplate("./html/lasttable.html")

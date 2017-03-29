@@ -64,7 +64,13 @@ func reportTextProcessLedgerMarker(tbl *gotable.Table, xbiz *rlib.XBusiness, lm 
 	// rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(l.BID, l.GLNumber, d1, d2)
 	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(l.BID, l.LID, d1, d2)
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var l rlib.LedgerEntry
 		rlib.ReadLedgerEntries(rows, &l)
@@ -115,7 +121,11 @@ func LedgerActivityReport(ri *ReporterInfo) []gotable.Table {
 	var t int64arr
 	rows, err := rlib.RRdb.Dbrr.Query("SELECT DISTINCT LID FROM LedgerEntry ORDER BY Dt,RAID ASC")
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		return m
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var lid int64
 		rlib.Errcheck(rows.Scan(&lid))

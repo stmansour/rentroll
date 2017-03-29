@@ -6,26 +6,38 @@ import (
 	"rentroll/rlib"
 )
 
-// LedgerBalanceReport builds a table of trial balance information
-func LedgerBalanceReport(ri *ReporterInfo) gotable.Table {
-	funcname := "LedgerBalanceReport"
+// LedgerBalanceReportTable builds a table of trial balance information
+func LedgerBalanceReportTable(ri *ReporterInfo) gotable.Table {
+	funcname := "LedgerBalanceReportTable"
 
+	// init and prepare some values before table init
 	bid := ri.Xbiz.P.BID
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
 
+	// table init
 	var tbl gotable.Table
 	tbl.Init()
-	err := TableReportHeaderBlock(&tbl, "Trial Balance", funcname, ri)
-	if err != nil {
-		rlib.LogAndPrintError(funcname, err)
-	}
+
+	// after table is ready then set css only
+	// section3 will be used as error section
+	// so apply css here
+	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
 
 	tbl.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Summary Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+
+	err := TableReportHeaderBlock(&tbl, "Trial Balance", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 
 	for i := int64(0); i < int64(len(rlib.RRdb.BizTypes[bid].GLAccounts)); i++ {
 		acct, ok := rlib.RRdb.BizTypes[bid].GLAccounts[i]
@@ -56,7 +68,7 @@ func PrintLedgerBalanceReport(ri *ReporterInfo) {
 //PrintLedgerBalanceReportString returns a string showing the balance of all ledgers as of ri.D2
 func PrintLedgerBalanceReportString(ri *ReporterInfo) string {
 	//s := fmt.Sprintf("LEDGER MARKERS\n%s\nBalances as of:  %s\n\n", ri.Xbiz.P.Name, ri.D2.Format("January 2, 2006"))
-	tbl := LedgerBalanceReport(ri)
+	tbl := LedgerBalanceReportTable(ri)
 	tbl.TightenColumns()
 	// return s + tbl.SprintTable()
 	return ReportToString(&tbl, ri)

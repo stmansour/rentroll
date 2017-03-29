@@ -226,7 +226,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 6: // available
 	case 7: // RENTABLE COUNT BY TYPE
-		t := rrpt.RentableCountByRentableTypeReportTbl(&ri)
+		t := rrpt.RentableCountByRentableTypeReportTable(&ri)
 		fmt.Print(t.String())
 	case 8: // STATEMENT
 		fmt.Print(rrpt.RptStatementTextReport(&ri))

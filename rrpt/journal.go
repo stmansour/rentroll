@@ -297,7 +297,7 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 	jctx := jprintctx{ri.D1, ri.D2}
 	// setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
 
-	err := TableReportHeaderBlock(&tbl, "Journal", "JournalReport", ri)
+	err := TableReportHeaderBlock(&tbl, "Journal", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 

@@ -7,7 +7,6 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"rentroll/rrpt"
 	"rentroll/ws"
@@ -60,16 +59,16 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		{ReportNames: []string{"gsr"}, TableHandler: rrpt.GSRReportTable},
 		{ReportNames: []string{"j"}, TableHandler: rrpt.JournalReportTable},
 		{ReportNames: []string{"pmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
-		{ReportNames: []string{"r", "rentables"}, TableHandler: rcsv.RRreportRentablesTable},
-		{ReportNames: []string{"ra", "rental agreements"}, TableHandler: rcsv.RRreportRentalAgreementsTable},
-		{ReportNames: []string{"rat", "rental agreement templates"}, TableHandler: rcsv.RRreportRentalAgreementTemplatesTable},
-		{ReportNames: []string{"rcpt", "receipts"}, TableHandler: rcsv.RRReceiptsTable},
-		{ReportNames: []string{"rr", "rentroll"}, TableHandler: rrpt.RentRollReport},
-		{ReportNames: []string{"rt", "rentable types"}, TableHandler: rcsv.RRreportRentableTypesTable},
-		{ReportNames: []string{"rcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTbl},
-		{ReportNames: []string{"sl", "string lists"}, TableHandler: rcsv.RRreportStringListsTable},
+		{ReportNames: []string{"r", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
+		{ReportNames: []string{"ra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
+		{ReportNames: []string{"rat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
+		{ReportNames: []string{"rcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
+		{ReportNames: []string{"rr", "rentroll"}, TableHandler: rrpt.RentRollReportTable},
+		{ReportNames: []string{"rt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
+		{ReportNames: []string{"rcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},
+		{ReportNames: []string{"sl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable},
 		{ReportNames: []string{"t", "people"}, TableHandler: rrpt.RRreportPeopleTable},
-		{ReportNames: []string{"tb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReport},
+		{ReportNames: []string{"tb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable},
 	}
 
 	var wmr = []rrpt.MultiTableReportHandler{
@@ -77,9 +76,6 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		{ReportNames: []string{"la", "ledger activity"}, TableHandler: rrpt.LedgerActivityReport},
 		{ReportNames: []string{"statements"}, TableHandler: rrpt.RptStatementReportTable},
 	}
-
-	// debug
-	fmt.Println("ReportOutputFormat: ", ui.ReportOutputFormat)
 
 	// find reportname from list of report handler
 	// first find it from single table handler
@@ -98,8 +94,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			break
 		}
 	}
-	// debug
-	fmt.Println("single Report handler found: ", tsh.Found)
+
 	// if found then handle service for request
 	if tsh.Found {
 		tbl = tsh.TableHandler(&ri)
@@ -164,6 +159,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			break
 		}
 	}
+
 	// if found then handle service for request
 	if tmh.Found {
 		m := tmh.TableHandler(&ri)
@@ -193,83 +189,6 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	}
 
 	if !tsh.Found && !tmh.Found {
-		panic("NO reports found")
-	}
-
-	// ********************************************************************************************
-	// ********************************************************************************************
-
-	switch strings.ToLower(reportname) {
-	case "l", "ledger", "la", "ledger activity":
-		if xbiz.P.BID > 0 {
-			var m []gotable.Table
-			var rn string
-
-			if strings.ToLower(reportname) == "l" || strings.ToLower(reportname) == "ledger" {
-				rn = "Ledgers"
-			} else {
-				rn = "Ledger Activity"
-			}
-
-			ri.RptHeaderD1 = true
-			ri.RptHeaderD2 = true
-			s, err := rrpt.ReportHeader(rn, "websvcReportHandler", &ri)
-			if err != nil {
-				s += "\n" + err.Error()
-			}
-
-			if strings.ToLower(reportname) == "l" || strings.ToLower(reportname) == "ledger" {
-				m = rrpt.LedgerReport(&ri)
-			} else {
-				m = rrpt.LedgerActivityReport(&ri)
-			}
-
-			for i := 0; i < len(m); i++ {
-				temp := bytes.Buffer{}
-				err := m[i].HTMLprintTable(&temp)
-				if err != nil {
-					s += fmt.Sprintf("Error at %s in ledger reports in t.HTMLprintTable: %s\n", funcname, err.Error())
-					fmt.Print(s)
-					fmt.Fprintf(w, "%s\n", s)
-				}
-				w.Write(temp.Bytes())
-			}
-			return
-		}
-	case "r", "rentables":
-		tbl = rcsv.RRreportRentablesTable(&ri)
-	case "ra", "rental agreements":
-		tbl = rcsv.RRreportRentalAgreementsTable(&ri)
-	case "rat", "rental agreement templates":
-		tbl = rcsv.RRreportRentalAgreementTemplatesTable(&ri)
-	case "rcpt", "receipts":
-		tbl = rcsv.RRReceiptsTable(&ri)
-	case "rr", "rentroll":
-		rlib.InitBizInternals(ri.Bid, xbiz)
-		tbl = rrpt.RentRollReport(&ri)
-	case "rt", "rentable types":
-		tbl = rcsv.RRreportRentableTypesTable(&ri)
-	case "rcbt", "rentable type counts":
-		tbl = rrpt.RentableCountByRentableTypeReportTbl(&ri)
-	case "sl", "string lists":
-		tbl = rcsv.RRreportStringListsTable(&ri)
-	case "statements":
-		var s string
-		m := rrpt.RptStatementReportTable(&ri)
-		for i := 0; i < len(m); i++ {
-			temp := bytes.Buffer{}
-			err := m[i].HTMLprintTable(&temp)
-			if err != nil {
-				s += fmt.Sprintf("Error at %s in ledger reports in t.HTMLprintTable: %s\n", funcname, err.Error())
-				fmt.Print(s)
-				fmt.Fprintf(w, "%s\n", s)
-			}
-			w.Write(temp.Bytes())
-		}
-		return
-	case "tb", "trial balance":
-		tbl = rrpt.LedgerBalanceReport(&ri)
-	default:
 		fmt.Fprintf(w, "Unknown report type: %s", reportname)
 		return
 	}
@@ -342,22 +261,21 @@ func websvcReportHandler(prefix string, xbiz *rlib.XBusiness, ui *RRuiSupport) s
 	case "pmt", "payment types":
 		return rrpt.RRreportPaymentTypes(&ri)
 	case "r", "rentables":
-		return rcsv.RRreportRentables(&ri)
+		return rrpt.RRreportRentables(&ri)
 	case "ra", "rental agreements":
-		return rcsv.RRreportRentalAgreements(&ri)
+		return rrpt.RRreportRentalAgreements(&ri)
 	case "rat", "rental agreement templates":
-		return rcsv.RRreportRentalAgreementTemplates(&ri)
+		return rrpt.RRreportRentalAgreementTemplates(&ri)
 	case "rcpt", "receipts":
-		return rcsv.RRreportReceipts(&ri)
+		return rrpt.RRreportReceipts(&ri)
 	case "rr", "rentroll":
-		rlib.InitBizInternals(ri.Bid, xbiz)
-		return rrpt.RentRollReportString(&ri)
+		return rrpt.RentRollReport(&ri)
 	case "rt", "rentable types":
-		return rcsv.RRreportRentableTypes(&ri)
+		return rrpt.RRreportRentableTypes(&ri)
 	case "rcbt", "rentable type counts":
 		return rrpt.RentableCountByRentableTypeReport(&ri)
 	case "sl", "string lists":
-		return rcsv.RRreportStringLists(&ri)
+		return rrpt.RRreportStringLists(&ri)
 	case "statements":
 		return rrpt.RptStatementTextReport(&ri)
 	case "t", "people": // t = transactant

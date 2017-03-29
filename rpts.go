@@ -95,7 +95,7 @@ func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusin
 func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
-		tbl := rrpt.RentRollReport(&ri)
+		tbl := rrpt.RentRollReportTable(&ri)
 
 		tout, err := tbl.SprintTable()
 		if err != nil {
@@ -112,7 +112,7 @@ func RptTrialBalance(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusines
 	var err error
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
-		tbl := rrpt.LedgerBalanceReport(&ri)
+		tbl := rrpt.LedgerBalanceReportTable(&ri)
 		if err == nil {
 			s, err := tbl.SprintTable()
 			if err != nil {
