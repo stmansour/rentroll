@@ -97,7 +97,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		switch ui.ReportOutputFormat {
 		case gotable.TABLEOUTTEXT:
 			w.Header().Set("Content-Type", "text/plain")
-			w.Header().Set("Content-Disposition", "attachment; filename=sample.text")
+			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".text")
 			err := tbl.TextprintTable(w)
 			if err != nil {
 				s := fmt.Sprintf("Error in TextprintTable: %s\n", err.Error())
@@ -115,7 +115,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			return
 		case gotable.TABLEOUTCSV:
 			w.Header().Set("Content-Type", "text/csv")
-			w.Header().Set("Content-Disposition", "attachment; filename=sample.csv")
+			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".csv")
 			err := tbl.CSVprintTable(w)
 			if err != nil {
 				s := fmt.Sprintf("Error in CSVprintTable: %s\n", err.Error())
@@ -125,7 +125,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			return
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
-			w.Header().Set("Content-Disposition", "attachment; filename=sample.pdf")
+			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".pdf")
 			err := tbl.PDFprintTable(w)
 			if err != nil {
 				s := fmt.Sprintf("Error in PDFprintTable: %s\n", err.Error())
@@ -163,7 +163,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		switch ui.ReportOutputFormat {
 		case gotable.TABLEOUTTEXT:
 			w.Header().Set("Content-Type", "text/plain")
-			w.Header().Set("Content-Disposition", "attachment; filename=sample.text")
+			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".text")
 			rrpt.MultiTableTextPrint(m, w)
 			return
 		case gotable.TABLEOUTHTML:
@@ -171,12 +171,12 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			return
 		case gotable.TABLEOUTCSV:
 			w.Header().Set("Content-Type", "text/csv")
-			w.Header().Set("Content-Disposition", "attachment; filename=sample.csv")
+			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".csv")
 			rrpt.MultiTableCSVPrint(m, w)
 			return
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
-			w.Header().Set("Content-Disposition", "attachment; filename=sample.pdf")
+			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".pdf")
 			rrpt.MultiTablePDFPrint(m, w)
 			return
 		default:
@@ -373,10 +373,10 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		x, ok = m["rof"]
 		if ok && len(x[0]) > 0 {
 			if rof, ok = rlib.StringToInt(x[0]); !ok {
-				rof = gotable.TABLEOUTHTML
+				rof = gotable.TABLEOUTTEXT
 			}
 		} else {
-			rof = gotable.TABLEOUTHTML
+			rof = gotable.TABLEOUTTEXT
 		}
 		ui.ReportOutputFormat = rof
 	}
