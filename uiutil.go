@@ -22,18 +22,19 @@ type UILedger struct {
 // It is the responsibility of the page function to populate the data needed by
 // the page. The recommendation is to populate only the data needed.
 type RRuiSupport struct {
-	Language      string          // what language
-	Template      string          // which template
-	DtStart       string          // start of period of interest
-	D1            time.Time       // time.Time value for DtStart
-	DtStop        string          // end of period of interest
-	D2            time.Time       // time.Time value for DtStop
-	B             rlib.Business   // business associated with this report
-	BL            []rlib.Business // array of all businesses, for initializing dropdown selections
-	LDG           UILedger        // ledgers associated with this report
-	ReportContent string          // text report content
-	PgHnd         []RRPageHandler // the list of reports and handlers
-	PageTitle     string          // set page title via software
+	Language           string          // what language
+	Template           string          // which template
+	DtStart            string          // start of period of interest
+	D1                 time.Time       // time.Time value for DtStart
+	DtStop             string          // end of period of interest
+	D2                 time.Time       // time.Time value for DtStop
+	B                  rlib.Business   // business associated with this report
+	BL                 []rlib.Business // array of all businesses, for initializing dropdown selections
+	LDG                UILedger        // ledgers associated with this report
+	ReportContent      string          // text report content
+	PgHnd              []RRPageHandler // the list of reports and handlers
+	PageTitle          string          // set page title via software
+	ReportOutputFormat int
 }
 
 //========================================================================================================

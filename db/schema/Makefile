@@ -3,6 +3,8 @@ newdb: doit
 
 doit:
 	@touch fail
+	id
+	whoami
 	mysql --no-defaults < schema.sql
 	@rm -rf fail
 

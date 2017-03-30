@@ -64,7 +64,13 @@ func reportTextProcessLedgerMarker(tbl *gotable.Table, xbiz *rlib.XBusiness, lm 
 	// rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo.Query(l.BID, l.GLNumber, d1, d2)
 	rows, err := rlib.RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(l.BID, l.LID, d1, d2)
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var l rlib.LedgerEntry
 		rlib.ReadLedgerEntries(rows, &l)
@@ -107,15 +113,24 @@ func (a int64arr) Len() int           { return len(a) }
 func (a int64arr) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
 
-// LedgerActivityReport generates a Table Ledger for active accounts during the supplied time range
-func LedgerActivityReport(ri *ReporterInfo) []gotable.Table {
+// LedgerActivityReportTable generates a Table Ledger for active accounts during the supplied time range
+func LedgerActivityReportTable(ri *ReporterInfo) []gotable.Table {
+	// funcname := "LedgerActivityReportTable"
+
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+
 	var m []gotable.Table
 	// get the ids of the distinct ledgers that have been updated during &ri.D1-&ri.D2
 	// that is, only 1 occurrence of each LID
 	var t int64arr
 	rows, err := rlib.RRdb.Dbrr.Query("SELECT DISTINCT LID FROM LedgerEntry ORDER BY Dt,RAID ASC")
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		return m
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var lid int64
 		rlib.Errcheck(rows.Scan(&lid))
@@ -126,61 +141,60 @@ func LedgerActivityReport(ri *ReporterInfo) []gotable.Table {
 	// fmt.Printf("Sorted t:  %v\n", t)
 
 	for i := 0; i < len(t); i++ {
+		tbl := getRRTable()
+		initTableColumns(&tbl)
+
 		lm := rlib.GetLedgerMarkerOnOrBefore(ri.Xbiz.P.BID, t[i], &ri.D1)
-		if lm.LMID < 1 {
-			fmt.Printf("LedgerActivityReport: GLAccount %d -- no LedgerMarker on or before: %s\n", t[i], ri.D1.Format(rlib.RRDATEFMT))
-		} else {
-			var tbl gotable.Table
-			tbl.Init()
-			initTableColumns(&tbl)
+		if lm.LMID > 0 {
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
-
-			// set custom template for ledger reports
-			if i == 0 {
-				// set first ledger table layout template
-				tbl.SetHTMLTemplate("./html/firsttable.html")
-			} else if i == len(t)-1 {
-				// set last ledger table layout template
-				tbl.SetHTMLTemplate("./html/lasttable.html")
-			} else {
-				// set middle ledger table layout template
-				tbl.SetHTMLTemplate("./html/middletable.html")
-			}
-
-			m = append(m, tbl)
 		}
+
+		m = append(m, tbl)
 	}
 	return m
 }
 
-// LedgerReport generates a Table Ledger for the supplied Business and time range
-func LedgerReport(ri *ReporterInfo) []gotable.Table {
+// LedgerActivityReport returns text based report from LedgerActivityReportTable
+func LedgerActivityReport(ri *ReporterInfo) string {
+	m := LedgerActivityReportTable(ri)
+	var s string
+	// Spin through all the RentalAgreements that are active in this timeframe
+	for _, tbl := range m {
+		s += ReportToString(&tbl, ri) + "\n"
+	}
+	return s
+}
+
+// LedgerReportTable generates a Table Ledger for the supplied Business and time range
+func LedgerReportTable(ri *ReporterInfo) []gotable.Table {
+	// funcname := "LedgerReportTable"
+
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+
 	var m []gotable.Table
 	t := rlib.GetLedgerList(ri.Xbiz.P.BID) // this list contains the list of all GLAccount numbers
 	for i := 0; i < len(t); i++ {
+		tbl := getRRTable()
+		initTableColumns(&tbl)
+
 		lm := rlib.GetLedgerMarkerOnOrBefore(ri.Xbiz.P.BID, t[i].LID, &ri.D1)
-		if lm.LMID < 1 {
-			fmt.Printf("LedgerReport: GLNumber %s -- no LedgerMarker on or before: %s\n", t[i].GLNumber, ri.D1.Format(rlib.RRDATEFMT))
-		} else {
-			var tbl gotable.Table
-			tbl.Init()
-			initTableColumns(&tbl)
+		if lm.LMID > 0 {
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
-
-			// set custom template for ledger reports
-			if i == 0 {
-				// set first ledger table layout template
-				tbl.SetHTMLTemplate("./html/firsttable.html")
-			} else if i == len(t)-1 {
-				// set last ledger table layout template
-				tbl.SetHTMLTemplate("./html/lasttable.html")
-			} else {
-				// set middle ledger table layout template
-				tbl.SetHTMLTemplate("./html/middletable.html")
-			}
-
-			m = append(m, tbl)
 		}
+
+		m = append(m, tbl)
 	}
 	return m
+}
+
+// LedgerReport returns text report for LedgerReportTable
+func LedgerReport(ri *ReporterInfo) string {
+	m := LedgerReportTable(ri)
+	var s string
+	// Spin through all the RentalAgreements that are active in this timeframe
+	for _, tbl := range m {
+		s += ReportToString(&tbl, ri) + "\n"
+	}
+	return s
 }

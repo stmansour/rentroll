@@ -270,10 +270,17 @@ func textReportJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Jo
 
 }
 
-// JournalReport returns a Journal report in an gotable.Table for the supplied Business and time range
-func JournalReport(ri *ReporterInfo) gotable.Table {
-	var tbl gotable.Table
-	tbl.Init()
+// JournalReportTable returns a Journal report in a gotable.Table for the supplied Business and time range
+func JournalReportTable(ri *ReporterInfo) gotable.Table {
+	funcname := "JournalReportTable"
+
+	// init and prepare some values before table init
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+
+	// table init
+	tbl := getRRTable()
+
 	tbl.AddColumn("Journal ID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 0
 	tbl.AddColumn("Description", 70, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 1
 	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)          // 2
@@ -282,19 +289,26 @@ func JournalReport(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("GLAccount", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 5
 	tbl.AddColumn("Amount", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)      // 6
 
+	// prepare table's title, sections
+	err := TableReportHeaderBlock(&tbl, "Journal", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return tbl
+	}
+
+	// get records from db
+	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
+	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return tbl
+	}
+	defer rows.Close()
+
 	jctx := jprintctx{ri.D1, ri.D2}
 	// setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
 
-	ri.RptHeaderD1 = true
-	ri.RptHeaderD2 = true
-	err := TableReportHeaderBlock(&tbl, "Journal", "JournalReport", ri)
-	if err != nil {
-		rlib.LogAndPrintError("JournalReport", err)
-	}
-
-	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
-	rlib.Errcheck(err)
-	defer rows.Close()
 	for rows.Next() {
 		var j rlib.Journal
 		rlib.ReadJournals(rows, &j)
@@ -303,4 +317,10 @@ func JournalReport(ri *ReporterInfo) gotable.Table {
 	}
 	rlib.Errcheck(rows.Err())
 	return tbl
+}
+
+// JournalReport generates a text-based report based on JournalReportTable table object
+func JournalReport(ri *ReporterInfo) string {
+	tbl := JournalReportTable(ri)
+	return ReportToString(&tbl, ri)
 }

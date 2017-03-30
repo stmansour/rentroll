@@ -40,12 +40,10 @@ func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 	if xbiz.P.BID > 0 {
 		var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2, OutputFormat: gotable.TABLEOUTTEXT}
 		ri.OutputFormat = gotable.TABLEOUTTEXT
-		tbl := rrpt.JournalReport(&ri)
 		ri.RptHeader = true
 		ri.RptHeaderD1 = true
 		ri.RptHeaderD2 = true
-		// ui.ReportContent = tbl.Title + tbl.SprintTable()
-		ui.ReportContent = rrpt.ReportToString(&tbl, &ri)
+		ui.ReportContent = rrpt.JournalReport(&ri)
 	}
 }
 
@@ -68,9 +66,9 @@ func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusine
 	if xbiz.P.BID > 0 {
 		switch sel {
 		case 0: // all ledgers
-			m = rrpt.LedgerReport(&ri)
+			m = rrpt.LedgerReportTable(&ri)
 		case 1: // ledger activity
-			m = rrpt.LedgerActivityReport(&ri)
+			m = rrpt.LedgerActivityReportTable(&ri)
 		}
 		ui.ReportContent = ""
 		for i := 0; i < len(m); i++ {
@@ -78,7 +76,7 @@ func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusine
 			if err != nil {
 				s += err.Error()
 			}
-			ui.ReportContent += m[i].GetTitle() + s + "\n\n"
+			ui.ReportContent += s + "\n\n"
 		}
 	}
 }
@@ -97,7 +95,7 @@ func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusin
 func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
-		tbl := rrpt.RentRollReport(&ri)
+		tbl := rrpt.RentRollReportTable(&ri)
 
 		tout, err := tbl.SprintTable()
 		if err != nil {
@@ -114,7 +112,7 @@ func RptTrialBalance(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusines
 	var err error
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
-		tbl := rrpt.LedgerBalanceReport(&ri)
+		tbl := rrpt.LedgerBalanceReportTable(&ri)
 		if err == nil {
 			s, err := tbl.SprintTable()
 			if err != nil {
