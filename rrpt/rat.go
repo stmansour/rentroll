@@ -11,24 +11,16 @@ func RRreportRentalAgreementTemplatesTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportRentalAgreementTemplatesTable"
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("RA Template ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("RA Template Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Rental Agreement Templates", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

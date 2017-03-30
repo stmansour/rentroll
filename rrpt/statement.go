@@ -103,13 +103,7 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 	payors := ra.GetPayorNameList(&ri.D1, &ri.D2)
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -122,9 +116,6 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 	err := TableReportHeaderBlock(&tbl, s, funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
@@ -185,19 +176,8 @@ func RptStatementReportTable(ri *ReporterInfo) []gotable.Table {
 		var ra rlib.RentalAgreement
 		rlib.ReadRentalAgreements(rows, &ra)
 		tbl := RptStatementForRA(ri, &ra)
-
-		// first table custom template
-		if len(m) == 0 {
-			tbl.SetHTMLTemplate("./html/firsttable.html")
-		} else {
-			// middle table custom template
-			tbl.SetHTMLTemplate("./html/middletable.html")
-		}
-
 		m = append(m, tbl)
 	}
-	// last table custom template
-	m[len(m)-1].SetHTMLTemplate("./html/lasttable.html")
 	return m
 }
 
@@ -206,8 +186,8 @@ func RptStatementTextReport(ri *ReporterInfo) string {
 	m := RptStatementReportTable(ri)
 	var s string
 	// Spin through all the RentalAgreements that are active in this timeframe
-	for _, t := range m {
-		s += ReportToString(&t, ri) + "\n"
+	for _, tbl := range m {
+		s += ReportToString(&tbl, ri) + "\n"
 	}
 	return s
 }

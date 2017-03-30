@@ -23,13 +23,7 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 	ri.BlankLineAfterRptName = true
 
 	// initialize table for assessments report
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("ASMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("PASMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -41,13 +35,10 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("AsmType", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Account Rule", 80, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
-	// prepare table's title, section1, section2
+	// prepare table's title, section1, section2, section3 if there are any error
 	err := TableReportHeaderBlock(&tbl, "Assessments", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

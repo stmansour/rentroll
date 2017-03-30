@@ -61,13 +61,7 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 	totalErrs := 0
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)              // RentableType name
@@ -95,12 +89,10 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Change In Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
 	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

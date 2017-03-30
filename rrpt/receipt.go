@@ -16,13 +16,7 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 	ri.BlankLineAfterRptName = true
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("RCPTID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -33,12 +27,10 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Comment", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Receipts", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

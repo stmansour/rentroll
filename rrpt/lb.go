@@ -16,13 +16,7 @@ func LedgerBalanceReportTable(ri *ReporterInfo) gotable.Table {
 	ri.BlankLineAfterRptName = true
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -30,12 +24,10 @@ func LedgerBalanceReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Summary Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Trial Balance", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

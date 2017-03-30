@@ -12,13 +12,7 @@ func RRreportRentableTypesTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportRentableTypesTable"
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("RTID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 0
 	tbl.AddColumn("Style", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // 1
@@ -29,12 +23,10 @@ func RRreportRentableTypesTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Manage To Budget", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)         // 6
 	tbl.AddColumn("Dt1 - Dt2 : Market Rate", 96, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 7
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Rentable Types", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
@@ -86,25 +78,17 @@ func RentableCountByRentableTypeReportTable(ri *ReporterInfo) gotable.Table {
 	ri.RptHeaderD2 = true
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("No. Rentables", 9, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Rentable Type Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Style", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Custom Attributes", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Rentable Counts By Rentable Type", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

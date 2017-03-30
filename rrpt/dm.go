@@ -9,27 +9,21 @@ import (
 func RRreportDepositMethodsTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportDepositMethodsTable"
 
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("DPMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// prepare table's title, sections
 	err := TableReportHeaderBlock(&tbl, "Deposit Methods", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
+	// get records from db
 	m := rlib.GetAllDepositMethods(ri.Bid)
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()

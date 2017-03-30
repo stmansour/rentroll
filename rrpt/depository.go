@@ -9,28 +9,22 @@ import (
 func RRreportDepositoryTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportDepositoryTable"
 
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("DEPID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("BID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("AccountNo", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// prepare table title, sections
 	err := TableReportHeaderBlock(&tbl, "Depositories", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
+	// get records from db
 	m := rlib.GetAllDepositories(ri.Bid)
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()

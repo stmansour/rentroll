@@ -10,13 +10,7 @@ func RRreportCustomAttributesTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportCustomAttributesTable"
 
 	// table initialization
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("CID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -25,15 +19,14 @@ func RRreportCustomAttributesTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Value", 15, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Units", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// prepare table's title, section1, section2
 	err := TableReportHeaderBlock(&tbl, "Custom Attributes", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
+	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributes.Query()
 	rlib.Errcheck(err)
 	if rlib.IsSQLNoResultsError(err) {
@@ -70,28 +63,21 @@ func RRreportCustomAttributeRefsTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportCustomAttributeRefsTable"
 
 	// table initialization
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("Element Type", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("ID", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("CID", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 
+	// prepare table's title, sections
 	err := TableReportHeaderBlock(&tbl, "Custom Attributes References", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
+	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributeRefs.Query()
 	rlib.Errcheck(err)
 	if rlib.IsSQLNoResultsError(err) {

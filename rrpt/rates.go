@@ -13,8 +13,10 @@ func RentableMarketRates(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time) {
 	m := rlib.GetRentableTypeRefsByRange(r.RID, d1, d2)
 
 	fmt.Printf("RENTABLE RENT RATES\nRentable: %s  (%s)\nPeriod %s - %s\n\n", r.RentableName, r.IDtoString(), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
-	var tbl gotable.Table
-	tbl.Init()
+
+	// table init
+	tbl := getRRTable()
+
 	tbl.AddColumn("Start", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Stop", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)

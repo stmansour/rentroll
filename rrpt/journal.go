@@ -278,13 +278,8 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("Journal ID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 0
 	tbl.AddColumn("Description", 70, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 1
@@ -294,18 +289,14 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("GLAccount", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)    // 5
 	tbl.AddColumn("Amount", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)      // 6
 
-	jctx := jprintctx{ri.D1, ri.D2}
-	// setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
-
+	// prepare table's title, sections
 	err := TableReportHeaderBlock(&tbl, "Journal", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
+	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
 	rlib.Errcheck(err)
 	if rlib.IsSQLNoResultsError(err) {
@@ -314,6 +305,9 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 		return tbl
 	}
 	defer rows.Close()
+
+	jctx := jprintctx{ri.D1, ri.D2}
+	// setTitle(&tbl, ri.Xbiz, &ri.D1, &ri.D2)
 
 	for rows.Next() {
 		var j rlib.Journal

@@ -31,24 +31,16 @@ func RRreportStringListsTable(ri *ReporterInfo) gotable.Table {
 	)
 
 	// table init
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("SLSID", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Category", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Value", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "String Lists", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

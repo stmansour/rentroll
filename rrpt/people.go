@@ -9,13 +9,8 @@ import (
 func RRreportPeopleTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportPeopleTable"
 
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("TCID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("First Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -26,15 +21,14 @@ func RRreportPeopleTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Cell Phone", 17, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Primary Email", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// set title, sections
 	err := TableReportHeaderBlock(&tbl, "People", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
+	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllTransactantsForBID.Query(ri.Bid)
 	rlib.Errcheck(err)
 	if rlib.IsSQLNoResultsError(err) {

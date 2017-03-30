@@ -66,9 +66,9 @@ func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusine
 	if xbiz.P.BID > 0 {
 		switch sel {
 		case 0: // all ledgers
-			m = rrpt.LedgerReport(&ri)
+			m = rrpt.LedgerReportTable(&ri)
 		case 1: // ledger activity
-			m = rrpt.LedgerActivityReport(&ri)
+			m = rrpt.LedgerActivityReportTable(&ri)
 		}
 		ui.ReportContent = ""
 		for i := 0; i < len(m); i++ {

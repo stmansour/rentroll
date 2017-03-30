@@ -11,25 +11,18 @@ import (
 func RRreportPaymentTypesTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRreportPaymentTypesTable"
 
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("BID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Description", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Payment Types", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

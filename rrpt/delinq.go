@@ -25,13 +25,8 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	totalErrs := 0
 
-	var tbl gotable.Table
-	tbl.Init() //sets column spacing and date format to default
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                              // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                        // RentableType name
@@ -44,12 +39,10 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("90 Days Prior", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                        // the rental start date
 	tbl.AddColumn("Collection Notes", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                     // the possession start date
 
+	// prepare table's title, sections
 	err := TableReportHeaderBlock(&tbl, "Delinquency Report", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 

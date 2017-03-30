@@ -8,21 +8,16 @@ import (
 // RRreportBusinessTable generates a Table of all Businesses defined in the database.
 func RRreportBusinessTable(ri *ReporterInfo) gotable.Table {
 	// initialize table
-	var tbl gotable.Table
-	tbl.Init()
+	tbl := getRRTable()
 
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
-
-	tbl.SetTitle("Business Units")
 	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("BUD", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Default Rent Cycle", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Default Proration Cycle", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Default GSRPC Cycle", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+
+	tbl.SetTitle("Business Units\n\n")
 
 	rows, err := rlib.RRdb.Prepstmt.GetAllBusinesses.Query()
 	rlib.Errcheck(err)

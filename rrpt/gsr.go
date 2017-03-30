@@ -20,13 +20,8 @@ func GSRReportTable(ri *ReporterInfo) gotable.Table {
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = false
 
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)        // column for the Rentable name
 	tbl.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // Rentable name
@@ -36,15 +31,14 @@ func GSRReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)     // 5  Rent Cycle
 	tbl.AddColumn("Prorate Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 6  Proration Cycle
 
+	// prepare table's title, sections
 	err := TableReportHeaderBlock(&tbl, "Gross Scheduled Rent", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
+	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
 	rlib.Errcheck(err)
 	if rlib.IsSQLNoResultsError(err) {

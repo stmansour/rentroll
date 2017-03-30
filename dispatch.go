@@ -213,7 +213,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 
 	case 2: // LEDGER
 		// LedgerReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-		m := rrpt.LedgerReport(&ri)
+		m := rrpt.LedgerReportTable(&ri)
 		for i := 0; i < len(m); i++ {
 			fmt.Print(m[i])
 			fmt.Printf("\n\n")

@@ -99,13 +99,7 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 	}
 
 	// table initialization
-	var tbl gotable.Table
-	tbl.Init()
-
-	// after table is ready then set css only
-	// section3 will be used as error section
-	// so apply css here
-	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl := getRRTable()
 
 	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -121,12 +115,10 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Rental Agreement Required", 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
+	// prepare table's title, sections
 	err := TableReportHeaderBlock(&tbl, "Chart of Accounts", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-
-		// set errors in section3 and return
-		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
