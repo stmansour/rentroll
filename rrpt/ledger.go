@@ -115,7 +115,7 @@ func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
 
 // LedgerActivityReportTable generates a Table Ledger for active accounts during the supplied time range
 func LedgerActivityReportTable(ri *ReporterInfo) []gotable.Table {
-	funcname := "LedgerActivityReportTable"
+	// funcname := "LedgerActivityReportTable"
 
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
@@ -167,7 +167,8 @@ func LedgerActivityReport(ri *ReporterInfo) string {
 
 // LedgerReportTable generates a Table Ledger for the supplied Business and time range
 func LedgerReportTable(ri *ReporterInfo) []gotable.Table {
-	funcname := "LedgerReportTable"
+	// funcname := "LedgerReportTable"
+
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 
