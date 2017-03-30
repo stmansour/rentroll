@@ -115,7 +115,7 @@ func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
 
 // LedgerActivityReportTable generates a Table Ledger for active accounts during the supplied time range
 func LedgerActivityReportTable(ri *ReporterInfo) []gotable.Table {
-	funcname := "LedgerActivityReportTable"
+	// funcname := "LedgerActivityReportTable"
 
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
@@ -145,11 +145,7 @@ func LedgerActivityReportTable(ri *ReporterInfo) []gotable.Table {
 		initTableColumns(&tbl)
 
 		lm := rlib.GetLedgerMarkerOnOrBefore(ri.Xbiz.P.BID, t[i], &ri.D1)
-		if lm.LMID < 1 {
-			err := fmt.Errorf("%s: GLAccount %d -- no LedgerMarker on or before: %s\n", funcname, t[i], ri.D1.Format(rlib.RRDATEFMT))
-			// fmt.Printf("%s", err.Error())
-			tbl.SetSection3(err.Error())
-		} else {
+		if lm.LMID > 0 {
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
 		}
 
@@ -171,7 +167,8 @@ func LedgerActivityReport(ri *ReporterInfo) string {
 
 // LedgerReportTable generates a Table Ledger for the supplied Business and time range
 func LedgerReportTable(ri *ReporterInfo) []gotable.Table {
-	funcname := "LedgerReportTable"
+	// funcname := "LedgerReportTable"
+
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 
@@ -182,11 +179,7 @@ func LedgerReportTable(ri *ReporterInfo) []gotable.Table {
 		initTableColumns(&tbl)
 
 		lm := rlib.GetLedgerMarkerOnOrBefore(ri.Xbiz.P.BID, t[i].LID, &ri.D1)
-		if lm.LMID < 1 {
-			err := fmt.Errorf("%s: GLNumber %s -- no LedgerMarker on or before: %s\n", funcname, t[i].GLNumber, ri.D1.Format(rlib.RRDATEFMT))
-			// fmt.Printf("%s", err.Error())
-			tbl.SetSection3(err.Error())
-		} else {
+		if lm.LMID > 0 {
 			reportTextProcessLedgerMarker(&tbl, ri.Xbiz, &lm, &ri.D1, &ri.D2)
 		}
 
