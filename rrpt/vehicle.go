@@ -9,8 +9,7 @@ import (
 // vehicles in the supplied business
 func VehicleReportTable(bid int64) gotable.Table {
 	m := rlib.GetVehiclesByBID(bid)
-	var tbl gotable.Table
-	tbl.Init()
+
 	var b rlib.Business
 	rlib.GetBusiness(bid, &b)
 
@@ -32,6 +31,9 @@ func VehicleReportTable(bid int64) gotable.Table {
 		DtStart             = iota
 		DtStop              = iota
 	)
+
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("VID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("BUD", 5, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)

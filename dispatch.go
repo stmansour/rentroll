@@ -213,7 +213,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 
 	case 2: // LEDGER
 		// LedgerReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
-		m := rrpt.LedgerReport(&ri)
+		m := rrpt.LedgerReportTable(&ri)
 		for i := 0; i < len(m); i++ {
 			fmt.Print(m[i])
 			fmt.Printf("\n\n")
@@ -226,7 +226,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 6: // available
 	case 7: // RENTABLE COUNT BY TYPE
-		t := rrpt.RentableCountByRentableTypeReportTbl(&ri)
+		t := rrpt.RentableCountByRentableTypeReportTable(&ri)
 		fmt.Print(t.String())
 	case 8: // STATEMENT
 		fmt.Print(rrpt.RptStatementTextReport(&ri))
@@ -240,7 +240,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		invoiceno := rcsv.CSVLoaderGetInvoiceNo(sa[1])
 		rrpt.InvoiceTextReport(invoiceno)
 	case 10: // LEDGER ACTIVITY
-		m := rrpt.LedgerActivityReport(&ri)
+		m := rrpt.LedgerActivityReportTable(&ri)
 		for i := 0; i < len(m); i++ {
 			fmt.Print(m[i])
 			fmt.Printf("\n\n")
@@ -310,7 +310,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		fmt.Print(CreateDBBackupFileList())
 	case 22: // delete business
 		ri := rrpt.ReporterInfo{Xbiz: &ctx.xbiz, OutputFormat: gotable.TABLEOUTTEXT}
-		rcsv.RRreportBusiness(&ri)
+		rrpt.RRreportBusiness(&ri)
 		fmt.Printf("Deleting business: %d\n", ctx.xbiz.P.BID)
 		rlib.DeleteBusinessFromDB(ctx.xbiz.P.BID)
 

@@ -17,19 +17,16 @@ func DelinquencyTextReport(ri *ReporterInfo) {
 // DelinquencyReportTable generates a table object for Delinqency report for the business in xbiz and timeframe d1 to d2.
 func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 	funcname := "DelinquencyReportTable"
-	var tbl gotable.Table
 
-	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+	// prepare and init some values
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = true
 
+	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	totalErrs := 0
 
-	tbl.Init() //sets column spacing and date format to default
-	err := TableReportHeaderBlock(&tbl, "Delinquency Report", funcname, ri)
-	if err != nil {
-		rlib.LogAndPrintError(funcname, err)
-	}
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                              // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                        // RentableType name
@@ -41,6 +38,23 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("60 Days Prior", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                        // the possession start date
 	tbl.AddColumn("90 Days Prior", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                        // the rental start date
 	tbl.AddColumn("Collection Notes", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                     // the possession start date
+
+	// prepare table's title, sections
+	err := TableReportHeaderBlock(&tbl, "Delinquency Report", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return tbl
+	}
+
+	// loop through the Rentables...
+	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
+	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return tbl
+	}
+	defer rows.Close()
 
 	const (
 		RID     = 0
@@ -55,10 +69,6 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 		CNotes  = iota
 	)
 
-	// loop through the Rentables...
-	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
-	rlib.Errcheck(err)
-	defer rows.Close()
 	lid := rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID
 
 	for rows.Next() {
@@ -105,19 +115,12 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 	if totalErrs > 0 {
 		errMsg := fmt.Sprintf("Encountered %d errors while creating this report. See log.", totalErrs)
 		tbl.SetSection3(errMsg)
-
-		// use section3 for errors and apply red color
-		cssListSection3 := []*gotable.CSSProperty{
-			{Name: "color", Value: "red"},
-			{Name: "font-family", Value: "monospace"},
-		}
-		tbl.SetSection3CSS(cssListSection3)
 	}
 	return tbl
 }
 
 // DelinquencyReport generates a text-based Delinqency report for the business in xbiz and timeframe d1 to d2.
 func DelinquencyReport(ri *ReporterInfo) string {
-	t := DelinquencyReportTable(ri)
-	return ReportToString(&t, ri)
+	tbl := DelinquencyReportTable(ri)
+	return ReportToString(&tbl, ri)
 }

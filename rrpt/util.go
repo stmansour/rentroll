@@ -1,11 +1,38 @@
 package rrpt
 
 import (
+	"bytes"
 	"fmt"
 	"gotable"
+	"io"
 	"rentroll/rlib"
 	"time"
 )
+
+// RReportTableErrorSectionCSS holds css for errors placed in section3 of gotable
+var RReportTableErrorSectionCSS = []*gotable.CSSProperty{
+	{Name: "color", Value: "red"},
+	{Name: "font-family", Value: "monospace"},
+}
+
+const (
+	// NoRecordsFoundMsg message to show when there are no results found from db
+	NoRecordsFoundMsg = "no records found"
+)
+
+// SingleTableReportHandler : single table report handler, used to get report from a table in a required output format
+type SingleTableReportHandler struct {
+	Found        bool
+	ReportNames  []string
+	TableHandler func(*ReporterInfo) gotable.Table
+}
+
+// MultiTableReportHandler : multi table report handler, used to get report from multiple tables in a required output format
+type MultiTableReportHandler struct {
+	Found        bool
+	ReportNames  []string
+	TableHandler func(*ReporterInfo) []gotable.Table
+}
 
 // ReporterInfo is for routines that want to table-ize their reporting using
 // the CSV library's simple report routines.
@@ -34,15 +61,16 @@ type ReporterInfo struct {
 //			Section2:  <Business name and address>
 //
 // @params
-//	rn	     = Report Name
+//	tbl  	      = table containing the report
+//	rn	      = Report Name
 //	funcname = name of calling routine in case of error
-//  ri       = reporter info struct, please ensure RptHeaderD1 and RptHeaderD2 are set correctly
+//	ri	      = reporter info struct, please ensure RptHeaderD1 and RptHeaderD2 are set correctly
 //
 // @return
 //		string = title string
 //         err = any problem that occurred
-func TableReportHeader(t *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
-	t.SetTitle(ri.Xbiz.P.Designation + " " + rn)
+func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+	tbl.SetTitle(ri.Xbiz.P.Designation + " " + rn)
 
 	var s string
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
@@ -52,12 +80,13 @@ func TableReportHeader(t *gotable.Table, rn, funcname string, ri *ReporterInfo) 
 	} else if ri.RptHeaderD2 {
 		s = ri.D2.Format(rlib.RRDATEREPORTFMT)
 	}
-	t.SetSection1(s)
+	tbl.SetSection1(s)
 
 	var s1 string
 	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
+		tbl.SetSection3(e.Error())
 		return e
 	}
 	if bu.CoCode == 0 {
@@ -66,6 +95,7 @@ func TableReportHeader(t *gotable.Table, rn, funcname string, ri *ReporterInfo) 
 		c, err := rlib.GetCompany(int64(bu.CoCode))
 		if err != nil {
 			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
+			tbl.SetSection3(e.Error())
 			return e
 		}
 		s1 += fmt.Sprintf("%s\n", c.LegalName)
@@ -75,11 +105,11 @@ func TableReportHeader(t *gotable.Table, rn, funcname string, ri *ReporterInfo) 
 		}
 		s1 += fmt.Sprintf("%s, %s %s %s\n\n", c.City, c.State, c.PostalCode, c.Country)
 	}
-
+	// TODO: handle blank line thing for html???
 	if ri.BlankLineAfterRptName {
 		s1 += "\n"
 	}
-	t.SetSection2(s1)
+	tbl.SetSection2(s1)
 
 	return nil
 }
@@ -88,18 +118,18 @@ func TableReportHeader(t *gotable.Table, rn, funcname string, ri *ReporterInfo) 
 //		and will append any error messages to the title.
 //
 // @params
-//		  t = table containing the report
+//		  tbl = table containing the report
 //	funcname = name of calling routine in case of error
 //        ri = reporter info struct, please ensure RptHeaderD1 and RptHeaderD2 are set correctly
 //
 // @return
 //		string = title string
-func TableReportHeaderBlock(t *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+func TableReportHeaderBlock(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
 	if ri.Xbiz == nil {
 		ri.Xbiz = new(rlib.XBusiness)
 		rlib.GetXBusiness(ri.Bid, ri.Xbiz)
 	}
-	return TableReportHeader(t, rn, funcname, ri)
+	return TableReportHeader(tbl, rn, funcname, ri)
 }
 
 // ReportHeader returns a title block of text for a report.
@@ -180,16 +210,111 @@ func ReportHeaderBlock(rn, funcname string, ri *ReporterInfo) string {
 // @return
 //		string version of the report
 func ReportToString(t *gotable.Table, ri *ReporterInfo) string {
-	if ri.RptHeader {
-		s, err := t.SprintTable()
-		if nil != err {
-			rlib.Ulog("ReportToString: error = %s", err)
-		}
-		return t.GetTitle() + s
-	}
 	s, err := t.SprintTable()
 	if nil != err {
+		s += err.Error()
 		rlib.Ulog("ReportToString: error = %s", err)
 	}
 	return s
+}
+
+// getRRTable returns a table with some basic initialization
+// to be used in all reports of rentroll software
+func getRRTable() gotable.Table {
+	var tbl gotable.Table
+	tbl.Init()
+
+	// after table is ready then set css only
+	// section3 will be used as error section
+	// so apply css here
+	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl.SetNoRowsCSS(RReportTableErrorSectionCSS)
+	tbl.SetNoHeadersCSS(RReportTableErrorSectionCSS)
+
+	return tbl
+}
+
+// MultiTableTextPrint writes text output from each table to w io.Writer
+func MultiTableTextPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTableTextPrint"
+
+	for i := 0; i < len(m); i++ {
+		temp := bytes.Buffer{}
+		err := m[i].TextprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.TextprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		temp.WriteByte('\n')
+		w.Write(temp.Bytes())
+	}
+}
+
+// MultiTableCSVPrint writes csv output from each table to w io.Writer
+func MultiTableCSVPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTableCSVPrint"
+
+	// TODO: how to handle multiple csv writer
+	// add one line between reports??
+
+	for i := 0; i < len(m); i++ {
+		temp := bytes.Buffer{}
+		err := m[i].CSVprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.CSVprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		temp.WriteByte('\n')
+		w.Write(temp.Bytes())
+	}
+}
+
+// MultiTableHTMLPrint writes html output from each table to w io.Writer
+func MultiTableHTMLPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTableHTMLPrint"
+
+	for i := 0; i < len(m); i++ {
+
+		// set custom template for reports
+		if i == 0 {
+			// set first table layout template
+			m[i].SetHTMLTemplate("./html/firsttable.html")
+		} else if i == len(m)-1 {
+			// set last table layout template
+			m[i].SetHTMLTemplate("./html/lasttable.html")
+		} else {
+			// set middle table layout template
+			m[i].SetHTMLTemplate("./html/middletable.html")
+		}
+
+		temp := bytes.Buffer{}
+		err := m[i].HTMLprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.HTMLprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		w.Write(temp.Bytes())
+	}
+}
+
+// MultiTablePDFPrint writes pdf output from each table to w io.Writer
+func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
+	funcname := "MultiTablePDFPrint"
+
+	// TODO: how to handle multiple pdf writer
+	// zip multiple files on one files??
+
+	for i := 0; i < len(m); i++ {
+		temp := bytes.Buffer{}
+		err := m[i].PDFprintTable(&temp)
+		if err != nil {
+			s := fmt.Sprintf("Error at %s in t.PDFprintTable: %s\n", funcname, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+		}
+		w.Write(temp.Bytes())
+	}
 }

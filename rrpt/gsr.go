@@ -15,15 +15,13 @@ func GSRTextReport(ri *ReporterInfo) {
 // GSRReportTable generates a list of GSR values for all rentables on the specified date
 func GSRReportTable(ri *ReporterInfo) gotable.Table {
 	funcname := "GSRReportTable"
-	var tbl gotable.Table
-	tbl.Init() //sets column spacing and date format to default
+
+	// init and prepare some values before table init
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = false
 
-	err := TableReportHeaderBlock(&tbl, "Gross Scheduled Rent", funcname, ri)
-	if err != nil {
-		rlib.LogAndPrintError(funcname, err)
-	}
+	// table init
+	tbl := getRRTable()
 
 	tbl.AddColumn("Rentable", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)        // column for the Rentable name
 	tbl.AddColumn("Name", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // Rentable name
@@ -33,9 +31,23 @@ func GSRReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)     // 5  Rent Cycle
 	tbl.AddColumn("Prorate Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)  // 6  Proration Cycle
 
+	// prepare table's title, sections
+	err := TableReportHeaderBlock(&tbl, "Gross Scheduled Rent", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return tbl
+	}
+
+	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
 	rlib.Errcheck(err)
+	if rlib.IsSQLNoResultsError(err) {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return tbl
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var r rlib.Rentable
 		var rc, pc int64
@@ -65,4 +77,10 @@ func GSRReportTable(ri *ReporterInfo) gotable.Table {
 	}
 	rlib.Errcheck(rows.Err())
 	return tbl
+}
+
+// GSRReport generates a text-based report based on GSRReportTable table object
+func GSRReport(ri *ReporterInfo) string {
+	tbl := GSRReportTable(ri)
+	return ReportToString(&tbl, ri)
 }

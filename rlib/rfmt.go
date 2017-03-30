@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"time"
 
@@ -196,4 +197,13 @@ func IncMonths(m time.Month, n int64) (time.Month, int64) {
 	mo = mo % int64(12)
 	m = time.Month(mo + 1)
 	return m, y
+}
+
+// StringToInt simply converts string to int and returns it with ok flag
+func StringToInt(s string) (int, bool) {
+	var i int
+	if i, err := strconv.Atoi(s); err != nil {
+		return i, false
+	}
+	return i, true
 }
