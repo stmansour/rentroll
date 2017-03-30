@@ -373,10 +373,10 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 		x, ok = m["rof"]
 		if ok && len(x[0]) > 0 {
 			if rof, ok = rlib.StringToInt(x[0]); !ok {
-				rof = gotable.TABLEOUTTEXT
+				rof = gotable.TABLEOUTHTML
 			}
 		} else {
-			rof = gotable.TABLEOUTTEXT
+			rof = gotable.TABLEOUTHTML
 		}
 		ui.ReportOutputFormat = rof
 	}

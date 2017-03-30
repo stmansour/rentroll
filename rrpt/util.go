@@ -228,6 +228,8 @@ func getRRTable() gotable.Table {
 	// section3 will be used as error section
 	// so apply css here
 	tbl.SetSection3CSS(RReportTableErrorSectionCSS)
+	tbl.SetNoRowsCSS(RReportTableErrorSectionCSS)
+	tbl.SetNoHeadersCSS(RReportTableErrorSectionCSS)
 
 	return tbl
 }
@@ -244,6 +246,7 @@ func MultiTableTextPrint(m []gotable.Table, w io.Writer) {
 			fmt.Print(s)
 			fmt.Fprintf(w, "%s\n", s)
 		}
+		temp.WriteByte('\n')
 		w.Write(temp.Bytes())
 	}
 }
@@ -263,6 +266,7 @@ func MultiTableCSVPrint(m []gotable.Table, w io.Writer) {
 			fmt.Print(s)
 			fmt.Fprintf(w, "%s\n", s)
 		}
+		temp.WriteByte('\n')
 		w.Write(temp.Bytes())
 	}
 }

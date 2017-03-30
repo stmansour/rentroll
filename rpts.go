@@ -76,7 +76,7 @@ func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusine
 			if err != nil {
 				s += err.Error()
 			}
-			ui.ReportContent += m[i].GetTitle() + s + "\n\n"
+			ui.ReportContent += s + "\n\n"
 		}
 	}
 }

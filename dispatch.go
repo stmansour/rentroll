@@ -240,7 +240,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		invoiceno := rcsv.CSVLoaderGetInvoiceNo(sa[1])
 		rrpt.InvoiceTextReport(invoiceno)
 	case 10: // LEDGER ACTIVITY
-		m := rrpt.LedgerActivityReport(&ri)
+		m := rrpt.LedgerActivityReportTable(&ri)
 		for i := 0; i < len(m); i++ {
 			fmt.Print(m[i])
 			fmt.Printf("\n\n")
