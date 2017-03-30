@@ -8,6 +8,12 @@ func updateError(err error, n string, a interface{}) error {
 	return err
 }
 
+// UpdateAccountDepository updates an AccountDepository record
+func UpdateAccountDepository(a *AccountDepository) error {
+	_, err := RRdb.Prepstmt.UpdateAccountDepository.Exec(a.BID, a.LID, a.DEPID, a.LastModTime, a.LastModBy, a.ADID)
+	return updateError(err, "AccountDepository", *a)
+}
+
 // UpdateAssessment updates an Assessment record
 func UpdateAssessment(a *Assessment) error {
 	_, err := RRdb.Prepstmt.UpdateAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy, a.ASMID)
@@ -72,6 +78,12 @@ func UpdateLedger(a *GLAccount) error {
 func UpdateJournalAllocation(a *JournalAllocation) error {
 	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.Amount, a.ASMID, a.AcctRule, a.JAID)
 	return updateError(err, "JournalAllocation", *a)
+}
+
+// UpdatePaymentType updates a PaymentType record in the database
+func UpdatePaymentType(a *PaymentType) error {
+	_, err := RRdb.Prepstmt.UpdatePaymentType.Exec(a.BID, a.Name, a.Description, a.LastModBy, a.PMTID)
+	return updateError(err, "PaymentType", *a)
 }
 
 // UpdatePayor updates a Payor record in the database

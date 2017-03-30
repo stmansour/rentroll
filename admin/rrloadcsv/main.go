@@ -31,40 +31,41 @@ import (
 var App struct {
 	dbdir          *sql.DB                    // phonebook db
 	dbrr           *sql.DB                    //rentroll db
+	AcctDep        string                     // account depository
+	AsmtFile       string                     // Assessments
+	AssignFile     string                     // assign custom attributes
+	BizFile        string                     // name of csv file with new biz info
+	BldgFile       string                     // Buildings for this Business
+	BUD            string                     // business unit designator
+	CoaFile        string                     // chart of accounts
+	CustomFile     string                     // custom attributes
 	DBDir          string                     // phonebook database
 	DBRR           string                     //rentroll database
 	DBUser         string                     // user for all databases
-	PmtTypes       map[int64]rlib.PaymentType // all payment types in this db
-	Report         string                     // Report: 1 = Journal, 2 = Ledger, 3 = Businesses, 4 = Rentable types
-	BizFile        string                     // name of csv file with new biz info
-	RTFile         string                     // Rentable types csv file
-	RFile          string                     // rentables csv file
-	RSpFile        string                     // Rentable specialties
-	BldgFile       string                     // Buildings for this Business
-	PplFile        string                     // people for this Business
-	VehicleFile    string                     // vehicles that belong to people
-	RatFile        string                     // rentalAgreementTemplates
-	RaFile         string                     // rental agreement cvs file
-	CoaFile        string                     // chart of accounts
-	AsmtFile       string                     // Assessments
-	PmtTypeFile    string                     // payment types
-	RcptFile       string                     // receipts of payments
-	CustomFile     string                     // custom attributes
-	AssignFile     string                     // assign custom attributes
-	PetFile        string                     // assign pets
-	RspRefsFile    string                     // assign specialties to rentables
-	NoteTypeFile   string                     // note types
-	DepositoryFile string                     // Depository
 	DepositFile    string                     // Deposits
-	InvoiceFile    string                     // Invoice
+	DepositoryFile string                     // Depository
 	DMFile         string                     // Deposit Methods
-	SrcFile        string                     // Sources
-	SLFile         string                     // StringLists
+	InvoiceFile    string                     // Invoice
+	NoteTypeFile   string                     // note types
+	PetFile        string                     // assign pets
+	PmtTypeFile    string                     // payment types
+	PmtTypes       map[int64]rlib.PaymentType // all payment types in this db
+	PplFile        string                     // people for this Business
+	RaFile         string                     // rental agreement cvs file
+	RatFile        string                     // rentalAgreementTemplates
+	RcptFile       string                     // receipts of payments
+	Report         string                     // Report: 1 = Journal, 2 = Ledger, 3 = Businesses, 4 = Rentable types
+	RFile          string                     // rentables csv file
 	RPFile         string                     // RatePlans
 	RPRefFile      string                     // RatePlanRef
 	RPRRTRateFile  string                     // RatePlanRefRTRate
 	RPRSPRateFile  string                     // RatePlanRefSPRate
-	BUD            string                     // business unit designator
+	RSpFile        string                     // Rentable specialties
+	RspRefsFile    string                     // assign specialties to rentables
+	RTFile         string                     // Rentable types csv file
+	SLFile         string                     // StringLists
+	SrcFile        string                     // Sources
+	VehicleFile    string                     // vehicles that belong to people
 	DtStart        time.Time                  // range start time
 	DtStop         time.Time                  // range stop time
 	Xbiz           rlib.XBusiness             // xbusiness associated with -G  (BUD)
@@ -85,6 +86,7 @@ func readCommandLineArgs() {
 	rprptr := flag.String("f", "", "add RatePlanRefs via csv file")
 	pDates := flag.String("g", "", "Date Range.  Example: 1/1/16,2/1/16")
 	pBUD := flag.String("G", "", "BUD - business unit designator")
+	pAD := flag.String("H", "", "add Account Depositories via csv file")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
 	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName, 28-BUD")
 	slPtr := flag.String("l", "", "add StringLists via csv file")
@@ -112,37 +114,38 @@ func readCommandLineArgs() {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
 		os.Exit(0)
 	}
+	App.AcctDep = *pAD
+	App.AsmtFile = *asmtPtr
+	App.AssignFile = *asgnPtr
+	App.BizFile = *bizPtr
+	App.BldgFile = *bldgPtr
+	App.CoaFile = *coaPtr
+	App.CustomFile = *custPtr
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
-	App.BizFile = *bizPtr
-	App.AsmtFile = *asmtPtr
-	App.RTFile = *rtPtr
-	App.RSpFile = *rspPtr
-	App.BldgFile = *bldgPtr
-	App.RFile = *rPtr
-	App.PplFile = *pPtr
-	App.RatFile = *ratPtr
-	App.RaFile = *raPtr
-	App.CoaFile = *coaPtr
+	App.DepositFile = *depositPtr
+	App.DepositoryFile = *depositoryPtr
+	App.DMFile = *dmPtr
+	App.InvoiceFile = *invPtr
+	App.NoteTypeFile = *ntPtr
+	App.PetFile = *petPtr
 	App.PmtTypeFile = *pmtPtr
+	App.PplFile = *pPtr
+	App.RaFile = *raPtr
+	App.RatFile = *ratPtr
 	App.RcptFile = *rcptPtr
 	App.Report = *lptr
-	App.CustomFile = *custPtr
-	App.AssignFile = *asgnPtr
-	App.PetFile = *petPtr
-	App.RspRefsFile = *rsrefsPtr
-	App.NoteTypeFile = *ntPtr
-	App.DepositoryFile = *depositoryPtr
-	App.DepositFile = *depositPtr
-	App.InvoiceFile = *invPtr
-	App.DMFile = *dmPtr
-	App.SrcFile = *src
-	App.SLFile = *slPtr
+	App.RFile = *rPtr
 	App.RPFile = *rpptr
 	App.RPRefFile = *rprptr
 	App.RPRRTRateFile = *rprrt
 	App.RPRSPRateFile = *rprsp
+	App.RSpFile = *rspPtr
+	App.RspRefsFile = *rsrefsPtr
+	App.RTFile = *rtPtr
+	App.SLFile = *slPtr
+	App.SrcFile = *src
 	App.VehicleFile = *vehiclePtr
 	var err error
 	s := *pDates
@@ -251,10 +254,11 @@ func main() {
 	}
 	if App.Xbiz.P.BID > 0 {
 		rcsv.InitRCSV(&App.DtStart, &App.DtStop, &App.Xbiz)
+		rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
 	}
 
-	if len(App.RcptFile) > 0 {
-		App.PmtTypes = rlib.GetPaymentTypes()
+	if len(App.RcptFile) > 0 && App.Xbiz.P.BID > 0 {
+		App.PmtTypes = rlib.GetPaymentTypesByBusiness(App.Xbiz.P.BID)
 	}
 
 	//----------------------------------------------------
@@ -279,6 +283,7 @@ func main() {
 		{Fname: App.RaFile, Handler: rcsv.LoadRentalAgreementCSV},
 		{Fname: App.PetFile, Handler: rcsv.LoadPetsCSV},
 		{Fname: App.CoaFile, Handler: rcsv.LoadChartOfAccountsCSV},
+		{Fname: App.AcctDep, Handler: rcsv.LoadAccountDepositoryCSV},
 		{Fname: App.RPFile, Handler: rcsv.LoadRatePlansCSV},
 		{Fname: App.RPRefFile, Handler: rcsv.LoadRatePlanRefsCSV},
 		{Fname: App.RPRRTRateFile, Handler: rcsv.LoadRatePlanRefRTRatesCSV},
@@ -326,6 +331,7 @@ func main() {
 		{ReportNo: 26, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
 		{ReportNo: 27, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
 		{ReportNo: 28, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
+		{ReportNo: 29, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.AccountDepository},
 	}
 
 	if len(App.Report) > 0 {

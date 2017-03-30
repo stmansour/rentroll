@@ -1,5 +1,23 @@
 package rlib
 
+// InsertAccountDepository writes a new AccountDepository record to the database. If the record is successfully written,
+// the ASMID field is set to its new value.
+func InsertAccountDepository(a *AccountDepository) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertAccountDepository.Exec(a.BID, a.LID, a.DEPID, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+			a.ADID = rid
+		}
+	} else {
+		Ulog("InsertAccountDepository: error inserting AccountDepository:  %v\n", err)
+		Ulog("AccountDepository = %#v\n", *a)
+	}
+	return rid, err
+}
+
 // InsertAssessment writes a new assessmenttype record to the database. If the record is successfully written,
 // the ASMID field is set to its new value.
 func InsertAssessment(a *Assessment) (int64, error) {
@@ -400,7 +418,16 @@ func InsertRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 
 // InsertPaymentType writes a new assessmenttype record to the database
 func InsertPaymentType(a *PaymentType) error {
-	_, err := RRdb.Prepstmt.InsertPaymentType.Exec(a.BID, a.Name, a.Description, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertPaymentType.Exec(a.BID, a.Name, a.Description, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			a.PMTID = int64(id)
+		}
+	} else {
+		Ulog("InsertPayor: error inserting Payor:  %v\n", err)
+		Ulog("Payor = %#v\n", *a)
+	}
 	return err
 }
 

@@ -142,6 +142,17 @@ const (
 // TCID = Transactant id == PayorID == UserID == ProspectID
 //==========================================
 
+// AccountDepository is used to define the account(s) where deposits for a GL Account (LID)
+// can be made
+type AccountDepository struct {
+	ADID        int64     // unique id for a depository
+	BID         int64     // business id
+	LID         int64     // the GL account that represents this depository
+	DEPID       int64     // Depository to associate
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+}
+
 // StringList is a generic list structure for lists of strings. These could be used to implement things like
 // the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
 // moving out, etc.
@@ -1093,6 +1104,7 @@ type RRprepSQL struct {
 	GetNoteList                          *sql.Stmt
 	GetNoteListMembers                   *sql.Stmt
 	GetNoteType                          *sql.Stmt
+	GetPaymentType                       *sql.Stmt
 	GetPaymentTypeByName                 *sql.Stmt
 	GetPaymentTypesByBusiness            *sql.Stmt
 	GetPayor                             *sql.Stmt
@@ -1218,6 +1230,7 @@ type RRprepSQL struct {
 	UpdateLedgerMarker                   *sql.Stmt
 	UpdateNote                           *sql.Stmt
 	UpdateNoteType                       *sql.Stmt
+	UpdatePaymentType                    *sql.Stmt
 	UpdatePayor                          *sql.Stmt
 	UpdateProspect                       *sql.Stmt
 	UpdateRatePlan                       *sql.Stmt
@@ -1252,6 +1265,12 @@ type RRprepSQL struct {
 	UpdateReceiptAllocation              *sql.Stmt
 	DeleteJournalAllocation              *sql.Stmt
 	UpdateJournalAllocation              *sql.Stmt
+	GetAccountDepository                 *sql.Stmt
+	GetAllAccountDepositories            *sql.Stmt
+	InsertAccountDepository              *sql.Stmt
+	UpdateAccountDepository              *sql.Stmt
+	DeleteAccountDepository              *sql.Stmt
+	DeletePaymentType                    *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
@@ -1260,6 +1279,7 @@ type RRprepSQL struct {
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
 var AllTables = []string{
+	"AccountDepository",
 	"AssessmentTax",
 	"Assessments",
 	"AvailabilityTypes",
@@ -1293,7 +1313,7 @@ var AllTables = []string{
 	"NoteType",
 	"Notes",
 	"OtherDeliverables",
-	"PaymentTypes",
+	"PaymentType",
 	"Payor",
 	"Prospect",
 	"RatePlan",

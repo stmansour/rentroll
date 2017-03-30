@@ -69,7 +69,7 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusi
 	return nil
 }
 
-var pmtTypes = map[int64]rlib.PaymentType{}
+//var pmtTypes = map[int64]rlib.PaymentType{}
 
 // CreateReceiptsFromCSV reads an assessment type string array and creates a database record for the assessment type
 func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
@@ -123,6 +123,8 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 		r.BID = b1.BID
 		rlib.GetXBusiness(r.BID, &xbiz)
 	}
+
+	pmtTypes := rlib.GetPaymentTypesByBusiness(r.BID)
 
 	//-------------------------------------------------------------------
 	// Find Rental Agreement
@@ -219,7 +221,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 // LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadReceiptsCSV(fname string) []error {
 	var m []error
-	pmtTypes = rlib.GetPaymentTypes()
+	// pmtTypes = rlib.GetPaymentTypes()
 	t := rlib.LoadCSV(fname)
 	if len(t) > 1 {
 		//-------------------------------------------------------------------

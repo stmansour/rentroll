@@ -93,6 +93,17 @@ type WebTypeDownRequest struct {
 	Max    int    `json:"max"`
 }
 
+// WebGridDelete is a generic command structure returned when records are
+// deleted from a grid. the Selected struct will contain the list of ids
+// (recids which should map to the record type unique identifier) that are
+// to be deleted.
+type WebGridDelete struct {
+	Cmd      string  `json:"cmd"`
+	Selected []int64 `json:"selected"`
+	Limit    int     `json:"limit"`
+	Offset   int     `json:"offset"`
+}
+
 // ServiceData is the generalized data gatherer for svcHandler. It allows all
 // the common data to be centrally parsed and passed to a handler, which may
 // need to parse further to get its unique data.  It includes fields for
@@ -118,23 +129,24 @@ type ServiceData struct {
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
-	{"transactants", SvcSearchHandlerTransactants, true},
-	{"transactantstd", SvcTransactantTypeDown, true},
 	{"accounts", SvcSearchHandlerGLAccounts, true},
-	{"asms", SvcSearchHandlerAssessments, true},
 	{"asm", SvcFormHandlerAssessment, true},
+	{"asms", SvcSearchHandlerAssessments, true},
+	{"pmts", SvcHandlerPaymentType, true},
+	{"person", SvcFormHandlerXPerson, true},
+	{"rapayor", SvcRAPayor, true},
+	{"rapets", SvcRAPets, true},
 	{"rar", SvcRARentables, true},
-	{"receipts", SvcSearchHandlerReceipts, true},
 	{"receipt", SvcFormHandlerReceipt, true},
+	{"receipts", SvcSearchHandlerReceipts, true},
+	{"rentable", SvcFormHandlerRentable, true},
 	{"rentables", SvcSearchHandlerRentables, true},
 	{"rentablestd", SvcRentableTypeDown, true},
 	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
-	{"person", SvcFormHandlerXPerson, true},
-	{"rapayor", SvcRAPayor, true},
 	{"ruser", SvcRUser, true},
-	{"rapets", SvcRAPets, true},
-	{"rentable", SvcFormHandlerRentable, true},
+	{"transactants", SvcSearchHandlerTransactants, true},
+	{"transactantstd", SvcTransactantTypeDown, true},
 	{"uilists", SvcUILists, false},
 }
 
@@ -160,6 +172,9 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var d ServiceData
 
+	d.ID = -1  // indicates it has not been set
+	d.BID = -1 // indicates it has not been set
+
 	//-----------------------------------------------------------------------
 	// pathElements:  0   1            2     3
 	//               /v1/{subservice}/{BUI}/{ID} into an array of strings
@@ -168,8 +183,13 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
 	pathElements := strings.Split(ss[0], "/")
 	d.Service = pathElements[1]
-	if len(pathElements) >= 3 {
-		d.BID = getBIDfromBUI(pathElements[2])
+	if d.Service != "uilists" && len(pathElements) >= 3 {
+		d.BID, err = getBIDfromBUI(pathElements[2])
+		if err != nil {
+			e := fmt.Errorf("Could not determine business from %s", pathElements[2])
+			SvcGridErrorReturn(w, e)
+			return
+		}
 	}
 	if len(pathElements) >= 4 {
 		d.ID, err = rlib.IntFromString(pathElements[3], "bad request integer value") // assume it's a BID
@@ -219,14 +239,15 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		e := fmt.Errorf("Service not recognized: %s", d.Service)
 		fmt.Printf("***ERROR IN URL***  %s", e.Error())
 		SvcGridErrorReturn(w, e)
+		return
 	}
 	svcDebugTxnEnd()
 }
 
-func getBIDfromBUI(s string) int64 {
+func getBIDfromBUI(s string) (int64, error) {
 	s = strings.TrimSpace(s)
 	if len(s) == 0 {
-		return int64(0)
+		return int64(0), nil
 	}
 	d, err := rlib.IntFromString(s, "bad request integer value") // assume it's a BID
 	if err != nil {
@@ -238,7 +259,7 @@ func getBIDfromBUI(s string) int64 {
 			err = fmt.Errorf("Could not find Business for %q", s)
 		}
 	}
-	return d
+	return d, err
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
@@ -314,7 +335,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	}
 	fmt.Printf("\tUnescaped htmlData = %s\n", u)
 
-	u = strings.TrimPrefix(u, "request=") // strip off "request=" if it is present (w2ui sends this string)
+	u = strings.TrimPrefix(u, "request=") // strip off "request=" if it is present
 	d.data = u
 	var wjs WebGridSearchRequestJSON
 	err = json.Unmarshal([]byte(u), &wjs)

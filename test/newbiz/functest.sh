@@ -37,13 +37,14 @@ mysqlverify "a1" "-f rprefs.csv"       		"RatePlanRef"	                "select R
 mysqlverify "b1" "-n rprtrate.csv"     		"RatePlanRefRTRate"	    		"select * from RatePlanRefRTRate;"
 mysqlverify "c1" "-t rpsprate.csv"     		"RatePlanRefSPRate"	    		"select * from RatePlanRefSPRate;"
 mysqlverify "d1" "-A asmt.csv ${RRCTX}"     "Assessments"	            	"select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
-mysqlverify "e1" "-P pmt.csv"          		"PaymentTypes"	            	"select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
+mysqlverify "e1" "-P pmt.csv"          		"PaymentTypes"	            	"select PMTID,BID,Name,Description,LastModBy from PaymentType;"
 mysqlverify "f1" "-e rcpt.csv ${RRCTX}"     "RectiptAllocations"	    	"select RCPTID,BID,RAID,Dt,Amount,ASMID,AcctRule from ReceiptAllocation order by Amount ASC;"
 mysqlverify "g1" " "                   		"Receipts"	            		"select RCPTID,BID,PMTID,DEPID,DID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"
 mysqlverify "h1" "-u custom.csv"       		"CustomAttributes"	    		"select CID,BID,Type,Name,Value,LastModBy from CustomAttr;"
 mysqlverify "i1" "-U assigncustom.csv" 		"CustomAttributesAssignment" 	"select * from CustomAttrRef;"
 mysqlverify "j1" "-O nt.csv"           		"NoteTypes"	            		"select NTID,BID,Name,LastModBy from NoteType;"
 mysqlverify "k1" "-y deposit.csv ${RRCTX}"  "Deposits"		            	"select DID,BID,Dt,DEPID,Amount,LastModBy from Deposit;"
+mysqlverify "l1" "-H acctdep.csv ${RRCTX}"  "AccountDepository"            	"select ADID,LID,DEPID,LastModBy from AccountDepository;"
 
 
 logcheck

@@ -314,7 +314,10 @@ function buildPageElements() {
             },
             { id: 'admin', text: 'Admin', img: 'icon-wrench', expanded: false, group: true,
                 nodes: [ 
-                    { id: 'accounts', text: 'Chart Of Accounts', icon: 'fa fa-folder-o' },
+                    { id: 'accounts',     text: 'Chart Of Accounts',   icon: 'fa fa-folder-o' },
+                    { id: 'pmts',         text: 'Payment Types',       icon: 'fa fa-folder-o' },
+                    { id: 'depositories', text: 'Depositories',        icon: 'fa fa-folder-o' },
+                    { id: 'assocAccts',   text: 'Associated Accounts', icon: 'fa fa-folder-o' },
                 ]
             },
         ],
@@ -343,6 +346,7 @@ function buildPageElements() {
                 case 'rentalagrs':
                 case 'receipts':
                 case 'asms':
+                case 'pmts':
                     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
                     break;
@@ -1220,6 +1224,9 @@ function buildPageElements() {
         },
     });
 
+    //---------------------------------------------------------------------------------------
+    //  Add a date range navigator to this view...
+    //---------------------------------------------------------------------------------------
     w2ui.receiptsGrid.toolbar.add( genDateRangeNavigator('receipts') );
     w2ui.receiptsGrid.toolbar.on('click', function(event) { 
         handleDateToolbarAction(event,'receipts'); // adjusts dates and loads into date controls
@@ -1749,6 +1756,58 @@ function buildPageElements() {
     });
 
 
+    //------------------------------------------------------------------------
+    //          pmtsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'pmtsGrid',
+        url: '/v1/pmts',
+        show: {
+            toolbar        : true,
+            footer         : true,
+            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarSave    : true,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarReload   : true,
+            toolbarColumns  : false,
+        },
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true}, 
+            {field: 'PMTID',       hidden: true, caption: 'PMTID',        size: '150px',                             stortable: true, style: 'text-align: center'},
+            {field: 'BID',         hidden: true, caption: 'BID',          size: '150px',                             stortable: true, style: 'text-align: center'},
+            {field: 'Name',        hidden: false, caption: 'Name',        size: '150px', editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'Description', hidden: false, caption: 'Description', size: '60%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+        ], 
+        onSave: function(/*event*/) {
+            console.log('save payment type');
+            w2ui.pmtsGrid.reload();
+        },
+        onChange: function(event) {
+            console.log(event);
+        },
+        onAdd: function (/*event*/) {
+            var x = getCurrentBusiness();
+            var BID=x.value;
+            var BUD = getBUDfromBID(BID);
+            // var y = new Date();
+            // var options = buildPaymentTypeOptions(BUD);
+            var record = {
+                recid: 0,
+                PMTID: 0,
+                BID: BUD,
+                Name: 'payment type name',
+                Description: 'payment type description',
+            };
+            w2ui.pmtsGrid.add(record);
+        },
+    });
+
 }  // buildPageElements
 
 
@@ -2044,6 +2103,8 @@ function createRentalAgreementForm() {
     w2ui.raPetGrid.header = "Pets";
 }
 
+
+
 function finishInitialization() {
     "use strict";
     defineDateFmts();
@@ -2059,10 +2120,14 @@ function finishInitialization() {
 
 function handleData(data,status) {
     if (status == "success") {
+        if (data.substring(11,14) == "err") {
+            console.log('ERROR: '+data);
+        } else {
 /* jshint ignore:start */
-        eval(data); // defines all the lists; values for the dropdown lists
+            eval(data); // defines all the lists; values for the dropdown lists
 /* jshint ignore:end */
-        console.log("SUCCESSFULLY LOADED LISTS");
+            console.log("SUCCESSFULLY LOADED LISTS");
+        }
     } else {
         console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + status);
     }

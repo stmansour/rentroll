@@ -783,12 +783,17 @@ dojsonPOST () {
 				echo "PASSED"
 			fi
 		else
-			echo "FAILED...   if correct:  mv ${3} ${GOLD}/${3}.gold" >> ${ERRFILE}
-			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
+			echo "FAILED..." >> ${ERRFILE}
 			echo "Differences in ${3} are as follows:" >> ${ERRFILE}
 			diff qqx qqy >> ${ERRFILE}
+			echo "If correct:  mv ${3} ${GOLD}/${3}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
+			if [ ${MANAGESERVER} -eq 1 ]; then
+				echo "STOPPING RENTROLL SERVER"
+				pkill rentroll
+			fi
 			exit 1
 		fi
 	else
@@ -796,6 +801,7 @@ dojsonPOST () {
 	fi
 	rm -f qqx qqy
 }
+
 ########################################
 # dojsonGET()
 #   Simulate a GET command to the server and use
@@ -845,12 +851,17 @@ dojsonGET () {
 				echo "PASSED"
 			fi
 		else
-			echo "FAILED...   if correct:  mv ${2} ${GOLD}/${2}.gold" >> ${ERRFILE}
-			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
+			echo "FAILED..." >> ${ERRFILE}
 			echo "Differences in ${2} are as follows:" >> ${ERRFILE}
 			diff qqx qqy >> ${ERRFILE}
+			echo "If correct:  mv ${2} ${GOLD}/${2}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
+			if [ ${MANAGESERVER} -eq 1 ]; then
+				echo "STOPPING RENTROLL SERVER"
+				pkill rentroll
+			fi
 			exit 1
 		fi
 	else

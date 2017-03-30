@@ -3,14 +3,28 @@
 <head>
     <link rel="stylesheet" type="text/css" href="/doc/doc.css" />
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
+<script>
+function loadWebService(ref) {
+  "use strict";
+  $("#rrWebService").val(ref);
+}
+function loadPayload(ref) {
+  "use strict";
+  $("#sendthis").val(ref);
+}
+</script>
 </head>
 <body>
 <p class="title1">{{.Title}}</p>
 {{if not .URLs}}
   {{else}}
+  <table>
   {{range .URLs}}
-  <pre><code>{{.URL}}</code></pre>
+  <tr><td><pre><code>{{.URL}}</code></pre></td><td>
+  <a id="myLink" title="Copy to Service"href="#" onclick="loadWebService('{{.URL}}');return false;" style="color:#88e;"><i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i></a>
+  </td></tr>
   {{end}}
+  </table>
   <table class="URLparams" style="margin-left: 50px;"><tr><th>Name</th><th>Description</th></tr>
   {{range .URLs}} {{range .Parts}}<tr><td>{{.Term}}</td><td>{{.Definition}}</td></tr>{{end}} {{end}}
   </table>
@@ -34,9 +48,9 @@
 </table>
 <p></p>
 <table style="margin-left: 50px;">
-  <tr><td class="title3">SAMPLE INPUT JSON</td></tr>
-  <tr><td>
-  <pre><code>{{.InputEx}}</code></pre>
+  <tr><td class="title3">SAMPLE INPUT JSON</td><td></td></tr>
+  <tr><td><pre><code>{{.InputEx}}</code></pre></td><td>
+  <a id="myLink" title="Copy to Payload"href="#" onclick="return false;" style="color:#88e;"><i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i></a>
   </td></tr>
 </table>
 </p>

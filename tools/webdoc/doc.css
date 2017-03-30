@@ -55,6 +55,11 @@ textarea {
 	font-size: 11px;
 }
 
+.service {
+	font-family: "Source Code Pro";
+	font-size: 11px;
+}
+
 code > code {
 	margin: 0;
 	padding: 0;

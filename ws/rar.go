@@ -144,12 +144,13 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveRARentable"
+	var err error
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
 	var foo SaveRARentableInput
 	data := []byte(d.data)
-	if err := json.Unmarshal(data, &foo); err != nil {
+	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
@@ -158,12 +159,16 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var a rlib.RentalAgreementRentable
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	a.RARID = foo.Record.Recid
-	a.BID = getBIDfromBUI(foo.Record.BUI)
+	a.BID, err = getBIDfromBUI(foo.Record.BUI)
+	if err != nil {
+		e := fmt.Errorf("%s: Could not determine Business from BUI:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
 
 	fmt.Printf("saveRARentable: a = RARID = %d, RAID = %d, BID = %d, RID = %d, ContractRent = %8.2f, DtStart = %s, DtStop = %s\n",
 		a.RARID, a.RAID, a.BID, a.RID, a.ContractRent, a.RARDtStart.Format(rlib.RRDATEFMT3), a.RARDtStop.Format(rlib.RRDATEFMT3))
 
-	var err error
 	m := rlib.GetRentalAgreementRentables(d.RAID, &a.RARDtStart, &a.RARDtStop)
 	for i := 0; i < len(m); i++ {
 		if a.RID == m[i].RID {

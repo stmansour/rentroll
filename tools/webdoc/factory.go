@@ -42,6 +42,18 @@ var WSTypeFactory = map[string]Creator{
 	"TransactantsTypedownResponse": NewTransactantsTypedownResponse,
 	"TransactantTypeDown":          NewTransactantTypeDown,
 	"WebTypeDownRequest":           NewWebTypeDownRequest,
+	"PaymentTypeGetResponse":       NewPaymentTypeGetResponse,
+	"PaymentTypeGrid":              NewPaymentTypeGrid,
+}
+
+// NewPaymentTypeGrid is a factory for PaymentTypeGrid structs
+func NewPaymentTypeGrid() interface{} {
+	return new(ws.PaymentTypeGrid)
+}
+
+// NewPaymentTypeGetResponse is a factory for PaymentTypeGetResponse structs
+func NewPaymentTypeGetResponse() interface{} {
+	return new(ws.PaymentTypeGetResponse)
 }
 
 // NewWebTypeDownRequest is a factory for WebTypeDownRequest structs

@@ -8,6 +8,32 @@ import (
 )
 
 //=======================================================
+//  ACCOUNT DEPOSITORY
+//=======================================================
+
+// GetAccountDepository reads a AccountDepository the structure for the supplied id
+func GetAccountDepository(id int64) (AccountDepository, error) {
+	var a AccountDepository
+	row := RRdb.Prepstmt.GetAccountDepository.QueryRow(id)
+	err := ReadAccountDepository(row, &a)
+	return a, err
+}
+
+// GetAllAccountDepositories reads all Pet records for the supplied rental agreement id
+func GetAllAccountDepositories(raid int64) []AccountDepository {
+	rows, err := RRdb.Prepstmt.GetAllAccountDepositories.Query(raid)
+	Errcheck(err)
+	defer rows.Close()
+	var t []AccountDepository
+	for i := 0; rows.Next(); i++ {
+		var a AccountDepository
+		ReadAccountDepositories(rows, &a)
+		t = append(t, a)
+	}
+	return t
+}
+
+//=======================================================
 //  A G R E E M E N T   P E T S
 //=======================================================
 
@@ -869,21 +895,26 @@ func GetAllNoteTypes(bid int64) []NoteType {
 //  P A Y M E N T   T Y P E S
 //=======================================================
 
-// GetPaymentTypes returns a slice of payment types indexed by the PMTID
-func GetPaymentTypes() map[int64]PaymentType {
-	var t map[int64]PaymentType
-	t = make(map[int64]PaymentType)
-	rows, err := RRdb.Dbrr.Query("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentTypes")
-	Errcheck(err)
-	defer rows.Close()
+// // GetPaymentTypes returns a slice of payment types indexed by the PMTID
+// func GetPaymentTypes() map[int64]PaymentType {
+// 	var t map[int64]PaymentType
+// 	t = make(map[int64]PaymentType)
+// 	rows, err := RRdb.Dbrr.Query("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentType")
+// 	Errcheck(err)
+// 	defer rows.Close()
 
-	for rows.Next() {
-		var a PaymentType
-		ReadPaymentTypes(rows, &a)
-		t[a.PMTID] = a
-	}
-	Errcheck(rows.Err())
-	return t
+// 	for rows.Next() {
+// 		var a PaymentType
+// 		ReadPaymentTypes(rows, &a)
+// 		t[a.PMTID] = a
+// 	}
+// 	Errcheck(rows.Err())
+// 	return t
+// }
+
+// GetPaymentType reads a PaymentType structure based on the supplied bid and na
+func GetPaymentType(id int64, a *PaymentType) {
+	ReadPaymentType(RRdb.Prepstmt.GetPaymentType.QueryRow(id), a)
 }
 
 // GetPaymentTypeByName reads a PaymentType structure based on the supplied bid and na

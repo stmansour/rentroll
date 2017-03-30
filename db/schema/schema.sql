@@ -421,9 +421,9 @@ CREATE TABLE RentableSpecialty (
 );
 
 -- ===========================================
---   PAYMENT TYPES
+--   PAYMENT TYPE
 -- ===========================================
-CREATE TABLE PaymentTypes (
+CREATE TABLE PaymentType (
     PMTID MEDIUMINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
@@ -812,6 +812,16 @@ CREATE TABLE DepositPart (
     DID BIGINT NOT NULL DEFAULT 0,
     BID BIGINT NOT NULL DEFAULT 0,                              -- business id
     RCPTID BIGINT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE AccountDepository (
+    ADID BIGINT NOT NULL AUTO_INCREMENT,                        -- unique id for a depository
+    BID BIGINT NOT NULL DEFAULT 0,                              -- business id
+    LID BIGINT NOT NULL DEFAULT 0,                              -- the GL account that represents this depository
+    DEPID BIGINT NOT NULL DEFAULT 0,                            -- Depository to associate
+    LastModTime TIMESTAMP,                                      -- when was this record last written
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
+    PRIMARY KEY (ADID)
 );
 
 -- **************************************

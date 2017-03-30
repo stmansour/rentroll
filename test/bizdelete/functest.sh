@@ -45,7 +45,7 @@ mysqlverify "a1" "${RRCTX}"		"RatePlanRef"	                "select RPRID,BID,RPI
 mysqlverify "b1" "${RRCTX}"		"RatePlanRefRTRate"	    		"select * from RatePlanRefRTRate;"
 mysqlverify "c1" "${RRCTX}"		"RatePlanRefSPRate"	    		"select * from RatePlanRefSPRate;"
 mysqlverify "d1" "${RRCTX}"		"Assessments"	            	"select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
-mysqlverify "e1" "${RRCTX}"		"PaymentTypes"	            	"select PMTID,BID,Name,Description,LastModBy from PaymentTypes;"
+mysqlverify "e1" "${RRCTX}"		"PaymentTypes"	            	"select PMTID,BID,Name,Description,LastModBy from PaymentType;"
 mysqlverify "f1" "${RRCTX}"		"PaymentAllocations"	    	"select * from ReceiptAllocation order by Amount ASC;"
 mysqlverify "g1" "${RRCTX}"		"Receipts"	            		"select RCPTID,BID,PMTID,DEPID,DID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"
 mysqlverify "h1" "${RRCTX}"		"CustomAttributes"	    		"select CID,BID,Type,Name,Value,LastModBy from CustomAttr;"

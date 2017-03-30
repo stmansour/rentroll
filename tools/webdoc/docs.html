@@ -32,11 +32,11 @@ $(function () {
                     break;
                 case 'encode':
                     s = document.getElementById("sendthis").value;
-                    document.getElementById("sendthis").value = encodeURI(s);
+                    document.getElementById("sendthis").value = encodeURIComponent(s); // the web address portion is kept elsewhere
                     break;
                 case 'decode':
                     s = document.getElementById("sendthis").value;
-                    document.getElementById("sendthis").value = decodeURI(s);
+                    document.getElementById("sendthis").value = decodeURIComponent(s);
                     break;
                case 'beautify':
                     s = document.getElementById("sendthis").value;

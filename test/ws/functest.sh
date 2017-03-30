@@ -23,6 +23,10 @@ source ../share/base.sh
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
 
+# Get Specificy PaymentType 
+# echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
+# dojsonPOST "http://localhost:8270/v1/pmt/1/1" "request" "zz"  "WebService--PaymentTypes"
+
 # Get Chart of Accounts
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
 dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "a"  "WebService--ChartOfAccounts"
@@ -109,6 +113,17 @@ dojsonPOST "http://localhost:8270/v1/ruser/CCC/10" "request" "u"  "WebService--G
 # Test Transactant Typedown
 dojsonGET "http://localhost:8270/v1/rentablestd/ISO?request%3D%7B%22search%22%3A%226%22%2C%22max%22%3A250%7D" "v" "WebService--GetRentableTypeDown"
 
+# Search Payment Types
+echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/pmts/1" "request" "w"  "WebService--PaymentTypes-SearchAll"
+
+# Get Specificy PaymentType - FORCE ERROR - no PMTID provided
+echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/pmts/1" "request" "x"  "WebService--PaymentTypes-Get-ForceError"
+
+# Get Specificy PaymentType 
+echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/pmts/1/1" "request" "y"  "WebService--PaymentTypes-Get"
 
 
 stopRentRollServer

@@ -2,11 +2,20 @@ package rlib
 
 import "time"
 
-// DeleteCustomAttribute deletes CustomAttribute records with the supplied cid
-func DeleteCustomAttribute(cid int64) error {
-	_, err := RRdb.Prepstmt.DeleteCustomAttribute.Exec(cid)
+// DeleteAccountDepository deletes AccountDepository records with the supplied id
+func DeleteAccountDepository(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteAccountDepository.Exec(id)
 	if err != nil {
-		Ulog("Error deleting CustomAttribute for cid = %d, error: %v\n", cid, err)
+		Ulog("Error deleting AccountDepository for id = %d, error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteCustomAttribute deletes CustomAttribute records with the supplied id
+func DeleteCustomAttribute(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteCustomAttribute.Exec(id)
+	if err != nil {
+		Ulog("Error deleting CustomAttribute for id = %d, error: %v\n", id, err)
 	}
 	return err
 }
@@ -202,6 +211,15 @@ func DeleteRatePlan(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteRatePlan.Exec(id)
 	if err != nil {
 		Ulog("Error deleting RatePlan for id = %d, error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeletePaymentType deletes PaymentType records with the supplied id
+func DeletePaymentType(id int64) error {
+	_, err := RRdb.Prepstmt.DeletePaymentType.Exec(id)
+	if err != nil {
+		Ulog("Error deleting PaymentType for id = %d, error: %v\n", id, err)
 	}
 	return err
 }

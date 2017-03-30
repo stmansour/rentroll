@@ -5,6 +5,16 @@ import "database/sql"
 // As the database structures change, having the calls that Read from the database into these structures located
 // in one place simplifies maintenance
 
+// ReadAccountDepository reads a full AccountDepository structure from the database based on the supplied row object
+func ReadAccountDepository(row *sql.Row, a *AccountDepository) error {
+	return row.Scan(&a.ADID, &a.BID, &a.LID, &a.DEPID, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadAccountDepositories reads a full AccountDepository structure from the database based on the supplied rows object
+func ReadAccountDepositories(rows *sql.Rows, a *AccountDepository) error {
+	return rows.Scan(&a.ADID, &a.BID, &a.LID, &a.DEPID, &a.LastModTime, &a.LastModBy)
+}
+
 // ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessment(row *sql.Row, a *Assessment) {
 	Errcheck(row.Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
