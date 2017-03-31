@@ -42,34 +42,34 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 
 	// handler for reports which has single table
 	var wsr = []rrpt.SingleTableReportHandler{
-		{ReportNames: []string{"asmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable},
-		{ReportNames: []string{"b", "business"}, TableHandler: rrpt.RRreportBusinessTable},
-		{ReportNames: []string{"coa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable},
-		{ReportNames: []string{"c", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable},
-		{ReportNames: []string{"cr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable},
-		{ReportNames: []string{"delinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable},
-		{ReportNames: []string{"dpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable},
-		{ReportNames: []string{"dep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
-		{ReportNames: []string{"gsr"}, TableHandler: rrpt.GSRReportTable},
-		{ReportNames: []string{"j"}, TableHandler: rrpt.JournalReportTable},
-		{ReportNames: []string{"pmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
-		{ReportNames: []string{"r", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
-		{ReportNames: []string{"ra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
-		{ReportNames: []string{"rat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
-		{ReportNames: []string{"rcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
-		{ReportNames: []string{"rr", "rentroll"}, TableHandler: rrpt.RentRollReportTable},
-		{ReportNames: []string{"rt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
-		{ReportNames: []string{"rcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},
-		{ReportNames: []string{"sl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable},
-		{ReportNames: []string{"t", "people"}, TableHandler: rrpt.RRreportPeopleTable},
-		{ReportNames: []string{"tb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable},
+		{ReportNames: []string{"RPTasmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable},
+		{ReportNames: []string{"RPTb", "business"}, TableHandler: rrpt.RRreportBusinessTable},
+		{ReportNames: []string{"RPTcoa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable},
+		{ReportNames: []string{"RPTc", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable},
+		{ReportNames: []string{"RPTcr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable},
+		{ReportNames: []string{"RPTdelinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable},
+		{ReportNames: []string{"RPTdpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable},
+		{ReportNames: []string{"RPTdep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
+		{ReportNames: []string{"RPTgsr"}, TableHandler: rrpt.GSRReportTable},
+		{ReportNames: []string{"RPTj"}, TableHandler: rrpt.JournalReportTable},
+		{ReportNames: []string{"RPTpmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
+		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
+		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
+		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
+		{ReportNames: []string{"RPTrcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
+		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RentRollReportTable},
+		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
+		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},
+		{ReportNames: []string{"RPTsl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable},
+		{ReportNames: []string{"RPTt", "people"}, TableHandler: rrpt.RRreportPeopleTable},
+		{ReportNames: []string{"RPTtb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable},
 	}
 
 	// handler for reports which has more than one table
 	var wmr = []rrpt.MultiTableReportHandler{
-		{ReportNames: []string{"l", "ledger"}, TableHandler: rrpt.LedgerReportTable},
-		{ReportNames: []string{"la", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
-		{ReportNames: []string{"statements"}, TableHandler: rrpt.RptStatementReportTable},
+		{ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable},
+		{ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
+		{ReportNames: []string{"RPTstatements"}, TableHandler: rrpt.RptStatementReportTable},
 	}
 
 	// find reportname from list of report handler
@@ -77,7 +77,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	var tsh rrpt.SingleTableReportHandler
 	for j := 0; j < len(wsr); j++ {
 		for _, rn := range wsr[j].ReportNames {
-			if rn == strings.ToLower(reportname) {
+			if strings.ToLower(rn) == strings.ToLower(reportname) {
 				tsh = wsr[j]
 				tsh.Found = true
 				// if found then stop looking over report names list
@@ -143,7 +143,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	var tmh rrpt.MultiTableReportHandler
 	for j := 0; j < len(wmr); j++ {
 		for _, rn := range wmr[j].ReportNames {
-			if rn == strings.ToLower(reportname) {
+			if strings.ToLower(rn) == strings.ToLower(reportname) {
 				tmh = wmr[j]
 				tmh.Found = true
 				// if found then stop looking over report name list
@@ -199,34 +199,34 @@ func websvcReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSuppor
 
 	// handler for reports which has single table
 	var wsr = []rrpt.SingleTableReportHandler{
-		{ReportNames: []string{"asmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable},
-		{ReportNames: []string{"b", "business"}, TableHandler: rrpt.RRreportBusinessTable},
-		{ReportNames: []string{"coa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable},
-		{ReportNames: []string{"c", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable},
-		{ReportNames: []string{"cr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable},
-		{ReportNames: []string{"delinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable},
-		{ReportNames: []string{"dpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable},
-		{ReportNames: []string{"dep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
-		{ReportNames: []string{"gsr"}, TableHandler: rrpt.GSRReportTable},
-		{ReportNames: []string{"j"}, TableHandler: rrpt.JournalReportTable},
-		{ReportNames: []string{"pmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
-		{ReportNames: []string{"r", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
-		{ReportNames: []string{"ra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
-		{ReportNames: []string{"rat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
-		{ReportNames: []string{"rcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
-		{ReportNames: []string{"rr", "rentroll"}, TableHandler: rrpt.RentRollReportTable},
-		{ReportNames: []string{"rt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
-		{ReportNames: []string{"rcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},
-		{ReportNames: []string{"sl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable},
-		{ReportNames: []string{"t", "people"}, TableHandler: rrpt.RRreportPeopleTable},
-		{ReportNames: []string{"tb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable},
+		{ReportNames: []string{"RPTasmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable},
+		{ReportNames: []string{"RPTb", "business"}, TableHandler: rrpt.RRreportBusinessTable},
+		{ReportNames: []string{"RPTcoa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable},
+		{ReportNames: []string{"RPTc", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable},
+		{ReportNames: []string{"RPTcr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable},
+		{ReportNames: []string{"RPTdelinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable},
+		{ReportNames: []string{"RPTdpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable},
+		{ReportNames: []string{"RPTdep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
+		{ReportNames: []string{"RPTgsr"}, TableHandler: rrpt.GSRReportTable},
+		{ReportNames: []string{"RPTj"}, TableHandler: rrpt.JournalReportTable},
+		{ReportNames: []string{"RPTpmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
+		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
+		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
+		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
+		{ReportNames: []string{"RPTrcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
+		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RentRollReportTable},
+		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
+		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},
+		{ReportNames: []string{"RPTsl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable},
+		{ReportNames: []string{"RPTt", "people"}, TableHandler: rrpt.RRreportPeopleTable},
+		{ReportNames: []string{"RPTtb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable},
 	}
 
 	// handler for reports which has more than one table
 	var wmr = []rrpt.MultiTableReportHandler{
-		{ReportNames: []string{"l", "ledger"}, TableHandler: rrpt.LedgerReportTable},
-		{ReportNames: []string{"la", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
-		{ReportNames: []string{"statements"}, TableHandler: rrpt.RptStatementReportTable},
+		{ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable},
+		{ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
+		{ReportNames: []string{"RPTstatements"}, TableHandler: rrpt.RptStatementReportTable},
 	}
 
 	// find reportname from list of report handler
@@ -234,7 +234,7 @@ func websvcReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSuppor
 	var tsh rrpt.SingleTableReportHandler
 	for j := 0; j < len(wsr); j++ {
 		for _, rn := range wsr[j].ReportNames {
-			if rn == strings.ToLower(reportname) {
+			if strings.ToLower(rn) == strings.ToLower(reportname) {
 				tsh = wsr[j]
 				tsh.Found = true
 				// if found then stop looking over report names list
@@ -257,7 +257,7 @@ func websvcReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSuppor
 	var tmh rrpt.MultiTableReportHandler
 	for j := 0; j < len(wmr); j++ {
 		for _, rn := range wmr[j].ReportNames {
-			if rn == strings.ToLower(reportname) {
+			if strings.ToLower(rn) == strings.ToLower(reportname) {
 				tmh = wmr[j]
 				tmh.Found = true
 				// if found then stop looking over report name list

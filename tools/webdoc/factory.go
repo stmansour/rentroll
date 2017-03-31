@@ -44,6 +44,36 @@ var WSTypeFactory = map[string]Creator{
 	"WebTypeDownRequest":           NewWebTypeDownRequest,
 	"PaymentTypeGetResponse":       NewPaymentTypeGetResponse,
 	"PaymentTypeGrid":              NewPaymentTypeGrid,
+	"DepositoryGrid":               NewDepositoryGrid,
+	"DepositorySearchResponse":     NewDepositorySearchResponse,
+	"DepositoryGridSave":           NewDepositoryGridSave,
+	"DepositoryGetResponse":        NewDepositoryGetResponse,
+	"WebGridDelete":                NewWebGridDelete,
+}
+
+// NewWebGridDelete is a factory for WebGridDelete structs
+func NewWebGridDelete() interface{} {
+	return new(ws.WebGridDelete)
+}
+
+// NewDepositoryGetResponse is a factory for DepositoryGetResponse structs
+func NewDepositoryGetResponse() interface{} {
+	return new(ws.DepositoryGetResponse)
+}
+
+// NewDepositoryGridSave is a factory for DepositoryGridSave structs
+func NewDepositoryGridSave() interface{} {
+	return new(ws.DepositoryGridSave)
+}
+
+// NewDepositoryGrid is a factory for DepositoryGrid structs
+func NewDepositoryGrid() interface{} {
+	return new(ws.DepositoryGrid)
+}
+
+// NewDepositorySearchResponse is a factory for DepositorySearchResponse structs
+func NewDepositorySearchResponse() interface{} {
+	return new(ws.DepositorySearchResponse)
 }
 
 // NewPaymentTypeGrid is a factory for PaymentTypeGrid structs

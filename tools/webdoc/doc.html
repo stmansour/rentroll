@@ -3,18 +3,25 @@
 <head>
     <link rel="stylesheet" type="text/css" href="/doc/doc.css" />
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
+</head>
+<body>
 <script>
 function loadWebService(ref) {
   "use strict";
   $("#rrWebService").val(ref);
 }
-function loadPayload(ref) {
+function loadPayload() {
   "use strict";
-  $("#sendthis").val(ref);
+  var s = `{{.InputEx}}`;
+  if (s[0] == '"') {
+    s = s.substr(1);
+  }
+  if (s.slice(-1) == '"') {
+      s = s.slice(0, -1);
+  }
+  $("#rrSendThis").text(s);
 }
 </script>
-</head>
-<body>
 <p class="title1">{{.Title}}</p>
 {{if not .URLs}}
   {{else}}
@@ -50,7 +57,7 @@ function loadPayload(ref) {
 <table style="margin-left: 50px;">
   <tr><td class="title3">SAMPLE INPUT JSON</td><td></td></tr>
   <tr><td><pre><code>{{.InputEx}}</code></pre></td><td>
-  <a id="myLink" title="Copy to Payload"href="#" onclick="return false;" style="color:#88e;"><i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i></a>
+  <a id="myLink" title="Copy to Payload"href="#" onclick="loadPayload();return false;" style="color:#88e;"><i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i></a>
   </td></tr>
 </table>
 </p>

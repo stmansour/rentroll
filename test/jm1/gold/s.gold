@@ -21,6 +21,16 @@ Payment #1597 - Security Deposits                        12/03/2015  J00000005  
 Closing Balance                                          12/31/2015                                                           13,300.00
 
 
+Cash BofA
+GL Account: 10001
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          12/31/2015                                                                0.00
+
+
 Credit Card Clearing
 GL Account: 11000
                                                                      Journal    Rental                                                 

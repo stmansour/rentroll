@@ -21,6 +21,16 @@ Payment #1948 - Gross Scheduled Rent-Taxable             08/05/2016  J00000060  
 Closing Balance                                          08/31/2016                                                           93,017.72
 
 
+Cash BofA
+GL Account: 10001
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          08/31/2016                                                                0.00
+
+
 Credit Card Clearing
 GL Account: 11000
                                                                      Journal    Rental                                                 

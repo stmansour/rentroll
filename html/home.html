@@ -288,35 +288,35 @@ function buildPageElements() {
             },
             { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                 nodes: [ 
-                       { id: 'asmrpt', text: 'Assessments', icon: 'fa fa-file-text-o' },
-                       { id: 'b', text: 'Business Units', icon: 'fa fa-file-text-o' },
-                       { id: 'coa', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
-                       { id: 'dpm', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
-                       { id: 'dep', text: 'Depositories', icon: 'fa fa-file-text-o' },
-                       { id: 'delinq', text: 'Delinquency', icon: 'fa fa-file-text-o' },
-                       { id: 'gsr', text: 'GSR', icon: 'fa fa-file-text-o' },
-                       { id: 'j', text: 'Journal', icon: 'fa fa-file-text-o' },
-                       { id: 'l', text: 'Ledger', icon: 'fa fa-file-text-o' },
-                       { id: 'la', text: 'Ledger Activity', icon: 'fa fa-file-text-o' },
-                       { id: 'people', text: 'People', icon: 'fa fa-file-text-o' },
-                       { id: 'pmt', text: 'Payment Types', icon: 'fa fa-file-text-o' },
-                       { id: 'rcpt', text: 'Receipts', icon: 'fa fa-file-text-o' },
-                       { id: 'rcbt', text: 'Rentable Type Counts', icon: 'fa fa-file-text-o' },
-                       { id: 'r', text: plural(app.sRentable), icon: 'fa fa-file-text-o' },
-                       { id: 'ra', text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
-                       { id: 'rat', text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
-                       { id: 'rt', text: 'Rentable Types', icon: 'fa fa-file-text-o' },
-                       { id: 'rr', text: 'RentRoll', icon: 'fa fa-file-text-o' },
-                       { id: 'statements', text: 'Statements', icon: 'fa fa-file-text-o' },
-                       { id: 'sl', text: 'String Lists', icon: 'fa fa-file-text-o' },
-                       { id: 'tb', text: 'Trial Balance', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTasmrpt', text: 'Assessments', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTb', text: 'Business Units', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTcoa', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTdpm', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTdep', text: 'Depositories', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTdelinq', text: 'Delinquency', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTgsr', text: 'GSR', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTj', text: 'Journal', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTl', text: 'Ledger', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTla', text: 'Ledger Activity', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTpeople', text: 'People', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTpmt', text: 'Payment Types', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTrcpt', text: 'Receipts', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTrcbt', text: 'Rentable Type Counts', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTr', text: plural(app.sRentable), icon: 'fa fa-file-text-o' },
+                       { id: 'RPTra', text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTrat', text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTrt', text: 'Rentable Types', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTrr', text: 'RentRoll', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTstatements', text: 'Statements', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTsl', text: 'String Lists', icon: 'fa fa-file-text-o' },
+                       { id: 'RPTtb', text: 'Trial Balance', icon: 'fa fa-file-text-o' },
                 ]
             },
             { id: 'admin', text: 'Admin', img: 'icon-wrench', expanded: false, group: true,
                 nodes: [ 
                     { id: 'accounts',     text: 'Chart Of Accounts',   icon: 'fa fa-folder-o' },
                     { id: 'pmts',         text: 'Payment Types',       icon: 'fa fa-folder-o' },
-                    { id: 'depositories', text: 'Depositories',        icon: 'fa fa-folder-o' },
+                    { id: 'dep', text: 'Depositories',        icon: 'fa fa-folder-o' },
                     { id: 'assocAccts',   text: 'Associated Accounts', icon: 'fa fa-folder-o' },
                 ]
             },
@@ -347,6 +347,7 @@ function buildPageElements() {
                 case 'receipts':
                 case 'asms':
                 case 'pmts':
+                case 'dep':
                     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
                     break;
@@ -360,28 +361,28 @@ function buildPageElements() {
                     w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Service Menu...  Not Available</h2><h3>But coming soon!</h3>');
                     w2ui.toplayout.hide('right',true);
                     break;
-                case 'asmrpt':
-                case 'b':
-                case 'coa':
-                case 'delinq':
-                case 'dep':
-                case 'dpm':
-                case 'gsr':
-                case 'j':
-                case 'l':
-                case 'la':
-                case 'people':
-                case 'pmt':
-                case 'r':
-                case 'ra':
-                case 'rat':
-                case 'rcbt':  // rentable count by type
-                case 'rcpt':
-                case 'rr':
-                case 'rt':
-                case 'sl':
-                case 'statements':
-                case 'tb':
+                case 'RPTasmrpt':
+                case 'RPTb':
+                case 'RPTcoa':
+                case 'RPTdelinq':
+                case 'RPTdep':
+                case 'RPTdpm':
+                case 'RPTgsr':
+                case 'RPTj':
+                case 'RPTl':
+                case 'RPTla':
+                case 'RPTpeople':
+                case 'RPTpmt':
+                case 'RPTr':
+                case 'RPTra':
+                case 'RPTrat':
+                case 'RPTrcbt':  // rentable count by type
+                case 'RPTrcpt':
+                case 'RPTrr':
+                case 'RPTrt':
+                case 'RPTsl':
+                case 'RPTstatements':
+                case 'RPTtb':
                     showReport(event.target);
                     app.lastReport = event.target;
                     break;
@@ -1774,7 +1775,7 @@ function buildPageElements() {
             toolbarSearch   : false,
             toolbarInput    : false,
             searchAll       : false,
-            toolbarReload   : true,
+            toolbarReload   : false,
             toolbarColumns  : false,
         },
         columns: [
@@ -1785,18 +1786,12 @@ function buildPageElements() {
             {field: 'Description', hidden: false, caption: 'Description', size: '60%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
         ], 
         onSave: function(/*event*/) {
-            console.log('save payment type');
             w2ui.pmtsGrid.reload();
-        },
-        onChange: function(event) {
-            console.log(event);
         },
         onAdd: function (/*event*/) {
             var x = getCurrentBusiness();
             var BID=x.value;
             var BUD = getBUDfromBID(BID);
-            // var y = new Date();
-            // var options = buildPaymentTypeOptions(BUD);
             var record = {
                 recid: 0,
                 PMTID: 0,
@@ -1805,6 +1800,60 @@ function buildPageElements() {
                 Description: 'payment type description',
             };
             w2ui.pmtsGrid.add(record);
+        },
+    });
+
+   //------------------------------------------------------------------------
+    //          depGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'depGrid',
+        url: '/v1/dep',
+        show: {
+            toolbar        : true,
+            footer         : true,
+            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarSave    : true,   // indicates if toolbar save button is visible
+            selectColumn   : false,
+            expandColumn   : false,
+            toolbarEdit    : false,
+            toolbarSearch  : false,
+            toolbarInput   : false,
+            searchAll      : false,
+            toolbarReload  : false,
+            toolbarColumns : false,
+        },
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true}, 
+            {field: 'DEPID',     hidden: true,  caption: 'DEPID',         size: '150px',                             stortable: true, style: 'text-align: center'},    
+            {field: 'BID',       hidden: true,  caption: 'BID',           size: '150px',                             stortable: true, style: 'text-align: center'},
+            {field: 'LID',       hidden: true,  caption: 'LID',           size: '150px',                             stortable: true, style: 'text-align: center'},
+            {field: 'AccountNo', hidden: false, caption: 'Account Number',size: '150px', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
+            {field: 'Name',      hidden: false, caption: 'Name',          size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'LdgrName',  hidden: false, caption: 'GL Acct Name',  size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'GLNumber',  hidden: false, caption: 'GL Number',     size: '150px', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
+        ], 
+        onSave: function(/*event*/) {
+            console.log('save depository');
+            w2ui.depGrid.reload();
+        },
+        onChange: function(event) {
+            console.log(event);
+        },
+        onAdd: function (/*event*/) {
+            var x = getCurrentBusiness();
+            var BID=x.value;
+            var BUD = getBUDfromBID(BID);
+            var record = {
+                recid: 0,
+                DEPID: 0,
+                BID: BUD,
+                LID: 0,
+                Name: 'payment type name',
+                Description: 'payment type description',
+            };
+            w2ui.depGrid.add(record);
         },
     });
 

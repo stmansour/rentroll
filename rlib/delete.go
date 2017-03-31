@@ -49,11 +49,12 @@ func DeleteDeposit(id int64) {
 }
 
 // DeleteDepository deletes the Depository associated with the supplied id
-func DeleteDepository(id int64) {
+func DeleteDepository(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteDepository.Exec(id)
 	if err != nil {
 		Ulog("Error deleting Depository where DEPID = %d, error: %v\n", id, err)
 	}
+	return err
 }
 
 // DeleteDepositMethod deletes ALL the DepositMethod associated with the supplied id
