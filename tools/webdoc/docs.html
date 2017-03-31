@@ -87,7 +87,11 @@ $(function () {
                     $.post(url, data, function(data,status) {
                         document.getElementById("rrResponse").value = JSON.stringify(data,0,4);
                         document.getElementById("rrResponseStatus").value = status;
-                     });
+                    });
+                    break;
+                case 'btnClose':
+                    w2ui.layout.toggle('preview', true);
+                    break;
             }
         },
     });

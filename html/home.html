@@ -314,10 +314,10 @@ function buildPageElements() {
             },
             { id: 'admin', text: 'Admin', img: 'icon-wrench', expanded: false, group: true,
                 nodes: [ 
-                    { id: 'accounts',     text: 'Chart Of Accounts',   icon: 'fa fa-folder-o' },
-                    { id: 'pmts',         text: 'Payment Types',       icon: 'fa fa-folder-o' },
-                    { id: 'dep', text: 'Depositories',        icon: 'fa fa-folder-o' },
-                    { id: 'assocAccts',   text: 'Associated Accounts', icon: 'fa fa-folder-o' },
+                    { id: 'accounts',   text: 'Chart Of Accounts',   icon: 'fa fa-list' },
+                    { id: 'pmts',       text: 'Payment Types',       icon: 'fa fa-credit-card' },
+                    { id: 'dep',        text: 'Depositories',        icon: 'fa fa-university' },
+                    { id: 'assocAccts', text: 'Associated Accounts', icon: 'fa fa-link' },
                 ]
             },
         ],
@@ -498,7 +498,7 @@ function buildPageElements() {
                 render: function (record) {
                     var s = '';
                     if (record.IsCompany > 0) {
-                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-university" aria-hidden="true"></i></span>';
+                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-building-o" aria-hidden="true"></i></span>';
                     }
                     return s + ' ' + record.CompanyName;
                 }

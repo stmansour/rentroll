@@ -52,6 +52,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		{ReportNames: []string{"RPTdep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
 		{ReportNames: []string{"RPTgsr"}, TableHandler: rrpt.GSRReportTable},
 		{ReportNames: []string{"RPTj"}, TableHandler: rrpt.JournalReportTable},
+		{ReportNames: []string{"RPTpeople"}, TableHandler: rrpt.RRreportPeopleTable},
 		{ReportNames: []string{"RPTpmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
 		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
 		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
@@ -188,101 +189,6 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	// unknown report handler
 	fmt.Fprintf(w, "Unknown report type: %s", reportname)
 	return
-}
-
-func websvcReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport) string {
-	funcname := "websvcReportHandler"
-	fmt.Printf("%s: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", funcname, reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
-
-	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, RptHeader: true, BlankLineAfterRptName: true}
-	rlib.InitBizInternals(ri.Bid, xbiz)
-
-	// handler for reports which has single table
-	var wsr = []rrpt.SingleTableReportHandler{
-		{ReportNames: []string{"RPTasmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable},
-		{ReportNames: []string{"RPTb", "business"}, TableHandler: rrpt.RRreportBusinessTable},
-		{ReportNames: []string{"RPTcoa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable},
-		{ReportNames: []string{"RPTc", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable},
-		{ReportNames: []string{"RPTcr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable},
-		{ReportNames: []string{"RPTdelinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable},
-		{ReportNames: []string{"RPTdpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable},
-		{ReportNames: []string{"RPTdep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
-		{ReportNames: []string{"RPTgsr"}, TableHandler: rrpt.GSRReportTable},
-		{ReportNames: []string{"RPTj"}, TableHandler: rrpt.JournalReportTable},
-		{ReportNames: []string{"RPTpmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
-		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
-		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
-		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
-		{ReportNames: []string{"RPTrcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
-		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RentRollReportTable},
-		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
-		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},
-		{ReportNames: []string{"RPTsl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable},
-		{ReportNames: []string{"RPTt", "people"}, TableHandler: rrpt.RRreportPeopleTable},
-		{ReportNames: []string{"RPTtb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable},
-	}
-
-	// handler for reports which has more than one table
-	var wmr = []rrpt.MultiTableReportHandler{
-		{ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable},
-		{ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
-		{ReportNames: []string{"RPTstatements"}, TableHandler: rrpt.RptStatementReportTable},
-	}
-
-	// find reportname from list of report handler
-	// first find it from single table handler
-	var tsh rrpt.SingleTableReportHandler
-	for j := 0; j < len(wsr); j++ {
-		for _, rn := range wsr[j].ReportNames {
-			if strings.ToLower(rn) == strings.ToLower(reportname) {
-				tsh = wsr[j]
-				tsh.Found = true
-				// if found then stop looking over report names list
-				break
-			}
-		}
-		// if found then stop looping over handlers
-		if tsh.Found {
-			break
-		}
-	}
-
-	// if found then handle service for request
-	if tsh.Found {
-		tbl := tsh.TableHandler(&ri)
-		return rrpt.ReportToString(&tbl, &ri)
-	}
-
-	// if not found from single, then find it from multi table handler
-	var tmh rrpt.MultiTableReportHandler
-	for j := 0; j < len(wmr); j++ {
-		for _, rn := range wmr[j].ReportNames {
-			if strings.ToLower(rn) == strings.ToLower(reportname) {
-				tmh = wmr[j]
-				tmh.Found = true
-				// if found then stop looking over report name list
-				break
-			}
-		}
-		// if found then stop looking over other handler
-		if tmh.Found {
-			break
-		}
-	}
-
-	// if found then handle service for request
-	if tmh.Found {
-		m := tmh.TableHandler(&ri)
-		var s string
-		// Spin through all the RentalAgreements that are active in this timeframe
-		for _, tbl := range m {
-			s += rrpt.ReportToString(&tbl, &ri) + "\n"
-		}
-		return s
-	}
-
-	// unknown report handler
-	return fmt.Sprintf("Unknown report type: %s", reportname)
 }
 
 // webServiceHandler dispatches all the web service requests

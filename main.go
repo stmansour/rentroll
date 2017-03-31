@@ -123,7 +123,7 @@ func initHTTP() {
 	Chttp.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/home/", HomeUIHandler)
-	http.HandleFunc("/dispatch/", dispatchHandler)
+	// http.HandleFunc("/dispatch/", dispatchHandler)
 	http.HandleFunc("/v1/", ws.V1ServiceHandler)
 	http.HandleFunc("/wsvc/", webServiceHandler)
 }
@@ -184,7 +184,7 @@ func main() {
 	} else {
 		initHTTP()
 		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)
-		initPageHandlers()
+		// initPageHandlers()
 		go http.ListenAndServeTLS(fmt.Sprintf(":%d", App.PortRR+1), App.CertFile, App.KeyFile, nil)
 		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)
 		if nil != err {

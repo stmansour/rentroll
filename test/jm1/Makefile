@@ -2,16 +2,16 @@ all:
 	@echo "*** Completed in jm1 ***"
 
 clean:
-	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] [a-z][a-z1-9][0-9] fail
+	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z0-9] [a-z][a-z1-9][0-9] fail rex.sql
 	@echo "*** CLEAN completed in jm1 ***"
 
 test:
 	touch fail
 	./functest.sh
-	@echo "*** TEST completed in jm1 ***"
 	mysqldump --no-defaults rentroll >rex.sql
 	cp rex.sql ../testdb/
 	rm -f fail
+	@echo "*** TEST completed in jm1 ***"
 
 package:
 	touch fail

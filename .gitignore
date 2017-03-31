@@ -16,3 +16,5 @@ html/images
 localhost.*
 test/testreport.txt
 js/jquery*
+test/testdb/rex.sql
+html/fa/
