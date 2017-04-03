@@ -202,7 +202,9 @@ func IncMonths(m time.Month, n int64) (time.Month, int64) {
 // StringToInt simply converts string to int and returns it with ok flag
 func StringToInt(s string) (int, bool) {
 	var i int
-	if i, err := strconv.Atoi(s); err != nil {
+	var err error
+
+	if i, err = strconv.Atoi(s); err != nil {
 		return i, false
 	}
 	return i, true
