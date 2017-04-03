@@ -50,9 +50,9 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		{ReportNames: []string{"RPTdelinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable},
 		{ReportNames: []string{"RPTdpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable},
 		{ReportNames: []string{"RPTdep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable},
-		{ReportNames: []string{"RPTgsr"}, TableHandler: rrpt.GSRReportTable},
-		{ReportNames: []string{"RPTj"}, TableHandler: rrpt.JournalReportTable},
-		{ReportNames: []string{"RPTpeople"}, TableHandler: rrpt.RRreportPeopleTable},
+		{ReportNames: []string{"RPTgsr", "gsr"}, TableHandler: rrpt.GSRReportTable},
+		{ReportNames: []string{"RPTj", "journals"}, TableHandler: rrpt.JournalReportTable},
+		{ReportNames: []string{"RPTpeople", "people"}, TableHandler: rrpt.RRreportPeopleTable},
 		{ReportNames: []string{"RPTpmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable},
 		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
 		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
@@ -70,7 +70,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	var wmr = []rrpt.MultiTableReportHandler{
 		{ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable},
 		{ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
-		{ReportNames: []string{"RPTstatements"}, TableHandler: rrpt.RptStatementReportTable},
+		{ReportNames: []string{"RPTstatements", "report statements"}, TableHandler: rrpt.RptStatementReportTable},
 	}
 
 	// find reportname from list of report handler
@@ -95,10 +95,19 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	if tsh.Found {
 		tbl := tsh.TableHandler(&ri)
 
+		// format downloadable report name
+		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tsh.ReportNames[1])
+		if !ri.D1.IsZero() {
+			attachmentName += "-From" + ri.D1.Format("2006-JAN-01")
+		}
+		if !ri.D2.IsZero() {
+			attachmentName += "To" + ri.D2.Format("2006-JAN-01")
+		}
+
 		switch ui.ReportOutputFormat {
 		case gotable.TABLEOUTTEXT:
 			w.Header().Set("Content-Type", "text/plain")
-			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".text")
+			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".text")
 			err := tbl.TextprintTable(w)
 			if err != nil {
 				s := fmt.Sprintf("Error in TextprintTable: %s\n", err.Error())
@@ -116,7 +125,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			return
 		case gotable.TABLEOUTCSV:
 			w.Header().Set("Content-Type", "text/csv")
-			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".csv")
+			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".csv")
 			err := tbl.CSVprintTable(w)
 			if err != nil {
 				s := fmt.Sprintf("Error in CSVprintTable: %s\n", err.Error())
@@ -126,7 +135,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			return
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
-			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".pdf")
+			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
 			err := tbl.PDFprintTable(w)
 			if err != nil {
 				s := fmt.Sprintf("Error in PDFprintTable: %s\n", err.Error())
@@ -161,10 +170,19 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 	if tmh.Found {
 		m := tmh.TableHandler(&ri)
 
+		// format downloadable report name
+		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tmh.ReportNames[1])
+		if !ri.D1.IsZero() {
+			attachmentName += "-From" + ri.D1.Format("2006-JAN-01")
+		}
+		if !ri.D2.IsZero() {
+			attachmentName += "To" + ri.D2.Format("2006-JAN-01")
+		}
+
 		switch ui.ReportOutputFormat {
 		case gotable.TABLEOUTTEXT:
 			w.Header().Set("Content-Type", "text/plain")
-			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".text")
+			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".text")
 			rrpt.MultiTableTextPrint(m, w)
 			return
 		case gotable.TABLEOUTHTML:
@@ -172,12 +190,12 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			return
 		case gotable.TABLEOUTCSV:
 			w.Header().Set("Content-Type", "text/csv")
-			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".csv")
+			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".csv")
 			rrpt.MultiTableCSVPrint(m, w)
 			return
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
-			w.Header().Set("Content-Disposition", "attachment; filename="+reportname+".pdf")
+			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
 			rrpt.MultiTablePDFPrint(m, w)
 			return
 		default:

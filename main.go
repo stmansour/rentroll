@@ -36,23 +36,22 @@ type DispatchCtx struct {
 
 // App is the global data structure for this app
 var App struct {
-	dbdir        *sql.DB         // phonebook db
-	dbrr         *sql.DB         // rentroll db
-	DBDir        string          // phonebook database
-	DBRR         string          // rentroll database
-	PortRR       int             // port on which rentroll listens
-	DBUser       string          // user for all databases
-	Report       string          // if testing engine, which report/action to perform
-	LogFile      *os.File        // where to log messages
-	BatchMode    bool            // if true, then don't start http, the command line request is for a batch process
-	SkipVacCheck bool            // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
-	CSVLoad      string          // if loading csv, this string will have index,filename
-	sStart       string          // start time
-	sStop        string          // stop time
-	Bud          string          // BUD from the command line
-	CertFile     string          // public certificate
-	KeyFile      string          //private key file
-	PageHandlers []RRPageHandler // table of http requests and handlers
+	dbdir        *sql.DB  // phonebook db
+	dbrr         *sql.DB  // rentroll db
+	DBDir        string   // phonebook database
+	DBRR         string   // rentroll database
+	PortRR       int      // port on which rentroll listens
+	DBUser       string   // user for all databases
+	Report       string   // if testing engine, which report/action to perform
+	LogFile      *os.File // where to log messages
+	BatchMode    bool     // if true, then don't start http, the command line request is for a batch process
+	SkipVacCheck bool     // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
+	CSVLoad      string   // if loading csv, this string will have index,filename
+	sStart       string   // start time
+	sStop        string   // stop time
+	Bud          string   // BUD from the command line
+	CertFile     string   // public certificate
+	KeyFile      string   //private key file
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
@@ -123,7 +122,6 @@ func initHTTP() {
 	Chttp.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/home/", HomeUIHandler)
-	// http.HandleFunc("/dispatch/", dispatchHandler)
 	http.HandleFunc("/v1/", ws.V1ServiceHandler)
 	http.HandleFunc("/wsvc/", webServiceHandler)
 }
@@ -184,7 +182,7 @@ func main() {
 	} else {
 		initHTTP()
 		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)
-		// initPageHandlers()
+
 		go http.ListenAndServeTLS(fmt.Sprintf(":%d", App.PortRR+1), App.CertFile, App.KeyFile, nil)
 		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)
 		if nil != err {

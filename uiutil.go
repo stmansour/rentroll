@@ -32,7 +32,6 @@ type RRuiSupport struct {
 	BL                 []rlib.Business // array of all businesses, for initializing dropdown selections
 	LDG                UILedger        // ledgers associated with this report
 	ReportContent      string          // text report content
-	PgHnd              []RRPageHandler // the list of reports and handlers
 	PageTitle          string          // set page title via software
 	ReportOutputFormat int
 }
