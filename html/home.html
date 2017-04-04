@@ -52,7 +52,7 @@ var app = {
     //prefmt: 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 9pt; background-color: white;',
     prefmt: 'border:4px; solid #bbbbbb; background-color: white;',
     bgyellow: 'background-color: yellow;',
-    stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777;',
+    stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 8pt; border: 1px solid #dfdfdf; border-spacing:0px; padding: 3px; color: #777777;',
     refreshInhibit: false,
     receiptsToolbarOnClickAdded: false,
     paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
@@ -225,7 +225,7 @@ function buildPageElements() {
             { type: 'main', style: app.pstyle, content: 'main' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle, content: 'preview' },
             { type: 'right', size: 200, resizable: true, style: app.pstyle, hidden: true, content: 'Details' },
-            { type: 'bottom', size: 23, resizable: true, style: app.stdfmt, content: '&copy; 2015-2017 Accord Interests' }
+            { type: 'bottom', size: 20, resizable: false, style: app.stdfmt, content: '&copy; 2015-2017 Accord Interests' }
         ]
     });
 
