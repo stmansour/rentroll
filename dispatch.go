@@ -23,7 +23,7 @@ const (
 func RunCommandLine(ctx *DispatchCtx) {
 	rlib.InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
 	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: ctx.xbiz.P.BID, D1: ctx.DtStart, D2: ctx.DtStop, Xbiz: &ctx.xbiz, RptHeader: true, BlankLineAfterRptName: true}
+	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: ctx.xbiz.P.BID, D1: ctx.DtStart, D2: ctx.DtStop, Xbiz: &ctx.xbiz, BlankLineAfterRptName: true}
 
 	switch ctx.Report {
 	case 1: // JOURNAL
