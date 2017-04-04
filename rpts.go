@@ -40,7 +40,6 @@ func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 	if xbiz.P.BID > 0 {
 		var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2, OutputFormat: gotable.TABLEOUTTEXT}
 		ri.OutputFormat = gotable.TABLEOUTTEXT
-		ri.RptHeader = true
 		ri.RptHeaderD1 = true
 		ri.RptHeaderD2 = true
 		ui.ReportContent = rrpt.JournalReport(&ri)
