@@ -277,6 +277,7 @@ function buildPageElements() {
             { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
                 { text: 'Directory',          icon: 'fa fa-user' },
                 { text: 'RentRoll',           icon: 'fa fa-building-o' },
+                { text: 'Mojo',               icon: 'fa fa-envelope-o' },
                 { text: 'Forms & Procedures', icon: 'fa fa-book' },
             ]},
              { type: 'html',  id: 'BUD',
@@ -301,6 +302,7 @@ function buildPageElements() {
                 case "menuButton:Template-Dflt":  window.location.href = '/home/en-us/default'; break;
                 case "menuButton:Template-Apts":  window.location.href = '/home/en-us/apts';    break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                   break;
+                case "moduleMenu:Mojo":           window.location.href = 'http://localhost:8275/home/'; break;
                 case "menuButton:Sidebar":        w2ui.toplayout.toggle('left',true);           break;
                 case "menuButton:mainLayoutMain": w2ui.mainlayout.toggle('main',true);          break;
                 case "menuButton:Preview":        w2ui.toplayout.toggle('preview',true);        break;
@@ -2222,14 +2224,12 @@ function finishInitialization() {
     defineDateFmts();
     buildPageElements();
     createRentalAgreementForm();
-
     var d1 = new Date();
     d1.setDate(1);
     app.D1 = dateControlString(d1);
     var d2 = dateMonthFwd(d1);
     app.D2 = dateControlString(d2);
 }
-
 function handleData(data,status) {
     if (status == "success") {
         if (data.substring(11,14) == "err") {
@@ -2245,7 +2245,6 @@ function handleData(data,status) {
     }
     finishInitialization();
 }
-
 $(function () {
     "use strict";
     $.get('/v1/uilists/' + app.language + '/' + app.template)
@@ -2254,6 +2253,7 @@ $(function () {
         console.log('Error getting /v1/uilists');
      });
 }
+
 );
 
 </script>

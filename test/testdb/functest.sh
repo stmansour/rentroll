@@ -1,5 +1,5 @@
 #!/bin/bash
-TESTNAME="CCC"
+TESTNAME="TestDB"
 TESTSUMMARY="Setup a database with multiple businesses for testing purposes"
 
 RRDATERANGE="-j 2016-01-01 -k 2016-02-01"
