@@ -17,7 +17,7 @@ func SetTableTitlePDF(pdfProps []*gotable.PDFProperty, title string) []*gotable.
 	return pdfProps
 }
 
-// pdf properties values for pdf report for rentroll software
+// RRpdfProps are the pdf properties values for pdf report for rentroll software
 // pdf properties
 var RRpdfProps = []*gotable.PDFProperty{
 	// disable smart shrinking
