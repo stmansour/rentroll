@@ -9,6 +9,45 @@ import (
 	"time"
 )
 
+// SetTableTitlePDF sets pdf property for title at header center in list, for a table
+func SetTableTitlePDF(pdfProps []*gotable.PDFProperty, title string) []*gotable.PDFProperty {
+	pdfProps = append(pdfProps, &gotable.PDFProperty{
+		Option: "--header-center", Value: title,
+	})
+	return pdfProps
+}
+
+// pdf properties values for pdf report for rentroll software
+// pdf properties
+var RRpdfProps = []*gotable.PDFProperty{
+	// disable smart shrinking
+	// {Option: "--disable-smart-shrinking"},
+	// top margin
+	{Option: "-T", Value: "15"},
+	// header font size
+	{Option: "--header-font-size", Value: "7"},
+	// header font
+	{Option: "--header-font-name", Value: "opensans"},
+	// header spacing
+	{Option: "--header-spacing", Value: "3"},
+	// bottom margin
+	{Option: "-B", Value: "15"},
+	// footer spacing
+	{Option: "--footer-spacing", Value: "5"},
+	// footer font
+	{Option: "--footer-font-name", Value: "opensans"},
+	// footer font size
+	{Option: "--footer-font-size", Value: "7"},
+	// footer left content
+	{Option: "--footer-left", Value: time.Now().Format(gotable.DATETIMEFMT)},
+	// footer right content
+	{Option: "--footer-right", Value: "Page [page] of [toPage]"},
+	// page size
+	{Option: "--page-size", Value: "Letter"},
+	// orientation
+	{Option: "--orientation", Value: "Landscape"},
+}
+
 // RReportTableErrorSectionCSS holds css for errors placed in section3 of gotable
 var RReportTableErrorSectionCSS = []*gotable.CSSProperty{
 	{Name: "color", Value: "red"},
@@ -308,7 +347,11 @@ func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
 
 	for i := 0; i < len(m); i++ {
 		temp := bytes.Buffer{}
-		err := m[i].PDFprintTable(&temp)
+
+		// pdf props title
+		pdfProps := SetTableTitlePDF(RRpdfProps, m[i].Title)
+
+		err := m[i].PDFprintTable(&temp, pdfProps)
 		if err != nil {
 			s := fmt.Sprintf("Error at %s in t.PDFprintTable: %s\n", funcname, err.Error())
 			fmt.Print(s)

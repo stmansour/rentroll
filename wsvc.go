@@ -136,7 +136,11 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
-			err := tbl.PDFprintTable(w)
+
+			// pdf props title
+			pdfProps := rrpt.SetTableTitlePDF(rrpt.RRpdfProps, tbl.Title)
+
+			err := tbl.PDFprintTable(w, pdfProps)
 			if err != nil {
 				s := fmt.Sprintf("Error in PDFprintTable: %s\n", err.Error())
 				fmt.Print(s)
