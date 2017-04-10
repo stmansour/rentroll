@@ -1,4 +1,4 @@
-DIRS = webdoc
+DIRS =
 
 tools:
 	for dir in $(DIRS); do make -C $$dir; done
