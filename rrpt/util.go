@@ -22,6 +22,8 @@ func SetTableTitlePDF(pdfProps []*gotable.PDFProperty, title string) []*gotable.
 var RRpdfProps = []*gotable.PDFProperty{
 	// disable smart shrinking
 	// {Option: "--disable-smart-shrinking"},
+	// custom dpi setting
+	{Option: "--dpi", Value: "256"},
 	// top margin
 	{Option: "-T", Value: "15"},
 	// header font size
