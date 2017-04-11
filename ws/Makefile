@@ -1,7 +1,12 @@
 TOP=..
+BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+WEBDOCDIR=${TOP}/../webdoc
+WEBDOC=${WEBDOCDIR}/webdoc
+WEBCSS=${WEBDOCDIR}/doc.css
+THISDIR="ws"
 
-rrlib: *.go
+ws: *.go webdoc
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -9,16 +14,26 @@ rrlib: *.go
 	go test
 	go install
 	@rm -f fail
+	@echo "*** ${THISDIR}: completed build ***"
+
+webdoc:
+	rm -rf doc
+	${WEBDOC} 
+	@cp ${WEBDOCDIR}/doc.css doc/
+	@cp ${WEBDOCDIR}/tester.html doc/
+	rm -rf ${BINDIR}/doc
+	cp -r doc ${BINDIR}/
 
 test:
 	@touch fail
 	go test
-	@echo "*** TESTS COMPLETE -- ALL TESTS PASS ***"
 	@rm -f fail
+	@echo "*** ${THISDIR}: completed testing - ALL TESTS PASS ***"
 
 clean:
 	go clean
 	rm -f fail GoAnalyzerError.log
+	@echo "*** ${THISDIR}: completed clean ***"
 
 package:
-	@echo "*** PACKAGE completed in ws ***"
+	@echo "*** ${THISDIR}: completed package ***"

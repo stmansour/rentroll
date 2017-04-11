@@ -206,6 +206,12 @@ function defineDateFmts() {
     $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
 }
 
+function openInNewTab(url) {
+    "use strict";
+    var win = window.open(url, '_blank');
+    win.focus();
+}
+
 // The reason to load these elements in this way rather than storing them as part of a
 // 'config' variable then passing them into the widget generators is that we need to
 // download the lists first. Making the elements part of a config.* variable would evaluate
@@ -289,7 +295,8 @@ function buildPageElements() {
             },
             { type: 'break', id: 'break2' },
             { type: 'button', id: 'msgButton', caption: 'News Flash', /*icon: 'fa fa-newspaper-o'*/ icon: 'fa fa-spinner fa-pulse fa-3x fa-fw'},
-            { type: 'menu',    id: 'menuButton', caption: 'Panels',    icon: 'fa fa-table', items: [
+            { type: 'menu',    id: 'menuButton', caption: 'Developer',    icon: 'fa fa-user-circle', items: [
+                { text: 'Webdocs', icon: 'fa fa-book' },
                 { text: 'Template-Dflt', icon: 'fa fa-language' },
                 { text: 'Template-Apts', icon: 'fa fa-language' },
                 { text: 'Messages', icon: 'fa fa-folder-o' },
@@ -303,13 +310,7 @@ function buildPageElements() {
                 case "menuButton:Template-Apts":  window.location.href = '/home/en-us/apts';    break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                   break;
                 case "moduleMenu:Mojo":           window.location.href = 'http://localhost:8275/home/'; break;
-                case "menuButton:Sidebar":        w2ui.toplayout.toggle('left',true);           break;
-                case "menuButton:mainLayoutMain": w2ui.mainlayout.toggle('main',true);          break;
-                case "menuButton:Preview":        w2ui.toplayout.toggle('preview',true);        break;
-                case "menuButton:Details":        w2ui.toplayout.toggle('right',true);          break;
-                case "menuButton:Footer":         w2ui.mainlayout.toggle('bottom',true);        break;
-                case "menuButton:topLayoutMain":  w2ui.toplayout.toggle('main',true);           break;
-
+                case "menuButton:Webdocs": openInNewTab('/doc/docs.html'); break; 
                 case "msgButton":
                 case "menuButton:Messages":
                         w2ui.toplayout.toggle('top',true);

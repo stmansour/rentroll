@@ -23,7 +23,7 @@ var RRpdfProps = []*gotable.PDFProperty{
 	// disable smart shrinking
 	// {Option: "--disable-smart-shrinking"},
 	// custom dpi setting
-	{Option: "--dpi", Value: "256"},
+	{Option: "--dpi", Value: "512"},
 	// top margin
 	{Option: "-T", Value: "15"},
 	// header font size
