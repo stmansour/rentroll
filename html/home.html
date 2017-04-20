@@ -785,7 +785,9 @@ function buildPageElements() {
             { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
             { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
-            { field: 'AssignmentTime', type: 'list', options: {items: app.assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+            { field: 'RentableType', type: 'text', required: false, html: { caption: 'RentableType', page: 0, column: 0 } },
+            { field: 'RentableStatus', type: 'text', required: false, html: { caption: 'RentableStatus', page: 0, column: 0 } },
+            // { field: 'AssignmentTime', type: 'list', options: {items: app.assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
         ],
         toolbar: {
             items: [

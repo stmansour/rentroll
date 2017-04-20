@@ -104,6 +104,14 @@ var rentablesGridFieldsMap = map[string][]string{
 	"RentableStatus": {"RentableStatus.Status"},
 }
 
+// which fields needs to be fetched for SQL query for rentables
+var rentablesQuerySelectFields = []string{
+	"Rentable.RID",
+	"Rentable.RentableName",
+	"RentableTypes.Name as RentableType",
+	"RentableStatus.Status as RentableStatus",
+}
+
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
 // wsdoc {
 //  @Title  Search Rentables
@@ -166,17 +174,9 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	ORDER BY {{.OrderClause}};
 	`
 
-	// which fields needs to be fetched for SQL query
-	qSelectFields := []string{
-		"Rentable.RID",
-		"Rentable.RentableName",
-		"RentableTypes.Name as RentableType",
-		"RentableStatus.Status as RentableStatus",
-	}
-
 	// will be substituted as query clauses
 	qc := queryClauses{
-		"SelectClause": strings.Join(qSelectFields, ","),
+		"SelectClause": strings.Join(rentablesQuerySelectFields, ","),
 		"WhereClause":  srch,
 		"OrderClause":  order,
 	}
@@ -211,6 +211,8 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		}
 		i++
 	}
+	// error check
+	rlib.Errcheck(rows.Err())
 
 	// get total count of results
 	g.Total, err = GetQueryCount(rentablesQuery, qc)
@@ -219,12 +221,11 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		SvcGridErrorReturn(w, err)
 		return
 	}
+	fmt.Printf("g.Total = %d\n", g.Total)
 
 	// write response
-	fmt.Printf("g.Total = %d\n", g.Total)
-	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }
 
@@ -342,12 +343,48 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered getRentable\n")
 	var g GetRentableResponse
-	a := rlib.GetRentable(d.RID)
-	if a.RID > 0 {
+
+	rentableQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Rentable
+	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
+	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
+	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
+	WHERE {{.WhereClause}};
+	`
+
+	// will be substituted as query clauses
+	qc := queryClauses{
+		"SelectClause": strings.Join(rentablesQuerySelectFields, ","),
+		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", d.BID, d.RID),
+	}
+
+	// get formatted query with substitution of select, where, order clause
+	q := formatSQLQuery(rentableQuery, qc)
+	fmt.Printf("db query = %s\n", q)
+
+	// execute the query
+	rows, err := rlib.RRdb.Dbrr.Query(q)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
 		var gg PrRentableOther
-		rlib.MigrateStructVals(&a, &gg)
+		gg.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
+
+		var rStatus int64
+		rows.Scan(&gg.RID, &gg.RentableName, &gg.RentableType, &rStatus)
+
+		// convert status int to string, human readable
+		gg.RentableStatus = rlib.RentableStatusToString(rStatus)
+
 		g.Record = gg
 	}
+	// error check
+	rlib.Errcheck(rows.Err())
+
+	// write response
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }
