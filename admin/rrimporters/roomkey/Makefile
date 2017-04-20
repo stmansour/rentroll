@@ -3,7 +3,7 @@ COUNTOL=${TOP}/tools/bashtools/countol.sh
 
 roomkey: *.go
 	@touch fail
-	if [ ! -f ./conf.json ]; then cp ${TOP}/confdev.json ./conf.json; fi
+	if [ ! -f ./config.json ]; then cp ${TOP}/confdev.json ./config.json; fi
 	if [ ! -f ./mapper.json ]; then cp ${TOP}/importers/roomkey/mapper.json .; fi
 	chmod 400 ./mapper.json
 	@${COUNTOL} "go vet"
@@ -12,7 +12,7 @@ roomkey: *.go
 	@rm -f fail
 
 clean:
-	rm -f roomkey conf.json mapper.json fail
+	rm -f roomkey config.json mapper.json fail
 	@echo "*** CLEAN completed in rrimporters/roomkey ***"
 
 test:
@@ -21,7 +21,7 @@ test:
 package: roomkey
 	@touch fail
 	mkdir -p ${TOP}/tmp/rentroll/importers/roomkey/
-	cp ./conf.json ${TOP}/tmp/rentroll/importers/roomkey/conf.json
+	cp ./config.json ${TOP}/tmp/rentroll/importers/roomkey/config.json
 	rm -f ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./mapper.json ${TOP}/tmp/rentroll/importers/roomkey/mapper.json
 	cp ./roomkey ${TOP}/tmp/rentroll/importers/roomkey/roomkeyload

@@ -4,10 +4,9 @@ COUNTOL=${TOP}/tools/bashtools/countol.sh
 
 .PHONY:  test
 
-rentroll: ver.go *.go
+rentroll: ver.go *.go config.json
 	@find . -name "fail" -exec rm -r "{}" \;
 	@touch fail
-	cp confdev.json conf.json
 	for dir in $(DIRS); do make -C $$dir;done
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -17,6 +16,10 @@ rentroll: ver.go *.go
 	@tools/bashtools/buildcheck.sh BUILD
 
 all: clean rentroll test stats
+
+config.json:
+	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
+	@cp confdev.json config.json
 
 jshint:
 	@touch fail
@@ -44,7 +47,7 @@ ver.go:
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	go clean
-	rm -f rentroll ver.go conf.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example fail GoAnalyzerError.log
+	rm -f rentroll ver.go config.json rentroll.log *.out restore.sql rrbkup rrnewdb rrrestore example fail GoAnalyzerError.log *.json
 
 test: package
 	@find . -name "fail" -exec rm -r "{}" \;
@@ -60,6 +63,7 @@ instman:
 	pushd tmp/rentroll;./installman.sh;popd
 
 package: rentroll
+	@find . -name "fail" -exec rm -r "{}" \;
 	@touch fail
 	rm -rf tmp
 	mkdir -p tmp/rentroll
@@ -68,7 +72,7 @@ package: rentroll
 	cp rentroll.1 tmp/rentroll/man/man1
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp rentroll ./tmp/rentroll/
-	cp conf.json report.css table.tmpl ./tmp/rentroll/
+	cp config.json report.css table.tmpl ./tmp/rentroll/
 	cp -r html ./tmp/rentroll/
 	cp ../gotable/pdfinstall.sh tmp/rentroll/
 	if [ -e js ]; then cp -r js ./tmp/rentroll/ ; fi

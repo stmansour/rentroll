@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"extres"
 	"flag"
 	"fmt"
 	"log"
@@ -39,7 +40,6 @@ var App struct {
 	dbdir        *sql.DB  // phonebook db
 	dbrr         *sql.DB  // rentroll db
 	DBDir        string   // phonebook database
-	DBRR         string   // rentroll database
 	PortRR       int      // port on which rentroll listens
 	DBUser       string   // user for all databases
 	Report       string   // if testing engine, which report/action to perform
@@ -52,6 +52,7 @@ var App struct {
 	Bud          string   // BUD from the command line
 	CertFile     string   // public certificate
 	KeyFile      string   //private key file
+	//DBRR         string   // rentroll database
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
@@ -65,7 +66,7 @@ var Chttp = http.NewServeMux()
 func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
-	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
+	//dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pStart := flag.String("j", "2015-11-01", "Accounting Period start time")
 	pStop := flag.String("k", "2015-12-01", "Accounting Period end time")
 	pKey := flag.String("K", "localhost.key", "Private key file")
@@ -84,7 +85,7 @@ func readCommandLineArgs() {
 		os.Exit(0)
 	}
 	App.DBDir = *dbnmPtr
-	App.DBRR = *dbrrPtr
+	//App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.Report = *rptPtr
 	App.sStart = *pStart
@@ -127,14 +128,12 @@ func initHTTP() {
 }
 
 func main() {
+	var err error
 	readCommandLineArgs()
 	// fmt.Printf("App.CSVLoad = %s\n", App.CSVLoad)
-	rlib.RRReadConfig()
-
 	//==============================================
 	// Open the logfile and begin logging...
 	//==============================================
-	var err error
 	App.LogFile, err = os.OpenFile("rentroll.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	lib.Errcheck(err)
 	defer App.LogFile.Close()
@@ -144,23 +143,28 @@ func main() {
 	//----------------------------
 	// Open RentRoll database
 	//----------------------------
-	s := rlib.RRGetSQLOpenString(App.DBRR)
+	if err = rlib.RRReadConfig(); err != nil {
+		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
+		os.Exit(1)
+	}
+
+	s := extres.GetSQLOpenString(rlib.AppConfig.RRDbname, &rlib.AppConfig)
 	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {
-		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
+		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
 	defer App.dbrr.Close()
 	err = App.dbrr.Ping()
 	if nil != err {
-		fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
+		fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
 
 	//----------------------------
 	// Open Phonebook database
 	//----------------------------
-	s = rlib.RRGetSQLOpenString(App.DBDir)
+	s = extres.GetSQLOpenString(rlib.AppConfig.Dbname, &rlib.AppConfig)
 	App.dbdir, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open: Error = %v\n", err)

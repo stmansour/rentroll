@@ -36,4 +36,5 @@ clean:
 	@echo "*** ${THISDIR}: completed clean ***"
 
 package:
+	@cp -r doc ${BINDIR}/
 	@echo "*** ${THISDIR}: completed package ***"

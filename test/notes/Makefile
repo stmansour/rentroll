@@ -1,6 +1,5 @@
-notes: *.go
+notes: *.go config.json
 	touch fail
-	cp ../../confdev.json conf.json
 	go vet
 	golint
 	go build
@@ -8,8 +7,12 @@ notes: *.go
 	rm -f fail
 
 clean:
-	rm -f notes.log log *.g ./gold/*.g err.txt notes [a-z] fail
+	rm -f notes.log log *.g ./gold/*.g err.txt notes [a-z] fail conf*.json
 	@echo "*** CLEAN completed in Notes ***"
+
+config.json:
+	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
+	@cp confdev.json config.json
 
 test:	notes
 	touch fail
