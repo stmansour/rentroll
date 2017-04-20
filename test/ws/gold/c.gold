@@ -1,39 +1,47 @@
 {
     "records": [
         {
-            "AssignmentTime": "Pre-Assign",
-            "BID": "REX",
+            "AssignmentTime": "",
+            "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "3/7/2017",
+            "LastModTime": "1/1/1900",
             "RID": 2,
             "RentableName": "309 1/2 Rexford",
+            "RentableStatus": "online",
+            "RentableType": "309 1/2 Rexford",
             "recid": 0
         },
         {
-            "AssignmentTime": "Pre-Assign",
-            "BID": "REX",
+            "AssignmentTime": "",
+            "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "3/7/2017",
+            "LastModTime": "1/1/1900",
             "RID": 1,
             "RentableName": "309 Rexford",
+            "RentableStatus": "online",
+            "RentableType": "309 Rexford",
             "recid": 1
         },
         {
-            "AssignmentTime": "Pre-Assign",
-            "BID": "REX",
+            "AssignmentTime": "",
+            "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "3/7/2017",
+            "LastModTime": "1/1/1900",
             "RID": 4,
             "RentableName": "311 1/2 Rexford",
+            "RentableStatus": "owner occupied",
+            "RentableType": "311 1/2 Rexford",
             "recid": 2
         },
         {
-            "AssignmentTime": "Pre-Assign",
-            "BID": "REX",
+            "AssignmentTime": "",
+            "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "3/7/2017",
+            "LastModTime": "1/1/1900",
             "RID": 3,
             "RentableName": "311 Rexford",
+            "RentableStatus": "online",
+            "RentableType": "311 Rexford",
             "recid": 3
         }
     ],
