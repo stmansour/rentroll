@@ -209,3 +209,8 @@ func StringToInt(s string) (int, bool) {
 	}
 	return i, true
 }
+
+// IntToString simply converts int to string
+func IntToString(i int) string {
+	return strconv.Itoa(i)
+}

@@ -310,7 +310,7 @@ function buildPageElements() {
                 case "menuButton:Template-Apts":  window.location.href = '/home/en-us/apts';    break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                   break;
                 case "moduleMenu:Mojo":           window.location.href = 'http://localhost:8275/home/'; break;
-                case "menuButton:Webdocs": openInNewTab('/doc/docs.html'); break; 
+                case "menuButton:Webdocs": openInNewTab('/doc/docs.html'); break;
                 case "msgButton":
                 case "menuButton:Messages":
                         w2ui.toplayout.toggle('top',true);
@@ -750,7 +750,9 @@ function buildPageElements() {
             {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
             {field: 'RID', caption: 'RID', size: '50px', sortable: true},
             {field: 'RentableName', caption: 'RentableName', size: '150px', sortable: true},
-            {field: 'AssignmentTime', caption: 'Assignment Time', size: '120px', sortable: true},
+            // {field: 'AssignmentTime', caption: 'Assignment Time', size: '120px', sortable: true},
+            {field: 'RentableType', caption: 'RentableType', size: '150px', sortable: true},
+            {field: 'RentableStatus', caption: 'RentableStatus', size: '150px', sortable: true},
         ],
         onClick: function(event) {
             // var sel = this.getSelection(true);
