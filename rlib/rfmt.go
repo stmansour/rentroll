@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"extres"
 	"fmt"
 	"log"
 	"runtime/debug"
@@ -56,7 +57,7 @@ func Errcheck(err error) {
 		if IsSQLNoResultsError(err) {
 			return
 		}
-		if APPENVPROD != AppConfig.Env {
+		if extres.APPENVPROD != AppConfig.Env {
 			fmt.Printf("error = %v\n", err)
 		}
 		debug.PrintStack()
@@ -69,7 +70,7 @@ func Errcheck(err error) {
 func LogAndPrintError(funcname string, err error) {
 	errmsg := fmt.Sprintf("%s: err = %v\n", funcname, err)
 	Ulog(errmsg)
-	if APPENVPROD != AppConfig.Env {
+	if extres.APPENVPROD != AppConfig.Env {
 		fmt.Println(errmsg)
 	}
 }

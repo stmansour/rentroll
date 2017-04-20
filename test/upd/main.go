@@ -3,6 +3,7 @@ package main
 
 import (
 	"database/sql"
+	"extres"
 	"flag"
 	"fmt"
 	"os"
@@ -40,24 +41,59 @@ func readCommandLineArgs() {
 }
 
 func main() {
+	var err error
 	readCommandLineArgs()
 	rlib.RRReadConfig()
-	var err error
 
-	s := rlib.RRGetSQLOpenString(App.DBRR)
+	// s := rlib.RRGetSQLOpenString(App.DBRR)
+	// App.dbrr, err = sql.Open("mysql", s)
+	// if nil != err {
+	// 	fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
+	// 	os.Exit(1)
+	// }
+	// defer App.dbrr.Close()
+	// err = App.dbrr.Ping()
+	// if nil != err {
+	// 	fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
+	// 	os.Exit(1)
+	// }
+
+	// s = rlib.RRGetSQLOpenString(App.DBDir)
+	// App.dbdir, err = sql.Open("mysql", s)
+	// if nil != err {
+	// 	fmt.Printf("sql.Open: Error = %v\n", err)
+	// 	os.Exit(1)
+	// }
+	// err = App.dbdir.Ping()
+	// if nil != err {
+	// 	fmt.Printf("dbdir.Ping: Error = %v\n", err)
+	// 	os.Exit(1)
+	// }
+	//----------------------------
+	// Open RentRoll database
+	//----------------------------
+	if err = rlib.RRReadConfig(); err != nil {
+		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
+		os.Exit(1)
+	}
+
+	s := extres.GetSQLOpenString(rlib.AppConfig.RRDbname, &rlib.AppConfig)
 	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {
-		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
+		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
 	defer App.dbrr.Close()
 	err = App.dbrr.Ping()
 	if nil != err {
-		fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
+		fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
 
-	s = rlib.RRGetSQLOpenString(App.DBDir)
+	//----------------------------
+	// Open Phonebook database
+	//----------------------------
+	s = extres.GetSQLOpenString(rlib.AppConfig.Dbname, &rlib.AppConfig)
 	App.dbdir, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open: Error = %v\n", err)

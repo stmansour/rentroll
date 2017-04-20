@@ -120,9 +120,17 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	var err error
 	var g RentalAgrSearchResponse
 	t := time.Now()
+
 	srch := fmt.Sprintf("BID=%d AND AgreementStop>%q", d.BID, t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
 	order := "RAID ASC"                                                                    // default ORDER
 	q, qw := gridBuildQuery("RentalAgreement", srch, order, d, &p)
+
+	//
+	// srch := "SELECT RentalAgreement.RAID, GROUP_CONCAT(DISTINCT CONCAT(Transactant.FirstName, ' ', Transactant.LastName) SEPARATOR ', ') Payors, RentalAgreement.AgreementStart, RentalAgreement.AgreementStop FROM ((RentalAgreement INNER JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID) INNER JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID) WHERE RentalAgreement.BID=1 GROUP BY RentalAgreement.RAID, RentalAgreement.AgreementStart, RentalAgreement.AgreementStop"
+	// order := "RentalAgreement.AgreementStart DESC"
+	// suffix := fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
+
+	// q := srch + " " + order + " " + suffix
 
 	// set g.Total to the total number of rows of this data...
 	g.Total, err = GetRowCount("RentalAgreement", qw)

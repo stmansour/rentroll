@@ -1,7 +1,8 @@
 TOP=../..
+BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
-rrloadcsv: *.go
+rrloadcsv: *.go config.json
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -11,8 +12,12 @@ rrloadcsv: *.go
 	@rm -f fail
 
 clean:
-	rm -f rrloadcsv ver.go fail
+	rm -f rrloadcsv ver.go fail conf*.json
 	@echo "*** CLEAN completed in rrloadcsv ***"
+
+config.json:
+	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
+	@cp confdev.json config.json
 
 test:
 	@echo "*** TEST completed in rrloadcsv ***"
@@ -23,7 +28,7 @@ man:
 
 package:
 	touch fail
-	cp rrloadcsv ${TOP}/tmp/rentroll/rrloadcsv
-	cp rrloadcsv.1 ${TOP}/tmp/rentroll/man/man1
+	cp rrloadcsv config.json ${BINDIR}/
+	cp rrloadcsv.1 ${BINDIR}/man/man1
 	@echo "*** PACKAGE completed in rrloadcsv ***"
 	rm -f fail

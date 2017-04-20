@@ -6,6 +6,46 @@ import (
 	"rentroll/rlib"
 )
 
+// Requirements:
+// 1. Output is targeted for use with W2UI grid. So, the server needs to take as input the
+//    search query as described here: http://w2ui.com/web/docs/1.5/grid . In a nutshell, the
+//    W2UI grid describes the query in this JSON structure:
+//
+// 			{
+// 			    "cmd"         : "get-records",
+// 			    "limit"       : 100,
+// 			    "offset"      : 0,
+// 			    "selected"    : [1, 2],
+// 			    "searchLogic" : "AND",
+// 			    "search": [
+// 			        { "field": "fname", "type": "text", "value": "vit", "operator": "is" },
+// 			        { "field": "age", "type": "int", "value": [10, 20], "operator": "between" }
+// 			    ],
+// 			    "sort": [
+// 			        { "field": "fname", "direction": "ASC" },
+// 			        { "field": "Lname", "direction": "DESC" }
+// 			    ]
+// 			}
+//
+// 2. The successful reply is a JSON solution set that is of this form:
+//
+//          {
+//              "status"  : "success",
+//              "total"   : 873,			// the total number of records that match the query
+//              "records" : [
+//                  { "recid": 1, "field-1": "value-1", ... "field-N": "value-N" }
+//					...
+//              ]
+//          }
+//
+// 		a) Note that we must be able to produce a count of the total number of records that match the
+// 		   query.  This value is independent of the LIMIT and OFFSET values.  In other words, suppose
+// 		   that the solution set for a particular query has 600 rows. Regardless of the values for
+// 		   LIMIT and OFFSET, we must return a value of 600 for "total".  This suggests that the coded
+//         solution for these queries will be able to return both a "COUNT(*)" query as well as a
+//         a query that provides the record fields.
+//
+
 // gridBuildQuery builds a query from the supplied base and the sort / search parameters
 // in the supplied w2ui grid structure.  To play with this routine in isolation
 // use this:

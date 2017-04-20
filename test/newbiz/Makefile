@@ -7,7 +7,6 @@ clean:
 
 test:
 	touch fail
-	cp ../../tmp/rentroll/conf.json .
 	./functest.sh
 	@echo "*** TEST completed in newbiz ***"
 	rm -f fail

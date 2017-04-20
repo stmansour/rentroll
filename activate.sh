@@ -1,9 +1,8 @@
 #!/bin/bash
 # chkconfig: 345 99 01
-# description: activation script to start/stop Accord Phonebook
+# description: activation script to start/stop Accord RentRoll
 #
-# processname: phonebook
-# pidfile: /var/run/phonebook/phonebook.pid
+# processname: rentroll
 
 
 HOST=localhost
@@ -97,7 +96,7 @@ setupAppNode() {
 start() {
 	# Create a database if this is a localhost instance  
 	if [ ${IAM} == "root" ]; then
-		x=$(grep RRDbhost conf.json | grep localhost | wc -l)
+		x=$(grep RRDbhost config.json | grep localhost | wc -l)
 		if (( x == 1 )); then
 			setupAppNode
 		fi

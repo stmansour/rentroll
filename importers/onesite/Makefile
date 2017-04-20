@@ -1,7 +1,7 @@
 TOP=../..
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
-onesite: *.go
+onesite: *.go config.json
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -12,8 +12,12 @@ onesite: *.go
 
 clean:
 	go clean
-	@rm -f fail
+	@rm -f fail conf*.json
 	@echo "*** CLEAN completed in importers/onesite ***"
+
+config.json:
+	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
+	@cp confdev.json config.json
 
 test:
 	@touch fail
