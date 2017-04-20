@@ -41,6 +41,8 @@ type PrRentableOther struct {
 	RID            int64
 	BID            rlib.XJSONBud
 	RentableName   string
+	RentableType   string
+	RentableStatus string
 	AssignmentTime rlib.XJSONAssignmentTime
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
@@ -93,6 +95,15 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	SvcWriteResponse(&g, w)
 }
 
+// rentablesGridFields holds the map of field (to be shown on grid)
+// to actual database fields, multiple db fields means combine those
+var rentablesGridFieldsMap = map[string][]string{
+	"RID":            {"Rentable.RID"},
+	"RentableName":   {"Rentable.RentableName"},
+	"RentableType":   {"RentableTypes.Name"},
+	"RentableStatus": {"RentableStatus.Status"},
+}
+
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
 // wsdoc {
 //  @Title  Search Rentables
@@ -107,36 +118,92 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 
 	fmt.Printf("Entered SvcSearchHandlerRentables\n")
 
-	var p rlib.Rentable
 	var err error
 	var g SearchRentablesResponse
 
-	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "RentableName ASC"          // default ORDER
-	q, qw := gridBuildQuery("Rentable", srch, order, d, &p)
+	// default search (where clause) and sort (order by clause)
+	srch := fmt.Sprintf("Rentable.BID=%d", d.BID) // default WHERE clause
+	order := "Rentable.RentableName ASC"          // default ORDER
 
-	// set g.Total to the total number of rows of this data...
-	g.Total, err = GetRowCount("Rentable", qw)
-	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
+	// check that RentableStatus is there in search fields
+	// if exists then modify it
+	var rStatusSearch []GenSearch
+	for i := 0; i < len(d.wsSearchReq.Search); i++ {
+		if d.wsSearchReq.Search[i].Field == "RentableStatus" {
+			for index, status := range rlib.RentableStatusString {
+				if strings.Contains(status, strings.ToLower(d.wsSearchReq.Search[i].Value)) && strings.TrimSpace(d.wsSearchReq.Search[i].Value) != "" {
+					rStatusSearch = append(rStatusSearch, GenSearch{
+						Operator: "is", Field: "RentableStatus", Value: rlib.IntToString(index), Type: "int",
+					})
+				}
+			}
+			// remove original rentable status from search
+			d.wsSearchReq.Search = append(d.wsSearchReq.Search[:i], d.wsSearchReq.Search[i+1:]...)
+		}
 	}
 
+	// append modified status search fields
+	d.wsSearchReq.Search = append(d.wsSearchReq.Search, rStatusSearch...)
+
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, rentablesGridFieldsMap)
+	if len(whereClause) > 0 {
+		srch += " AND (" + whereClause + ")"
+	}
+	if len(orderClause) > 0 {
+		order = orderClause
+	}
+
+	// Rentables Query Text Template
+	rentablesQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Rentable
+	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
+	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
+	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}};
+	`
+
+	// which fields needs to be fetched for SQL query
+	qSelectFields := []string{
+		"Rentable.RID",
+		"Rentable.RentableName",
+		"RentableTypes.Name as RentableType",
+		"RentableStatus.Status as RentableStatus",
+	}
+
+	// will be substituted as query clauses
+	qc := queryClauses{
+		"SelectClause": strings.Join(qSelectFields, ","),
+		"WhereClause":  srch,
+		"OrderClause":  order,
+	}
+
+	// get formatted query with substitution of select, where, order clause
+	q := formatSQLQuery(rentablesQuery, qc)
 	fmt.Printf("db query = %s\n", q)
 
+	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
+	// get records by iteration
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.Rentable
 		var q PrRentableOther
-		rlib.ReadRentables(rows, &p)
-		p.Recid = i
-		rlib.MigrateStructVals(&p, &q)
+		q.Recid = i
+		q.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
+
+		var rStatus int64
+		rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &rStatus)
+
+		// convert status int to string, human readable
+		q.RentableStatus = rlib.RentableStatusToString(rStatus)
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -144,6 +211,16 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		}
 		i++
 	}
+
+	// get total count of results
+	g.Total, err = GetQueryCount(rentablesQuery, qc)
+	if err != nil {
+		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+
+	// write response
 	fmt.Printf("g.Total = %d\n", g.Total)
 	rlib.Errcheck(rows.Err())
 	w.Header().Set("Content-Type", "application/json")

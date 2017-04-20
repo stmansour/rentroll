@@ -1,9 +1,12 @@
 package ws
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"rentroll/rlib"
+	"strings"
+	"text/template"
 )
 
 // Requirements:
@@ -155,4 +158,135 @@ func GetRowCount(table, where string) (int64, error) {
 		err = fmt.Errorf("GetRowCount: query=\"%s\"    err = %s", s, de.Error())
 	}
 	return count, err
+}
+
+// queryClauses normally holds select, where, order clauses
+type queryClauses map[string]string
+
+// formatSQLQuery accepets queryForm (text form), queryClauses (map)
+// and executes text template with given map of clause and return
+func formatSQLQuery(queryForm string, qc queryClauses) string {
+	b := &bytes.Buffer{}
+	template.Must(template.New("").Parse(queryForm)).Execute(b, qc)
+	return b.String()
+}
+
+// GetQueryCount returns the number of records fetched by execution of query
+func GetQueryCount(queryForm string, qc queryClauses) (int64, error) {
+
+	// replace select clause first and get count query
+	qc["SelectClause"] = "COUNT(*)"
+	countQuery := formatSQLQuery(queryForm, qc)
+	fmt.Println("Count Query: ", countQuery)
+
+	// hit the query and get count from db
+	count := int64(0)
+	var err error
+	de := rlib.RRdb.Dbrr.QueryRow(countQuery).Scan(&count)
+	if de != nil {
+		err = fmt.Errorf("GetQueryCount: query=\"%s\"    err = %s", countQuery, de.Error())
+	}
+	return count, err
+}
+
+// GetSQLOrderClause builds order by clause of SQL query
+func GetSQLOrderClause(fieldMap map[ColSort][]string) string {
+	var orderClause string
+	var count int
+	for gsrt, fieldList := range fieldMap {
+		var fieldOrder string
+		for i, mf := range fieldList {
+			fieldOrder += fmt.Sprintf("%s %s", mf, strings.ToUpper(gsrt.Direction))
+			if i != len(fieldList)-1 {
+				fieldOrder += ", "
+			}
+		}
+		orderClause += fieldOrder
+		if count != len(fieldMap)-1 {
+			orderClause += ", "
+		}
+		count++
+	}
+	return orderClause
+}
+
+// GetSQLWhereClause builds where clause of sql query
+func GetSQLWhereClause(fieldMap map[GenSearch][]string, searchLogic string) string {
+	var whereClause string
+	var count int
+
+	// TODO: handle date type proper for LIKE operator
+
+	for gsrch, fieldList := range fieldMap {
+		var fieldSearch string
+		var likeFmt string
+
+		switch gsrch.Operator {
+		case "begins":
+			likeFmt = "%s like '%s%%'"
+		case "ends":
+			likeFmt = "%s like '%%%s'"
+		case "is":
+			likeFmt = "%s='%s'"
+		case "between":
+			likeFmt = "%s like '%%%s%%'"
+		default:
+			fmt.Printf("Unhandled search operator: %s\n", gsrch.Operator)
+		}
+
+		for i, mf := range fieldList {
+			fieldSearch += fmt.Sprintf(likeFmt, mf, gsrch.Value)
+			if i != len(fieldList)-1 {
+				fieldSearch += " OR "
+			}
+		}
+		whereClause += fieldSearch
+		if count != len(fieldMap)-1 {
+			whereClause += " " + searchLogic + " "
+		}
+		count++
+	}
+	return whereClause
+}
+
+// GetSearchAndSortSQL returns where and order by clause
+func GetSearchAndSortSQL(d *ServiceData, fieldMap map[string][]string) (string, string) {
+
+	var (
+		reqWhereClause     string
+		reqOrderClause     string
+		reqSearchClauseMap = make(map[GenSearch][]string)
+		reqOrderClauseMap  = make(map[ColSort][]string)
+	)
+
+	// get search clause first
+	for _, gsrch := range d.wsSearchReq.Search {
+		if gsrch.Field == "recid" || len(gsrch.Value) == 0 {
+			continue
+		}
+
+		// if requested search doesn't exist in map then skip it
+		if _, ok := fieldMap[gsrch.Field]; !ok {
+			continue
+		}
+		reqSearchClauseMap[gsrch] = fieldMap[gsrch.Field]
+	}
+	reqWhereClause = GetSQLWhereClause(reqSearchClauseMap, d.wsSearchReq.SearchLogic)
+
+	// get order clause then
+	for _, gsrt := range d.wsSearchReq.Sort {
+		if gsrt.Field == "recid" || len(gsrt.Direction) == 0 {
+			continue
+		}
+
+		// if requested search doesn't exist in map then skip it
+		if _, ok := fieldMap[gsrt.Field]; !ok {
+			continue
+		}
+		reqOrderClauseMap[gsrt] = fieldMap[gsrt.Field]
+	}
+
+	reqOrderClause = GetSQLOrderClause(reqOrderClauseMap)
+
+	return reqWhereClause, reqOrderClause
 }
