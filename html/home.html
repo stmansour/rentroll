@@ -754,12 +754,25 @@ function buildPageElements() {
             {field: 'RentableStatus', caption: 'RentableStatus', size: '150px', sortable: true},
         ],
         onClick: function(event) {
-            // var sel = this.getSelection(true);
             event.onComplete = function () {
                 var sel = this.getSelection(true);
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
+                        // get rentabletypes for business ob.BID
+                        var rtList = getRentableTypes(ob.BID);
+                        // w2ui field 'RentableType' items
+                        var items = [];
+                        // w2ui field 'RentableType' selected item
+                        var selected = {};
+                        rtList.records.forEach(function(rt){
+                            items.push({id: rt.RTID, text: rt.Name});
+                            if (rt.Name == ob.RentableType) {
+                                selected = {id: rt.RTID, text: rt.Name};
+                            }
+                        })
+                        // set options for 'RentableType' in rentableForm
+                        w2ui.rentableForm.set("RentableType",{options: {items: items, selected: selected, maxDropHeight: 200}});
                         console.log('rentable form url: ' + '/v1/rentable/' + ob.BID + '/' + ob.RID);
                         setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
                     }
@@ -785,8 +798,8 @@ function buildPageElements() {
             { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
             { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
-            { field: 'RentableType', type: 'text', required: false, html: { caption: 'RentableType', page: 0, column: 0 } },
-            { field: 'RentableStatus', type: 'text', required: false, html: { caption: 'RentableStatus', page: 0, column: 0 } },
+            { field: 'RentableType', type: 'list', required: false, html: { caption: 'RentableType', page: 0, column: 0 } },
+            { field: 'RentableStatus', type: 'list', options: {items: app.rentableStatusList}, required: false, html: { caption: 'RentableStatus', page: 0, column: 0 } },
             // { field: 'AssignmentTime', type: 'list', options: {items: app.assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
         ],
         toolbar: {

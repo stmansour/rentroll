@@ -138,6 +138,7 @@ var Svcs = []ServiceHandler{
 	{"rapayor", SvcRAPayor, true},
 	{"rapets", SvcRAPets, true},
 	{"rar", SvcRARentables, true},
+	{"rtlist", SvcRentableTypesList, true},
 	{"receipt", SvcFormHandlerReceipt, true},
 	{"receipts", SvcSearchHandlerReceipts, true},
 	{"rentable", SvcFormHandlerRentable, true},

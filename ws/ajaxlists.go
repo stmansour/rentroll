@@ -97,6 +97,7 @@ var ssliceToJS = []struct {
 	{"epochInstance", &EpochInstance},
 	{"yesNoList", &yesno},
 	{"usStateAbbr", &USStateAbbr},
+	{"rentableStatusList", &rlib.RentableStatusString},
 }
 
 // sendBusinessMap creates a map that can be used by the client to associate

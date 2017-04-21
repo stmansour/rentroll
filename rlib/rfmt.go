@@ -215,3 +215,11 @@ func StringToInt(s string) (int, bool) {
 func IntToString(i int) string {
 	return strconv.Itoa(i)
 }
+
+// Int64Range holds list of int64 kind of, varibles
+// custom sorting, use sort.Sort(Int64Range)
+type Int64Range []int64
+
+func (a Int64Range) Len() int           { return len(a) }
+func (a Int64Range) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a Int64Range) Less(i, j int) bool { return a[i] < a[j] }
