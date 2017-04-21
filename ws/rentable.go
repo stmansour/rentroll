@@ -371,7 +371,12 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	for rows.Next() {
 		var gg PrRentableOther
-		gg.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
+		for bud, bid := range rlib.RRdb.BUDlist {
+			if bid == d.BID {
+				gg.BID = rlib.XJSONBud(bud)
+				break
+			}
+		}
 
 		var rStatus int64
 		rows.Scan(&gg.RID, &gg.RentableName, &gg.RentableType, &rStatus)
