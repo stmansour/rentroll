@@ -15,7 +15,7 @@ CREATENEWDB=0
 #---------------------------------------------------------------
 #  Use the testdb for these tests...
 #---------------------------------------------------------------
-echo "Create new database..." 
+echo "Create new database..."
 mysql --no-defaults rentroll < restore.sql
 
 source ../share/base.sh
@@ -23,7 +23,7 @@ source ../share/base.sh
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
 
-# Get Specificy PaymentType 
+# Get Specificy PaymentType
 # echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
 # dojsonPOST "http://localhost:8270/v1/pmt/1/1" "request" "zz"  "WebService--PaymentTypes"
 
@@ -121,12 +121,14 @@ dojsonPOST "http://localhost:8270/v1/pmts/1" "request" "w"  "WebService--Payment
 echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/pmts/1" "request" "x"  "WebService--PaymentTypes-Get-ForceError"
 
-# Get Specificy PaymentType 
+# Get Specificy PaymentType
 echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/pmts/1/1" "request" "y"  "WebService--PaymentTypes-Get"
 
+# get Rentable types list for a business
+dojsonGET "http://localhost:8270/v1/rtlist/2" "z" "WebService--GetRentableTypesForBusiness"
 
 stopRentRollServer
-echo "RENTROLL SERVER STOPPED" 
+echo "RENTROLL SERVER STOPPED"
 
 logcheck
