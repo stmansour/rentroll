@@ -163,20 +163,27 @@ func GetRowCount(table, where string) (int64, error) {
 // queryClauses normally holds select, where, order clauses
 type queryClauses map[string]string
 
-// formatSQLQuery accepets queryForm (text form), queryClauses (map)
+// renderSQLQuery accepets queryForm (text form), queryClauses (map)
 // and executes text template with given map of clause and return
-func formatSQLQuery(queryForm string, qc queryClauses) string {
+func renderSQLQuery(queryForm string, qc queryClauses) string {
 	b := &bytes.Buffer{}
 	template.Must(template.New("").Parse(queryForm)).Execute(b, qc)
 	return b.String()
 }
 
 // GetQueryCount returns the number of records fetched by execution of query
-func GetQueryCount(queryForm string, qc queryClauses) (int64, error) {
+func GetQueryCount(query string, qc queryClauses) (int64, error) {
+
+	// if query ends with ';' then remove it
+	query = strings.TrimSuffix(strings.TrimSpace(query), ";")
 
 	// replace select clause first and get count query
-	qc["SelectClause"] = "COUNT(*)"
-	countQuery := formatSQLQuery(queryForm, qc)
+	queryForm := `
+	SELECT
+		COUNT(*)
+	FROM ({{.query}}) as T;
+	`
+	countQuery := renderSQLQuery(queryForm, map[string]string{"query": query})
 	fmt.Println("Count Query: ", countQuery)
 
 	// hit the query and get count from db
