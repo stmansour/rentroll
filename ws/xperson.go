@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -188,6 +189,63 @@ func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	SvcWriteResponse(&g, w)
 }
 
+// fields list needs to be fetched for grid
+var transactantGridFieldsMap = map[string][]string{
+	"TCID":           {"Transactant.TCID"},
+	"BID":            {"Transactant.BID"},
+	"NLID":           {"Transactant.NLID"},
+	"FirstName":      {"Transactant.FirstName"},
+	"MiddleName":     {"Transactant.MiddleName"},
+	"LastName":       {"Transactant.LastName"},
+	"PreferredName":  {"Transactant.PreferredName"},
+	"CompanyName":    {"Transactant.CompanyName"},
+	"IsCompany":      {"Transactant.IsCompany"},
+	"PrimaryEmail":   {"Transactant.PrimaryEmail"},
+	"SecondaryEmail": {"Transactant.SecondaryEmail"},
+	"WorkPhone":      {"Transactant.WorkPhone"},
+	"CellPhone":      {"Transactant.CellPhone"},
+	"Address":        {"Transactant.Address"},
+	"Address2":       {"Transactant.Address2"},
+	"City":           {"Transactant.City"},
+	"State":          {"Transactant.State"},
+	"PostalCode":     {"Transactant.PostalCode"},
+	"Country":        {"Transactant.Country"},
+	"Website":        {"Transactant.Website"},
+	"LastModTime":    {"Transactant.LastModTime"},
+	"LastModBy":      {"Transactant.LastModBy"},
+}
+
+var transactantSelectFields = []string{
+	"Transactant.TCID",
+	"Transactant.BID",
+	"Transactant.NLID",
+	"Transactant.FirstName",
+	"Transactant.MiddleName",
+	"Transactant.LastName",
+	"Transactant.PreferredName",
+	"Transactant.CompanyName",
+	"Transactant.IsCompany",
+	"Transactant.PrimaryEmail",
+	"Transactant.SecondaryEmail",
+	"Transactant.WorkPhone",
+	"Transactant.CellPhone",
+	"Transactant.Address",
+	"Transactant.Address2",
+	"Transactant.City",
+	"Transactant.State",
+	"Transactant.PostalCode",
+	"Transactant.Country",
+	"Transactant.Website",
+	"Transactant.LastModTime",
+	"Transactant.LastModBy",
+}
+
+// transactantRowScan scans a result from sql row and dump it in a rlib.Transactant struct
+func transactantRowScan(rows *sql.Rows, t rlib.Transactant) rlib.Transactant {
+	rlib.Errcheck(rows.Scan(&t.TCID, &t.BID, &t.NLID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.LastModTime, &t.LastModBy))
+	return t
+}
+
 // SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
 // wsdoc {
 //  @Title  Search Transactants
@@ -200,22 +258,44 @@ func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // wsdoc }
 func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcSearchHandlerTransactants\n")
-	var p rlib.Transactant
+
 	var err error
 	var g SearchTransactantsResponse
 
-	srch := fmt.Sprintf("BID=%d", d.BID)   // default WHERE clause
-	order := "LastName ASC, FirstName ASC" // default ORDER
-	q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
-	fmt.Printf("db query = %s\n", q)
+	srch := fmt.Sprintf("Transactant.BID=%d", d.BID)               // default WHERE clause
+	order := "Transactant.LastName ASC, Transactant.FirstName ASC" // default ORDER
+	// q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
 
-	g.Total, err = GetRowCount("Transactant", qw) // total number of rows that match the criteria
-	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, transactantGridFieldsMap)
+	if len(whereClause) > 0 {
+		srch += " AND (" + whereClause + ")"
+	}
+	if len(orderClause) > 0 {
+		order = orderClause
 	}
 
+	// Transactant Query Text Template
+	transctantsQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Transactant
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}};
+	`
+
+	// will be substituted as query clauses
+	qc := queryClauses{
+		"SelectClause": strings.Join(transactantSelectFields, ","),
+		"WhereClause":  srch,
+		"OrderClause":  order,
+	}
+
+	// get formatted query with substitution of select, where, order clause
+	q := renderSQLQuery(transctantsQuery, qc)
+	fmt.Printf("db query = %s\n", q)
+
+	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -223,21 +303,33 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.Transactant
-		rlib.ReadTransactants(rows, &p)
-		p.Recid = i
-		g.Records = append(g.Records, p)
+		var t rlib.Transactant
+		t.Recid = i
+
+		// get record of transactant
+		t = transactantRowScan(rows, t)
+
+		g.Records = append(g.Records, t)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 		i++ // update the index no matter what
 	}
-	fmt.Printf("Loaded %d transactants\n", len(g.Records))
-	fmt.Printf("g.Total = %d\n", g.Total)
+	// error check
 	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
+
+	g.Total, err = GetQueryCount(q, qc) // total number of rows that match the criteria
+	if err != nil {
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// write response
 	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }
 

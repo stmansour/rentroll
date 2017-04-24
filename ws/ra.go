@@ -273,7 +273,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	// get total count of results
 	g.Total, err = GetQueryCount(q, qc)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
