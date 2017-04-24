@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -47,6 +48,7 @@ type RentalAgr struct {
 	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
 	LastModTime            rlib.JSONTime     // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
+	Payors                 string            // payors list attached with this RA within same time
 }
 
 // RentalAgrForm is used to save a Rental Agreement.  It holds those values
@@ -104,6 +106,90 @@ type GetRentalAgreementResponse struct {
 	Record RentalAgr `json:"record"`
 }
 
+// rentalAgrGridFieldsMap holds the map of field (to be shown on grid)
+// to actual database fields, multiple db fields means combine those
+var rentalAgrGridFieldsMap = map[string][]string{
+	"RAID":                   {"RentalAgreement.RAID"},
+	"RATID":                  {"RentalAgreement.RATID"},
+	"BID":                    {"RentalAgreement.BID"},
+	"NLID":                   {"RentalAgreement.NLID"},
+	"AgreementStart":         {"RentalAgreement.AgreementStart"},
+	"AgreementStop":          {"RentalAgreement.AgreementStop"},
+	"PossessionStart":        {"RentalAgreement.PossessionStart"},
+	"PossessionStop":         {"RentalAgreement.PossessionStop"},
+	"RentStart":              {"RentalAgreement.RentStart"},
+	"RentStop":               {"RentalAgreement.RentStop"},
+	"RentCycleEpoch":         {"RentalAgreement.RentCycleEpoch"},
+	"UnspecifiedAdults":      {"RentalAgreement.UnspecifiedAdults"},
+	"UnspecifiedChildren":    {"RentalAgreement.UnspecifiedChildren"},
+	"Renewal":                {"RentalAgreement.Renewal"},
+	"SpecialProvisions":      {"RentalAgreement.SpecialProvisions"},
+	"LeaseType":              {"RentalAgreement.LeaseType"},
+	"ExpenseAdjustmentType":  {"RentalAgreement.ExpenseAdjustmentType"},
+	"ExpensesStop":           {"RentalAgreement.ExpensesStop"},
+	"ExpenseStopCalculation": {"RentalAgreement.ExpenseStopCalculation"},
+	"BaseYearEnd":            {"RentalAgreement.BaseYearEnd"},
+	"ExpenseAdjustment":      {"RentalAgreement.ExpenseAdjustment"},
+	"EstimatedCharges":       {"RentalAgreement.EstimatedCharges"},
+	"RateChange":             {"RentalAgreement.RateChange"},
+	"NextRateChange":         {"RentalAgreement.NextRateChange"},
+	"PermittedUses":          {"RentalAgreement.PermittedUses"},
+	"ExclusiveUses":          {"RentalAgreement.ExclusiveUses"},
+	"ExtensionOption":        {"RentalAgreement.ExtensionOption"},
+	"ExtensionOptionNotice":  {"RentalAgreement.ExtensionOptionNotice"},
+	"ExpansionOption":        {"RentalAgreement.ExpansionOption"},
+	"ExpansionOptionNotice":  {"RentalAgreement.ExpansionOptionNotice"},
+	"RightOfFirstRefusal":    {"RentalAgreement.RightOfFirstRefusal"},
+	"LastModTime":            {"RentalAgreement.LastModTime"},
+	"LastModBy":              {"RentalAgreement.LastModBy"},
+	"Payors":                 {"Transactant.FirstName", "Transactant.LastName"},
+}
+
+// which fields needs to be fetched for SQL query for rental agreements
+var rentalAgrQuerySelectFields = []string{
+	"RentalAgreement.RAID",
+	"RentalAgreement.RATID",
+	// "RentalAgreement.BID",
+	"RentalAgreement.NLID",
+	"RentalAgreement.AgreementStart",
+	"RentalAgreement.AgreementStop",
+	"RentalAgreement.PossessionStart",
+	"RentalAgreement.PossessionStop",
+	"RentalAgreement.RentStart",
+	"RentalAgreement.RentStop",
+	"RentalAgreement.RentCycleEpoch",
+	"RentalAgreement.UnspecifiedAdults",
+	"RentalAgreement.UnspecifiedChildren",
+	// "RentalAgreement.Renewal",
+	"RentalAgreement.SpecialProvisions",
+	"RentalAgreement.LeaseType",
+	"RentalAgreement.ExpenseAdjustmentType",
+	"RentalAgreement.ExpensesStop",
+	"RentalAgreement.ExpenseStopCalculation",
+	"RentalAgreement.BaseYearEnd",
+	"RentalAgreement.ExpenseAdjustment",
+	"RentalAgreement.EstimatedCharges",
+	"RentalAgreement.RateChange",
+	"RentalAgreement.NextRateChange",
+	"RentalAgreement.PermittedUses",
+	"RentalAgreement.ExclusiveUses",
+	"RentalAgreement.ExtensionOption",
+	"RentalAgreement.ExtensionOptionNotice",
+	"RentalAgreement.ExpansionOption",
+	"RentalAgreement.ExpansionOptionNotice",
+	"RentalAgreement.RightOfFirstRefusal",
+	"RentalAgreement.LastModTime",
+	"RentalAgreement.LastModBy",
+	"GROUP_CONCAT(DISTINCT CONCAT(Transactant.FirstName, ' ', Transactant.LastName) SEPARATOR ', ') AS Payors",
+}
+
+// rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
+func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) RentalAgr {
+	rlib.Errcheck(rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors))
+	return q
+
+}
+
 // SvcSearchHandlerRentalAgr generates a report of all RentalAgreements defined business d.BID
 // wsdoc {
 //  @Title  Search Rental Agreements
@@ -116,32 +202,50 @@ type GetRentalAgreementResponse struct {
 // wsdoc }
 func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcSearchHandlerRentalAgr\n")
-	var p rlib.RentalAgreement
-	var err error
-	var g RentalAgrSearchResponse
-	t := time.Now()
 
-	srch := fmt.Sprintf("BID=%d AND AgreementStop>%q", d.BID, t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
-	order := "RAID ASC"                                                                    // default ORDER
-	q, qw := gridBuildQuery("RentalAgreement", srch, order, d, &p)
+	var (
+		err error
+		g   RentalAgrSearchResponse
+		t   = time.Now()
+	)
 
-	//
-	// srch := "SELECT RentalAgreement.RAID, GROUP_CONCAT(DISTINCT CONCAT(Transactant.FirstName, ' ', Transactant.LastName) SEPARATOR ', ') Payors, RentalAgreement.AgreementStart, RentalAgreement.AgreementStop FROM ((RentalAgreement INNER JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID) INNER JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID) WHERE RentalAgreement.BID=1 GROUP BY RentalAgreement.RAID, RentalAgreement.AgreementStart, RentalAgreement.AgreementStop"
-	// order := "RentalAgreement.AgreementStart DESC"
-	// suffix := fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
+	srch := fmt.Sprintf("RentalAgreement.BID=%d AND RentalAgreement.AgreementStop>%q", d.BID, t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
+	order := "RentalAgreement.RAID ASC"                                                                                    // default ORDER
+	// q, qw := gridBuildQuery("RentalAgreement", srch, order, d, &p)
 
-	// q := srch + " " + order + " " + suffix
-
-	// set g.Total to the total number of rows of this data...
-	g.Total, err = GetRowCount("RentalAgreement", qw)
-	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, rentalAgrGridFieldsMap)
+	if len(whereClause) > 0 {
+		srch += " AND (" + whereClause + ")"
+	}
+	if len(orderClause) > 0 {
+		order = orderClause
 	}
 
+	// Rental Agreement Query Text Template
+	rentalAgrQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM RentalAgreement
+	INNER JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
+	INNER JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
+	WHERE {{.WhereClause}}
+	GROUP BY RentalAgreement.RAID
+	ORDER BY {{.OrderClause}};
+	`
+
+	// will be substituted as query clauses
+	qc := queryClauses{
+		"SelectClause": strings.Join(rentalAgrQuerySelectFields, ","),
+		"WhereClause":  srch,
+		"OrderClause":  order,
+	}
+
+	// get formatted query with substitution of select, where, order clause
+	q := renderSQLQuery(rentalAgrQuery, qc)
 	fmt.Printf("db query = %s\n", q)
 
+	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	rlib.Errcheck(err)
 	defer rows.Close()
@@ -149,11 +253,13 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.RentalAgreement
 		var q RentalAgr
-		rlib.ReadRentalAgreements(rows, &p)
-		p.Recid = i
-		rlib.MigrateStructVals(&p, &q)
+		q.Recid = i
+		q.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
+
+		// get records info in struct q
+		q = rentalAgrRowScan(rows, q)
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -161,10 +267,22 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		}
 		i++
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	// error check
 	rlib.Errcheck(rows.Err())
-	SvcWriteResponse(&g, w)
 
+	// get total count of results
+	g.Total, err = GetQueryCount(q, qc)
+	if err != nil {
+		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// write response
+	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
 }
 
 // SvcFormHandlerRentalAgreement formats a complete data record for a person suitable for use with the w2ui Form
