@@ -1,0 +1,50 @@
+{
+    "records": [
+        {
+            "Name": "Condo A",
+            "RTID": 5
+        },
+        {
+            "Name": "Condo B",
+            "RTID": 6
+        },
+        {
+            "Name": "Condo C",
+            "RTID": 7
+        },
+        {
+            "Name": "Condo D",
+            "RTID": 8
+        },
+        {
+            "Name": "Condo E",
+            "RTID": 9
+        },
+        {
+            "Name": "Rooftop Lease",
+            "RTID": 10
+        },
+        {
+            "Name": "Parcel B",
+            "RTID": 11
+        },
+        {
+            "Name": "Roof Maintenance Agreement",
+            "RTID": 12
+        },
+        {
+            "Name": "Parking Space Inside",
+            "RTID": 13
+        },
+        {
+            "Name": "Parking Space Outside",
+            "RTID": 14
+        },
+        {
+            "Name": "Condo J",
+            "RTID": 15
+        }
+    ],
+    "status": "success",
+    "total": 11
+}
