@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -112,6 +113,18 @@ var rentablesQuerySelectFields = []string{
 	"RentableStatus.Status as RentableStatus",
 }
 
+// rentablesRowScan scans a result from sql row and dump it in a PrRentableOther struct
+func rentablesRowScan(rows *sql.Rows, q PrRentableOther) PrRentableOther {
+	var rStatus int64
+
+	rlib.Errcheck(rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &rStatus))
+
+	// convert status int to string, human readable
+	q.RentableStatus = rlib.RentableStatusToString(rStatus)
+
+	return q
+}
+
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
 // wsdoc {
 //  @Title  Search Rentables
@@ -182,7 +195,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 
 	// get formatted query with substitution of select, where, order clause
-	q := formatSQLQuery(rentablesQuery, qc)
+	q := renderSQLQuery(rentablesQuery, qc)
 	fmt.Printf("db query = %s\n", q)
 
 	// execute the query
@@ -198,11 +211,8 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		q.Recid = i
 		q.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
 
-		var rStatus int64
-		rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &rStatus)
-
-		// convert status int to string, human readable
-		q.RentableStatus = rlib.RentableStatusToString(rStatus)
+		// get records in q struct
+		q = rentablesRowScan(rows, q)
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -215,9 +225,9 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	rlib.Errcheck(rows.Err())
 
 	// get total count of results
-	g.Total, err = GetQueryCount(rentablesQuery, qc)
+	g.Total, err = GetQueryCount(q, qc)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -361,7 +371,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// get formatted query with substitution of select, where, order clause
-	q := formatSQLQuery(rentableQuery, qc)
+	q := renderSQLQuery(rentableQuery, qc)
 	fmt.Printf("db query = %s\n", q)
 
 	// execute the query

@@ -7,7 +7,7 @@ import (
 	"sort"
 )
 
-// RentableType is struct to list down individual rentable type
+// RentableTypeRecord is struct to list down individual rentable type
 type RentableTypeRecord struct {
 	Name string
 	RTID int64
@@ -22,7 +22,7 @@ type GetRentableTypesResponse struct {
 
 // SvcRentableTypesList generates a report of all Rentables defined business d.BID
 // wsdoc {
-//  @Title  List Rentable Type for BUD
+//  @Title  Rentable Type List
 //  @URL /v1/rtlist/:BUI
 //  @Method  GET
 //  @Synopsis Get Rentable Types
