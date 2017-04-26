@@ -617,6 +617,19 @@ type Assessment struct {
 	LastModBy      int64
 }
 
+// AR is the table that defines the AcctRules for Assessments and Receipts
+type AR struct {
+	ARID        int64
+	BID         int64
+	Name        string
+	ARType      int64
+	DebitLID    int64
+	CreditLID   int64
+	Description string
+	LastModTime time.Time
+	LastModBy   int64
+}
+
 // Business is the set of attributes describing a rental or hotel Business
 type Business struct {
 	BID                   int64
@@ -1271,6 +1284,12 @@ type RRprepSQL struct {
 	UpdateAccountDepository              *sql.Stmt
 	DeleteAccountDepository              *sql.Stmt
 	DeletePaymentType                    *sql.Stmt
+	GetAR                                *sql.Stmt
+	GetARByName                          *sql.Stmt
+	GetAllARs                            *sql.Stmt
+	InsertAR                             *sql.Stmt
+	UpdateAR                             *sql.Stmt
+	DeleteAR                             *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
@@ -1279,7 +1298,8 @@ type RRprepSQL struct {
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
 var AllTables = []string{
-	"AccountDepository",
+	//"AccountDepository",
+	"AOR",
 	"AssessmentTax",
 	"Assessments",
 	"AvailabilityTypes",

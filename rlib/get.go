@@ -34,6 +34,40 @@ func GetAllAccountDepositories(raid int64) []AccountDepository {
 }
 
 //=======================================================
+//  AR
+//=======================================================
+
+// GetAR reads a AR the structure for the supplied id
+func GetAR(id int64) (AR, error) {
+	var a AR
+	row := RRdb.Prepstmt.GetAR.QueryRow(id)
+	err := ReadAR(row, &a)
+	return a, err
+}
+
+// GetARByName reads a AR the structure for the supplied bid and name
+func GetARByName(id int64, name string) (AR, error) {
+	var a AR
+	row := RRdb.Prepstmt.GetARByName.QueryRow(id, name)
+	err := ReadAR(row, &a)
+	return a, err
+}
+
+// GetAllARs reads all Pet records for the supplied rental agreement id
+func GetAllARs(raid int64) []AR {
+	rows, err := RRdb.Prepstmt.GetAllARs.Query(raid)
+	Errcheck(err)
+	defer rows.Close()
+	var t []AR
+	for i := 0; rows.Next(); i++ {
+		var a AR
+		ReadARs(rows, &a)
+		t = append(t, a)
+	}
+	return t
+}
+
+//=======================================================
 //  A G R E E M E N T   P E T S
 //=======================================================
 

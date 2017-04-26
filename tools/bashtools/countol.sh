@@ -21,10 +21,15 @@
 
 echo "${1}"
 ${1} > qqtmpqq
+RC=$?
 x=$(${1} | wc -l)
-if (( x > 0 )); then
+if [ ${x} -gt 0 ]; then
 	cat qqtmpqq
 	rm -f qqtmpqq
+	exit 2
+fi 
+if [ ${RC} != 0 ]; then
+	echo "Detected exit status = ${RC}"
 	exit 2
 fi 
 rm -f qqtmpqq

@@ -11,6 +11,15 @@ func DeleteAccountDepository(id int64) error {
 	return err
 }
 
+// DeleteAR deletes AR records with the supplied id
+func DeleteAR(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteAR.Exec(id)
+	if err != nil {
+		Ulog("Error deleting AR for id = %d, error: %v\n", id, err)
+	}
+	return err
+}
+
 // DeleteCustomAttribute deletes CustomAttribute records with the supplied id
 func DeleteCustomAttribute(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteCustomAttribute.Exec(id)
