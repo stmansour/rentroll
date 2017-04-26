@@ -1,0 +1,3 @@
+ARID	BID	Name	ARType	DebitLID	CreditLID	Description	LastModBy
+1	1	Rent	0	10	11	        Rent assessment	0
+2	1	FNB	1	1	10	        payments that are deposited in First National Bank	0

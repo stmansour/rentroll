@@ -1,7 +1,7 @@
 package rlib
 
 // InsertAccountDepository writes a new AccountDepository record to the database. If the record is successfully written,
-// the ASMID field is set to its new value.
+// the ADID field is set to its new value.
 func InsertAccountDepository(a *AccountDepository) (int64, error) {
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertAccountDepository.Exec(a.BID, a.LID, a.DEPID, a.LastModBy)
@@ -14,6 +14,24 @@ func InsertAccountDepository(a *AccountDepository) (int64, error) {
 	} else {
 		Ulog("InsertAccountDepository: error inserting AccountDepository:  %v\n", err)
 		Ulog("AccountDepository = %#v\n", *a)
+	}
+	return rid, err
+}
+
+// InsertAR writes a new AR record to the database. If the record is successfully written,
+// the ARID field is set to its new value.
+func InsertAR(a *AR) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.LastModBy)
+	if nil == err {
+		id, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(id)
+			a.ARID = rid
+		}
+	} else {
+		Ulog("InsertAR: error inserting AR:  %v\n", err)
+		Ulog("AR = %#v\n", *a)
 	}
 	return rid, err
 }

@@ -31,6 +31,7 @@ mysqlverify "u"  ""           		   	    "Notes"	                    	"select NID
 mysqlverify "v"  " "                   		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  " "                   		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
 mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
+mysqlverify "xa"  "-ar ar.csv"          		"AccountRules"	    			"select ARID,BID,Name,ARType,DebitLID,CreditLID,Description,LastModBy from AR;"
 mysqlverify "y"  " "                   		"LedgerMarkers"	            	"select LMID,LID,BID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "-a rp.csv"           		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"
 mysqlverify "a1" "-f rprefs.csv"       		"RatePlanRef"	                "select RPRID,BID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"
@@ -44,7 +45,6 @@ mysqlverify "h1" "-u custom.csv"       		"CustomAttributes"	    		"select CID,BI
 mysqlverify "i1" "-U assigncustom.csv" 		"CustomAttributesAssignment" 	"select * from CustomAttrRef;"
 mysqlverify "j1" "-O nt.csv"           		"NoteTypes"	            		"select NTID,BID,Name,LastModBy from NoteType;"
 mysqlverify "k1" "-y deposit.csv ${RRCTX}"  "Deposits"		            	"select DID,BID,Dt,DEPID,Amount,LastModBy from Deposit;"
-mysqlverify "l1" "-H acctdep.csv ${RRCTX}"  "AccountDepository"            	"select ADID,LID,DEPID,LastModBy from AccountDepository;"
 
 
 logcheck

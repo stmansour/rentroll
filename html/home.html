@@ -56,6 +56,7 @@ var app = {
     refreshInhibit: false,
     receiptsToolbarOnClickAdded: false,
     paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
+    arList: [{id: 0, text:"Assessment"}, {id:1, text:"Receipt"}],
     rof: {"csv": 4, "pdf": 3} // report export/output format
 };
 
@@ -374,10 +375,10 @@ function buildPageElements() {
             },
             { id: 'admin', text: 'Admin', img: 'icon-wrench', expanded: false, group: true,
                 nodes: [
-                    { id: 'accounts',   text: 'Chart Of Accounts',   icon: 'fa fa-list' },
-                    { id: 'pmts',       text: 'Payment Types',       icon: 'fa fa-credit-card' },
-                    { id: 'dep',        text: 'Depositories',        icon: 'fa fa-university' },
-                    { id: 'assocAccts', text: 'Associated Accounts', icon: 'fa fa-link' },
+                    { id: 'accounts', text: 'Chart Of Accounts',   icon: 'fa fa-list' },
+                    { id: 'pmts',     text: 'Payment Types',       icon: 'fa fa-credit-card' },
+                    { id: 'dep',      text: 'Depositories',        icon: 'fa fa-university' },
+                    { id: 'ar',      text: 'Assessments/Receipts',icon: 'fa fa-cogs' },
                 ]
             },
         ],
@@ -408,6 +409,7 @@ function buildPageElements() {
                 case 'asms':
                 case 'pmts':
                 case 'dep':
+                case 'ar':
                     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
                     break;
@@ -1886,7 +1888,7 @@ function buildPageElements() {
         },
     });
 
-   //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
     //          depGrid
     //------------------------------------------------------------------------
     $().w2grid({
@@ -1938,6 +1940,50 @@ function buildPageElements() {
             };
             w2ui.depGrid.add(record);
         },
+    });
+
+    //------------------------------------------------------------------------
+    //          COP - Charge Or Payment
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'arGrid',
+        url: '/v1/ar',
+        show: {
+            toolbar        : true,
+            footer         : true,
+            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarSave    : true,   // indicates if toolbar save button is visible
+            selectColumn   : false,
+            expandColumn   : false,
+            toolbarEdit    : false,
+            toolbarSearch  : false,
+            toolbarInput   : false,
+            searchAll      : false,
+            toolbarReload  : false,
+            toolbarColumns : false,
+        },
+        columns: [
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
+            {field: 'COP',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
+            {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
+            {field: 'Name',        hidden: false, caption: 'Name',  size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'COPType',     hidden: false, caption: app.sAssessment+'/'+app.sReceipt,
+                size: '150px',
+                editable: { type: 'select', items: app.arList},
+                stortable: true, style: 'text-align: center',
+                render: function (record, index, col_index) {
+                            var html = '';
+                            for (var p in app.arList) {
+                                if (app.arList[p].id == this.getCellValue(index, col_index)) html = app.arList[p].text;
+                            }
+                            return html;
+                        }
+            },
+            {field: 'DebitLID',    hidden: false, caption: 'Debit',         size: '20%', stortable: true, style: 'text-align: center'},
+            {field: 'CreditLID',   hidden: false, caption: 'Credit',        size: '20%', stortable: true, style: 'text-align: left'},
+            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
+        ],
     });
 
 }  // buildPageElements

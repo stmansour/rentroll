@@ -10,8 +10,14 @@ func updateError(err error, n string, a interface{}) error {
 
 // UpdateAccountDepository updates an AccountDepository record
 func UpdateAccountDepository(a *AccountDepository) error {
-	_, err := RRdb.Prepstmt.UpdateAccountDepository.Exec(a.BID, a.LID, a.DEPID, a.LastModTime, a.LastModBy, a.ADID)
+	_, err := RRdb.Prepstmt.UpdateAccountDepository.Exec(a.BID, a.LID, a.DEPID, a.LastModBy, a.ADID)
 	return updateError(err, "AccountDepository", *a)
+}
+
+// UpdateAR updates an AR record
+func UpdateAR(a *AR) error {
+	_, err := RRdb.Prepstmt.UpdateAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.LastModBy, a.ARID)
+	return updateError(err, "AR", *a)
 }
 
 // UpdateAssessment updates an Assessment record
