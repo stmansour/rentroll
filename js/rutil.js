@@ -212,7 +212,7 @@ function ridRentablePickerRender(item) {
 function ridRentableDropRender (item) {
     "use strict";
     // w2ui.ridRentablePicker.RID = item.RID;
-    return item.RentableName + '  (RI0' + item.recid + ')'; 
+    return item.RentableName + '  (RI0' + item.recid + ')';
 }
 
 //-----------------------------------------------------------------------------
@@ -237,14 +237,14 @@ function tcidRAPayorPickerRender(item) {
     "use strict";
     var s = item.FirstName + ' ' + item.LastName;
     w2ui.tcidRAPayorPicker.record = {
-        TCID: item.TCID, 
-        pickedName: s, 
-        DtStart: w2ui.tcidRAPayorPicker.record.DtStart, 
+        TCID: item.TCID,
+        pickedName: s,
+        DtStart: w2ui.tcidRAPayorPicker.record.DtStart,
         DtStop: w2ui.tcidRAPayorPicker.record.DtStop,
         FirstName: item.FirstName,
         LastName: item.LastName,
     };
-    return s; 
+    return s;
 }
 
 //-----------------------------------------------------------------------------
@@ -272,7 +272,7 @@ function getFullName(item) {
 //-----------------------------------------------------------------------------
 function getTCIDName(item) {
     "use strict";
-    return (item.IsCompany > 0) ? item.CompanyName : getFullName(item); 
+    return (item.IsCompany > 0) ? item.CompanyName : getFullName(item);
 }
 
 //-----------------------------------------------------------------------------
@@ -299,7 +299,7 @@ function tcidPickerCompare(item, search) {
 //-----------------------------------------------------------------------------
 function tcidPickerDropRender(item) {
     "use strict";
-    return getTCIDName(item); 
+    return getTCIDName(item);
 }
 
 //-----------------------------------------------------------------------------
@@ -314,7 +314,7 @@ function tcidReceiptPayorPickerRender(item) {
     var s = getTCIDName(item);
     w2ui.receiptForm.record.TCID = item.TCID;
     w2ui.receiptForm.record.Payor = s;
-    return s; 
+    return s;
 }
 
 //-----------------------------------------------------------------------------
@@ -327,14 +327,14 @@ function tcidRUserPickerRender(item) {
     "use strict";
     var s = item.FirstName + ' ' + item.LastName;
     w2ui.tcidRUserPicker.record = {
-        TCID: item.TCID, 
-        pickedName: s, 
-        DtStart: w2ui.tcidRUserPicker.record.DtStart, 
+        TCID: item.TCID,
+        pickedName: s,
+        DtStart: w2ui.tcidRUserPicker.record.DtStart,
         DtStop: w2ui.tcidRUserPicker.record.DtStop,
         FirstName: item.FirstName,
         LastName: item.LastName,
     };
-    return s; 
+    return s;
 }
 //-----------------------------------------------------------------------------
 // plural - return the plural of the provided word.  Totally simplistic at
@@ -352,7 +352,7 @@ function plural(s) {
 
 //-----------------------------------------------------------------------------
 // dateFromDC - return a java date value equal to the date in the supplied
-//              date control 
+//              date control
 // @params
 //   dc = date control
 // @return - java date value
@@ -391,7 +391,7 @@ function dateFmtStr(today) {
 
 //-----------------------------------------------------------------------------
 // dayBack - supply the date control and this function will go to the previous
-//           day. 
+//           day.
 // @params
 //   dc = date control
 // @return string value that was set in dc
@@ -399,12 +399,12 @@ function dateFmtStr(today) {
 function dayBack(dc) {
     "use strict";
     var x = dateFromDC(dc);
-    var y = new Date(x.getTime() - 24 * 60 * 60 * 1000); // one day prior 
+    var y = new Date(x.getTime() - 24 * 60 * 60 * 1000); // one day prior
     return setDateControl(dc, y);
 }
 
 //-----------------------------------------------------------------------------
-// dayFwd - supply the date control and this function will go to the next day. 
+// dayFwd - supply the date control and this function will go to the next day.
 // @params
 //   dc = date control
 // @return string value that was set in dc
@@ -418,7 +418,7 @@ function dayFwd(dc) {
 
 //-----------------------------------------------------------------------------
 // dateMonthFwd - return a date that is one month from the supplied date. It
-//                will snap the date to the end of the month if the 
+//                will snap the date to the end of the month if the
 //                current date is the end of the month.
 // @params
 //   y = starting date
@@ -431,7 +431,7 @@ function dateMonthFwd(y) {
     var d = y.getDate(); // this is the target date
     // console.log('dateMonthFwd: T1 -    d = ' + d);
 
-    // If there is a chance that there is no such date next month, then let's make sure we 
+    // If there is a chance that there is no such date next month, then let's make sure we
     // do this right. If the date is > than the number of days in month m then snap as follows:
     // if d is valid in month m then use d, otherwise snap to the end of the month.
     if (d > 28) {
@@ -449,8 +449,8 @@ function dateMonthFwd(y) {
 }
 
 //-----------------------------------------------------------------------------
-// monthFwd - supply the date control and this function will go to the next 
-//            month. It will snap the date to the end of the month if the 
+// monthFwd - supply the date control and this function will go to the next
+//            month. It will snap the date to the end of the month if the
 //            current date is the end of the month.
 // @params
 //   dc = date control
@@ -489,8 +489,8 @@ function dateMonthBack(y) {
 }
 
 //-----------------------------------------------------------------------------
-// monthBack - supply the date control, this function will go to the previous 
-//             month. It will snap the date to the end of the month if the 
+// monthBack - supply the date control, this function will go to the previous
+//             month. It will snap the date to the end of the month if the
 //             current date is the end of the month.
 // @params
 //   dc = date control
@@ -644,7 +644,7 @@ function handleDateToolbarAction(event,prefix) {
 //              area to the date values in app.D1 and app.D2
 // @params
 //   prefix = the prefix of the name of the date controls.  For example,
-//            if the date control is named receiptsD1, then the prefix is 
+//            if the date control is named receiptsD1, then the prefix is
 //            'receipts'.
 // @return  <no return value>
 //-----------------------------------------------------------------------------
@@ -665,7 +665,7 @@ function setDateControlsInToolbar(prefix) {
 //              uniquely identified.
 // @params
 //   prefix = the prefix of the name of the date controls.  For example,
-//            if the date control is named receiptsD1, then the prefix is 
+//            if the date control is named receiptsD1, then the prefix is
 //            'receipts'.
 // @return  an array of fields that can be passed into toolbar.add()
 //-----------------------------------------------------------------------------
@@ -675,11 +675,33 @@ function genDateRangeNavigator(prefix) {
     var html2 = '<div style="padding: 0px 5px;">To: <input type="date" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
         { type: 'button', id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
-        { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' }, 
+        { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' },
         { type: 'html', id: 'D1', html: function() {return html1; } },
         { type: 'html', id: 'D2', html: function() {return html2; } },
         { type: 'button', id: 'dayfwd', icon: 'fa fa-chevron-circle-right', tooltip: 'day forward' },
         { type: 'button', id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
     ];
     return tmp;
+}
+
+//-----------------------------------------------------------------------------
+// getRentableTypes - return the RentableTypes list with respect of BUD
+// @params
+// @return  the Rentable Types List
+//-----------------------------------------------------------------------------
+function getRentableTypes(BID) {
+    "use strict";
+    var result;
+    jQuery.ajax({
+        type: "GET",
+        url: "/v1/rtlist/"+BID,
+        dataType: "json",
+        async: false,
+        success:function(data){
+            console.log("Rentable Types list for "+BID);
+            console.log(data);
+            result = data;
+        }
+    });
+    return result;
 }
