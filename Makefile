@@ -1,4 +1,4 @@
-DIRS = db rlib rrpt rcsv admin importers tools test
+DIRS = db rlib rrpt rcsv admin importers tools test ws
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
