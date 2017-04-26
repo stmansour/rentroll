@@ -74,19 +74,40 @@ func buildPreparedStatements() {
 	//===============================
 	//  AccountDepository
 	//===============================
-	flds = "ADID,BID,LID,DEPID,LastModTime,LastModBy"
-	RRdb.DBFields["AccountDepository"] = flds
-	RRdb.Prepstmt.GetAccountDepository, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AccountDepository WHERE ADID=?")
+	// flds = "ADID,BID,LID,DEPID,LastModTime,LastModBy"
+	// RRdb.DBFields["AccountDepository"] = flds
+	// RRdb.Prepstmt.GetAccountDepository, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AccountDepository WHERE ADID=?")
+	// Errcheck(err)
+	// RRdb.Prepstmt.GetAllAccountDepositories, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AccountDepository WHERE BID=?")
+	// Errcheck(err)
+
+	// s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	// RRdb.Prepstmt.InsertAccountDepository, err = RRdb.Dbrr.Prepare("INSERT INTO AccountDepository (" + s1 + ") VALUES(" + s2 + ")")
+	// Errcheck(err)
+	// RRdb.Prepstmt.UpdateAccountDepository, err = RRdb.Dbrr.Prepare("UPDATE AccountDepository SET " + s3 + " WHERE ADID=?")
+	// Errcheck(err)
+	// RRdb.Prepstmt.DeleteAccountDepository, err = RRdb.Dbrr.Prepare("DELETE FROM AccountDepository WHERE ADID=?")
+	// Errcheck(err)
+
+	//===============================
+	//  AccountRule
+	//  AR
+	//===============================
+	flds = "ARID,BID,Name,ARType,DebitLID,CreditLID,Description,LastModTime,LastModBy"
+	RRdb.DBFields["AR"] = flds
+	RRdb.Prepstmt.GetAR, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE ARID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAccountDepositories, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AccountDepository WHERE BID=?")
+	RRdb.Prepstmt.GetARByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND Name=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllARs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=?")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertAccountDepository, err = RRdb.Dbrr.Prepare("INSERT INTO AccountDepository (" + s1 + ") VALUES(" + s2 + ")")
+	RRdb.Prepstmt.InsertAR, err = RRdb.Dbrr.Prepare("INSERT INTO AR (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateAccountDepository, err = RRdb.Dbrr.Prepare("UPDATE AccountDepository SET " + s3 + " WHERE ADID=?")
+	RRdb.Prepstmt.UpdateAR, err = RRdb.Dbrr.Prepare("UPDATE AR SET " + s3 + " WHERE ARID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteAccountDepository, err = RRdb.Dbrr.Prepare("DELETE FROM AccountDepository WHERE ADID=?")
+	RRdb.Prepstmt.DeleteAR, err = RRdb.Dbrr.Prepare("DELETE FROM AR WHERE ARID=?")
 	Errcheck(err)
 
 	//===============================

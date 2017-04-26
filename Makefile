@@ -12,7 +12,7 @@ rentroll: ver.go *.go config.json
 	@${COUNTOL} golint
 	./mkver.sh
 	go build
-	@rm -rf fail
+	@rm -f fail
 	@tools/bashtools/buildcheck.sh BUILD
 
 all: clean rentroll test stats
@@ -81,8 +81,8 @@ package: rentroll
 	ln -s tmp/rentroll/rrnewdb
 	ln -s tmp/rentroll/rrbkup
 	ln -s tmp/rentroll/rrrestore
-	@echo "*** PACKAGE COMPLETED ***"
 	@rm -f fail
+	@echo "*** PACKAGE COMPLETED ***"
 	@tools/bashtools/buildcheck.sh PACKAGE
 
 publish: package
