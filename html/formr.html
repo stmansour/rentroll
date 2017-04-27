@@ -9,36 +9,41 @@
 	        <input name="RID" type="hidden" />
 	    </div>
 	    <div class="w2ui-field">
-	        <label>Business Unit:</label><div><input name="BID" type="list" /></div>
+	        <label>Business Unit:</label><div><input name="BID" type="list" disabled/></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <label>Rentable Name:</label><div><input name="RentableName" type="text" maxlength="100" style="width: 100%"/></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <input name="RTID" type="hidden" />
+	        <label>Rentable Type Ref:</label>
+	        <div>
+	        	<input name="RentableType" type="list" style="width: 40%;" disabled/>
+	        	<div style="display: inline-block;margin: 0 5px;"><label style="margin: 0 5px;">From</label><input name="RTRefDtStart" type="us-date1" size="11" disabled></div>
+	        	<div style="display: inline-block;margin: 0 5px;"><label style="margin: 0 5px;">To</label><input name="RTRefDtStop" type="us-date2" size="11" disabled></div>
+	        </div>
 	    </div>
 	    <div class="w2ui-field">
-	        <label>Rentable Type Ref:</label><div><input name="RentableType" type="list" style="width: 100%"/></div>
+	        <input name="RARID" type="hidden">
+	        <label>RAID:</label>
+	        <div>
+	        	<input name="RAID" type="int" maxlength="100" style="width: 40%;" disabled/>
+	        	<div style="display: inline-block;margin: 0 5px;"><label style="margin: 0 5px;">From</label><input name="RARDtStart" type="us-date1" size="11" disabled></div>
+	        	<div style="display: inline-block;margin: 0 5px;"><label style="margin: 0 5px;">To</label><input name="RARDtStop" type="us-date2" size="11" disabled></div>
+	        </div>
 	    </div>
 	    <div class="w2ui-field">
-	        <label>RTRef Dates:</label><div><input name="RTRefDtStart" type="us-date1" size="11"> - <input name="RTRefDtStop" type="us-date2" size="11"></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>RAID:</label><div><input name="RAID" type="int" maxlength="100" style="width: 100%"/></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>RA Dates:</label><div><input name="RARDtStart" type="us-date1" size="11"> - <input name="RARDtStop" type="us-date2" size="11"></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Rentable Status:</label><div><input name="RentableStatus" type="list"/></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Status:</label>
-	        <div><input name="RSDtStart" type="us-date1" size="11"> - <input name="RSDtStop" type="us-date2" size="11"></div>
+	        <label>Rentable Status:</label>
+	        <div>
+	        	<input name="RentableStatus" type="list" style="width: 40%;" disabled />
+	        	<div style="display: inline-block;margin: 0 5px;"><label style="margin: 0 5px;">From</label><input name="RSDtStart" type="us-date1" size="11" disabled></div>
+	        	<div style="display: inline-block;margin: 0 5px;"><label style="margin: 0 5px;">To</label><input name="RSDtStop" type="us-date2" size="11" disabled></div>
+	        </div>
 	    </div>
 	    <!-- <div class="w2ui-field">
 	        <label>Assignment Time:</label><div><input name="AssignmentTime" type="list" /></div>
 	    </div> -->
+	    <div class="w2ui-field"><input name="CurrentDate" type="hidden" /></div>
 	    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
 	    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
 	</div>  <!-- end of page 0, Rentable -->
