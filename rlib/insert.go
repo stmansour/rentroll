@@ -1,11 +1,5 @@
 package rlib
 
-import (
-	"fmt"
-	"log"
-	"runtime/debug"
-)
-
 // InsertAccountDepository writes a new AccountDepository record to the database. If the record is successfully written,
 // the ADID field is set to its new value.
 func InsertAccountDepository(a *AccountDepository) (int64, error) {
@@ -596,11 +590,6 @@ func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
 // InsertRentalAgreementRentable writes a new User record to the database
 func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 	var tid = int64(0)
-	if a.BID == 0 {
-		e := fmt.Errorf("InsertRentalAgreementRentable: inserting BID=0")
-		debug.PrintStack()
-		log.Fatal(e)
-	}
 	res, err := RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop)
 	if nil == err {
 		id, err := res.LastInsertId()
