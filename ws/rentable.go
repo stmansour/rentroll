@@ -46,9 +46,10 @@ type PrRentableOther struct {
 	RentableName         string
 	RentableType         string
 	RentableStatus       string
-	RAID                 int64
-	RentalAgreementStart rlib.JSONTime
-	RentalAgreementStop  rlib.JSONTime
+	RARID                rlib.NullInt64
+	RAID                 rlib.NullInt64
+	RentalAgreementStart rlib.NullTime
+	RentalAgreementStop  rlib.NullTime
 	AssignmentTime       rlib.XJSONAssignmentTime
 	LastModTime          rlib.JSONTime
 	LastModBy            int64
@@ -129,6 +130,7 @@ var rentablesGridFieldsMap = map[string][]string{
 	"RentableType":         {"RentableTypes.Name"},
 	"RTID":                 {"RentableTypes.RTID"},
 	"RentableStatus":       {"RentableStatus.Status"},
+	"RARID":                {"RentalAgreementRentables.RARID"},
 	"RAID":                 {"RentalAgreementRentables.RAID"},
 	"RentalAgreementStart": {"RentalAgreementRentables.RARDtStart"},
 	"RentalAgreementStop":  {"RentalAgreementRentables.RARDtStop"},
@@ -141,6 +143,7 @@ var rentablesQuerySelectFields = []string{
 	"RentableTypes.Name as RentableType",
 	"RentableTypes.RTID",
 	"RentableStatus.Status as RentableStatus",
+	"RentalAgreementRentables.RARID",
 	"RentalAgreementRentables.RAID",
 	"RentalAgreementRentables.RARDtStart as RentalAgreementStart",
 	"RentalAgreementRentables.RARDtStop as RentalAgreementStop",
@@ -150,7 +153,7 @@ var rentablesQuerySelectFields = []string{
 func rentablesRowScan(rows *sql.Rows, q PrRentableOther) PrRentableOther {
 	var rStatus int64
 
-	rlib.Errcheck(rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &rStatus, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop))
+	rlib.Errcheck(rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &rStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop))
 
 	// convert status int to string, human readable
 	q.RentableStatus = rlib.RentableStatusToString(rStatus)
@@ -179,7 +182,9 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	)
 
 	// default search (where clause) and sort (order by clause)
-	defaultWhere := "Rentable.BID=%d AND (RentalAgreementRentables.RARDtStart<=%q OR (RentalAgreementRentables.RAID IS NULL AND RentalAgreementRentables.RARDtStart IS NULL)) AND (RentalAgreementRentables.RARDtStop>%q OR (RentalAgreementRentables.RAID IS NULL AND RentalAgreementRentables.RARDtStop IS NULL))"
+	defaultWhere := `Rentable.BID=%d
+		AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL)
+		AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL)`
 	srch := fmt.Sprintf(defaultWhere, d.BID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
 	order := "Rentable.RentableName ASC"                                                               // default ORDER
 
@@ -220,7 +225,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	INNER JOIN RentableTypeRef ON Rentable.RID=RentableTypeRef.RID
 	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
 	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
-	INNER JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
+	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}};
 	`
