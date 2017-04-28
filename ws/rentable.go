@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"rentroll/rlib"
 	"strings"
+	"time"
 )
 
 // Decoding the form data from w2ui gets tricky when certain value types are returned.
@@ -31,22 +32,27 @@ type RentableForm struct {
 
 // RentableOther is a struct to handle the UI list box selections
 type RentableOther struct {
-	BID            rlib.W2uiHTMLSelect
-	AssignmentTime rlib.W2uiHTMLSelect
+	BID rlib.W2uiHTMLSelect
+	// AssignmentTime rlib.W2uiHTMLSelect
 }
 
 // PrRentableOther is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
 type PrRentableOther struct {
-	Recid          int64 `json:"recid"` // this is to support the w2ui form
-	RID            int64
-	BID            rlib.XJSONBud
-	RentableName   string
-	RentableType   string
-	RentableStatus string
-	AssignmentTime rlib.XJSONAssignmentTime
-	LastModTime    rlib.JSONTime
-	LastModBy      int64
+	Recid                int64 `json:"recid"` // this is to support the w2ui form
+	RID                  int64
+	BID                  rlib.XJSONBud
+	RTID                 int64
+	RentableName         string
+	RentableType         string
+	RentableStatus       string
+	RARID                rlib.NullInt64
+	RAID                 rlib.NullInt64
+	RentalAgreementStart rlib.NullTime
+	RentalAgreementStop  rlib.NullTime
+	// AssignmentTime       rlib.XJSONAssignmentTime
+	LastModTime rlib.JSONTime
+	LastModBy   int64
 }
 
 // SearchRentablesResponse is a response string to the search request for rentables
@@ -59,7 +65,7 @@ type SearchRentablesResponse struct {
 // GetRentableResponse is the response to a GetRentable request
 type GetRentableResponse struct {
 	Status string          `json:"status"`
-	Record PrRentableOther `json:"record"`
+	Record RentableDetails `json:"record"`
 }
 
 // RentableTypedownResponse is the data structure for the response to a search for people
@@ -67,6 +73,26 @@ type RentableTypedownResponse struct {
 	Status  string                  `json:"status"`
 	Total   int64                   `json:"total"`
 	Records []rlib.RentableTypeDown `json:"records"`
+}
+
+// RentableDetails holds the details about other detailed associated data with specific rentable
+type RentableDetails struct {
+	Recid          int64         `json:"recid"` // this is to support the w2ui form
+	BID            rlib.XJSONBud // business
+	RID            int64
+	RentableName   string         // Rentable Name
+	RARID          rlib.NullInt64 // RentalAgreementRentable ID
+	RAID           rlib.NullInt64 // Rental Agreement ID for this period
+	RARDtStart     rlib.NullTime  // RentalAgreementStart Date
+	RARDtStop      rlib.NullTime  // RentalAgreementStop Date
+	RTID           int64          // Rentable type id
+	RTRefDtStart   rlib.JSONTime  // Rentable Type Reference Stop Date
+	RTRefDtStop    rlib.JSONTime  // Rentable Type Reference Start Date
+	RentableType   string         // Rentable Type Name
+	RentableStatus string         // rentable status
+	RSDtStart      rlib.JSONTime  // rentable status start date
+	RSDtStop       rlib.JSONTime  // rentable status stop date
+	CurrentDate    rlib.JSONTime
 }
 
 // SvcRentableTypeDown handles typedown requests for Rentables.  It returns
@@ -99,10 +125,15 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 // rentablesGridFields holds the map of field (to be shown on grid)
 // to actual database fields, multiple db fields means combine those
 var rentablesGridFieldsMap = map[string][]string{
-	"RID":            {"Rentable.RID"},
-	"RentableName":   {"Rentable.RentableName"},
-	"RentableType":   {"RentableTypes.Name"},
-	"RentableStatus": {"RentableStatus.Status"},
+	"RID":                  {"Rentable.RID"},
+	"RentableName":         {"Rentable.RentableName"},
+	"RentableType":         {"RentableTypes.Name"},
+	"RTID":                 {"RentableTypes.RTID"},
+	"RentableStatus":       {"RentableStatus.Status"},
+	"RARID":                {"RentalAgreementRentables.RARID"},
+	"RAID":                 {"RentalAgreementRentables.RAID"},
+	"RentalAgreementStart": {"RentalAgreementRentables.RARDtStart"},
+	"RentalAgreementStop":  {"RentalAgreementRentables.RARDtStop"},
 }
 
 // which fields needs to be fetched for SQL query for rentables
@@ -110,14 +141,19 @@ var rentablesQuerySelectFields = []string{
 	"Rentable.RID",
 	"Rentable.RentableName",
 	"RentableTypes.Name as RentableType",
+	"RentableTypes.RTID",
 	"RentableStatus.Status as RentableStatus",
+	"RentalAgreementRentables.RARID",
+	"RentalAgreementRentables.RAID",
+	"RentalAgreementRentables.RARDtStart as RentalAgreementStart",
+	"RentalAgreementRentables.RARDtStop as RentalAgreementStop",
 }
 
 // rentablesRowScan scans a result from sql row and dump it in a PrRentableOther struct
 func rentablesRowScan(rows *sql.Rows, q PrRentableOther) PrRentableOther {
 	var rStatus int64
 
-	rlib.Errcheck(rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &rStatus))
+	rlib.Errcheck(rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &rStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop))
 
 	// convert status int to string, human readable
 	q.RentableStatus = rlib.RentableStatusToString(rStatus)
@@ -139,12 +175,18 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 
 	fmt.Printf("Entered SvcSearchHandlerRentables\n")
 
-	var err error
-	var g SearchRentablesResponse
+	var (
+		err error
+		g   SearchRentablesResponse
+		t   = time.Now()
+	)
 
 	// default search (where clause) and sort (order by clause)
-	srch := fmt.Sprintf("Rentable.BID=%d", d.BID) // default WHERE clause
-	order := "Rentable.RentableName ASC"          // default ORDER
+	defaultWhere := `Rentable.BID=%d
+		AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL)
+		AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL)`
+	srch := fmt.Sprintf(defaultWhere, d.BID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
+	order := "Rentable.RentableName ASC"                                                               // default ORDER
 
 	// check that RentableStatus is there in search fields
 	// if exists then modify it
@@ -180,9 +222,10 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	SELECT
 		{{.SelectClause}}
 	FROM Rentable
-	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
+	INNER JOIN RentableTypeRef ON Rentable.RID=RentableTypeRef.RID
 	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
 	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
+	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}};
 	`
@@ -272,7 +315,7 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 }
 
-// GetRentable returns the requested rentable
+// saveRentable returns the requested rentable
 // wsdoc {
 //  @Title  Save Rentable
 //	@URL /v1/rentable/:BUI/:RID
@@ -295,7 +338,43 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
-	var foo RentableForm
+
+	// // rentable Form Record
+	// var rfRecord RentableDetails
+	// fmt.Println("Before Unmarshaling JSON.....")
+	// err := json.Unmarshal([]byte(s), &rfRecord)
+	// fmt.Println(rfRecord)
+	// if err != nil {
+	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+	// 	SvcGridErrorReturn(w, e)
+	// 	return
+	// }
+
+	// // get rental agreement object associated with this rentable
+	// rarRecords := rlib.GetRentalAgreementRentables(rfRecord.RARID, (*time.Time)(&rfRecord.RARDtStart), (*time.Time)(&rfRecord.RARDtStop))
+	// fmt.Println("Rental Agreement Rentables Records....")
+	// fmt.Printf("Length of records: %d\n", len(rarRecords))
+	// fmt.Printf("%#v\n", rarRecords)
+
+	// // get rental type ref object associated with this rentable
+	// rtrRecords := rlib.GetRentableTypeRefsByRange(rfRecord.RID, (*time.Time)(&rfRecord.RTRefDtStart), (*time.Time)(&rfRecord.RTRefDtStop))
+	// fmt.Println("Rental Type Ref Records....")
+	// fmt.Printf("Length of records: %d\n", len(rtrRecords))
+	// fmt.Printf("%#v\n", rtrRecords)
+
+	// // get rental status record associated with this rentable
+	// rsRecords := rlib.GetRentableStatusByRange(rfRecord.RID, (*time.Time)(&rfRecord.RSDtStart), (*time.Time)(&rfRecord.RSDtStop))
+	// fmt.Println("Rental Status Records....")
+	// fmt.Printf("Length of records: %d\n", len(rsRecords))
+	// fmt.Printf("%#v\n", rsRecords)
+
+	var (
+		// ok bool
+		// a  rlib.Rentable
+		// bar RentableOther
+		foo RentableForm
+	)
+
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
@@ -303,32 +382,28 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// migrate the variables that transfer without needing special handling...
-	var a rlib.Rentable
-	rlib.MigrateStructVals(&foo, &a)
+	// // migrate the variables that transfer without needing special handling...
+	// rlib.MigrateStructVals(&foo, &a)
 
-	// now get the stuff that requires special handling...
-	var bar RentableOther
-	err = json.Unmarshal([]byte(s), &bar)
-	if err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
-	if !ok {
-		e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	a.AssignmentTime, ok = rlib.AssignmentTimeMap[bar.AssignmentTime.ID]
-	if !ok {
-		e := fmt.Errorf("Could not map AssignmentTime value: %s", bar.AssignmentTime.ID)
-		SvcGridErrorReturn(w, e)
-		return
-	}
+	// err = json.Unmarshal([]byte(s), &bar)
+	// if err != nil {
+	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+	// 	SvcGridErrorReturn(w, e)
+	// 	return
+	// }
+
+	// get Rentable from RID
+	// NOTE: AS OF NOW, JUST ALLOW RENTABLE NAME BEING UPDATED
+	a := rlib.GetRentable(foo.RID)
+	a.RentableName = foo.RentableName
+
+	// a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
+	// if !ok {
+	// 	e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
+	// 	rlib.Ulog("%s", e.Error())
+	// 	SvcGridErrorReturn(w, e)
+	// 	return
+	// }
 
 	// Now just update the database
 	err = rlib.UpdateRentable(&a)
@@ -340,7 +415,24 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(w)
 }
 
-// GetRentable returns the requested rentable
+// which fields needs to be fetched for SQL query for rentable details
+var rentableFormSelectFields = []string{
+	"Rentable.RID",
+	"Rentable.RentableName",
+	"RentalAgreementRentables.RARID",
+	"RentalAgreementRentables.RAID",
+	"RentalAgreementRentables.RARDtStart",
+	"RentalAgreementRentables.RARDtStop",
+	"RentableTypeRef.RTID",
+	"RentableTypeRef.DtStart as RTRefDtStart",
+	"RentableTypeRef.DtStop as RTRefDtStop",
+	"RentableTypes.Name",
+	"RentableStatus.Status as RentableStatus",
+	"RentableStatus.DtStart as RSDtStart",
+	"RentableStatus.DtStop as RSDtStop",
+}
+
+// getRentable returns the requested rentable
 // wsdoc {
 //  @Title  Get Rentable
 //	@URL /v1/rentable/:BUI/:RID
@@ -352,7 +444,10 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered getRentable\n")
-	var g GetRentableResponse
+	var (
+		g GetRentableResponse
+		t = time.Now()
+	)
 
 	rentableQuery := `
 	SELECT
@@ -361,13 +456,14 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
 	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
 	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
+	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
 	WHERE {{.WhereClause}};
 	`
 
 	// will be substituted as query clauses
 	qc := queryClauses{
-		"SelectClause": strings.Join(rentablesQuerySelectFields, ","),
-		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", d.BID, d.RID),
+		"SelectClause": strings.Join(rentableFormSelectFields, ","),
+		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL ) AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL) ", d.BID, d.RID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)),
 	}
 
 	// get formatted query with substitution of select, where, order clause
@@ -380,7 +476,9 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var gg PrRentableOther
+		var gg RentableDetails
+		gg.CurrentDate = rlib.JSONTime(t)
+
 		for bud, bid := range rlib.RRdb.BUDlist {
 			if bid == d.BID {
 				gg.BID = rlib.XJSONBud(bud)
@@ -389,7 +487,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		var rStatus int64
-		rows.Scan(&gg.RID, &gg.RentableName, &gg.RentableType, &rStatus)
+		rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &rStatus, &gg.RSDtStart, &gg.RSDtStop)
 
 		// convert status int to string, human readable
 		gg.RentableStatus = rlib.RentableStatusToString(rStatus)
