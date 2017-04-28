@@ -750,10 +750,15 @@ function buildPageElements() {
         columns: [
             {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
             {field: 'RID', caption: 'RID', size: '50px', sortable: true},
-            {field: 'RentableName', caption: 'RentableName', size: '150px', sortable: true},
+            {field: 'RentableName', caption: 'Rentable Name', size: '150px', sortable: true},
             // {field: 'AssignmentTime', caption: 'Assignment Time', size: '120px', sortable: true},
-            {field: 'RentableType', caption: 'RentableType', size: '150px', sortable: true},
-            {field: 'RentableStatus', caption: 'RentableStatus', size: '150px', sortable: true},
+            {field: 'RTID', caption: 'Rentable Type ID', hidden: true, sortable: true},
+            {field: 'RentableType', caption: 'Rentable Type', size: '180px', sortable: true},
+            {field: 'RentableStatus', caption: 'Rentable Status', size: '130px', sortable: true},
+            {field: 'RARID', caption: 'RARID', size: '50px', hidden: true, sortable: true},
+            {field: 'RAID', caption: 'RAID', size: '50px', sortable: true},
+            {field: 'RentalAgreementStart', caption: 'Rental Agreement Start', size: '150px', sortable: true},
+            {field: 'RentalAgreementStop', caption: 'Rental Agreement Stop', size: '150px', sortable: true},
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -761,20 +766,6 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        // get rentabletypes for business ob.BID
-                        var rtList = getRentableTypes(ob.BID);
-                        // w2ui field 'RentableType' items
-                        var items = [];
-                        // w2ui field 'RentableType' selected item
-                        var selected = {};
-                        rtList.records.forEach(function(rt){
-                            items.push({id: rt.RTID, text: rt.Name});
-                            if (rt.Name == ob.RentableType) {
-                                selected = {id: rt.RTID, text: rt.Name};
-                            }
-                        })
-                        // set options for 'RentableType' in rentableForm
-                        w2ui.rentableForm.set("RentableType",{options: {items: items, selected: selected, maxDropHeight: 200}});
                         console.log('rentable form url: ' + '/v1/rentable/' + ob.BID + '/' + ob.RID);
                         setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
                     }
@@ -799,9 +790,19 @@ function buildPageElements() {
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
             { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'RARID', type: 'int', required: false, html: { caption: 'Rental Agreement Rentable ID', page: 0, column: 0 } },
+            { field: 'RAID', type: 'int', required: false, html: { caption: 'Rental Agreement ID', page: 0, column: 0 } },
+            { field: 'RARDtStart', type: 'date', required: false, html: { caption: 'Rentable Agreement Start', page: 0, column: 0 } },
+            { field: 'RARDtStop', type: 'date', required: false, html: { caption: 'Rentable Agreement Stop', page: 0, column: 0 } },
             { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
             { field: 'RentableType', type: 'list', required: false, html: { caption: 'RentableType', page: 0, column: 0 } },
+            { field: 'RTID', type: 'int', required: false },
+            { field: 'RTRefDtStart', type: 'date', required: false, html: { caption: 'Rentable Type Ref Start', page: 0, column: 0 } },
+            { field: 'RTRefDtStop', type: 'date', required: false, html: { caption: 'Rentable Type Ref Stop', page: 0, column: 0 } },
             { field: 'RentableStatus', type: 'list', options: {items: app.rentableStatusList}, required: false, html: { caption: 'RentableStatus', page: 0, column: 0 } },
+            { field: 'RSDtStart', type: 'date', required: false, html: { caption: 'Rentable Status Start', page: 0, column: 0 } },
+            { field: 'RSDtStop', type: 'date', required: false, html: { caption: 'Rentable Status Stop', page: 0, column: 0 } },
+            { field: 'CurrentDate', type: 'date', required: false },
             // { field: 'AssignmentTime', type: 'list', options: {items: app.assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
         ],
         toolbar: {
@@ -839,10 +840,42 @@ function buildPageElements() {
                 console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.RentableName);
             }
         },
+        onSubmit: function(target, data){
+            console.log("RentableForm POST data");
+            // object to value before submit to server
+            // data.postData.record.BID=data.postData.record.BID.id;
+            // data.postData.record.RentableStatus=data.postData.record.RentableStatus.id;
+            // data.postData.record.RentableType=data.postData.record.RentableType.text; // does not required at server side, but for json unmarshling IT needs to be converted
+            // data.postData.record.RTID=data.postData.record.RentableType.id;
+            console.log(data.postData.record);
+        },
+        onLoad: function (event) {
+            // get last selected rentable from grid
+            var lastRentable = w2ui.rentablesGrid.get(w2ui.rentablesGrid.last.click_recid);
+            console.log("lastRentable", lastRentable);
+            // get rentabletypes for business ob.BID
+            var rtList = getRentableTypes(lastRentable.BID);
+            // w2ui field 'RentableType' items
+            var items = [];
+            // w2ui field 'RentableType' selected item
+            var selected = {};
+            // find matched RTID
+            rtList.records.forEach(function(rt){
+                items.push({id: rt.RTID, text: rt.Name});
+                if (rt.RTID == lastRentable.RTID) {
+                    selected = {id: rt.RTID, text: rt.Name};
+                }
+            });
+
+            // set options for 'RentableType' in rentableForm when event complete
+            event.onComplete = function () {
+                w2ui.rentableForm.set("RentableType",{options: {items: items, selected: selected, maxDropHeight: 200}});
+            };
+        },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentableForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ')';
+            f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
         }
     });
 
