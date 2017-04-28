@@ -843,10 +843,10 @@ function buildPageElements() {
         onSubmit: function(target, data){
             console.log("RentableForm POST data");
             // object to value before submit to server
-            data.postData.record.BID=data.postData.record.BID.id;
-            data.postData.record.RentableStatus=data.postData.record.RentableStatus.id;
-            data.postData.record.RentableType=data.postData.record.RentableType.text; // does not required at server side, but for json unmarshling IT needs to be converted
-            data.postData.record.RTID=data.postData.record.RentableType.id;
+            // data.postData.record.BID=data.postData.record.BID.id;
+            // data.postData.record.RentableStatus=data.postData.record.RentableStatus.id;
+            // data.postData.record.RentableType=data.postData.record.RentableType.text; // does not required at server side, but for json unmarshling IT needs to be converted
+            // data.postData.record.RTID=data.postData.record.RentableType.id;
             console.log(data.postData.record);
         },
         onLoad: function (event) {

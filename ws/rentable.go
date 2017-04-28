@@ -32,8 +32,8 @@ type RentableForm struct {
 
 // RentableOther is a struct to handle the UI list box selections
 type RentableOther struct {
-	BID            rlib.W2uiHTMLSelect
-	AssignmentTime rlib.W2uiHTMLSelect
+	BID rlib.W2uiHTMLSelect
+	// AssignmentTime rlib.W2uiHTMLSelect
 }
 
 // PrRentableOther is a structure specifically for the UI. It will be
@@ -50,9 +50,9 @@ type PrRentableOther struct {
 	RAID                 rlib.NullInt64
 	RentalAgreementStart rlib.NullTime
 	RentalAgreementStop  rlib.NullTime
-	AssignmentTime       rlib.XJSONAssignmentTime
-	LastModTime          rlib.JSONTime
-	LastModBy            int64
+	// AssignmentTime       rlib.XJSONAssignmentTime
+	LastModTime rlib.JSONTime
+	LastModBy   int64
 }
 
 // SearchRentablesResponse is a response string to the search request for rentables
@@ -80,18 +80,18 @@ type RentableDetails struct {
 	Recid          int64         `json:"recid"` // this is to support the w2ui form
 	BID            rlib.XJSONBud // business
 	RID            int64
-	RentableName   string        // Rentable Name
-	RARID          int64         // RentalAgreementRentable ID
-	RAID           int64         // Rental Agreement ID for this period
-	RARDtStart     rlib.JSONTime // RentalAgreementStart Date
-	RARDtStop      rlib.JSONTime // RentalAgreementStop Date
-	RTID           int64         // Rentable type id
-	RTRefDtStart   rlib.JSONTime // Rentable Type Reference Stop Date
-	RTRefDtStop    rlib.JSONTime // Rentable Type Reference Start Date
-	RentableType   string        // Rentable Type Name
-	RentableStatus string        // rentable status
-	RSDtStart      rlib.JSONTime // rentable status start date
-	RSDtStop       rlib.JSONTime // rentable status stop date
+	RentableName   string         // Rentable Name
+	RARID          rlib.NullInt64 // RentalAgreementRentable ID
+	RAID           rlib.NullInt64 // Rental Agreement ID for this period
+	RARDtStart     rlib.NullTime  // RentalAgreementStart Date
+	RARDtStop      rlib.NullTime  // RentalAgreementStop Date
+	RTID           int64          // Rentable type id
+	RTRefDtStart   rlib.JSONTime  // Rentable Type Reference Stop Date
+	RTRefDtStop    rlib.JSONTime  // Rentable Type Reference Start Date
+	RentableType   string         // Rentable Type Name
+	RentableStatus string         // rentable status
+	RSDtStart      rlib.JSONTime  // rentable status start date
+	RSDtStop       rlib.JSONTime  // rentable status stop date
 	CurrentDate    rlib.JSONTime
 }
 
@@ -339,36 +339,64 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
 
-	// rentable Form Record
-	var rfRecord RentableDetails
-	fmt.Println("Before Unmarshaling JSON.....")
-	err := json.Unmarshal([]byte(s), &rfRecord)
-	fmt.Println(rfRecord)
+	// // rentable Form Record
+	// var rfRecord RentableDetails
+	// fmt.Println("Before Unmarshaling JSON.....")
+	// err := json.Unmarshal([]byte(s), &rfRecord)
+	// fmt.Println(rfRecord)
+	// if err != nil {
+	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+	// 	SvcGridErrorReturn(w, e)
+	// 	return
+	// }
+
+	// // get rental agreement object associated with this rentable
+	// rarRecords := rlib.GetRentalAgreementRentables(rfRecord.RARID, (*time.Time)(&rfRecord.RARDtStart), (*time.Time)(&rfRecord.RARDtStop))
+	// fmt.Println("Rental Agreement Rentables Records....")
+	// fmt.Printf("Length of records: %d\n", len(rarRecords))
+	// fmt.Printf("%#v\n", rarRecords)
+
+	// // get rental type ref object associated with this rentable
+	// rtrRecords := rlib.GetRentableTypeRefsByRange(rfRecord.RID, (*time.Time)(&rfRecord.RTRefDtStart), (*time.Time)(&rfRecord.RTRefDtStop))
+	// fmt.Println("Rental Type Ref Records....")
+	// fmt.Printf("Length of records: %d\n", len(rtrRecords))
+	// fmt.Printf("%#v\n", rtrRecords)
+
+	// // get rental status record associated with this rentable
+	// rsRecords := rlib.GetRentableStatusByRange(rfRecord.RID, (*time.Time)(&rfRecord.RSDtStart), (*time.Time)(&rfRecord.RSDtStop))
+	// fmt.Println("Rental Status Records....")
+	// fmt.Printf("Length of records: %d\n", len(rsRecords))
+	// fmt.Printf("%#v\n", rsRecords)
+
+	var (
+		// ok bool
+		// a  rlib.Rentable
+		// bar RentableOther
+		foo RentableForm
+	)
+
+	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
-	// get rental agreement object associated with this rentable
-	rarRecords := rlib.GetRentalAgreementRentables(rfRecord.RARID, (*time.Time)(&rfRecord.RARDtStart), (*time.Time)(&rfRecord.RARDtStop))
-	fmt.Println("Rental Agreement Rentables Records....")
-	fmt.Printf("Length of records: %d\n", len(rarRecords))
-	fmt.Printf("%#v\n", rarRecords)
+	// // migrate the variables that transfer without needing special handling...
+	// rlib.MigrateStructVals(&foo, &a)
 
-	// get rental type ref object associated with this rentable
-	rtrRecords := rlib.GetRentableTypeRefsByRange(rfRecord.RID, (*time.Time)(&rfRecord.RTRefDtStart), (*time.Time)(&rfRecord.RTRefDtStop))
-	fmt.Println("Rental Type Ref Records....")
-	fmt.Printf("Length of records: %d\n", len(rtrRecords))
-	fmt.Printf("%#v\n", rtrRecords)
+	// err = json.Unmarshal([]byte(s), &bar)
+	// if err != nil {
+	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+	// 	SvcGridErrorReturn(w, e)
+	// 	return
+	// }
 
-	// get rental status record associated with this rentable
-	rsRecords := rlib.GetRentableStatusByRange(rfRecord.RID, (*time.Time)(&rfRecord.RSDtStart), (*time.Time)(&rfRecord.RSDtStop))
-	fmt.Println("Rental Status Records....")
-	fmt.Printf("Length of records: %d\n", len(rsRecords))
-	fmt.Printf("%#v\n", rsRecords)
+	// get Rentable from RID
+	// NOTE: AS OF NOW, JUST ALLOW RENTABLE NAME BEING UPDATED
+	a := rlib.GetRentable(foo.RID)
+	a.RentableName = foo.RentableName
 
-	// var ok bool
 	// a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
 	// if !ok {
 	// 	e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
@@ -376,21 +404,14 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// 	SvcGridErrorReturn(w, e)
 	// 	return
 	// }
-	// a.AssignmentTime, ok = rlib.AssignmentTimeMap[bar.AssignmentTime.ID]
-	// if !ok {
-	// 	e := fmt.Errorf("Could not map AssignmentTime value: %s", bar.AssignmentTime.ID)
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
 
-	// // Now just update the database
-	// err = rlib.UpdateRentable(&a)
-	// if err != nil {
-	// 	e := fmt.Errorf("Error updating rentable: %s", err.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
-	fmt.Println("Rentable update is done!!!! WHOHOHOHOHO!!!")
+	// Now just update the database
+	err = rlib.UpdateRentable(&a)
+	if err != nil {
+		e := fmt.Errorf("Error updating rentable: %s", err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
 	SvcWriteSuccessResponse(w)
 }
 
@@ -435,14 +456,14 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
 	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
 	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
-	INNER JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
+	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
 	WHERE {{.WhereClause}};
 	`
 
 	// will be substituted as query clauses
 	qc := queryClauses{
 		"SelectClause": strings.Join(rentableFormSelectFields, ","),
-		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d AND RentalAgreementRentables.RARDtStart<=%q AND RentalAgreementRentables.RARDtStop>%q", d.BID, d.RID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)),
+		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL ) AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL) ", d.BID, d.RID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)),
 	}
 
 	// get formatted query with substitution of select, where, order clause
