@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -181,6 +182,11 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		t   = time.Now()
 	)
 
+	// fetch records from the database under this limit
+	const (
+		limitClause int = 100
+	)
+
 	// default search (where clause) and sort (order by clause)
 	defaultWhere := `Rentable.BID=%d
 		AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL)
@@ -227,8 +233,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
 	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
 	WHERE {{.WhereClause}}
-	ORDER BY {{.OrderClause}};
-	`
+	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
 	qc := queryClauses{
@@ -237,12 +242,36 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		"OrderClause":  order,
 	}
 
+	// GET TOTAL COUNT OF RESULTS
+	countQuery := renderSQLQuery(rentablesQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
+	if err != nil {
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	rentablesQueryWithLimit := rentablesQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(limitClause)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
 	// get formatted query with substitution of select, where, order clause
-	q := renderSQLQuery(rentablesQuery, qc)
-	fmt.Printf("db query = %s\n", q)
+	qry := renderSQLQuery(rentablesQueryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
 
 	// execute the query
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
@@ -266,15 +295,6 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 	// error check
 	rlib.Errcheck(rows.Err())
-
-	// get total count of results
-	g.Total, err = GetQueryCount(q, qc)
-	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
-	}
-	fmt.Printf("g.Total = %d\n", g.Total)
 
 	// write response
 	g.Status = "success"

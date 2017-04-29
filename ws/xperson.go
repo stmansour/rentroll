@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
@@ -259,12 +260,17 @@ func transactantRowScan(rows *sql.Rows, t rlib.Transactant) rlib.Transactant {
 func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcSearchHandlerTransactants\n")
 
-	var err error
-	var g SearchTransactantsResponse
+	var (
+		err error
+		g   SearchTransactantsResponse
+	)
+
+	const (
+		limitClause int = 100
+	)
 
 	srch := fmt.Sprintf("Transactant.BID=%d", d.BID)               // default WHERE clause
 	order := "Transactant.LastName ASC, Transactant.FirstName ASC" // default ORDER
-	// q, qw := gridBuildQuery("Transactant", srch, order, d, &p)
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, transactantGridFieldsMap)
@@ -276,13 +282,12 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	}
 
 	// Transactant Query Text Template
-	transctantsQuery := `
+	transactantsQuery := `
 	SELECT
 		{{.SelectClause}}
 	FROM Transactant
 	WHERE {{.WhereClause}}
-	ORDER BY {{.OrderClause}};
-	`
+	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
 	qc := queryClauses{
@@ -291,12 +296,36 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 		"OrderClause":  order,
 	}
 
+	// GET TOTAL COUNTS of query
+	countQuery := renderSQLQuery(transactantsQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc) // total number of rows that match the criteria
+	if err != nil {
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		SvcGridErrorReturn(w, err)
+		return
+	}
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	transactantsQueryWithLimit := transactantsQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(limitClause)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
 	// get formatted query with substitution of select, where, order clause
-	q := renderSQLQuery(transctantsQuery, qc)
-	fmt.Printf("db query = %s\n", q)
+	qry := renderSQLQuery(transactantsQueryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
 
 	// execute the query
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	rlib.Errcheck(err)
 	defer rows.Close()
 
@@ -318,14 +347,6 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	}
 	// error check
 	rlib.Errcheck(rows.Err())
-
-	g.Total, err = GetQueryCount(q, qc) // total number of rows that match the criteria
-	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
-		return
-	}
-	fmt.Printf("g.Total = %d\n", g.Total)
 
 	// write response
 	g.Status = "success"
