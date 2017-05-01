@@ -216,6 +216,22 @@ func IntToString(i int) string {
 	return strconv.Itoa(i)
 }
 
+// StringToFloat64 simply converts string to float64 and returns it with ok flag
+func StringToFloat64(s string) (float64, bool) {
+	var f64 float64
+	var err error
+
+	if f64, err = strconv.ParseFloat(s, 64); err != nil {
+		return f64, false
+	}
+	return f64, true
+}
+
+// Float64ToString simply converts float64 to string
+func Float64ToString(f64 float64) string {
+	return fmt.Sprintf("%f", f64)
+}
+
 // Int64Range holds list of int64 kind of, varibles
 // custom sorting, use sort.Sort(Int64Range)
 type Int64Range []int64

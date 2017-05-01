@@ -6,14 +6,37 @@ import (
 	"gotable"
 	"io"
 	"rentroll/rlib"
+	"strings"
 	"time"
 )
 
-// SetTableTitlePDF sets pdf property for title at header center in list, for a table
-func SetTableTitlePDF(pdfProps []*gotable.PDFProperty, title string) []*gotable.PDFProperty {
-	pdfProps = append(pdfProps, &gotable.PDFProperty{
-		Option: "--header-center", Value: title,
-	})
+// SetPDFOption sets option to pdf properties,
+// if already exists then overwrites with provided value otherwise append new one
+func SetPDFOption(
+	pdfProps []*gotable.PDFProperty,
+	optionName string,
+	optionValue string,
+) []*gotable.PDFProperty {
+
+	var (
+		found  bool
+		newOpt = &gotable.PDFProperty{Option: optionName, Value: optionValue}
+	)
+
+	for index, opt := range pdfProps {
+		if opt.Option == optionName {
+			temp := append(pdfProps[:index], newOpt)
+			pdfProps = append(temp, pdfProps[index+1:]...)
+			found = true
+			break
+		}
+	}
+
+	// if not found in pdf props then make new and append it
+	if !found {
+		pdfProps = append(pdfProps, newOpt)
+	}
+
 	return pdfProps
 }
 
@@ -25,7 +48,7 @@ var RRpdfProps = []*gotable.PDFProperty{
 	// custom dpi setting
 	{Option: "--dpi", Value: "512"},
 	// top margin
-	{Option: "-T", Value: "15"},
+	{Option: "--margin-top", Value: "15"},
 	// header font size
 	{Option: "--header-font-size", Value: "7"},
 	// header font
@@ -33,7 +56,7 @@ var RRpdfProps = []*gotable.PDFProperty{
 	// header spacing
 	{Option: "--header-spacing", Value: "3"},
 	// bottom margin
-	{Option: "-B", Value: "15"},
+	{Option: "--margin-bottom", Value: "15"},
 	// footer spacing
 	{Option: "--footer-spacing", Value: "5"},
 	// footer font
@@ -44,10 +67,14 @@ var RRpdfProps = []*gotable.PDFProperty{
 	{Option: "--footer-left", Value: time.Now().Format(gotable.DATETIMEFMT)},
 	// footer right content
 	{Option: "--footer-right", Value: "Page [page] of [toPage]"},
-	// page size
-	{Option: "--page-size", Value: "Letter"},
-	// orientation
-	{Option: "--orientation", Value: "Landscape"},
+	// // page size
+	// {Option: "--page-size", Value: "Letter"},
+	// // orientation
+	// {Option: "--orientation", Value: "Landscape"},
+	// page width, defaults to US Letter with LandScape
+	{Option: "--page-width", Value: "11in"},
+	// page height, defaults to US Letter with LandScape
+	{Option: "--page-height", Value: "8.5in"},
 }
 
 // RReportTableErrorSectionCSS holds css for errors placed in section3 of gotable
@@ -341,7 +368,7 @@ func MultiTableHTMLPrint(m []gotable.Table, w io.Writer) {
 }
 
 // MultiTablePDFPrint writes pdf output from each table to w io.Writer
-func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
+func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pdfPageWidth float64, pdfPageHeight float64, pdfPageSizeUnit string) {
 	funcname := "MultiTablePDFPrint"
 
 	// TODO: how to handle multiple pdf writer
@@ -351,7 +378,12 @@ func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
 		temp := bytes.Buffer{}
 
 		// pdf props title
-		pdfProps := SetTableTitlePDF(RRpdfProps, m[i].Title)
+		pdfProps := RRpdfProps
+		pdfProps = SetPDFOption(pdfProps, "--header-center", m[i].Title)
+		pdfPageWidth := rlib.Float64ToString(pdfPageWidth) + pdfPageSizeUnit
+		pdfProps = SetPDFOption(pdfProps, "--page-width", pdfPageWidth)
+		pdfPageHeight := rlib.Float64ToString(pdfPageHeight) + pdfPageSizeUnit
+		pdfProps = SetPDFOption(pdfProps, "--page-height", pdfPageHeight)
 
 		err := m[i].PDFprintTable(&temp, pdfProps)
 		if err != nil {
@@ -361,4 +393,14 @@ func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
 		}
 		w.Write(temp.Bytes())
 	}
+}
+
+// GetAttachmentDate used to get date for attachements served over web
+func GetAttachmentDate(t time.Time) string {
+	y, m, d := t.Date()
+	year := fmt.Sprintf("%04d", y)
+	month := strings.ToUpper(m.String()[:3])
+	date := fmt.Sprintf("%02d", d)
+	formatDate := year + "-" + month + "-" + date
+	return formatDate
 }

@@ -57,7 +57,14 @@ var app = {
     receiptsToolbarOnClickAdded: false,
     paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
     arList: [{id: 0, text:"Assessment"}, {id:1, text:"Receipt"}],
-    rof: {"csv": 4, "pdf": 3} // report export/output format
+    rof: {"csv": 4, "pdf": 3}, // report export/output format
+    pdfPageWidth: 8.5, // defaults to USLetter Portrait width
+    pdfPageHeight: 11, // defaults to USLetter Portrait height
+    pageSizes: {
+        "USLetter": { "w": 8.5, "h": 11 },
+        "Legal": { "w": 8.5, "h": 14 },
+        "Ledger": { "w": 11, "h": 17 },
+    },
 };
 
 function exportReportCSV(rptname){
@@ -88,6 +95,40 @@ function exportReportCSV(rptname){
     window.open(url);
 }
 
+function popupPDFCustomDimensions() {
+    "use strict";
+    w2popup.open({
+        title     : 'PDF custom width and height',
+        body      : '<div class="w2ui-centered">' +
+            '<div class="w2ui-field"><label>Page Width (inch): </label><div><input type="text" name="custom_pdf_width" class="w2ui-input" value="'+app.pdfPageWidth+'" /></div></div>' +
+            '<div class="w2ui-field"><label>Page Height (inch): </label><div><input type="text" name="custom_pdf_height"  class="w2ui-input" value="'+app.pdfPageHeight+'" /></div></div>' +
+            '</div>',
+        buttons   : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
+                    '<button class="w2ui-btn" onclick="saveCustomDims();" >Save</button>',
+        width     : 500,
+        height    : 200,
+        overflow  : 'hidden',
+        color     : '#333',
+        speed     : '0.3',
+        opacity   : '0.5',
+        modal     : true,
+        showClose : true,
+    });
+}
+
+function saveCustomDims() {
+    "use strict";
+    var width = parseFloat($("input[name='custom_pdf_width']").val());
+    if (!isNaN(width)) {
+        app.pdfPageWidth = width;
+    };
+    var height = parseFloat($("input[name='custom_pdf_height']").val());
+    if (!isNaN(height)) {
+        app.pdfPageHeight = height;
+    };
+    w2popup.close();
+}
+
 function exportReportPDF(rptname){
     "use strict";
     if (rptname === '') {
@@ -111,6 +152,8 @@ function exportReportPDF(rptname){
     url += '&dtstop=' + d;
     // now append the report output format
     url += '&rof=' + app.rof["pdf"];
+    // need to pass page width and height
+    url += '&pw=' + app.pdfPageWidth + "&ph=" + app.pdfPageHeight;
     console.log('url = ' + url);
     // open separate window
     window.open(url);
@@ -476,23 +519,78 @@ function buildPageElements() {
     //          reportstoolbar
     //------------------------------------------------------------------------
     var tmp = genDateRangeNavigator('date');
-    tmp.push.apply(tmp, [{ type: 'break',  id: 'break2' },
-                         { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-                         { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'PDF' },
-                        ]);
+    tmp.push.apply(tmp, [
+        { type: 'break',  id: 'break2' },
+        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+        { type: 'break' },
+        { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'export to PDF' },
+        { type: 'break' },
+        { type: 'menu-radio', id: 'page_size', icon: 'fa fa-file-pdf-o',
+            tooltip: 'exported PDF page size',
+            text: function (item) {
+            var text = item.selected;
+            var el   = this.get('page_size:' + item.selected);
+            if (item.selected == "Custom") {
+                popupPDFCustomDimensions();
+            };
+            return 'Page Size: ' + el.text;
+            },
+            selected: 'USLetter',
+            items: [
+                { id: 'USLetter', text: 'US Letter (8.5 x 11 in)'},
+                { id: 'Legal', text: 'Legal (8.5 x 14 in)'},
+                { id: 'Ledger', text: 'Ledger (11 x 17 in)'},
+                { id: 'Custom', text: 'Custom'},
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu-radio', id: 'orientation', icon: 'fa fa-clone',
+            tooltip: 'exported PDF orientation',
+            text: function (item) {
+            var text = item.selected;
+            var el   = this.get('orientation:' + item.selected);
+            var pageSize = w2ui.reportstoolbar.get('page_size').selected;
+            if (pageSize != "Custom" && item.selected == "Portrait") {
+                app.pdfPageWidth = app.pageSizes[pageSize]["w"];
+                app.pdfPageHeight = app.pageSizes[pageSize]["h"];
+            }
+            else if (pageSize != "Custom" && item.selected == "LandScape") {
+                app.pdfPageWidth = app.pageSizes[pageSize]["h"];
+                app.pdfPageHeight = app.pageSizes[pageSize]["w"];
+            }
+            return 'Orientation: ' + el.text;
+            },
+            selected: 'LandScape',
+            items: [
+                { id: 'LandScape', text: 'LandScape'},
+                { id: 'Portrait', text: 'Portrait'},
+            ]
+        },
+        { type: 'break' },
+    ]);
 
     w2ui.reportslayout.content('top', $().w2toolbar({
         name: 'reportstoolbar',
         items: tmp,
         onClick: function (event) {
-            handleDateToolbarAction(event,'date');
-            showReport(app.lastReport);
-            if (event.target == "csvexport") {
+            if (event.target == "page_size") {
+                console.log("Page size selected");
+            }
+            else if (event.target == "orientation") {
+                console.log("orientation selected");
+            }
+            else if (event.target == "csvexport") {
                 exportReportCSV(app.lastReport);
             }
-            if (event.target == "printreport") {
+            else if (event.target == "printreport") {
                 exportReportPDF(app.lastReport);
             }
+            else{
+                handleDateToolbarAction(event,'date');
+                showReport(app.lastReport);
+            }
+            // TODO: prevent refresh, why toolbar needs to be refreshed when user just selects
+            // paper size, orientation? That refresh must be prevented.
         },
         onRefresh: function (event) {
             if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
