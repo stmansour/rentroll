@@ -98,10 +98,12 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		// format downloadable report name
 		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tsh.ReportNames[1])
 		if !ri.D1.IsZero() {
-			attachmentName += "-From" + ri.D1.Format("2006-JAN-01")
+			fromDate := rrpt.GetAttachmentDate(ri.D1)
+			attachmentName += "-From:" + fromDate
 		}
 		if !ri.D2.IsZero() {
-			attachmentName += "To" + ri.D2.Format("2006-JAN-01")
+			toDate := rrpt.GetAttachmentDate(ri.D2)
+			attachmentName += "To:" + toDate
 		}
 
 		switch ui.ReportOutputFormat {

@@ -6,6 +6,7 @@ import (
 	"gotable"
 	"io"
 	"rentroll/rlib"
+	"strings"
 	"time"
 )
 
@@ -394,4 +395,14 @@ func MultiTablePDFPrint(m []gotable.Table, w io.Writer, paperSize string, orient
 		}
 		w.Write(temp.Bytes())
 	}
+}
+
+// GetAttachmentDate used to get date for attachements served over web
+func GetAttachmentDate(t time.Time) string {
+	y, m, d := t.Date()
+	year := fmt.Sprintf("%04d", y)
+	month := strings.ToUpper(m.String()[:3])
+	date := fmt.Sprintf("%02d", d)
+	formatDate := year + "-" + month + "-" + date
+	return formatDate
 }
