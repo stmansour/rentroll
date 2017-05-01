@@ -57,7 +57,14 @@ var app = {
     receiptsToolbarOnClickAdded: false,
     paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
     arList: [{id: 0, text:"Assessment"}, {id:1, text:"Receipt"}],
-    rof: {"csv": 4, "pdf": 3} // report export/output format
+    rof: {"csv": 4, "pdf": 3}, // report export/output format
+    pdfPageWidth: 8.5, // defaults to USLetter Portrait width
+    pdfPageHeight: 11, // defaults to USLetter Portrait height
+    pageSizes: {
+        "USLetter": { "w":8.5, "h": 11 },
+        "Legal": { "w": 8.5, "h": 14 },
+        "Ledger": { "w": 11, "h": 17 },
+    },
 };
 
 function exportReportCSV(rptname){
@@ -88,6 +95,40 @@ function exportReportCSV(rptname){
     window.open(url);
 }
 
+function popupPDFCustomDimensions() {
+    "use strict";
+    w2popup.open({
+        title     : 'PDF custom width and height',
+        body      : '<div class="w2ui-centered">' +
+            '<div class="w2ui-field"><label>Page Width (inch): </label><div><input type="text" name="custom_pdf_width" class="w2ui-input" /></div></div>' +
+            '<div class="w2ui-field"><label>Page Height (inch): </label><div><input type="text" name="custom_pdf_height"  class="w2ui-input" /></div></div>' +
+            '</div>',
+        buttons   : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
+                    '<button class="w2ui-btn" onclick="saveCustomDims();" >Save</button>',
+        width     : 500,
+        height    : 200,
+        overflow  : 'hidden',
+        color     : '#333',
+        speed     : '0.3',
+        opacity   : '0.5',
+        modal     : true,
+        showClose : true,
+    });
+}
+
+function saveCustomDims() {
+    "use strict";
+    var width = parseFloat($("input[name='custom_pdf_width']").val());
+    if (!isNaN(width)) {
+        app.pdfPageWidth = width;
+    };
+    var height = parseFloat($("input[name='custom_pdf_height']").val());
+    if (!isNaN(height)) {
+        app.pdfPageHeight = height;
+    };
+    w2popup.close();
+}
+
 function exportReportPDF(rptname){
     "use strict";
     if (rptname === '') {
@@ -111,10 +152,8 @@ function exportReportPDF(rptname){
     url += '&dtstop=' + d;
     // now append the report output format
     url += '&rof=' + app.rof["pdf"];
-    // need to pass page size
-    url += '&page_size=' + w2ui.reportstoolbar.get('page_size').selected;
-    // append orientation
-    url += '&orientation=' + w2ui.reportstoolbar.get('orientation').selected;
+    // need to pass page width and height
+    url += '&pw=' + app.pdfPageWidth + "&ph=" + app.pdfPageHeight;
     console.log('url = ' + url);
     // open separate window
     window.open(url);
@@ -491,40 +530,17 @@ function buildPageElements() {
             text: function (item) {
             var text = item.selected;
             var el   = this.get('page_size:' + item.selected);
+            if (item.selected == "Custom") {
+                popupPDFCustomDimensions();
+            };
             return 'Page Size: ' + el.text;
             },
-            selected: 'Letter',
+            selected: 'USLetter',
             items: [
-                { id: 'A0', text: 'A0'},
-                { id: 'A1', text: 'A1'},
-                { id: 'A2', text: 'A2'},
-                { id: 'A3', text: 'A3'},
-                { id: 'A4', text: 'A4'},
-                { id: 'A5', text: 'A5'},
-                { id: 'A6', text: 'A6'},
-                { id: 'A7', text: 'A7'},
-                { id: 'A8', text: 'A8'},
-                { id: 'A9', text: 'A9'},
-                { id: 'B0', text: 'B0'},
-                { id: 'B1', text: 'B1'},
-                { id: 'B10', text: 'B10'},
-                { id: 'B2', text: 'B2'},
-                { id: 'B3', text: 'B3'},
-                { id: 'B4', text: 'B4'},
-                { id: 'B5', text: 'B5'},
-                { id: 'B6', text: 'B6'},
-                { id: 'B7', text: 'B7'},
-                { id: 'B8', text: 'B8'},
-                { id: 'B9', text: 'B9'},
-                { id: 'C5E', text: 'C5E'},
-                { id: 'Comm10E', text: 'Comm10E'},
-                { id: 'DLE', text: 'DLE'},
-                { id: 'Executive', text: 'Executive'},
-                { id: 'Folio', text: 'Folio'},
-                { id: 'Ledger', text: 'Ledger'},
-                { id: 'Legal', text: 'Legal'},
-                { id: 'Letter', text: 'Letter'},
-                { id: 'Tabloid', text: 'Tabloid'},
+                { id: 'USLetter', text: 'US Letter (8.5 x 11 in)'},
+                { id: 'Ledger', text: 'Ledger (8.5 x 14 in)'},
+                { id: 'Legal', text: 'Legal (11 x 17 in)'},
+                { id: 'Custom', text: 'Custom'},
             ]
         },
         { type: 'break' },
@@ -533,6 +549,15 @@ function buildPageElements() {
             text: function (item) {
             var text = item.selected;
             var el   = this.get('orientation:' + item.selected);
+            var pageSize = w2ui.reportstoolbar.get('page_size').selected;
+            if (pageSize != "Custom" && item.selected == "Portrait") {
+                app.pdfPageWidth = app.pageSizes[pageSize]["w"];
+                app.pdfPageHeight = app.pageSizes[pageSize]["h"];
+            }
+            else if (pageSize != "Custom" && item.selected == "LandScape") {
+                app.pdfPageWidth = app.pageSizes[pageSize]["h"];
+                app.pdfPageHeight = app.pageSizes[pageSize]["w"];
+            }
             return 'Orientation: ' + el.text;
             },
             selected: 'LandScape',

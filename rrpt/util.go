@@ -67,10 +67,14 @@ var RRpdfProps = []*gotable.PDFProperty{
 	{Option: "--footer-left", Value: time.Now().Format(gotable.DATETIMEFMT)},
 	// footer right content
 	{Option: "--footer-right", Value: "Page [page] of [toPage]"},
-	// page size
-	{Option: "--page-size", Value: "Letter"},
-	// orientation
-	{Option: "--orientation", Value: "Landscape"},
+	// // page size
+	// {Option: "--page-size", Value: "Letter"},
+	// // orientation
+	// {Option: "--orientation", Value: "Landscape"},
+	// page width, defaults to US Letter with LandScape
+	{Option: "--page-width", Value: "11in"},
+	// page height, defaults to US Letter with LandScape
+	{Option: "--page-height", Value: "8.5in"},
 }
 
 // RReportTableErrorSectionCSS holds css for errors placed in section3 of gotable
@@ -364,7 +368,7 @@ func MultiTableHTMLPrint(m []gotable.Table, w io.Writer) {
 }
 
 // MultiTablePDFPrint writes pdf output from each table to w io.Writer
-func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pageSize string, orientation string) {
+func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pdfPageWidth float64, pdfPageHeight float64, pdfPageSizeUnit string) {
 	funcname := "MultiTablePDFPrint"
 
 	// TODO: how to handle multiple pdf writer
@@ -376,8 +380,10 @@ func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pageSize string, orienta
 		// pdf props title
 		pdfProps := RRpdfProps
 		pdfProps = SetPDFOption(pdfProps, "--header-center", m[i].Title)
-		pdfProps = SetPDFOption(pdfProps, "--orientation", orientation)
-		pdfProps = SetPDFOption(pdfProps, "--page-size", pageSize)
+		pdfPageWidth := rlib.Float64ToString(pdfPageWidth) + pdfPageSizeUnit
+		pdfProps = SetPDFOption(pdfProps, "--page-width", pdfPageWidth)
+		pdfPageHeight := rlib.Float64ToString(pdfPageHeight) + pdfPageSizeUnit
+		pdfProps = SetPDFOption(pdfProps, "--page-height", pdfPageHeight)
 
 		err := m[i].PDFprintTable(&temp, pdfProps)
 		if err != nil {

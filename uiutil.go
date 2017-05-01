@@ -34,8 +34,9 @@ type RRuiSupport struct {
 	ReportContent      string          // text report content
 	PageTitle          string          // set page title via software
 	ReportOutputFormat int
-	PDFPageSize        string // custom page size
-	PDFOrientation     string // orientation
+	PDFPageWidth       float64 // page width
+	PDFPageHeight      float64 // page height
+	PDFPageSizeUnit    string  // page size unit, default is inch ("in")
 }
 
 //========================================================================================================

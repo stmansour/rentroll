@@ -144,8 +144,10 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 
 			// get page size and orientation, set title
 			pdfProps = rrpt.SetPDFOption(pdfProps, "--header-center", tbl.Title)
-			pdfProps = rrpt.SetPDFOption(pdfProps, "--orientation", ui.PDFOrientation)
-			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-size", ui.PDFPageSize)
+			pdfPageWidth := rlib.Float64ToString(ui.PDFPageWidth) + ui.PDFPageSizeUnit
+			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-width", pdfPageWidth)
+			pdfPageHeight := rlib.Float64ToString(ui.PDFPageHeight) + ui.PDFPageSizeUnit
+			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-height", pdfPageHeight)
 
 			err := tbl.PDFprintTable(w, pdfProps)
 			if err != nil {
@@ -209,7 +211,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
-			rrpt.MultiTablePDFPrint(m, w, ui.PDFPageSize, ui.PDFOrientation)
+			rrpt.MultiTablePDFPrint(m, w, ui.PDFPageWidth, ui.PDFPageHeight, ui.PDFPageSizeUnit)
 			return
 		default:
 			fmt.Fprintf(w, "%s", "Unsupported format output of report")
@@ -316,16 +318,24 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 			rof = gotable.TABLEOUTHTML
 		}
 		ui.ReportOutputFormat = rof
-		// custom page size
-		x, ok = m["page_size"]
+		// pdf page width
+		var pdfWidth float64
+		x, ok = m["pw"]
 		if ok && len(x[0]) > 0 {
-			ui.PDFPageSize = x[0]
+			if pdfWidth, ok = rlib.StringToFloat64(x[0]); ok {
+				ui.PDFPageWidth = pdfWidth
+			}
 		}
-		// custom orientation
-		x, ok = m["orientation"]
+		// pdf page height
+		var pdfHeight float64
+		x, ok = m["ph"]
 		if ok && len(x[0]) > 0 {
-			ui.PDFOrientation = x[0]
+			if pdfHeight, ok = rlib.StringToFloat64(x[0]); ok {
+				ui.PDFPageHeight = pdfHeight
+			}
 		}
+		// pdf page size unit, take default `inch` as of now
+		ui.PDFPageSizeUnit = "in"
 	}
 
 	v1ReportHandler(reportname, &xbiz, &ui, w)
