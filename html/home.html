@@ -111,6 +111,10 @@ function exportReportPDF(rptname){
     url += '&dtstop=' + d;
     // now append the report output format
     url += '&rof=' + app.rof["pdf"];
+    // need to pass paper size
+    url += '&paper_size=' + w2ui.reportstoolbar.get('paper_size').selected;
+    // append orientation
+    url += '&orientation=' + w2ui.reportstoolbar.get('orientation').selected;
     console.log('url = ' + url);
     // open separate window
     window.open(url);
@@ -476,23 +480,92 @@ function buildPageElements() {
     //          reportstoolbar
     //------------------------------------------------------------------------
     var tmp = genDateRangeNavigator('date');
-    tmp.push.apply(tmp, [{ type: 'break',  id: 'break2' },
-                         { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-                         { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'PDF' },
-                        ]);
+    tmp.push.apply(tmp, [
+        { type: 'break',  id: 'break2' },
+        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+        { type: 'break' },
+        { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'PDF' },
+        { type: 'break' },
+        { type: 'menu-radio', id: 'paper_size', icon: 'fa fa-file-pdf-o',
+            tooltip: 'exported PDF paper size',
+            text: function (item) {
+            var text = item.selected;
+            var el   = this.get('paper_size:' + item.selected);
+            return 'Paper Size: ' + el.text;
+            },
+            selected: 'A4',
+            items: [
+                { id: 'A0', text: 'A0'},
+                { id: 'A1', text: 'A1'},
+                { id: 'A2', text: 'A2'},
+                { id: 'A3', text: 'A3'},
+                { id: 'A4', text: 'A4'},
+                { id: 'A5', text: 'A5'},
+                { id: 'A6', text: 'A6'},
+                { id: 'A7', text: 'A7'},
+                { id: 'A8', text: 'A8'},
+                { id: 'A9', text: 'A9'},
+                { id: 'B0', text: 'B0'},
+                { id: 'B1', text: 'B1'},
+                { id: 'B10', text: 'B10'},
+                { id: 'B2', text: 'B2'},
+                { id: 'B3', text: 'B3'},
+                { id: 'B4', text: 'B4'},
+                { id: 'B5', text: 'B5'},
+                { id: 'B6', text: 'B6'},
+                { id: 'B7', text: 'B7'},
+                { id: 'B8', text: 'B8'},
+                { id: 'B9', text: 'B9'},
+                { id: 'C5E', text: 'C5E'},
+                { id: 'Comm10E', text: 'Comm10E'},
+                { id: 'DLE', text: 'DLE'},
+                { id: 'Executive', text: 'Executive'},
+                { id: 'Folio', text: 'Folio'},
+                { id: 'Ledger', text: 'Ledger'},
+                { id: 'Legal', text: 'Legal'},
+                { id: 'Letter', text: 'Letter'},
+                { id: 'Tabloid', text: 'Tabloid'},
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu-radio', id: 'orientation', icon: 'fa fa-clone',
+            tooltip: 'exported PDF orientation',
+            text: function (item) {
+            var text = item.selected;
+            var el   = this.get('orientation:' + item.selected);
+            return 'Orientation: ' + el.text;
+            },
+            selected: 'LandScape',
+            items: [
+                { id: 'LandScape', text: 'LandScape'},
+                { id: 'Portrait', text: 'Portrait'},
+            ]
+        },
+        { type: 'break' },
+    ]);
 
     w2ui.reportslayout.content('top', $().w2toolbar({
         name: 'reportstoolbar',
         items: tmp,
         onClick: function (event) {
-            handleDateToolbarAction(event,'date');
-            showReport(app.lastReport);
-            if (event.target == "csvexport") {
+            if (event.target == "paper_size") {
+                console.log("Paper size selected");
+            }
+            else if (event.target == "orientation") {
+                console.log("orientation selected");
+            }
+            else if (event.target == "csvexport") {
                 exportReportCSV(app.lastReport);
             }
-            if (event.target == "printreport") {
+            else if (event.target == "printreport") {
                 exportReportPDF(app.lastReport);
             }
+            else{
+                handleDateToolbarAction(event,'date');
+                showReport(app.lastReport);
+            }
+            // TODO: prevent refresh, why toolbar needs to be refreshed when user just selects
+            // paper size, orientation? That refresh must be prevented.
         },
         onRefresh: function (event) {
             if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist

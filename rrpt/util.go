@@ -17,6 +17,36 @@ func SetTableTitlePDF(pdfProps []*gotable.PDFProperty, title string) []*gotable.
 	return pdfProps
 }
 
+// SetPDFOption sets option to pdf properties,
+// if already exists then overwrites with provided value otherwise append new one
+func SetPDFOption(
+	pdfProps []*gotable.PDFProperty,
+	optionName string,
+	optionValue string,
+) []*gotable.PDFProperty {
+
+	var (
+		found  bool
+		newOpt = &gotable.PDFProperty{Option: optionName, Value: optionValue}
+	)
+
+	for index, opt := range pdfProps {
+		if opt.Option == optionName {
+			temp := append(pdfProps[:index], newOpt)
+			pdfProps = append(temp, pdfProps[index+1:]...)
+			found = true
+			break
+		}
+	}
+
+	// if not found in pdf props then make new and append it
+	if !found {
+		pdfProps = append(pdfProps, newOpt)
+	}
+
+	return pdfProps
+}
+
 // RRpdfProps are the pdf properties values for pdf report for rentroll software
 // pdf properties
 var RRpdfProps = []*gotable.PDFProperty{
@@ -25,7 +55,7 @@ var RRpdfProps = []*gotable.PDFProperty{
 	// custom dpi setting
 	{Option: "--dpi", Value: "512"},
 	// top margin
-	{Option: "-T", Value: "15"},
+	{Option: "--margin-top", Value: "15"},
 	// header font size
 	{Option: "--header-font-size", Value: "7"},
 	// header font
@@ -33,7 +63,7 @@ var RRpdfProps = []*gotable.PDFProperty{
 	// header spacing
 	{Option: "--header-spacing", Value: "3"},
 	// bottom margin
-	{Option: "-B", Value: "15"},
+	{Option: "--margin-bottom", Value: "15"},
 	// footer spacing
 	{Option: "--footer-spacing", Value: "5"},
 	// footer font
@@ -341,7 +371,7 @@ func MultiTableHTMLPrint(m []gotable.Table, w io.Writer) {
 }
 
 // MultiTablePDFPrint writes pdf output from each table to w io.Writer
-func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
+func MultiTablePDFPrint(m []gotable.Table, w io.Writer, paperSize string, orientation string) {
 	funcname := "MultiTablePDFPrint"
 
 	// TODO: how to handle multiple pdf writer
@@ -351,7 +381,10 @@ func MultiTablePDFPrint(m []gotable.Table, w io.Writer) {
 		temp := bytes.Buffer{}
 
 		// pdf props title
-		pdfProps := SetTableTitlePDF(RRpdfProps, m[i].Title)
+		pdfProps := RRpdfProps
+		pdfProps = SetPDFOption(pdfProps, "--header-center", m[i].Title)
+		pdfProps = SetPDFOption(pdfProps, "--orientation", orientation)
+		pdfProps = SetPDFOption(pdfProps, "--page-size", paperSize)
 
 		err := m[i].PDFprintTable(&temp, pdfProps)
 		if err != nil {

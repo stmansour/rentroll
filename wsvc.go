@@ -138,7 +138,12 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
 
 			// pdf props title
-			pdfProps := rrpt.SetTableTitlePDF(rrpt.RRpdfProps, tbl.Title)
+			pdfProps := rrpt.RRpdfProps
+
+			// get paper size and orientation, set title
+			pdfProps = rrpt.SetPDFOption(pdfProps, "--header-center", tbl.Title)
+			pdfProps = rrpt.SetPDFOption(pdfProps, "--orientation", ui.PDFOrientation)
+			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-size", ui.PDFPaperSize)
 
 			err := tbl.PDFprintTable(w, pdfProps)
 			if err != nil {
@@ -200,7 +205,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
-			rrpt.MultiTablePDFPrint(m, w)
+			rrpt.MultiTablePDFPrint(m, w, ui.PDFPaperSize, ui.PDFOrientation)
 			return
 		default:
 			fmt.Fprintf(w, "%s", "Unsupported format output of report")
@@ -307,6 +312,16 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 			rof = gotable.TABLEOUTHTML
 		}
 		ui.ReportOutputFormat = rof
+		// custom paper size
+		x, ok = m["paper_size"]
+		if ok && len(x[0]) > 0 {
+			ui.PDFPaperSize = x[0]
+		}
+		// custom orientation
+		x, ok = m["orientation"]
+		if ok && len(x[0]) > 0 {
+			ui.PDFOrientation = x[0]
+		}
 	}
 
 	v1ReportHandler(reportname, &xbiz, &ui, w)
