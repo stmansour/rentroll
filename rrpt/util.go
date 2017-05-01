@@ -10,14 +10,6 @@ import (
 	"time"
 )
 
-// SetTableTitlePDF sets pdf property for title at header center in list, for a table
-func SetTableTitlePDF(pdfProps []*gotable.PDFProperty, title string) []*gotable.PDFProperty {
-	pdfProps = append(pdfProps, &gotable.PDFProperty{
-		Option: "--header-center", Value: title,
-	})
-	return pdfProps
-}
-
 // SetPDFOption sets option to pdf properties,
 // if already exists then overwrites with provided value otherwise append new one
 func SetPDFOption(
