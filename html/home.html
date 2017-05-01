@@ -111,8 +111,8 @@ function exportReportPDF(rptname){
     url += '&dtstop=' + d;
     // now append the report output format
     url += '&rof=' + app.rof["pdf"];
-    // need to pass paper size
-    url += '&paper_size=' + w2ui.reportstoolbar.get('paper_size').selected;
+    // need to pass page size
+    url += '&page_size=' + w2ui.reportstoolbar.get('page_size').selected;
     // append orientation
     url += '&orientation=' + w2ui.reportstoolbar.get('orientation').selected;
     console.log('url = ' + url);
@@ -486,12 +486,12 @@ function buildPageElements() {
         { type: 'break' },
         { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'PDF' },
         { type: 'break' },
-        { type: 'menu-radio', id: 'paper_size', icon: 'fa fa-file-pdf-o',
-            tooltip: 'exported PDF paper size',
+        { type: 'menu-radio', id: 'page_size', icon: 'fa fa-file-pdf-o',
+            tooltip: 'exported PDF page size',
             text: function (item) {
             var text = item.selected;
-            var el   = this.get('paper_size:' + item.selected);
-            return 'Paper Size: ' + el.text;
+            var el   = this.get('page_size:' + item.selected);
+            return 'Page Size: ' + el.text;
             },
             selected: 'A4',
             items: [
@@ -548,8 +548,8 @@ function buildPageElements() {
         name: 'reportstoolbar',
         items: tmp,
         onClick: function (event) {
-            if (event.target == "paper_size") {
-                console.log("Paper size selected");
+            if (event.target == "page_size") {
+                console.log("Page size selected");
             }
             else if (event.target == "orientation") {
                 console.log("orientation selected");

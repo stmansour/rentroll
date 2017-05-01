@@ -142,10 +142,10 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			// pdf props title
 			pdfProps := rrpt.RRpdfProps
 
-			// get paper size and orientation, set title
+			// get page size and orientation, set title
 			pdfProps = rrpt.SetPDFOption(pdfProps, "--header-center", tbl.Title)
 			pdfProps = rrpt.SetPDFOption(pdfProps, "--orientation", ui.PDFOrientation)
-			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-size", ui.PDFPaperSize)
+			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-size", ui.PDFPageSize)
 
 			err := tbl.PDFprintTable(w, pdfProps)
 			if err != nil {
@@ -184,10 +184,12 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		// format downloadable report name
 		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tmh.ReportNames[1])
 		if !ri.D1.IsZero() {
-			attachmentName += "-From" + ri.D1.Format("2006-JAN-01")
+			fromDate := rrpt.GetAttachmentDate(ri.D1)
+			attachmentName += "-From" + fromDate
 		}
 		if !ri.D2.IsZero() {
-			attachmentName += "To" + ri.D2.Format("2006-JAN-01")
+			toDate := rrpt.GetAttachmentDate(ri.D2)
+			attachmentName += "To" + toDate
 		}
 
 		switch ui.ReportOutputFormat {
@@ -207,7 +209,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
-			rrpt.MultiTablePDFPrint(m, w, ui.PDFPaperSize, ui.PDFOrientation)
+			rrpt.MultiTablePDFPrint(m, w, ui.PDFPageSize, ui.PDFOrientation)
 			return
 		default:
 			fmt.Fprintf(w, "%s", "Unsupported format output of report")
@@ -314,10 +316,10 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 			rof = gotable.TABLEOUTHTML
 		}
 		ui.ReportOutputFormat = rof
-		// custom paper size
-		x, ok = m["paper_size"]
+		// custom page size
+		x, ok = m["page_size"]
 		if ok && len(x[0]) > 0 {
-			ui.PDFPaperSize = x[0]
+			ui.PDFPageSize = x[0]
 		}
 		// custom orientation
 		x, ok = m["orientation"]

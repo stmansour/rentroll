@@ -364,7 +364,7 @@ func MultiTableHTMLPrint(m []gotable.Table, w io.Writer) {
 }
 
 // MultiTablePDFPrint writes pdf output from each table to w io.Writer
-func MultiTablePDFPrint(m []gotable.Table, w io.Writer, paperSize string, orientation string) {
+func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pageSize string, orientation string) {
 	funcname := "MultiTablePDFPrint"
 
 	// TODO: how to handle multiple pdf writer
@@ -377,7 +377,7 @@ func MultiTablePDFPrint(m []gotable.Table, w io.Writer, paperSize string, orient
 		pdfProps := RRpdfProps
 		pdfProps = SetPDFOption(pdfProps, "--header-center", m[i].Title)
 		pdfProps = SetPDFOption(pdfProps, "--orientation", orientation)
-		pdfProps = SetPDFOption(pdfProps, "--page-size", paperSize)
+		pdfProps = SetPDFOption(pdfProps, "--page-size", pageSize)
 
 		err := m[i].PDFprintTable(&temp, pdfProps)
 		if err != nil {

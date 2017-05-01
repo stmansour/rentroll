@@ -34,7 +34,7 @@ type RRuiSupport struct {
 	ReportContent      string          // text report content
 	PageTitle          string          // set page title via software
 	ReportOutputFormat int
-	PDFPaperSize       string // custom paper size
+	PDFPageSize        string // custom page size
 	PDFOrientation     string // orientation
 }
 
