@@ -61,7 +61,7 @@ var app = {
     pdfPageWidth: 8.5, // defaults to USLetter Portrait width
     pdfPageHeight: 11, // defaults to USLetter Portrait height
     pageSizes: {
-        "USLetter": { "w":8.5, "h": 11 },
+        "USLetter": { "w": 8.5, "h": 11 },
         "Legal": { "w": 8.5, "h": 14 },
         "Ledger": { "w": 11, "h": 17 },
     },
@@ -100,8 +100,8 @@ function popupPDFCustomDimensions() {
     w2popup.open({
         title     : 'PDF custom width and height',
         body      : '<div class="w2ui-centered">' +
-            '<div class="w2ui-field"><label>Page Width (inch): </label><div><input type="text" name="custom_pdf_width" class="w2ui-input" /></div></div>' +
-            '<div class="w2ui-field"><label>Page Height (inch): </label><div><input type="text" name="custom_pdf_height"  class="w2ui-input" /></div></div>' +
+            '<div class="w2ui-field"><label>Page Width (inch): </label><div><input type="text" name="custom_pdf_width" class="w2ui-input" value="'+app.pdfPageWidth+'" /></div></div>' +
+            '<div class="w2ui-field"><label>Page Height (inch): </label><div><input type="text" name="custom_pdf_height"  class="w2ui-input" value="'+app.pdfPageHeight+'" /></div></div>' +
             '</div>',
         buttons   : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
                     '<button class="w2ui-btn" onclick="saveCustomDims();" >Save</button>',
@@ -523,7 +523,7 @@ function buildPageElements() {
         { type: 'break',  id: 'break2' },
         { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
         { type: 'break' },
-        { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'PDF' },
+        { type: 'button', id: 'printreport', icon: 'fa fa-print', tooltip: 'export to PDF' },
         { type: 'break' },
         { type: 'menu-radio', id: 'page_size', icon: 'fa fa-file-pdf-o',
             tooltip: 'exported PDF page size',
@@ -538,8 +538,8 @@ function buildPageElements() {
             selected: 'USLetter',
             items: [
                 { id: 'USLetter', text: 'US Letter (8.5 x 11 in)'},
-                { id: 'Ledger', text: 'Ledger (8.5 x 14 in)'},
-                { id: 'Legal', text: 'Legal (11 x 17 in)'},
+                { id: 'Legal', text: 'Legal (8.5 x 14 in)'},
+                { id: 'Ledger', text: 'Ledger (11 x 17 in)'},
                 { id: 'Custom', text: 'Custom'},
             ]
         },
