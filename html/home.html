@@ -579,7 +579,7 @@ function buildPageElements() {
             // var sel = this.getSelection(true);
             event.onComplete = function () {
                 // var x = this.get; Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
-                var sel = this.getSelection(true);
+                var sel = this.getSelection();
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; ++i) {
                         var ob = this.get(sel[i]);
@@ -915,7 +915,7 @@ function buildPageElements() {
         onClick: function(event) {
             //var sel = this.getSelection(true);
             event.onComplete = function () {
-                var sel = this.getSelection(true);
+                var sel = this.getSelection();
                 console.log('Get Selection: Rental Agreement');
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
