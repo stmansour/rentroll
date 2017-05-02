@@ -526,7 +526,7 @@ function buildPageElements() {
         { type: 'menu-radio', id: 'page_size', icon: 'fa fa-print',
             tooltip: 'exported PDF page size',
             text: function (item) {
-            //var text = item.selected;   
+            //var text = item.selected;
             var el   = this.get('page_size:' + item.selected);
             if (item.selected == "Custom") {
                 popupPDFCustomDimensions();
@@ -964,6 +964,8 @@ function buildPageElements() {
             // set options for 'RentableType' in rentableForm when event complete
             event.onComplete = function () {
                 w2ui.rentableForm.set("RentableType",{options: {items: items, selected: selected, maxDropHeight: 200}});
+                // must call refresh when form field has been set
+                w2ui.rentableForm.refresh();
             };
         },
         onRefresh: function(/*event*/) {
