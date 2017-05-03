@@ -1,7 +1,6 @@
 package rrpt
 
 import (
-	"bytes"
 	"fmt"
 	"gotable"
 	"io"
@@ -97,6 +96,7 @@ type SingleTableReportHandler struct {
 
 // MultiTableReportHandler : multi table report handler, used to get report from multiple tables in a required output format
 type MultiTableReportHandler struct {
+	ReportTitle  string
 	Found        bool
 	ReportNames  []string
 	TableHandler func(*ReporterInfo) []gotable.Table
@@ -301,98 +301,19 @@ func getRRTable() gotable.Table {
 	return tbl
 }
 
-// MultiTableTextPrint writes text output from each table to w io.Writer
-func MultiTableTextPrint(m []gotable.Table, w io.Writer) {
-	funcname := "MultiTableTextPrint"
-
-	for i := 0; i < len(m); i++ {
-		temp := bytes.Buffer{}
-		err := m[i].TextprintTable(&temp)
-		if err != nil {
-			s := fmt.Sprintf("Error at %s in t.TextprintTable: %s\n", funcname, err.Error())
-			fmt.Print(s)
-			fmt.Fprintf(w, "%s\n", s)
-		}
-		temp.WriteByte('\n')
-		w.Write(temp.Bytes())
-	}
-}
-
-// MultiTableCSVPrint writes csv output from each table to w io.Writer
-func MultiTableCSVPrint(m []gotable.Table, w io.Writer) {
-	funcname := "MultiTableCSVPrint"
-
-	// TODO: how to handle multiple csv writer
-	// add one line between reports??
-
-	for i := 0; i < len(m); i++ {
-		temp := bytes.Buffer{}
-		err := m[i].CSVprintTable(&temp)
-		if err != nil {
-			s := fmt.Sprintf("Error at %s in t.CSVprintTable: %s\n", funcname, err.Error())
-			fmt.Print(s)
-			fmt.Fprintf(w, "%s\n", s)
-		}
-		temp.WriteByte('\n')
-		w.Write(temp.Bytes())
-	}
-}
-
-// MultiTableHTMLPrint writes html output from each table to w io.Writer
-func MultiTableHTMLPrint(m []gotable.Table, w io.Writer) {
-	funcname := "MultiTableHTMLPrint"
-
-	for i := 0; i < len(m); i++ {
-
-		// set custom template for reports
-		if i == 0 {
-			// set first table layout template
-			m[i].SetHTMLTemplate("./html/firsttable.html")
-		} else if i == len(m)-1 {
-			// set last table layout template
-			m[i].SetHTMLTemplate("./html/lasttable.html")
-		} else {
-			// set middle table layout template
-			m[i].SetHTMLTemplate("./html/middletable.html")
-		}
-
-		temp := bytes.Buffer{}
-		err := m[i].HTMLprintTable(&temp)
-		if err != nil {
-			s := fmt.Sprintf("Error at %s in t.HTMLprintTable: %s\n", funcname, err.Error())
-			fmt.Print(s)
-			fmt.Fprintf(w, "%s\n", s)
-		}
-		w.Write(temp.Bytes())
-	}
-}
-
 // MultiTablePDFPrint writes pdf output from each table to w io.Writer
-func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pdfPageWidth float64, pdfPageHeight float64, pdfPageSizeUnit string) {
-	funcname := "MultiTablePDFPrint"
+func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pdfTitle string, pdfPageWidth float64, pdfPageHeight float64, pdfPageSizeUnit string) {
 
-	// TODO: how to handle multiple pdf writer
-	// zip multiple files on one files??
+	// pdf props title
+	pdfProps := RRpdfProps
+	pdfProps = SetPDFOption(pdfProps, "--header-center", pdfTitle)
+	pw := rlib.Float64ToString(pdfPageWidth) + pdfPageSizeUnit
+	pdfProps = SetPDFOption(pdfProps, "--page-width", pw)
+	ph := rlib.Float64ToString(pdfPageHeight) + pdfPageSizeUnit
+	pdfProps = SetPDFOption(pdfProps, "--page-height", ph)
 
-	for i := 0; i < len(m); i++ {
-		temp := bytes.Buffer{}
+	gotable.MultiTablePDFPrint(m, w, pdfProps)
 
-		// pdf props title
-		pdfProps := RRpdfProps
-		pdfProps = SetPDFOption(pdfProps, "--header-center", m[i].Title)
-		pdfPageWidth := rlib.Float64ToString(pdfPageWidth) + pdfPageSizeUnit
-		pdfProps = SetPDFOption(pdfProps, "--page-width", pdfPageWidth)
-		pdfPageHeight := rlib.Float64ToString(pdfPageHeight) + pdfPageSizeUnit
-		pdfProps = SetPDFOption(pdfProps, "--page-height", pdfPageHeight)
-
-		err := m[i].PDFprintTable(&temp, pdfProps)
-		if err != nil {
-			s := fmt.Sprintf("Error at %s in t.PDFprintTable: %s\n", funcname, err.Error())
-			fmt.Print(s)
-			fmt.Fprintf(w, "%s\n", s)
-		}
-		w.Write(temp.Bytes())
-	}
 }
 
 // GetAttachmentDate used to get date for attachements served over web

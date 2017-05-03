@@ -68,9 +68,9 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 
 	// handler for reports which has more than one table
 	var wmr = []rrpt.MultiTableReportHandler{
-		{ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable},
-		{ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
-		{ReportNames: []string{"RPTstatements", "report statements"}, TableHandler: rrpt.RptStatementReportTable},
+		{ReportTitle: "Ledger", ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable},
+		{ReportTitle: "Ledger Activity", ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
+		{ReportTitle: "Report Statements", ReportNames: []string{"RPTstatements", "report statements"}, TableHandler: rrpt.RptStatementReportTable},
 	}
 
 	// find reportname from list of report handler
@@ -198,20 +198,33 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		case gotable.TABLEOUTTEXT:
 			w.Header().Set("Content-Type", "text/plain")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".text")
-			rrpt.MultiTableTextPrint(m, w)
+			gotable.MultiTableTextPrint(m, w)
 			return
 		case gotable.TABLEOUTHTML:
-			rrpt.MultiTableHTMLPrint(m, w)
+			gotable.MultiTableHTMLPrint(m, w)
 			return
 		case gotable.TABLEOUTCSV:
 			w.Header().Set("Content-Type", "text/csv")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".csv")
-			rrpt.MultiTableCSVPrint(m, w)
+			gotable.MultiTableCSVPrint(m, w)
 			return
 		case gotable.TABLEOUTPDF:
 			w.Header().Set("Content-Type", "application/pdf")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
-			rrpt.MultiTablePDFPrint(m, w, ui.PDFPageWidth, ui.PDFPageHeight, ui.PDFPageSizeUnit)
+
+			var pdfTitle string
+			pdfTitle += tmh.ReportTitle
+
+			if !ri.D1.IsZero() {
+				fromDate := rrpt.GetAttachmentDate(ri.D1)
+				pdfTitle += " From " + fromDate
+			}
+			if !ri.D2.IsZero() {
+				toDate := rrpt.GetAttachmentDate(ri.D2)
+				pdfTitle += " To " + toDate
+			}
+
+			rrpt.MultiTablePDFPrint(m, w, pdfTitle, ui.PDFPageWidth, ui.PDFPageHeight, ui.PDFPageSizeUnit)
 			return
 		default:
 			fmt.Fprintf(w, "%s", "Unsupported format output of report")

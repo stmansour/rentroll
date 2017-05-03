@@ -197,7 +197,7 @@ func GetPeopleCSVRow(
 		// Add description to Notes field of people
 		if peopleField.Name == "Notes" {
 			des := roomkeyNotesPrefix + strconv.Itoa(rowIndex) + "." + descriptionFieldSep
-			des += "Res. Id:" + roomKeyRow.ResID + "."
+			des += "Res:" + roomKeyRow.Res + "."
 			if roomKeyRow.Description != "" {
 				des += descriptionFieldSep + strings.TrimSpace(roomKeyRow.Description)
 			}

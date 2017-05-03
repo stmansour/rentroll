@@ -19,11 +19,11 @@ type CSVFieldMap struct {
 // to csv columns, used to refer columns from struct fields
 var csvColumnFieldMap = map[string]string{
 	"guest":              "Guest",
-	"resid":              "ResID",
+	"res":                "Res",
 	"dateres":            "DateRes",
 	"datein":             "DateIn",
 	"dateout":            "DateOut",
-	"adults":             "Adults",
+	"adult":              "Adult",
 	"child":              "Child",
 	"room":               "Room",
 	"roomtype":           "RoomType",
@@ -37,11 +37,11 @@ var csvColumnFieldMap = map[string]string{
 type CSVRow struct {
 	Guest          string
 	Description    string
-	ResID          string
+	Res            string
 	DateRes        string
 	DateIn         string
 	DateOut        string
-	Adults         string
+	Adult          string
 	Child          string
 	Room           string
 	RoomType       string
@@ -57,11 +57,11 @@ func getCSVHeadersIndexMap() map[string]int {
 	// csvHeadersIndex holds the map of headers with its index
 	csvHeadersIndex := map[string]int{
 		"Guest":          -1,
-		"ResID":          -1,
+		"Res":            -1,
 		"DateRes":        -1,
 		"DateIn":         -1,
 		"DateOut":        -1,
-		"Adults":         -1,
+		"Adult":          -1,
 		"Child":          -1,
 		"Room":           -1,
 		"RoomType":       -1,
