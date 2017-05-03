@@ -745,6 +745,14 @@ func GetLedgerByGLNo(bid int64, s string) GLAccount {
 	return a
 }
 
+// GetLedgerByName returns the GLAccount struct for the supplied Name
+func GetLedgerByName(bid int64, s string) GLAccount {
+	var a GLAccount
+	row := RRdb.Prepstmt.GetLedgerByName.QueryRow(bid, s)
+	ReadGLAccount(row, &a)
+	return a
+}
+
 // GetLedgerByType returns the GLAccount struct for the supplied Type
 func GetLedgerByType(bid, t int64) GLAccount {
 	var a GLAccount

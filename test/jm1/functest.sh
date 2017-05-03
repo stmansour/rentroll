@@ -14,6 +14,7 @@ echo "BEGIN JM1 FUNCTIONAL TEST" >>${LOGFILE}
 #========================================================================================
 docsvtest "a" "-b business.csv -L 3" "Business"
 docsvtest "b" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
+docsvtest "ar" "-ar ar.csv" "AccountRules"
 docsvtest "c" "-m depmeth.csv -L 23,${BUD}" "DepositMethods"
 docsvtest "d" "-d depository.csv -L 18,${BUD}" "Depositories"
 docsvtest "e" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"

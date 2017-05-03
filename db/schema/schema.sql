@@ -585,7 +585,7 @@ CREATE TABLE AR (
     ARID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    ARType SMALLINT NOT NULL DEFAULT 0,                    -- Assessment = 0, Receipt = 1
+    ARType SMALLINT NOT NULL DEFAULT 0,                     -- Assessment = 0, Receipt = 1
     DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
     CreditLID BIGINT NOT NULL DEFAULT 0,                    -- Ledger ID of crdit part
     Description VARCHAR(1024) NOT NULL DEFAULT '',
