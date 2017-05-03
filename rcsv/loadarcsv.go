@@ -84,25 +84,39 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------
 	// Get the Debit account
 	//----------------------------------------------------------------
-	b.DebitLID, err = rlib.IntFromString(sa[DebitLID], "Invalid DebitLID")
-	if err != nil || b.DebitLID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid GLAccountID: %s", funcname, lineno, sa[DebitLID])
+	b.DebitLID, err = rlib.IntFromString(sa[DebitLID], "Invalid DebitLID") // first see if it is a LID
+	if err == nil && b.DebitLID > 0 {
+		gl := rlib.GetLedger(b.DebitLID)
+		if gl.LID == 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with ID = %d", funcname, lineno, b.DebitLID)
+		}
+	} else {
+		l := rlib.GetLedgerByName(b.BID, sa[DebitLID])
+		if l.LID > 0 {
+			b.DebitLID = l.LID
+		}
 	}
-	gl := rlib.GetLedger(b.DebitLID)
-	if gl.LID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with ID = %d", funcname, lineno, b.DebitLID)
+	if b.DebitLID == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not find GLAccount for = %s", funcname, lineno, sa[DebitLID])
 	}
 
 	//----------------------------------------------------------------
 	// Get the Credit account
 	//----------------------------------------------------------------
 	b.CreditLID, err = rlib.IntFromString(sa[CreditLID], "Invalid CreditLID")
-	if err != nil || b.CreditLID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid GLAccountID: %s", funcname, lineno, sa[CreditLID])
+	if err == nil || b.CreditLID > 0 {
+		gl := rlib.GetLedger(b.CreditLID)
+		if gl.LID == 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with ID = %d", funcname, lineno, b.CreditLID)
+		}
+	} else {
+		l := rlib.GetLedgerByName(b.BID, sa[CreditLID])
+		if l.LID > 0 {
+			b.CreditLID = l.LID
+		}
 	}
-	gl = rlib.GetLedger(b.CreditLID)
-	if gl.LID == 0 {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with ID = %d", funcname, lineno, b.CreditLID)
+	if b.CreditLID == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid GLAccountID: %s", funcname, lineno, sa[CreditLID])
 	}
 
 	//----------------------------------------------------------------

@@ -11,27 +11,27 @@ import (
 //  ACCOUNT DEPOSITORY
 //=======================================================
 
-// GetAccountDepository reads a AccountDepository the structure for the supplied id
-func GetAccountDepository(id int64) (AccountDepository, error) {
-	var a AccountDepository
-	row := RRdb.Prepstmt.GetAccountDepository.QueryRow(id)
-	err := ReadAccountDepository(row, &a)
-	return a, err
-}
+// // GetAccountDepository reads a AccountDepository the structure for the supplied id
+// func GetAccountDepository(id int64) (AccountDepository, error) {
+// 	var a AccountDepository
+// 	row := RRdb.Prepstmt.GetAccountDepository.QueryRow(id)
+// 	err := ReadAccountDepository(row, &a)
+// 	return a, err
+// }
 
-// GetAllAccountDepositories reads all Pet records for the supplied rental agreement id
-func GetAllAccountDepositories(raid int64) []AccountDepository {
-	rows, err := RRdb.Prepstmt.GetAllAccountDepositories.Query(raid)
-	Errcheck(err)
-	defer rows.Close()
-	var t []AccountDepository
-	for i := 0; rows.Next(); i++ {
-		var a AccountDepository
-		ReadAccountDepositories(rows, &a)
-		t = append(t, a)
-	}
-	return t
-}
+// // GetAllAccountDepositories reads all Pet records for the supplied rental agreement id
+// func GetAllAccountDepositories(raid int64) []AccountDepository {
+// 	rows, err := RRdb.Prepstmt.GetAllAccountDepositories.Query(raid)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	var t []AccountDepository
+// 	for i := 0; rows.Next(); i++ {
+// 		var a AccountDepository
+// 		ReadAccountDepositories(rows, &a)
+// 		t = append(t, a)
+// 	}
+// 	return t
+// }
 
 //=======================================================
 //  AR
@@ -741,6 +741,14 @@ func GetLedgerEntryByJAID(bid, lid, jaid int64) LedgerEntry {
 func GetLedgerByGLNo(bid int64, s string) GLAccount {
 	var a GLAccount
 	row := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s)
+	ReadGLAccount(row, &a)
+	return a
+}
+
+// GetLedgerByName returns the GLAccount struct for the supplied Name
+func GetLedgerByName(bid int64, s string) GLAccount {
+	var a GLAccount
+	row := RRdb.Prepstmt.GetLedgerByName.QueryRow(bid, s)
 	ReadGLAccount(row, &a)
 	return a
 }

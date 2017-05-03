@@ -89,7 +89,7 @@ function exportReportCSV(rptname){
     // console.log('d2 = ' + d);
     url += '&dtstop=' + d;
     // now append the report output format
-    url += '&rof=' + app.rof["csv"];
+    url += '&rof=' + app.rof.csv;
     console.log('url = ' + url);
     // open separate window
     window.open(url);
@@ -121,11 +121,11 @@ function saveCustomDims() {
     var width = parseFloat($("input[name='custom_pdf_width']").val());
     if (!isNaN(width)) {
         app.pdfPageWidth = width;
-    };
+    }
     var height = parseFloat($("input[name='custom_pdf_height']").val());
     if (!isNaN(height)) {
         app.pdfPageHeight = height;
-    };
+    }
     w2popup.close();
 }
 
@@ -151,7 +151,7 @@ function exportReportPDF(rptname){
     // console.log('d2 = ' + d);
     url += '&dtstop=' + d;
     // now append the report output format
-    url += '&rof=' + app.rof["pdf"];
+    url += '&rof=' + app.rof.pdf;
     // need to pass page width and height
     url += '&pw=' + app.pdfPageWidth + "&ph=" + app.pdfPageHeight;
     console.log('url = ' + url);
@@ -421,7 +421,7 @@ function buildPageElements() {
                     { id: 'accounts', text: 'Chart Of Accounts',   icon: 'fa fa-list' },
                     { id: 'pmts',     text: 'Payment Types',       icon: 'fa fa-credit-card' },
                     { id: 'dep',      text: 'Depositories',        icon: 'fa fa-university' },
-                    { id: 'ar',      text: 'Assessments/Receipts',icon: 'fa fa-cogs' },
+                    { id: 'ars',      text: 'Assessments/Receipts',icon: 'fa fa-cogs' },
                 ]
             },
         ],
@@ -452,7 +452,7 @@ function buildPageElements() {
                 case 'asms':
                 case 'pmts':
                 case 'dep':
-                case 'ar':
+                case 'ars':
                     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
                     break;
@@ -2072,11 +2072,11 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          COP - Charge Or Payment
+    //          Account Rules
     //------------------------------------------------------------------------
     $().w2grid({
-        name: 'arGrid',
-        url: '/v1/ar',
+        name: 'arsGrid',
+        url: '/v1/ars',
         show: {
             toolbar        : true,
             footer         : true,
@@ -2094,23 +2094,13 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'COP',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
+            {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'Name',        hidden: false, caption: 'Name',  size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
-            {field: 'COPType',     hidden: false, caption: app.sAssessment+'/'+app.sReceipt,
-                size: '150px',
-                editable: { type: 'select', items: app.arList},
-                stortable: true, style: 'text-align: center',
-                render: function (record, index, col_index) {
-                            var html = '';
-                            for (var p in app.arList) {
-                                if (app.arList[p].id == this.getCellValue(index, col_index)) html = app.arList[p].text;
-                            }
-                            return html;
-                        }
-            },
-            {field: 'DebitLID',    hidden: false, caption: 'Debit',         size: '20%', stortable: true, style: 'text-align: center'},
-            {field: 'CreditLID',   hidden: false, caption: 'Credit',        size: '20%', stortable: true, style: 'text-align: left'},
+            {field: 'DebitLID',    hidden: false, caption: 'Debit',         size: '50px', stortable: true, style: 'text-align: center'},
+            {field: 'CreditLID',   hidden: false, caption: 'Credit',        size: '50px', stortable: true, style: 'text-align: left'},
+            {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
+            {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'Description', hidden: false, caption: 'Description',   size: '20%', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
         ],
     });

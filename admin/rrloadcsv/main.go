@@ -292,7 +292,6 @@ func main() {
 		{Fname: App.PetFile, Handler: rcsv.LoadPetsCSV},
 		{Fname: App.CoaFile, Handler: rcsv.LoadChartOfAccountsCSV},
 		{Fname: App.ARFile, Handler: rcsv.LoadARCSV},
-		{Fname: App.AcctDep, Handler: rcsv.LoadAccountDepositoryCSV},
 		{Fname: App.RPFile, Handler: rcsv.LoadRatePlansCSV},
 		{Fname: App.RPRefFile, Handler: rcsv.LoadRatePlanRefsCSV},
 		{Fname: App.RPRRTRateFile, Handler: rcsv.LoadRatePlanRefRTRatesCSV},
@@ -340,7 +339,6 @@ func main() {
 		{ReportNo: 26, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
 		{ReportNo: 27, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
 		{ReportNo: 28, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
-		{ReportNo: 29, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.AccountDepository},
 	}
 
 	if len(App.Report) > 0 {

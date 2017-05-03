@@ -626,6 +626,8 @@ type AR struct {
 	DebitLID    int64
 	CreditLID   int64
 	Description string
+	DtStart     time.Time
+	DtStop      time.Time
 	LastModTime time.Time
 	LastModBy   int64
 }
@@ -1290,6 +1292,7 @@ type RRprepSQL struct {
 	InsertAR                             *sql.Stmt
 	UpdateAR                             *sql.Stmt
 	DeleteAR                             *sql.Stmt
+	GetLedgerByName                      *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt
