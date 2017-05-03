@@ -11,27 +11,27 @@ import (
 //  ACCOUNT DEPOSITORY
 //=======================================================
 
-// GetAccountDepository reads a AccountDepository the structure for the supplied id
-func GetAccountDepository(id int64) (AccountDepository, error) {
-	var a AccountDepository
-	row := RRdb.Prepstmt.GetAccountDepository.QueryRow(id)
-	err := ReadAccountDepository(row, &a)
-	return a, err
-}
+// // GetAccountDepository reads a AccountDepository the structure for the supplied id
+// func GetAccountDepository(id int64) (AccountDepository, error) {
+// 	var a AccountDepository
+// 	row := RRdb.Prepstmt.GetAccountDepository.QueryRow(id)
+// 	err := ReadAccountDepository(row, &a)
+// 	return a, err
+// }
 
-// GetAllAccountDepositories reads all Pet records for the supplied rental agreement id
-func GetAllAccountDepositories(raid int64) []AccountDepository {
-	rows, err := RRdb.Prepstmt.GetAllAccountDepositories.Query(raid)
-	Errcheck(err)
-	defer rows.Close()
-	var t []AccountDepository
-	for i := 0; rows.Next(); i++ {
-		var a AccountDepository
-		ReadAccountDepositories(rows, &a)
-		t = append(t, a)
-	}
-	return t
-}
+// // GetAllAccountDepositories reads all Pet records for the supplied rental agreement id
+// func GetAllAccountDepositories(raid int64) []AccountDepository {
+// 	rows, err := RRdb.Prepstmt.GetAllAccountDepositories.Query(raid)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	var t []AccountDepository
+// 	for i := 0; rows.Next(); i++ {
+// 		var a AccountDepository
+// 		ReadAccountDepositories(rows, &a)
+// 		t = append(t, a)
+// 	}
+// 	return t
+// }
 
 //=======================================================
 //  AR
