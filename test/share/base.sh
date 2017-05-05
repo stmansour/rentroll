@@ -870,6 +870,74 @@ dojsonGET () {
 	rm -f qqx qqy
 }
 
+########################################
+# doPlainGET()
+#   Simulate a GET command to the server and use
+#   the supplied file name as the json data
+#	Parameters:
+# 		$1 = url
+# 		$2 = base file name
+#		$3 = title
+########################################
+doPlainGET () {
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} ${2} ${3}
+	CMD="curl -s ${1}"
+	${CMD} > ${2} 2>>${LOGFILE}
+
+	if [ "${FORCEGOOD}" = "1" ]; then
+		cp ${2} ${GOLD}/${2}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f ${GOLD}/${2}.gold ]; then
+			echo "UNSET CONTENT" > ${GOLD}/${2}.gold
+			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
+		fi
+
+		#--------------------------------------------------------------------
+		# The actual data has timestamp information that changes every run.
+		# The timestamp can be filtered out for purposes of testing whether
+		# or not the web service could be called and can return the expected
+		# data.
+		#--------------------------------------------------------------------
+		declare -a out_filters=(
+			's/(^[ \t]+"LastModTime":).*/$1 TIMESTAMP/'
+		)
+		cp gold/${2}.gold qqx
+		cp ${2} qqy
+		for f in "${out_filters[@]}"
+		do
+			perl -pe "$f" qqx > qqx1; mv qqx1 qqx
+			perl -pe "$f" qqy > qqy1; mv qqy1 qqy
+		done
+
+		UDIFFS=$(diff qqx qqy | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			if [ ${SHOWCOMMAND} -eq 1 ]; then
+				echo "PASSED	cmd: ${CMD}"
+			else
+				echo "PASSED"
+			fi
+		else
+			echo "FAILED..." >> ${ERRFILE}
+			echo "Differences in ${2} are as follows:" >> ${ERRFILE}
+			diff qqx qqy >> ${ERRFILE}
+			echo "If correct:  mv ${2} ${GOLD}/${2}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
+			cat ${ERRFILE}
+			failmsg
+			if [ ${MANAGESERVER} -eq 1 ]; then
+				echo "STOPPING RENTROLL SERVER"
+				pkill rentroll
+			fi
+			exit 1
+		fi
+	else
+		echo 
+	fi
+	rm -f qqx qqy
+}
+
 #--------------------------------------------------------------------------
 #  Handle command line options...
 #--------------------------------------------------------------------------

@@ -8,32 +8,6 @@ import (
 )
 
 //=======================================================
-//  ACCOUNT DEPOSITORY
-//=======================================================
-
-// // GetAccountDepository reads a AccountDepository the structure for the supplied id
-// func GetAccountDepository(id int64) (AccountDepository, error) {
-// 	var a AccountDepository
-// 	row := RRdb.Prepstmt.GetAccountDepository.QueryRow(id)
-// 	err := ReadAccountDepository(row, &a)
-// 	return a, err
-// }
-
-// // GetAllAccountDepositories reads all Pet records for the supplied rental agreement id
-// func GetAllAccountDepositories(raid int64) []AccountDepository {
-// 	rows, err := RRdb.Prepstmt.GetAllAccountDepositories.Query(raid)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	var t []AccountDepository
-// 	for i := 0; rows.Next(); i++ {
-// 		var a AccountDepository
-// 		ReadAccountDepositories(rows, &a)
-// 		t = append(t, a)
-// 	}
-// 	return t
-// }
-
-//=======================================================
 //  AR
 //=======================================================
 
@@ -53,10 +27,9 @@ func GetARByName(id int64, name string) (AR, error) {
 	return a, err
 }
 
-// GetAllARs reads all Pet records for the supplied rental agreement id
-func GetAllARs(raid int64) []AR {
-	rows, err := RRdb.Prepstmt.GetAllARs.Query(raid)
-	Errcheck(err)
+// GetARsForRows uses the supplied rows param, gets all the AR records
+// and returns them in a slice of AR structs
+func GetARsForRows(rows *sql.Rows) []AR {
 	defer rows.Close()
 	var t []AR
 	for i := 0; rows.Next(); i++ {
@@ -65,6 +38,20 @@ func GetAllARs(raid int64) []AR {
 		t = append(t, a)
 	}
 	return t
+}
+
+// GetAllARs reads all AccountRules for the supplied BID
+func GetAllARs(id int64) []AR {
+	rows, err := RRdb.Prepstmt.GetAllARs.Query(id)
+	Errcheck(err)
+	return GetARsForRows(rows)
+}
+
+// GetARsByType reads all AccountRules for the supplied BID of type artype
+func GetARsByType(id int64, artype int) []AR {
+	rows, err := RRdb.Prepstmt.GetARsByType.Query(id, artype)
+	Errcheck(err)
+	return GetARsForRows(rows)
 }
 
 //=======================================================

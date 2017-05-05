@@ -99,6 +99,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetARByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND Name=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetARsByType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND ARType=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllARs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=?")
 	Errcheck(err)
 

@@ -26,6 +26,9 @@ const (
 	ELEMRENTALAGREEMENT = 13
 	ELEMLAST            = 13 // keep in sync with last one added
 
+	ARASSESSMENT = 0
+	ARRECEIPT    = 1
+
 	// CUSTSTRING et al are Custom Attribute types
 	CUSTSTRING = 0
 	CUSTINT    = 1
@@ -1293,6 +1296,7 @@ type RRprepSQL struct {
 	UpdateAR                             *sql.Stmt
 	DeleteAR                             *sql.Stmt
 	GetLedgerByName                      *sql.Stmt
+	GetARsByType                         *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

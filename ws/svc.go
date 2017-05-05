@@ -112,6 +112,7 @@ type ServiceData struct {
 	Service       string               // the service requested (position 1)
 	BID           int64                // which business (position 2)
 	ID            int64                // the numeric id parsed from position 3
+	DetVal        string               // value of 3rd path element if present (it is not always a number)
 	UID           int64                // user id of requester
 	TCID          int64                // TCID if supplied
 	RAID          int64                // RAID if supplied
@@ -152,6 +153,7 @@ var Svcs = []ServiceHandler{
 	{"transactants", SvcSearchHandlerTransactants, true},
 	{"transactantstd", SvcTransactantTypeDown, true},
 	{"uilists", SvcUILists, false},
+	{"uival", SvcUIVal, false},
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -196,7 +198,8 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(pathElements) >= 4 {
-		d.ID, err = rlib.IntFromString(pathElements[3], "bad request integer value") // assume it's a BID
+		d.DetVal = pathElements[3]
+		d.ID, err = rlib.IntFromString(d.DetVal, "bad request integer value") // assume it's a BID
 		if err != nil {
 			d.ID = 0
 		}

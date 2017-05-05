@@ -128,6 +128,10 @@ dojsonPOST "http://localhost:8270/v1/pmts/1/1" "request" "y"  "WebService--Payme
 # get Rentable types list for a business
 dojsonGET "http://localhost:8270/v1/rtlist/2" "z" "WebService--GetRentableTypesForBusiness"
 
+# get UI Values...
+doPlainGET "http://localhost:8270/v1/uival/REX/app.Assessments" "a1" "WebService--GetUIValue-app.Assessments"
+doPlainGET "http://localhost:8270/v1/uival/REX/app.Receipts" "b1" "WebService--GetUIValue-app.Receipts"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
