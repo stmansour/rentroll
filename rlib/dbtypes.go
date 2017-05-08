@@ -614,7 +614,8 @@ type Assessment struct {
 	RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, G = quarterly, 8 = yearly
 	ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 	InvoiceNo      int64     // A uniqueID for the invoice number
-	AcctRule       string    // expression showing how to account for the amount
+	AcctRule       string    // override ARID with this account rule
+	ARID           int64     // reference to the account rule to use
 	Comment        string
 	LastModTime    time.Time
 	LastModBy      int64

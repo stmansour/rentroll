@@ -43,8 +43,8 @@ var app = {
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
-    Assessments: [],
-    Receipts: [],
+    Assessments: [{id: 0, text: "Set Assessment Rule"},],
+    Receipts: [{id: 1, text: "Set Payment Rule"},],
     language: "{{.Language}}",
     template: "{{.Template}}",
     pstyle: 'border: 1px solid #dfdfdf; padding: 0px;',
@@ -1411,6 +1411,7 @@ function buildPageElements() {
             }
         },
         onAdd: function (/*event*/) {
+            // Insert an empty record...
             var x = getCurrentBusiness();
             var BID=x.value;
             var BUD = getBUDfromBID(BID);
@@ -1639,6 +1640,56 @@ function buildPageElements() {
                 }
             };
         },
+        onAdd: function (/*event*/) {
+            var x = getCurrentBusiness();
+            $.get('/v1/uival/' + x.value + '/app.Assessments' )
+            .done( function(data) {
+                if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                    eval(data);
+                    w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
+                    w2ui.asmEpochForm.refresh();
+                    return;
+                }
+                if (data.status != 'success') {
+                    w2ui.asmEpochForm.message(data.message);
+                }
+            })
+            .fail( function() {
+                console.log('Error getting /v1/uilists');
+             });
+            // Insert an empty record...
+            var BID=x.value;
+            var BUD = getBUDfromBID(BID);
+            app.ridRentablePicker.BID = BID; // needed by typedown
+            var y = new Date();
+            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                var record = {
+                ARID: 0,
+                recid: 0,
+                RID: 0,
+                ASMID: 0,
+                PASMID: 0,
+                ATypeLID: 0,
+                RAID: 0,
+                BID: BUD,
+                Start: w2uiDateControlString(y),
+                Stop: w2uiDateControlString(y1),
+                RentCycle: 'Monthly',
+                ProrationCycle: 'Daily',
+                TCID: 0,
+                Amount: 0,
+                AcctRule: '',
+                Comment: '',
+                LastModTime: w2uiDateControlString(y),
+                LastModBy: 0,
+            };
+            w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+            w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
+            w2ui.asmEpochForm.record = record;
+            w2ui.toplayout.content('right', w2ui.asmEpochForm);
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.sizeTo('right', 400);
+        },
         onRequest: function(/*event*/) {
             w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
@@ -1661,6 +1712,101 @@ function buildPageElements() {
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
     });
 
+
+    //------------------------------------------------------------------------
+    //          asmEpochForm  -  assessment epoch
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'asmEpochForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: app.sAssessment + ' Detail',
+        url: '/v1/asm',
+        formURL: '/html/formasmepoch.html',
+        fields: [
+            { field: 'ARID',          type: 'list',   required: true, options:  {items: app.Assessments} },
+            { field: 'recid',         type: 'int',    required: false },
+            { field: 'ASMID',         type: 'int',    required: false },
+            { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
+            { field: 'PASMID',        type: 'w2int',  required: false },
+            { field: 'Rentable', required: true,  /* INDEX 5 -- if changed, then change URL for Typedown in asmsGrid onAdd handler */
+                type: 'enum',
+                options: {
+                    url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
+                    max:        1,
+                    cacheMax:   50,
+                    renderItem: ridRentablePickerRender,
+                    renderDrop: ridRentableDropRender,
+                    compare:    ridRentableCompare,
+                    onNew: function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { Rentable : event.item.text });
+                    }
+                },
+            },
+            { field: 'RID',           type: 'w2int',  required: true },
+            { field: 'ATypeLID',      type: 'w2int',  required: true },
+            { field: 'RAID',          type: 'w2int',  required: true },
+            { field: 'Amount',        type: 'money',  required: true },
+            { field: 'Start',         type: 'date',   required: true },
+            { field: 'Stop',          type: 'date',   required: true },
+            { field: 'RentCycle',     type: 'list',   options:  {items: app.cycleFreq}, required: true },
+            { field: 'ProrationCycle',type: 'list',   options:  {items: app.cycleFreq}, required: true },
+            { field: 'AcctRule',      type: 'text',   required: false },
+            { field: 'Comment',       type: 'text',   required: false },
+            { field: 'LastModTime',   type: 'hidden', required: false },
+            { field: 'LastModBy',     type: 'hidden', required: false },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    w2ui.toplayout.hide('right',true);
+                    break;
+                }
+            },
+        },
+        actions: {
+            save: function () {
+                //var obj = this;
+                w2ui.asmEpochForm.url = '/v1/asm/' + app.ridRentablePicker.BID + '/' + w2ui.asmEpochForm.record.RID;
+                var tgrid = w2ui.asmsGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.reload();
+                });
+
+            },
+            reset: function() {
+                var f = w2ui.asmEpochForm;
+                console.log('reset: ASMID = ' + f.record.ASMID );
+            }
+        },
+        onRefresh: function(/*event*/) {
+            var f = w2ui.asmEpochForm;
+            var r = f.record;
+            f.header = 'Edit ' + app.sAssessment + ' (' + r.ASMID + ')';
+            // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
+            if (!String.prototype.format) {
+                String.prototype.format = function() {
+                    var args = arguments;
+                    return this.replace(/{(\d+)}/g, function(match, number) {
+                        return typeof args[number] != 'undefined'? args[number] : match;
+                    });
+                };
+            }
+        }
+    });
 
     //------------------------------------------------------------------------
     //          asmInstForm  -  assessment instance
@@ -1746,84 +1892,6 @@ function buildPageElements() {
                 hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle, r.ProrationCycle);
             }
             document.getElementById("AssessmentEpochOrInstance").innerHTML = hdr;
-        }
-    });
-
-    //------------------------------------------------------------------------
-    //          asmEpochForm  -  assessment epoch
-    //------------------------------------------------------------------------
-    $().w2form({
-        name: 'asmEpochForm',
-        style: 'border: 0px; background-color: transparent;',
-        header: app.sAssessment + ' Detail',
-        url: '/v1/asm',
-        formURL: '/html/formasmepoch.html',
-        fields: [
-            { field: 'recid',         type: 'int',    required: false },
-            { field: 'ASMID',         type: 'int',    required: false },
-            { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
-            { field: 'PASMID',        type: 'w2int',   required: false },
-            { field: 'RID',           type: 'w2int',   required: false },
-            { field: 'ATypeLID',      type: 'w2int',  required: true },
-            { field: 'RAID',          type: 'w2int',  required: false },
-            { field: 'Amount',        type: 'money',  required: true },
-            { field: 'Start',         type: 'date',   required: true },
-            { field: 'Stop',          type: 'date',   required: true },
-            { field: 'RentCycle',     type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'ProrationCycle',type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'AcctRule',      type: 'text',   required: true },
-            { field: 'Comment',       type: 'text',   required: false },
-            { field: 'LastModTime',   type: 'hidden', required: false },
-            { field: 'LastModBy',     type: 'hidden', required: false },
-        ],
-        toolbar: {
-            items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
-            ],
-            onClick: function (event) {
-                switch(event.target) {
-                case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                }
-            },
-        },
-        actions: {
-            save: function () {
-                //var obj = this;
-                var tgrid = w2ui.asmsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
-                this.save({}, function (data) {
-                    if (data.status == 'error') {
-                        console.log('ERROR: '+ data.message);
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    tgrid.reload();
-                });
-
-            },
-            reset: function() {
-                var f = w2ui.asmInstForm;
-                console.log('reset: ASMID = ' + f.record.ASMID );
-            }
-        },
-        onRefresh: function(/*event*/) {
-            var f = w2ui.asmInstForm;
-            var r = f.record;
-            f.header = 'Edit ' + app.sAssessment + ' (' + r.ASMID + ')';
-            // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
-            if (!String.prototype.format) {
-                String.prototype.format = function() {
-                    var args = arguments;
-                    return this.replace(/{(\d+)}/g, function(match, number) {
-                        return typeof args[number] != 'undefined'? args[number] : match;
-                    });
-                };
-            }
         }
     });
 

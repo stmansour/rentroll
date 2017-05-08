@@ -17,7 +17,7 @@ func bidToBud(bid int64) string {
 func GetAssessmentList(bid int64) string {
 	s := ""
 	m := rlib.GetARsByType(bid, rlib.ARASSESSMENT)
-	s += fmt.Sprintf("app.Assessments['%s']=[", bidToBud(bid))
+	s += fmt.Sprintf("app.Assessments['%s']=[{id:0,text:%q},", bidToBud(bid), "Select Assessment Rule")
 	for i := 0; i < len(m); i++ {
 		s += fmt.Sprintf("{id:%d,text:%q},", m[i].ARType, m[i].Name)
 	}
@@ -28,7 +28,7 @@ func GetAssessmentList(bid int64) string {
 func GetReceiptList(bid int64) string {
 	s := ""
 	m := rlib.GetARsByType(bid, rlib.ARRECEIPT)
-	s += fmt.Sprintf("app.Receipts['%s']=[", bidToBud(bid))
+	s += fmt.Sprintf("app.Receipts['%s']=[{id:0,text:%q},", bidToBud(bid), "Select Receipt Rule")
 	for i := 0; i < len(m); i++ {
 		s += fmt.Sprintf("{id:%d,text:%q},", m[i].ARType, m[i].Name)
 	}

@@ -40,7 +40,7 @@ func InsertAR(a *AR) (int64, error) {
 // the ASMID field is set to its new value.
 func InsertAssessment(a *Assessment) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.Comment, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.Comment, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

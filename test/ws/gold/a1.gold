@@ -1,1 +1,1 @@
-app.Assessments['REX']=[{id:0,text:"Rent Non-Taxable"},];
+app.Assessments['REX']=[{id:0,text:"Select Assessment Rule"},{id:0,text:"Rent Non-Taxable"},];
