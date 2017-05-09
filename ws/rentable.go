@@ -507,7 +507,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		var rStatus int64
-		rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &rStatus, &gg.RSDtStart, &gg.RSDtStop)
+		rlib.Errcheck(rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &rStatus, &gg.RSDtStart, &gg.RSDtStop))
 
 		// convert status int to string, human readable
 		gg.RentableStatus = rlib.RentableStatusToString(rStatus)
