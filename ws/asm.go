@@ -13,11 +13,12 @@ import (
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
 // automatically populated from an rlib.Assessment struct.
 type AssessmentSendForm struct {
-	Recid  int64 `json:"recid"` // this is to support the w2ui form
-	ASMID  int64 // unique id for this assessment
-	BID    rlib.XJSONBud
-	PASMID int64
-	RID    int64
+	Recid    int64 `json:"recid"` // this is to support the w2ui form
+	ASMID    int64 // unique id for this assessment
+	BID      rlib.XJSONBud
+	PASMID   int64
+	RID      int64
+	Rentable string
 	// ATypeLID       int64
 	RAID           int64
 	Amount         float64
@@ -26,10 +27,10 @@ type AssessmentSendForm struct {
 	RentCycle      rlib.XJSONCycleFreq
 	ProrationCycle rlib.XJSONCycleFreq
 	InvoiceNo      int64
-	// AcctRule       string
-	Comment     string
-	LastModTime rlib.JSONTime
-	LastModBy   int64
+	AcctRule       string
+	Comment        string
+	LastModTime    rlib.JSONTime
+	LastModBy      int64
 }
 
 // AssessmentSaveForm is a structure specifically for the return value from w2ui.
@@ -69,7 +70,7 @@ type AssessmentGrid struct {
 	BID      int64  // which business
 	PASMID   int64  // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
 	RID      int64  // the Rentable
-	Rentable string // the Rentable
+	Rentable string // the RentableName
 	// ATypeLID  int64         // what type of assessment
 	RAID      int64           // associated Rental Agreement
 	Amount    float64         // how much
@@ -420,6 +421,23 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(w)
 }
 
+var asmFormSelectFields = []string{
+	"Assessments.PASMID",
+	"Assessments.RID",
+	"Rentable.RentableName",
+	"Assessments.RAID",
+	"Assessments.Amount",
+	"Assessments.Start",
+	"Assessments.Stop",
+	"Assessments.RentCycle",
+	"Assessments.ProrationCycle",
+	"Assessments.InvoiceNo",
+	"Assessments.AcctRule",
+	"Assessments.Comment",
+	"Assessments.LastModTime",
+	"Assessments.LastModBy",
+}
+
 // GetAssessment returns the requested assessment
 // wsdoc {
 //  @Title  Get Assessment
@@ -431,20 +449,65 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response GetAssessmentResponse
 // wsdoc }
 func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "getAssessment"
+
 	fmt.Printf("entered getAssessment\n")
-	var g GetAssessmentResponse
-	a, err := rlib.GetAssessment(d.ASMID)
-	if err != nil {
-		e := fmt.Errorf("%s: Error reading assessments: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
-		return
+	var (
+		g GetAssessmentResponse
+	)
+
+	asmQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Assessments
+	INNER JOIN Rentable ON Assessments.RID=Rentable.RID
+	WHERE {{.WhereClause}};`
+
+	// will be substituted as query clauses
+	qc := queryClauses{
+		"SelectClause": strings.Join(asmFormSelectFields, ","),
+		"WhereClause":  fmt.Sprintf("Assessments.BID=%d AND Assessments.ASMID=%d", d.BID, d.ASMID),
 	}
-	if a.ASMID > 0 {
+
+	// get formatted query with substitution of select, where, order clause
+	q := renderSQLQuery(asmQuery, qc)
+	fmt.Printf("db query = %s\n", q)
+
+	// execute the query
+	rows, err := rlib.RRdb.Dbrr.Query(q)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
 		var gg AssessmentSendForm
-		rlib.MigrateStructVals(&a, &gg)
+		gg.ASMID = d.ASMID
+
+		// get bud for BID field
+		for bud, bid := range rlib.RRdb.BUDlist {
+			if bid == d.BID {
+				gg.BID = rlib.XJSONBud(bud)
+				break
+			}
+		}
+
+		var rentCycle, prorationCycle int64
+
+		rlib.Errcheck(rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.AcctRule, &gg.Comment, &gg.LastModTime, &gg.LastModBy))
+
+		for freqStr, freqNo := range rlib.CycleFreqMap {
+			if rentCycle == freqNo {
+				gg.RentCycle = rlib.XJSONCycleFreq(freqStr)
+			}
+			if prorationCycle == freqNo {
+				gg.ProrationCycle = rlib.XJSONCycleFreq(freqStr)
+			}
+		}
+
 		g.Record = gg
 	}
+	// error check
+	rlib.Errcheck(rows.Err())
+
+	// write response
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }
