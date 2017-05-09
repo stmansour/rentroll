@@ -225,8 +225,8 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	// LastModBy      int64
 	// }
 
-	srch := `Assessments.BID = %d AND Assessments.Stop > %q AND Assessments.Start < %q`
-	srch = fmt.Sprintf(srch, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+	whr := `Assessments.BID = %d AND Assessments.Stop > %q AND Assessments.Start < %q`
+	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	order := `Start ASC, RAID ASC` // default ORDER
 
 	// get where clause and order clause for sql query
@@ -246,7 +246,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 
 	qc := queryClauses{
 		"SelectClause": strings.Join(asmQuerySelectFields, ","),
-		"WhereClause":  srch,
+		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
