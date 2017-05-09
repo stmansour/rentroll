@@ -71,7 +71,7 @@ type PrReceiptGrid struct {
 	Dt       rlib.JSONTime
 	DocNo    string // check number, money order number, etc.; documents the payment
 	Amount   float64
-	Payor    string          // name of the payor
+	Payor    rlib.NullString // name of the payor
 	ARID     int64           // which account rule
 	AcctRule rlib.NullString // expression showing how to account for the amount
 }
@@ -120,7 +120,7 @@ var receiptsFieldsMap = map[string][]string{
 	"Dt":       {"Receipt.Dt"},
 	"DocNo":    {"Receipt.DocNo"},
 	"Amount":   {"Receipt.Amount"},
-	"Payor":    {"Receipt.OtherPayorName"},
+	"Payor":    {"Transactant.FirstName", "Transactant.LastName"},
 	"ARID":     {"Receipt.ARID"},
 	"AcctRule": {"AR.Name"},
 }
@@ -134,7 +134,7 @@ var receiptsQuerySelectFields = []string{
 	"Receipt.Dt",
 	"Receipt.DocNo",
 	"Receipt.Amount",
-	"Receipt.OtherPayorName",
+	"CONCAT(Transactant.FirstName, ' ', Transactant.LastName) AS Payor",
 	"Receipt.ARID",
 	"AR.Name",
 }
@@ -172,6 +172,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	SELECT
 		{{.SelectClause}}
 	FROM Receipt
+	LEFT JOIN Transactant ON Receipt.TCID=Transactant.TCID
 	LEFT JOIN AR ON Receipt.ARID=AR.ARID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
