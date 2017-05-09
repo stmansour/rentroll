@@ -222,7 +222,7 @@ function switchToGrid(svc) {
         // need to set up Payment Type list -- varies by business
         var BUD = getBUDfromBID(x.value);
         app.paymentTypeList = buildPaymentTypeSelectList( BUD );
-        w2ui.receiptsGrid.columns[7].editable.items = app.paymentTypeList;
+        w2ui.receiptsGrid.columns[8].editable.items = app.paymentTypeList;
         break;
     }
     w2ui.toplayout.content('main', w2ui[grid]);
@@ -1363,11 +1363,12 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
             {field: 'RCPTID', caption: 'Receipt ID',  size: '80px', style: 'text-align: right', sortable: true},                // 1
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
-            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
-            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 4
-            {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 5
-            {field: 'TCID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},                                     // 6
-            {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true, editable: {type: 'select', items: []},     // 7 - if this changes, update switchToGrid()
+            {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false}, // 3
+            {field: 'AcctRule', caption: 'Account Rule',  size: '150px', sortable: true}, // 4
+            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 5
+            {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 6
+            {field: 'TCID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},                                     // 7
+            {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true, editable: {type: 'select', items: []},     // 8 - if this changes, update switchToGrid()
                     render: function (record, index, col_index) {
                         var html = '';
                         for (var p in app.paymentTypeList) {
@@ -1377,7 +1378,7 @@ function buildPageElements() {
                     },
             },
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
-            {field: 'ARID', caption: 'Account Rule',  size: '150px', sortable: true},
+            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
         ],
         actions: {
             save: function () {
@@ -1622,7 +1623,7 @@ function buildPageElements() {
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
-            {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: right', sortable: true},
+            {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
