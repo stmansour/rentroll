@@ -775,6 +775,7 @@ CREATE TABLE Receipt (
     DocNo VARCHAR(50) NOT NULL DEFAULT '',                      -- Check Number, MoneyOrder number, etc., the traceback for the payment
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
+    ARID BIGINT NOT NULL DEFAULT 0,                             -- identifies the account rule used
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written

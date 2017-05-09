@@ -286,7 +286,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveAssessment"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
-	fmt.Printf("d.ASMID = %d\n", d.ASMID)
 
 	var foo SaveAssessmentInput
 	data := []byte(d.data)
@@ -303,7 +302,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var a rlib.Assessment
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
-	fmt.Printf("Save: A\n")
 	//----------------------------------------------------------
 	// Now get the other variables and copy them into a...
 	//----------------------------------------------------------
@@ -315,8 +313,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("bar = %#v\n", bar)
-	fmt.Printf("Save: B\n")
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
 	if !ok {
@@ -325,7 +321,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("Save: C\n")
 	a.RentCycle = rlib.CycleFreqMap[bar.Record.RentCycle.ID]
 	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
 	a.ARID, err = rlib.IntFromString(bar.Record.ARID.ID, "Invalid ARID")
@@ -336,21 +331,17 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	fmt.Printf("Save: D\n")
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
 		// This is a new record
-		fmt.Printf("Save: E\n")
 		err = rlib.UpdateAssessment(&a)
 		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
 		_, err = rlib.InsertAssessment(&a)
 
 	} else {
-		fmt.Printf("Save: F\n")
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}
 	if err != nil {
-		fmt.Printf("Save: G\n")
 		e := fmt.Errorf("%s: Error saving assessment (ASMID=%d\n: %s", funcname, d.ASMID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return

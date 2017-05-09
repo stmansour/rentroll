@@ -1,6 +1,6 @@
 {
     "record": {
-        "AcctRule": "ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _",
+        "ARID": 0,
         "Amount": 3550,
         "BID": "REX",
         "Comment": "",

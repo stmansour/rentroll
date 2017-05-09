@@ -20,11 +20,12 @@ type ReceiptSendForm struct {
 	Dt             rlib.JSONTime
 	DocNo          string // check number, money order number, etc.; documents the payment
 	Amount         float64
-	AcctRule       string
+	ARID           int64
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
+	//AcctRule       string
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.
@@ -44,16 +45,17 @@ type ReceiptSaveForm struct {
 	Amount         float64
 	Payor          string // name of the payor
 	TCID           int64  // TCID of payor
-	AcctRule       string
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
+	// AcctRule       string
 }
 
 // ReceiptSaveOther is a struct to handle the UI list box selections
 type ReceiptSaveOther struct {
-	BID rlib.W2uiHTMLSelect
+	BID  rlib.W2uiHTMLSelect
+	ARID rlib.W2uiHTMLSelect
 }
 
 // PrReceiptGrid is a structure specifically for the UI Grid.
@@ -217,29 +219,35 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 // wsdoc }
 func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveReceipt"
+	var err error
 	fmt.Printf("SvcFormHandlerReceipt save\n")
 	fmt.Printf("record data = %s\n", d.data)
 
+	//-------------------------------------------------
+	//  First, parse out the main form data into a...
+	//-------------------------------------------------
 	var foo SaveReceiptInput
+	var a rlib.Receipt
 	data := []byte(d.data)
-	if err := json.Unmarshal(data, &foo); err != nil {
+	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-
-	var a rlib.Receipt
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-
 	fmt.Printf("saveReceipt - first migrate: a = %#v\n", a)
 
+	//----------------------------------------------
+	//  Next, parse out the other form data and
+	//  update the fields in a...
+	//----------------------------------------------
 	var bar SaveReceiptOther
 	if err := json.Unmarshal(data, &bar); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-
+	fmt.Printf("bar.Record = %#v\n", bar.Record)
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
 	if !ok {
@@ -248,9 +256,18 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	a.ARID, err = rlib.IntFromString(bar.Record.ARID.ID, "Invalid ARID")
+	if err != nil {
+		e := fmt.Errorf("%s: Bad ARID value: %s", funcname, bar.Record.ARID.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
 	fmt.Printf("saveReceipt - second migrate: a = %#v\n", a)
 
-	var err error
+	//------------------------------------------
+	//  Update or Insert as appropriate...
+	//------------------------------------------
 	if a.RCPTID == 0 && d.RCPTID == 0 {
 		// This is a new Receipt
 		fmt.Printf(">>>> NEW RECEIPT IS BEING ADDED\n")

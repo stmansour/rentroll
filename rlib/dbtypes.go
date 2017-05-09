@@ -684,10 +684,11 @@ type Receipt struct {
 	DID            int64     // the Deposit ID to which this receipt belongs
 	Dt             time.Time // date payment was received
 	DocNo          string    // check number, money order number, etc.; documents the payment
-	Amount         float64
-	AcctRule       string
-	Comment        string
-	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
+	Amount         float64   // amount of the receipt
+	AcctRule       string    // override account rule
+	ARID           int64     // which account rule
+	Comment        string    // any notes on this receipt
+	OtherPayorName string    // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    time.Time
 	LastModBy      int64
 	RA             []ReceiptAllocation

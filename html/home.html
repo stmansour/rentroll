@@ -29,7 +29,7 @@ sidebarL1     - w2ui sidebar
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
     getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender
+    tcidReceiptPayorPickerRender, asmFormRentablePickerRender
 */
 
 /*globals $:false */
@@ -1377,6 +1377,7 @@ function buildPageElements() {
                     },
             },
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
+            {field: 'ARID', caption: 'Account Rule',  size: '150px', sortable: true},
         ],
         actions: {
             save: function () {
@@ -1415,6 +1416,21 @@ function buildPageElements() {
             var x = getCurrentBusiness();
             var BID=x.value;
             var BUD = getBUDfromBID(BID);
+            $.get('/v1/uival/' + x.value + '/app.Receipts' )
+            .done( function(data) {
+                if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                    eval(data);
+                    w2ui.asmEpochForm.fields[0].options.items = app.Receipts[BUD];
+                    w2ui.asmEpochForm.refresh();
+                    return;
+                }
+                if (data.status != 'success') {
+                    w2ui.asmEpochForm.message(data.message);
+                }
+            })
+            .fail( function() {
+                console.log('Error getting /v1/uival/'+BUD+'/app.Receipts');
+             });
             var y = new Date();
             var options = buildPaymentTypeOptions(BUD);
             var ptInit = (options.length > 0) ? options[0] : '';
@@ -1422,6 +1438,7 @@ function buildPageElements() {
                 recid: 0,
                 RCPTID: 0,
                 PRCPTID: 0,
+                ARID: 0,
                 BID: BUD,
                 PMTID: 0,
                 PmtTypeName: ptInit,
@@ -1430,11 +1447,11 @@ function buildPageElements() {
                 Payor: '',
                 TCID: 0,
                 Amount: 0,
-                AcctRule: '',
                 Comment: '',
                 OtherPayorName: '',
             };
             w2ui.receiptForm.fields[0].options.items = options;
+            w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
             w2ui.receiptForm.record = record;
             w2ui.toplayout.content('right', w2ui.receiptForm);
             w2ui.toplayout.show('right', true);
@@ -1467,14 +1484,15 @@ function buildPageElements() {
         formURL: '/html/formrcpt.html',
         fields: [
             { field: 'PmtTypeName',    type: 'list', required: true, options: {items: []},}, // keep this at position 0 as the list changes and we need to update it
-            { field: 'recid',          type: 'int',   required: false },                                    // 1
-            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},    // 2
-            { field: 'RCPTID',         type: 'int',   required: true },     // 3
-            { field: 'PRCPTID',        type: 'int',   required: false },    // 4
-            { field: 'PMTID',          type: 'int',   required: false },    // 5
-            { field: 'Dt',             type: 'date',  required: true },     // 6
-            { field: 'DocNo',          type: 'text',  required: false },    // 7
-            { field: 'Payor', required: false,                              // 8   <<<<<<********
+            { field: 'ARID',           type: 'list',  required: true, options:  {items: app.Receipts} },  // 1
+            { field: 'recid',          type: 'int',   required: false },                                     // 2
+            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},     // 3   
+            { field: 'RCPTID',         type: 'int',   required: true },     // 4
+            { field: 'PRCPTID',        type: 'int',   required: false },    // 5
+            { field: 'PMTID',          type: 'int',   required: false },    // 6
+            { field: 'Dt',             type: 'date',  required: true },     // 7
+            { field: 'DocNo',          type: 'text',  required: false },    // 8
+            { field: 'Payor', required: true,                               // 9   <<<<<<********
                 type: 'enum',
                 options: {
                     url:        '/v1/transactantstd/',
@@ -1490,7 +1508,6 @@ function buildPageElements() {
             },
             { field: 'TCID',           type: 'int64', required: false },
             { field: 'Amount',         type: 'money', required: true },
-            { field: 'AcctRule',       type: 'text',  required: true },
             { field: 'Comment',        type: 'text',  required: false },
             { field: 'OtherPayorName', type: 'text',  required: false },
         ],
@@ -1511,10 +1528,11 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.receiptForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sReceipt + ' (' + r.RCPTID + ')';
+            f.header = 'Edit ' + app.sReceipt + ' (' + ((r.RCPTID === 0) ? 'new' : ''+r.RCPTID) + ')';
             var BUD = (typeof r.BID == "object") ? r.BID.id : r.BID;
             f.fields[0].options.items = buildPaymentTypeOptions( BUD );
-            f.fields[8].options.url = '/v1/transactantstd/'+ BUD;
+            f.fields[1].options.items = app.Receipts[BUD];
+            f.fields[9].options.url = '/v1/transactantstd/'+ BUD;
             r.PmtTypeName = getPaymentTypeName(BUD,r.PMTID);
         },
         onValidate: function (event) {
@@ -1798,7 +1816,7 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.asmEpochForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sAssessment + ' (' + ((r.ASMID == 0) ? "new" : ''+r.ASMID) + ')';
+            f.header = 'Edit ' + app.sAssessment + ' (' + ((r.ASMID === 0) ? "new" : ''+r.ASMID) + ')';
             if (!String.prototype.format) {
                 String.prototype.format = function() {
                     var args = arguments;
