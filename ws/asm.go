@@ -1,10 +1,13 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
+	"strings"
 )
 
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
@@ -61,19 +64,20 @@ type AssessmentSaveOther struct {
 
 // AssessmentGrid is a structure specifically for the UI Grid.
 type AssessmentGrid struct {
-	Recid  int64         `json:"recid"` // this is to support the w2ui form
-	ASMID  int64         // unique id for this assessment
-	BID    rlib.XJSONBud // which business
-	PASMID int64         // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
-	RID    int64         // the Rentable
+	Recid    int64  `json:"recid"` // this is to support the w2ui form
+	ASMID    int64  // unique id for this assessment
+	BID      int64  // which business
+	PASMID   int64  // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
+	RID      int64  // the Rentable
+	Rentable string // the Rentable
 	// ATypeLID  int64         // what type of assessment
-	RAID      int64         // associated Rental Agreement
-	Amount    float64       // how much
-	Start     rlib.JSONTime // start time
-	Stop      rlib.JSONTime // stop time, may be the same as start time or later
-	InvoiceNo int64         // A uniqueID for the invoice number
-	// AcctRule  string        // expression showing how to account for the amount
-	ARID int64 // which account rule
+	RAID      int64           // associated Rental Agreement
+	Amount    float64         // how much
+	Start     rlib.JSONTime   // start time
+	Stop      rlib.JSONTime   // stop time, may be the same as start time or later
+	InvoiceNo int64           // A uniqueID for the invoice number
+	ARID      int64           // which account rule
+	AcctRule  rlib.NullString // expression showing how to account for the amount
 }
 
 // SearchAssessmentsResponse is a response string to the search request for assessments
@@ -103,6 +107,44 @@ type SaveAssessmentOther struct {
 type GetAssessmentResponse struct {
 	Status string             `json:"status"`
 	Record AssessmentSendForm `json:"record"`
+}
+
+// assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
+func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) AssessmentGrid {
+	rlib.Errcheck(rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule))
+	return q
+}
+
+// which fields needs to be fetched for SQL query for assessment grid
+var asmFieldsMap = map[string][]string{
+	"ASMID":        {"Assessments.ASMID"},
+	"BID":          {"Assessments.BID"},
+	"PASMID":       {"Assessments.PASMID"},
+	"RID":          {"Assessments.RID"},
+	"RentableName": {"Rentable.RentableName"},
+	"RAID":         {"Assessments.RAID"},
+	"Amount":       {"Assessments.Amount"},
+	"Start":        {"Assessments.Start"},
+	"Stop":         {"Assessments.Stop"},
+	"InvoiceNo":    {"Assessments.InvoiceNo"},
+	"ARID":         {"Assessments.ARID"},
+	"AcctRule":     {"AR.Name"},
+}
+
+// which fields needs to be fetched for SQL query for assessment grid
+var asmQuerySelectFields = []string{
+	"Assessments.ASMID",
+	"Assessments.BID",
+	"Assessments.PASMID",
+	"Assessments.RID",
+	"Rentable.RentableName",
+	"Assessments.RAID",
+	"Assessments.Amount",
+	"Assessments.Start",
+	"Assessments.Stop",
+	"Assessments.InvoiceNo",
+	"Assessments.ARID",
+	"AR.Name",
 }
 
 // SvcSearchHandlerAssessments generates a report of all Assessments defined business d.BID
@@ -183,32 +225,61 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	// LastModBy      int64
 	// }
 
-	order := "Start ASC, RAID ASC"                                                     // default ORDER
-	q := fmt.Sprintf("SELECT %s FROM Assessments ", rlib.RRdb.DBFields["Assessments"]) // the fields we want
-	qw := fmt.Sprintf("BID=%d AND Stop > %q and Start < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
-	q += "WHERE " + qw + " ORDER BY "
-	if len(d.wsSearchReq.Sort) > 0 {
-		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			if i > 0 {
-				q += ","
-			}
-			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
-		}
-	} else {
-		q += order
+	whr := `Assessments.BID = %d AND Assessments.Stop > %q AND Assessments.Start < %q`
+	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+	order := `Start ASC, RAID ASC` // default ORDER
+
+	// get where clause and order clause for sql query
+	_, orderClause := GetSearchAndSortSQL(d, asmFieldsMap)
+	if len(orderClause) > 0 {
+		order = orderClause
 	}
 
-	// now set up the offset and limit
-	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
-	fmt.Printf("db query = %s\n", q)
+	asmQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Assessments
+	INNER JOIN Rentable ON Assessments.RID=Rentable.RID
+	LEFT JOIN AR ON Assessments.ARID=AR.ARID
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
 
-	g.Total, err = GetRowCount("Assessments", qw)
+	qc := queryClauses{
+		"SelectClause": strings.Join(asmQuerySelectFields, ","),
+		"WhereClause":  whr,
+		"OrderClause":  order,
+	}
+
+	// get TOTAL COUNT First
+	countQuery := renderSQLQuery(asmQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	asmQueryWithLimit := asmQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(asmQueryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
+
+	// execute the query
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("Error from DB Query: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
@@ -219,11 +290,11 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.Assessment
 		var q AssessmentGrid
-		rlib.ReadAssessments(rows, &p)
-		rlib.MigrateStructVals(&p, &q)
-		q.Recid = p.ASMID
+		q.Recid = i
+
+		q = assessmentGridRowScan(rows, q)
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -231,12 +302,12 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 		}
 		i++
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
-	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
-	g.Status = "success"
-	SvcWriteResponse(&g, w)
 
+	rlib.Errcheck(rows.Err())
+
+	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
 }
 
 // SvcFormHandlerAssessment formats a complete data record for an assessment for use with the w2ui Form

@@ -1,10 +1,13 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
+	"strings"
 )
 
 // ReceiptSendForm is a structure specifically for the UI. It will be
@@ -60,15 +63,17 @@ type ReceiptSaveOther struct {
 
 // PrReceiptGrid is a structure specifically for the UI Grid.
 type PrReceiptGrid struct {
-	Recid  int64 `json:"recid"` // this is to support the w2ui form
-	RCPTID int64
-	BID    rlib.XJSONBud
-	Payor  string // name of the payor
-	TCID   int64  // TCID of payor
-	PMTID  int64
-	Dt     rlib.JSONTime
-	DocNo  string // check number, money order number, etc.; documents the payment
-	Amount float64
+	Recid    int64 `json:"recid"` // this is to support the w2ui form
+	RCPTID   int64
+	BID      int64
+	TCID     int64 // TCID of payor
+	PMTID    int64
+	Dt       rlib.JSONTime
+	DocNo    string // check number, money order number, etc.; documents the payment
+	Amount   float64
+	Payor    string          // name of the payor
+	ARID     int64           // which account rule
+	AcctRule rlib.NullString // expression showing how to account for the amount
 }
 
 // SaveReceiptInput is the input data format for a Save command
@@ -100,6 +105,40 @@ type GetReceiptResponse struct {
 	Record ReceiptSendForm `json:"record"`
 }
 
+// receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
+func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) PrReceiptGrid {
+	rlib.Errcheck(rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule))
+	return q
+}
+
+// which fields needs to be fetched for SQL query for receipts grid
+var receiptsFieldsMap = map[string][]string{
+	"RCPTID":   {"Receipt.RCPTID"},
+	"BID":      {"Receipt.BID"},
+	"TCID":     {"Receipt.TCID"},
+	"PMTID":    {"Receipt.PMTID"},
+	"Dt":       {"Receipt.Dt"},
+	"DocNo":    {"Receipt.DocNo"},
+	"Amount":   {"Receipt.Amount"},
+	"Payor":    {"Receipt.OtherPayorName"},
+	"ARID":     {"Receipt.ARID"},
+	"AcctRule": {"AR.Name"},
+}
+
+// which fields needs to be fetched for SQL query for receipts grid
+var receiptsQuerySelectFields = []string{
+	"Receipt.RCPTID",
+	"Receipt.BID",
+	"Receipt.TCID",
+	"Receipt.PMTID",
+	"Receipt.Dt",
+	"Receipt.DocNo",
+	"Receipt.Amount",
+	"Receipt.OtherPayorName",
+	"Receipt.ARID",
+	"AR.Name",
+}
+
 // SvcSearchHandlerReceipts generates a report of all Receipts defined business d.BID
 // wsdoc {
 //  @Title  Search Receipts
@@ -118,32 +157,60 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		err error
 		g   SearchReceiptsResponse
 	)
-	order := "Dt ASC"                                                          // default ORDER
-	q := fmt.Sprintf("SELECT %s FROM Receipt ", rlib.RRdb.DBFields["Receipt"]) // the fields we want
-	qw := fmt.Sprintf("BID=%d AND Dt >= %q and Dt < %q", d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
-	q += "WHERE " + qw + " ORDER BY "
-	if len(d.wsSearchReq.Sort) > 0 {
-		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			if i > 0 {
-				q += ","
-			}
-			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
-		}
-	} else {
-		q += order
+
+	whr := `Receipt.BID=%d AND Receipt.Dt >= %q and Receipt.Dt < %q`
+	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+	order := "Receipt.Dt ASC" // default ORDER
+
+	// get where clause and order clause for sql query
+	_, orderClause := GetSearchAndSortSQL(d, receiptsFieldsMap)
+	if len(orderClause) > 0 {
+		order = orderClause
 	}
 
-	// now set up the offset and limit
-	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
-	fmt.Printf("db query = %s\n", q)
+	receiptsQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Receipt
+	LEFT JOIN AR ON Receipt.ARID=AR.ARID
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
 
-	g.Total, err = GetRowCount("Receipt", qw)
+	qc := queryClauses{
+		"SelectClause": strings.Join(receiptsQuerySelectFields, ","),
+		"WhereClause":  whr,
+		"OrderClause":  order,
+	}
+
+	// get TOTAL COUNT First
+	countQuery := renderSQLQuery(receiptsQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	receiptsQueryWithLimit := receiptsQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(receiptsQueryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("Error from DB Query: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
@@ -154,11 +221,11 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.Receipt
 		var q PrReceiptGrid
-		rlib.ReadReceipts(rows, &p)
-		rlib.MigrateStructVals(&p, &q)
-		q.Recid = p.RCPTID
+		q.Recid = i
+
+		q = receiptsGridRowScan(rows, q)
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -166,10 +233,11 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		}
 		i++
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+
 	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
+
 	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }
 
