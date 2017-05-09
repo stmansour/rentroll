@@ -1603,14 +1603,15 @@ function buildPageElements() {
             },
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'ARID', caption: 'Type',  size: '80px', style: 'text-align: right', sortable: true},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
-            {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
             {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
             {field: 'RID', caption: app.sRentable,  size: '80px', style: 'text-align: right', sortable: true},
+            // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
         ],
@@ -1661,6 +1662,7 @@ function buildPageElements() {
             var BID=x.value;
             var BUD = getBUDfromBID(BID);
             app.ridRentablePicker.BID = BID; // needed by typedown
+            w2ui.asmEpochForm.url = '/v1/asm/' + BID + '/0';
             var y = new Date();
             var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
                 var record = {
@@ -1670,6 +1672,7 @@ function buildPageElements() {
                 ASMID: 0,
                 PASMID: 0,
                 ATypeLID: 0,
+                InvoiceNo: 0,
                 RAID: 0,
                 BID: BUD,
                 Start: w2uiDateControlString(y),
@@ -1734,7 +1737,7 @@ function buildPageElements() {
                     url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
                     max:        1,
                     cacheMax:   50,
-                    renderItem: ridRentablePickerRender,
+                    renderItem: asmFormRentablePickerRender,
                     renderDrop: ridRentableDropRender,
                     compare:    ridRentableCompare,
                     onNew: function (event) {
@@ -1743,15 +1746,15 @@ function buildPageElements() {
                     }
                 },
             },
-            { field: 'RID',           type: 'w2int',  required: true },
-            { field: 'ATypeLID',      type: 'w2int',  required: true },
-            { field: 'RAID',          type: 'w2int',  required: true },
+            { field: 'InvoiceNo',     type: 'int',  required: false },
+            { field: 'RID',           type: 'int',  required: true },
+            { field: 'ATypeLID',      type: 'int',  required: true },
+            { field: 'RAID',          type: 'int',  required: true },
             { field: 'Amount',        type: 'money',  required: true },
             { field: 'Start',         type: 'date',   required: true },
             { field: 'Stop',          type: 'date',   required: true },
             { field: 'RentCycle',     type: 'list',   options:  {items: app.cycleFreq}, required: true },
             { field: 'ProrationCycle',type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'AcctRule',      type: 'text',   required: false },
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
@@ -1773,7 +1776,7 @@ function buildPageElements() {
         actions: {
             save: function () {
                 //var obj = this;
-                w2ui.asmEpochForm.url = '/v1/asm/' + app.ridRentablePicker.BID + '/' + w2ui.asmEpochForm.record.RID;
+                w2ui.asmEpochForm.url = '/v1/asm/' + app.ridRentablePicker.BID + '/' + w2ui.asmEpochForm.record.ASMID;
                 var tgrid = w2ui.asmsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
@@ -1795,8 +1798,7 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.asmEpochForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sAssessment + ' (' + r.ASMID + ')';
-            // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
+            f.header = 'Edit ' + app.sAssessment + ' (' + ((r.ASMID == 0) ? "new" : ''+r.ASMID) + ')';
             if (!String.prototype.format) {
                 String.prototype.format = function() {
                     var args = arguments;

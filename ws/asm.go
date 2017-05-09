@@ -10,12 +10,12 @@ import (
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
 // automatically populated from an rlib.Assessment struct.
 type AssessmentSendForm struct {
-	Recid          int64 `json:"recid"` // this is to support the w2ui form
-	ASMID          int64 // unique id for this assessment
-	BID            rlib.XJSONBud
-	PASMID         int64
-	RID            int64
-	ATypeLID       int64
+	Recid  int64 `json:"recid"` // this is to support the w2ui form
+	ASMID  int64 // unique id for this assessment
+	BID    rlib.XJSONBud
+	PASMID int64
+	RID    int64
+	// ATypeLID       int64
 	RAID           int64
 	Amount         float64
 	Start          rlib.JSONTime
@@ -23,10 +23,10 @@ type AssessmentSendForm struct {
 	RentCycle      rlib.XJSONCycleFreq
 	ProrationCycle rlib.XJSONCycleFreq
 	InvoiceNo      int64
-	AcctRule       string
-	Comment        string
-	LastModTime    rlib.JSONTime
-	LastModBy      int64
+	// AcctRule       string
+	Comment     string
+	LastModTime rlib.JSONTime
+	LastModBy   int64
 }
 
 // AssessmentSaveForm is a structure specifically for the return value from w2ui.
@@ -41,13 +41,11 @@ type AssessmentSaveForm struct {
 	ASMID       int64
 	PASMID      int64
 	RID         int64
-	ATypeLID    int64
 	RAID        int64
 	Amount      float64
 	Start       rlib.JSONTime
 	Stop        rlib.JSONTime
 	InvoiceNo   int64
-	AcctRule    string
 	Comment     string
 	LastModTime rlib.JSONTime
 	LastModBy   int64
@@ -58,22 +56,24 @@ type AssessmentSaveOther struct {
 	BID            rlib.W2uiHTMLSelect
 	RentCycle      rlib.W2uiHTMLSelect
 	ProrationCycle rlib.W2uiHTMLSelect
+	ARID           rlib.W2uiHTMLSelect
 }
 
 // AssessmentGrid is a structure specifically for the UI Grid.
 type AssessmentGrid struct {
-	Recid     int64         `json:"recid"` // this is to support the w2ui form
-	ASMID     int64         // unique id for this assessment
-	BID       rlib.XJSONBud // which business
-	PASMID    int64         // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
-	RID       int64         // the Rentable
-	ATypeLID  int64         // what type of assessment
+	Recid  int64         `json:"recid"` // this is to support the w2ui form
+	ASMID  int64         // unique id for this assessment
+	BID    rlib.XJSONBud // which business
+	PASMID int64         // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
+	RID    int64         // the Rentable
+	// ATypeLID  int64         // what type of assessment
 	RAID      int64         // associated Rental Agreement
 	Amount    float64       // how much
 	Start     rlib.JSONTime // start time
 	Stop      rlib.JSONTime // stop time, may be the same as start time or later
 	InvoiceNo int64         // A uniqueID for the invoice number
-	AcctRule  string        // expression showing how to account for the amount
+	// AcctRule  string        // expression showing how to account for the amount
+	ARID int64 // which account rule
 }
 
 // SearchAssessmentsResponse is a response string to the search request for assessments
@@ -276,7 +276,7 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 // wsdoc {
 //  @Title  Save Assessment
 //	@URL /v1/asm/:BUI/:ASMID
-//  @Method  GET
+//  @Method  POST
 //	@Synopsis Update the information on a Assessment with the supplied data
 //  @Description  This service updates Assessment :ASMID with the information supplied. All fields must be supplied.
 //	@Input SaveAssessmentInput
@@ -286,29 +286,37 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveAssessment"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
+	fmt.Printf("d.ASMID = %d\n", d.ASMID)
 
 	var foo SaveAssessmentInput
 	data := []byte(d.data)
 	err := json.Unmarshal(data, &foo)
-
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
+	//----------------------------------------------------------
+	// Parse the standard variables from the return struct...
+	//----------------------------------------------------------
 	var a rlib.Assessment
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
+	fmt.Printf("Save: A\n")
+	//----------------------------------------------------------
+	// Now get the other variables and copy them into a...
+	//----------------------------------------------------------
 	var bar SaveAssessmentOther
 	err = json.Unmarshal(data, &bar) // and now the other variables
-	// fmt.Printf("\n\n#################\nafter unmarshal, bar = %#v\n#################\n", bar)
-
+	fmt.Printf("\n\n#################\nafter unmarshal, bar = %#v\n#################\n", bar)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	fmt.Printf("bar = %#v\n", bar)
+	fmt.Printf("Save: B\n")
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
 	if !ok {
@@ -317,25 +325,32 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	fmt.Printf("Save: C\n")
 	a.RentCycle = rlib.CycleFreqMap[bar.Record.RentCycle.ID]
 	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
-
-	// Now just update the database
+	a.ARID, err = rlib.IntFromString(bar.Record.ARID.ID, "Invalid ARID")
 	if err != nil {
-		e := fmt.Errorf("%s: Error updating assessment: %s", funcname, err.Error())
+		e := fmt.Errorf("%s: Bad ARID value: %s", funcname, bar.Record.ARID.ID)
+		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
+	fmt.Printf("Save: D\n")
+	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
 		// This is a new record
+		fmt.Printf("Save: E\n")
+		err = rlib.UpdateAssessment(&a)
 		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
 		_, err = rlib.InsertAssessment(&a)
+
 	} else {
-		// update existing record
-		err = rlib.UpdateAssessment(&a)
+		fmt.Printf("Save: F\n")
+		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}
 	if err != nil {
+		fmt.Printf("Save: G\n")
 		e := fmt.Errorf("%s: Error saving assessment (ASMID=%d\n: %s", funcname, d.ASMID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return

@@ -2,7 +2,6 @@ package ws
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"rentroll/rlib"
 )
@@ -19,7 +18,7 @@ func GetAssessmentList(bid int64) string {
 	m := rlib.GetARsByType(bid, rlib.ARASSESSMENT)
 	s += fmt.Sprintf("app.Assessments['%s']=[{id:0,text:%q},", bidToBud(bid), "Select Assessment Rule")
 	for i := 0; i < len(m); i++ {
-		s += fmt.Sprintf("{id:%d,text:%q},", m[i].ARType, m[i].Name)
+		s += fmt.Sprintf("{id:%d,text:%q},", m[i].ARID, m[i].Name)
 	}
 	return s + "];\n"
 }
@@ -30,7 +29,7 @@ func GetReceiptList(bid int64) string {
 	m := rlib.GetARsByType(bid, rlib.ARRECEIPT)
 	s += fmt.Sprintf("app.Receipts['%s']=[{id:0,text:%q},", bidToBud(bid), "Select Receipt Rule")
 	for i := 0; i < len(m); i++ {
-		s += fmt.Sprintf("{id:%d,text:%q},", m[i].ARType, m[i].Name)
+		s += fmt.Sprintf("{id:%d,text:%q},", m[i].ARID, m[i].Name)
 	}
 	return s + "];\n"
 }
@@ -52,10 +51,10 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	switch d.DetVal {
 	case "app.Assessments":
 		s := GetAssessmentList(d.BID)
-		io.WriteString(w, s)
+		SvcWrite(w, []byte(s))
 	case "app.Receipts":
 		s := GetReceiptList(d.BID)
-		io.WriteString(w, s)
+		SvcWrite(w, []byte(s))
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
 		SvcGridErrorReturn(w, e)

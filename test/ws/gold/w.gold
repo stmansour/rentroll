@@ -4,7 +4,7 @@
             "BID": 1,
             "Description": "Cash",
             "LastModBy": 0,
-            "LastModTime": "2017-03-28T23:19:52Z",
+            "LastModTime": "2017-05-08T00:07:47Z",
             "Name": "Cash",
             "PMTID": 1,
             "recid": 1
@@ -13,7 +13,7 @@
             "BID": 1,
             "Description": "Personal check from payor",
             "LastModBy": 0,
-            "LastModTime": "2017-03-28T23:19:52Z",
+            "LastModTime": "2017-05-08T00:07:47Z",
             "Name": "Check",
             "PMTID": 2,
             "recid": 2
@@ -22,7 +22,7 @@
             "BID": 1,
             "Description": "Credit card charge",
             "LastModBy": 0,
-            "LastModTime": "2017-03-28T23:19:52Z",
+            "LastModTime": "2017-05-08T00:07:47Z",
             "Name": "VISA",
             "PMTID": 3,
             "recid": 3
@@ -31,7 +31,7 @@
             "BID": 1,
             "Description": "American Express credit card",
             "LastModBy": 0,
-            "LastModTime": "2017-03-28T23:19:52Z",
+            "LastModTime": "2017-05-08T00:07:47Z",
             "Name": "AMEX",
             "PMTID": 4,
             "recid": 4

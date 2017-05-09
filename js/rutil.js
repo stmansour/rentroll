@@ -196,25 +196,37 @@ function setToRAForm(bid, raid, d) {
 //-----------------------------------------------------------------------------
 // ridRentablePickerRender - renders a name during typedown.
 // @params
-//   item = an object assumed to have a FirstName and LastName
+//   item = an object with RentableName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function ridRentablePickerRender(item) {
     "use strict";
     w2ui.ridRentablePicker.record.RID = item.recid;
-    return item.RentableName + '  (RI0' + item.recid + ')';
+    return item.RentableName + '  (RID: ' + item.recid + ')';
+}
+
+//-----------------------------------------------------------------------------
+// asmFormRentablePickerRender - renders a name during typedown.
+// @params
+//   item = Object with RentableName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function asmFormRentablePickerRender(item) {
+    "use strict";
+    w2ui.asmEpochForm.record.RID = item.recid;
+    return item.RentableName + '  (RID: ' + item.recid + ')';
 }
 
 //-----------------------------------------------------------------------------
 // ridRentableDropRender - renders a name during typedown.
 // @params
-//   item = an object assumed to have a FirstName and LastName
+//   item = an object with RentableName
 // @return - the name to render
 //-----------------------------------------------------------------------------
 function ridRentableDropRender (item) {
     "use strict";
     // w2ui.ridRentablePicker.RID = item.RID;
-    return item.RentableName + '  (RI0' + item.recid + ')';
+    return item.RentableName + '  (RID: ' + item.recid + ')';
 }
 
 //-----------------------------------------------------------------------------

@@ -1,14 +1,12 @@
 {
     "record": {
         "ASMID": 1,
-        "ATypeLID": 7,
-        "AcctRule": "d ${GLGENRCV} _, c ${GLSECDEP} _",
         "Amount": 7000,
         "BID": "REX",
         "Comment": "",
         "InvoiceNo": 0,
         "LastModBy": 0,
-        "LastModTime": "3/7/2017",
+        "LastModTime": "5/8/2017",
         "PASMID": 0,
         "ProrationCycle": "Norecur",
         "RAID": 1,
