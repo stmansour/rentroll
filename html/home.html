@@ -43,6 +43,7 @@ var app = {
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
+    ARTypes: {0: "Assessment", 1: "Receipt"},
     Assessments: [{id: 0, text: "Set Assessment Rule"},],
     Receipts: [{id: 1, text: "Set Payment Rule"},],
     language: "{{.Language}}",
@@ -2190,6 +2191,11 @@ function buildPageElements() {
             {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'Name',        hidden: false, caption: 'Name',  size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', stortable: true, style: 'text-align: left',
+                render: function (record, index, col_index) {
+                    return app.ARTypes[this.getCellValue(index, col_index)];
+                }
+            },
             {field: 'DebitLID',    hidden: false, caption: 'Debit',         size: '50px', stortable: true, style: 'text-align: center'},
             {field: 'CreditLID',   hidden: false, caption: 'Credit',        size: '50px', stortable: true, style: 'text-align: left'},
             {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},

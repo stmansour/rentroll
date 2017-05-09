@@ -1,10 +1,13 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
+	"strings"
 )
 
 // ARSendForm is a structure specifically for the UI. It will be
@@ -93,6 +96,38 @@ type GetARResponse struct {
 	Record ARSendForm `json:"record"`
 }
 
+// arGridRowScan scans a result from sql row and dump it in a PrARGrid struct
+func arGridRowScan(rows *sql.Rows, q PrARGrid) PrARGrid {
+	rlib.Errcheck(rows.Scan(&q.ARID, &q.BID, &q.Name, &q.ARType, &q.DebitLID, &q.CreditLID, &q.Description, &q.DtStart, &q.DtStop))
+	return q
+}
+
+// which fields needs to be fetched for SQL query for receipts grid
+var arFieldsMap = map[string][]string{
+	"ARID":        {"AR.ARID"},
+	"BID":         {"AR.BID"},
+	"Name":        {"AR.Name"},
+	"ARType":      {"AR.ARType"},
+	"DebitLID":    {"AR.DebitLID"},
+	"CreditLID":   {"AR.CreditLID"},
+	"Description": {"AR.Description"},
+	"DtStart":     {"AR.DtStart"},
+	"DtStop":      {"AR.DtStop"},
+}
+
+// which fields needs to be fetched for SQL query for receipts grid
+var arQuerySelectFields = []string{
+	"ARID",
+	"BID",
+	"Name",
+	"ARType",
+	"DebitLID",
+	"CreditLID",
+	"Description",
+	"DtStart",
+	"DtStop",
+}
+
 // SvcSearchHandlerARs generates a report of all ARs defined business d.BID
 // wsdoc {
 //  @Title  Search Account Rules
@@ -111,32 +146,58 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		err error
 		g   SearchARsResponse
 	)
-	order := "Name ASC"                                              // default ORDER
-	q := fmt.Sprintf("SELECT %s FROM AR ", rlib.RRdb.DBFields["AR"]) // the fields we want
-	qw := fmt.Sprintf("BID=%d", d.BID)
-	q += "WHERE " + qw + " ORDER BY "
-	if len(d.wsSearchReq.Sort) > 0 {
-		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			if i > 0 {
-				q += ","
-			}
-			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
-		}
-	} else {
-		q += order
+
+	order := `AR.Name ASC` // default ORDER
+	whr := fmt.Sprintf("AR.BID=%d", d.BID)
+
+	// get where clause and order clause for sql query
+	_, orderClause := GetSearchAndSortSQL(d, arFieldsMap)
+	if len(orderClause) > 0 {
+		order = orderClause
 	}
 
-	// now set up the offset and limit
-	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
-	fmt.Printf("db query = %s\n", q)
+	arQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM AR
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
 
-	g.Total, err = GetRowCount("AR", qw)
+	qc := queryClauses{
+		"SelectClause": strings.Join(arQuerySelectFields, ","),
+		"WhereClause":  whr,
+		"OrderClause":  order,
+	}
+
+	// get TOTAL COUNT First
+	countQuery := renderSQLQuery(arQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	arQueryWithLimit := arQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(arQueryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("Error from DB Query: %s\n", err.Error())
 		SvcGridErrorReturn(w, err)
@@ -147,11 +208,11 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.AR
 		var q PrARGrid
-		rlib.ReadARs(rows, &p)
-		rlib.MigrateStructVals(&p, &q)
-		q.Recid = p.ARID
+		q.Recid = i
+
+		q = arGridRowScan(rows, q)
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -159,10 +220,10 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		}
 		i++
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
 	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
+
 	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }
 
