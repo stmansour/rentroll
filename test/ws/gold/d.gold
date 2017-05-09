@@ -1,37 +1,43 @@
 {
     "records": [
         {
+            "ARID": 0,
+            "AcctRule": null,
             "Amount": 3750,
-            "BID": "REX",
+            "BID": 1,
             "DocNo": "2153",
             "Dt": "8/1/2016",
             "PMTID": 1,
             "Payor": "",
             "RCPTID": 21,
             "TCID": 0,
-            "recid": 21
+            "recid": 0
         },
         {
+            "ARID": 0,
+            "AcctRule": null,
             "Amount": 4150,
-            "BID": "REX",
+            "BID": 1,
             "DocNo": "8733",
             "Dt": "8/1/2016",
             "PMTID": 1,
             "Payor": "",
             "RCPTID": 23,
             "TCID": 0,
-            "recid": 23
+            "recid": 1
         },
         {
+            "ARID": 0,
+            "AcctRule": null,
             "Amount": 3309.68,
-            "BID": "REX",
+            "BID": 1,
             "DocNo": "1948",
             "Dt": "8/5/2016",
             "PMTID": 1,
             "Payor": "",
             "RCPTID": 22,
             "TCID": 0,
-            "recid": 22
+            "recid": 2
         }
     ],
     "status": "success",
