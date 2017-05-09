@@ -1486,7 +1486,7 @@ function buildPageElements() {
             { field: 'PmtTypeName',    type: 'list', required: true, options: {items: []},}, // keep this at position 0 as the list changes and we need to update it
             { field: 'ARID',           type: 'list',  required: true, options:  {items: app.Receipts} },  // 1
             { field: 'recid',          type: 'int',   required: false },                                     // 2
-            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},     // 3   
+            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},     // 3
             { field: 'RCPTID',         type: 'int',   required: true },     // 4
             { field: 'PRCPTID',        type: 'int',   required: false },    // 5
             { field: 'PMTID',          type: 'int',   required: false },    // 6
@@ -1621,14 +1621,16 @@ function buildPageElements() {
             },
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
-            {field: 'ARID', caption: 'Type',  size: '80px', style: 'text-align: right', sortable: true},
+            {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
+            {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: right', sortable: true},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
             {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
-            {field: 'RID', caption: app.sRentable,  size: '80px', style: 'text-align: right', sortable: true},
+            {field: 'RID', caption: 'RID',  size: '40px', hidden: true, sortable: false},
+            {field: 'Rentable', caption: app.sRentable,  size: '80px', style: 'text-align: right', sortable: true},
             // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
