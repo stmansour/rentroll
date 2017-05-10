@@ -425,7 +425,7 @@ function buildPageElements() {
                     { id: 'accounts', text: 'Chart Of Accounts',   icon: 'fa fa-list' },
                     { id: 'pmts',     text: 'Payment Types',       icon: 'fa fa-credit-card' },
                     { id: 'dep',      text: 'Depositories',        icon: 'fa fa-university' },
-                    { id: 'ars',      text: 'Assessments/Receipts',icon: 'fa fa-cogs' },
+                    { id: 'ars',      text: 'Account Rules',       icon: 'fa fa-cogs' },
                 ]
             },
         ],
@@ -1093,14 +1093,6 @@ function buildPageElements() {
             };
             var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
 
-            // Save the new rental agreement as an empty shell...
-            // $.post('/v1/rentalagr/' + BUD + '/0',JSON.stringify(request), function(data,status) {
-            //     console.log('data = ' + data);
-            //     if (status != "success") {
-            //         console.log('status = ' + status);
-            //     }
-            //     rec.RAID = data.recid;
-            // });
             $.post('/v1/rentalagr/' + BUD + '/0', JSON.stringify(request))
             .done(function(data) {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
@@ -1116,14 +1108,6 @@ function buildPageElements() {
                     w2ui.rapGrid.message(data.message);
                 }
             });
-
-            // turn this all off while we work out saving the shell
-            // w2ui.rentalagrForm.record = rec;
-            // w2ui.toplayout.content('right', w2ui.raLayout);
-            // w2ui.toplayout.show('right', true);
-            // w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
-            // w2ui.rentalagrForm.Save();
-            // w2ui.toplayout.render();
         },
     });
 
