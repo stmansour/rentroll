@@ -40,6 +40,7 @@ var app = {
     D2: "2016-03-01",
     uid: 211,
     lastReport: '',
+    WidestFormWidth: 900,
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
@@ -984,9 +985,25 @@ function buildPageElements() {
     $().w2grid({
         name: 'rentalagrsGrid',
         url: '/v1/rentalagrs',
+        // show: {
+        //     toolbar: true,
+        //     footer: true,
+        // },
         show: {
             toolbar: true,
             footer: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false,
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarEdit: false,
+            toolbarSearch: true,
+            toolbarInput: true,
+            searchAll: true,
+            toolbarReload: true,
+            toolbarColumns: false,
         },
         multiSearch: true,
         searches: [
@@ -1029,6 +1046,85 @@ function buildPageElements() {
                 }
             };
         },
+        onAdd: function (/*event*/) {
+            // Insert an empty record...
+            var x = getCurrentBusiness();
+            var BID=x.value;
+            var BUD = getBUDfromBID(BID);
+            var y = new Date();
+            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+            var y2 = new Date();
+            y2.setDate(1); // set it to the first of the month
+            var rec = {
+                recid: 0,
+                RAID: 0,
+                RATID: 0,
+                BID: {id: BID, text: BUD},
+                NLID: 0,
+                AgreementStart: w2uiDateControlString(y),
+                AgreementStop: w2uiDateControlString(y1),
+                PossessionStart: w2uiDateControlString(y),
+                PossessionStop: w2uiDateControlString(y1),
+                RentStart: w2uiDateControlString(y),
+                RentStop: w2uiDateControlString(y1),
+                RentCycleEpoch: w2uiDateControlString(y2),
+                UnspecifiedAdults: 0,
+                UnspecifiedChildren: 0,
+                Renewal: {id:"month to month automatic renewal",text:"month to month automatic renewal"},
+                SpecialProvisions: '',
+                LastModTime: w2uiDateControlString(y),
+                LastModBy: 0,
+                LeaseType: 0,
+                ExpenseAdjustmentType: 0,
+                ExpensesStop: 0,
+                ExpenseStopCalculation: '',
+                BaseYearEnd: '1/1/1900',
+                ExpenseAdjustment: '1/1/1900',
+                EstimatedCharges: 0,
+                RateChange: 0,
+                NextRateChange: '1/1/1900',
+                PermittedUses: '',
+                ExclusiveUses: '',
+                ExtensionOption: '',
+                ExtensionOptionNotice: '1/1/1900',
+                ExpansionOption: '',
+                ExpansionOptionNotice: '1/1/1900',
+                RightOfFirstRefusal: '',
+            };
+            var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
+
+            // Save the new rental agreement as an empty shell...
+            // $.post('/v1/rentalagr/' + BUD + '/0',JSON.stringify(request), function(data,status) {
+            //     console.log('data = ' + data);
+            //     if (status != "success") {
+            //         console.log('status = ' + status);
+            //     }
+            //     rec.RAID = data.recid;
+            // });
+            $.post('/v1/rentalagr/' + BUD + '/0', JSON.stringify(request))
+            .done(function(data) {
+                if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                    var msg = JSON.parse(data);
+                    w2ui.rapGrid.message(msg.message);
+                    return;
+                }
+                if (data.status == 'success') {
+                    rec.recid = data.recid; // success reply returns RAPID of record just added
+                    rec.RAID = data.recid;
+                    setToRAForm(BID, rec.RAID, y);
+                } else {
+                    w2ui.rapGrid.message(data.message);
+                }
+            });
+
+            // turn this all off while we work out saving the shell
+            // w2ui.rentalagrForm.record = rec;
+            // w2ui.toplayout.content('right', w2ui.raLayout);
+            // w2ui.toplayout.show('right', true);
+            // w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
+            // w2ui.rentalagrForm.Save();
+            // w2ui.toplayout.render();
+        },
     });
 
 
@@ -1069,6 +1165,20 @@ function buildPageElements() {
         header: app.sRentalAgreement + ' Detail',
         //url: '/v1/rentalagrs',
         formURL: '/html/formra.html',
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    w2ui.toplayout.hide('right',true);
+                    break;
+                }
+            },
+        },
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'RAID', type: 'int', required: false, html: { caption: 'RAID', page: 0, column: 0 } },
@@ -1129,7 +1239,7 @@ function buildPageElements() {
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentalagrForm;
-            f.header = 'Edit ' + app.sRentalAgreement + ' -  RA00' + f.record.RAID;
+            f.header = 'Edit ' + app.sRentalAgreement +  ' - ' + ((f.record.RAID === 0) ? '(new)' : 'RA' + f.record.RAID);
         }
     });
 
@@ -1317,7 +1427,7 @@ function buildPageElements() {
             toolbarReload: false,
             toolbarColumns: false,
         },
-        url: '/v1/rapet',
+        url: '/v1/rapets',
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'PETID', hidden: true, caption: 'PETID',  size: '40px', sortable: true},

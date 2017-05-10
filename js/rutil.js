@@ -122,7 +122,7 @@ function setToForm(sform, url, width) {
     if (width === undefined) {
         width = 700;
     }
-    console.log('sform = ' + sform + '  url = ' + url + '   <<<<   WIDTH = ' + width);
+    //console.log('sform = ' + sform + '  url = ' + url + '   <<<<   WIDTH = ' + width);
     var f = w2ui[sform];
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.content('right', f);
@@ -144,12 +144,14 @@ function setToForm(sform, url, width) {
 //-----------------------------------------------------------------------------
 function setToRAForm(bid, raid, d) {
     "use strict";
-    w2ui.toplayout.content('right', w2ui.raLayout);
-    w2ui.toplayout.show('right', true);
-    w2ui.toplayout.sizeTo('right', 900);
-    w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
-    w2ui.rentalagrForm.request();
-    w2ui.toplayout.render();
+    if (raid > 0) {
+        w2ui.toplayout.content('right', w2ui.raLayout);
+        w2ui.toplayout.show('right', true);
+        w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
+        w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
+        w2ui.rentalagrForm.request();
+        w2ui.toplayout.render();
+    }
 
     //----------------------------------------------------------------
     // Get the associated Rentables...

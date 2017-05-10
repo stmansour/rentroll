@@ -367,20 +367,25 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	//------------------------------
 	var foo RentalAgrForm
 
+	fmt.Printf("A\n")
+
 	err := json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	fmt.Printf("B\n")
 	// migrate the variables that transfer without needing special handling...
 	var a rlib.RentalAgreement
 	rlib.MigrateStructVals(&foo, &a)
 
+	fmt.Printf("B1\n")
+
+	var bar RentalAgrOther
 	//---------------------------
 	//  Handle all the list data
 	//---------------------------
-	var bar RentalAgrOther
 	err = json.Unmarshal([]byte(s), &bar)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
@@ -388,16 +393,18 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	fmt.Printf("C\n")
 
 	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
+	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.Text]
 	if !ok {
 		e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	a.Renewal, ok = rlib.RenewalMap[bar.Renewal.ID]
+	a.Renewal, ok = rlib.RenewalMap[bar.Renewal.Text]
+	fmt.Printf("D\n")
 	if !ok {
 		e := fmt.Errorf("could not map %s to a Renewal value", bar.Renewal.ID)
 		rlib.LogAndPrintError(funcname, e)
@@ -410,13 +417,18 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	fmt.Printf("Update complete:  RA = %#v\n", a)
 
 	// Now just update the database
-	err = rlib.UpdateRentalAgreement(&a)
+	if a.RAID > 0 {
+		err = rlib.UpdateRentalAgreement(&a)
+	} else {
+		_, err = rlib.InsertRentalAgreement(&a)
+	}
+
 	if err != nil {
-		e := fmt.Errorf("Error updating Rental Agreement RAID = %d: %s", a.RAID, err.Error())
+		e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponseWithID(w, a.RAID)
 }
 
 // https://play.golang.org/p/gfOhByMroo

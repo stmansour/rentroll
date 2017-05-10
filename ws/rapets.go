@@ -81,7 +81,11 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
 	var gxp RAPets
-	m := rlib.GetAllRentalAgreementPets(raid)
+	var m []rlib.RentalAgreementPet
+	if raid > 0 {
+		m = rlib.GetAllRentalAgreementPets(raid)
+	}
+
 	gxp.Records = m
 
 	//------------------------------------------------------

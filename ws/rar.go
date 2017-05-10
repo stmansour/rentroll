@@ -283,16 +283,19 @@ func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response RAR
 // wsdoc }
 func GetRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var m []rlib.RentalAgreementRentable
 	var rar RARList
-	m := rlib.GetRentalAgreementRentables(d.ID, &d.Dt, &d.Dt)
-	fmt.Printf("d.ID = %d, d.DT = %s, len(m) = %d\n", d.ID, d.Dt.Format(rlib.RRDATEFMT3), len(m))
-	for i := 0; i < len(m); i++ {
-		var xr RAR
-		r := rlib.GetRentable(m[i].RID)
-		rlib.MigrateStructVals(&m[i], &xr)
-		xr.RentableName = r.RentableName
-		xr.Recid = m[i].RARID
-		rar.Records = append(rar.Records, xr)
+	if d.ID > 0 {
+		m = rlib.GetRentalAgreementRentables(d.ID, &d.Dt, &d.Dt)
+		fmt.Printf("d.ID = %d, d.DT = %s, len(m) = %d\n", d.ID, d.Dt.Format(rlib.RRDATEFMT3), len(m))
+		for i := 0; i < len(m); i++ {
+			var xr RAR
+			r := rlib.GetRentable(m[i].RID)
+			rlib.MigrateStructVals(&m[i], &xr)
+			xr.RentableName = r.RentableName
+			xr.Recid = m[i].RARID
+			rar.Records = append(rar.Records, xr)
+		}
 	}
 	rar.Status = "success"
 	rar.Total = int64(len(m))
