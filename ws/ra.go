@@ -49,7 +49,7 @@ type RentalAgr struct {
 	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
 	LastModTime            rlib.JSONTime     // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
-	Payors                 string            // payors list attached with this RA within same time
+	Payors                 rlib.NullString   // payors list attached with this RA within same time
 }
 
 // RentalAgrForm is used to save a Rental Agreement.  It holds those values
@@ -231,8 +231,8 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	SELECT
 		{{.SelectClause}}
 	FROM RentalAgreement
-	INNER JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
-	INNER JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
+	LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
+	LEFT JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
 	WHERE {{.WhereClause}}
 	GROUP BY RentalAgreement.RAID
 	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
