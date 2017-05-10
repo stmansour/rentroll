@@ -1097,7 +1097,7 @@ function buildPageElements() {
             .done(function(data) {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                     var msg = JSON.parse(data);
-                    w2ui.rapGrid.message(msg.message);
+                    w2ui.rentalagrsGrid.message(msg.message);
                     return;
                 }
                 if (data.status == 'success') {
@@ -1105,7 +1105,7 @@ function buildPageElements() {
                     rec.RAID = data.recid;
                     setToRAForm(BID, rec.RAID, y);
                 } else {
-                    w2ui.rapGrid.message(data.message);
+                    w2ui.rentalagrsGrid.message(data.message);
                 }
             });
         },
