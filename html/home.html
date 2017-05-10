@@ -2290,17 +2290,19 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'Name',        hidden: false, caption: 'Name',  size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
             {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', stortable: true, style: 'text-align: left',
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
                 }
             },
-            {field: 'DebitLID',    hidden: false, caption: 'Debit',         size: '50px', stortable: true, style: 'text-align: center'},
-            {field: 'CreditLID',   hidden: false, caption: 'Credit',        size: '50px', stortable: true, style: 'text-align: left'},
+            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', stortable: true},
+            {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', stortable: true, style: 'text-align: left'},
+            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', stortable: true},
+            {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', stortable: true, style: 'text-align: left'},
             {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
+            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
         ],
     });
 

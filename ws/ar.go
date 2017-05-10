@@ -55,16 +55,18 @@ type ARSaveOther struct {
 
 // PrARGrid is a structure specifically for the UI Grid.
 type PrARGrid struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	ARID        int64
-	BID         int64
-	Name        string
-	ARType      int64
-	DebitLID    int64
-	CreditLID   int64
-	Description string
-	DtStart     rlib.JSONTime
-	DtStop      rlib.JSONTime
+	Recid            int64 `json:"recid"` // this is to support the w2ui form
+	ARID             int64
+	BID              int64
+	Name             string
+	ARType           int64
+	DebitLID         int64
+	DebitLedgerName  string
+	CreditLID        int64
+	CreditLedgerName string
+	Description      string
+	DtStart          rlib.JSONTime
+	DtStop           rlib.JSONTime
 }
 
 // SaveARInput is the input data format for a Save command
@@ -98,34 +100,38 @@ type GetARResponse struct {
 
 // arGridRowScan scans a result from sql row and dump it in a PrARGrid struct
 func arGridRowScan(rows *sql.Rows, q PrARGrid) PrARGrid {
-	rlib.Errcheck(rows.Scan(&q.ARID, &q.BID, &q.Name, &q.ARType, &q.DebitLID, &q.CreditLID, &q.Description, &q.DtStart, &q.DtStop))
+	rlib.Errcheck(rows.Scan(&q.ARID, &q.BID, &q.Name, &q.ARType, &q.DebitLID, &q.DebitLedgerName, &q.CreditLID, &q.CreditLedgerName, &q.Description, &q.DtStart, &q.DtStop))
 	return q
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
 var arFieldsMap = map[string][]string{
-	"ARID":        {"AR.ARID"},
-	"BID":         {"AR.BID"},
-	"Name":        {"AR.Name"},
-	"ARType":      {"AR.ARType"},
-	"DebitLID":    {"AR.DebitLID"},
-	"CreditLID":   {"AR.CreditLID"},
-	"Description": {"AR.Description"},
-	"DtStart":     {"AR.DtStart"},
-	"DtStop":      {"AR.DtStop"},
+	"ARID":             {"AR.ARID"},
+	"BID":              {"AR.BID"},
+	"Name":             {"AR.Name"},
+	"ARType":           {"AR.ARType"},
+	"DebitLID":         {"AR.DebitLID"},
+	"DebitLedgerName":  {"debitQuery.Name"},
+	"CreditLID":        {"AR.CreditLID"},
+	"CreditLedgerName": {"creditQuery.Name"},
+	"Description":      {"AR.Description"},
+	"DtStart":          {"AR.DtStart"},
+	"DtStop":           {"AR.DtStop"},
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
 var arQuerySelectFields = []string{
-	"ARID",
-	"BID",
-	"Name",
-	"ARType",
-	"DebitLID",
-	"CreditLID",
-	"Description",
-	"DtStart",
-	"DtStop",
+	"AR.ARID",
+	"AR.BID",
+	"AR.Name",
+	"AR.ARType",
+	"AR.DebitLID",
+	"debitQuery.Name as DebitLedgerName",
+	"AR.CreditLID",
+	"creditQuery.Name as CreditLedgerName",
+	"AR.Description",
+	"AR.DtStart",
+	"AR.DtStop",
 }
 
 // SvcSearchHandlerARs generates a report of all ARs defined business d.BID
@@ -160,6 +166,8 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	SELECT
 		{{.SelectClause}}
 	FROM AR
+	INNER JOIN GLAccount as debitQuery on AR.DebitLID=debitQuery.LID
+	INNER JOIN GLAccount as creditQuery on AR.CreditLID=creditQuery.LID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
