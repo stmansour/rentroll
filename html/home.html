@@ -1018,7 +1018,7 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'BID', hidden: true, caption: 'BID',  size: '40px', sortable: false},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
-            {field: 'Payors', caption: 'Payor(s)', size: '150px', sortable: true},
+            {field: 'Payors', caption: 'Payor(s)', size: '250px', sortable: true},
             {field: 'AgreementStart', caption: 'Agreement<br>Start', render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'AgreementStop', caption: 'Agreement<br>Stop',  render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
         ],
@@ -1447,7 +1447,7 @@ function buildPageElements() {
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
             toolbarDelete  : true,   // indicates if toolbar delete button is visible
-            toolbarSave    : true,   // indicates if toolbar save button is visible
+            toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
             toolbarEdit     : false,
@@ -1699,7 +1699,7 @@ function buildPageElements() {
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
             toolbarDelete  : true,   // indicates if toolbar delete button is visible
-            toolbarSave    : true,   // indicates if toolbar save button is visible
+            toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
             toolbarEdit     : false,
@@ -1730,7 +1730,7 @@ function buildPageElements() {
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
             {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
             {field: 'RID', caption: 'RID',  size: '40px', hidden: true, sortable: false},
-            {field: 'Rentable', caption: app.sRentable,  size: '80px', style: 'text-align: right', sortable: true},
+            {field: 'Rentable', caption: app.sRentable,  size: '150px', style: 'text-align: right', sortable: true},
             // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
@@ -2266,7 +2266,7 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          Account Rules
+    //          Account Rules Grid
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'arsGrid',
@@ -2290,22 +2290,136 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'Name',        hidden: false, caption: 'Name',  size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
             {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', stortable: true, style: 'text-align: left',
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
                 }
             },
-            {field: 'DebitLID',    hidden: false, caption: 'Debit',         size: '50px', stortable: true, style: 'text-align: center'},
-            {field: 'CreditLID',   hidden: false, caption: 'Credit',        size: '50px', stortable: true, style: 'text-align: left'},
+            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', stortable: true},
+            {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', stortable: true, style: 'text-align: left'},
+            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', stortable: true},
+            {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', stortable: true, style: 'text-align: left'},
             {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
+            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
         ],
+        // onClick: function(event) {
+        //     event.onComplete = function () {
+        //         var sel = this.getSelection(true);
+        //         if (sel.length > 0) {
+        //             for (var i = 0; i < sel.length; i++) {
+        //                 var ob = this.get(sel[i]);
+        //                 console.log('account rule form url: ' + '/v1/ar/' + ob.BID + '/' + ob.ARID);
+        //                 setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
+        //             }
+        //         } else {
+        //             console.log('*** NO SELECTION FOUND ***   So, select index 0');
+        //             this.select(1);
+        //         }
+        //     };
+        // }
     });
 
-}  // buildPageElements
+    //------------------------------------------------------------------------
+    //          Account Rules Form
+    //------------------------------------------------------------------------
+    // $().w2form({
+    //     name: 'arsForm',
+    //     style: 'border: 0px; background-color: transparent;',
+    //     header: 'Account Rule Detail',
+    //     url: '/v1/ar',
+    //     formURL: '/html/formar.html',
+    //     fields: [
+    //         { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+    //         { field: 'ARID', type: 'int', required: false, html: { caption: 'ARID', page: 0, column: 0 } },
+    //         { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+    //         { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
+    //         { field: 'ARType', type: 'list', required: false, html: { caption: 'AR Type', page: 0, column: 0 } },
+    //         { field: 'DebitLID', type: 'int', required: false, html: { caption: 'DebitLID', page: 0, column: 0 } },
+    //         { field: 'DebitLedgerName', type: 'text', required: false, html: { caption: 'Debit Ledger', page: 0, column: 0 } },
+    //         { field: 'CreditLID', type: 'int', required: false, html: { caption: 'CreditLID', page: 0, column: 0 } },
+    //         { field: 'CreditLedgerName', type: 'text', required: false, html: { caption: 'Credit Ledger', page: 0, column: 0 } },
+    //         { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0} },
+    //         { field: 'DtStart', type: 'date', required: false, html: { caption: 'Start Date', page: 0, column: 0 } },
+    //         { field: 'DtStop', type: 'date', required: false, html: { caption: 'Stop Date', page: 0, column: 0 } },
+    //     ],
+    //     toolbar: {
+    //         items: [
+    //             { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+    //             { id: 'bt3', type: 'spacer' },
+    //             { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+    //         ],
+    //         onClick: function (event) {
+    //             switch(event.target) {
+    //             case 'btnClose':
+    //                 w2ui.toplayout.hide('right',true);
+    //                 w2ui.toplayout.render();
+    //                 break;
+    //             }
+    //         },
+    //     },
+    //     actions: {
+    //         save: function () {
+    //             //var obj = this;
+    //             var tgrid = w2ui.rentablesGrid;
+    //             var sel = tgrid.getSelection();
+    //             tgrid.unselect(sel);
+    //             this.save({}, function (data) {
+    //                 if (data.status == 'error') {
+    //                     console.log('ERROR: '+ data.message);
+    //                     return;
+    //                 }
+    //                 w2ui.toplayout.hide('right',true);
+    //                 tgrid.reload();
+    //             });
+    //         },
+    //         reset: function() {
+    //             var f = w2ui.rentableForm;
+    //             console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.RentableName);
+    //         }
+    //     },
+    //     onSubmit: function(target, data){
+    //         console.log("RentableForm POST data");
+    //         // object to value before submit to server
+    //         // data.postData.record.BID=data.postData.record.BID.id;
+    //         // data.postData.record.RentableStatus=data.postData.record.RentableStatus.id;
+    //         // data.postData.record.RentableType=data.postData.record.RentableType.text; // does not required at server side, but for json unmarshling IT needs to be converted
+    //         // data.postData.record.RTID=data.postData.record.RentableType.id;
+    //         console.log(data.postData.record);
+    //     },
+    //     onLoad: function (event) {
+    //         // get last selected rentable from grid
+    //         var lastRentable = w2ui.rentablesGrid.get(w2ui.rentablesGrid.last.click_recid);
+    //         console.log("lastRentable", lastRentable);
+    //         // get rentabletypes for business ob.BID
+    //         var rtList = getRentableTypes(lastRentable.BID);
+    //         // w2ui field 'RentableType' items
+    //         var items = [];
+    //         // w2ui field 'RentableType' selected item
+    //         var selected = {};
+    //         // find matched RTID
+    //         rtList.records.forEach(function(rt){
+    //             items.push({id: rt.RTID, text: rt.Name});
+    //             if (rt.RTID == lastRentable.RTID) {
+    //                 selected = {id: rt.RTID, text: rt.Name};
+    //             }
+    //         });
+    //         // set options for 'RentableType' in rentableForm when event complete
+    //         event.onComplete = function () {
+    //             w2ui.rentableForm.set("RentableType",{options: {items: items, selected: selected, maxDropHeight: 200}});
+    //             // must call refresh when form field has been set
+    //             w2ui.rentableForm.refresh();
+    //         };
+    //     },
+    //     onRefresh: function(/*event*/) {
+    //         var f = w2ui.rentableForm;
+    //         var r = f.record;
+    //         f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
+    //     }
+    // });
 
+}  // buildPageElements
 
 function saveNewRentable() {
     "use strict";

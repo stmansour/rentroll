@@ -49,7 +49,9 @@ type RentalAgr struct {
 	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
 	LastModTime            rlib.JSONTime     // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
-	Payors                 string            // payors list attached with this RA within same time
+	Payors                 rlib.NullString   // payors list attached with this RA within same time
+	PayorIsCompany         rlib.NullBool     // if payor is company
+	PayorCompanyName       rlib.NullString   // payor's company name if it has
 }
 
 // RentalAgrForm is used to save a Rental Agreement.  It holds those values
@@ -112,7 +114,6 @@ type GetRentalAgreementResponse struct {
 var rentalAgrGridFieldsMap = map[string][]string{
 	"RAID":                   {"RentalAgreement.RAID"},
 	"RATID":                  {"RentalAgreement.RATID"},
-	"BID":                    {"RentalAgreement.BID"},
 	"NLID":                   {"RentalAgreement.NLID"},
 	"AgreementStart":         {"RentalAgreement.AgreementStart"},
 	"AgreementStop":          {"RentalAgreement.AgreementStop"},
@@ -144,13 +145,14 @@ var rentalAgrGridFieldsMap = map[string][]string{
 	"LastModTime":            {"RentalAgreement.LastModTime"},
 	"LastModBy":              {"RentalAgreement.LastModBy"},
 	"Payors":                 {"Transactant.FirstName", "Transactant.LastName"},
+	"PayorIsCompany":         {"Transactant.IsCompany"},
+	"PayorCompanyName":       {"Transactant.CompanyName"},
 }
 
 // which fields needs to be fetched for SQL query for rental agreements
 var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.RAID",
 	"RentalAgreement.RATID",
-	// "RentalAgreement.BID",
 	"RentalAgreement.NLID",
 	"RentalAgreement.AgreementStart",
 	"RentalAgreement.AgreementStop",
@@ -182,11 +184,13 @@ var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.LastModTime",
 	"RentalAgreement.LastModBy",
 	"GROUP_CONCAT(DISTINCT CONCAT(Transactant.FirstName, ' ', Transactant.LastName) SEPARATOR ', ') AS Payors",
+	"Transactant.IsCompany",
+	"Transactant.CompanyName",
 }
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
 func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) RentalAgr {
-	rlib.Errcheck(rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors))
+	rlib.Errcheck(rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors, &q.PayorIsCompany, &q.PayorCompanyName))
 	return q
 
 }
@@ -231,8 +235,8 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	SELECT
 		{{.SelectClause}}
 	FROM RentalAgreement
-	INNER JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
-	INNER JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
+	LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
+	LEFT JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
 	WHERE {{.WhereClause}}
 	GROUP BY RentalAgreement.RAID
 	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
@@ -286,6 +290,11 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 
 		// get records info in struct q
 		q = rentalAgrRowScan(rows, q)
+
+		// if it is company then override/fill Payors value
+		if q.PayorIsCompany.Valid && q.PayorIsCompany.Bool {
+			q.Payors.String = "(C) " + q.PayorCompanyName.String
+		}
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
