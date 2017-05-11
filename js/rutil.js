@@ -709,17 +709,23 @@ function genDateRangeNavigator(prefix) {
 //-----------------------------------------------------------------------------
 function getRentableTypes(BID) {
     "use strict";
-    var result;
-    jQuery.ajax({
+    return jQuery.ajax({
         type: "GET",
         url: "/v1/rtlist/"+BID,
         dataType: "json",
-        async: false,
-        success:function(data){
-            console.log("Rentable Types list for "+BID);
-            console.log(data);
-            result = data;
-        }
     });
-    return result;
+}
+
+//-----------------------------------------------------------------------------
+// getGLAccounts - return the GLAccounts list with respect of BUD
+// @params
+// @return  the GLAccounts
+//-----------------------------------------------------------------------------
+function getGLAccounts(BID) {
+    "use strict";
+    return jQuery.ajax({
+        type: "GET",
+        url: "/v1/gllist/"+BID,
+        dataType: "json",
+    });
 }

@@ -61,6 +61,8 @@ var app = {
     receiptsToolbarOnClickAdded: false,
     paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
     arList: [{id: 0, text:"Assessment"}, {id:1, text:"Receipt"}],
+    rt_list: [],
+    gl_accounts: [],
     rof: {"csv": 4, "pdf": 3}, // report export/output format
     pdfPageWidth: 8.5, // defaults to USLetter Portrait width
     pdfPageHeight: 11, // defaults to USLetter Portrait height
@@ -866,7 +868,24 @@ function buildPageElements() {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
                         console.log('rentable form url: ' + '/v1/rentable/' + ob.BID + '/' + ob.RID);
-                        setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
+
+                        getRentableTypes(ob.BID)
+                        .done(function(data){
+                            app["rt_list"] = data;
+                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
+
+                            // set typedown list in rentableform - RentableType field
+                            w2ui.rentableForm.get("RentableType").options.items = app.rt_list.records;
+                            w2ui.rentableForm.get("RentableType").options.selected = {id: ob.RTID, text: ob.Name};
+                            // w2ui.rentableForm.set("RentableType").options.maxDropHeight = 200;
+
+                            // must call refresh when form field has been set
+                            w2ui.rentableForm.refresh();
+                        })
+                        .fail(function(){
+                            console.log("Failed to get rentable type list");
+                        });
+
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -948,31 +967,6 @@ function buildPageElements() {
             // data.postData.record.RentableType=data.postData.record.RentableType.text; // does not required at server side, but for json unmarshling IT needs to be converted
             // data.postData.record.RTID=data.postData.record.RentableType.id;
             console.log(data.postData.record);
-        },
-        onLoad: function (event) {
-            // get last selected rentable from grid
-            var lastRentable = w2ui.rentablesGrid.get(w2ui.rentablesGrid.last.click_recid);
-            console.log("lastRentable", lastRentable);
-            // get rentabletypes for business ob.BID
-            var rtList = getRentableTypes(lastRentable.BID);
-            // w2ui field 'RentableType' items
-            var items = [];
-            // w2ui field 'RentableType' selected item
-            var selected = {};
-            // find matched RTID
-            rtList.records.forEach(function(rt){
-                items.push({id: rt.RTID, text: rt.Name});
-                if (rt.RTID == lastRentable.RTID) {
-                    selected = {id: rt.RTID, text: rt.Name};
-                }
-            });
-
-            // set options for 'RentableType' in rentableForm when event complete
-            event.onComplete = function () {
-                w2ui.rentableForm.set("RentableType",{options: {items: items, selected: selected, maxDropHeight: 200}});
-                // must call refresh when form field has been set
-                w2ui.rentableForm.refresh();
-            };
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentableForm;
@@ -2275,8 +2269,8 @@ function buildPageElements() {
             toolbar        : true,
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : true,   // indicates if toolbar delete button is visible
-            toolbarSave    : true,   // indicates if toolbar save button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
+            toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn   : false,
             expandColumn   : false,
             toolbarEdit    : false,
@@ -2290,7 +2284,7 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   stortable: true, style: 'text-align: left'},
             {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', stortable: true, style: 'text-align: left',
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
@@ -2302,122 +2296,208 @@ function buildPageElements() {
             {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', stortable: true, style: 'text-align: left'},
             {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', stortable: true, style: 'text-align: left'},
         ],
-        // onClick: function(event) {
-        //     event.onComplete = function () {
-        //         var sel = this.getSelection(true);
-        //         if (sel.length > 0) {
-        //             for (var i = 0; i < sel.length; i++) {
-        //                 var ob = this.get(sel[i]);
-        //                 console.log('account rule form url: ' + '/v1/ar/' + ob.BID + '/' + ob.ARID);
-        //                 setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
-        //             }
-        //         } else {
-        //             console.log('*** NO SELECTION FOUND ***   So, select index 0');
-        //             this.select(1);
-        //         }
-        //     };
-        // }
+        onClick: function(event) {
+
+            event.onComplete = function () {
+                var sel = this.getSelection();
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; ++i) {
+                        var ob = this.get(sel[i]);
+
+                        // set ARType DropDown list
+                        var artype_selected;
+                        var artype_items = [];
+                        Object.keys(app.ARTypes).forEach(function(artype_id){
+                            if (ob.ARType == artype_id) {
+                                artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
+                            }
+                            artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                        });
+
+                        // get gl account list
+                        getGLAccounts(ob.BID)
+                        .done(function(data){
+                            app["gl_accounts"] = data;
+                            setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
+
+                            // set fields
+                            w2ui.arsForm.get('ARType').options.items=artype_items;
+                            w2ui.arsForm.get('ARType').options.selected=artype_selected;
+                            w2ui.arsForm.get('ARType').options.maxDropHeight=200;
+
+                            w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts.records;
+                            w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
+                            w2ui.arsForm.get('DebitLID').options.maxDropHeight=200;
+
+                            w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts.records;
+                            w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
+                            w2ui.arsForm.get('CreditLID').options.maxDropHeight=200;
+
+                            // refresh the form
+                            w2ui.arsForm.refresh();
+                        })
+                        .fail(function(data){
+                            console.log("Failed to get glAccountList")
+                        });
+                     }
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
+                }
+            };
+        },
+        onAdd: function (event) {
+
+            // Insert an empty record...
+            var x = getCurrentBusiness();
+            var BID=x.value;
+            var BUD = getBUDfromBID(BID);
+
+            getGLAccounts(BID)
+            .done(function(data) {
+
+                w2ui.arsForm.clear();
+
+                var artype_items = [{id: 0, text: "Select AR type"}];
+                Object.keys(app.ARTypes).forEach(function(artype_id){
+                    artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                });
+
+                app["gl_accounts"] = data;
+                var gl_accounts_items = [{id: 0, text: "Select GL Account"}]
+                app.gl_accounts.records.forEach(function(gl) {
+                    gl_accounts_items.push({id: gl.LID, text: gl.Name});
+                });
+
+                w2ui.arsForm.fields[2].options.items = app.BizMap;
+                w2ui.arsForm.fields[4].options.items = artype_items;
+                w2ui.arsForm.fields[5].options.items = gl_accounts_items;
+                w2ui.arsForm.fields[6].options.items = gl_accounts_items;
+                w2ui.arsForm.refresh();
+
+                if (data.status != 'success') {
+                    w2ui.arsForm.message(data.message);
+                }
+            })
+            .fail( function() {
+                console.log('unable to get GLAccounts');
+                return;
+             });
+
+            var y = new Date();
+            var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+
+            var record = {
+                recid: 0,
+                BID: {id: BID, text: BUD},
+                ARID: 0,
+                Name: '',
+                Description: '',
+                DtStart: w2uiDateControlString(y),
+                DtStop: w2uiDateControlString(ny),
+            };
+            w2ui.arsForm.record = record;
+            w2ui.toplayout.content('right', w2ui.arsForm);
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.sizeTo('right', 700);
+        },
     });
 
     //------------------------------------------------------------------------
     //          Account Rules Form
     //------------------------------------------------------------------------
-    // $().w2form({
-    //     name: 'arsForm',
-    //     style: 'border: 0px; background-color: transparent;',
-    //     header: 'Account Rule Detail',
-    //     url: '/v1/ar',
-    //     formURL: '/html/formar.html',
-    //     fields: [
-    //         { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-    //         { field: 'ARID', type: 'int', required: false, html: { caption: 'ARID', page: 0, column: 0 } },
-    //         { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
-    //         { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
-    //         { field: 'ARType', type: 'list', required: false, html: { caption: 'AR Type', page: 0, column: 0 } },
-    //         { field: 'DebitLID', type: 'int', required: false, html: { caption: 'DebitLID', page: 0, column: 0 } },
-    //         { field: 'DebitLedgerName', type: 'text', required: false, html: { caption: 'Debit Ledger', page: 0, column: 0 } },
-    //         { field: 'CreditLID', type: 'int', required: false, html: { caption: 'CreditLID', page: 0, column: 0 } },
-    //         { field: 'CreditLedgerName', type: 'text', required: false, html: { caption: 'Credit Ledger', page: 0, column: 0 } },
-    //         { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0} },
-    //         { field: 'DtStart', type: 'date', required: false, html: { caption: 'Start Date', page: 0, column: 0 } },
-    //         { field: 'DtStop', type: 'date', required: false, html: { caption: 'Stop Date', page: 0, column: 0 } },
-    //     ],
-    //     toolbar: {
-    //         items: [
-    //             { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-    //             { id: 'bt3', type: 'spacer' },
-    //             { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
-    //         ],
-    //         onClick: function (event) {
-    //             switch(event.target) {
-    //             case 'btnClose':
-    //                 w2ui.toplayout.hide('right',true);
-    //                 w2ui.toplayout.render();
-    //                 break;
-    //             }
-    //         },
-    //     },
-    //     actions: {
-    //         save: function () {
-    //             //var obj = this;
-    //             var tgrid = w2ui.rentablesGrid;
-    //             var sel = tgrid.getSelection();
-    //             tgrid.unselect(sel);
-    //             this.save({}, function (data) {
-    //                 if (data.status == 'error') {
-    //                     console.log('ERROR: '+ data.message);
-    //                     return;
-    //                 }
-    //                 w2ui.toplayout.hide('right',true);
-    //                 tgrid.reload();
-    //             });
-    //         },
-    //         reset: function() {
-    //             var f = w2ui.rentableForm;
-    //             console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.RentableName);
-    //         }
-    //     },
-    //     onSubmit: function(target, data){
-    //         console.log("RentableForm POST data");
-    //         // object to value before submit to server
-    //         // data.postData.record.BID=data.postData.record.BID.id;
-    //         // data.postData.record.RentableStatus=data.postData.record.RentableStatus.id;
-    //         // data.postData.record.RentableType=data.postData.record.RentableType.text; // does not required at server side, but for json unmarshling IT needs to be converted
-    //         // data.postData.record.RTID=data.postData.record.RentableType.id;
-    //         console.log(data.postData.record);
-    //     },
-    //     onLoad: function (event) {
-    //         // get last selected rentable from grid
-    //         var lastRentable = w2ui.rentablesGrid.get(w2ui.rentablesGrid.last.click_recid);
-    //         console.log("lastRentable", lastRentable);
-    //         // get rentabletypes for business ob.BID
-    //         var rtList = getRentableTypes(lastRentable.BID);
-    //         // w2ui field 'RentableType' items
-    //         var items = [];
-    //         // w2ui field 'RentableType' selected item
-    //         var selected = {};
-    //         // find matched RTID
-    //         rtList.records.forEach(function(rt){
-    //             items.push({id: rt.RTID, text: rt.Name});
-    //             if (rt.RTID == lastRentable.RTID) {
-    //                 selected = {id: rt.RTID, text: rt.Name};
-    //             }
-    //         });
-    //         // set options for 'RentableType' in rentableForm when event complete
-    //         event.onComplete = function () {
-    //             w2ui.rentableForm.set("RentableType",{options: {items: items, selected: selected, maxDropHeight: 200}});
-    //             // must call refresh when form field has been set
-    //             w2ui.rentableForm.refresh();
-    //         };
-    //     },
-    //     onRefresh: function(/*event*/) {
-    //         var f = w2ui.rentableForm;
-    //         var r = f.record;
-    //         f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
-    //     }
-    // });
+    $().w2form({
+        name: 'arsForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: 'Account Rule Detail',
+        url: '/v1/ar',
+        formURL: '/html/formar.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+            { field: 'ARID', type: 'int', required: false, html: { caption: 'ARID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
+            { field: 'ARType', type: 'list', required: false, html: { caption: 'AR Type', page: 0, column: 0 } },
+            { field: 'DebitLID', type: 'list', required: false, html: { caption: 'DebitLID', page: 0, column: 0 } },
+            { field: 'CreditLID', type: 'list', required: false, html: { caption: 'CreditLID', page: 0, column: 0 } },
+            { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0} },
+            { field: 'DtStart', type: 'date', required: false, html: { caption: 'Start Date', page: 0, column: 0 } },
+            { field: 'DtStop', type: 'date', required: false, html: { caption: 'Stop Date', page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    break;
+                }
+            },
+        },
+        actions: {
+            delete: function() {
+
+                var tgrid = w2ui.arsGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+
+                var params = {cmd: 'delete', formname: this.name, ARID: this.record.ARID };
+                var dat = JSON.stringify(params);
+
+                // delete AR request
+                $.post(this.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    tgrid.reload();
+                })
+                .fail(function(data){
+                    console.log("Delete AR failed.")
+                });
+            },
+            save: function () {
+                //var obj = this;
+                var tgrid = w2ui.arsGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    tgrid.reload();
+                });
+            },
+            reset: function() {
+                var f = w2ui.arsForm;
+                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.ARID + '   Name = ' + f.record.Name);
+            }
+        },
+        onSubmit: function(target, data){
+            console.log("arsForm POST data");
+            // object to value before submit to server
+            delete data.postData.record["CreditLedgerName"];
+            delete data.postData.record["DebitLedgerName"];
+            console.log(data.postData.record);
+        },
+        onRefresh: function(/*event*/) {
+            var f = w2ui.arsForm;
+            var r = f.record;
+            f.header = 'Edit Account Rule' + ' (' + r.ARID + ')';
+        }
+    });
 
 }  // buildPageElements
 

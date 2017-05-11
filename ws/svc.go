@@ -119,6 +119,7 @@ type ServiceData struct {
 	RID           int64                // RAID if supplied
 	RCPTID        int64                // RCPTID if supplied
 	ASMID         int64                // ASMID if supplied
+	ARID          int64                // ASMID if supplied
 	Dt            time.Time            // for cmds that need a single date
 	D1            time.Time            // start of date range
 	D2            time.Time            // end of date range
@@ -132,6 +133,7 @@ type ServiceData struct {
 var Svcs = []ServiceHandler{
 	{"accounts", SvcSearchHandlerGLAccounts, true},
 	{"ar", SvcFormHandlerAR, true},
+	{"gllist", SvcGLAccountsList, true},
 	{"ars", SvcSearchHandlerARs, true},
 	{"asm", SvcFormHandlerAssessment, true},
 	{"asms", SvcSearchHandlerAssessments, true},

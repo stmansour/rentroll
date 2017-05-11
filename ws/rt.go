@@ -9,8 +9,8 @@ import (
 
 // RentableTypeRecord is struct to list down individual rentable type
 type RentableTypeRecord struct {
-	Name string
-	RTID int64
+	RTID int64  `json:"id"`
+	Name string `json:"text"`
 }
 
 // GetRentableTypesResponse is the response to a GetRentable request
@@ -50,7 +50,7 @@ func SvcRentableTypesList(w http.ResponseWriter, r *http.Request, d *ServiceData
 	// append records in ascending order
 	var rentableTypesList []RentableTypeRecord
 	for _, rtid := range keys {
-		rentableTypesList = append(rentableTypesList, RentableTypeRecord{Name: m[rtid].Name, RTID: m[rtid].RTID})
+		rentableTypesList = append(rentableTypesList, RentableTypeRecord{RTID: m[rtid].RTID, Name: m[rtid].Name})
 	}
 	g.Records = rentableTypesList
 	fmt.Printf("GetBusinessRentableTypes returned %d records\n", len(g.Records))
