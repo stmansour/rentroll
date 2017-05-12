@@ -877,7 +877,6 @@ function buildPageElements() {
                             // set typedown list in rentableform - RentableType field
                             w2ui.rentableForm.get("RentableType").options.items = app.rt_list.records;
                             w2ui.rentableForm.get("RentableType").options.selected = {id: ob.RTID, text: ob.Name};
-                            // w2ui.rentableForm.set("RentableType").options.maxDropHeight = 200;
 
                             // must call refresh when form field has been set
                             w2ui.rentableForm.refresh();
@@ -913,7 +912,7 @@ function buildPageElements() {
             { field: 'RARDtStart', type: 'date', required: false, html: { caption: 'Rentable Agreement Start', page: 0, column: 0 } },
             { field: 'RARDtStop', type: 'date', required: false, html: { caption: 'Rentable Agreement Stop', page: 0, column: 0 } },
             { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
-            { field: 'RentableType', type: 'list', required: false, html: { caption: 'RentableType', page: 0, column: 0 } },
+            { field: 'RentableType', type: 'list', required: false, html: { caption: 'RentableType', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: 'RTID', type: 'int', required: false },
             { field: 'RTRefDtStart', type: 'date', required: false, html: { caption: 'Rentable Type Ref Start', page: 0, column: 0 } },
             { field: 'RTRefDtStop', type: 'date', required: false, html: { caption: 'Rentable Type Ref Stop', page: 0, column: 0 } },
@@ -1012,7 +1011,17 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'BID', hidden: true, caption: 'BID',  size: '40px', sortable: false},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
-            {field: 'Payors', caption: 'Payor(s)', size: '250px', sortable: true},
+            {field: 'Payors', caption: 'Payor(s)', size: '250px', sortable: true,
+                render: function (record, index, col_index) {
+                    var icon;
+                    if (record.PayorIsCompany) {
+                        icon = 'fa-building-o'
+                    } else{
+                        icon = 'fa-user-o'
+                    }
+                    return '<i class="fa '+icon+'"></i>&nbsp;<span>'+record.Payors+'</span>';
+                },
+            },
             {field: 'AgreementStart', caption: 'Agreement<br>Start', render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'AgreementStop', caption: 'Agreement<br>Stop',  render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
         ],
@@ -2286,13 +2295,14 @@ function buildPageElements() {
             {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   stortable: true, style: 'text-align: left'},
             {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', stortable: true, style: 'text-align: left',
+                options: { items: [], selected: {}, maxDropHeight: 200 },
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
                 }
             },
-            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', stortable: true},
+            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', stortable: true, options: { items: [], selected: {}, maxDropHeight: 200 }},
             {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', stortable: true, style: 'text-align: left'},
-            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', stortable: true},
+            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', stortable: true, options: { items: [], selected: {}, maxDropHeight: 200 }},
             {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', stortable: true, style: 'text-align: left'},
             {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
@@ -2325,15 +2335,12 @@ function buildPageElements() {
                             // set fields
                             w2ui.arsForm.get('ARType').options.items=artype_items;
                             w2ui.arsForm.get('ARType').options.selected=artype_selected;
-                            w2ui.arsForm.get('ARType').options.maxDropHeight=200;
 
                             w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts.records;
                             w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
-                            w2ui.arsForm.get('DebitLID').options.maxDropHeight=200;
 
                             w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts.records;
                             w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
-                            w2ui.arsForm.get('CreditLID').options.maxDropHeight=200;
 
                             // refresh the form
                             w2ui.arsForm.refresh();

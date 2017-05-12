@@ -293,7 +293,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 
 		// if it is company then override/fill Payors value
 		if q.PayorIsCompany.Valid && q.PayorIsCompany.Bool {
-			q.Payors.String = "(C) " + q.PayorCompanyName.String
+			q.Payors.String = q.PayorCompanyName.String
 		}
 
 		g.Records = append(g.Records, q)
