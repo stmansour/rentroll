@@ -1024,6 +1024,7 @@ function buildPageElements() {
             },
             {field: 'AgreementStart', caption: 'Agreement<br>Start', render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'AgreementStop', caption: 'Agreement<br>Stop',  render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'PayorIsCompany', hidden: true, caption: 'IsCompany',  size: '40px', sortable: false},
         ],
         actions: {
             save: function () {
@@ -1326,6 +1327,18 @@ function buildPageElements() {
             {field: 'FirstName', caption: 'First Name',  size: '10%', sortable: true},
             {field: 'MiddleName', caption: 'MI',  size: '30px', sortable: true},
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
+            {field: 'IsCompany', caption: 'IsCompany', hidden: true, sortable: false },
+            {field: 'CompanyName', caption: 'CompanyName',  size: '10%', sortable: true, style: 'text-align: left',
+                render: function (record, index, col_index) {
+                    var html = '';
+                    if (record.IsCompany) {
+                        html = record.CompanyName
+                    } else {
+                        html = '';
+                    }
+                    return html;
+                },
+            },
             {field: 'DtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
         ],

@@ -21,6 +21,8 @@ type RAPayor struct {
 	RentableName string        // rentable name
 	DtStart      rlib.JSONTime // start date/time for this Rentable
 	DtStop       rlib.JSONTime // stop date/time
+	IsCompany    int
+	CompanyName  string
 }
 
 // RAPayorFormSave defines a person for the web service interface
