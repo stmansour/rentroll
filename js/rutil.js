@@ -729,3 +729,59 @@ function getGLAccounts(BID) {
         dataType: "json",
     });
 }
+
+
+// int_to_bool converts int to bool. i.e, 0: false, 1: true
+function int_to_bool(i){
+    "use strict";
+    if (i>0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// arShowNewForm used to show new form of AR
+function arShowNewForm(BID, BUD){
+    "use strict";
+
+    var artype_pre_selected = {id: 0, text: "Select AR type"};
+    var artype_items = [artype_pre_selected];
+    Object.keys(app.ARTypes).forEach(function(artype_id){
+        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+    });
+
+    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+    var gl_accounts_items = [gl_accounts_pre_selected];
+    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts.records);
+
+    w2ui.arsForm.fields[4].options.items = artype_items;
+    w2ui.arsForm.fields[4].options.selected = artype_pre_selected;
+    w2ui.arsForm.fields[5].options.items = gl_accounts_items;
+    w2ui.arsForm.fields[5].options.selected = gl_accounts_pre_selected;
+    w2ui.arsForm.fields[6].options.items = gl_accounts_items;
+    w2ui.arsForm.fields[6].options.selected = gl_accounts_pre_selected;
+    w2ui.arsForm.refresh();
+
+    var y = new Date();
+    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+
+    var record = {
+        recid: 0,
+        BID: BUD,
+        ARID: 0,
+        ARType: artype_pre_selected,
+        DebitLID: gl_accounts_pre_selected,
+        CreditLID: gl_accounts_pre_selected,
+        Name: '',
+        Description: '',
+        DtStart: w2uiDateControlString(y),
+        DtStop: w2uiDateControlString(ny),
+    };
+    w2ui.arsForm.record = record;
+    w2ui.arsForm.refresh();
+    w2ui.arsForm.url = '/v1/ar/' + BID + '/0';
+    w2ui.toplayout.content('right', w2ui.arsForm);
+    w2ui.toplayout.show('right', true);
+    w2ui.toplayout.sizeTo('right', 700);
+}

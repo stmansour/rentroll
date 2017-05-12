@@ -1,0 +1,146 @@
+{
+    "records": [
+        {
+            "id": 9,
+            "text": "Cash"
+        },
+        {
+            "id": 10,
+            "text": "Accounts Receivable"
+        },
+        {
+            "id": 11,
+            "text": "Gross Scheduled Receipts"
+        },
+        {
+            "id": 12,
+            "text": "Loss (Gain) to Lease"
+        },
+        {
+            "id": 13,
+            "text": "Vacancy"
+        },
+        {
+            "id": 14,
+            "text": "Security Deposit Receivable"
+        },
+        {
+            "id": 15,
+            "text": "Security Deposits"
+        },
+        {
+            "id": 16,
+            "text": "Owner Equity"
+        },
+        {
+            "id": 89,
+            "text": "Credit Card Clearing"
+        },
+        {
+            "id": 90,
+            "text": "Accrued Taxes"
+        },
+        {
+            "id": 91,
+            "text": "Sales Taxes"
+        },
+        {
+            "id": 92,
+            "text": "Other Accrued Taxes"
+        },
+        {
+            "id": 93,
+            "text": "Gross Scheduled Regular Dues"
+        },
+        {
+            "id": 94,
+            "text": "Gross Scheduled Special Assessments"
+        },
+        {
+            "id": 95,
+            "text": "Gross Scheduled Rents"
+        },
+        {
+            "id": 96,
+            "text": "Income Offsets"
+        },
+        {
+            "id": 97,
+            "text": "Employee Concessions"
+        },
+        {
+            "id": 98,
+            "text": "Tenant Concessions"
+        },
+        {
+            "id": 99,
+            "text": "Owner Concession"
+        },
+        {
+            "id": 100,
+            "text": "Administrative Concession"
+        },
+        {
+            "id": 101,
+            "text": "Off Line Renovations"
+        },
+        {
+            "id": 102,
+            "text": "Off Line Maintenance"
+        },
+        {
+            "id": 103,
+            "text": "Othe Income Offsets"
+        },
+        {
+            "id": 104,
+            "text": "Other Income"
+        },
+        {
+            "id": 105,
+            "text": "Utility Fees"
+        },
+        {
+            "id": 106,
+            "text": "Application Fees"
+        },
+        {
+            "id": 107,
+            "text": "Late Fees"
+        },
+        {
+            "id": 108,
+            "text": "Insufficient Funds Fee"
+        },
+        {
+            "id": 109,
+            "text": "Expense Reimbursement"
+        },
+        {
+            "id": 110,
+            "text": "Forfeited Security Deposit"
+        },
+        {
+            "id": 111,
+            "text": "Damage Fee"
+        },
+        {
+            "id": 112,
+            "text": "Other Miscellaneous Income"
+        },
+        {
+            "id": 113,
+            "text": "Bad Debt"
+        },
+        {
+            "id": 114,
+            "text": "Income Suspense"
+        },
+        {
+            "id": 115,
+            "text": "Other Business Income"
+        }
+    ],
+    "status": "success",
+    "total": 35
+}

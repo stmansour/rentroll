@@ -1016,7 +1016,7 @@ function buildPageElements() {
                     var icon;
                     if (record.PayorIsCompany) {
                         icon = 'fa-building-o'
-                    } else{
+                    } else {
                         icon = 'fa-user-o'
                     }
                     return '<i class="fa '+icon+'"></i>&nbsp;<span>'+record.Payors+'</span>';
@@ -2295,14 +2295,13 @@ function buildPageElements() {
             {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
             {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   stortable: true, style: 'text-align: left'},
             {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', stortable: true, style: 'text-align: left',
-                options: { items: [], selected: {}, maxDropHeight: 200 },
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
                 }
             },
-            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', stortable: true, options: { items: [], selected: {}, maxDropHeight: 200 }},
+            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', stortable: true},
             {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', stortable: true, style: 'text-align: left'},
-            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', stortable: true, options: { items: [], selected: {}, maxDropHeight: 200 }},
+            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', stortable: true},
             {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', stortable: true, style: 'text-align: left'},
             {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
@@ -2362,53 +2361,29 @@ function buildPageElements() {
             var BID=x.value;
             var BUD = getBUDfromBID(BID);
 
+            setToForm('arsForm', '/v1/ar/' + BID + '/0');
+
+            // get latest gl accounts first
             getGLAccounts(BID)
             .done(function(data) {
 
-                w2ui.arsForm.clear();
-
-                var artype_items = [{id: 0, text: "Select AR type"}];
-                Object.keys(app.ARTypes).forEach(function(artype_id){
-                    artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
-                });
-
-                app["gl_accounts"] = data;
-                var gl_accounts_items = [{id: 0, text: "Select GL Account"}]
-                app.gl_accounts.records.forEach(function(gl) {
-                    gl_accounts_items.push({id: gl.LID, text: gl.Name});
-                });
-
-                w2ui.arsForm.fields[2].options.items = app.BizMap;
-                w2ui.arsForm.fields[4].options.items = artype_items;
-                w2ui.arsForm.fields[5].options.items = gl_accounts_items;
-                w2ui.arsForm.fields[6].options.items = gl_accounts_items;
-                w2ui.arsForm.refresh();
-
                 if (data.status != 'success') {
                     w2ui.arsForm.message(data.message);
+                    w2ui.toplayout.content('right', w2ui.arsForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 700);
+                    return;
+                } else {
+                    app["gl_accounts"] = data;
+                    arShowNewForm(BID, BUD);
                 }
+
             })
             .fail( function() {
                 console.log('unable to get GLAccounts');
                 return;
              });
 
-            var y = new Date();
-            var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
-
-            var record = {
-                recid: 0,
-                BID: {id: BID, text: BUD},
-                ARID: 0,
-                Name: '',
-                Description: '',
-                DtStart: w2uiDateControlString(y),
-                DtStop: w2uiDateControlString(ny),
-            };
-            w2ui.arsForm.record = record;
-            w2ui.toplayout.content('right', w2ui.arsForm);
-            w2ui.toplayout.show('right', true);
-            w2ui.toplayout.sizeTo('right', 700);
         },
     });
 
@@ -2424,14 +2399,16 @@ function buildPageElements() {
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'ARID', type: 'int', required: false, html: { caption: 'ARID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: { items: app.businesses }, required: false, html: { caption: 'BID', page: 0, column: 0 } },
             { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
-            { field: 'ARType', type: 'list', required: false, html: { caption: 'AR Type', page: 0, column: 0 } },
-            { field: 'DebitLID', type: 'list', required: false, html: { caption: 'DebitLID', page: 0, column: 0 } },
-            { field: 'CreditLID', type: 'list', required: false, html: { caption: 'CreditLID', page: 0, column: 0 } },
+            { field: 'ARType', type: 'list', required: false, html: { caption: 'AR Type', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'DebitLID', type: 'list', required: false, html: { caption: 'DebitLID', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'CreditLID', type: 'list', required: false, html: { caption: 'CreditLID', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0} },
             { field: 'DtStart', type: 'date', required: false, html: { caption: 'Start Date', page: 0, column: 0 } },
             { field: 'DtStop', type: 'date', required: false, html: { caption: 'Stop Date', page: 0, column: 0 } },
+            { field: 'PriorToRAStart', type: 'checkbox', required: false, html: { caption: 'Valid Prior to RAStart', page: 0, column: 0 } },
+            { field: 'PriorToRAStop', type: 'checkbox', required: false, html: { caption: 'Valid After to RAStop', page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -2495,8 +2472,10 @@ function buildPageElements() {
         onSubmit: function(target, data){
             console.log("arsForm POST data");
             // object to value before submit to server
-            delete data.postData.record["CreditLedgerName"];
-            delete data.postData.record["DebitLedgerName"];
+            data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
+            data.postData.record.PriorToRAStop = int_to_bool(data.postData.record.PriorToRAStop);
+            delete data.postData.record.CreditLedgerName;
+            delete data.postData.record.DebitLedgerName;
             console.log(data.postData.record);
         },
         onRefresh: function(/*event*/) {

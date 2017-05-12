@@ -25,8 +25,10 @@ type ARSendForm struct {
 	Description      string
 	DtStart          rlib.JSONTime
 	DtStop           rlib.JSONTime
-	LastModTime      rlib.JSONTime
-	LastModBy        int64
+	// PriorToRAStart   bool // is it ok to charge prior to RA start
+	// PriorToRAStop    bool // is it ok to charge after RA stop
+	LastModTime rlib.JSONTime
+	LastModBy   int64
 }
 
 // ARSaveForm is a structure specifically for the return value from w2ui.
@@ -43,6 +45,8 @@ type ARSaveForm struct {
 	Description string
 	DtStart     rlib.JSONTime
 	DtStop      rlib.JSONTime
+	// PriorToRAStart bool // is it ok to charge prior to RA start
+	// PriorToRAStop  bool // is it ok to charge after RA stop
 	LastModTime rlib.JSONTime
 	LastModBy   int64
 }
@@ -399,6 +403,15 @@ var getARQuerySelectFields = []string{
 	"AR.Description",
 	"AR.DtStart",
 	"AR.DtStop",
+	// "AR.RARequired",
+}
+
+// for what RARequired value, prior and after value are
+var raRequiredMap = map[int][2]bool{
+	0: {false, false}, // during
+	1: {true, false},  // prior or during
+	2: {false, true},  // after or during
+	3: {true, true},   // after or during or prior
 }
 
 // getARForm returns the requested ars
@@ -450,8 +463,13 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 
-		rlib.Errcheck(rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop))
+		// var raRequired int
 
+		rlib.Errcheck(rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop /*&raRequired*/))
+
+		// raReqMappedVal := raRequiredMap[raRequired]
+		// gg.PriorToRAStart = raReqMappedVal[0]
+		// gg.PriorToRAStop = raReqMappedVal[1]
 		g.Record = gg
 	}
 
