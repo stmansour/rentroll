@@ -2406,7 +2406,7 @@ function buildPageElements() {
     $().w2form({
         name: 'arsForm',
         style: 'border: 0px; background-color: transparent;',
-        header: 'Account Rule Detail',
+        header: 'Edit Account Rule',
         url: '/v1/ar',
         formURL: '/html/formar.html',
         fields: [
@@ -2494,7 +2494,12 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.arsForm;
             var r = f.record;
-            f.header = 'Edit Account Rule' + ' (' + r.ARID + ')';
+            if (r.ARID) {
+                f.header = 'Edit Account Rule' + ' (' + r.ARID + ')';
+            } else {
+                f.header = 'Edit Account Rule (new)';
+            }
+
         }
     });
 
