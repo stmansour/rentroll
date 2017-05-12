@@ -9,9 +9,9 @@ Austin, TX 78738 USA
                           Parent                                                                                              
 Date        RCPTID        RCPTID  PMTID        Doc No      Amount  Account Rule                                        Comment
 ----------  ------------  ------  -----------  ------  ----------  --------------------------------------------------  -------
-02/01/2016  RCPT00000007  0       PMT00000001  1193      3,500.00  ASM(5) c ${GLGENRCV} _, ASM(5) d ${GLCASH} _               
-02/02/2016  RCPT00000008  0       PMT00000001  1652      3,550.00  ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _               
-02/16/2016  RCPT00000009  0       PMT00000001  268       1,173.33  ASM(9) c ${GLGENRCV} 1062.07,ASM(9) d ${GLCASH}            
+02/01/2016  RCPT00000007  0       PMT00000001  1193      3,500.00  ASM(10) c ${GLGENRCV} _, ASM(10) d ${GLCASH} _             
+02/02/2016  RCPT00000008  0       PMT00000001  1652      3,550.00  ASM(11) c ${GLGENRCV} _, ASM(11) d ${GLCASH} _             
+02/16/2016  RCPT00000009  0       PMT00000001  268       1,173.33  ASM(12) c ${GLGENRCV} 1062.07,ASM(12) d ${GLCASH}          
                                                                    1062.07, ASM(13) c ${GLGENRCV} 111.26, ASM(13) d           
                                                                    ${GLCASH} 111.26                                           
 

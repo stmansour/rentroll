@@ -65,7 +65,7 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 5, rlib.RentalPeriodToString(a.ProrationCycle))
 		tbl.Putf(-1, 6, a.Amount)
 		tbl.Puts(-1, 7, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
-		tbl.Puts(-1, 8, a.AcctRule)
+		tbl.Puts(-1, 8, rlib.GetAssessmentAccountRuleText(&a))
 	}
 	rlib.Errcheck(rows.Err())
 	tbl.TightenColumns()

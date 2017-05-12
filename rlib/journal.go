@@ -21,19 +21,82 @@ func sumAllocations(m *[]AcctRule) (float64, float64) {
 	return sum, debits
 }
 
+// builds the account rule based on an ARID
+func buildRule(id int64) string {
+	if id == 0 {
+		return ""
+	}
+	rule, err := GetAR(id)
+	if err != nil {
+		Ulog("buildRule: Error from getAR(%d):  %s\n", id, err.Error())
+		return ""
+	}
+	d := GetLedger(rule.DebitLID)
+	c := GetLedger(rule.CreditLID)
+	s := fmt.Sprintf("d %s _, c %s _", d.GLNumber, c.GLNumber)
+	return s
+}
+
+// GetAssessmentAccountRule looks at the supplied Assessment.  If the .AcctRule is present
+// then it is returned. If it is not present, then the ARID is used and an AcctRule is built
+// from the ARID.
+func GetAssessmentAccountRule(a *Assessment) string {
+	if len(a.AcctRule) > 0 {
+		return a.AcctRule
+	}
+	return buildRule(a.ARID)
+}
+
+// GetReceiptAccountRule looks at the supplied Receipt.  If the .AcctRule is present
+// then it is returned. If it is not present, then the ARID is used and an AcctRule is built
+// from the ARID.
+func GetReceiptAccountRule(a *Receipt) string {
+	if len(a.AcctRule) > 0 {
+		return a.AcctRule
+	}
+	return buildRule(a.ARID)
+}
+
+func getRuleText(id int64) string {
+	rule, err := GetAR(id)
+	if err != nil {
+		Ulog("getRuleText: Error from getAR(%d):  %s\n", id, err.Error())
+		return ""
+	}
+	return rule.Name
+}
+
+// GetAssessmentAccountRuleText returns the text to use in reports or in a UI that describes
+// the assessment
+func GetAssessmentAccountRuleText(a *Assessment) string {
+	if len(a.AcctRule) > 0 {
+		return a.AcctRule
+	}
+	return getRuleText(a.ARID)
+}
+
+// GetReceiptAccountRuleText returns the text to use in reports or in a UI that describes
+// the Receipt
+func GetReceiptAccountRuleText(a *Receipt) string {
+	if len(a.AcctRule) > 0 {
+		return a.AcctRule
+	}
+	return getRuleText(a.ARID)
+}
+
 // ProrateAssessment - determines the proration factor for this assessment
 //
 // Parameters:
-//		a			pointer to the assessment
-//      d           date or the recurrence date of the assessment being analyzed
-//  	d1, d2:     the time period we're being asked to analyze
+//		a		 pointer to the assessment
+//      d        date or the recurrence date of the assessment being analyzed
+//  	d1, d2:  the time period we're being asked to analyze
 //
 // Returns:
-//         	pf:     prorate factor = rentDur/asmtDur
-//		   num:		pf numerator, amount of rentcycle actually used expressed in units of prorateCycle
-//         den:     pf denominator, the rent cycle, expressed in units of prorateCycle
-//       start:		trimmed start date (latest of RentalAgreement.PossessionStart and d1)
-//        stop:		trmmed stop date (soonest of RentalAgreement.PossessionStop and d2)
+//         	pf:  prorate factor = rentDur/asmtDur
+//		   num:	 pf numerator, amount of rentcycle actually used expressed in units of prorateCycle
+//         den:  pf denominator, the rent cycle, expressed in units of prorateCycle
+//       start:	 trimmed start date (latest of RentalAgreement.PossessionStart and d1)
+//        stop:	 trmmed stop date (soonest of RentalAgreement.PossessionStop and d2)
 //=================================================================================================
 func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (float64, int64, int64, time.Time, time.Time) {
 	funcname := "ProrateAssessment"
@@ -103,7 +166,7 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 	// fmt.Printf("calling ParseAcctRule:\n  asmt = %d\n  rid = %d, d1 = %s, d2 = %s\n  a.Amount = %f\n", a.ASMID, a.RID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Amount)
 	// fmt.Printf("RRdb.BizTypes[bid].DefaultAccts = %#v\n", RRdb.BizTypes[a.BID].DefaultAccts)
 
-	m := ParseAcctRule(xbiz, a.RID, d1, d2, a.AcctRule, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	m := ParseAcctRule(xbiz, a.RID, d1, d2, GetAssessmentAccountRule(a), a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 
 	// fmt.Printf("journalAssessment:  m = %#v\n", m)
 	// for i := 0; i < len(m); i++ {
@@ -297,6 +360,7 @@ func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
 		// fmt.Printf("ProcessJournalEntry: 3... len(dl) = %d\n", len(dl))
 		for i := 0; i < len(dl); i++ {
 			a1 := *a
+			a1.FLAGS = 0                                                  // ensure that we don't cary forward any flags
 			a1.Start = dl[i]                                              // use the instance date
 			a1.Stop = dl[i].Add(CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
 			a1.ASMID = 0                                                  // ensure this is a new assessment
@@ -333,7 +397,7 @@ func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
 // creates the corresponding journal instances for the new assessment instances
 //=================================================================================================
 func GenerateRecurInstances(xbiz *XBusiness, d1, d2 *time.Time) {
-	// fmt.Printf("GetRecurringAssessmentsByBusiness - d2 = %s   d1 = %s\n", d2.Format(RRDATEINPFMT), d1.Format(RRDATEINPFMT))
+	// fmt.Printf("GetRecurringAssessmentsByBusiness - d1 = %s   d2 = %s\n", d1.Format(RRDATEINPFMT, d2.Format(RRDATEINPFMT)))
 	rows, err := RRdb.Prepstmt.GetRecurringAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1) // only get recurring instances without a parent
 	Errcheck(err)
 	defer rows.Close()

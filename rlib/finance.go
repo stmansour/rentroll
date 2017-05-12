@@ -300,7 +300,7 @@ func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
 		bal += lm.Balance // we initialize the balance to this amount
 		// fmt.Printf("LedgerMarkerOnOrBefore( bid=%d, lid=%d, rid=%d,  dt = %10s ) --> LM%08d, lm.Balance = %8.2f ==>  bal = %8.2f\n", bid, lid, rid, dt.Format(RRDATEFMT4), lm.LMID, lm.Balance, bal)
 	}
-	// Get the sum of the activeity between requested date and LedgerMarker
+	// Get the sum of the activity between requested date and LedgerMarker
 	var activity float64
 	if rid != 0 {
 		activity, _ = GetRentableAccountActivity(bid, lid, rid, &lm.Dt, dt)
