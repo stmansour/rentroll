@@ -43,7 +43,7 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 3, rlib.IDtoString("PMT", a.PMTID))
 		tbl.Puts(-1, 4, a.DocNo)
 		tbl.Putf(-1, 5, a.Amount)
-		tbl.Puts(-1, 6, a.AcctRule)
+		tbl.Puts(-1, 6, rlib.GetReceiptAccountRuleText(&a))
 		tbl.Puts(-1, 7, a.Comment)
 	}
 	tbl.TightenColumns()

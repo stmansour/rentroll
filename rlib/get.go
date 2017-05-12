@@ -1623,6 +1623,20 @@ func GetRentalAgreementPayor(id int64) (RentalAgreementPayor, error) {
 func GetRentalAgreementPayorsInRange(raid int64, d1, d2 *time.Time) []RentalAgreementPayor {
 	rows, err := RRdb.Prepstmt.GetRentalAgreementPayorsInRange.Query(raid, d1, d2)
 	Errcheck(err)
+	return GetRentalAgreementPayorsByRows(rows)
+}
+
+// GetRentalAgreementsByPayor returns an array of RentalAgreementPayor where the supplied
+// TCID is a payor on the specified date
+func GetRentalAgreementsByPayor(bid, tcid int64, dt *time.Time) []RentalAgreementPayor {
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid, dt, dt)
+	Errcheck(err)
+	return GetRentalAgreementPayorsByRows(rows)
+}
+
+// GetRentalAgreementPayorsByRows returns an array of RentalAgreementPayor records
+// that were matched by the supplied sql.Rows
+func GetRentalAgreementPayorsByRows(rows *sql.Rows) []RentalAgreementPayor {
 	defer rows.Close()
 	var t []RentalAgreementPayor
 	t = make([]RentalAgreementPayor, 0)

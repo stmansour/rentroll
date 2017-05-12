@@ -1,5 +1,10 @@
 package rlib
 
+import (
+	"fmt"
+	"runtime/debug"
+)
+
 // InsertAccountDepository writes a new AccountDepository record to the database. If the record is successfully written,
 // // the ADID field is set to its new value.
 // func InsertAccountDepository(a *AccountDepository) (int64, error) {
@@ -40,7 +45,16 @@ func InsertAR(a *AR) (int64, error) {
 // the ASMID field is set to its new value.
 func InsertAssessment(a *Assessment) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.Comment, a.LastModBy)
+
+	//
+	// DEBUG...
+	//
+	if a.FLAGS != 0 {
+		fmt.Printf(">>> INSERTING ASSESSMENT WITH FLAGS = 0x%0x\n", a.FLAGS)
+		debug.PrintStack()
+	}
+
+	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

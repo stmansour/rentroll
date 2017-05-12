@@ -135,23 +135,25 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	flds = "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,Comment,LastModTime,LastModBy"
+	flds = "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,LastModTime,LastModBy"
 	RRdb.DBFields["Assessments"] = flds
 	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? and PASMID=?")
+	RRdb.Prepstmt.GetAssessmentInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? AND PASMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAssessmentDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? and Amount=? and PASMID=? and RID=? and RAID=? and ATypeLID=?")
+	RRdb.Prepstmt.GetAssessmentDuplicate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE Start=? AND Amount=? AND PASMID=? AND RID=? AND RAID=? AND ATypeLID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? and (PASMID=0 or RentCycle=0) and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? AND (PASMID=0 OR RentCycle=0) AND Start<? AND Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRecurringAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? and PASMID=0 and RentCycle>0 and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetRecurringAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? AND PASMID=0 AND RentCycle>0 AND Start<? AND Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? and (PASMID!=0 or RentCycle=0) and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? AND (PASMID!=0 OR RentCycle=0) AND Start<? AND Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  or (RentCycle>0 and PASMID>0)) and RAID=? and Start<? and Stop>=?")
+	RRdb.Prepstmt.GetAllAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=? AND Start<? AND Stop>=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RID=? and Stop >= ? and Start < ?")
+	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RID=? AND Stop >= ? AND Start < ?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 1)=0 AND Stop >= ? AND Start < ?")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")
@@ -760,11 +762,12 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteRentableUser, err = RRdb.Dbrr.Prepare("DELETE FROM RentableUsers WHERE RUID=?")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAPID=?")
+	flds = "RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS"
+	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementPayors WHERE RAPID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementPayorsInRange, err = RRdb.Dbrr.Prepare("SELECT RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>=DtStart")
+	RRdb.Prepstmt.GetRentalAgreementPayorsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>=DtStart")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("SELECT RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
+	RRdb.Prepstmt.GetRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertRentalAgreementPayor, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPayors (RAID,BID,TCID,DtStart,DtStop,FLAGS) VALUES(?,?,?,?,?,?)")
 	Errcheck(err)
@@ -775,6 +778,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("DELETE from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentalAgreementPayor, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPayors WHERE RAPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreementsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE BID=? AND TCID=? AND DtStart<=? AND ?<DtStop")
 	Errcheck(err)
 
 	//===============================

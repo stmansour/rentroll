@@ -235,7 +235,7 @@ type CustomAttributeRef struct {
 	CID         int64 // uid of the custom attribute
 }
 
-// AssessmentType is a list of chargest that the company can make
+// AssessmentType is a list of charges that the company can make
 type AssessmentType struct {
 	ASMTID      int64     // unique id for this rate plan
 	BID         int64     // which business
@@ -616,6 +616,7 @@ type Assessment struct {
 	InvoiceNo      int64     // A uniqueID for the invoice number
 	AcctRule       string    // override ARID with this account rule
 	ARID           int64     // reference to the account rule to use
+	FLAGS          uint64    // bit flags.  1<<0 = has this assessment been paid?
 	Comment        string
 	LastModTime    time.Time
 	LastModBy      int64
@@ -1299,6 +1300,8 @@ type RRprepSQL struct {
 	DeleteAR                             *sql.Stmt
 	GetLedgerByName                      *sql.Stmt
 	GetARsByType                         *sql.Stmt
+	GetRentalAgreementsByPayor           *sql.Stmt
+	GetUnpaidAssessmentsByRAID           *sql.Stmt
 
 	// GetJournalInstance                 *sql.Stmt
 	// GetSecDepBalanceLedger             *sql.Stmt

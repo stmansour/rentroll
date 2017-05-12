@@ -17,10 +17,10 @@ import (
 // }
 
 // CVS record format:
-// 0    1           2      3      4            5              6        7                                           8
-// BID, RAID,       PMTID, DEPID, Dt,           DocNo,        Amount,  AcctRule,                                   Comment
-// REH, RA00000001, 2,     1,     "2004-01-01", 1254,         1000.00, "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _",
-// REH, RA00000001, 1,     1,     "2015-11-21", 883789238746, 294.66,  "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
+// 0    1           2      3      4            5              6        7                     8                                           9
+// BID, RAID,       PMTID, DEPID, Dt,           DocNo,        Amount,  AR,                   AcctRule,                                   Comment
+// REH, RA00000001, 2,     1,     "2004-01-01", 1254,         1000.00, "Rent Payment Check", "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _",
+// REH, RA00000001, 1,     1,     "2015-11-21", 883789238746, 294.66,  "Rent Payment Check", "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
 
 // GenerateReceiptAllocations processes the AcctRule for the supplied rlib.Receipt and generates rlib.ReceiptAllocation records
 func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusiness) error {
@@ -66,6 +66,7 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusi
 		}
 		rcpt.RA = append(rcpt.RA, a)
 	}
+
 	return nil
 }
 
@@ -87,6 +88,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 		Dt       = iota
 		DocNo    = iota
 		Amount   = iota
+		AR       = iota
 		AcctRule = iota
 		Comment  = iota
 	)
@@ -100,6 +102,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 		{"Dt", Dt},
 		{"DocNo", DocNo},
 		{"Amount", Amount},
+		{"AR", AR},
 		{"AcctRule", AcctRule},
 		{"Comment", Comment},
 	}
@@ -173,6 +176,18 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	r.Amount, _ = rlib.FloatFromString(sa[Amount], "rlib.Receipt Amount is invalid")
 
 	//-------------------------------------------------------------------
+	// Set the ARID
+	//-------------------------------------------------------------------
+	s := strings.TrimSpace(sa[AR])
+	if len(s) > 0 {
+		rule, err := rlib.GetARByName(r.BID, s)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load AR named %s: %s", funcname, lineno, s, err.Error())
+		}
+		r.ARID = rule.ARID
+	}
+
+	//-------------------------------------------------------------------
 	// Set the AcctRule.  No checking for now...
 	//-------------------------------------------------------------------
 	r.AcctRule = strings.TrimSpace(sa[AcctRule])
@@ -208,6 +223,37 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 		rlib.DeleteReceipt(r.RCPTID)
 		rlib.DeleteReceiptAllocations(r.RCPTID)
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error processing receipt: %s", funcname, lineno, err.Error())
+	}
+
+	// fmt.Printf("Completed generating receipt %d.\n", r.RCPTID)
+	//-------------------------------------------------------------------
+	// first, make a complete pass through the Assessments to see if any
+	// of them have already been marked as paid
+	//-------------------------------------------------------------------
+	for i := 0; i < len(r.RA); i++ {
+		// fmt.Printf("Checking receipt allocation: %#v\n", r.RA[i])
+		a, err := rlib.GetAssessment(r.RA[i].ASMID)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error marking assessments as paid: %s", funcname, lineno, err.Error())
+		}
+		// fmt.Printf("a.FLAGS = 0x%x\n", a.FLAGS)
+		if a.FLAGS&1<<0 != 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  assessment %d is already marked as paid", funcname, lineno, a.ASMID)
+		}
+	}
+	//-------------------------------------------------------------------
+	// Now mark the allocated assessments as paid
+	//-------------------------------------------------------------------
+	for i := 0; i < len(r.RA); i++ {
+		a, err := rlib.GetAssessment(r.RA[i].ASMID)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error marking assessments as paid: %s", funcname, lineno, err.Error())
+		}
+		a.FLAGS |= 1 << 0 // bit 0 is the "paid" flag
+		err = rlib.UpdateAssessment(&a)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error marking assessments as paid: %s", funcname, lineno, err.Error())
+		}
 	}
 
 	//-------------------------------------------------------------------
