@@ -13,16 +13,20 @@ import (
 // ARSendForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.AR struct
 type ARSendForm struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	ARID        int64
-	BID         int64
-	Name        string
-	ARType      int64
-	DebitLID    int64
-	CreditLID   int64
-	Description string
-	DtStart     rlib.JSONTime
-	DtStop      rlib.JSONTime
+	Recid            int64 `json:"recid"` // this is to support the w2ui form
+	ARID             int64
+	BID              rlib.XJSONBud
+	Name             string
+	ARType           int64
+	DebitLID         int64
+	DebitLedgerName  string
+	CreditLID        int64
+	CreditLedgerName string
+	Description      string
+	DtStart          rlib.JSONTime
+	DtStop           rlib.JSONTime
+	// PriorToRAStart   bool // is it ok to charge prior to RA start
+	// PriorToRAStop    bool // is it ok to charge after RA stop
 	LastModTime rlib.JSONTime
 	LastModBy   int64
 }
@@ -38,19 +42,21 @@ type ARSaveForm struct {
 	Recid       int64 `json:"recid"` // this is to support the w2ui form
 	ARID        int64
 	Name        string
-	ARType      int64
-	DebitLID    int64
-	CreditLID   int64
 	Description string
 	DtStart     rlib.JSONTime
 	DtStop      rlib.JSONTime
+	// PriorToRAStart bool // is it ok to charge prior to RA start
+	// PriorToRAStop  bool // is it ok to charge after RA stop
 	LastModTime rlib.JSONTime
 	LastModBy   int64
 }
 
 // ARSaveOther is a struct to handle the UI list box selections
 type ARSaveOther struct {
-	BID rlib.W2uiHTMLSelect
+	BID       rlib.W2uiHTMLSelect
+	CreditLID rlib.W2uiHTMLSelect
+	DebitLID  rlib.W2uiHTMLSelect
+	ARType    rlib.W2uiHTMLSelect
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -96,6 +102,11 @@ type SearchARsResponse struct {
 type GetARResponse struct {
 	Status string     `json:"status"`
 	Record ARSendForm `json:"record"`
+}
+
+// DeleteARForm holds ARID to delete it
+type DeleteARForm struct {
+	ARID int64
 }
 
 // arGridRowScan scans a result from sql row and dump it in a PrARGrid struct
@@ -148,6 +159,31 @@ var arQuerySelectFields = []string{
 func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcSearchHandlerARs"
 	fmt.Printf("Entered %s\n", funcname)
+
+	switch d.wsSearchReq.Cmd {
+	case "get":
+		getARGrid(w, r, d)
+		break
+	default:
+		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcGridErrorReturn(w, err)
+		return
+	}
+}
+
+// getARGrid returns a list of ARs for w2ui grid
+// wsdoc {
+//  @Title  list ARs
+//	@URL /v1/ars/:BUI
+//  @Method  GET
+//	@Synopsis Get Account Rules
+//  @Description  Get all ARs associated with BID
+//  @Desc By default, the search is made for receipts from "today" to 31 days prior.
+//	@Input WebGridSearchRequest
+//  @Response SearchARsResponse
+// wsdoc }
+func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "getARGrid"
 	var (
 		err error
 		g   SearchARsResponse
@@ -181,7 +217,7 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	countQuery := renderSQLQuery(arQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -207,7 +243,7 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("Error from DB Query: %s\n", err.Error())
+		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -247,18 +283,21 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 func SvcFormHandlerAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcFormHandlerAR\n")
 	var err error
-	if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "ARID", 3, w); err != nil {
+	if d.ARID, err = SvcExtractIDFromURI(r.RequestURI, "ARID", 3, w); err != nil {
 		return
 	}
 
-	fmt.Printf("Request: %s:  BID = %d,  ID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	fmt.Printf("Request: %s:  BID = %d,  ID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ARID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
-		getAR(w, r, d)
+		getARForm(w, r, d)
 		break
 	case "save":
-		saveAR(w, r, d)
+		saveARForm(w, r, d)
+		break
+	case "delete":
+		deleteARForm(w, r, d)
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
@@ -267,10 +306,10 @@ func SvcFormHandlerAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 }
 
-// saveAR returns the requested receipt
+// saveARForm returns the requested receipt
 // wsdoc {
 //  @Title  Save AR
-//	@URL /v1/receipt/:BUI/:ARID
+//	@URL /v1/ars/:BUI/:ARID
 //  @Method  GET
 //	@Synopsis Save a AR
 //  @Desc  This service saves a AR.  If :ARID exists, it will
@@ -279,8 +318,8 @@ func SvcFormHandlerAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //	@Input SaveARInput
 //  @Response SvcStatusResponse
 // wsdoc }
-func saveAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveAR"
+func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "saveARForm"
 	fmt.Printf("SvcFormHandlerAR save\n")
 	fmt.Printf("record data = %s\n", d.data)
 
@@ -312,19 +351,39 @@ func saveAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
+	fmt.Printf("bar.record.creditLid:========%#v\n\n", bar.Record.CreditLID)
+	a.CreditLID, ok = rlib.StringToInt64(bar.Record.CreditLID.ID) // CreditLID has drop list
+	if !ok {
+		e := fmt.Errorf("%s: invalid CreditLID value: %s", funcname, bar.Record.CreditLID.ID)
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	a.DebitLID, ok = rlib.StringToInt64(bar.Record.DebitLID.ID) // DebitLID has drop list
+	if !ok {
+		e := fmt.Errorf("%s: invalid DebitLID value: %s", funcname, bar.Record.DebitLID.ID)
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	a.ARType, ok = rlib.StringToInt64(bar.Record.ARType.ID) // ArType has drop list
+	if !ok {
+		e := fmt.Errorf("%s: Invalid ARType value: %s", funcname, bar.Record.ARType.ID)
+		SvcGridErrorReturn(w, e)
+		return
+	}
 	fmt.Printf("saveAR - second migrate: a = %#v\n", a)
 
 	var err error
-	if a.ARID == 0 && d.ID == 0 {
+	if a.ARID == 0 && d.ARID == 0 {
 		// This is a new AR
 		fmt.Printf(">>>> NEW RECEIPT IS BEING ADDED\n")
 		_, err = rlib.InsertAR(&a)
 	} else {
 		// update existing record
+		fmt.Printf("Updating existing AR: %d\n", a.ARID)
 		err = rlib.UpdateAR(&a)
 	}
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving receipt (ARID=%d\n: %s", funcname, d.ID, err.Error())
+		e := fmt.Errorf("%s: Error saving receipt (ARID=%d\n: %s", funcname, d.ARID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
@@ -332,29 +391,120 @@ func saveAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponseWithID(w, a.ARID)
 }
 
-// GetAR returns the requested receipt
+// which fields needs to be fetched for SQL query for receipts grid
+var getARQuerySelectFields = []string{
+	"AR.ARID",
+	"AR.Name",
+	"AR.ARType",
+	"AR.DebitLID",
+	"debitQuery.Name as DebitLedgerName",
+	"AR.CreditLID",
+	"creditQuery.Name as CreditLedgerName",
+	"AR.Description",
+	"AR.DtStart",
+	"AR.DtStop",
+	// "AR.RARequired",
+}
+
+// for what RARequired value, prior and after value are
+var raRequiredMap = map[int][2]bool{
+	0: {false, false}, // during
+	1: {true, false},  // prior or during
+	2: {false, true},  // after or during
+	3: {true, true},   // after or during or prior
+}
+
+// getARForm returns the requested ars
 // wsdoc {
 //  @Title  Get AR
-//	@URL /v1/receipt/:BUI/:ARID
+//	@URL /v1/ars/:BUI/:ARID
 //  @Method  GET
 //	@Synopsis Get information on a AR
-//  @Description  Return all fields for receipt :ARID
+//  @Description  Return all fields for ars :ARID
 //	@Input WebGridSearchRequest
 //  @Response GetARResponse
 // wsdoc }
-func getAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("entered getAR\n")
+func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Printf("entered getARForm\n")
 	var g GetARResponse
-	a, err := rlib.GetAR(d.ID)
+
+	arQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM AR
+	INNER JOIN GLAccount as debitQuery on AR.DebitLID=debitQuery.LID
+	INNER JOIN GLAccount as creditQuery on AR.CreditLID=creditQuery.LID
+	WHERE {{.WhereClause}};`
+
+	qc := queryClauses{
+		"SelectClause": strings.Join(getARQuerySelectFields, ","),
+		"WhereClause":  fmt.Sprintf("AR.BID=%d AND AR.ARID=%d", d.BID, d.ARID),
+	}
+
+	// get formatted query with substitution of select, where, order clause
+	q := renderSQLQuery(arQuery, qc)
+	fmt.Printf("db query = %s\n", q)
+
+	// execute the query
+	rows, err := rlib.RRdb.Dbrr.Query(q)
 	if err != nil {
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	if a.ARID > 0 {
+	defer rows.Close()
+
+	for rows.Next() {
 		var gg ARSendForm
-		rlib.MigrateStructVals(&a, &gg)
+
+		for bud, bid := range rlib.RRdb.BUDlist {
+			if bid == d.BID {
+				gg.BID = rlib.XJSONBud(bud)
+				break
+			}
+		}
+
+		// var raRequired int
+
+		rlib.Errcheck(rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop /*&raRequired*/))
+
+		// raReqMappedVal := raRequiredMap[raRequired]
+		// gg.PriorToRAStart = raReqMappedVal[0]
+		// gg.PriorToRAStop = raReqMappedVal[1]
 		g.Record = gg
 	}
+
+	// error check
+	rlib.Errcheck(rows.Err())
+
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
+}
+
+// deleteAR request delete AR from database
+// wsdoc {
+//  @Title  Get AR
+//	@URL /v1/ars/:BUI/:ARID
+//  @Method  DELETE
+//	@Synopsis Delete record for a AR
+//  @Description  Delete record from database ars :ARID
+//	@Input WebGridSearchRequest
+//  @Response DeleteARResposne
+// wsdoc }
+func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "deleteARForm"
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+	var del DeleteARForm
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	if err := rlib.DeleteAR(del.ARID); err != nil {
+		SvcGridErrorReturn(w, err)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
 }

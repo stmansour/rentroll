@@ -17,21 +17,15 @@
         </div>
         <div class="w2ui-field">
             <label>ARType:</label>
-            <div><input name="ARType" type="list" /></div>
-        </div>
-        <div class="w2ui-field">
-            <div><input name="DebitLID" type="hidden" /></div>
+            <div><input name="ARType" type="list" style="width: 100%"/></div>
         </div>
         <div class="w2ui-field">
             <label>Debit Ledger:</label>
-            <div><input name="DebitLedgerName" type="text" style="width: 100%"/></div>
-        </div>
-        <div class="w2ui-field">
-            <div><input name="CreditLID" type="hidden" /></div>
+            <div><input name="DebitLID" type="list" style="width: 100%"/></div>
         </div>
         <div class="w2ui-field">
             <label>Credit Ledger:</label>
-            <div><input name="CreditLedgerName" type="text" style="width: 100%"/></div>
+            <div><input name="CreditLID" type="list" style="width: 100%"/></div>
         </div>
         <div class="w2ui-field">
             <label>Description:</label>
@@ -45,11 +39,22 @@
             <label>Stop Date:</label>
             <div><input name="DtStop" type="us-date1" size="11"></div>
         </div>
+        <div class="w2ui-field">
+            <label>Valid Prior to RAStart:</label>
+            <div><input name="PriorToRAStart" type="checkbox" ></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Valid After to RAStop:</label>
+            <div><input name="PriorToRAStop" type="checkbox" ></div>
+        </div>
+        <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
+        <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
     </div>
 
     <div class="w2ui-buttons">
         <button class="w2ui-btn" name="reset">Reset</button>
         <button class="w2ui-btn" name="save">Save</button>
+        <button class="w2ui-btn" name="delete">Delete</button>
     </div>
 </div>
 </body>

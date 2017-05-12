@@ -2,9 +2,11 @@
     "records": [
         {
             "BID": 5,
+            "CompanyName": "",
             "DtStart": "10/25/2016",
             "DtStop": "10/31/2017",
             "FirstName": "Corporate",
+            "IsCompany": 0,
             "LastName": "Housing",
             "MiddleName": "",
             "RID": 0,
@@ -14,9 +16,11 @@
         },
         {
             "BID": 5,
+            "CompanyName": "",
             "DtStart": "3/6/2017",
             "DtStop": "3/6/2018",
             "FirstName": "Eric",
+            "IsCompany": 0,
             "LastName": "Wilson",
             "MiddleName": "",
             "RID": 0,

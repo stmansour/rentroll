@@ -239,3 +239,15 @@ type Int64Range []int64
 func (a Int64Range) Len() int           { return len(a) }
 func (a Int64Range) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a Int64Range) Less(i, j int) bool { return a[i] < a[j] }
+
+// StringToInt64 simply converts string to int64 and returns it with ok flag
+func StringToInt64(s string) (int64, bool) {
+	var i64 int64
+	var err error
+
+	if i64, err = strconv.ParseInt(s, 10, 64); err != nil {
+		fmt.Println("StringToInt64:= ", err.Error())
+		return i64, false
+	}
+	return i64, true
+}
