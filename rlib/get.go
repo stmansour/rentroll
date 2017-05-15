@@ -103,6 +103,18 @@ func FindAgreementByRentable(rid int64, d1, d2 *time.Time) (RentalAgreementRenta
 func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
 	rows, err := RRdb.Prepstmt.GetAllRentableAssessments.Query(RID, d1, d2)
 	Errcheck(err)
+	return GetAssessmentsByRows(rows)
+}
+
+// GetUnpaidAssessmentsByRAID for the supplied RAID
+func GetUnpaidAssessmentsByRAID(RAID int64) []Assessment {
+	rows, err := RRdb.Prepstmt.GetUnpaidAssessmentsByRAID.Query(RAID)
+	Errcheck(err)
+	return GetAssessmentsByRows(rows)
+}
+
+// GetAssessmentsByRows for the supplied sql.Rows
+func GetAssessmentsByRows(rows *sql.Rows) []Assessment {
 	defer rows.Close()
 	var t []Assessment
 	for i := 0; rows.Next(); i++ {

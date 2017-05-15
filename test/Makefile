@@ -1,4 +1,4 @@
-DIRS = setup newbiz mrr rrr rr1 jm1 notes ccc upd importers bizdelete testdb ws
+DIRS = setup gsr newbiz mrr rrr rr1 jm1 notes ccc upd importers bizdelete testdb ws
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done
