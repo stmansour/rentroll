@@ -631,6 +631,7 @@ type AR struct {
 	DebitLID    int64
 	CreditLID   int64
 	Description string
+	RARequired  int64
 	DtStart     time.Time
 	DtStop      time.Time
 	LastModTime time.Time

@@ -22,7 +22,7 @@ package rlib
 // the ARID field is set to its new value.
 func InsertAR(a *AR) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.DtStart, a.DtStop, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

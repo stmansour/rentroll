@@ -1,3 +1,3 @@
-Bud,Name,ARType,    DebitLID,CreditLID,Description
-REX,Rent Non-Taxable,Assessment,"Accounts Receivable","Gross Scheduled Rent-Not Taxable",Rent for non-taxable rooms / properties
-REX,Rent Payment Check,Receipt,"Cash BofA","Accounts Receivable","Rent paid by check"
+Bud,Name,ARType,    DebitLID,CreditLID,Description, RARequired
+REX,Rent Non-Taxable,Assessment,"Accounts Receivable","Gross Scheduled Rent-Not Taxable",Rent for non-taxable rooms / properties,0
+REX,Rent Payment Check,Receipt,"Cash BofA","Accounts Receivable","Rent paid by check",0

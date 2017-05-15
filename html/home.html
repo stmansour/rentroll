@@ -872,7 +872,6 @@ function buildPageElements() {
                         getRentableTypes(ob.BID)
                         .done(function(data){
                             app["rt_list"] = data;
-                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
 
                             // set typedown list in rentableform - RentableType field
                             w2ui.rentableForm.get("RentableType").options.items = app.rt_list.records;
@@ -880,6 +879,8 @@ function buildPageElements() {
 
                             // must call refresh when form field has been set
                             w2ui.rentableForm.refresh();
+
+                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
                         })
                         .fail(function(){
                             console.log("Failed to get rentable type list");
@@ -2342,7 +2343,6 @@ function buildPageElements() {
                         getGLAccounts(ob.BID)
                         .done(function(data){
                             app["gl_accounts"] = data;
-                            setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
 
                             // set fields
                             w2ui.arsForm.get('ARType').options.items=artype_items;
@@ -2356,6 +2356,8 @@ function buildPageElements() {
 
                             // refresh the form
                             w2ui.arsForm.refresh();
+
+                            setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
                         })
                         .fail(function(data){
                             console.log("Failed to get glAccountList")
