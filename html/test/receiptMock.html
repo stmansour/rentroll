@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>receipt mockup</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
+</head>
+<body>
+<p>Opening Balance:
+<div id="grid" style="width: 100%; height: 250px;"></div>
+<!-- <p >w2ui.grid.summary[0].amount = <span id="gridtotal">$0.00</span></p>
+<button class="w2ui-btn" onclick="updateTotal();">Call updateTotal()</button>
+ --><script>
+/*global
+    w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
+    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
+*/
+
+/*globals $:false */
+
+$(function() {
+    "use strict";
+    $('#grid').w2grid({
+    name: 'grid',
+    columns: [
+        {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true, attr: 'align=center'},
+        {field: 'Date', caption: 'Date', size: '100px', sortable: true }, 
+        {field: 'Description', caption: 'Description', size: '150px',},
+        {field: 'Payment', caption: 'Payment', size: '100px', render: 'money'},
+        {field: 'Amount', caption: 'Charge', size: '100px', render: 'money'},
+        {field: 'Balance', caption: 'Balance', size: '100px', render: 'money'},
+     ],
+    records: [
+        {recid: 0,     Date: '',         Description: 'Opening Balance', Payment: 0,    Amount: 0.00,    Balance: 0.00 },
+        {recid: 1,     Date: '5/2/2017', Description: 'Payment',         Payment: 5000, Amount: 0.00,    Balance: 0.00 },
+        {recid: 2,     Date: '3/1/2017', Description: 'Rent-non taxable',Payment: 0,    Amount: 1000.00, Balance: 0.00 },
+        {recid: 3,     Date: '3/8/2017', Description: 'Late Fee',        Payment: 0,    Amount: 50.00,   Balance: 0.00 },
+        {recid: 4,     Date: '4/1/2017', Description: 'Rent-non taxable',Payment: 0,    Amount: 1000.00, Balance: 0.00 },
+        {recid: 5,     Date: '4/8/2017', Description: 'Late Fee',        Payment: 0,    Amount: 50.00,   Balance: 0.00 },
+        {recid: 6,     Date: '5/1/2017', Description: 'Rent-non taxable',Payment: 0,    Amount: 1000.00, Balance: 0.00 },
+        {recid: 's-1', Date: '',         Description: 'Ending Balance',  Payment: 0,    Amount: 0,       Balance: 0, w2ui: {summary: true } },
+    ], 
+    onRender: function(event) {
+      var obj = this;
+      event.done(function() {updateTotal(obj); 
+      });
+    },
+    onChange: function(event) {
+      var obj = this;
+      event.done(function() {
+        updateTotal(obj);
+      });
+    },        
+  });
+});
+
+function updateTotal(grid) {
+    "use strict";
+    grid = w2ui.grid || grid;
+    var bal = 0;
+    grid.records[0].Balance = bal;
+
+    for (var i = 1; i < grid.records.length; i++) {
+        bal += grid.records[i].Payment - grid.records[i].Amount;
+        grid.set(i,{Balance: bal});
+    }
+ 
+     grid.set('s-1', {Balance: bal });
+    // var d = new Date();
+    // document.getElementById("gridtotal").innerHTML = '' + grid.summary[0].amount + '<br>w2ui.grid.records[0].amount = ' + grid.records[0].amount + '<br>' + d.toString();
+}
+</script>
+
+</body>
+</html>

@@ -2,7 +2,7 @@ TOP=../..
 THISDIR="gsr"
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
-gsr: *.go config.json
+gsr: *.go config.json config.json
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -14,7 +14,7 @@ config.json:
 	@getfile.sh accord/db/confdev.json ; cp confdev.json config.json
 
 clean:
-	rm -f rentroll.log log ll.g llog [a-z] [a-z][0-9] fail
+	rm -f rentroll.log log ll.g llog [a-z] [a-z][0-9] fail *.json
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 test: gsr
