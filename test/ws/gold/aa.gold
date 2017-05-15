@@ -2,143 +2,143 @@
     "records": [
         {
             "id": 9,
-            "text": "Cash"
+            "text": "10000 (Cash)"
         },
         {
             "id": 10,
-            "text": "Accounts Receivable"
+            "text": "12000 (Accounts Receivable)"
         },
         {
             "id": 11,
-            "text": "Gross Scheduled Receipts"
+            "text": "41000 (Gross Scheduled Receipts)"
         },
         {
             "id": 12,
-            "text": "Loss (Gain) to Lease"
+            "text": "41102 (Loss (Gain) to Lease)"
         },
         {
             "id": 13,
-            "text": "Vacancy"
+            "text": "41101 (Vacancy)"
         },
         {
             "id": 14,
-            "text": "Security Deposit Receivable"
+            "text": " (Security Deposit Receivable)"
         },
         {
             "id": 15,
-            "text": "Security Deposits"
+            "text": "30000 (Security Deposits)"
         },
         {
             "id": 16,
-            "text": "Owner Equity"
+            "text": " (Owner Equity)"
         },
         {
             "id": 89,
-            "text": "Credit Card Clearing"
+            "text": "11000 (Credit Card Clearing)"
         },
         {
             "id": 90,
-            "text": "Accrued Taxes"
+            "text": "30100 (Accrued Taxes)"
         },
         {
             "id": 91,
-            "text": "Sales Taxes"
+            "text": "30101 (Sales Taxes)"
         },
         {
             "id": 92,
-            "text": "Other Accrued Taxes"
+            "text": "30199 (Other Accrued Taxes)"
         },
         {
             "id": 93,
-            "text": "Gross Scheduled Regular Dues"
+            "text": "41001 (Gross Scheduled Regular Dues)"
         },
         {
             "id": 94,
-            "text": "Gross Scheduled Special Assessments"
+            "text": "41002 (Gross Scheduled Special Assessments)"
         },
         {
             "id": 95,
-            "text": "Gross Scheduled Rents"
+            "text": "41003 (Gross Scheduled Rents)"
         },
         {
             "id": 96,
-            "text": "Income Offsets"
+            "text": "41100 (Income Offsets)"
         },
         {
             "id": 97,
-            "text": "Employee Concessions"
+            "text": "41103 (Employee Concessions)"
         },
         {
             "id": 98,
-            "text": "Tenant Concessions"
+            "text": "41104 (Tenant Concessions)"
         },
         {
             "id": 99,
-            "text": "Owner Concession"
+            "text": "41105 (Owner Concession)"
         },
         {
             "id": 100,
-            "text": "Administrative Concession"
+            "text": "41106 (Administrative Concession)"
         },
         {
             "id": 101,
-            "text": "Off Line Renovations"
+            "text": "41107 (Off Line Renovations)"
         },
         {
             "id": 102,
-            "text": "Off Line Maintenance"
+            "text": "41108 (Off Line Maintenance)"
         },
         {
             "id": 103,
-            "text": "Othe Income Offsets"
+            "text": "41199 (Othe Income Offsets)"
         },
         {
             "id": 104,
-            "text": "Other Income"
+            "text": "41200 (Other Income)"
         },
         {
             "id": 105,
-            "text": "Utility Fees"
+            "text": "41201 (Utility Fees)"
         },
         {
             "id": 106,
-            "text": "Application Fees"
+            "text": "41202 (Application Fees)"
         },
         {
             "id": 107,
-            "text": "Late Fees"
+            "text": "41203 (Late Fees)"
         },
         {
             "id": 108,
-            "text": "Insufficient Funds Fee"
+            "text": "41204 (Insufficient Funds Fee)"
         },
         {
             "id": 109,
-            "text": "Expense Reimbursement"
+            "text": "41205 (Expense Reimbursement)"
         },
         {
             "id": 110,
-            "text": "Forfeited Security Deposit"
+            "text": "41206 (Forfeited Security Deposit)"
         },
         {
             "id": 111,
-            "text": "Damage Fee"
+            "text": "41207 (Damage Fee)"
         },
         {
             "id": 112,
-            "text": "Other Miscellaneous Income"
+            "text": "41299 (Other Miscellaneous Income)"
         },
         {
             "id": 113,
-            "text": "Bad Debt"
+            "text": "49992 (Bad Debt)"
         },
         {
             "id": 114,
-            "text": "Income Suspense"
+            "text": "49998 (Income Suspense)"
         },
         {
             "id": 115,
-            "text": "Other Business Income"
+            "text": "49999 (Other Business Income)"
         }
     ],
     "status": "success",

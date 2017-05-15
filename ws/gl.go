@@ -51,7 +51,11 @@ func SvcGLAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// append records in ascending order
 	var glAccountList []GLAccountTypeDownRecord
 	for _, lid := range keys {
-		glAccountList = append(glAccountList, GLAccountTypeDownRecord{LID: m[lid].LID, Name: m[lid].Name})
+		glAccountList = append(glAccountList,
+			GLAccountTypeDownRecord{
+				LID:  m[lid].LID,
+				Name: m[lid].GLNumber + " (" + m[lid].Name + ")",
+			})
 	}
 
 	g.Records = glAccountList
