@@ -25,10 +25,11 @@ type ARSendForm struct {
 	Description      string
 	DtStart          rlib.JSONTime
 	DtStop           rlib.JSONTime
-	// PriorToRAStart   bool // is it ok to charge prior to RA start
-	// PriorToRAStop    bool // is it ok to charge after RA stop
-	LastModTime rlib.JSONTime
-	LastModBy   int64
+	raRequired       int
+	PriorToRAStart   bool // is it ok to charge prior to RA start
+	PriorToRAStop    bool // is it ok to charge after RA stop
+	LastModTime      rlib.JSONTime
+	LastModBy        int64
 }
 
 // ARSaveForm is a structure specifically for the return value from w2ui.
@@ -39,16 +40,16 @@ type ARSendForm struct {
 // the data that has changed, which is in the xxxSaveOther struct.  All this data
 // is merged into the appropriate database structure using MigrateStructData.
 type ARSaveForm struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	ARID        int64
-	Name        string
-	Description string
-	DtStart     rlib.JSONTime
-	DtStop      rlib.JSONTime
-	// PriorToRAStart bool // is it ok to charge prior to RA start
-	// PriorToRAStop  bool // is it ok to charge after RA stop
-	LastModTime rlib.JSONTime
-	LastModBy   int64
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	ARID           int64
+	Name           string
+	Description    string
+	DtStart        rlib.JSONTime
+	DtStop         rlib.JSONTime
+	PriorToRAStart bool // is it ok to charge prior to RA start
+	PriorToRAStop  bool // is it ok to charge after RA stop
+	LastModTime    rlib.JSONTime
+	LastModBy      int64
 }
 
 // ARSaveOther is a struct to handle the UI list box selections
@@ -372,6 +373,15 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	fmt.Printf("saveAR - second migrate: a = %#v\n", a)
 
+	// get PriorToRAStart and PriorToRAStop values and accordingly get RARequired field value
+	formBoolMap := [2]bool{foo.Record.PriorToRAStart, foo.Record.PriorToRAStop}
+	for raReq, boolMap := range raRequiredMap {
+		if boolMap == formBoolMap {
+			a.RARequired = int64(raReq)
+			break
+		}
+	}
+
 	var err error
 	if a.ARID == 0 && d.ARID == 0 {
 		// This is a new AR
@@ -403,7 +413,7 @@ var getARQuerySelectFields = []string{
 	"AR.Description",
 	"AR.DtStart",
 	"AR.DtStop",
-	// "AR.RARequired",
+	"AR.RARequired",
 }
 
 // for what RARequired value, prior and after value are
@@ -463,13 +473,12 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 
-		// var raRequired int
+		rlib.Errcheck(rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired))
 
-		rlib.Errcheck(rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop /*&raRequired*/))
-
-		// raReqMappedVal := raRequiredMap[raRequired]
-		// gg.PriorToRAStart = raReqMappedVal[0]
-		// gg.PriorToRAStop = raReqMappedVal[1]
+		// according to RARequired map, fill out PriorToRAStart, PriorToRAStop values
+		raReqMappedVal := raRequiredMap[gg.raRequired]
+		gg.PriorToRAStart = raReqMappedVal[0]
+		gg.PriorToRAStop = raReqMappedVal[1]
 		g.Record = gg
 	}
 

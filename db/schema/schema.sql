@@ -589,6 +589,7 @@ CREATE TABLE AR (
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     Name VARCHAR(100) NOT NULL DEFAULT '',
     ARType SMALLINT NOT NULL DEFAULT 0,                     -- Assessment = 0, Receipt = 1
+    RARequired SMALLINT NOT NULL DEFAULT 0,         -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
     DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
     CreditLID BIGINT NOT NULL DEFAULT 0,                    -- Ledger ID of crdit part
     Description VARCHAR(1024) NOT NULL DEFAULT '',
