@@ -1,10 +1,5 @@
 package rlib
 
-import (
-	"fmt"
-	"runtime/debug"
-)
-
 // InsertAccountDepository writes a new AccountDepository record to the database. If the record is successfully written,
 // // the ADID field is set to its new value.
 // func InsertAccountDepository(a *AccountDepository) (int64, error) {
@@ -46,13 +41,13 @@ func InsertAR(a *AR) (int64, error) {
 func InsertAssessment(a *Assessment) (int64, error) {
 	var rid = int64(0)
 
-	//
-	// DEBUG...
-	//
-	if a.FLAGS != 0 {
-		fmt.Printf(">>> INSERTING ASSESSMENT WITH FLAGS = 0x%0x\n", a.FLAGS)
-		debug.PrintStack()
-	}
+	// //
+	// // DEBUG...
+	// //
+	// if a.FLAGS != 0 {
+	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH FLAGS = 0x%0x\n", a.FLAGS)
+	// 	debug.PrintStack()
+	// }
 
 	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy)
 	if nil == err {
@@ -247,18 +242,18 @@ func InsertInvoicePayor(a *InvoicePayor) error {
 	return err
 }
 
-// InsertJournalEntry writes a new Journal entry to the database
-func InsertJournalEntry(j *Journal) (int64, error) {
-	var rid = int64(0)
+// InsertJournal writes a new Journal entry to the database
+func InsertJournal(j *Journal) (int64, error) {
+	var id = int64(0)
 	res, err := RRdb.Prepstmt.InsertJournal.Exec(j.BID, j.Dt, j.Amount, j.Type, j.ID, j.Comment, j.LastModBy)
 	if nil == err {
-		id, err := res.LastInsertId()
+		nid, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
-			j.JID = rid
+			id = int64(nid)
+			j.JID = id
 		}
 	}
-	return rid, err
+	return id, err
 }
 
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its

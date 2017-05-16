@@ -228,7 +228,7 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 
 	// fmt.Printf("INSERTING JOURNAL: Date = %s, Type = %d, amount = %f\n", j.Dt, j.Type, j.Amount)
 
-	jid, err := InsertJournalEntry(&j)
+	jid, err := InsertJournal(&j)
 	if err != nil {
 		LogAndPrintError("error inserting Journal entry: %v\n", err)
 		os.Exit(1)
@@ -317,7 +317,7 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
 	j.Type = JNLTYPERCPT
 	j.ID = r.RCPTID
 	// j.RAID = r.RAID
-	jid, err := InsertJournalEntry(&j)
+	jid, err := InsertJournal(&j)
 	if err != nil {
 		Ulog("Error inserting Journal entry: %v\n", err)
 		return err

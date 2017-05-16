@@ -106,7 +106,7 @@ CREATE TABLE Notes (
     NID BIGINT NOT NULL AUTO_INCREMENT,                     -- ID for this note
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
     NLID BIGINT NOT NULL DEFAULT 0,                         -- note list containing this note
-    PNID BIGINT NOT NULL DEFAULT 0,                         -- NID of parent not
+    PNID BIGINT NOT NULL DEFAULT 0,                         -- NID of parent note
     NTID BIGINT NOT NULL DEFAULT 0,                         -- What type of note is this
     RID BIGINT NOT NULL DEFAULT 0,                          -- Meta-tag - this note is related to Rentable RID
     RAID BIGINT NOT NULL DEFAULT 0,                         -- Meta-tag - this note is related to Rentable Agreement RAID
@@ -838,16 +838,6 @@ CREATE TABLE DepositPart (
     BID BIGINT NOT NULL DEFAULT 0,                              -- business id
     RCPTID BIGINT NOT NULL DEFAULT 0
 );
-
--- CREATE TABLE AccountDepository (
---     ADID BIGINT NOT NULL AUTO_INCREMENT,                        -- unique id for a depository
---     BID BIGINT NOT NULL DEFAULT 0,                              -- business id
---     LID BIGINT NOT NULL DEFAULT 0,                              -- the GL account that represents this depository
---     DEPID BIGINT NOT NULL DEFAULT 0,                            -- Depository to associate
---     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
---     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it 
---     PRIMARY KEY (ADID)
--- );
 
 -- **************************************
 -- ****                              ****

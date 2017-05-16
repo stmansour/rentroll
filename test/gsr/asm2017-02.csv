@@ -1,0 +1,2 @@
+BUD,RentableName,GLAcctID,Amount,DtStart,DtStop,RAID,RentCycle,ProrationCycle,InvoiceNo,AcctRule,AR
+REX,311 Rexford,33,111.26,2/1/17,2/1/17,3,0,0,,,Rent Non-Taxable

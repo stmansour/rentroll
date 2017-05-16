@@ -1,2 +1,5 @@
-Name,ValueType,Value,Units
-"Square Feet",1,"1215","sqft"
+BUD,Name,ValueType,Value,Units
+REX,"Square Feet",1,"1215","sqft"
+REX,"Square Feet",1,"1239","sqft"
+REX,"Square Feet",1,"1433","sqft"
+REX,"Square Feet",1,"827","sqft"

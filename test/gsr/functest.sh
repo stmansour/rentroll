@@ -1,32 +1,53 @@
 #!/bin/bash
-TESTNAME="3 Months of Books, then Statement Report"
-TESTSUMMARY="Exercise csv import. Generate books for 3 months. Test Statement report."
+TESTNAME="GSR - Test Account Rules"
+TESTSUMMARY="Test AR by processing assessments and a recipt"
+
+RRDATERANGE="-j 2017-01-01 -k 2017-02-01"
 
 source ../share/base.sh
 
+echo "BEGIN GSR FUNCTIONAL TEST" >>${LOGFILE}
+#========================================================================================
+# INITIALIZE THE BUSINESS
+#   This section has the 1-time tasks to set up the business and get the accounts to
+#   their correct starting values.
+#========================================================================================
 docsvtest "a" "-b business.csv -L 3" "Business"
-docsvtest "d" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
-docsvtest "c" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
-docsvtest "e" "-p people.csv  -L 7,${BUD}" "People"
-docsvtest "f" "-r rentable.csv -L 6,${BUD}" "Rentables"
-docsvtest "g" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
-docsvtest "h" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
-docsvtest "i" "-E pets.csv -L 16,RA0001" "Pets"
-docsvtest "j" "-s specialties.csv" "Specialties"
-docsvtest "k" "-F rspref.csv" "SpecialtyRefs"
-docsvtest "l" "-A asmt.csv -L 11,${BUD}" "Assessments"
+docsvtest "b" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
+docsvtest "ar" "-ar ar.csv" "AccountRules"
+docsvtest "c" "-m depmeth.csv -L 23,${BUD}" "DepositMethods"
+docsvtest "d" "-d depository.csv -L 18,${BUD}" "Depositories"
+docsvtest "e" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "g" "-p people.csv  -L 7,${BUD}" "People"
+docsvtest "ga" "-V vehicle.csv -L 28,${BUD}" "Vehicles"
+docsvtest "h" "-r rentable.csv -L 6,${BUD}" "Rentables"
+docsvtest "i" "-u custom.csv -L 14,${BUD}" "CustomAttributes"
+docsvtest "j" "-U assigncustom.csv -L 15,${BUD}" "AssignCustomAttributes"
+docsvtest "k" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
+docsvtest "l" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
 docsvtest "m" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
-docsvtest "n" "-e rcpt.csv -L 13,${BUD}" "Receipts"
-docsvtest "o" "-u custom.csv -L 14" "CustomAttributes"
-docsvtest "p" "-U assigncustom.csv -L 15" "AssignCustomAttributes"
 
-dorrtest "q" "-j 2016-03-01 -k 2016-04-01 -b ${BUD}" "Process"
-dorrtest "r" "-j 2016-03-01 -k 2016-04-01 -b ${BUD} -r 1" "March-Journal"
-dorrtest "s" "-j 2016-03-01 -k 2016-04-01 -b ${BUD} -r 2" "March-Ledger"
-dorrtest "t" "-j 2016-04-01 -k 2016-05-01 -b ${BUD}" "April-Process"
-dorrtest "u" "-j 2016-05-01 -k 2016-06-01 -b ${BUD}" "May-Process"
-dorrtest "v" "-j 2016-05-01 -k 2016-06-01 -b ${BUD} -r 1" "May-Journal"
-dorrtest "w" "-j 2016-05-01 -k 2016-06-01 -b ${BUD} -r 2" "May-Ledger"
-dorrtest "x" "-j 2016-05-01 -k 2016-06-01 -b ${BUD} -r 8" "May-Statement"
+
+#========================================================================================
+# JANUARY 2017
+#    Normal month
+#========================================================================================
+RRDATERANGE="-j 2017-01-01 -k 2017-02-01"
+CSVLOADRANGE="-G ${BUD} -g 1/1/17,2/1/17"
+
+# 1.  Load new assessments for this period.  For this test, we start the rent assessments now.
+docsvtest "b1" "-A asm2017-01.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2017-JAN"
+
+# 2.  Generate recurring assessment instances  -  Note: will be done by server automatically  (18 processes journal only)
+dorrtest "a1" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2017-JAN"
+#========================================================================================
+# FEBRUARY 2017
+#    Haroutunian moves out on Feb 8
+#========================================================================================
+RRDATERANGE="-j 2017-02-01 -k 2017-03-01"
+CSVLOADRANGE="-G ${BUD} -g 2/1/17,3/1/17"
+dorrtest  "a2" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2017-FEB"
+# docsvtest "b2" "-A asm2017-02.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2017-FEB"
+
 
 logcheck

@@ -153,7 +153,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RID=? AND Stop >= ? AND Start < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 1)=0 AND Stop >= ? AND Start < ?")
+	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 1)=0 AND (PASMID!=0 OR RentCycle=0) ORDER BY Start ASC")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")

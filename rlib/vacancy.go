@@ -43,7 +43,7 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 			continue // then this entry was already generated, keep going
 		}
 
-		jid, err := InsertJournalEntry(&j)
+		jid, err := InsertJournal(&j)
 		Errlog(err)
 		nr++
 		if jid > 0 {
