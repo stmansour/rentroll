@@ -2234,6 +2234,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'depGrid',
         url: '/v1/dep',
+        multiSelect: false,
         show: {
             toolbar        : true,
             footer         : true,
@@ -2265,12 +2266,16 @@ function buildPageElements() {
             event.onComplete = function () {
                 var sel = this.getSelection();
                 if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; ++i) {
-                        var ob = this.get(sel[i]);
 
-                        // get gl account list
-                        getGLAccounts(ob.BID)
-                        .done(function(data){
+                    // get selected element as multiSelect is false
+                    var ob = this.get(sel[0]);
+
+                    // get gl account list
+                    getGLAccounts(ob.BID)
+                    .done(function(data){
+                        if (data.status != 'success') {
+                            w2ui.depForm.message(data.message);
+                        } else {
                             app["gl_accounts"] = data;
 
                             var gl_selected = {id: ob.LID, text:  ob.GLNumber+" (" + ob.LdgrName + ")"};
@@ -2280,13 +2285,13 @@ function buildPageElements() {
 
                             // refresh the form
                             w2ui.depForm.refresh();
+                        }
 
-                            setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID);
-                        })
-                        .fail(function(data){
-                            console.log("Failed to get glAccountList")
-                        });
-                     }
+                        setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID);
+                    })
+                    .fail(function(data){
+                        console.log("Failed to get glAccountList")
+                    });
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
                     this.select(1);
@@ -2298,8 +2303,6 @@ function buildPageElements() {
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
-
-            setToForm('depForm', '/v1/dep/' + BID + '/0');
 
             // get latest gl accounts first
             getGLAccounts(BID)
@@ -2320,7 +2323,6 @@ function buildPageElements() {
 
                     w2ui.depForm.get('LID').options.items = gl_accounts_items;
                     w2ui.depForm.get('LID').options.selected = gl_accounts_pre_selected;
-                    w2ui.depForm.refresh();
 
                     var record = {
                         recid: 0,
@@ -2461,6 +2463,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'arsGrid',
         url: '/v1/ars',
+        multiSelect: false,
         show: {
             toolbar        : true,
             footer         : true,
@@ -2499,43 +2502,43 @@ function buildPageElements() {
             event.onComplete = function () {
                 var sel = this.getSelection();
                 if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; ++i) {
-                        var ob = this.get(sel[i]);
 
-                        // set ARType DropDown list
-                        var artype_selected;
-                        var artype_items = [];
-                        Object.keys(app.ARTypes).forEach(function(artype_id){
-                            if (ob.ARType == artype_id) {
-                                artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
-                            }
-                            artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
-                        });
+                    // multi select is false
+                    var ob = this.get(sel[0]);
 
-                        // get gl account list
-                        getGLAccounts(ob.BID)
-                        .done(function(data){
-                            app["gl_accounts"] = data;
+                    // set ARType DropDown list
+                    var artype_selected;
+                    var artype_items = [];
+                    Object.keys(app.ARTypes).forEach(function(artype_id){
+                        if (ob.ARType == artype_id) {
+                            artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
+                        }
+                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                    });
 
-                            // set fields
-                            w2ui.arsForm.get('ARType').options.items=artype_items;
-                            w2ui.arsForm.get('ARType').options.selected=artype_selected;
+                    // get gl account list
+                    getGLAccounts(ob.BID)
+                    .done(function(data){
+                        app["gl_accounts"] = data;
 
-                            w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts.records;
-                            w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
+                        // set fields
+                        w2ui.arsForm.get('ARType').options.items=artype_items;
+                        w2ui.arsForm.get('ARType').options.selected=artype_selected;
 
-                            w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts.records;
-                            w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
+                        w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts.records;
+                        w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
 
-                            // refresh the form
-                            w2ui.arsForm.refresh();
+                        w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts.records;
+                        w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
 
-                            setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
-                        })
-                        .fail(function(data){
-                            console.log("Failed to get glAccountList")
-                        });
-                     }
+                        // refresh the form
+                        w2ui.arsForm.refresh();
+
+                        setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
+                    })
+                    .fail(function(data){
+                        console.log("Failed to get glAccountList")
+                    });
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
                     this.select(1);
@@ -2549,8 +2552,6 @@ function buildPageElements() {
             var BID=x.value;
             var BUD = getBUDfromBID(BID);
 
-            setToForm('arsForm', '/v1/ar/' + BID + '/0');
-
             // get latest gl accounts first
             getGLAccounts(BID)
             .done(function(data) {
@@ -2561,11 +2562,50 @@ function buildPageElements() {
                     w2ui.toplayout.show('right', true);
                     w2ui.toplayout.sizeTo('right', 700);
                     return;
-                } else {
-                    app["gl_accounts"] = data;
-                    arShowNewForm(BID, BUD);
                 }
+                else {
+                    app["gl_accounts"] = data;
 
+                    var artype_pre_selected = {id: 0, text: "Select AR type"};
+                    var artype_items = [artype_pre_selected];
+                    Object.keys(app.ARTypes).forEach(function(artype_id){
+                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                    });
+
+                    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var gl_accounts_items = [gl_accounts_pre_selected];
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts.records);
+
+                    w2ui.arsForm.get('ARType').options.items = artype_items;
+                    w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
+                    w2ui.arsForm.get('DebitLID').options.items = gl_accounts_items;
+                    w2ui.arsForm.get('DebitLID').options.selected = gl_accounts_pre_selected;
+                    w2ui.arsForm.get('CreditLID').options.items = gl_accounts_items;
+                    w2ui.arsForm.get('CreditLID').options.selected = gl_accounts_pre_selected;
+                    // w2ui.arsForm.refresh();
+
+                    var y = new Date();
+                    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+
+                    var record = {
+                        recid: 0,
+                        BID: BUD,
+                        ARID: 0,
+                        ARType: artype_pre_selected,
+                        DebitLID: gl_accounts_pre_selected,
+                        CreditLID: gl_accounts_pre_selected,
+                        Name: '',
+                        Description: '',
+                        DtStart: w2uiDateControlString(y),
+                        DtStop: w2uiDateControlString(ny),
+                    };
+                    w2ui.arsForm.record = record;
+                    w2ui.arsForm.refresh();
+                    w2ui.arsForm.url = '/v1/ar/' + BID + '/0';
+                    w2ui.toplayout.content('right', w2ui.arsForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 700);
+                }
             })
             .fail( function() {
                 console.log('unable to get GLAccounts');
