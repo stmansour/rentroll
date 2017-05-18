@@ -116,7 +116,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 	case 18: // Process Journal Entries only
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 	case 19: // process Ledgers
-		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		rlib.GenerateLedgerEntries(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 20: // List market rates for rentable over time period
 		// ctx.Report format:  20,RID
 		sa := strings.Split(ctx.Args, ",")
@@ -136,6 +136,6 @@ func RunCommandLine(ctx *DispatchCtx) {
 
 	default:
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
-		rlib.GenerateLedgerRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		rlib.GenerateLedgerEntries(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	}
 }

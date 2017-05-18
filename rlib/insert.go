@@ -259,7 +259,7 @@ func InsertJournal(j *Journal) (int64, error) {
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its
 // newly assigned id.
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
-	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.Amount, ja.ASMID, ja.AcctRule)
+	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.Amount, ja.ASMID, ja.AcctRule)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -281,7 +281,7 @@ func InsertJournalMarker(jm *JournalMarker) error {
 
 // InsertLedgerMarker writes a new LedgerMarker record to the database
 func InsertLedgerMarker(l *LedgerMarker) error {
-	res, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.RAID, l.RID, l.Dt, l.Balance, l.State, l.LastModBy)
+	res, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.RAID, l.RID, l.TCID, l.Dt, l.Balance, l.State, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -296,11 +296,12 @@ func InsertLedgerMarker(l *LedgerMarker) error {
 // InsertLedgerEntry writes a new LedgerEntry to the database
 func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertLedgerEntry.Exec(l.BID, l.JID, l.JAID, l.LID, l.RAID, l.RID, l.Dt, l.Amount, l.Comment, l.LastModBy)
+	res, err := RRdb.Prepstmt.InsertLedgerEntry.Exec(l.BID, l.JID, l.JAID, l.LID, l.RAID, l.RID, l.TCID, l.Dt, l.Amount, l.Comment, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			l.LEID = rid
 		}
 	} else {
 		Ulog("Error inserting LedgerEntry:  %v\n", err)
@@ -311,7 +312,7 @@ func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 // InsertLedger writes a new GLAccount to the database
 func InsertLedger(l *GLAccount) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.RARequired, l.ManageToBudget, l.Description, l.LastModBy)
+	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.TCID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.RARequired, l.ManageToBudget, l.Description, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -517,7 +518,7 @@ func InsertRentable(a *Rentable) (int64, error) {
 // the RCPTID field is set to its new value.
 func InsertReceipt(r *Receipt) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.TCID, r.PMTID, r.DEPID, r.DID, r.Dt, r.DocNo, r.Amount, r.AcctRule, r.ARID, r.Comment, r.OtherPayorName, r.LastModBy)
+	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.TCID, r.PMTID, r.DEPID, r.DID, r.Dt, r.DocNo, r.Amount, r.AcctRuleReceive, r.ARID, r.AcctRuleApply, r.FLAGS, r.Comment, r.OtherPayorName, r.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -539,6 +540,7 @@ func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			tid = int64(id)
+			a.RCPAID = tid
 		}
 	} else {
 		Ulog("InsertReceiptAllocation: error inserting ReceiptAllocation:  %v\n", err)

@@ -79,6 +79,148 @@ func rrDoLoad(fname string, handler func(string) []error) {
 	fmt.Print(rcsv.ErrlistToString(&m))
 }
 
+func createReceipt(bid int64, amt float64, docno string, dt *time.Time) rlib.Receipt {
+	var err error
+	var r rlib.Receipt
+	r.BID = bid
+	r.Dt = *dt
+	r.TCID = 2 // for test purposes, this is the payor for all receipts
+	r.Amount = amt
+	r.DocNo = docno
+	r.PMTID = 2
+
+	arname := "Payment By Check"
+	arule, err := rlib.GetARByName(bid, arname)
+	if err != nil {
+		rlib.Ulog("Error getting Account Rule by name(%s): %s\n", arname, err.Error())
+		return r
+	}
+	r.ARID = arule.ARID
+
+	// create the receipt
+	_, err = rlib.InsertReceipt(&r)
+	if err != nil {
+		rlib.Ulog("Error inserting receipt: %s\n", err.Error())
+		return r
+	}
+
+	// get the AR for this receipt...
+	ar := rlib.RRdb.BizTypes[r.BID].AR[r.ARID]
+
+	// get GL Account Info for
+	d := rlib.RRdb.BizTypes[r.BID].GLAccounts[ar.DebitLID]
+	c := rlib.RRdb.BizTypes[r.BID].GLAccounts[ar.CreditLID]
+
+	// create the receipt allocation
+	var ra rlib.ReceiptAllocation
+	ra.RCPTID = r.RCPTID
+	ra.Amount = r.Amount
+	ra.AcctRule = fmt.Sprintf("d %s _, c %s _", d.GLNumber, c.GLNumber)
+	ra.BID = r.BID
+	ra.Dt = r.Dt
+	rlib.InsertReceiptAllocation(&ra)
+	r.RA = append(r.RA, ra)
+
+	return r
+}
+
+func createJournalAndLedgerEntries(xbiz *rlib.XBusiness, r *rlib.Receipt, d1, d2, dt1, dt2 *time.Time) error {
+	//----------------------------------------------------------
+	// Add a journal entry for it.  Note that at this stage
+	// we simply move the funds into a bank and credit the
+	// available funds account.
+	//----------------------------------------------------------
+	j, err := rlib.ProcessNewReceipt(xbiz, d1, d2, r)
+	if err != nil {
+		rlib.Ulog("Error from rlib.ProcessNewReceipt: %s\n", err.Error())
+		return err
+	}
+	//--------------------------------------------------------------
+	// update the ledgers
+	//--------------------------------------------------------------
+	fmt.Printf("GENERATING LEDGER ENTRIES...\n")
+	rlib.GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
+
+	//----------------------------------------------
+	// force the LedgerMarkers to be generated...
+	//----------------------------------------------
+	rlib.GenerateLedgerMarkers(xbiz, d2)
+	return nil
+}
+
+func doTest() {
+	// INITIALIZE...
+	var xbiz rlib.XBusiness
+	rlib.InitBizInternals(1, &xbiz)
+	rlib.InitLedgerCache()
+	dt2 := time.Now()
+	dt1 := dt2.AddDate(0, 0, -6)
+	month := dt2.Month()
+	d1 := time.Date(dt2.Year(), month, 1, 0, 0, 0, 0, time.UTC) // beginning of this month
+	if month == time.December {
+		month = time.January
+	} else {
+		month++
+	}
+	d2 := time.Date(dt2.Year(), month, 1, 0, 0, 0, 0, time.UTC) // up to but not including beginning of next month
+	bid := int64(1)                                             // Business ID = 1
+
+	//----------------------------------------------------
+	// We'll create 2 receipts; for $4000 and $3500
+	//----------------------------------------------------
+	r1 := createReceipt(bid, float64(4000), "9846", &dt1)
+	r2 := createReceipt(bid, float64(3500), "9859", &dt2)
+	if r1.RCPTID == 0 || r2.RCPTID == 0 {
+		fmt.Printf("Could not create receipts\n")
+		return
+	}
+
+	if nil != createJournalAndLedgerEntries(&xbiz, &r1, &d1, &d2, &dt1, &dt2) {
+		return
+	}
+	if nil != createJournalAndLedgerEntries(&xbiz, &r2, &d1, &d2, &dt1, &dt2) {
+		return
+	}
+
+	//--------------------------------------------------------------
+	// Now we are ready to start the test. We have 2 unallocated
+	// receipts for a user.
+	// ...
+	// Work through the list of payors that have unallocated funds
+	//--------------------------------------------------------------
+	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(bid)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	// all we need is the list of payors.  For this loop we just
+	// put them in a map indexed by TCID, the value at the index is
+	// the total number of receipts for that payor which are unallocated
+	var u = map[int64]int{}
+	for rows.Next() {
+		var r rlib.Receipt
+		rlib.ReadReceipts(rows, &r)
+		// fmt.Printf("Unallocated Receipt:  RCPTID = %d, Amount = %8.2f, Payor = %d\n", r.RCPTID, r.Amount, r.TCID)
+		i, ok := u[r.TCID]
+		if ok {
+			u[r.TCID] = i + 1
+		} else {
+			u[r.TCID] = 1
+		}
+	}
+	rlib.Errcheck(rows.Err())
+
+	// Display the list of payors found with Unallocated receipts
+	fmt.Printf("Payors with unallocated receipts:\n")
+	for k, v := range u {
+		fmt.Printf("Payor with TCID=%d has %d unallocated receipts\n", k, v)
+	}
+
+	// We assume the user chose to work on Payor with TCID = 2
+	dt := time.Now()
+	bizlogic.AutoAllocatePayorReceipts(&App.Xbiz, int64(2), &dt)
+
+}
+
 func main() {
 	readCommandLineArgs()
 	rlib.RRReadConfig()
@@ -137,65 +279,5 @@ func main() {
 		rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
 	}
 
-	//----------------------------------------------------
-	// For the receipt, we just create an entry by hand.
-	// Everything else is derived
-	//----------------------------------------------------
-	var r rlib.Receipt
-	r.BID = 1
-	r.Dt = time.Now()
-	r.TCID = 2
-	r.Amount = float64(7500.00)
-	r.DocNo = "9843"
-	r.PMTID = 2
-	r.ARID = 2
-
-	// create the receipt
-	_, err = rlib.InsertReceipt(&r)
-	if err != nil {
-		rlib.Ulog("Error inserting receipt: %s\n", err.Error())
-		return
-	}
-
-	// get the AR for this receipt...
-	ar, err := rlib.GetAR(r.ARID)
-	if err != nil {
-		rlib.Ulog("Error getting AR: %s\n", err.Error())
-		return
-	}
-
-	// get GL Account Info for
-	d := rlib.RRdb.BizTypes[r.BID].GLAccounts[ar.DebitLID]
-	c := rlib.RRdb.BizTypes[r.BID].GLAccounts[ar.CreditLID]
-
-	//----------------------------------------------------------
-	// Add a journal entry for it.  Note that at this stage
-	// there is no RID or RAID associated with the transaction.
-	// We simply move the funds into a bank and credit the
-	// available funds account.
-	//----------------------------------------------------------
-	var j rlib.Journal
-	j.BID = r.BID
-	j.Dt = r.Dt
-	j.Amount = r.Amount
-	j.Type = rlib.JNLTYPERCPT
-	j.ID = r.RCPTID // this is the receipt just created
-	_, err = rlib.InsertJournal(&j)
-	if err != nil {
-		rlib.Ulog("Error inserting journal: %s\n", err.Error())
-		return
-	}
-
-	var ja rlib.JournalAllocation
-	ja.JID = j.JID
-	ja.BID = j.BID
-	ja.Amount = j.Amount
-	ja.AcctRule = fmt.Sprintf("d %s _, c %s _", d.GLNumber, c.GLNumber)
-
-	// update the ledger
-
-	// process the receipt and put the payment into unapplied funds
-
-	bizlogic.AutoProcessReceipt(&r)
-
+	doTest()
 }

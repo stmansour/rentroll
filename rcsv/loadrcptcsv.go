@@ -26,7 +26,7 @@ import (
 func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusiness) error {
 	var d1 = time.Date(rcpt.Dt.Year(), rcpt.Dt.Month(), 1, 0, 0, 0, 0, time.UTC)
 	var d2 = d1.AddDate(0, 0, 31)
-	t := rlib.ParseAcctRule(xbiz, 0, &d1, &d2, rcpt.AcctRule, rcpt.Amount, 1.0)
+	t := rlib.ParseAcctRule(xbiz, 0, &d1, &d2, rcpt.AcctRuleApply, rcpt.Amount, 1.0)
 	u := make(map[int64][]int64)
 
 	// First, group together all entries that refer to a single ASMID into a list of lists
@@ -190,14 +190,14 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Set the AcctRule.  No checking for now...
 	//-------------------------------------------------------------------
-	r.AcctRule = strings.TrimSpace(sa[AcctRule])
+	r.AcctRuleApply = strings.TrimSpace(sa[AcctRule])
 
 	r.Comment = strings.TrimSpace(sa[Comment])
 
 	//-------------------------------------------------------------------
 	// Make sure everything that needs to be set actually got set...
 	//-------------------------------------------------------------------
-	if len(r.AcctRule) == 0 || r.PMTID == 0 || r.Amount == 0 || r.BID == 0 {
+	if len(r.AcctRuleApply) == 0 || r.PMTID == 0 || r.Amount == 0 || r.BID == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("Skipping this record")
 	}
 

@@ -559,8 +559,7 @@ CREATE TABLE Assessments (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- DELETE THIS -- DON'T KEEP THE INVOICE REFERENCE IN THE ASSESSMENT... !!!! <<<<TODO
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
     ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- For flags as described below:
-                                                            --        --   1<<0 Paid?  0=no, 1=yes
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it 
@@ -777,8 +776,10 @@ CREATE TABLE Receipt (
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DocNo VARCHAR(50) NOT NULL DEFAULT '',                      -- Check Number, MoneyOrder number, etc., the traceback for the payment
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    AcctRule VARCHAR(1500) NOT NULL DEFAULT '',
-    ARID BIGINT NOT NULL DEFAULT 0,                             -- identifies the account rule used
+    AcctRuleReceive VARCHAR(215) NOT NULL DEFAULT '',           -- 
+    ARID BIGINT NOT NULL DEFAULT 0,                             -- identifies the account rule used on Receipt
+    AcctRuleApply VARCHAR(2048) NOT NULL DEFAULT '',            -- How the funds will be applied 
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated 
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
@@ -897,6 +898,7 @@ CREATE TABLE JournalAllocation (
     JID BIGINT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
     RID BIGINT NOT NULL DEFAULT 0,                                 -- associated Rentable
     RAID BIGINT NOT NULL DEFAULT 0,                                -- associated Rental Agreement
+    TCID BIGINT NOT NULL DEFAULT 0,                                -- if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means it's unallocated funds
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- 
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
@@ -941,6 +943,7 @@ CREATE TABLE LedgerEntry (
     LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     RAID BIGINT NOT NULL DEFAULT 0,                           -- associated Rental Agreement
     RID BIGINT NOT NULL DEFAULT 0,                            -- associated Rentable
+    TCID BIGINT NOT NULL DEFAULT 0,                           -- Payor associated with this entry
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- balance date and time
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount since last close
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
@@ -955,6 +958,7 @@ CREATE TABLE LedgerMarker (
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
     RAID BIGINT NOT NULL DEFAULT 0,                           -- 0 means it's either a marker for a Rentable or the balance for the whole account;  > 0 means it's the amount associated with rental agreement RAID
     RID BIGINT NOT NULL DEFAULT 0,                            -- 0 means it's either a marker for a RentalAgreement or the balance for a whole account; >0 means it's the amount associated with Rentable RID
+    TCID BIGINT NOT NULL DEFAULT 0,                           -- if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- Balance is valid as of this time
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
@@ -969,10 +973,13 @@ CREATE TABLE GLAccount (
     PLID BIGINT NOT NULL DEFAULT 0,                 -- Parent ID for this GLAccount.  0 if no parent.
     BID BIGINT NOT NULL DEFAULT 0,                  -- Business id
     RAID BIGINT NOT NULL DEFAULT 0,                 -- rental agreement account, only valid if TYPE is 1
+    TCID BIGINT NOT NULL DEFAULT 0,                 -- Payor, only valid if TYPE is 2
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',      -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,             -- Whether a GL Account is currently unknown=0, inactive=1, active=2 
     Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind, 
     --                                                       1 - 9 Reserved
+    --                                                       1 = balance for this particular RentalAgreement (we may deprecate this)
+    --                                                       2 = balance for this payor
     --                                                       10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',      -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, 

@@ -70,19 +70,19 @@ func UpdateInvoice(a *Invoice) error {
 
 // UpdateLedgerMarker updates a LedgerMarker record
 func UpdateLedgerMarker(a *LedgerMarker) error {
-	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(a.LID, a.BID, a.RAID, a.RID, a.Dt, a.Balance, a.State, a.LastModBy, a.LMID)
+	_, err := RRdb.Prepstmt.UpdateLedgerMarker.Exec(a.LID, a.BID, a.RAID, a.RID, a.TCID, a.Dt, a.Balance, a.State, a.LastModBy, a.LMID)
 	return updateError(err, "LedgerMarker", *a)
 }
 
 // UpdateLedger updates a Ledger record
 func UpdateLedger(a *GLAccount) error {
-	_, err := RRdb.Prepstmt.UpdateLedger.Exec(a.PLID, a.BID, a.RAID, a.GLNumber, a.Status, a.Type, a.Name, a.AcctType, a.RAAssociated, a.AllowPost, a.RARequired, a.ManageToBudget, a.Description, a.LastModBy, a.LID)
+	_, err := RRdb.Prepstmt.UpdateLedger.Exec(a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Status, a.Type, a.Name, a.AcctType, a.RAAssociated, a.AllowPost, a.RARequired, a.ManageToBudget, a.Description, a.LastModBy, a.LID)
 	return updateError(err, "GLAccount", *a)
 }
 
 // UpdateJournalAllocation updates a JournalAllocation record
 func UpdateJournalAllocation(a *JournalAllocation) error {
-	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.Amount, a.ASMID, a.AcctRule, a.JAID)
+	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.TCID, a.Amount, a.ASMID, a.AcctRule, a.JAID)
 	return updateError(err, "JournalAllocation", *a)
 }
 
@@ -145,13 +145,13 @@ func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 
 // UpdateReceipt updates a Receipt record in the database
 func UpdateReceipt(a *Receipt) error {
-	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.TCID, a.PMTID, a.DEPID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.ARID, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
+	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.TCID, a.PMTID, a.DEPID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRuleReceive, a.ARID, a.AcctRuleApply, a.FLAGS, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
 	return updateError(err, "Receipt", *a)
 }
 
 // UpdateReceiptAllocation updates a ReceiptAllocation record in the database
 func UpdateReceiptAllocation(a *Receipt) error {
-	_, err := RRdb.Prepstmt.UpdateReceiptAllocation.Exec(a.RCPTID, a.PRCPTID, a.BID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRule, a.ARID, a.Comment, a.OtherPayorName, a.LastModTime, a.LastModBy)
+	_, err := RRdb.Prepstmt.UpdateReceiptAllocation.Exec(a.RCPTID, a.PRCPTID, a.BID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRuleReceive, a.ARID, a.Comment, a.OtherPayorName, a.LastModTime, a.LastModBy)
 	return updateError(err, "ReceiptAllocation", *a)
 }
 

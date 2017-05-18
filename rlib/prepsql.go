@@ -153,7 +153,10 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RID=? AND Stop >= ? AND Start < ?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 1)=0 AND (PASMID!=0 OR RentCycle=0) ORDER BY Start ASC")
+	// FLAGS bits 0-1 mean: 0 = unpaid, 1 = partially paid, 2 = fully paid.
+	// So, FLAGS & 3 gives us the values of bits 0-1.  if the value is 0 or 1 then the assessment is not yet paid.
+	// So (FLAGS & 3) < 2 means that the assessment is not yet paid
+	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 3)<2 AND (PASMID!=0 OR RentCycle=0) ORDER BY Start ASC")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")
@@ -361,12 +364,12 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	// Journal Allocation
-	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,Amount,ASMID,AcctRule from JournalAllocation WHERE JAID=?")
+	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule from JournalAllocation WHERE JAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
+	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
 	Errcheck(err)
 
-	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO JournalAllocation (BID,JID,RID,RAID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?,?,?)")
+	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO JournalAllocation (BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
 
 	RRdb.Prepstmt.DeleteJournalAllocation, err = RRdb.Dbrr.Prepare("DELETE FROM JournalAllocation WHERE JAID=?")
@@ -374,7 +377,7 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteJournalAllocations, err = RRdb.Dbrr.Prepare("DELETE FROM JournalAllocation WHERE JID=?")
 	Errcheck(err)
 
-	RRdb.Prepstmt.UpdateJournalAllocation, err = RRdb.Dbrr.Prepare("UPDATE JournalAllocation SET BID=?,JID=?,RID=?,RAID=?,Amount=?,ASMID=?,AcctRule=? WHERE JAID=?")
+	RRdb.Prepstmt.UpdateJournalAllocation, err = RRdb.Dbrr.Prepare("UPDATE JournalAllocation SET BID=?,JID=?,RID=?,RAID=?,TCID=?,Amount=?,ASMID=?,AcctRule=? WHERE JAID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalMarker, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker WHERE JMID=?")
 	Errcheck(err)
@@ -388,7 +391,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER-->  GLAccount
 	//==========================================
-	flds = "LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,RARequired,ManageToBudget,Description,LastModTime,LastModBy"
+	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,RARequired,ManageToBudget,Description,LastModTime,LastModBy"
 	RRdb.DBFields["GLAccount"] = flds
 	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
@@ -419,7 +422,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER ENTRY
 	//==========================================
-	flds = "LEID,BID,JID,JAID,LID,RAID,RID,Dt,Amount,Comment,LastModTime,LastModBy"
+	flds = "LEID,BID,JID,JAID,LID,RAID,RID,TCID,Dt,Amount,Comment,LastModTime,LastModBy"
 	RRdb.DBFields["LedgerEntry"] = flds
 	RRdb.Prepstmt.GetAllLedgerEntriesInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from LedgerEntry WHERE BID=? AND ?<=Dt AND Dt<?")
 	Errcheck(err)
@@ -451,23 +454,25 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER MARKER
 	//==========================================
-	flds = "LMID,LID,BID,RAID,RID,Dt,Balance,State,LastModTime,LastModBy"
+	flds = "LMID,LID,BID,RAID,RID,TCID,Dt,Balance,State,LastModTime,LastModBy"
 	RRdb.DBFields["LedgerMarker"] = flds
-	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 ORDER BY Dt DESC")
+	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and TCID=0 ORDER BY Dt DESC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and Dt>?  ORDER BY LID ASC")
+	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and TCID=0 and Dt>?  ORDER BY LID ASC")
 	Errcheck(err)
 	// RRdb.Prepstmt.GetLedgerMarkerByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and Dt>? ORDER BY LID ASC")
 	// Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 ORDER BY LMID DESC LIMIT ?")
+	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 and TCID=0 ORDER BY LMID DESC LIMIT ?")
 	Errcheck(err)
 
 	// RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM (SELECT * FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 and Dt<=? ORDER BY Dt DESC) AS t1 GROUP BY LID")
 	// Errcheck(err)
-	RRdb.Prepstmt.GetLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and Dt<=? ORDER BY Dt DESC LIMIT 1")
+	RRdb.Prepstmt.GetLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and TCID=0 and Dt<=? ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=? and Dt<=?  ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
+	// RRdb.Prepstmt.GetPayorLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and TCID=? and Dt<=? ORDER BY Dt DESC LIMIT 1")
+	// Errcheck(err)
 	RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RID=? and Dt<=?  ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteLedgerMarker, err = RRdb.Dbrr.Prepare("DELETE FROM LedgerMarker WHERE LMID=?")
@@ -639,7 +644,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT
 	//==========================================
-	flds = "RCPTID,PRCPTID,BID,TCID,PMTID,DEPID,DID,Dt,DocNo,Amount,AcctRule,ARID,Comment,OtherPayorName,LastModTime,LastModBy"
+	flds = "RCPTID,PRCPTID,BID,TCID,PMTID,DEPID,DID,Dt,DocNo,Amount,AcctRuleReceive,ARID,AcctRuleApply,FLAGS,Comment,OtherPayorName,LastModTime,LastModBy"
 	RRdb.DBFields["Receipt"] = flds
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
@@ -647,6 +652,15 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND Dt >= ? AND Dt < ?")
 	Errcheck(err)
+
+	//  FLAGS bits 0-1:  0 unallocated, 1 = partially allocated, 2 = fully allocated
+	RRdb.Prepstmt.GetUnallocatedReceipts, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND (FLAGS & 3)<2 ORDER BY Dt ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetUnallocatedReceiptsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND TCID=? AND (FLAGS & 3)<2 ORDER BY Dt ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM Receipt WHERE BID=? AND TCID=? AND (FLAGS & 3)<2")
+	Errcheck(err)
+
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertReceipt, err = RRdb.Dbrr.Prepare("INSERT INTO Receipt (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
@@ -665,6 +679,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPTID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptAllocationsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE BID=? AND RAID=? AND Dt >= ? and Dt < ?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetReceiptAllocationsByASMID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE BID=? AND ASMID=?")
 	Errcheck(err)
 	s1, s2, _, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertReceiptAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO ReceiptAllocation (" + s1 + ") VALUES(" + s2 + ")")

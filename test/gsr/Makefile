@@ -14,7 +14,7 @@ config.json:
 	@getfile.sh accord/db/confdev.json ; cp confdev.json config.json
 
 clean:
-	rm -f rentroll.log log ll.g llog [a-z] [a-z][0-9] fail *.json
+	rm -f rentroll.log log ll.g llog [a-z] [a-z][a-z] [a-z][0-9] [a-z][0-9][a-z] fail *.json
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 test: gsr
