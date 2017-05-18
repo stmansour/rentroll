@@ -759,7 +759,7 @@ function arShowNewForm(BID, BUD){
     w2ui.arsForm.fields[5].options.selected = gl_accounts_pre_selected;
     w2ui.arsForm.fields[6].options.items = gl_accounts_items;
     w2ui.arsForm.fields[6].options.selected = gl_accounts_pre_selected;
-    w2ui.arsForm.refresh();
+    // w2ui.arsForm.refresh();
 
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);

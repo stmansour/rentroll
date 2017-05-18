@@ -117,7 +117,7 @@ func arGridRowScan(rows *sql.Rows, q PrARGrid) PrARGrid {
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
-var arFieldsMap = map[string][]string{
+var arFieldsMap = selectQueryFieldMap{
 	"ARID":             {"AR.ARID"},
 	"BID":              {"AR.BID"},
 	"Name":             {"AR.Name"},
@@ -132,7 +132,7 @@ var arFieldsMap = map[string][]string{
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
-var arQuerySelectFields = []string{
+var arQuerySelectFields = selectQueryFields{
 	"AR.ARID",
 	"AR.BID",
 	"AR.Name",
@@ -324,25 +324,31 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("SvcFormHandlerAR save\n")
 	fmt.Printf("record data = %s\n", d.data)
 
-	var foo SaveARInput
+	var (
+		foo SaveARInput
+		bar SaveAROther
+		a   rlib.AR
+		err error
+	)
+
+	// get data
 	data := []byte(d.data)
+
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
-	var a rlib.AR
-	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-
-	fmt.Printf("saveAR - first migrate: a = %#v\n", a)
-
-	var bar SaveAROther
 	if err := json.Unmarshal(data, &bar); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
+	// migrate foo.Record data to a struct's fields
+	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
+	fmt.Printf("saveAR - first migrate: a = %#v\n", a)
 
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
@@ -352,19 +358,21 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e)
 		return
 	}
-	fmt.Printf("bar.record.creditLid:========%#v\n\n", bar.Record.CreditLID)
+
 	a.CreditLID, ok = rlib.StringToInt64(bar.Record.CreditLID.ID) // CreditLID has drop list
 	if !ok {
 		e := fmt.Errorf("%s: invalid CreditLID value: %s", funcname, bar.Record.CreditLID.ID)
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
 	a.DebitLID, ok = rlib.StringToInt64(bar.Record.DebitLID.ID) // DebitLID has drop list
 	if !ok {
 		e := fmt.Errorf("%s: invalid DebitLID value: %s", funcname, bar.Record.DebitLID.ID)
 		SvcGridErrorReturn(w, e)
 		return
 	}
+
 	a.ARType, ok = rlib.StringToInt64(bar.Record.ARType.ID) // ArType has drop list
 	if !ok {
 		e := fmt.Errorf("%s: Invalid ARType value: %s", funcname, bar.Record.ARType.ID)
@@ -382,7 +390,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	var err error
+	// save or update
 	if a.ARID == 0 && d.ARID == 0 {
 		// This is a new AR
 		fmt.Printf(">>>> NEW RECEIPT IS BEING ADDED\n")
@@ -402,7 +410,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
-var getARQuerySelectFields = []string{
+var getARQuerySelectFields = selectQueryFields{
 	"AR.ARID",
 	"AR.Name",
 	"AR.ARType",
@@ -466,12 +474,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var gg ARSendForm
 
-		for bud, bid := range rlib.RRdb.BUDlist {
-			if bid == d.BID {
-				gg.BID = rlib.XJSONBud(bud)
-				break
-			}
-		}
+		gg.BID = getBUDFromBIDList(d.BID)
 
 		rlib.Errcheck(rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired))
 
