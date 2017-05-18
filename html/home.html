@@ -2234,12 +2234,13 @@ function buildPageElements() {
     $().w2grid({
         name: 'depGrid',
         url: '/v1/dep',
+        multiSelect: false,
         show: {
             toolbar        : true,
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : true,   // indicates if toolbar delete button is visible
-            toolbarSave    : true,   // indicates if toolbar save button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
+            toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn   : false,
             expandColumn   : false,
             toolbarEdit    : false,
@@ -2250,36 +2251,210 @@ function buildPageElements() {
             toolbarColumns : false,
         },
         columns: [
-            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'DEPID',     hidden: true,  caption: 'DEPID',         size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'BID',       hidden: true,  caption: 'BID',           size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'LID',       hidden: true,  caption: 'LID',           size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'AccountNo', hidden: false, caption: 'Account Number',size: '150px', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
-            {field: 'Name',      hidden: false, caption: 'Name',          size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
-            {field: 'LdgrName',  hidden: false, caption: 'GL Acct Name',  size: '20%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
-            {field: 'GLNumber',  hidden: false, caption: 'GL Number',     size: '150px', editable: { type: 'text' }, stortable: true, style: 'text-align: center'},
+            {field: 'recid', hidden: true, caption: 'recid', size: '40px', sortable: true},
+            {field: 'DEPID', hidden: true, caption: 'DEPID', size: '150px', stortable: true, style: 'text-align: center'},
+            {field: 'BID', hidden: true, caption: 'BID', size: '150px', stortable: true, style: 'text-align: center'},
+            {field: 'BUD', hidden: true, caption: 'BUD', size: '150px', stortable: true, style: 'text-align: center'},
+            {field: 'LID', hidden: true, caption: 'LID', size: '150px', stortable: true, style: 'text-align: center'},
+            {field: 'AccountNo', hidden: false, caption: 'Account Number', size: '150px', stortable: true, style: 'text-align: right'},
+            {field: 'Name', hidden: false, caption: 'Name', size: '20%', stortable: true, style: 'text-align: left'},
+            {field: 'LdgrName', hidden: false, caption: 'GL Acct Name', size: '20%', stortable: true, style: 'text-align: left'},
+            {field: 'GLNumber', hidden: false, caption: 'GL Number', size: '150px', stortable: true, style: 'text-align: right'},
         ],
-        onSave: function(/*event*/) {
-            console.log('save depository');
-            w2ui.depGrid.reload();
-        },
-        onChange: function(event) {
-            console.log(event);
-        },
-        onAdd: function (/*event*/) {
-            var x = getCurrentBusiness();
-            var BID=x.value;
-            var BUD = getBUDfromBID(BID);
-            var record = {
-                recid: 0,
-                DEPID: 0,
-                BID: BUD,
-                LID: 0,
-                Name: 'payment type name',
-                Description: 'payment type description',
+        onClick: function(event) {
+
+            event.onComplete = function () {
+                var sel = this.getSelection();
+                if (sel.length > 0) {
+
+                    // get selected element as multiSelect is false
+                    var ob = this.get(sel[0]);
+
+                    // get gl account list
+                    getGLAccounts(ob.BID)
+                    .done(function(data){
+                        if (data.status != 'success') {
+                            w2ui.depForm.message(data.message);
+                        } else {
+                            app["gl_accounts"] = data;
+
+                            var gl_selected = {id: ob.LID, text:  ob.GLNumber+" (" + ob.LdgrName + ")"};
+
+                            w2ui.depForm.get('LID').options.items=app.gl_accounts.records;
+                            w2ui.depForm.get('LID').options.selected=gl_selected;
+
+                            // refresh the form
+                            w2ui.depForm.refresh();
+                        }
+
+                        setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID);
+                    })
+                    .fail(function(data){
+                        console.log("Failed to get glAccountList")
+                    });
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
+                }
             };
-            w2ui.depGrid.add(record);
         },
+        onAdd: function (event) {
+            // Insert an empty record...
+            var x = getCurrentBusiness();
+            var BID=parseInt(x.value);
+            var BUD = getBUDfromBID(BID);
+
+            // get latest gl accounts first
+            getGLAccounts(BID)
+            .done(function(data) {
+
+                if (data.status != 'success') {
+                    w2ui.depForm.message(data.message);
+                    w2ui.toplayout.content('right', w2ui.depForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 700);
+                    return;
+                } else {
+                    app["gl_accounts"] = data;
+
+                    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var gl_accounts_items = [gl_accounts_pre_selected];
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts.records);
+
+                    w2ui.depForm.get('LID').options.items = gl_accounts_items;
+                    w2ui.depForm.get('LID').options.selected = gl_accounts_pre_selected;
+
+                    var record = {
+                        recid: 0,
+                        DEPID: 0,
+                        BID: BID,
+                        BUD: BUD,
+                        LID: 0,
+                        Name: 'Depository Name',
+                        AccountNo: 'Account Number',
+                    };
+
+                    w2ui.depForm.record = record;
+                    w2ui.depForm.refresh();
+
+                    w2ui.depForm.url = '/v1/dep/' + BID + '/0';
+                    w2ui.toplayout.content('right', w2ui.depForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 700);
+                }
+            })
+            .fail( function() {
+                console.log('unable to get GLAccounts');
+                return;
+             });
+
+        },
+    });
+
+    //------------------------------------------------------------------------
+    //          depository Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'depForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: 'Depository Detail',
+        url: '/v1/dep',
+        formURL: '/html/formdep.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+            { field: 'DEPID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BUD', page: 0, column: 0 } },
+            { field: 'LID', type: 'list', options: { items: [], selected: {}, maxDropHeight: 200 }, required: false, html: { caption: 'GL Account', page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
+            { field: 'AccountNo', type: 'text', required: false, html: { caption: 'AccountNo', page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'date', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    break;
+                }
+            },
+        },
+        actions: {
+            save: function (target, data) {
+                var tgrid = w2ui.depGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+
+                // this.save({}, function (data) {
+                //     if (data.status == 'error') {
+                //         console.log('ERROR: '+ data.message);
+                //         return;
+                //     }
+                //     w2ui.toplayout.hide('right',true);
+                //     tgrid.reload();
+                // });
+                // TODO: need to figure out why save is not working here?
+
+                var params = {cmd: 'save', formname: this.name, record: this.record };
+                var dat = JSON.stringify(params);
+
+                // save Depository request
+                $.post(this.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    tgrid.reload();
+                })
+                .fail(function(data){
+                    console.log("Save Depository failed.")
+                });
+            },
+            reset: function(target, data) {
+                var f = w2ui.depForm;
+                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.DEPID + '   Name = ' + f.record.Name);
+            },
+            delete: function(target, data) {
+                var tgrid = w2ui.depGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+
+                var params = {cmd: 'delete', formname: this.name, ID: this.record.DEPID };
+                var dat = JSON.stringify(params);
+
+                // delete Depository request
+                $.post(this.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    tgrid.reload();
+                })
+                .fail(function(data){
+                    console.log("Delete Depository failed.")
+                });
+            },
+        },
+        onRefresh: function(event) {
+            var f = w2ui.depForm;
+            var r = f.record;
+            if (r.DEPID) {
+                f.header = 'Edit Depository' + ' (' + r.DEPID + ')';
+            } else {
+                f.header = 'Edit Depository (new)';
+            }
+        }
     });
 
     //------------------------------------------------------------------------
@@ -2288,6 +2463,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'arsGrid',
         url: '/v1/ars',
+        multiSelect: false,
         show: {
             toolbar        : true,
             footer         : true,
@@ -2326,43 +2502,43 @@ function buildPageElements() {
             event.onComplete = function () {
                 var sel = this.getSelection();
                 if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; ++i) {
-                        var ob = this.get(sel[i]);
 
-                        // set ARType DropDown list
-                        var artype_selected;
-                        var artype_items = [];
-                        Object.keys(app.ARTypes).forEach(function(artype_id){
-                            if (ob.ARType == artype_id) {
-                                artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
-                            }
-                            artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
-                        });
+                    // multi select is false
+                    var ob = this.get(sel[0]);
 
-                        // get gl account list
-                        getGLAccounts(ob.BID)
-                        .done(function(data){
-                            app["gl_accounts"] = data;
+                    // set ARType DropDown list
+                    var artype_selected;
+                    var artype_items = [];
+                    Object.keys(app.ARTypes).forEach(function(artype_id){
+                        if (ob.ARType == artype_id) {
+                            artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
+                        }
+                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                    });
 
-                            // set fields
-                            w2ui.arsForm.get('ARType').options.items=artype_items;
-                            w2ui.arsForm.get('ARType').options.selected=artype_selected;
+                    // get gl account list
+                    getGLAccounts(ob.BID)
+                    .done(function(data){
+                        app["gl_accounts"] = data;
 
-                            w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts.records;
-                            w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
+                        // set fields
+                        w2ui.arsForm.get('ARType').options.items=artype_items;
+                        w2ui.arsForm.get('ARType').options.selected=artype_selected;
 
-                            w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts.records;
-                            w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
+                        w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts.records;
+                        w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
 
-                            // refresh the form
-                            w2ui.arsForm.refresh();
+                        w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts.records;
+                        w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
 
-                            setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
-                        })
-                        .fail(function(data){
-                            console.log("Failed to get glAccountList")
-                        });
-                     }
+                        // refresh the form
+                        w2ui.arsForm.refresh();
+
+                        setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
+                    })
+                    .fail(function(data){
+                        console.log("Failed to get glAccountList")
+                    });
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
                     this.select(1);
@@ -2376,8 +2552,6 @@ function buildPageElements() {
             var BID=x.value;
             var BUD = getBUDfromBID(BID);
 
-            setToForm('arsForm', '/v1/ar/' + BID + '/0');
-
             // get latest gl accounts first
             getGLAccounts(BID)
             .done(function(data) {
@@ -2388,11 +2562,50 @@ function buildPageElements() {
                     w2ui.toplayout.show('right', true);
                     w2ui.toplayout.sizeTo('right', 700);
                     return;
-                } else {
-                    app["gl_accounts"] = data;
-                    arShowNewForm(BID, BUD);
                 }
+                else {
+                    app["gl_accounts"] = data;
 
+                    var artype_pre_selected = {id: 0, text: "Select AR type"};
+                    var artype_items = [artype_pre_selected];
+                    Object.keys(app.ARTypes).forEach(function(artype_id){
+                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                    });
+
+                    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var gl_accounts_items = [gl_accounts_pre_selected];
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts.records);
+
+                    w2ui.arsForm.get('ARType').options.items = artype_items;
+                    w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
+                    w2ui.arsForm.get('DebitLID').options.items = gl_accounts_items;
+                    w2ui.arsForm.get('DebitLID').options.selected = gl_accounts_pre_selected;
+                    w2ui.arsForm.get('CreditLID').options.items = gl_accounts_items;
+                    w2ui.arsForm.get('CreditLID').options.selected = gl_accounts_pre_selected;
+                    // w2ui.arsForm.refresh();
+
+                    var y = new Date();
+                    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+
+                    var record = {
+                        recid: 0,
+                        BID: BUD,
+                        ARID: 0,
+                        ARType: artype_pre_selected,
+                        DebitLID: gl_accounts_pre_selected,
+                        CreditLID: gl_accounts_pre_selected,
+                        Name: '',
+                        Description: '',
+                        DtStart: w2uiDateControlString(y),
+                        DtStop: w2uiDateControlString(ny),
+                    };
+                    w2ui.arsForm.record = record;
+                    w2ui.arsForm.refresh();
+                    w2ui.arsForm.url = '/v1/ar/' + BID + '/0';
+                    w2ui.toplayout.content('right', w2ui.arsForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 700);
+                }
             })
             .fail( function() {
                 console.log('unable to get GLAccounts');
@@ -2447,7 +2660,7 @@ function buildPageElements() {
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
 
-                var params = {cmd: 'delete', formname: this.name, ARID: this.record.ARID };
+                var params = {cmd: 'delete', formname: this.name, ID: this.record.ARID };
                 var dat = JSON.stringify(params);
 
                 // delete AR request
