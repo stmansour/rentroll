@@ -68,6 +68,22 @@ import (
 //     string - the full query
 //     string - the WHERE clause suitable for a COUNT(*) query
 //----------------------------------------------------------------------------------------------
+
+// queryClauses normally holds select, where, order clauses
+type queryClauses map[string]string
+
+// selectQueryFields holds the list of fields, used to get those from sql select query
+type selectQueryFields []string
+
+// selectQueryFieldMap holds the map of one field to list of fields,
+// one field would be mapped to multiple field, e.g, result come from combining those fields
+// ex.
+// Payor is mapped to `Transactant.FirstName, Transactant.LastName`
+// so Payor is being shown as group concat over firstname, lastname
+// also when someone search in payor, ultimately it'll search in firstname, lastname with
+// requested input.
+type selectQueryFieldMap map[string][]string
+
 func gridBuildQuery(table, srch, order string, d *ServiceData, p interface{}) (string, string) {
 	// Handle Search
 	q := "SELECT * FROM " + table + " WHERE"
@@ -159,9 +175,6 @@ func GetRowCount(table, where string) (int64, error) {
 	}
 	return count, err
 }
-
-// queryClauses normally holds select, where, order clauses
-type queryClauses map[string]string
 
 // renderSQLQuery accepets queryForm (text form), queryClauses (map)
 // and executes text template with given map of clause and return

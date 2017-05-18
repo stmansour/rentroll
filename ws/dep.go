@@ -1,10 +1,13 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -14,6 +17,7 @@ type DepositoryGrid struct {
 	Recid       int64 `json:"recid"`
 	DEPID       int64
 	BID         int64
+	BUD         rlib.XJSONBud
 	LID         int64
 	Name        string
 	AccountNo   string
@@ -30,19 +34,57 @@ type DepositorySearchResponse struct {
 	Records []DepositoryGrid `json:"records"`
 }
 
+// DepositorySaveForm contains the data from Depository FORM that is targeted to the UI Form that displays
+// a list of Depository structs
+type DepositorySaveForm struct {
+	Recid       int64 `json:"recid"`
+	DEPID       int64
+	BID         int64
+	Name        string
+	AccountNo   string
+	LdgrName    string
+	GLNumber    string
+	LastModTime time.Time
+	LastModBy   int64
+}
+
 // DepositoryGridSave is the input data format for a Save command
 type DepositoryGridSave struct {
-	Status   string           `json:"status"`
-	Recid    int64            `json:"recid"`
-	FormName string           `json:"name"`
-	Record   DepositoryGrid   `json:"record"`
-	Changes  []DepositoryGrid `json:"changes"`
+	Status   string             `json:"status"`
+	Recid    int64              `json:"recid"`
+	FormName string             `json:"name"`
+	Record   DepositorySaveForm `json:"record"`
+}
+
+// DepositorySaveOther is a struct to handle the UI list box selections
+type DepositorySaveOther struct {
+	BUD rlib.W2uiHTMLSelect
+	LID rlib.W2uiHTMLSelect
+}
+
+// SaveDepositoryOther is the input data format for the "other" data on the Save command
+type SaveDepositoryOther struct {
+	Status string              `json:"status"`
+	Recid  int64               `json:"recid"`
+	Name   string              `json:"name"`
+	Record DepositorySaveOther `json:"record"`
+}
+
+// DepSaveOther is a struct to handle the UI list box selections
+type DepSaveOther struct {
+	BUD rlib.W2uiHTMLSelect
+	LID rlib.W2uiHTMLSelect
 }
 
 // DepositoryGetResponse is the response to a GetDepository request
 type DepositoryGetResponse struct {
 	Status string         `json:"status"`
 	Record DepositoryGrid `json:"record"`
+}
+
+// DeleteDepForm used to delete form
+type DeleteDepForm struct {
+	ID int64
 }
 
 // SvcHandlerDepository formats a complete data record for an assessment for use with the w2ui Form
@@ -81,6 +123,35 @@ func SvcHandlerDepository(w http.ResponseWriter, r *http.Request, d *ServiceData
 	}
 }
 
+// depGridRowScan scans a result from sql row and dump it in a PrARGrid struct
+func depGridRowScan(rows *sql.Rows, q DepositoryGrid) DepositoryGrid {
+	rlib.Errcheck(rows.Scan(&q.DEPID, &q.LID, &q.Name, &q.AccountNo, &q.LdgrName, &q.GLNumber, &q.LastModTime, &q.LastModBy))
+	return q
+}
+
+var depSearchFieldMap = selectQueryFieldMap{
+	"DEPID":       {"Depository.DEPID"},
+	"LID":         {"Depository.LID"},
+	"Name":        {"Depository.Name"},
+	"AccountNo":   {"Depository.AccountNo"},
+	"LdgrName":    {"GLAccount.Name"},
+	"GLNumber":    {"GLAccount.GLNumber"},
+	"LastModTime": {"Depository.LastModTime"},
+	"LastModBy":   {"Depository.LastModBy"},
+}
+
+// which fields needs to be fetch to satisfy the struct
+var depSearchSelectQueryFields = selectQueryFields{
+	"Depository.DEPID",
+	"Depository.LID",
+	"Depository.Name",
+	"Depository.AccountNo",
+	"GLAccount.Name as LdgrName",
+	"GLAccount.GLNumber",
+	"Depository.LastModTime",
+	"Depository.LastModBy",
+}
+
 // SvcSearchHandlerDepositories generates a report of all Depositories defined business d.BID
 // wsdoc {
 //  @Title  Search Depositories
@@ -96,38 +167,63 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 	funcname := "SvcSearchHandlerDepositories"
 	fmt.Printf("Entered %s\n", funcname)
 	var (
-		g   DepositorySearchResponse
-		err error
+		g     DepositorySearchResponse
+		err   error
+		order = `Depository.DEPID ASC` // default ORDER in sql result
+		whr   = fmt.Sprintf("Depository.BID=%d", d.BID)
 	)
 
-	order := "DEPID ASC"                                                             // default ORDER
-	q := fmt.Sprintf("SELECT %s FROM Depository ", rlib.RRdb.DBFields["Depository"]) // the fields we want
-	qw := fmt.Sprintf("BID=%d", d.BID)
-	q += "WHERE " + qw + " ORDER BY "
-	if len(d.wsSearchReq.Sort) > 0 {
-		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			if i > 0 {
-				q += ","
-			}
-			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
-		}
-	} else {
-		q += order
+	// get where clause and order clause for sql query
+	_, orderClause := GetSearchAndSortSQL(d, depSearchFieldMap)
+	if len(orderClause) > 0 {
+		order = orderClause
 	}
 
-	// now set up the offset and limit
-	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
-	fmt.Printf("rowcount query conditions: %s\ndb query = %s\n", qw, q)
+	depSearchQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Depository
+	LEFT JOIN GLAccount on GLAccount.LID=Depository.LID
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
 
-	g.Total, err = GetRowCount("Depository", qw)
+	qc := queryClauses{
+		"SelectClause": strings.Join(depSearchSelectQueryFields, ","),
+		"WhereClause":  whr,
+		"OrderClause":  order,
+	}
+
+	// get TOTAL COUNT First
+	countQuery := renderSQLQuery(depSearchQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	depQueryWithLimit := depSearchQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(depQueryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("Error from DB Query: %s\n", err.Error())
+		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -136,16 +232,13 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.Depository
 		var q DepositoryGrid
-		rlib.ReadDepositories(rows, &p)
-		rlib.MigrateStructVals(&p, &q)
-		q.Recid = p.DEPID
-		ldg := rlib.GetLedger(p.LID)
-		if ldg.LID == p.LID { // if it didn't read the ledger def, ldg.LID will == 0
-			q.LdgrName = ldg.Name
-			q.GLNumber = ldg.GLNumber
-		}
+		q.Recid = i
+		q.BID = d.BID
+		q.BUD = getBUDFromBIDList(q.BID)
+
+		q = depGridRowScan(rows, q)
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -153,12 +246,11 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 		}
 		i++
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
 	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
-	g.Status = "success"
-	SvcWriteResponse(&g, w)
 
+	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
 }
 
 // deleteDepository deletes a payment type from the database
@@ -175,19 +267,19 @@ func deleteDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "deleteDepository"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
-	var del WebGridDelete
+
+	var del DeleteDepForm
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
-	for i := 0; i < len(del.Selected); i++ {
-		if err := rlib.DeleteDepository(del.Selected[i]); err != nil {
-			SvcGridErrorReturn(w, err)
-			return
-		}
+	if err := rlib.DeleteDepository(del.ID); err != nil {
+		SvcGridErrorReturn(w, err)
+		return
 	}
+
 	SvcWriteSuccessResponse(w)
 }
 
@@ -206,34 +298,61 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
-	var foo DepositoryGridSave
-	data := []byte(d.data)
-	err := json.Unmarshal(data, &foo)
+	var (
+		foo DepositoryGridSave
+		bar SaveDepositoryOther
+		err error
+	)
 
-	if err != nil {
+	// get data
+	data := []byte(d.data)
+
+	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
-	if len(foo.Changes) == 0 { // This is a new record
-		var a rlib.Depository
-		rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-		fmt.Printf("a = %#v\n", a)
+	if err := json.Unmarshal(data, &bar); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	var a rlib.Depository
+	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
+
+	var ok bool
+	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BUD.ID]
+	if !ok {
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BUD.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+	a.LID, ok = rlib.StringToInt64(bar.Record.LID.ID) // CreditLID has drop list
+	if !ok {
+		e := fmt.Errorf("%s: invalid LID value: %s", funcname, bar.Record.LID.ID)
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	if a.DEPID == 0 && d.ID == 0 {
+		// This is a new AR
 		fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
 		_, err = rlib.InsertDepository(&a)
-		if err != nil {
-			e := fmt.Errorf("%s: Error saving assessment (DEPID=%d\n: %s", funcname, a.DEPID, err.Error())
-			SvcGridErrorReturn(w, e)
-			return
-		}
-	} else { // update existing or add new record(s)
-		fmt.Printf("prior to JSONchangeParseUtil:  d.BID = %d\n", d.BID)
-		if err = JSONchangeParseUtil(d.data, depositoryUpdate, d); err != nil {
-			SvcGridErrorReturn(w, err)
-			return
-		}
+	} else {
+		// update existing record
+		fmt.Printf("Updating existing Depository: %d\n", a.DEPID)
+		err = rlib.UpdateDepository(&a)
 	}
+
+	if err != nil {
+		e := fmt.Errorf("%s: Error saving assessment (DEPID=%d\n: %s", funcname, a.DEPID, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
 	SvcWriteSuccessResponse(w)
 }
 
@@ -282,17 +401,44 @@ func depositoryUpdate(s string, d *ServiceData) error {
 func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "getDepository"
 	fmt.Printf("entered %s\n", funcname)
-	var g DepositoryGetResponse
-	a, err := rlib.GetDepository(d.ID)
+	var (
+		g   DepositoryGetResponse
+		whr = fmt.Sprintf("Depository.DEPID=%d", d.ID)
+	)
+
+	depQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Depository
+	LEFT JOIN GLAccount on GLAccount.LID=Depository.LID
+	WHERE {{.WhereClause}};`
+
+	qc := queryClauses{
+		"SelectClause": strings.Join(depSearchSelectQueryFields, ","),
+		"WhereClause":  whr,
+	}
+
+	qry := renderSQLQuery(depQuery, qc)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
+		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	if a.DEPID > 0 {
-		var gg DepositoryGrid
-		rlib.MigrateStructVals(&a, &gg)
-		g.Record = gg
+	defer rows.Close()
+
+	for rows.Next() {
+		var q DepositoryGrid
+		q.BID = d.BID
+		q.BUD = getBUDFromBIDList(q.BID)
+
+		q = depGridRowScan(rows, q)
+		q.Recid = q.DEPID
+		g.Record = q
 	}
+	rlib.Errcheck(rows.Err())
+
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }
