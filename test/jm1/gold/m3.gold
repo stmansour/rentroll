@@ -15,8 +15,8 @@ Description                                              Date        ID         
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               32,973.33
 Payment #2003 - Gross Scheduled Rent-Taxable             03/01/2016  J00000026          1   309 Rexford          3,750.00     36,723.33
-Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000027          2   309 1/2 Rexford      3,550.00     40,273.33
-Assessment - Security Deposits                           03/02/2016  J00000024          3   311 Rexford           -865.29     39,408.04
+Assessment - Security Deposits                           03/02/2016  J00000024          3   311 Rexford           -865.29     35,858.04
+Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000027          2   309 1/2 Rexford      3,550.00     39,408.04
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          03/31/2016                                                           39,408.04
 
@@ -49,8 +49,8 @@ Description                                              Date        ID         
 Opening Balance                                                                                                                    0.00
 Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000023          1   309 Rexford          3,750.00      3,750.00
 Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000025          2   309 1/2 Rexford      3,550.00      7,300.00
-Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000027          2   309 1/2 Rexford     -3,550.00      3,750.00
-Payment #2003 - Gross Scheduled Rent-Taxable             03/01/2016  J00000026          1   309 Rexford         -3,750.00          0.00
+Payment #2003 - Gross Scheduled Rent-Taxable             03/01/2016  J00000026          1   309 Rexford         -3,750.00      3,550.00
+Payment #1924 - Gross Scheduled Rent-Taxable             03/05/2016  J00000027          2   309 1/2 Rexford     -3,550.00          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          03/31/2016                                                                0.00
 
@@ -122,9 +122,9 @@ GL Account: 41000
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              -27,900.00
-Unassociated                                             03/31/2016  J00000029              311 1/2 Rexford     -2,500.00    -30,400.00
-Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000025          2   309 1/2 Rexford     -3,550.00    -33,950.00
-Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000023          1   309 Rexford         -3,750.00    -37,700.00
+Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000025          2   309 1/2 Rexford     -3,550.00    -31,450.00
+Assessment - Gross Scheduled Rent-Taxable                03/01/2016  J00000023          1   309 Rexford         -3,750.00    -35,200.00
+Unassociated                                             03/31/2016  J00000029              311 1/2 Rexford     -2,500.00    -37,700.00
 Unassociated                                             03/31/2016  J00000028              311 Rexford         -4,400.00    -42,100.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          03/31/2016                                                          -42,100.00

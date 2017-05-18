@@ -34,7 +34,7 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 	case rlib.JNLTYPERCPT:
 		ja := rlib.GetJournalAllocation(l.JAID)
 		a, _ := rlib.GetAssessment(ja.ASMID)
-		r := rlib.GetRentable(a.RID)
+		r := rlib.GetRentable(l.RID)
 		rcpt := rlib.GetReceipt(j.ID) // ID is the receipt id
 		p := fmt.Sprintf("Payment #%s - ", rcpt.DocNo)
 		if rcpt.ARID > 0 {
