@@ -121,9 +121,9 @@ func payAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, rcpt *rlib.Receipt,
 	ra.Dt = *dt                                    // the date is the one supplied to this routine, may be different than the Receipt's date
 	car := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]    // this is the assessment's Account Rule
 	dar := rlib.RRdb.BizTypes[a.BID].AR[rcpt.ARID] // debit -- this is the receipt's Account Rule, credit account
-	dacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID].GLNumber
-	cacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID].GLNumber
-	ra.AcctRule = fmt.Sprintf("ASM(%d) d %s %.2f,c %s %.2f", a.ASMID, dacct, amtToUse, cacct, amtToUse)
+	dacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID]
+	cacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID]
+	ra.AcctRule = fmt.Sprintf("ASM(%d) d %s %.2f,c %s %.2f", a.ASMID, dacct.GLNumber, amtToUse, cacct.GLNumber, amtToUse)
 	_, err := rlib.InsertReceiptAllocation(&ra)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
@@ -176,6 +176,50 @@ func payAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, rcpt *rlib.Receipt,
 		return err
 	}
 	fmt.Printf("Funds remaining in RCPTID %d = %.2f\n", rcpt.RCPTID, RemainingReceiptFunds(xbiz, rcpt))
+
+	//-------------------------------------------------------------------------
+	// Find the journal entry for this Receipt and add a journal allocation
+	// based on the allocation we just did for the receipt
+	//-------------------------------------------------------------------------
+	jnl := rlib.GetJournalByReceiptID(rcpt.RCPTID)
+	rlib.GetJournalAllocations(&jnl)
+	var ja rlib.JournalAllocation
+	ja.JID = jnl.JID
+	ja.AcctRule = ra.AcctRule
+	ja.Amount = amtToUse
+	ja.BID = jnl.BID
+	ja.RAID = a.RAID
+	ja.RID = a.RID
+	ja.TCID = rcpt.TCID
+	rlib.InsertJournalAllocationEntry(&ja)
+	jnl.JA = append(jnl.JA, ja)
+
+	//-------------------------------------------------------------------------
+	// Update ledgers based on journal entry
+	//-------------------------------------------------------------------------
+	var l rlib.LedgerEntry
+	l.BID = jnl.BID
+	l.JID = jnl.JID
+	l.RID = ja.RID
+	l.JAID = ja.JAID
+	l.RAID = ja.RAID
+	l.TCID = ja.TCID
+	l.Dt = jnl.Dt
+	l.LID = dacct.LID
+	l.Amount = amtToUse
+	_, err = rlib.InsertLedgerEntry(&l)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return err
+	}
+
+	l.LID = cacct.LID
+	l.Amount = -amtToUse
+	_, err = rlib.InsertLedgerEntry(&l)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return err
+	}
 
 	return nil
 }

@@ -312,7 +312,7 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 	for rows.Next() {
 		var j rlib.Journal
 		rlib.ReadJournals(rows, &j)
-		rlib.GetJournalAllocations(j.JID, &j)
+		rlib.GetJournalAllocations(&j)
 		textReportJournalEntry(&tbl, ri.Xbiz, &j, &jctx)
 	}
 	rlib.Errcheck(rows.Err())

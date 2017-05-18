@@ -301,6 +301,7 @@ func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			l.LEID = rid
 		}
 	} else {
 		Ulog("Error inserting LedgerEntry:  %v\n", err)

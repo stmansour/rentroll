@@ -582,8 +582,8 @@ func GetJournalAllocation(jaid int64) JournalAllocation {
 
 // GetJournalAllocations loads all Journal allocations associated with the supplied Journal id into
 // the RA array within a Journal structure
-func GetJournalAllocations(jid int64, j *Journal) {
-	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(jid)
+func GetJournalAllocations(j *Journal) {
+	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(j.JID)
 	Errcheck(err)
 	defer rows.Close()
 	j.JA = make([]JournalAllocation, 0)

@@ -303,7 +303,7 @@ func GenerateLedgerEntries(xbiz *XBusiness, d1, d2 *time.Time) int {
 	for rows.Next() {
 		var j Journal
 		ReadJournals(rows, &j)
-		GetJournalAllocations(j.JID, &j)
+		GetJournalAllocations(&j)
 		nr += GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
 	}
 	Errcheck(rows.Err())
