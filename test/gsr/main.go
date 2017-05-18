@@ -217,7 +217,7 @@ func doTest() {
 
 	// We assume the user chose to work on Payor with TCID = 2
 	dt := time.Now()
-	bizlogic.AutoAllocatePayorReceipts(&App.Xbiz, int64(2), &dt)
+	bizlogic.AutoAllocatePayorReceipts(int64(2), &dt)
 
 }
 

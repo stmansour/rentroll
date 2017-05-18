@@ -43,15 +43,16 @@ func GetAllUnpaidAssessmentsForPayor(bid, tcid int64, dt *time.Time) []rlib.Asse
 }
 
 // RemainingReceiptFunds returns the amount of funds left to be allocated on the supplied receipt
-func RemainingReceiptFunds(xbiz *rlib.XBusiness, r *rlib.Receipt) float64 {
+func RemainingReceiptFunds(r *rlib.Receipt) float64 {
 	funcname := "RemainingReceiptFunds"
+	var xbiz1 rlib.XBusiness
 	var dt time.Time
 	switch r.FLAGS & 3 {
 	case 0:
 		return r.Amount
 	case 1:
 		// compute the amount in
-		m := rlib.ParseAcctRule(xbiz, 0, &dt, &dt, r.AcctRuleApply, 0, 1.0)
+		m := rlib.ParseAcctRule(&xbiz1, 0, &dt, &dt, r.AcctRuleApply, 0, 1.0)
 		tot := r.Amount
 		for i := 0; i < len(m); i++ {
 			//fmt.Printf("%d. %.2f  %s\n", i, m[i].Amount, m[i].Action)
@@ -92,17 +93,17 @@ func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
 	return float64(0)
 }
 
-// payAssessment
+// payAssessment handles paying an assessment, or as much as possible of the assessment
 // @params
-//  xbiz
 //  a      - the assessment being paid
 //  rcpt   - the receipt from which funds will be taken to pay the assessment
-//  needed - the amount needed to fully pay the assessment
+//  needed - the amount needed to fully pay the assessment.  Its value on return is set to
+//           the amount still needed to pay off the assessment.
 //  amt    - the amount that will be taken from the receipt to apply toward the assessment.
 //           this amount may be less than needed -- the remaining funds on a receipt may not
 //           always be enough to cover the assessment.
 //  dt     - timestamp to mark on the allocation for this payment
-func payAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt float64, dt *time.Time) error {
+func payAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt float64, dt *time.Time) error {
 	funcname := "payAssessment"
 
 	amtToUse := amt
@@ -121,8 +122,10 @@ func payAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, rcpt *rlib.Receipt,
 	ra.Dt = *dt                                    // the date is the one supplied to this routine, may be different than the Receipt's date
 	car := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]    // this is the assessment's Account Rule
 	dar := rlib.RRdb.BizTypes[a.BID].AR[rcpt.ARID] // debit -- this is the receipt's Account Rule, credit account
-	dacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID]
-	cacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID]
+
+	dacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID] // we debit what was credited in the Receipt's AcctRuleReceive
+	cacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID]  // we credit what was debited in the Assessments ARID
+
 	ra.AcctRule = fmt.Sprintf("ASM(%d) d %s %.2f,c %s %.2f", a.ASMID, dacct.GLNumber, amtToUse, cacct.GLNumber, amtToUse)
 	_, err := rlib.InsertReceiptAllocation(&ra)
 	if err != nil {
@@ -175,7 +178,7 @@ func payAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, rcpt *rlib.Receipt,
 		rlib.LogAndPrintError(funcname, err)
 		return err
 	}
-	fmt.Printf("Funds remaining in RCPTID %d = %.2f\n", rcpt.RCPTID, RemainingReceiptFunds(xbiz, rcpt))
+	fmt.Printf("Funds remaining in RCPTID %d = %.2f\n", rcpt.RCPTID, RemainingReceiptFunds(rcpt))
 
 	//-------------------------------------------------------------------------
 	// Find the journal entry for this Receipt and add a journal allocation
@@ -228,10 +231,9 @@ func payAssessment(xbiz *rlib.XBusiness, a *rlib.Assessment, rcpt *rlib.Receipt,
 // payments to all unpaid based assessments for which the payor is
 // responsible.
 // @params:
-//  xbiz = XBusiness struct for the associated business
 //	tcid = TCID of payor
 //  dt   = date to be used for allocations
-func AutoAllocatePayorReceipts(xbiz *rlib.XBusiness, tcid int64, dt *time.Time) error {
+func AutoAllocatePayorReceipts(tcid int64, dt *time.Time) error {
 	funcname := "AutoAllocatePayorReceipts"
 	fmt.Printf("Entered %s\n", funcname)
 	var t rlib.Transactant
@@ -257,10 +259,10 @@ func AutoAllocatePayorReceipts(xbiz *rlib.XBusiness, tcid int64, dt *time.Time) 
 			}
 			// First, determine the amount needed for payment...
 			needed := AssessmentUnpaidPortion(&m[i])
-			amt := RemainingReceiptFunds(xbiz, &n[j])
+			amt := RemainingReceiptFunds(&n[j])
 			fmt.Printf("Needed for ASMID %d :  %.2f\n", m[i].ASMID, needed)
 			fmt.Printf("Funds remaining in receipt %d:  %.2f\n", n[j].RCPTID, amt)
-			err := payAssessment(xbiz, &m[i], &n[j], &needed, amt, dt)
+			err := payAssessment(&m[i], &n[j], &needed, amt, dt)
 			fmt.Printf("\n")
 			if err != nil {
 				return err
