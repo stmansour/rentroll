@@ -40,6 +40,21 @@ func GetARsForRows(rows *sql.Rows) []AR {
 	return t
 }
 
+// GetARMap returns a map of all account rules for the supplied bid
+func GetARMap(bid int64) map[int64]AR {
+	rows, err := RRdb.Prepstmt.GetAllARs.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	var t map[int64]AR
+	t = make(map[int64]AR)
+	for rows.Next() {
+		var a AR
+		ReadARs(rows, &a)
+		t[a.ARID] = a
+	}
+	return t
+}
+
 // GetAllARs reads all AccountRules for the supplied BID
 func GetAllARs(id int64) []AR {
 	rows, err := RRdb.Prepstmt.GetAllARs.Query(id)
@@ -599,6 +614,14 @@ func GetLedgerMarkerOnOrBefore(bid, lid int64, dt *time.Time) LedgerMarker {
 	return r
 }
 
+// // GetPayorLedgerMarkerOnOrBefore returns the LedgerMarker struct for the TCID
+// func GetPayorLedgerMarkerOnOrBefore(bid, tcid int64, dt *time.Time) LedgerMarker {
+// 	var r LedgerMarker
+// 	row := RRdb.Prepstmt.GetPayorLedgerMarkerOnOrBefore.QueryRow(bid, tcid, dt)
+// 	ReadLedgerMarker(row, &r)
+// 	return r
+// }
+
 // GetRALedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
 // the supplied LID filtered for the supplied RentalAgreement raid
 func GetRALedgerMarkerOnOrBefore(bid, lid, raid int64, dt *time.Time) LedgerMarker {
@@ -616,6 +639,35 @@ func GetRentableLedgerMarkerOnOrBefore(bid, lid, rid int64, dt *time.Time) Ledge
 	ReadLedgerMarker(row, &r)
 	return r
 }
+
+// // LoadPayorLedgerMarker returns the LedgerMarker for the supplied bid,tcid
+// // values. It loads the marker on-or-before dt.  If no such LedgerMarker exists,
+// // then one will be created.
+// //
+// // TODO:  If a subsequent LedgerMarker exists and it is marked as the epoch (3) then
+// // then it will be updated to normal status as the LedgerMarker just being will
+// // created will be the new epoch.
+// //
+// // INPUTS
+// //		bid  - business id
+// //		tcid - which payor
+// //		dt   - the ledger marker on this date, or the first prior LedgerMarker
+// //			   will be loaded and returned.
+// //-----------------------------------------------------------------------------
+// func LoadPayorLedgerMarker(bid, tcid int64, dt *time.Time) LedgerMarker {
+// 	lm := GetPayorLedgerMarkerOnOrBefore(bid, tcid, dt)
+// 	if lm.LMID == 0 {
+// 		lm.BID = bid
+// 		lm.TCID = tcid
+// 		lm.Dt = *dt
+// 		lm.State = MARKERSTATEORIGIN
+// 		err := InsertLedgerMarker(&lm)
+// 		if nil != err {
+// 			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
+// 		}
+// 	}
+// 	return lm
+// }
 
 // LoadRALedgerMarker returns the LedgerMarker for the supplied bid,lid,raid
 // values. It loads the marker on-or-before dt.  If no such LedgerMarker exists,
@@ -1150,7 +1202,6 @@ func GetReceiptAllocations(rcptid int64, r *Receipt) {
 	for rows.Next() {
 		var a ReceiptAllocation
 		ReadReceiptAllocations(rows, &a)
-		// Errcheck(rows.Scan(&a.RCPTID, &a.BID, &a.Amount, &a.ASMID, &a.AcctRule))
 		r.RA = append(r.RA, a)
 	}
 }
@@ -1186,6 +1237,47 @@ func GetReceiptAllocationsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []
 		t = append(t, r)
 	}
 	return t
+}
+
+// GetReceiptAllocationsByASMID returns any payment allocation on targeted at the supplied ASMID.
+// This call is used primarily to determine how much payment is left to make on a partially paid
+// assessment.
+func GetReceiptAllocationsByASMID(bid, asmid int64) []ReceiptAllocation {
+	rows, err := RRdb.Prepstmt.GetReceiptAllocationsByASMID.Query(bid, asmid)
+	Errcheck(err)
+	defer rows.Close()
+	var t = []ReceiptAllocation{}
+	for rows.Next() {
+		var r ReceiptAllocation
+		ReadReceiptAllocations(rows, &r)
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetUnallocatedReceiptsByPayor returns the receipts paid by the supplied payor tcid that
+// have not yet been fully allocated.
+func GetUnallocatedReceiptsByPayor(bid, tcid int64) []Receipt {
+	rows, err := RRdb.Prepstmt.GetUnallocatedReceiptsByPayor.Query(bid, tcid)
+	Errcheck(err)
+	defer rows.Close()
+	var t = []Receipt{}
+	for rows.Next() {
+		var r Receipt
+		ReadReceipts(rows, &r)
+		r.RA = make([]ReceiptAllocation, 0) // the receipt may be partially allocated
+		GetReceiptAllocations(r.RCPTID, &r)
+		t = append(t, r)
+	}
+	return t
+}
+
+// GetPayorUnallocatedReceiptsCount returns a count of unallocated receipts for the supplied bid & tcid
+func GetPayorUnallocatedReceiptsCount(bid, tcid int64) int {
+	var i int
+	row := RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount.QueryRow(bid, tcid)
+	row.Scan(&i)
+	return i
 }
 
 //=======================================================

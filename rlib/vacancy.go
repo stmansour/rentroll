@@ -58,7 +58,7 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 			InsertJournalAllocationEntry(&ja)
 			j.JA = append(j.JA, ja)
 		}
-		initLedgerCache()
+		InitLedgerCache()
 		GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
 	}
 	return nr

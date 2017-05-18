@@ -320,7 +320,7 @@ docsvtest () {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
-		${CSVLOAD} $2 >${1} 2>&1
+		${CSVLOAD} ${2} >${1} 2>&1
 	fi
 
 	if [ "${FORCEGOOD}" = "1" ]; then

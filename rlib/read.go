@@ -111,14 +111,14 @@ func ReadDepositParts(rows *sql.Rows, a *DepositPart) {
 
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) {
-	Errcheck(row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
+	Errcheck(row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
 		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
 		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadGLAccounts reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
-	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.GLNumber,
+	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
 		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
 		&a.ManageToBudget, &a.Description, &a.LastModTime, &a.LastModBy))
 }
@@ -155,22 +155,22 @@ func ReadJournals(rows *sql.Rows, a *Journal) {
 
 // ReadJournalAllocation reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocation(row *sql.Row, a *JournalAllocation) {
-	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.Amount, &a.ASMID, &a.AcctRule))
+	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.Amount, &a.ASMID, &a.AcctRule))
 }
 
 // ReadJournalAllocations reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocations(rows *sql.Rows, a *JournalAllocation) {
-	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.Amount, &a.ASMID, &a.AcctRule))
+	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.Amount, &a.ASMID, &a.AcctRule))
 }
 
 // ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerEntry(row *sql.Row, a *LedgerEntry) {
-	Errcheck(row.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.TCID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadLedgerEntries reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerEntries(rows *sql.Rows, a *LedgerEntry) {
-	Errcheck(rows.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.LEID, &a.BID, &a.JID, &a.JAID, &a.LID, &a.RAID, &a.RID, &a.TCID, &a.Dt, &a.Amount, &a.Comment, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadRentableMarketRate reads a full RentableMarketRate structure of data from the database based on the supplied Rows pointer.
@@ -185,12 +185,12 @@ func ReadRentableMarketRates(rows *sql.Rows, a *RentableMarketRate) {
 
 // ReadLedgerMarker reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerMarker(row *sql.Row, a *LedgerMarker) {
-	Errcheck(row.Scan(&a.LMID, &a.LID, &a.BID, &a.RAID, &a.RID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
+	Errcheck(row.Scan(&a.LMID, &a.LID, &a.BID, &a.RAID, &a.RID, &a.TCID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadLedgerMarkers reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.
 func ReadLedgerMarkers(rows *sql.Rows, a *LedgerMarker) {
-	Errcheck(rows.Scan(&a.LMID, &a.LID, &a.BID, &a.RAID, &a.RID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
+	Errcheck(rows.Scan(&a.LMID, &a.LID, &a.BID, &a.RAID, &a.RID, &a.TCID, &a.Dt, &a.Balance, &a.State, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadNote reads a full Note structure from the database based on the supplied row object
@@ -285,13 +285,13 @@ func ReadRatePlanRefSPRates(rows *sql.Rows, a *RatePlanRefSPRate) {
 
 // ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.
 func ReadReceipt(row *sql.Row, a *Receipt) {
-	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.ARID, &a.Comment,
+	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRuleReceive, &a.ARID, &a.AcctRuleApply, &a.FLAGS, &a.Comment,
 		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadReceipts reads a full Receipt structure of data from the database based on the supplied Rows pointer.
 func ReadReceipts(rows *sql.Rows, a *Receipt) {
-	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRule, &a.ARID, &a.Comment,
+	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRuleReceive, &a.ARID, &a.AcctRuleApply, &a.FLAGS, &a.Comment,
 		&a.OtherPayorName, &a.LastModTime, &a.LastModBy))
 }
 

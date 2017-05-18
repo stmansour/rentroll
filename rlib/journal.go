@@ -51,13 +51,16 @@ func GetAssessmentAccountRule(a *Assessment) string {
 // then it is returned. If it is not present, then the ARID is used and an AcctRule is built
 // from the ARID.
 func GetReceiptAccountRule(a *Receipt) string {
-	if len(a.AcctRule) > 0 {
-		return a.AcctRule
+	if len(a.AcctRuleApply) > 0 {
+		return a.AcctRuleApply
 	}
 	return buildRule(a.ARID)
 }
 
 func getRuleText(id int64) string {
+	if id == 0 {
+		return ""
+	}
 	rule, err := GetAR(id)
 	if err != nil {
 		Ulog("getRuleText: Error from getAR(%d):  %s\n", id, err.Error())
@@ -78,8 +81,8 @@ func GetAssessmentAccountRuleText(a *Assessment) string {
 // GetReceiptAccountRuleText returns the text to use in reports or in a UI that describes
 // the Receipt
 func GetReceiptAccountRuleText(a *Receipt) string {
-	if len(a.AcctRule) > 0 {
-		return a.AcctRule
+	if len(a.AcctRuleApply) > 0 {
+		return a.AcctRuleApply
 	}
 	return getRuleText(a.ARID)
 }
@@ -309,7 +312,7 @@ func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessm
 
 // ProcessNewReceipt creates a Journal entry for the supplied receipt
 //=================================================================================================
-func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
+func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) (Journal, error) {
 	var j Journal
 	j.BID = xbiz.P.BID
 	j.Amount = RoundToCent(r.Amount)
@@ -320,28 +323,33 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) error {
 	jid, err := InsertJournal(&j)
 	if err != nil {
 		Ulog("Error inserting Journal entry: %v\n", err)
-		return err
+		return j, err
 	}
 	if jid > 0 {
 		// now add the Journal allocation records...
-		for j := 0; j < len(r.RA); j++ {
-			// rntagr, _ := GetRentalAgreement(r.RA[j].RAID) // what Rental Agreements did this payment affect and the amounts for each
+		for i := 0; i < len(r.RA); i++ {
+			// rntagr, _ := GetRentalAgreement(r.RA[i].RAID) // what Rental Agreements did this payment affect and the amounts for each
 			var ja JournalAllocation
 			ja.JID = jid
-			ja.Amount = RoundToCent(r.RA[j].Amount)
-			ja.ASMID = r.RA[j].ASMID
-			ja.AcctRule = r.RA[j].AcctRule
-			a, _ := GetAssessment(ja.ASMID)
-			ja.RID = a.RID
-			ja.BID = a.BID
-			ja.RAID = r.RA[j].RAID
+			ja.TCID = r.TCID
+			ja.Amount = RoundToCent(r.RA[i].Amount)
+			ja.BID = j.BID
+			ja.ASMID = r.RA[i].ASMID
+			ja.AcctRule = r.RA[i].AcctRule
+			if ja.ASMID > 0 { // there may not be an assessment associated, it could be unallocated funds
+				a, _ := GetAssessment(ja.ASMID) // but if there is an associated assessment, then mark the RID and RAID
+				ja.RID = a.RID
+				ja.RAID = r.RA[i].RAID
+			}
+			ja.TCID = r.TCID
 			if err = InsertJournalAllocationEntry(&ja); err != nil {
 				LogAndPrintError("ProcessNewReceipt", err)
 				os.Exit(1)
 			}
+			j.JA = append(j.JA, ja)
 		}
 	}
-	return err
+	return j, err
 }
 
 // ProcessJournalEntry processes an assessment. It adds instances of recurring assessments for

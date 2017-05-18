@@ -40,7 +40,7 @@ mysqlverify "c1" "-t rpsprate.csv"     		"RatePlanRefSPRate"	    		"select * fro
 mysqlverify "d1" "-A asmt.csv ${RRCTX}"     "Assessments"	            	"select ASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,AcctRule,Comment,LastModBy from Assessments;"
 mysqlverify "e1" "-P pmt.csv"          		"PaymentTypes"	            	"select PMTID,BID,Name,Description,LastModBy from PaymentType;"
 mysqlverify "f1" "-e rcpt.csv ${RRCTX}"     "RectiptAllocations"	    	"select RCPTID,BID,RAID,Dt,Amount,ASMID,AcctRule from ReceiptAllocation order by Amount ASC;"
-mysqlverify "g1" " "                   		"Receipts"	            		"select RCPTID,BID,PMTID,DEPID,DID,Dt,Amount,AcctRule,Comment,LastModBy from Receipt;"
+mysqlverify "g1" " "                   		"Receipts"	            		"select RCPTID,BID,PMTID,DEPID,DID,Dt,Amount,AcctRuleApply,Comment,LastModBy from Receipt;"
 mysqlverify "h1" "-u custom.csv"       		"CustomAttributes"	    		"select CID,BID,Type,Name,Value,LastModBy from CustomAttr;"
 mysqlverify "i1" "-U assigncustom.csv" 		"CustomAttributesAssignment" 	"select * from CustomAttrRef;"
 mysqlverify "j1" "-O nt.csv"           		"NoteTypes"	            		"select NTID,BID,Name,LastModBy from NoteType;"

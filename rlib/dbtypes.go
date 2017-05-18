@@ -616,7 +616,7 @@ type Assessment struct {
 	InvoiceNo      int64     // A uniqueID for the invoice number
 	AcctRule       string    // override ARID with this account rule
 	ARID           int64     // reference to the account rule to use
-	FLAGS          uint64    // bit flags.  1<<0 = has this assessment been paid?
+	FLAGS          uint64    // bit flags.  bits 0-1: 0 = unpaid, 1 = partially paid, 2 = fully paid
 	Comment        string
 	LastModTime    time.Time
 	LastModBy      int64
@@ -677,23 +677,25 @@ type PaymentType struct {
 
 // Receipt saves the information associated with a payment made by a User to cover one or more Assessments
 type Receipt struct {
-	RCPTID         int64     // unique id for this receipt
-	PRCPTID        int64     // Parent RCPTID, points to RCPT being amended/corrected by this receipt
-	BID            int64     // which business
-	TCID           int64     // payor that sent in the payment
-	PMTID          int64     // what type of payment
-	DEPID          int64     // the depository where this receipt will be deposited
-	DID            int64     // the Deposit ID to which this receipt belongs
-	Dt             time.Time // date payment was received
-	DocNo          string    // check number, money order number, etc.; documents the payment
-	Amount         float64   // amount of the receipt
-	AcctRule       string    // override account rule
-	ARID           int64     // which account rule
-	Comment        string    // any notes on this receipt
-	OtherPayorName string    // if not '', the name of a payor who paid this receipt and who may not be in our system
-	LastModTime    time.Time
-	LastModBy      int64
-	RA             []ReceiptAllocation
+	RCPTID          int64     // unique id for this receipt
+	PRCPTID         int64     // Parent RCPTID, points to RCPT being amended/corrected by this receipt
+	BID             int64     // which business
+	TCID            int64     // payor that sent in the payment
+	PMTID           int64     // what type of payment
+	DEPID           int64     // the depository where this receipt will be deposited
+	DID             int64     // the Deposit ID to which this receipt belongs
+	Dt              time.Time // date payment was received
+	DocNo           string    // check number, money order number, etc.; documents the payment
+	Amount          float64   // amount of the receipt
+	AcctRuleReceive string    // Account rule to apply on the receipt of this payment -- essentially - bank account and unapplied funds
+	ARID            int64     // User selected rule
+	AcctRuleApply   string    // how the funds are applied to assessments
+	FLAGS           uint64    // bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated
+	Comment         string    // any notes on this receipt
+	OtherPayorName  string    // if not '', the name of a payor who paid this receipt and who may not be in our system
+	LastModTime     time.Time
+	LastModBy       int64
+	RA              []ReceiptAllocation
 }
 
 // ReceiptAllocation defines an allocation of a Receipt amount.
@@ -702,7 +704,7 @@ type ReceiptAllocation struct {
 	RCPTID   int64
 	BID      int64
 	RAID     int64     // which RAID is this portion of the payment associated
-	Dt       time.Time // date of this payment
+	Dt       time.Time // date of this payment (may not be the same as the Receipt's)
 	Amount   float64
 	ASMID    int64
 	AcctRule string
@@ -924,6 +926,7 @@ type JournalAllocation struct {
 	JID      int64   // associated Journal entry
 	RID      int64   // associated Rentable
 	RAID     int64   // associated Rental Agreement
+	TCID     int64   // if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means the payment went to the unallocated funds account
 	Amount   float64 // amount of this allocation
 	ASMID    int64   // associated AssessmentID -- source of the charge
 	AcctRule string  // describes how this amount distributed across the accounts
@@ -947,6 +950,7 @@ type LedgerEntry struct {
 	LID         int64     // the entry is part of this ledger
 	RAID        int64     // RentalAgreement associated with this entry
 	RID         int64     // Rentable associated with this entry
+	TCID        int64     // Payor associated with this entry
 	Dt          time.Time // date associated with this transaction
 	Amount      float64
 	Comment     string    // for notes like "prior period adjustment"
@@ -963,6 +967,7 @@ type LedgerMarker struct {
 	BID         int64     // only valid if Type == 1
 	RAID        int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the rental agreement RAID
 	RID         int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the Rentable RID
+	TCID        int64     // if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
 	Dt          time.Time // Balance is valid as of this time
 	Balance     float64   // GLAccount balance at the end of the period
 	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
@@ -977,9 +982,10 @@ type GLAccount struct {
 	PLID           int64     // unique id of Parent, 0 if no parent
 	BID            int64     // Business unit associated with this GLAccount
 	RAID           int64     // associated rental agreement, this field is only used when Type = 1
+	TCID           int64     // associated payor, this field is only used when Type = 1
 	GLNumber       string    // acct system name
 	Status         int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	Type           int64     // flag: 0 = not a default account, 1-9 reserved, 10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Type           int64     // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name           string    // descriptive name for the GLAccount
 	AcctType       string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	RAAssociated   int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
@@ -1143,6 +1149,7 @@ type RRprepSQL struct {
 	GetReceiptAllocations                *sql.Stmt
 	GetReceiptDuplicate                  *sql.Stmt
 	GetReceiptsInDateRange               *sql.Stmt
+	GetReceiptAllocationsByASMID         *sql.Stmt
 	GetReceiptAllocationsInRAIDDateRange *sql.Stmt
 	GetRecurringAssessmentsByBusiness    *sql.Stmt
 	GetRentable                          *sql.Stmt
@@ -1303,10 +1310,14 @@ type RRprepSQL struct {
 	GetARsByType                         *sql.Stmt
 	GetRentalAgreementsByPayor           *sql.Stmt
 	GetUnpaidAssessmentsByRAID           *sql.Stmt
+	GetUnallocatedReceipts               *sql.Stmt
+	GetUnallocatedReceiptsByPayor        *sql.Stmt
+	GetPayorUnallocatedReceiptsCount     *sql.Stmt
 
-	// GetJournalInstance                 *sql.Stmt
-	// GetSecDepBalanceLedger             *sql.Stmt
-	// GetLedgerMarkerByRAID              *sql.Stmt
+	// GetPayorLedgerMarkerOnOrBefore    *sql.Stmt
+	// GetJournalInstance                *sql.Stmt
+	// GetSecDepBalanceLedger            *sql.Stmt
+	// GetLedgerMarkerByRAID             *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
@@ -1411,6 +1422,7 @@ type BusinessTypeLists struct {
 	PmtTypes     map[int64]*PaymentType // payment types accepted
 	DefaultAccts map[int64]*GLAccount   // index by the predifined contants DFAC*, value = GL No of that account
 	GLAccounts   map[int64]GLAccount    // all the accounts for this business
+	AR           map[int64]AR           // Account Rules
 	NoteTypes    []NoteType             // all defined note types for this business
 }
 
@@ -1462,6 +1474,7 @@ func InitBusinessFields(bid int64) {
 			PmtTypes:     make(map[int64]*PaymentType),
 			DefaultAccts: make(map[int64]*GLAccount),
 			GLAccounts:   make(map[int64]GLAccount),
+			AR:           make(map[int64]AR),
 		}
 		RRdb.BizTypes[bid] = &bt
 	}
@@ -1474,6 +1487,7 @@ func InitBizInternals(bid int64, xbiz *XBusiness) {
 	InitBusinessFields(bid)
 	GetDefaultLedgers(bid) // Gather its chart of accounts
 	RRdb.BizTypes[bid].GLAccounts = GetGLAccountMap(bid)
+	RRdb.BizTypes[bid].AR = GetARMap(bid)
 	GetAllNoteTypes(bid)
 	LoadRentableTypeCustomaAttributes(xbiz)
 }

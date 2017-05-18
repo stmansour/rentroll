@@ -30,7 +30,6 @@ docsvtest "m" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
 
 #========================================================================================
 # JANUARY 2017
-#    Normal month
 #========================================================================================
 RRDATERANGE="-j 2017-01-01 -k 2017-02-01"
 CSVLOADRANGE="-G ${BUD} -g 1/1/17,2/1/17"
@@ -38,16 +37,23 @@ CSVLOADRANGE="-G ${BUD} -g 1/1/17,2/1/17"
 # 1.  Load new assessments for this period.  For this test, we start the rent assessments now.
 docsvtest "b1" "-A asm2017-01.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2017-JAN"
 
-# 2.  Generate recurring assessment instances  -  Note: will be done by server automatically  (18 processes journal only)
-dorrtest "a1" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2017-JAN"
+# 2.  Generate recurring assessment instances  -  Note: will be done by server automatically by the TimedWorkScheduler  (18 processes journal only)
+dorrtest "a1" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-JOURNALS-2017-JAN"
+
+# 3.  Force the ledger entries to be made for this  -- Note: will be done by server automatically by the TimedWorkScheduler  (19 processes ledgers only)
+dorrtest "a1a" "${RRDATERANGE} -x -b ${BUD} -r 19" "Process-LEDGERS-2017-JAN"
+
 #========================================================================================
 # FEBRUARY 2017
-#    Haroutunian moves out on Feb 8
 #========================================================================================
 RRDATERANGE="-j 2017-02-01 -k 2017-03-01"
 CSVLOADRANGE="-G ${BUD} -g 2/1/17,3/1/17"
-dorrtest  "a2" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-2017-FEB"
-# docsvtest "b2" "-A asm2017-02.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2017-FEB"
+docsvtest "b2" "-A asm2017-02.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-2017-FEB"
+dorrtest "a2" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-JOURNALS-2017-FEB"
+dorrtest "a2a" "${RRDATERANGE} -x -b ${BUD} -r 19" "Process-LEDGERS-2017-FEB"
 
+# Run the checker...
+./gsr
 
 logcheck
+
