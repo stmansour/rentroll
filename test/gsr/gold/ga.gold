@@ -1,0 +1,15 @@
+                                                    License                Parking                                                                                       
+                                                    Plate    License       Permit                                                                                        
+VID        BUD  Type  Make  Model    Color    Year  State    Plate Number  Number   User               Cell Phone     Work Phone  Email                DtStart   DtStop  
+---------  ---  ----  ----  -------  ------  -----  -------  ------------  -------  -----------------  -------------  ----------  -------------------  --------  --------
+V00000001  REX  CAR         Mustang  red      1981  MO       I AM AARON    1001     Aaron Read         123-456-7890               aaron@rexford.com    01/01/20  01/01/20
+V00000002  REX  CAR         Rabbit   yellow   1982  IN       D72JHD        1002     Kirsten Read       123-456-7891               kirsten@rexford.com  01/01/20  01/01/20
+V00000003  REX  CAR         Fiesta   purple   1983  CA       LOVELY RITA   1003     Rita Costea        123-456-7892               rita@rexford.com     01/01/20  01/01/20
+V00000004  REX  CAR         Golf     green    1984  NV       I AM DANIEL   1004     Daniel Costea      123-456-7893               daniel@rexford.com   01/01/20  01/01/20
+V00000005  REX  CAR                  orange   1985  OR       SDFASE83      1005     Child1 Costea      123-456-7893a                                   01/01/20  01/01/20
+V00000006  REX  CAR         Astra    brown    1986  NH       ASD093J       1006     Gagik Haroutunian  123-456-7894               gagik@rexford.com    01/01/20  01/01/20
+V00000007  REX  CAR         Polo     tan      1987  NY       I AM LAUREN   1007     Lauren Beck        123-456-7895               lauren@rexford.com   01/01/20  01/01/20
+V00000008  REX  CAR         A3       silver   1988  MI       I AM KEVEN    1008     Kevin Mills        123-456-7896               kevin@rexford.com    01/01/20  01/01/20
+V00000009  REX  SUV                  rust     1989  TX       ASDF843       1009     Child1 Mills       123-456-7896a                                   01/01/20  01/01/20
+V00000010  REX  SUV                  maroon   1990  AZ       D9G0DW        1010     Child2 Mills       123-456-7896b                                   01/01/20  01/01/20
+
