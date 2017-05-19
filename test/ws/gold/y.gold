@@ -1,9 +1,10 @@
 {
     "record": {
         "BID": 1,
+        "BUD": "REX",
         "Description": "Cash",
         "LastModBy": 0,
-        "LastModTime": "2017-05-08T20:34:23Z",
+        "LastModTime": "2017-05-19T09:41:42Z",
         "Name": "Cash",
         "PMTID": 1,
         "recid": 0
