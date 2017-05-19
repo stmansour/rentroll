@@ -1,0 +1,14 @@
+REX Custom Attributes
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                      Value                           
+CID        BID        Type   Name         Value  Units
+---------  ---------  -----  -----------  -----  -----
+C00000001  B00000001  int    Square Feet   1215  sqft 
+C00000002  B00000001  int    Square Feet   1239  sqft 
+C00000003  B00000001  int    Square Feet   1433  sqft 
+C00000004  B00000001  int    Square Feet    827  sqft 
+

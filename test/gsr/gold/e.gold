@@ -1,0 +1,15 @@
+REX Rentable Types
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                                               Manage                                
+                                    Rent     Proration         To                                    
+RTID        Style  Name             Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate       
+----------  -----  ---------------  -------  ---------  -----  ------  ------------------------------
+RT00000001  Rex1   309 Rexford      monthly  daily      daily  Yes       1/1/14 -   3/1/17: $ 3500.00
+RT00000002  Rex2   309 1/2 Rexford  monthly  daily      daily  Yes       1/1/14 -   5/1/17: $ 3550.00
+RT00000003  Rex3   311 Rexford      monthly  daily      daily  Yes       1/1/14 -   4/1/17: $ 4400.00
+RT00000004  Rex4   311 1/2 Rexford  monthly  daily      daily  Yes       1/1/14 -   1/1/19: $ 2500.00
+

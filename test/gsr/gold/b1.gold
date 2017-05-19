@@ -1,0 +1,14 @@
+REX Assessments
+Jan 1, 2017 - Feb 1, 2017
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
+                                                           Proration                                                                
+ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType                       Account Rule    
+-----------  ------  ----------  ---------  -------------  -------------  ----------  ----------------------------  ----------------
+ASM00000001  0       RA00000001  R00000001  monthly        daily            3,500.00  Gross Scheduled Rent-Taxable  Rent Non-Taxable
+ASM00000003  0       RA00000001  R00000001  non-recurring  non-recurring       50.00  Late Fees                     Late Fee        
+

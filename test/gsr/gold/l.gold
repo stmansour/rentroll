@@ -1,0 +1,16 @@
+CreateRentalAgreement: line 3 - Could not load rentable named: 309 1/2 Rexford  err = sql: no rows in result set
+CreateRentalAgreement: line 4 - Could not load rentable named: 311 Rexford  err = sql: no rows in result set
+CreateRentalAgreement: line 5 - Could not load rentable named: 311 Rexford  err = sql: no rows in result set
+CreateRentalAgreement: line 6 - Could not load rentable named: 309 1/2 Rexford  err = sql: no rows in result set
+REX Rental Agreement
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                                                Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                                                    
+RAID        Payor                     User                      Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes                         
+----------  ------------------------  ------------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  ------------------------------
+RA00000001  Aaron Read, Kirsten Read  Aaron Read, Kirsten Read  03/01/2014  03/01/2019  03/01/2014  03/01/2019  03/01/2014  03/01/2019  03/01/2014  1                  0            0                      This is a note for Kirsten and
+                                                                                                                                                                                                           Aaron                         
+
