@@ -339,7 +339,7 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if a.DEPID == 0 && d.ID == 0 {
 		// This is a new AR
-		fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
+		fmt.Printf(">>>> NEW DEPOSITORY IS BEING ADDED\n")
 		_, err = rlib.InsertDepository(&a)
 	} else {
 		// update existing record
@@ -348,7 +348,7 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving assessment (DEPID=%d\n: %s", funcname, a.DEPID, err.Error())
+		e := fmt.Errorf("%s: Error saving depository (DEPID=%d\n: %s", funcname, a.DEPID, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}

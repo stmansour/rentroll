@@ -1,10 +1,13 @@
 package ws
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -14,6 +17,7 @@ type PaymentTypeGrid struct {
 	Recid       int64 `json:"recid"`
 	PMTID       int64
 	BID         int64
+	BUD         rlib.XJSONBud
 	Name        string
 	Description string
 	LastModTime time.Time
@@ -27,19 +31,53 @@ type PaymentTypeSearchResponse struct {
 	Records []PaymentTypeGrid `json:"records"`
 }
 
-// PaymentTypeGridSave is the input data format for a Save command
-type PaymentTypeGridSave struct {
-	Status   string            `json:"status"`
-	Recid    int64             `json:"recid"`
-	FormName string            `json:"name"`
-	Record   PaymentTypeGrid   `json:"record"`
-	Changes  []PaymentTypeGrid `json:"changes"`
+// PaymentTypeSaveForm is a struct to handle direct inputs from the form
+type PaymentTypeSaveForm struct {
+	Recid       int64 `json:"recid"`
+	PMTID       int64
+	BID         int64
+	Name        string
+	Description string
+	LastModTime time.Time
+	LastModBy   int64
+}
+
+// PaymentTypeSaveOther is a struct to handle the UI list box selections
+type PaymentTypeSaveOther struct {
+	BUD rlib.W2uiHTMLSelect
+}
+
+// SavePaymentTypeInput is the input data format for a Save command
+type SavePaymentTypeInput struct {
+	Status   string              `json:"status"`
+	Recid    int64               `json:"recid"`
+	FormName string              `json:"name"`
+	Record   PaymentTypeSaveForm `json:"record"`
+}
+
+// SavePaymentTypeOther is the input data format for the "other" data on the Save command
+type SavePaymentTypeOther struct {
+	Status string               `json:"status"`
+	Recid  int64                `json:"recid"`
+	Name   string               `json:"name"`
+	Record PaymentTypeSaveOther `json:"record"`
 }
 
 // PaymentTypeGetResponse is the response to a GetPaymentType request
 type PaymentTypeGetResponse struct {
 	Status string          `json:"status"`
 	Record PaymentTypeGrid `json:"record"`
+}
+
+// DeletePmtForm used to delete record from database
+type DeletePmtForm struct {
+	ID int64
+}
+
+// pmtRowScan scans a result from sql row and dump it in a PaymentTypeGrid struct
+func pmtRowScan(rows *sql.Rows, q PaymentTypeGrid) PaymentTypeGrid {
+	rlib.Errcheck(rows.Scan(&q.PMTID, &q.Name, &q.Description, &q.LastModTime, &q.LastModBy))
+	return q
 }
 
 // SvcHandlerPaymentType formats a complete data record for an assessment for use with the w2ui Form
@@ -78,6 +116,23 @@ func SvcHandlerPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	}
 }
 
+var pmtSearchFieldMap = selectQueryFieldMap{
+	"PMTID":       {"PaymentType.PMTID"},
+	"Name":        {"PaymentType.Name"},
+	"Description": {"PaymentType.Description"},
+	"LastModTime": {"PaymentType.LastModTime"},
+	"LastModBy":   {"PaymentType.LastModBy"},
+}
+
+// which fields needs to be fetch to satisfy the struct
+var pmtSearchSelectQueryFields = selectQueryFields{
+	"PaymentType.PMTID",
+	"PaymentType.Name",
+	"PaymentType.Description",
+	"PaymentType.LastModTime",
+	"PaymentType.LastModBy",
+}
+
 // SvcSearchHandlerPaymentTypes generates a report of all PaymentTypes defined business d.BID
 // wsdoc {
 //  @Title  Search PaymentType
@@ -90,41 +145,66 @@ func SvcHandlerPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Response PaymentTypeSearchResponse
 // wsdoc }
 func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcSearchHandlerPaymentTypes"
-	fmt.Printf("Entered %s\n", funcname)
 	var (
-		g   PaymentTypeSearchResponse
-		err error
+		funcname = "SvcSearchHandlerPaymentTypes"
+		g        PaymentTypeSearchResponse
+		err      error
+		order    = "PMTID ASC" // default ORDER
+		whr      = fmt.Sprintf("BID=%d", d.BID)
 	)
 
-	order := "PMTID ASC"                                                               // default ORDER
-	q := fmt.Sprintf("SELECT %s FROM PaymentType ", rlib.RRdb.DBFields["PaymentType"]) // the fields we want
-	qw := fmt.Sprintf("BID=%d", d.BID)
-	q += "WHERE " + qw + " ORDER BY "
-	if len(d.wsSearchReq.Sort) > 0 {
-		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			if i > 0 {
-				q += ","
-			}
-			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
-		}
-	} else {
-		q += order
+	fmt.Printf("Entered %s\n", funcname)
+
+	// get where clause and order clause for sql query
+	_, orderClause := GetSearchAndSortSQL(d, pmtSearchFieldMap)
+	if len(orderClause) > 0 {
+		order = orderClause
 	}
 
-	// now set up the offset and limit
-	q += fmt.Sprintf(" LIMIT %d OFFSET %d", d.wsSearchReq.Limit, d.wsSearchReq.Offset)
-	fmt.Printf("rowcount query conditions: %s\ndb query = %s\n", qw, q)
+	pmtQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM PaymentType
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
 
-	g.Total, err = GetRowCount("PaymentType", qw)
+	qc := queryClauses{
+		"SelectClause": strings.Join(pmtSearchSelectQueryFields, ","),
+		"WhereClause":  whr,
+		"OrderClause":  order,
+	}
+
+	// get TOTAL COUNT First
+	countQuery := renderSQLQuery(pmtQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
+		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	pmtQueryWithLimit := pmtQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(pmtQueryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("Error from DB Query: %s\n", err.Error())
+		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err)
 		return
 	}
@@ -133,11 +213,13 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var p rlib.PaymentType
 		var q PaymentTypeGrid
-		rlib.ReadPaymentTypes(rows, &p)
-		rlib.MigrateStructVals(&p, &q)
-		q.Recid = p.PMTID
+		q.Recid = i
+		q.BID = d.BID
+		q.BUD = getBUDFromBIDList(q.BID)
+
+		q = pmtRowScan(rows, q)
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -145,10 +227,10 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 		}
 		i++
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
 	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
+
 	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 
 }
@@ -160,26 +242,29 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 //  @Method  POST
 //	@Synopsis Delete a Payment Type
 //  @Desc  This service deletes a PaymentType.
-//	@Input WebGridDelete
+//	@Input DeletePmtForm
 //  @Response SvcStatusResponse
 // wsdoc }
 func deletePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "deletePaymentType"
+	var (
+		funcname = "deleteDepository"
+		del      DeletePmtForm
+	)
+
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
-	var del WebGridDelete
+
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
-	for i := 0; i < len(del.Selected); i++ {
-		if err := rlib.DeletePaymentType(del.Selected[i]); err != nil {
-			SvcGridErrorReturn(w, err)
-			return
-		}
+	if err := rlib.DeletePaymentType(del.ID); err != nil {
+		SvcGridErrorReturn(w, err)
+		return
 	}
+
 	SvcWriteSuccessResponse(w)
 }
 
@@ -190,41 +275,63 @@ func deletePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Method  GET
 //	@Synopsis Update the information on a PaymentType with the supplied data
 //  @Description  This service updates PaymentType :PMTID with the information supplied. All fields must be supplied.
-//	@Input PaymentTypeGridSave
+//	@Input SavePaymentTypeInput
 //  @Response SvcStatusResponse
 // wsdoc }
 func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "savePaymentType"
+
+	var (
+		funcname = "savePaymentType"
+		foo      SavePaymentTypeInput
+		bar      SavePaymentTypeOther
+		err      error
+	)
+
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
-	var foo PaymentTypeGridSave
 	data := []byte(d.data)
-	err := json.Unmarshal(data, &foo)
 
-	if err != nil {
+	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e)
 		return
 	}
 
-	if len(foo.Changes) == 0 { // This is a new record
-		var a rlib.PaymentType
-		rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-		fmt.Printf("a = %#v\n", a)
-		fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
-		if err = rlib.InsertPaymentType(&a); err != nil {
-			e := fmt.Errorf("%s: Error saving assessment (PMTID=%d\n: %s", funcname, a.PMTID, err.Error())
-			SvcGridErrorReturn(w, e)
-			return
-		}
-	} else { // update existing or add new record(s)
-		fmt.Printf("prior to JSONchangeParseUtil:  d.BID = %d\n", d.BID)
-		if err = JSONchangeParseUtil(d.data, paymentTypeUpdate, d); err != nil {
-			SvcGridErrorReturn(w, err)
-			return
-		}
+	if err := json.Unmarshal(data, &bar); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
 	}
+
+	var a rlib.PaymentType
+	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
+
+	var ok bool
+	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BUD.ID]
+	if !ok {
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BUD.ID)
+		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
+	if a.PMTID == 0 && d.ID == 0 {
+		// This is a new AR
+		fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
+		err = rlib.InsertPaymentType(&a)
+	} else {
+		// update existing record
+		fmt.Printf("Updating existing Payment Type: %d\n", a.PMTID)
+		err = rlib.UpdatePaymentType(&a)
+	}
+
+	if err != nil {
+		e := fmt.Errorf("%s: Error saving payment type (PMTID=%d\n: %s", funcname, a.PMTID, err.Error())
+		SvcGridErrorReturn(w, e)
+		return
+	}
+
 	SvcWriteSuccessResponse(w)
 }
 
@@ -275,6 +382,9 @@ func getPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.PMTID > 0 {
 		var gg PaymentTypeGrid
 		rlib.MigrateStructVals(&a, &gg)
+
+		gg.BUD = getBUDFromBIDList(gg.BID)
+
 		g.Record = gg
 	}
 	g.Status = "success"
