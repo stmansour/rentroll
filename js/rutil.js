@@ -131,6 +131,7 @@ function setToForm(sform, url, width) {
         f.url = url;
         f.request();
     }
+    w2ui.toplayout.render();
 }
 
 //-----------------------------------------------------------------------------
@@ -149,6 +150,7 @@ function setToRAForm(bid, raid, d) {
         w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
         w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
         w2ui.rentalagrForm.request();
+        w2ui.toplayout.render();
     }
 
     //----------------------------------------------------------------
