@@ -2188,12 +2188,13 @@ function buildPageElements() {
     $().w2grid({
         name: 'pmtsGrid',
         url: '/v1/pmts',
+        multiSelect: false,
         show: {
             toolbar        : true,
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : true,   // indicates if toolbar delete button is visible
-            toolbarSave    : true,   // indicates if toolbar save button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
+            toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
             toolbarEdit     : false,
@@ -2205,10 +2206,10 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'PMTID',       hidden: true, caption: 'PMTID',        size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'BID',         hidden: true, caption: 'BID',          size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'Name',        hidden: false, caption: 'Name',        size: '150px', editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
-            {field: 'Description', hidden: false, caption: 'Description', size: '60%',   editable: { type: 'text' }, stortable: true, style: 'text-align: left'},
+            {field: 'PMTID',       hidden: true, caption: 'PMTID',        size: '150px',                             sortable: true, style: 'text-align: center'},
+            {field: 'BID',         hidden: true, caption: 'BID',          size: '150px',                             sortable: true, style: 'text-align: center'},
+            {field: 'Name',        hidden: false, caption: 'Name',        size: '150px', editable: { type: 'text' }, sortable: true, style: 'text-align: left'},
+            {field: 'Description', hidden: false, caption: 'Description', size: '60%',   editable: { type: 'text' }, sortable: true, style: 'text-align: left'},
         ],
         onSave: function(/*event*/) {
             w2ui.pmtsGrid.reload();
@@ -2252,14 +2253,14 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid', size: '40px', sortable: true},
-            {field: 'DEPID', hidden: true, caption: 'DEPID', size: '150px', stortable: true, style: 'text-align: center'},
-            {field: 'BID', hidden: true, caption: 'BID', size: '150px', stortable: true, style: 'text-align: center'},
-            {field: 'BUD', hidden: true, caption: 'BUD', size: '150px', stortable: true, style: 'text-align: center'},
-            {field: 'LID', hidden: true, caption: 'LID', size: '150px', stortable: true, style: 'text-align: center'},
-            {field: 'AccountNo', hidden: false, caption: 'Account Number', size: '150px', stortable: true, style: 'text-align: right'},
-            {field: 'Name', hidden: false, caption: 'Name', size: '20%', stortable: true, style: 'text-align: left'},
-            {field: 'LdgrName', hidden: false, caption: 'GL Acct Name', size: '20%', stortable: true, style: 'text-align: left'},
-            {field: 'GLNumber', hidden: false, caption: 'GL Number', size: '150px', stortable: true, style: 'text-align: right'},
+            {field: 'DEPID', hidden: true, caption: 'DEPID', size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'BID', hidden: true, caption: 'BID', size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'BUD', hidden: true, caption: 'BUD', size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'LID', hidden: true, caption: 'LID', size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'AccountNo', hidden: false, caption: 'Account Number', size: '150px', sortable: true, style: 'text-align: right'},
+            {field: 'Name', hidden: false, caption: 'Name', size: '20%', sortable: true, style: 'text-align: left'},
+            {field: 'LdgrName', hidden: false, caption: 'GL Acct Name', size: '20%', sortable: true, style: 'text-align: left'},
+            {field: 'GLNumber', hidden: false, caption: 'GL Number', size: '150px', sortable: true, style: 'text-align: right'},
         ],
         onClick: function(event) {
 
@@ -2481,21 +2482,21 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             stortable: true, style: 'text-align: center'},
-            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   stortable: true, style: 'text-align: left'},
-            {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', stortable: true, style: 'text-align: left',
+            {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             sortable: true, style: 'text-align: center'},
+            {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             sortable: true, style: 'text-align: center'},
+            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
+            {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', sortable: true, style: 'text-align: left',
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
                 }
             },
-            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', stortable: true},
-            {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', stortable: true, style: 'text-align: left'},
-            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', stortable: true},
-            {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', stortable: true, style: 'text-align: left'},
+            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', sortable: true},
+            {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', sortable: true, style: 'text-align: left'},
+            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', sortable: true},
+            {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', sortable: true, style: 'text-align: left'},
             {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', stortable: true, style: 'text-align: left'},
+            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', sortable: true, style: 'text-align: left'},
         ],
         onClick: function(event) {
 
