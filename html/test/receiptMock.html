@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 </head>
 <body>
-<p>Opening Balance:
+<p>Unpaid Assessments
 <div id="grid" style="width: 100%; height: 250px;"></div>
 <!-- <p >w2ui.grid.summary[0].amount = <span id="gridtotal">$0.00</span></p>
 <button class="w2ui-btn" onclick="updateTotal();">Call updateTotal()</button>
@@ -32,9 +32,8 @@ $(function() {
         {field: 'Payment', caption: 'Payment', size: '100px', render: 'money'},
         {field: 'Amount', caption: 'Charge', size: '100px', render: 'money'},
         {field: 'Balance', caption: 'Balance', size: '100px', render: 'money'},
-     ],
+    ],
     records: [
-        {recid: 0,     Date: '',         Description: 'Opening Balance', Payment: 0,    Amount: 0.00,    Balance: 0.00 },
         {recid: 1,     Date: '5/2/2017', Description: 'Payment',         Payment: 5000, Amount: 0.00,    Balance: 0.00 },
         {recid: 2,     Date: '3/1/2017', Description: 'Rent-non taxable',Payment: 0,    Amount: 1000.00, Balance: 0.00 },
         {recid: 3,     Date: '3/8/2017', Description: 'Late Fee',        Payment: 0,    Amount: 50.00,   Balance: 0.00 },
