@@ -632,6 +632,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'accountsGrid',
         url: '/v1/GLAccounts',
+        multiSelect: false,
         show: {
             header: false,
             toolbar: true,
@@ -652,17 +653,11 @@ function buildPageElements() {
             {field: 'AcctType', caption: 'AcctType', size: '140px', sortable: true},
         ],
         onSelect:  function(event) {
-            console.log(event);
+            event.onComplete = function() {
+                var rec = this.get(event.recid);
+                console.log(rec);
+            }
         },
-        onClick: function(event) {
-            // event.onComplete = function () {
-            //     // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
-            //     //   console.log(val + ' -> ' + this[val]);
-            //     // });
-            //     var sel = this.getSelection(true);
-            //     console.log('Current selection is ' + sel );
-            // };
-        }
     });
 
     //------------------------------------------------------------------------
@@ -2241,6 +2236,12 @@ function buildPageElements() {
                     temp_list.push({id: pmtRec.PMTID, text: pmtRec.Name});
                 });
                 app.paymentTypeList = temp_list;
+
+                // update payments list for a business
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
+                app.pmtTypes[BUD] = temp_list;
             }
         },
         onClick: function(event) {
@@ -2377,7 +2378,12 @@ function buildPageElements() {
                             }
                         });
                         app.paymentTypeList = temp_list;
-                        //
+
+                        // update payments list for a business
+                        var x = getCurrentBusiness();
+                        var BID=parseInt(x.value);
+                        var BUD = getBUDfromBID(BID);
+                        app.pmtTypes[BUD] = temp_list;
 
                         w2ui.toplayout.hide('right',true);
                         w2ui.toplayout.render();
