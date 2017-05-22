@@ -2233,6 +2233,16 @@ function buildPageElements() {
             {field: 'Name',        hidden: false, caption: 'Name',        size: '150px', sortable: true, style: 'text-align: left'},
             {field: 'Description', hidden: false, caption: 'Description', size: '60%',   sortable: true, style: 'text-align: left'},
         ],
+        onLoad: function(event) {
+            if (event.xhr.status == 200) {
+                var temp_list = [];
+                var data = JSON.parse(event.xhr.responseText);
+                data.records.forEach(function(pmtRec){
+                    temp_list.push({id: pmtRec.PMTID, text: pmtRec.Name});
+                });
+                app.paymentTypeList = temp_list;
+            }
+        },
         onClick: function(event) {
             event.onComplete = function() {
                 var recs = this.getSelection(); // get selected records array
@@ -2358,6 +2368,17 @@ function buildPageElements() {
                         if (data.status != "success") {
                             return;
                         }
+
+                        // remove this from app.paymentTypeList if successfully removed
+                        var temp_list = [];
+                        app.paymentTypeList.forEach(function(pmtRec){
+                            if (pmtRec.ID != form.record.PMTID) {
+                                temp_list.push({id: pmtRec.PMTID, text: pmtRec.Name});
+                            }
+                        });
+                        app.paymentTypeList = temp_list;
+                        //
+
                         w2ui.toplayout.hide('right',true);
                         w2ui.toplayout.render();
                         tgrid.reload();
