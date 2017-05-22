@@ -73,6 +73,27 @@ var app = {
     },
 };
 
+// delete confirmation dialog box options
+var delete_confirm_options = {
+    msg          : 'Are you sure you want to delete this record?',
+    title        : '',
+    width        : 340,     // width of the dialog
+    height       : 160,     // height of the dialog
+    btn_yes      : {
+        text     : 'Yes',   // text for yes button (or yes_text)
+        class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
+        style    : '',      // style for yes button (or yes_style)
+        callBack : null     // callBack for yes button (or yes_callBack)
+    },
+    btn_no       : {
+        text     : 'No',    // text for no button (or no_text)
+        class    : 'w2ui-btn',      // class for no button (or no_class)
+        style    : '',      // style for no button (or no_style)
+        callBack : null     // callBack for no button (or no_callBack)
+    },
+    callBack     : null     // common callBack
+};
+
 function exportReportCSV(rptname){
     "use strict";
     if (rptname === '') {
@@ -2319,25 +2340,34 @@ function buildPageElements() {
                 this.clear();
             },
             delete: function() {
-                var tgrid = w2ui.pmtsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
 
-                var params = {cmd: 'delete', formname: this.name, ID: this.record.PMTID };
-                var dat = JSON.stringify(params);
+                var form = this;
 
-                // delete Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.pmtsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.PMTID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Payment failed.")
+                    });
                 })
-                .fail(function(data){
-                    console.log("Delete Payment failed.")
+                .no(function() {
+                    return;
                 });
             },
         },
@@ -2548,25 +2578,35 @@ function buildPageElements() {
                 console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.DEPID + '   Name = ' + f.record.Name);
             },
             delete: function(target, data) {
-                var tgrid = w2ui.depGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
 
-                var params = {cmd: 'delete', formname: this.name, ID: this.record.DEPID };
-                var dat = JSON.stringify(params);
+                var form = this;
 
-                // delete Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+
+                    var tgrid = w2ui.depGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.DEPID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Depository failed.")
+                    });
                 })
-                .fail(function(data){
-                    console.log("Delete Depository failed.")
+                .no(function() {
+                    return;
                 });
             },
         },
@@ -2780,25 +2820,33 @@ function buildPageElements() {
         actions: {
             delete: function() {
 
-                var tgrid = w2ui.arsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                var form = this;
 
-                var params = {cmd: 'delete', formname: this.name, ID: this.record.ARID };
-                var dat = JSON.stringify(params);
+                w2confirm(delete_confirm_options)
+                .yes(function () {
+                    var tgrid = w2ui.arsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
 
-                // delete AR request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                    var params = {cmd: 'delete', formname: form.name, ARID: form.record.ARID };
+                    var dat = JSON.stringify(params);
+
+                    // delete AR request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete AR failed.")
+                    });
                 })
-                .fail(function(data){
-                    console.log("Delete AR failed.")
+                .no(function () {
+                    return;
                 });
             },
             save: function () {
