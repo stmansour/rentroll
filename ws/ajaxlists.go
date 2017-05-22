@@ -207,4 +207,18 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		s := fmt.Sprintf("%s.%s='%s';\n", "app", m[i][0], m[i][1])
 		io.WriteString(w, s)
 	}
+
+	//------------------------------------------
+	// send down the account things
+	//------------------------------------------
+	al := getAccountThingJSList()
+	io.WriteString(w, fmt.Sprintf("app.account_stuff={};\n"))
+	for n, thingMap := range al {
+		t := fmt.Sprintf("app.account_stuff['%s']=[", n)
+		for id, text := range thingMap {
+			t += fmt.Sprintf("{id: %d, text: '%s'},", id, text)
+		}
+		t += "];\n"
+		io.WriteString(w, t)
+	}
 }

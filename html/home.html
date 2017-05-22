@@ -646,18 +646,230 @@ function buildPageElements() {
             {field: 'recid',    caption: 'recid', size: '40px', sortable: true},
             {field: 'LID',      caption: 'LID', size: '50px', sortable: true},
             {field: 'PLID',     caption: 'PLID', size: '50px', sortable: true},
-            {field: 'BID',      caption: 'BID', size: '40px', sortable: true},
+            {field: 'BID',      caption: 'BID', size: '40px', sortable: true, hidden: true},
             {field: 'GLNumber', caption: 'GL Number', size: '85px', sortable: true},
             {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
-            {field: 'Status',   caption: 'Status', size: '50px', sortable: true},
+            {field: 'Status',   caption: 'Status', size: '50px', sortable: true,
+                render: function (record, index, col_index) {
+                    var html = '';
+                    app.account_stuff.status.forEach(function(item) {
+                        if (item.id == w2ui.accountsGrid.getCellValue(index, col_index)) html = item.text;
+                    });
+                    return html;
+                },
+            },
             {field: 'AcctType', caption: 'AcctType', size: '140px', sortable: true},
         ],
         onSelect:  function(event) {
             event.onComplete = function() {
                 var rec = this.get(event.recid);
-                console.log(rec);
+
+                // get latest gl accounts first
+                getGLAccounts(rec.BID)
+                .done(function(data) {
+                    if (data.status != 'success') {
+                        w2ui.accountForm.message(data.message);
+                        w2ui.toplayout.content('right', w2ui.accountForm);
+                        w2ui.toplayout.show('right', true);
+                        w2ui.toplayout.sizeTo('right', 700);
+                        return;
+                    }
+                    else {
+                        app["gl_accounts"] = data;
+                        setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID);
+                    }
+                })
+                .fail(function(data) {
+                    console.log("unable to get gl accounts list");
+                    return;
+                });
             }
         },
+    });
+
+    //------------------------------------------------------------------------
+    //          Account Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'accountForm',
+        header: 'Account Detail',
+        url: '/v1/account',
+        style: 'border: 0px; background-color: transparent;display: block;',
+        formURL: '/html/formacct.html',
+        fields: [
+            { field: "recid", required: false, type: 'int', html: { caption: "recid", page: 0, column: 0 } },
+            { field: "LID", required: false, type: 'int', html: { caption: "LID", page: 0, column: 0 } },
+            { field: "PLID", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "PLID", page: 0, column: 0 } },
+            { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
+            { field: "BUD", required: false, options: { items: app.businesses, maxDropHeight: 350, selected: {} }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
+            { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
+            { field: "TCID", required: false, type: 'int', html: { caption: "TCID", page: 0, column: 0 } },
+            { field: "GLNumber", required: false, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
+            { field: "Status", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
+            { field: "Type", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
+            { field: "Name", required: false, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
+            { field: "AcctType", required: false, type: 'text', html: { caption: "AcctType", page: 0, column: 0 } },
+            { field: "RAAssociated", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
+            { field: "AllowPost", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
+            { field: "ManageToBudget", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "ManageToBudget", page: 0, column: 0 } },
+            { field: "Description", required: false, type: 'int', html: { caption: "Description", page: 0, column: 0 } },
+            { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function(event) {
+                switch(event.target) {
+                    case 'btnClose':
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        break;
+                }
+            }
+        },
+        onLoad: function(event) {
+            event.onComplete = function() {
+                this.get("AllowPost").items = app.account_stuff.allow_posts;
+                console.log(app.account_stuff.allow_posts);
+                this.refresh();
+                console.log("account Form loaded.....");
+            }
+        },
+        actions: {
+            save: function() {
+                var tgrid = w2ui.pmtsGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+
+                // this.save({}, function (data) {
+                //     if (data.status == 'error') {
+                //         console.log('ERROR: '+ data.message);
+                //         return;
+                //     }
+                //     w2ui.toplayout.hide('right',true);
+                //     tgrid.reload();
+                // });
+                var params = {cmd: 'save', formname: this.name, record: this.record };
+                var dat = JSON.stringify(params);
+
+                // save Depository request
+                $.post(this.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    tgrid.reload();
+                })
+                .fail(function(data){
+                    console.log("Save Payment Type failed.")
+                });
+            },
+            reset: function() {
+                this.clear();
+            },
+            delete: function() {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.pmtsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, LID: form.record.LID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Payment failed.")
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.accountForm;
+                var r = f.record;
+                if (r.LID) {
+                    f.header = 'Edit Account Detail' + ' (' + r.LID + ')';
+                } else {
+                    f.header = 'Edit Account Detail (new)';
+                }
+
+                // set allowpost
+                var selected;
+                app.account_stuff.allow_posts.forEach(function(item) {
+                    if (item.id == r.AllowPost) {
+                        selected = item;
+                        return false;
+                    }
+                });
+                $("#accountForm").find('input[name=AllowPost]').w2field('list',{
+                    items: app.account_stuff.allow_posts,
+                    selected: selected,
+                });
+
+                // set RAAssociated
+                $("#accountForm").find('input[name=RAAssociated]').w2field('list',{
+                    items: app.account_stuff.ra_associated,
+                    selected: r.RAAssociated,
+                });
+
+                // set managetoBudger
+                $("#accountForm").find('input[name=ManageToBudget]').w2field('list',{
+                    items: app.account_stuff.manage_to_budget,
+                    selected: r.ManageToBudget,
+                });
+
+                // set Status
+                $("#accountForm").find('input[name=Status]').w2field('list',{
+                    items: app.account_stuff.status,
+                    selected: r.Status,
+                });
+
+                // set Type
+                $("#accountForm").find('input[name=Type]').w2field('list',{
+                    items: app.account_stuff.types,
+                    selected: r.Type,
+                });
+
+                // set Parent Account list
+                var PLIDs = [{id: 0, text: 'No Parent LID'}];
+                PLIDs = PLIDs.concat(app.gl_accounts.records);
+                $("#accountForm").find('input[name=PLID]').w2field('list',{
+                    items: PLIDs,
+                    selected: r.PLID,
+                });
+
+                // set business
+                $("#accountForm").find('input[name=BUD]').w2field('list',{
+                    items: app.businesses,
+                    selected: r.BUD,
+                });
+
+                // Reference: http://jsfiddle.net/vtoah4t5/7/
+            }
+        }
     });
 
     //------------------------------------------------------------------------
