@@ -519,7 +519,10 @@ function buildPageElements() {
                     showReport(event.target);
                     app.lastReport = event.target;
                     break;
-
+                case 'allocfunds':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                    switchToGrid(event.target);
+                    break;
                 default:
                     console.log('unhandled event: ' + event.target);
             }
@@ -627,6 +630,108 @@ function buildPageElements() {
     }));
 
     //------------------------------------------------------------------------
+    //          allocfundsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'allocfundsGrid',
+        url: '/v1/GLAccounts',
+        multiSelect: false,
+        show: {
+            header: false,
+            toolbar: true,
+            footer: true,
+            searches: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            {field: 'recid', type: 'int', caption: 'recid', size: '40px', sortable: true},
+            {field: 'Name', type: 'text', caption: 'Name', size: '90%', sortable: true},
+            {field: 'BID', type: 'int', caption: 'BID', hidden: true},
+            {field: 'TCID', type: 'int', caption: 'TCID', hidden: true},
+        ],
+        onSelect:  function(event) {
+            event.onComplete = function() {
+                var rec = this.get(event.recid);
+
+                var main = _unAllocRcpts.layoutPanels.main(4500,"John Due"),
+                    bottom = _unAllocRcpts.layoutPanels.bottom();
+
+                w2ui.allocfundsLayout.content('main', main);
+                w2ui.allocfundsLayout.content('preview', w2ui.unallocRcptsGrid);
+                w2ui.allocfundsLayout.content('bottom', bottom);
+
+                w2ui.toplayout.show('right', true);
+                w2ui.toplayout.content('right', w2ui.allocfundsLayout);
+                w2ui.toplayout.sizeTo('right', 700);
+            }
+        },
+    });
+
+    //------------------------------------------------------------------------
+    //          allocate fund layout
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'allocfundsLayout',
+        panels: [
+            { type: "top", size: 40, style: 'border: 1px solid #cfcfcf; padding: 5px;', content: 'Allocate Fund Top Panel' },
+            { type: "left", hidden: true },
+            { type: "main", style: app.pstyle, content: 'Allocate Fund Main Panel' },
+            { type: "preview", size: "50%", style: app.pstyle, content: 'Allocate Fund Preview Panel' },
+            { type: "right", hidden: true },
+            { type: "bottom", size: 60, style: app.pstyle, content: 'Allocate Fund Bottom Panel' },
+        ]
+    });
+
+    //------------------------------------------------------------------------
+    //          allocate fund toolbar
+    //------------------------------------------------------------------------
+    w2ui.allocfundsLayout.content('top',
+        $().w2toolbar({
+            name: 'unallocfund_toolbar',
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function(event) {
+                switch(event.target) {
+                    case 'btnClose':
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        break;
+                }
+            }
+        })
+    );
+
+    //------------------------------------------------------------------------------
+    //   unallocated receipts grid - allocate funds layout
+    //------------------------------------------------------------------------------
+
+    $().w2grid({
+        name: 'unallocRcptsGrid',
+        show: {
+            header: false,
+            toolbar: false,
+            footer: false,
+            searches: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            { field: 'Date', type: 'date', caption: 'Date', size: '25%' },
+            { field: 'Assessment', type: 'text', caption: 'Assessment', size: '25%' },
+            { field: 'Amount', type: 'money', caption: 'Amount', size: '25%' },
+            { field: 'Allocate', type: 'text',caption: 'Allocate', size: '25%',
+                editable: { type: 'text' }
+            },
+        ]
+    });
+
+    //------------------------------------------------------------------------
     //          accountsGrid
     //------------------------------------------------------------------------
     $().w2grid({
@@ -731,44 +836,36 @@ function buildPageElements() {
                 }
             }
         },
-        onLoad: function(event) {
-            event.onComplete = function() {
-                this.get("AllowPost").items = app.account_stuff.allow_posts;
-                console.log(app.account_stuff.allow_posts);
-                this.refresh();
-                console.log("account Form loaded.....");
-            }
-        },
         actions: {
             save: function() {
                 var tgrid = w2ui.pmtsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
 
-                // this.save({}, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     tgrid.reload();
-                // });
-                var params = {cmd: 'save', formname: this.name, record: this.record };
-                var dat = JSON.stringify(params);
-
-                // save Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
                     tgrid.reload();
-                })
-                .fail(function(data){
-                    console.log("Save Payment Type failed.")
                 });
+                // var params = {cmd: 'save', formname: this.name, record: this.record };
+                // var dat = JSON.stringify(params);
+
+                // // save Depository request
+                // $.post(this.url, dat)
+                // .done(function(data) {
+                //     if (data.status != "success") {
+                //         return;
+                //     }
+                //     w2ui.toplayout.hide('right',true);
+                //     w2ui.toplayout.render();
+                //     tgrid.reload();
+                // })
+                // .fail(function(data){
+                //     console.log("Save Payment Type failed.")
+                // });
             },
             reset: function() {
                 this.clear();
@@ -816,17 +913,19 @@ function buildPageElements() {
                     f.header = 'Edit Account Detail (new)';
                 }
 
-                // set allowpost
-                var selected;
-                app.account_stuff.allow_posts.forEach(function(item) {
-                    if (item.id == r.AllowPost) {
-                        selected = item;
-                        return false;
-                    }
-                });
-                $("#accountForm").find('input[name=AllowPost]').w2field('list',{
+                // f.get("AllowPost").options.items = app.account_stuff.allow_posts;
+                // // // set allowpost
+                // // var selected;
+                // // app.account_stuff.allow_posts.forEach(function(item) {
+                // //     if (item.id == r.AllowPost) {
+                // //         selected = item;
+                // //         return false;
+                // //     }
+                // // });
+
+                $("#accountForm").find('input[name=AllowPost]').w2field('list', {
                     items: app.account_stuff.allow_posts,
-                    selected: selected,
+                    selected: r.AllowPost,
                 });
 
                 // set RAAssociated

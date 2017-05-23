@@ -131,6 +131,7 @@ type ServiceData struct {
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
+	{"allocfunds", SvcSearchHandlerAllocFunds, true},
 	{"accounts", SvcSearchHandlerGLAccounts, true},
 	{"account", SvcFormHandlerGLAccounts, true},
 	{"ar", SvcFormHandlerAR, true},

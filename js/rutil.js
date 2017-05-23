@@ -741,3 +741,32 @@ function int_to_bool(i){
     }
 }
 
+// unallocated receipts utility literal object
+var _unAllocRcpts = {
+    layoutPanels: {
+        main: function(unallocFund, person) {
+            return `
+                <div style="display: table; width: 100%; height: 40%;">
+                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
+                        <h3 style="margin: 5px auto;">Unallocated Funds</h3>
+                        <p style="padding: 10px; color: green; background-color: white; font-size: 1.45rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</p>
+                    </div>
+                </div>
+                <div style="display: table; width: 100%; height: 60%;">
+                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;font-size: 1.15rem;">
+                        Unpaid Assessments for <strong>`+person+`</strong>
+                    </div>
+                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;">
+                        <button class="w2ui-btn w2ui-btn-green" style="font-size: 1.25rem;">Auto Allocate</button>
+                    </div>
+                </div>`;
+        },
+        bottom: function() {
+            return `<div style="display: table; width: 100%; height: 100%;">
+                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
+                        <button class="w2ui-btn">Save</button>
+                    </div>
+                </div>`;
+        }
+    }
+}
