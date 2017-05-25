@@ -93,7 +93,7 @@ func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
 	return float64(0)
 }
 
-// payAssessment handles paying an assessment, or as much as possible of the assessment
+// PayAssessment handles paying an assessment, or as much as possible of the assessment
 // @params
 //  a      - the assessment being paid
 //  rcpt   - the receipt from which funds will be taken to pay the assessment
@@ -103,8 +103,8 @@ func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
 //           this amount may be less than needed -- the remaining funds on a receipt may not
 //           always be enough to cover the assessment.
 //  dt     - timestamp to mark on the allocation for this payment
-func payAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt float64, dt *time.Time) error {
-	funcname := "payAssessment"
+func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt float64, dt *time.Time) error {
+	funcname := "PayAssessment"
 
 	amtToUse := amt
 	if amt > *needed {
