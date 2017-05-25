@@ -262,7 +262,7 @@ func AutoAllocatePayorReceipts(tcid int64, dt *time.Time) error {
 			amt := RemainingReceiptFunds(&n[j])
 			fmt.Printf("Needed for ASMID %d :  %.2f\n", m[i].ASMID, needed)
 			fmt.Printf("Funds remaining in receipt %d:  %.2f\n", n[j].RCPTID, amt)
-			err := payAssessment(&m[i], &n[j], &needed, amt, dt)
+			err := PayAssessment(&m[i], &n[j], &needed, amt, dt)
 			fmt.Printf("\n")
 			if err != nil {
 				return err
