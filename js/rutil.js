@@ -748,25 +748,95 @@ var _unAllocRcpts = {
             return `
                 <div style="display: table; width: 100%; height: 40%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
-                        <h3 style="margin: 5px auto;">Unallocated Funds</h3>
-                        <p style="padding: 10px; color: green; background-color: white; font-size: 1.45rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</p>
+                        <p style="margin: 5px auto;">Unallocated Funds</p>
+                        <p style="padding: 10px; color: green; background-color: white; font-size: 1.25rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</p>
                     </div>
                 </div>
                 <div style="display: table; width: 100%; height: 60%;">
-                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;font-size: 1.15rem;">
-                        Unpaid Assessments for <strong>`+person+`</strong>
+                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;">
+                        <p style="font-size: 1rem;">Unpaid Assessments for <strong>`+person+`</strong></p>
                     </div>
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;">
-                        <button class="w2ui-btn w2ui-btn-green" style="font-size: 1.25rem;">Auto Allocate</button>
+                        <button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto Allocate</button>
                     </div>
                 </div>`;
         },
         bottom: function() {
             return `<div style="display: table; width: 100%; height: 100%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
-                        <button class="w2ui-btn">Save</button>
+                        <button class="w2ui-btn" id="alloc_fund_save_btn">Save</button>
                     </div>
                 </div>`;
         }
     }
 }
+
+//-----------------------------------------------------------------------------
+// getPayorFund - get payor fund
+// @params
+// @return  the jquery promise
+//-----------------------------------------------------------------------------
+function getPayorFund(BID, TCID) {
+    "use strict";
+    return jQuery.ajax({
+        type: "GET",
+        url: '/v1/payorfund/'+BID+'/'+TCID,
+        dataType: "json",
+    });
+}
+
+// Auto Allocate amount for each unpaid assessment
+jQuery(document).on('click', '#auto_allocate_btn', function(event) {
+    var fund = app.payor_fund;
+    var grid = w2ui.unpaidASMsGrid;
+
+    grid.records.forEach(function(rec) {
+
+        if (fund < 0) {
+            return false;
+        }
+
+        // check if fully paid or not
+        if (rec.Amount <= fund){
+            rec.Allocate = rec.Amount;
+            grid.set(rec.recid, rec);
+        } else {
+            rec.Allocate = fund;
+            grid.set(rec.recid, rec);
+        }
+
+        // decrement fund value by whatever the amount allocated for each record
+        fund = fund - rec.Allocate;
+    });
+});
+
+jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
+    var tgrid = w2ui.allocfundsGrid;
+    var rec = tgrid.getSelection();
+    if (rec.length < 0) {
+        return;
+    }
+
+    rec = tgrid.get(rec[0]);
+    var tcid = rec.TCID,
+        bid = rec.BID;
+
+    var params = {cmd: 'save', TCID: tcid, BID: bid, records: w2ui.unpaidASMsGrid.records };
+    var dat = JSON.stringify(params);
+
+    // submit request
+    $.post('/v1/allocfunds/'+bid+'/', dat)
+    .done(function(data) {
+        if (data.status != "success") {
+            return;
+        }
+        w2ui.toplayout.hide('right',true);
+        w2ui.toplayout.render();
+        tgrid.reload();
+    })
+    .fail(function(data){
+        console.log("Payor Fund Allocation failed.")
+    });
+
+
+});

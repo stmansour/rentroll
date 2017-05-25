@@ -634,7 +634,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'allocfundsGrid',
-        url: '/v1/GLAccounts',
+        url: '/v1/allocfunds',
         multiSelect: false,
         show: {
             header: false,
@@ -655,16 +655,29 @@ function buildPageElements() {
             event.onComplete = function() {
                 var rec = this.get(event.recid);
 
-                var main = _unAllocRcpts.layoutPanels.main(4500,"John Due"),
-                    bottom = _unAllocRcpts.layoutPanels.bottom();
+                getPayorFund(rec.BID, rec.TCID)
+                .done(function(data) {
 
-                w2ui.allocfundsLayout.content('main', main);
-                w2ui.allocfundsLayout.content('preview', w2ui.unallocRcptsGrid);
-                w2ui.allocfundsLayout.content('bottom', bottom);
+                    // store fund in app variable
+                    app["payor_fund"] = data.record.fund;
 
-                w2ui.toplayout.show('right', true);
-                w2ui.toplayout.content('right', w2ui.allocfundsLayout);
-                w2ui.toplayout.sizeTo('right', 700);
+                    // load grid data
+                    w2ui.unpaidASMsGrid.load('/v1/unpaidasms/'+rec.BID+'/'+rec.TCID);
+
+                    var main = _unAllocRcpts.layoutPanels.main(app.payor_fund, rec.Name),
+                        bottom = _unAllocRcpts.layoutPanels.bottom();
+
+                    w2ui.allocfundsLayout.content('main', main);
+                    w2ui.allocfundsLayout.content('preview', w2ui.unpaidASMsGrid);
+                    w2ui.allocfundsLayout.content('bottom', bottom);
+
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.content('right', w2ui.allocfundsLayout);
+                    w2ui.toplayout.sizeTo('right', 700);
+                })
+                .fail(function(data) {
+                    console.log('ERROR, unable to get payor fund for TCID', rec.TCID);
+                });
             }
         },
     });
@@ -711,7 +724,7 @@ function buildPageElements() {
     //------------------------------------------------------------------------------
 
     $().w2grid({
-        name: 'unallocRcptsGrid',
+        name: 'unpaidASMsGrid',
         show: {
             header: false,
             toolbar: false,
@@ -722,11 +735,13 @@ function buildPageElements() {
             expandColumn: false
         },
         columns: [
-            { field: 'Date', type: 'date', caption: 'Date', size: '25%' },
-            { field: 'Assessment', type: 'text', caption: 'Assessment', size: '25%' },
-            { field: 'Amount', type: 'money', caption: 'Amount', size: '25%' },
-            { field: 'Allocate', type: 'text',caption: 'Allocate', size: '25%',
-                editable: { type: 'text' }
+            { field: 'Date', render: 'date', caption: 'Date', size: '25%' },
+            { field: 'Assessment', caption: 'Assessment', size: '25%' },
+            { field: 'Amount', render: 'money', caption: 'Amount', size: '25%' },
+            { field: 'ARID', hidden: false },
+            { field: 'ASMID', hidden: false },
+            { field: 'Allocate', render: 'float', caption: 'Allocate', size: '25%',
+                editable: { type: 'float' }
             },
         ]
     });
