@@ -727,7 +727,16 @@ function buildPageElements() {
         name: 'unpaidASMsGrid',
         show: {
             header: false,
-            toolbar: false,
+            toolbar: true,
+            toolbarReload   : false,
+            toolbarColumns  : false,
+            toolbarSearch   : false,
+            toolbarAdd: false,
+            toolbarDelete: false,
+            toolbarInput: false,
+            searchAll: false,
+            toolbarSave: true,
+            toolbarEdit: false,
             footer: false,
             searches: false,
             lineNumbers: false,
@@ -743,7 +752,41 @@ function buildPageElements() {
             { field: 'Allocate', render: 'float', caption: 'Allocate', size: '25%',
                 editable: { type: 'float' }
             },
-        ]
+        ],
+        onEditField: function(event) {
+            event.onComplete = function() {
+                console.log(event);
+            }
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                var tgrid = w2ui.unpaidASMsGrid;
+                var a = w2ui[event.target].getChanges();
+                var changed_recs = {};
+                a.forEach(function(item) {
+                    var rec = tgrid.get(item.recid);
+                    // get record index in array
+                    var rec_index = tgrid.get(item.recid, true);
+                    if (item.Allocate > rec.Amount) {
+                        var new_record;
+                        new_record = $.extend(new_record, rec);
+                        new_record.Allocate = rec.Amount;
+                        changed_recs[rec_index] = new_record;
+                    }
+                });
+                var grid_records = tgrid.records;
+                tgrid.clear();
+                var new_records = [];
+                for(var id in grid_records) {
+                    if (id in changed_recs) {
+                        new_records.push(changed_recs[id]);
+                    } else {
+                        new_records.push(grid_records[id]);
+                    }
+                }
+                tgrid.add(new_records);
+            }
+        }
     });
 
     //------------------------------------------------------------------------
@@ -763,13 +806,13 @@ function buildPageElements() {
             expandColumn: false
         },
         columns: [
-            {field: 'recid',    caption: 'recid', size: '40px', sortable: true},
-            {field: 'LID',      caption: 'LID', size: '50px', sortable: true},
-            {field: 'PLID',     caption: 'PLID', size: '50px', sortable: true},
-            {field: 'BID',      caption: 'BID', size: '40px', sortable: true, hidden: true},
-            {field: 'GLNumber', caption: 'GL Number', size: '85px', sortable: true},
-            {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
-            {field: 'Status',   caption: 'Status', size: '50px', sortable: true,
+            {field: 'recid',    caption: 'recid', size: '80px', sortable: false},
+            {field: 'LID',      caption: 'LID', size: '50px', sortable: false},
+            {field: 'PLID', caption: 'PLID', size: '50px', sortable: false, hidden: true},
+            {field: 'BID',      caption: 'BID', size: '40px', sortable: false, hidden: true},
+            {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: false},
+            {field: 'Name',     caption: 'Name', size: '450px', sortable: false},
+            {field: 'Status',   caption: 'Status', size: '90px', sortable: false,
                 render: function (record, index, col_index) {
                     var html = '';
                     app.account_stuff.status.forEach(function(item) {
@@ -778,7 +821,7 @@ function buildPageElements() {
                     return html;
                 },
             },
-            {field: 'AcctType', caption: 'AcctType', size: '140px', sortable: true},
+            {field: 'AcctType', caption: 'AcctType', size: '150px', sortable: false},
         ],
         onSelect:  function(event) {
             event.onComplete = function() {

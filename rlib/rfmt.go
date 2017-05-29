@@ -251,3 +251,13 @@ func StringToInt64(s string) (int64, bool) {
 	}
 	return i64, true
 }
+
+// Int64InSlice just check that element exists in slice or not
+func Int64InSlice(i64 int64, list []int64) bool {
+	for _, b := range list {
+		if b == i64 {
+			return true
+		}
+	}
+	return false
+}

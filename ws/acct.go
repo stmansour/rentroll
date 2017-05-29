@@ -5,14 +5,45 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"sort"
+	"strconv"
 	"strings"
+	"time"
 )
+
+// w2uiChild struct used to build subgrid
+type w2uiChild struct {
+	Children []GLAccount `json:"children"`
+}
+
+// GLAccount describes the static (or mostly static) attributes of a Ledger
+type GLAccount struct {
+	Recid          int       `json:"recid"` // this is for the grid widget
+	LID            int64     // unique id for this GLAccount
+	PLID           int64     // unique id of Parent, 0 if no parent
+	BID            int64     // Business unit associated with this GLAccount
+	RAID           int64     // associated rental agreement, this field is only used when Type = 1
+	TCID           int64     // associated payor, this field is only used when Type = 1
+	GLNumber       string    // acct system name
+	Status         int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
+	Type           int64     // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Name           string    // descriptive name for the GLAccount
+	AcctType       string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
+	RAAssociated   int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
+	AllowPost      int64     // 0 = no posting, 1 = posting is allowed
+	RARequired     int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+	ManageToBudget int64     // 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
+	Description    string    // description for this account
+	LastModTime    time.Time // auto updated
+	LastModBy      int64     // user making the mod
+	W2UIChild      w2uiChild `json:"w2ui"`
+}
 
 // SearchGLAccountsResponse is the response data to a request for GLAccounts
 type SearchGLAccountsResponse struct {
-	Status  string           `json:"status"`
-	Total   int64            `json:"total"`
-	Records []rlib.GLAccount `json:"records"`
+	Status  string      `json:"status"`
+	Total   int64       `json:"total"`
+	Records []GLAccount `json:"records"`
 }
 
 // AcctDeleteForm is struct used to delete Account
@@ -161,13 +192,18 @@ func getAccountThingJSList() map[string]map[int64]string {
 //  @Response SearchGLAccountsResponse
 // wsdoc }
 func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcSearchHandlerGLAccounts\n")
-	var p rlib.GLAccount
-	var err error
-	var g SearchGLAccountsResponse
 
-	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	order := "GLNumber ASC, Name ASC"    // default ORDER
+	var (
+		funcname = "SvcSearchHandlerGLAccounts"
+		p        rlib.GLAccount
+		err      error
+		g        SearchGLAccountsResponse
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+
+	srch := fmt.Sprintf("BID=%d", d.BID)                 // default WHERE clause
+	order := "PLID ASC, LID ASC, GLNumber ASC, Name ASC" // default ORDER
 	q, qw := gridBuildQuery("GLAccount", srch, order, d, &p)
 
 	// set g.Total to the total number of rows of this data...
@@ -184,23 +220,123 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 	rlib.Errcheck(err)
 	defer rows.Close()
 
-	i := d.wsSearchReq.Offset
+	// this holds LID keys in ascending order
+	var sortedLIDKeys rlib.Int64Range
+
+	// this map holds values LID -> PLID
+	acctParentMap := make(map[int64]int64)
+
+	// account link: LID -> GLAccount
+	acctMap := make(map[int64]GLAccount)
+
 	count := 0
 	for rows.Next() {
-		var p rlib.GLAccount
-		rlib.ReadGLAccounts(rows, &p)
-		p.Recid = i
-		g.Records = append(g.Records, p)
+		var p GLAccount
+		var q rlib.GLAccount
+		rlib.ReadGLAccounts(rows, &q)
+		rlib.MigrateStructVals(&q, &p)
+
+		// map the account with its LID
+		acctMap[p.LID] = p
+		// map account's parent account
+		acctParentMap[p.LID] = p.PLID
+		// append LID in sorted slice
+		sortedLIDKeys = append(sortedLIDKeys, p.LID)
+
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
-		i++ // update the index no matter what
+	}
+	rlib.Errcheck(rows.Err())
+
+	// this holds the list of deleting account from map, after parent-child relation build-up
+	deleteAcctKeys := []int64{}
+
+	// descending order of LID
+	sort.Sort(sort.Reverse(sortedLIDKeys))
+
+	// find child accounts of parent account, fit it in tree
+	for _, lid := range sortedLIDKeys {
+
+		// get parent LID
+		plid := acctParentMap[lid]
+
+		// if this account is at most parent level then keep continue
+		if plid == 0 {
+			continue
+		}
+
+		// get parent account
+		parentAcct, _ := acctMap[plid]
+
+		// get account
+		childAcct := acctMap[lid]
+
+		parentAcct.W2UIChild.Children = append(parentAcct.W2UIChild.Children, childAcct)
+		acctMap[plid] = parentAcct
+		deleteAcctKeys = append(deleteAcctKeys, lid)
 	}
 
-	rlib.Errcheck(rows.Err())
-	w.Header().Set("Content-Type", "application/json")
+	// now delete records which has been put as in child of other account
+	for _, id := range deleteAcctKeys {
+		delete(acctMap, id)
+	}
+
+	// this holds PLID keys in ascending order
+	var sortedPLIDKeys rlib.Int64Range
+
+	for plid := range acctMap {
+		sortedPLIDKeys = append(sortedPLIDKeys, plid)
+	}
+
+	// now sort it in ascending order
+	sort.Sort(sortedPLIDKeys)
+
+	// setRecid is internal function to set Recid used in w2ui grid
+	setRecid := func(acctMap map[int64]GLAccount) {
+
+		// recursive routine
+		// first declare the function signature, so that we can call it recursively
+		var childAcctRecid func(acct GLAccount, recid int)
+
+		childAcctRecid = func(acct GLAccount, recid int) {
+			if len(acct.W2UIChild.Children) > 0 {
+				for id, childAcct := range acct.W2UIChild.Children {
+					recidx := id
+					// childID would be parentID + incremental id
+					childID, _ := strconv.Atoi(strconv.Itoa(acct.Recid) + strconv.Itoa(recidx))
+					childAcct.Recid = childID
+					acct.W2UIChild.Children[id] = childAcct
+					childAcctRecid(childAcct, childID)
+				}
+				// TODO: what if someone want to see in ascending order
+			}
+		}
+
+		mostParentCount := 1
+		for _, plid := range sortedPLIDKeys {
+			acct := acctMap[plid]
+			acct.Recid = mostParentCount
+			acctMap[plid] = acct
+			childAcctRecid(acct, mostParentCount)
+			mostParentCount++
+		}
+	}
+
+	setRecid(acctMap)
+
+	// web response
+	var records []GLAccount
+	for _, plid := range sortedPLIDKeys {
+		acct := acctMap[plid]
+		records = append(records, acct)
+	}
+	g.Records = records
+	g.Total = int64(len(g.Records))
+
 	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }
 
