@@ -730,6 +730,24 @@ function getGLAccounts(BID) {
     });
 }
 
+//-----------------------------------------------------------------------------
+// unallocAmountRemaining - based on the amounts allocated to receipts in the
+// unpaid receipts list, compute the amount of funds remaining to be allocated
+// and display it.
+// @params
+// @return
+//-----------------------------------------------------------------------------
+function unallocAmountRemaining() {
+    "use strict";
+    var totalFunds = app.payor_fund; // must already be set to total unallocated receipt funds
+    for (var i=0; i < w2ui.unpaidASMsGrid.records.length; i++) {
+        totalFunds -= w2ui.unpaidASMsGrid.records[i].Allocate;
+    }
+    var dispAmt = parseFloat(totalFunds).toFixed( 2 );
+    document.getElementById("total_fund_amount").innerHTML = dispAmt;
+}
+
+
 
 // int_to_bool converts int to bool. i.e, 0: false, 1: true
 function int_to_bool(i){
@@ -744,24 +762,19 @@ function int_to_bool(i){
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
-        main: function(unallocFund, person, tcid) {
+        top: function(unallocFund, person, tcid) {
+            "use strict";
             return `
                 <div style="display: table; width: 100%; height: 40%;">
-                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
-                        <p style="margin: 5px auto;">Unallocated Funds</p>
-                        <p id="total_fund_amount" data-fund="`+unallocFund+`" style="padding: 10px; color: green; background-color: white; font-size: 1.25rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</p>
-                    </div>
-                </div>
-                <div style="display: table; width: 100%; height: 60%;">
-                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;">
-                        <p data-tcid="`+tcid+`" data-name="`+person+`" style="font-size: 1rem;">Unpaid Assessments for <strong>`+person+`</strong></p>
-                    </div>
-                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;">
-                        <button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto Allocate</button>
+                    <div style="display: table-cell; vertical-align: middle;text-align: left;width: 100%;">
+                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;">`+person+`</p>Remaining unallocated funds:
+                        <span id="total_fund_amount" data-fund="`+unallocFund+`" style="padding: 10px; color: #00AA00; font-size: 1.5rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto Allocate</button></p>
                     </div>
                 </div>`;
         },
         bottom: function() {
+            "use strict";
             return `<div style="display: table; width: 100%; height: 100%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
                         <button class="w2ui-btn" id="alloc_fund_save_btn">Save</button>
@@ -769,7 +782,7 @@ var _unAllocRcpts = {
                 </div>`;
         }
     }
-}
+};
 
 //-----------------------------------------------------------------------------
 // getPayorFund - get payor fund
@@ -787,30 +800,38 @@ function getPayorFund(BID, TCID) {
 
 // Auto Allocate amount for each unpaid assessment
 jQuery(document).on('click', '#auto_allocate_btn', function(event) {
+    "use strict";
     var fund = app.payor_fund;
     var grid = w2ui.unpaidASMsGrid;
 
-    grid.records.forEach(function(rec) {
-
-        if (fund < 0) {
+    for (var i = 0; i < grid.records.length; i++) {
+        if (fund <= 0) {
             return false;
         }
 
+        // if it has already been paid, then move on to the next record
+        if (grid.records[i].Amount - grid.records[i].AmountPaid <= 0) {
+            continue;
+        }
+
         // check if fully paid or not
-        if (rec.Amount <= fund){
-            rec.Allocate = rec.Amount;
-            grid.set(rec.recid, rec);
+        if (grid.records[i].Amount - grid.records[i].AmountPaid <= fund){
+            grid.records[i].Allocate = grid.records[i].Amount - grid.records[i].AmountPaid;
+            grid.set(grid.records[i].recid, grid.records[i]);
         } else {
-            rec.Allocate = fund;
-            grid.set(rec.recid, rec);
+            grid.records[i].Allocate = fund;
+            grid.set(grid.records[i].recid, grid.records[i]);
         }
 
         // decrement fund value by whatever the amount allocated for each record
-        fund = fund - rec.Allocate;
-    });
+        fund = fund - grid.records[i].Allocate;
+    }
+
+    unallocAmountRemaining();
 });
 
 jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
+    "use strict";
     var tgrid = w2ui.allocfundsGrid;
     var rec = tgrid.getSelection();
     if (rec.length < 0) {

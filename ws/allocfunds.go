@@ -26,13 +26,14 @@ type SearchAllocFundsResponse struct {
 
 // UnpaidAsm unpaid assessments of a payor
 type UnpaidAsm struct {
-	Recid    int              `json:"recid"`
-	DtStart  rlib.JSONTime    `json:"Date"`
-	ASMID    int64            `json:"ASMID"`
-	ARID     int64            `json:"ARID"`
-	Name     string           `json:"Assessment"`
-	Amount   float64          `json:"Amount"`
-	Allocate rlib.NullFloat64 `json:"Allocate"`
+	Recid      int              `json:"recid"`
+	DtStart    rlib.JSONTime    `json:"Date"`
+	ASMID      int64            `json:"ASMID"`
+	ARID       int64            `json:"ARID"`
+	Name       string           `json:"Assessment"`
+	Amount     float64          `json:"Amount"`
+	AmountPaid float64          `json:"AmountPaid"`
+	Allocate   rlib.NullFloat64 `json:"Allocate"`
 }
 
 // PayorUnpaidAsmsResponse used to send down the list of unpaid assessments
@@ -77,7 +78,7 @@ func SvcSearchHandlerAllocFunds(w http.ResponseWriter, r *http.Request, d *Servi
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("Request: %s:  BID = %d", d.wsSearchReq.Cmd, d.BID)
+	fmt.Printf("Request: %s:  BID = %d\n", d.wsSearchReq.Cmd, d.BID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -135,9 +136,20 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 		u[r.TCID] = t
 	}
-
+	rlib.Errcheck(rows.Err())
+	now := time.Now()
 	for _, t := range u {
 		var q UnallocatedReceiptsPayors
+
+		// We know that the payor has funds in one or more receipts that has
+		// not yet been allocated. However, there may not be any assessments
+		// toward which we can apply the funds.  If this is the case, then just
+		// skip to the next payor
+		m := bizlogic.GetAllUnpaidAssessmentsForPayor(t.BID, t.TCID, &now)
+		if len(m) == 0 { // no assessments to pay? ...
+			continue // then move on to the next payor
+		}
+
 		q.Recid = i
 		q.TCID = t.TCID
 		q.BID = t.BID
@@ -150,7 +162,6 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		}
 		i++ // update the index no matter what
 	}
-	rlib.Errcheck(rows.Err())
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
@@ -199,8 +210,13 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	for _, asmRec := range foo.Records {
 
-		// get requested amount
-		amt := asmRec.Amount
+		// This is how much the user wanted to allocate for this assessment...
+		amt := asmRec.Allocate.Float64
+
+		// The user may have decided not to pay anything here. If so, skip to the next assessment.
+		if amt == float64(0) {
+			continue
+		}
 
 		asm, err := rlib.GetAssessment(asmRec.ASMID)
 		if err != nil {
@@ -214,18 +230,17 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		for j := 0; j < len(n); j++ {
 			fmt.Printf("Entered for Receipt: %d\n", n[j].RCPTID)
 			if n[j].FLAGS&3 == 2 { // if there are no funds left in this receipt...
-				fmt.Println("FLAGS&3 == 2, Fully Paid.....")
 				continue // move on to the next receipt
 			}
 
-			err := bizlogic.PayAssessment(&asm, &n[j], &needed, amt, &dt)
-			fmt.Printf("Assessment Is Payed, ASMID: %d\n", asm.ASMID)
+			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &dt)
+			fmt.Printf("Applied %.2f to ASMID: %d.  Amount still owed: %.2f\n", amt, asm.ASMID, needed)
 			if err != nil {
 				SvcGridErrorReturn(w, err)
 				return
 			}
-			if needed < bizlogic.ROUNDINGERR { // if we've paid off the assessment...
-				break // ... then move on to the next assessment
+			if amt < bizlogic.ROUNDINGERR { // if we've applied the requested amount...
+				break // ... then break out of the loop; we're done
 			}
 		}
 	}
@@ -263,6 +278,7 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 		rec.Recid = i
 		rec.DtStart = rlib.JSONTime(asm.Start)
 		rec.Amount = asm.Amount
+		rec.AmountPaid = asm.Amount - bizlogic.AssessmentUnpaidPortion(&m[i])
 		ar, err := rlib.GetAR(asm.ARID)
 		if err != nil {
 			fmt.Printf("%s: Error while getting AR (ARID=%d) for Assessment: %d, error=<%s>\n", funcname, asm.ARID, asm.ASMID, err.Error())

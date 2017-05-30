@@ -52,12 +52,7 @@ docsvtest "b2" "-A asm2017-02.csv ${CSVLOADRANGE} -L 11,${BUD}" "Assessments-201
 dorrtest "a2" "${RRDATERANGE} -x -b ${BUD} -r 18" "Process-JOURNALS-2017-FEB"
 dorrtest "a2a" "${RRDATERANGE} -x -b ${BUD} -r 19" "Process-LEDGERS-2017-FEB"
 
-# MYSQLDUMP=$(which mysqldump)
-# echo "${MYSQLDUMP} --no-defaults rentroll >unalloc.sql"
-# ${MYSQLDUMP} --no-defaults rentroll >unalloc.sql
-
 # Run the checker...
-./gsr
+./gsr -db
 
 logcheck
-

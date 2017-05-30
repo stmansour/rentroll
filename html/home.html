@@ -29,7 +29,7 @@ sidebarL1     - w2ui sidebar
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
     getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, asmFormRentablePickerRender
+    tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining
 */
 
 /*globals $:false */
@@ -399,9 +399,9 @@ function buildPageElements() {
     w2ui.toplayout.content('left',$().w2sidebar({
         name: 'sidebarL1',
         nodes: [
-            { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: false, group: true,
+            { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'allocfunds', text: 'Allocate Funds', icon: 'fa fa-pencil' },
+                        { id: 'allocfunds', text: 'Pay Assessments', icon: 'fa fa-pencil' },
                         { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
                         { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
                         { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
@@ -636,6 +636,7 @@ function buildPageElements() {
         name: 'allocfundsGrid',
         url: '/v1/allocfunds',
         multiSelect: false,
+        title: 'Unpaid assesments for ',
         show: {
             header: false,
             toolbar: true,
@@ -646,8 +647,8 @@ function buildPageElements() {
             expandColumn: false
         },
         columns: [
-            {field: 'recid', type: 'int', caption: 'recid', size: '40px', sortable: true},
-            {field: 'Name', type: 'text', caption: 'Name', size: '90%', sortable: true},
+            {field: 'recid', type: 'int', caption: 'recid', hidden: true, size: '40px', sortable: true},
+            {field: 'Name', type: 'text', caption: 'Payor Name', size: '90%', sortable: true},
             {field: 'BID', type: 'int', caption: 'BID', hidden: true},
             {field: 'TCID', type: 'int', caption: 'TCID', hidden: true},
         ],
@@ -664,11 +665,11 @@ function buildPageElements() {
                     // load grid data
                     w2ui.unpaidASMsGrid.load('/v1/unpaidasms/'+rec.BID+'/'+rec.TCID);
 
-                    var main = _unAllocRcpts.layoutPanels.main(app.payor_fund, rec.Name, rec.TCID),
+                    var top = _unAllocRcpts.layoutPanels.top(app.payor_fund, rec.Name, rec.TCID),
                         bottom = _unAllocRcpts.layoutPanels.bottom();
 
-                    w2ui.allocfundsLayout.content('main', main);
-                    w2ui.allocfundsLayout.content('preview', w2ui.unpaidASMsGrid);
+                    w2ui.allocfundsLayout.content('top', top);
+                    w2ui.allocfundsLayout.content('main', w2ui.unpaidASMsGrid);
                     w2ui.allocfundsLayout.content('bottom', bottom);
 
                     w2ui.toplayout.show('right', true);
@@ -688,36 +689,30 @@ function buildPageElements() {
     $().w2layout({
         name: 'allocfundsLayout',
         panels: [
-            { type: "top", size: 40, style: 'border: 1px solid #cfcfcf; padding: 5px;', content: 'Allocate Fund Top Panel' },
+            { type: "top", size: 140, style: 'border: 1px solid #cfcfcf; padding: 5px;', content: 'Allocate Fund Top Panel',
+                toolbar: {
+                    name: 'unallocfund_toolbar',
+                    items: [
+                        { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                        { id: 'bt3', type: 'spacer' },
+                        { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                    ],
+                    onClick: function(event) {
+                        switch(event.target) {
+                            case 'btnClose':
+                                w2ui.toplayout.hide('right',true);
+                                w2ui.toplayout.render();
+                                break;
+                        }
+                    }
+                }
+            },
             { type: "left", hidden: true },
-            { type: "main", style: app.pstyle, content: 'Allocate Fund Main Panel' },
-            { type: "preview", size: "50%", style: app.pstyle, content: 'Allocate Fund Preview Panel' },
+            { type: "main", size: "90%", style: app.pstyle, content: 'Allocate Fund Main Panel' },
             { type: "right", hidden: true },
             { type: "bottom", size: 60, style: app.pstyle, content: 'Allocate Fund Bottom Panel' },
         ]
     });
-
-    //------------------------------------------------------------------------
-    //          allocate fund toolbar
-    //------------------------------------------------------------------------
-    w2ui.allocfundsLayout.content('top',
-        $().w2toolbar({
-            name: 'unallocfund_toolbar',
-            items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
-            ],
-            onClick: function(event) {
-                switch(event.target) {
-                    case 'btnClose':
-                        w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        break;
-                }
-            }
-        })
-    );
 
     //------------------------------------------------------------------------------
     //   unallocated receipts grid - allocate funds layout
@@ -725,9 +720,11 @@ function buildPageElements() {
 
     $().w2grid({
         name: 'unpaidASMsGrid',
+        header: 'Unpaid Assessments',
+
         show: {
-            header: false,
-            toolbar: true,
+            toolbar: false,
+            header: true,
             toolbarReload   : false,
             toolbarColumns  : false,
             toolbarSearch   : false,
@@ -735,7 +732,7 @@ function buildPageElements() {
             toolbarDelete: false,
             toolbarInput: false,
             searchAll: false,
-            toolbarSave: true,
+            toolbarSave: false,
             toolbarEdit: false,
             footer: false,
             searches: false,
@@ -745,25 +742,25 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', type: 'int', caption: 'recid', size: '40px', hidden: true},
-            { field: 'Date', render: 'date', caption: 'Date', size: '25%' },
+            { field: 'Date', render: 'date', caption: 'Date', size: '60px' },
             { field: 'Assessment', caption: 'Assessment', size: '25%' },
-            { field: 'Amount', render: 'money', caption: 'Amount', size: '25%' },
-            { field: 'ARID', hidden: false },
-            { field: 'ASMID', hidden: false },
-            { field: 'Allocate', render: 'float', caption: 'Allocate', size: '25%',
-                editable: { type: 'float' }
-            },
+            { field: 'Amount', render: 'money', caption: 'Assessment Amount', size: '25%' },
+            { field: 'AmountPaid', render: 'money', caption: 'Amount Paid', size: '25%' },
+            { field: 'ARID', hidden: true },
+            { field: 'ASMID', hidden: true },
+            { field: 'Allocate', render: 'money', caption: 'Allocate Amount', size: '25%', editable: { type: 'float' } },
         ],
+        onRefresh: function(/*event*/) {
+            unallocAmountRemaining();
+        },
         onChange: function(event) {
             event.onComplete = function() {
                 var tgrid = w2ui.unpaidASMsGrid;
                 var c = w2ui[event.target].getChanges();
                 var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
+                var fundsRemaining = total_fund;
 
                 c.forEach(function(item) {
-
-                    // get record object
-                    var rec = tgrid.get(item.recid);
 
                     // get record index in `records` array
                     var rec_index = tgrid.get(item.recid, true);
@@ -782,7 +779,7 @@ function buildPageElements() {
                         });
 
                         // left amount in fund to pay
-                        left_fund_amount = total_fund - rec.Allocate;
+                        left_fund_amount = total_fund - fund_allocated_amount;
 
                         // decide what amount at max, user can able to pay, total fund or assessment due amount
                         var max_pay_amount = tgrid.records[rec_index].Amount < left_fund_amount ? tgrid.records[rec_index].Amount : left_fund_amount;
@@ -805,10 +802,11 @@ function buildPageElements() {
                     // clear w2ui object in record
                     tgrid.records[rec_index].w2ui = {};
 
+                    fundsRemaining -= tgrid.records[rec_index].Allocate;
                 });
 
                 tgrid.save();
-            }
+            };
         }
     });
 
