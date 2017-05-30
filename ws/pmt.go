@@ -109,6 +109,7 @@ func SvcHandlerPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		break
 	case "delete":
 		deletePaymentType(w, r, d)
+		break
 	default:
 		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err)

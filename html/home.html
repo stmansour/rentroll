@@ -73,6 +73,27 @@ var app = {
     },
 };
 
+// delete confirmation dialog box options
+var delete_confirm_options = {
+    msg          : 'Are you sure you want to delete this record?',
+    title        : '',
+    width        : 340,     // width of the dialog
+    height       : 160,     // height of the dialog
+    btn_yes      : {
+        text     : 'Yes',   // text for yes button (or yes_text)
+        class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
+        style    : '',      // style for yes button (or yes_style)
+        callBack : null     // callBack for yes button (or yes_callBack)
+    },
+    btn_no       : {
+        text     : 'No',    // text for no button (or no_text)
+        class    : 'w2ui-btn',      // class for no button (or no_class)
+        style    : '',      // style for no button (or no_style)
+        callBack : null     // callBack for no button (or no_callBack)
+    },
+    callBack     : null     // common callBack
+};
+
 function exportReportCSV(rptname){
     "use strict";
     if (rptname === '') {
@@ -498,7 +519,10 @@ function buildPageElements() {
                     showReport(event.target);
                     app.lastReport = event.target;
                     break;
-
+                case 'allocfunds':
+                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                    switchToGrid(event.target);
+                    break;
                 default:
                     console.log('unhandled event: ' + event.target);
             }
@@ -606,11 +630,12 @@ function buildPageElements() {
     }));
 
     //------------------------------------------------------------------------
-    //          accountsGrid
+    //          allocfundsGrid
     //------------------------------------------------------------------------
     $().w2grid({
-        name: 'accountsGrid',
-        url: '/v1/GLAccounts',
+        name: 'allocfundsGrid',
+        url: '/v1/allocfunds',
+        multiSelect: false,
         show: {
             header: false,
             toolbar: true,
@@ -621,26 +646,409 @@ function buildPageElements() {
             expandColumn: false
         },
         columns: [
-            {field: 'recid',    caption: 'recid', size: '40px', sortable: true},
-            {field: 'LID',      caption: 'LID', size: '50px', sortable: true},
-            {field: 'PLID',     caption: 'PLID', size: '50px', sortable: true},
-            {field: 'BID',      caption: 'BID', size: '40px', sortable: true},
-            {field: 'GLNumber', caption: 'GL Number', size: '85px', sortable: true},
-            {field: 'Name',     caption: 'Name', size: '10%', sortable: true},
-            {field: 'Status',   caption: 'Status', size: '50px', sortable: true},
-            {field: 'AcctType', caption: 'AcctType', size: '140px', sortable: true},
+            {field: 'recid', type: 'int', caption: 'recid', size: '40px', sortable: true},
+            {field: 'Name', type: 'text', caption: 'Name', size: '90%', sortable: true},
+            {field: 'BID', type: 'int', caption: 'BID', hidden: true},
+            {field: 'TCID', type: 'int', caption: 'TCID', hidden: true},
         ],
         onSelect:  function(event) {
-            console.log(event);
+            event.onComplete = function() {
+                var rec = this.get(event.recid);
+
+                getPayorFund(rec.BID, rec.TCID)
+                .done(function(data) {
+
+                    // store fund in app variable
+                    app["payor_fund"] = data.record.fund;
+
+                    // load grid data
+                    w2ui.unpaidASMsGrid.load('/v1/unpaidasms/'+rec.BID+'/'+rec.TCID);
+
+                    var main = _unAllocRcpts.layoutPanels.main(app.payor_fund, rec.Name, rec.TCID),
+                        bottom = _unAllocRcpts.layoutPanels.bottom();
+
+                    w2ui.allocfundsLayout.content('main', main);
+                    w2ui.allocfundsLayout.content('preview', w2ui.unpaidASMsGrid);
+                    w2ui.allocfundsLayout.content('bottom', bottom);
+
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.content('right', w2ui.allocfundsLayout);
+                    w2ui.toplayout.sizeTo('right', 700);
+                })
+                .fail(function(data) {
+                    console.log('ERROR, unable to get payor fund for TCID', rec.TCID);
+                });
+            }
         },
-        onClick: function(event) {
-            // event.onComplete = function () {
-            //     // Object.getOwnPropertyNames(this).forEach(function(val, idx, array) {
-            //     //   console.log(val + ' -> ' + this[val]);
-            //     // });
-            //     var sel = this.getSelection(true);
-            //     console.log('Current selection is ' + sel );
-            // };
+    });
+
+    //------------------------------------------------------------------------
+    //          allocate fund layout
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'allocfundsLayout',
+        panels: [
+            { type: "top", size: 40, style: 'border: 1px solid #cfcfcf; padding: 5px;', content: 'Allocate Fund Top Panel' },
+            { type: "left", hidden: true },
+            { type: "main", style: app.pstyle, content: 'Allocate Fund Main Panel' },
+            { type: "preview", size: "50%", style: app.pstyle, content: 'Allocate Fund Preview Panel' },
+            { type: "right", hidden: true },
+            { type: "bottom", size: 60, style: app.pstyle, content: 'Allocate Fund Bottom Panel' },
+        ]
+    });
+
+    //------------------------------------------------------------------------
+    //          allocate fund toolbar
+    //------------------------------------------------------------------------
+    w2ui.allocfundsLayout.content('top',
+        $().w2toolbar({
+            name: 'unallocfund_toolbar',
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function(event) {
+                switch(event.target) {
+                    case 'btnClose':
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        break;
+                }
+            }
+        })
+    );
+
+    //------------------------------------------------------------------------------
+    //   unallocated receipts grid - allocate funds layout
+    //------------------------------------------------------------------------------
+
+    $().w2grid({
+        name: 'unpaidASMsGrid',
+        show: {
+            header: false,
+            toolbar: true,
+            toolbarReload   : false,
+            toolbarColumns  : false,
+            toolbarSearch   : false,
+            toolbarAdd: false,
+            toolbarDelete: false,
+            toolbarInput: false,
+            searchAll: false,
+            toolbarSave: true,
+            toolbarEdit: false,
+            footer: false,
+            searches: false,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            {field: 'recid', type: 'int', caption: 'recid', size: '40px', hidden: true},
+            { field: 'Date', render: 'date', caption: 'Date', size: '25%' },
+            { field: 'Assessment', caption: 'Assessment', size: '25%' },
+            { field: 'Amount', render: 'money', caption: 'Amount', size: '25%' },
+            { field: 'ARID', hidden: false },
+            { field: 'ASMID', hidden: false },
+            { field: 'Allocate', render: 'float', caption: 'Allocate', size: '25%',
+                editable: { type: 'float' }
+            },
+        ],
+        onChange: function(event) {
+            event.onComplete = function() {
+                var tgrid = w2ui.unpaidASMsGrid;
+                var c = w2ui[event.target].getChanges();
+                var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
+
+                c.forEach(function(item) {
+
+                    // get record object
+                    var rec = tgrid.get(item.recid);
+
+                    // get record index in `records` array
+                    var rec_index = tgrid.get(item.recid, true);
+
+                    // check whether they entered the amount or not
+                    if (item.Allocate > 0) {
+
+                        // left fund amount
+                        var left_fund_amount, fund_allocated_amount;
+
+                        // calculated fund allocated amount from other records allocated money
+                        tgrid.records.forEach(function(rec) {
+                            if (rec_index != rec.recid) {
+                                fund_allocated_amount += rec.Allocate;
+                            }
+                        });
+
+                        // left amount in fund to pay
+                        left_fund_amount = total_fund - rec.Allocate;
+
+                        // decide what amount at max, user can able to pay, total fund or assessment due amount
+                        var max_pay_amount = tgrid.records[rec_index].Amount < left_fund_amount ? tgrid.records[rec_index].Amount : left_fund_amount;
+
+                        // if entered amount greater than max pay amount
+                        if (item.Allocate > max_pay_amount) {
+                            // set max amount
+                            tgrid.records[rec_index].Allocate = max_pay_amount;
+                        }
+                        else{
+                            // set user entered allocated amount
+                            tgrid.records[rec_index].Allocate = item.Allocate;
+                        }
+                    }
+                    // if Allocated amount is not greater than zero
+                    else{
+                        tgrid.records[rec_index].Allocate = 0;
+                    }
+
+                    // clear w2ui object in record
+                    tgrid.records[rec_index].w2ui = {};
+
+                });
+
+                tgrid.save();
+            }
+        }
+    });
+
+    //------------------------------------------------------------------------
+    //          accountsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'accountsGrid',
+        url: '/v1/GLAccounts',
+        multiSelect: false,
+        show: {
+            header: false,
+            toolbar: false,
+            footer: true,
+            searches: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            {field: 'recid',    caption: 'recid', size: '80px', sortable: false},
+            {field: 'LID',      caption: 'LID', size: '50px', sortable: false},
+            {field: 'PLID', caption: 'PLID', size: '50px', sortable: false, hidden: true},
+            {field: 'BID',      caption: 'BID', size: '40px', sortable: false, hidden: true},
+            {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: false},
+            {field: 'Name',     caption: 'Name', size: '450px', sortable: false},
+            {field: 'Status',   caption: 'Status', size: '90px', sortable: false,
+                render: function (record, index, col_index) {
+                    var html = '';
+                    app.account_stuff.status.forEach(function(item) {
+                        if (item.id == w2ui.accountsGrid.getCellValue(index, col_index)) html = item.text;
+                    });
+                    return html;
+                },
+            },
+            {field: 'AcctType', caption: 'AcctType', size: '150px', sortable: false},
+        ],
+        onSelect:  function(event) {
+            event.onComplete = function() {
+                var rec = this.get(event.recid);
+
+                // get latest gl accounts first
+                getGLAccounts(rec.BID)
+                .done(function(data) {
+                    if (data.status != 'success') {
+                        w2ui.accountForm.message(data.message);
+                        w2ui.toplayout.content('right', w2ui.accountForm);
+                        w2ui.toplayout.show('right', true);
+                        w2ui.toplayout.sizeTo('right', 700);
+                        return;
+                    }
+                    else {
+                        app["gl_accounts"] = data;
+                        setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID);
+                    }
+                })
+                .fail(function(data) {
+                    console.log("unable to get gl accounts list");
+                    return;
+                });
+            }
+        },
+    });
+
+    //------------------------------------------------------------------------
+    //          Account Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'accountForm',
+        header: 'Account Detail',
+        url: '/v1/account',
+        style: 'border: 0px; background-color: transparent;display: block;',
+        formURL: '/html/formacct.html',
+        fields: [
+            { field: "recid", required: false, type: 'int', html: { caption: "recid", page: 0, column: 0 } },
+            { field: "LID", required: false, type: 'int', html: { caption: "LID", page: 0, column: 0 } },
+            { field: "PLID", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "PLID", page: 0, column: 0 } },
+            { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
+            { field: "BUD", required: false, options: { items: app.businesses, maxDropHeight: 350, selected: {} }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
+            { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
+            { field: "TCID", required: false, type: 'int', html: { caption: "TCID", page: 0, column: 0 } },
+            { field: "GLNumber", required: false, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
+            { field: "Status", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
+            { field: "Type", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
+            { field: "Name", required: false, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
+            { field: "AcctType", required: false, type: 'text', html: { caption: "AcctType", page: 0, column: 0 } },
+            { field: "RAAssociated", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
+            { field: "AllowPost", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
+            { field: "ManageToBudget", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "ManageToBudget", page: 0, column: 0 } },
+            { field: "Description", required: false, type: 'int', html: { caption: "Description", page: 0, column: 0 } },
+            { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function(event) {
+                switch(event.target) {
+                    case 'btnClose':
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        break;
+                }
+            }
+        },
+        actions: {
+            save: function() {
+                var tgrid = w2ui.pmtsGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.reload();
+                });
+                // var params = {cmd: 'save', formname: this.name, record: this.record };
+                // var dat = JSON.stringify(params);
+
+                // // save Depository request
+                // $.post(this.url, dat)
+                // .done(function(data) {
+                //     if (data.status != "success") {
+                //         return;
+                //     }
+                //     w2ui.toplayout.hide('right',true);
+                //     w2ui.toplayout.render();
+                //     tgrid.reload();
+                // })
+                // .fail(function(data){
+                //     console.log("Save Payment Type failed.")
+                // });
+            },
+            reset: function() {
+                this.clear();
+            },
+            delete: function() {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.pmtsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, LID: form.record.LID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Payment failed.")
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.accountForm;
+                var r = f.record;
+                if (r.LID) {
+                    f.header = 'Edit Account Detail' + ' (' + r.LID + ')';
+                } else {
+                    f.header = 'Edit Account Detail (new)';
+                }
+
+                // f.get("AllowPost").options.items = app.account_stuff.allow_posts;
+                // // // set allowpost
+                // // var selected;
+                // // app.account_stuff.allow_posts.forEach(function(item) {
+                // //     if (item.id == r.AllowPost) {
+                // //         selected = item;
+                // //         return false;
+                // //     }
+                // // });
+
+                $("#accountForm").find('input[name=AllowPost]').w2field('list', {
+                    items: app.account_stuff.allow_posts,
+                    selected: r.AllowPost,
+                });
+
+                // set RAAssociated
+                $("#accountForm").find('input[name=RAAssociated]').w2field('list',{
+                    items: app.account_stuff.ra_associated,
+                    selected: r.RAAssociated,
+                });
+
+                // set managetoBudger
+                $("#accountForm").find('input[name=ManageToBudget]').w2field('list',{
+                    items: app.account_stuff.manage_to_budget,
+                    selected: r.ManageToBudget,
+                });
+
+                // set Status
+                $("#accountForm").find('input[name=Status]').w2field('list',{
+                    items: app.account_stuff.status,
+                    selected: r.Status,
+                });
+
+                // set Type
+                $("#accountForm").find('input[name=Type]').w2field('list',{
+                    items: app.account_stuff.types,
+                    selected: r.Type,
+                });
+
+                // set Parent Account list
+                var PLIDs = [{id: 0, text: 'No Parent LID'}];
+                PLIDs = PLIDs.concat(app.gl_accounts.records);
+                $("#accountForm").find('input[name=PLID]').w2field('list',{
+                    items: PLIDs,
+                    selected: r.PLID,
+                });
+
+                // set business
+                $("#accountForm").find('input[name=BUD]').w2field('list',{
+                    items: app.businesses,
+                    selected: r.BUD,
+                });
+
+                // Reference: http://jsfiddle.net/vtoah4t5/7/
+            }
         }
     });
 
@@ -2212,6 +2620,22 @@ function buildPageElements() {
             {field: 'Name',        hidden: false, caption: 'Name',        size: '150px', sortable: true, style: 'text-align: left'},
             {field: 'Description', hidden: false, caption: 'Description', size: '60%',   sortable: true, style: 'text-align: left'},
         ],
+        onLoad: function(event) {
+            if (event.xhr.status == 200) {
+                var temp_list = [];
+                var data = JSON.parse(event.xhr.responseText);
+                data.records.forEach(function(pmtRec){
+                    temp_list.push({id: pmtRec.PMTID, text: pmtRec.Name});
+                });
+                app.paymentTypeList = temp_list;
+
+                // update payments list for a business
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
+                app.pmtTypes[BUD] = temp_list;
+            }
+        },
         onClick: function(event) {
             event.onComplete = function() {
                 var recs = this.getSelection(); // get selected records array
@@ -2319,25 +2743,50 @@ function buildPageElements() {
                 this.clear();
             },
             delete: function() {
-                var tgrid = w2ui.pmtsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
 
-                var params = {cmd: 'delete', formname: this.name, ID: this.record.PMTID };
-                var dat = JSON.stringify(params);
+                var form = this;
 
-                // delete Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.pmtsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.PMTID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+
+                        // remove this from app.paymentTypeList if successfully removed
+                        var temp_list = [];
+                        app.paymentTypeList.forEach(function(pmtRec){
+                            if (pmtRec.ID != form.record.PMTID) {
+                                temp_list.push({id: pmtRec.PMTID, text: pmtRec.Name});
+                            }
+                        });
+                        app.paymentTypeList = temp_list;
+
+                        // update payments list for a business
+                        var x = getCurrentBusiness();
+                        var BID=parseInt(x.value);
+                        var BUD = getBUDfromBID(BID);
+                        app.pmtTypes[BUD] = temp_list;
+
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Payment failed.")
+                    });
                 })
-                .fail(function(data){
-                    console.log("Delete Payment failed.")
+                .no(function() {
+                    return;
                 });
             },
         },
@@ -2548,25 +2997,35 @@ function buildPageElements() {
                 console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.DEPID + '   Name = ' + f.record.Name);
             },
             delete: function(target, data) {
-                var tgrid = w2ui.depGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
 
-                var params = {cmd: 'delete', formname: this.name, ID: this.record.DEPID };
-                var dat = JSON.stringify(params);
+                var form = this;
 
-                // delete Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+
+                    var tgrid = w2ui.depGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.DEPID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Depository failed.")
+                    });
                 })
-                .fail(function(data){
-                    console.log("Delete Depository failed.")
+                .no(function() {
+                    return;
                 });
             },
         },
@@ -2780,25 +3239,33 @@ function buildPageElements() {
         actions: {
             delete: function() {
 
-                var tgrid = w2ui.arsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                var form = this;
 
-                var params = {cmd: 'delete', formname: this.name, ID: this.record.ARID };
-                var dat = JSON.stringify(params);
+                w2confirm(delete_confirm_options)
+                .yes(function () {
+                    var tgrid = w2ui.arsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
 
-                // delete AR request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                    var params = {cmd: 'delete', formname: form.name, ARID: form.record.ARID };
+                    var dat = JSON.stringify(params);
+
+                    // delete AR request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete AR failed.")
+                    });
                 })
-                .fail(function(data){
-                    console.log("Delete AR failed.")
+                .no(function () {
+                    return;
                 });
             },
             save: function () {
