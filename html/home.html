@@ -664,7 +664,7 @@ function buildPageElements() {
                     // load grid data
                     w2ui.unpaidASMsGrid.load('/v1/unpaidasms/'+rec.BID+'/'+rec.TCID);
 
-                    var main = _unAllocRcpts.layoutPanels.main(app.payor_fund, rec.Name),
+                    var main = _unAllocRcpts.layoutPanels.main(app.payor_fund, rec.Name, rec.TCID),
                         bottom = _unAllocRcpts.layoutPanels.bottom();
 
                     w2ui.allocfundsLayout.content('main', main);
@@ -744,6 +744,7 @@ function buildPageElements() {
             expandColumn: false
         },
         columns: [
+            {field: 'recid', type: 'int', caption: 'recid', size: '40px', hidden: true},
             { field: 'Date', render: 'date', caption: 'Date', size: '25%' },
             { field: 'Assessment', caption: 'Assessment', size: '25%' },
             { field: 'Amount', render: 'money', caption: 'Amount', size: '25%' },
@@ -753,38 +754,60 @@ function buildPageElements() {
                 editable: { type: 'float' }
             },
         ],
-        onEditField: function(event) {
-            event.onComplete = function() {
-                console.log(event);
-            }
-        },
         onChange: function(event) {
             event.onComplete = function() {
                 var tgrid = w2ui.unpaidASMsGrid;
-                var a = w2ui[event.target].getChanges();
-                var changed_recs = {};
-                a.forEach(function(item) {
+                var c = w2ui[event.target].getChanges();
+                var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
+
+                c.forEach(function(item) {
+
+                    // get record object
                     var rec = tgrid.get(item.recid);
-                    // get record index in array
+
+                    // get record index in `records` array
                     var rec_index = tgrid.get(item.recid, true);
-                    if (item.Allocate > rec.Amount) {
-                        var new_record;
-                        new_record = $.extend(new_record, rec);
-                        new_record.Allocate = rec.Amount;
-                        changed_recs[rec_index] = new_record;
+
+                    // check whether they entered the amount or not
+                    if (item.Allocate > 0) {
+
+                        // left fund amount
+                        var left_fund_amount, fund_allocated_amount;
+
+                        // calculated fund allocated amount from other records allocated money
+                        tgrid.records.forEach(function(rec) {
+                            if (rec_index != rec.recid) {
+                                fund_allocated_amount += rec.Allocate;
+                            }
+                        });
+
+                        // left amount in fund to pay
+                        left_fund_amount = total_fund - rec.Allocate;
+
+                        // decide what amount at max, user can able to pay, total fund or assessment due amount
+                        var max_pay_amount = tgrid.records[rec_index].Amount < left_fund_amount ? tgrid.records[rec_index].Amount : left_fund_amount;
+
+                        // if entered amount greater than max pay amount
+                        if (item.Allocate > max_pay_amount) {
+                            // set max amount
+                            tgrid.records[rec_index].Allocate = max_pay_amount;
+                        }
+                        else{
+                            // set user entered allocated amount
+                            tgrid.records[rec_index].Allocate = item.Allocate;
+                        }
                     }
+                    // if Allocated amount is not greater than zero
+                    else{
+                        tgrid.records[rec_index].Allocate = 0;
+                    }
+
+                    // clear w2ui object in record
+                    tgrid.records[rec_index].w2ui = {};
+
                 });
-                var grid_records = tgrid.records;
-                tgrid.clear();
-                var new_records = [];
-                for(var id in grid_records) {
-                    if (id in changed_recs) {
-                        new_records.push(changed_recs[id]);
-                    } else {
-                        new_records.push(grid_records[id]);
-                    }
-                }
-                tgrid.add(new_records);
+
+                tgrid.save();
             }
         }
     });

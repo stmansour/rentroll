@@ -744,17 +744,17 @@ function int_to_bool(i){
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
-        main: function(unallocFund, person) {
+        main: function(unallocFund, person, tcid) {
             return `
                 <div style="display: table; width: 100%; height: 40%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
                         <p style="margin: 5px auto;">Unallocated Funds</p>
-                        <p style="padding: 10px; color: green; background-color: white; font-size: 1.25rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</p>
+                        <p id="total_fund_amount" data-fund="`+unallocFund+`" style="padding: 10px; color: green; background-color: white; font-size: 1.25rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</p>
                     </div>
                 </div>
                 <div style="display: table; width: 100%; height: 60%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;">
-                        <p style="font-size: 1rem;">Unpaid Assessments for <strong>`+person+`</strong></p>
+                        <p data-tcid="`+tcid+`" data-name="`+person+`" style="font-size: 1rem;">Unpaid Assessments for <strong>`+person+`</strong></p>
                     </div>
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 50%;">
                         <button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto Allocate</button>
