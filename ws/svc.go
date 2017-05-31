@@ -199,7 +199,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		d.BID, err = getBIDfromBUI(pathElements[2])
 		if err != nil {
 			e := fmt.Errorf("Could not determine business from %s", pathElements[2])
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -240,7 +240,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				e := fmt.Errorf("Could not identify business: %s", sbid)
 				fmt.Printf("***ERROR IN URL***  %s\n", e.Error())
-				SvcGridErrorReturn(w, err)
+				SvcGridErrorReturn(w, err, funcname)
 			}
 			Svcs[i].Handler(w, r, &d)
 			found = true
@@ -251,7 +251,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
 		e := fmt.Errorf("Service not recognized: %s", d.Service)
 		fmt.Printf("***ERROR IN URL***  %s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	svcDebugTxnEnd()
@@ -276,7 +276,8 @@ func getBIDfromBUI(s string) (int64, error) {
 }
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
-func SvcGridErrorReturn(w http.ResponseWriter, err error) {
+func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
+	fmt.Printf("<Function>: %s | <Error>: %s\n", funcname, err.Error())
 	var e SvcGridError
 	e.Status = "error"
 	e.Message = fmt.Sprintf("Error: %s\n", err.Error())
@@ -292,7 +293,7 @@ func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 	i, err := rlib.IntFromString(s, "not an integer number")
 	if err != nil {
 		err = fmt.Errorf("%s: %s", errmsg, err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, "SvcGetInt64")
 		return i, err
 	}
 	return i, nil
@@ -311,13 +312,14 @@ func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (int64, error) {
 	var ID = int64(0)
 	var err error
+	var funcname = "SvcExtractIDFromURI"
 
 	sa := strings.Split(uri[1:], "/")
 	// fmt.Printf("uri parts:  %v\n", sa)
 	if len(sa) < pos+1 {
 		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d", pos+1, uri, len(sa))
 		// fmt.Printf("err = %s\n", err)
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return ID, err
 	}
 	// fmt.Printf("sa[pos] = %s\n", sa[pos])
@@ -331,7 +333,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	htmlData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		e := fmt.Errorf("%s: Error reading message Body: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return e
 	}
 	fmt.Printf("\t- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
@@ -343,7 +345,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	u, err := url.QueryUnescape(string(htmlData))
 	if err != nil {
 		e := fmt.Errorf("%s: Error with QueryUnescape: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return e
 	}
 	fmt.Printf("\tUnescaped htmlData = %s\n", u)
@@ -354,7 +356,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	err = json.Unmarshal([]byte(u), &wjs)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
@@ -366,7 +368,7 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	s, err := url.QueryUnescape(strings.TrimSpace(r.URL.String()))
 	if err != nil {
 		e := fmt.Errorf("%s: Error with url.QueryUnescape:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return e
 	}
 	fmt.Printf("Unescaped query = %s\n", s)
@@ -379,7 +381,7 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		fmt.Printf("%s: will unmarshal: %s\n", funcname, d.data)
 		if err = json.Unmarshal([]byte(d.data), &d.wsTypeDownReq); err != nil {
 			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return e
 		}
 		d.wsSearchReq.Cmd = "typedown"
@@ -456,7 +458,7 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
 		rlib.Ulog("SvcWriteResponse: %s\n", err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, "SvcWriteResponse")
 		return
 	}
 	SvcWrite(w, b)

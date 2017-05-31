@@ -111,9 +111,9 @@ type GetAssessmentResponse struct {
 }
 
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
-func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) AssessmentGrid {
-	rlib.Errcheck(rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule))
-	return q
+func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) (AssessmentGrid, error) {
+	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule)
+	return q, err
 }
 
 // which fields needs to be fetched for SQL query for assessment grid
@@ -160,12 +160,14 @@ var asmQuerySelectFields = []string{
 //  @Response SearchAssessmentsResponse
 // wsdoc }
 func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcSearchHandlerAssessments"
-	fmt.Printf("Entered %s\n", funcname)
+
 	var (
-		g   SearchAssessmentsResponse
-		err error
+		funcname = "SvcSearchHandlerAssessments"
+		g        SearchAssessmentsResponse
+		err      error
 	)
+
+	fmt.Printf("Entered %s\n", funcname)
 
 	// // TODO: Add dates to default search -- this month
 	// srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
@@ -175,15 +177,17 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	// // set g.Total to the total number of rows of this data...
 	// g.Total, err = GetRowCount("Assessments", qw)
 	// if err != nil {
-	// 	fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-	// 	SvcGridErrorReturn(w, err)
+	// 	SvcGridErrorReturn(w, err, funcname)
 	// 	return
 	// }
 
 	// fmt.Printf("db query = %s\n", q)
 
 	// rows, err := rlib.RRdb.Dbrr.Query(q)
-	// rlib.Errcheck(err)
+	// if err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
 	// defer rows.Close()
 
 	// i := int64(d.wsSearchReq.Offset)
@@ -202,7 +206,11 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	// 	i++
 	// }
 	// fmt.Printf("g.Total = %d\n", g.Total)
-	// rlib.Errcheck(rows.Err())
+	// err = rows.Err()
+	// if err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
 	// w.Header().Set("Content-Type", "application/json")
 	// g.Status = "success"
 	// SvcWriteResponse(&g, w)
@@ -256,7 +264,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
 		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -282,8 +290,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("Error from DB Query: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -294,7 +301,11 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 		var q AssessmentGrid
 		q.Recid = i
 
-		q = assessmentGridRowScan(rows, q)
+		q, err = assessmentGridRowScan(rows, q)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -304,7 +315,11 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 		i++
 	}
 
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
@@ -321,10 +336,16 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcFormHandlerAssessment\n")
 
-	var err error
+	var (
+		funcname = "SvcFormHandlerAssessment"
+		err      error
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+
 	if d.ASMID, err = SvcExtractIDFromURI(r.RequestURI, "ASMID", 3, w); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -339,7 +360,7 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -355,16 +376,20 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveAssessment"
+	var (
+		funcname = "saveAssessment"
+		err      error
+	)
+
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
 	var foo SaveAssessmentInput
 	data := []byte(d.data)
-	err := json.Unmarshal(data, &foo)
+
+	err = json.Unmarshal(data, &foo)
 	if err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -381,25 +406,24 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	err = json.Unmarshal(data, &bar) // and now the other variables
 	fmt.Printf("\n\n#################\nafter unmarshal, bar = %#v\n#################\n", bar)
 	if err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		e := fmt.Errorf("Could not map BID value: %s", bar.Record.BID.ID)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	a.RentCycle = rlib.CycleFreqMap[bar.Record.RentCycle.ID]
 	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
 	a.ARID, err = rlib.IntFromString(bar.Record.ARID.ID, "Invalid ARID")
 	if err != nil {
-		e := fmt.Errorf("%s: Bad ARID value: %s", funcname, bar.Record.ARID.ID)
+		e := fmt.Errorf("Bad ARID value: %s", bar.Record.ARID.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -414,8 +438,8 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving assessment (ASMID=%d\n: %s", funcname, d.ASMID, err.Error())
-		SvcGridErrorReturn(w, e)
+		e := fmt.Errorf("Error saving assessment (ASMID=%d\n: %s", d.ASMID, err.Error())
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	SvcWriteSuccessResponse(w)
@@ -450,10 +474,13 @@ var asmFormSelectFields = []string{
 // wsdoc }
 func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
-	fmt.Printf("entered getAssessment\n")
 	var (
-		g GetAssessmentResponse
+		funcname = "getAssessment"
+		g        GetAssessmentResponse
+		err      error
 	)
+
+	fmt.Printf("entered %s\n", funcname)
 
 	asmQuery := `
 	SELECT
@@ -474,7 +501,10 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 	defer rows.Close()
 
 	for rows.Next() {
@@ -491,7 +521,11 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		var rentCycle, prorationCycle int64
 
-		rlib.Errcheck(rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.AcctRule, &gg.Comment, &gg.LastModTime, &gg.LastModBy))
+		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.AcctRule, &gg.Comment, &gg.LastModTime, &gg.LastModBy)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		for freqStr, freqNo := range rlib.CycleFreqMap {
 			if rentCycle == freqNo {
@@ -505,7 +539,11 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Record = gg
 	}
 	// error check
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// write response
 	g.Status = "success"

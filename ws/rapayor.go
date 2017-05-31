@@ -98,8 +98,11 @@ type UpdateRAPayorInput struct {
 //       0   1       2    3
 // 		/v1/rapayor/BID/RAID?dt=2017-02-01
 func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var err error
-	fmt.Printf("\tentered SvcRAPayor\n")
+	var (
+		funcname = "SvcRAPayor"
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
 
 	now := time.Now()
 	d.Dt = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC) // default to current date
@@ -115,7 +118,8 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if f := q["dt"]; len(f) > 0 {
 		d.Dt, err = rlib.StringToDate(f[0])
 		if err != nil {
-			SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", f[0]))
+			err = fmt.Errorf("invalid date:  %s", f[0])
+			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 	}
@@ -136,7 +140,8 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		deleteRAPayor(w, r, d)
 		return
 	default:
-		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
+		err = fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd)
+		SvcGridErrorReturn(w, err, funcname)
 	}
 }
 
@@ -152,13 +157,17 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "deleteRAPayor"
+	var (
+		funcname = "deleteRAPayor"
+	)
+
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
+
 	var del DeleteRAPayor
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -171,7 +180,7 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		for j := 0; j < len(m); j++ {
 			if m[j].RAPID == del.Selected[i] {
 				if err := rlib.DeleteRentalAgreementPayor(del.Selected[i]); err != nil {
-					SvcGridErrorReturn(w, err)
+					SvcGridErrorReturn(w, err, funcname)
 					return
 				}
 				SvcWriteSuccessResponse(w)
@@ -180,7 +189,7 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 	e := fmt.Errorf("%s: Payor is was not listed as a payor for Rental Agreement %d during that time period", funcname, d.RAID)
-	SvcGridErrorReturn(w, e)
+	SvcGridErrorReturn(w, e, funcname)
 }
 
 // saveRAPayor saves or adds a new payor to the RentalAgreementsPayor
@@ -197,7 +206,11 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveRAPayor"
+	var (
+		funcname = "saveRAPayor"
+		err      error
+	)
+
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
@@ -210,7 +223,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -223,7 +236,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var bar SaveRAPayorOther
 	if err := json.Unmarshal(data, &bar); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -232,7 +245,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("saveRAPayor - second migrate: a = RAID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
@@ -252,16 +265,16 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				foo.Record.FirstName, foo.Record.LastName,
 				time.Time(foo.Record.DtStart).Format(rlib.RRDATEFMT4),
 				time.Time(foo.Record.DtStop).Format(rlib.RRDATEFMT4))
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 	}
 
 	// This is a new RAPayor
-	_, err := rlib.InsertRentalAgreementPayor(&a)
+	_, err = rlib.InsertRentalAgreementPayor(&a)
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving RAPayor (RAID=%d\n: %s", funcname, d.RAID, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -270,13 +283,17 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // SvcUpdateRAPayor is called when a Rentable User is updated from the RentableUserGrid
 func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcUpdateRAPayor"
+	var (
+		funcname = "SvcUpdateRAPayor"
+		err      error
+	)
+
 	fmt.Printf("Entered: %s\n", funcname)
 	var foo UpdateRAPayorInput
 	data := []byte(d.data)
-	if err := json.Unmarshal(data, &foo); err != nil {
+	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -287,7 +304,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rapayor, err := rlib.GetRentalAgreementPayor(foo.Changes[i].Recid)
 		if err != nil {
 			e := fmt.Errorf("%s: Error getting RentalAgreementPayor:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 		fmt.Printf("Found rapayor: %#v\n", rapayor)
@@ -304,7 +321,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if changes > 0 {
 			if err := rlib.UpdateRentalAgreementPayor(&rapayor); err != nil {
 				e := fmt.Errorf("%s: Error updating RentalAgreementPayor:  %s", funcname, err.Error())
-				SvcGridErrorReturn(w, e)
+				SvcGridErrorReturn(w, e, funcname)
 				return
 			}
 		}
@@ -336,7 +353,12 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
-	var gxp RAPayorResponse
+	var (
+		funcname = "SvcGetRAPayor"
+		gxp      RAPayorResponse
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
 	m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &d.Dt, &d.Dt)
 	for i := 0; i < len(m); i++ {
 		var p rlib.Transactant

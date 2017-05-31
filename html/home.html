@@ -721,7 +721,6 @@ function buildPageElements() {
     $().w2grid({
         name: 'unpaidASMsGrid',
         header: 'Unpaid Assessments',
-
         show: {
             toolbar: false,
             header: true,
@@ -804,12 +803,17 @@ function buildPageElements() {
         multiSelect: false,
         show: {
             header: false,
-            toolbar: false,
+            toolbar: true,
             footer: true,
-            searches: true,
             lineNumbers: false,
             selectColumn: false,
-            expandColumn: false
+            expandColumn: false,
+            searchAll: false,
+            toolbarSearch: false,
+            toolbarColumns: false,
+            toolbarInput: false,
+            toolbarAdd: true,
+            toolbarReload: false,
         },
         columns: [
             {field: 'recid',    caption: 'recid', size: '80px', sortable: false},
@@ -853,6 +857,42 @@ function buildPageElements() {
                     return;
                 });
             }
+        },
+        onAdd: function (event) {
+            var x = getCurrentBusiness();
+            var BID=parseInt(x.value);
+            var BUD = getBUDfromBID(BID);
+
+            var y = new Date();
+
+            var record = {
+                recid: 0,
+                LID: 0,
+                PLID: 0,
+                BID: BID,
+                BUD: BUD,
+                RAID: 0,
+                TCID: 0,
+                GLNumber: '',
+                Status: 0,
+                Type: 0,
+                Name: '',
+                AcctType: '',
+                RAAssociated: 0,
+                AllowPost: 0,
+                ManageToBudget: 0,
+                Description: '',
+                LastModTime: w2uiDateControlString(y),
+                LastModBy: 0,
+            };
+
+            w2ui.accountForm.record = record;
+            w2ui.accountForm.refresh();
+
+            w2ui.accountForm.url = '/v1/account/' + BID + '/0';
+            w2ui.toplayout.content('right', w2ui.accountForm);
+            w2ui.toplayout.sizeTo('right', 700);
+            w2ui.toplayout.show('right', true);
         },
     });
 
@@ -900,9 +940,13 @@ function buildPageElements() {
                 }
             }
         },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
+        },
         actions: {
             save: function() {
-                var tgrid = w2ui.pmtsGrid;
+                var tgrid = w2ui.accountsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
 
@@ -912,24 +956,9 @@ function buildPageElements() {
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
                     tgrid.reload();
                 });
-                // var params = {cmd: 'save', formname: this.name, record: this.record };
-                // var dat = JSON.stringify(params);
-
-                // // save Depository request
-                // $.post(this.url, dat)
-                // .done(function(data) {
-                //     if (data.status != "success") {
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     w2ui.toplayout.render();
-                //     tgrid.reload();
-                // })
-                // .fail(function(data){
-                //     console.log("Save Payment Type failed.")
-                // });
             },
             reset: function() {
                 this.clear();
@@ -976,16 +1005,6 @@ function buildPageElements() {
                 } else {
                     f.header = 'Edit Account Detail (new)';
                 }
-
-                // f.get("AllowPost").options.items = app.account_stuff.allow_posts;
-                // // // set allowpost
-                // // var selected;
-                // // app.account_stuff.allow_posts.forEach(function(item) {
-                // //     if (item.id == r.AllowPost) {
-                // //         selected = item;
-                // //         return false;
-                // //     }
-                // // });
 
                 $("#accountForm").find('input[name=AllowPost]').w2field('list', {
                     items: app.account_stuff.allow_posts,

@@ -75,9 +75,11 @@ type UpdateRARentableInput struct {
 //       0   1   2   3
 // 		/v1/rar/BID/RAID
 func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var err error
-	funcname := "SvcRARentable"
-	fmt.Printf("\tentered %s\n", funcname)
+	var (
+		funcname = "SvcRARentable"
+		err      error
+	)
+	fmt.Printf("entered %s\n", funcname)
 	var rcmd RARPostCmd
 
 	now := time.Now()
@@ -87,7 +89,7 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if r.Method == "POST" {
 		if err := json.Unmarshal([]byte(d.data), &rcmd); err != nil {
 			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 		if strings.Contains(d.data, `"changes":`) {
@@ -105,7 +107,8 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if f := q["dt"]; len(f) > 0 {
 		d.Dt, err = rlib.StringToDate(f[0])
 		if err != nil {
-			SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", f[0]))
+			e := fmt.Errorf("invalid date:  %s", f[0])
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -125,7 +128,8 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "delete":
 		deleteRARentable(w, r, d)
 	default:
-		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
+		err = fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd)
+		SvcGridErrorReturn(w, err, funcname)
 	}
 }
 
@@ -143,8 +147,10 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveRARentable"
-	var err error
+	var (
+		funcname = "saveRARentable"
+		err      error
+	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
@@ -152,7 +158,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -162,7 +168,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	a.BID, err = getBIDfromBUI(foo.Record.BUI)
 	if err != nil {
 		e := fmt.Errorf("%s: Could not determine Business from BUI:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -174,7 +180,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if a.RID == m[i].RID {
 			e := fmt.Errorf("That Rentable already exists in RentalAgreement %s and overlaps the time range %s - %s",
 				rlib.IDtoString("RA", d.RAID), a.RARDtStart.Format(rlib.RRDATEFMT4), a.RARDtStop.Format(rlib.RRDATEFMT4))
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -182,7 +188,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	_, err = rlib.InsertRentalAgreementRentable(&a)
 	if err != nil {
 		e := fmt.Errorf("Error saving Rentable (RAID=%d): %s", d.RAID, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -191,13 +197,17 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // SvcUpdateRARentable is called when a Rentable is updated from the RentableUserGrid in the RentalAgreementDialog
 func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcUpdateRARentable"
+	var (
+		funcname = "SvcUpdateRARentable"
+	)
+
 	fmt.Printf("Entered: %s\n", funcname)
 	var foo UpdateRARentableInput
+
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -208,7 +218,7 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		rec, err := rlib.GetRentalAgreementRentable(foo.Changes[i].Recid)
 		if err != nil {
 			e := fmt.Errorf("%s: Error getting RentalAgreementRentable:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 		// The only updates allowed are to the dates and the amount.  We check those directly...
@@ -229,7 +239,7 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		if changes > 0 {
 			if err := rlib.UpdateRentalAgreementRentable(&rec); err != nil {
 				e := fmt.Errorf("%s: Error updating RentalAgreementRentable:  %s", funcname, err.Error())
-				SvcGridErrorReturn(w, e)
+				SvcGridErrorReturn(w, e, funcname)
 				return
 			}
 		}
@@ -249,19 +259,23 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "deleteRARentable"
+	var (
+		funcname = "deleteRARentable"
+	)
+
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
+
 	var del DeleteRARentable
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	for i := 0; i < len(del.Selected); i++ {
 		if err := rlib.DeleteRentalAgreementRentable(del.Selected[i]); err != nil {
-			SvcGridErrorReturn(w, err)
+			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 	}
@@ -283,6 +297,10 @@ func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response RAR
 // wsdoc }
 func GetRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "GetRARentables"
+	)
+	fmt.Printf("Entered %s\n", funcname)
 	var m []rlib.RentalAgreementRentable
 	var rar RARList
 	if d.ID > 0 {

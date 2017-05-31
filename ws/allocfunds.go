@@ -90,7 +90,7 @@ func SvcSearchHandlerAllocFunds(w http.ResponseWriter, r *http.Request, d *Servi
 		break
 	default:
 		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -116,8 +116,11 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 	fmt.Printf("Entered %s\n", funcname)
 
 	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(d.BID)
-	rlib.Errcheck(err)
 	defer rows.Close()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	i := d.wsSearchReq.Offset
 	count := 0
@@ -132,12 +135,20 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 		// get Transactant records
 		var t rlib.Transactant
-		err := rlib.GetTransactant(r.TCID, &t)
-		rlib.Errcheck(err)
+		err = rlib.GetTransactant(r.TCID, &t)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		u[r.TCID] = t
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
 	now := time.Now()
 	for _, t := range u {
 		var q UnallocatedReceiptsPayors
@@ -192,8 +203,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 
 	if err = json.Unmarshal(data, &foo); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -221,7 +231,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		asm, err := rlib.GetAssessment(asmRec.ASMID)
 		if err != nil {
-			SvcGridErrorReturn(w, err)
+			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -237,7 +247,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &dt)
 			fmt.Printf("amt = %.2f .  Amount still owed: %.2f\n", amt, needed)
 			if err != nil {
-				SvcGridErrorReturn(w, err)
+				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
 			if amt < bizlogic.ROUNDINGERR { // if we've applied the requested amount...
@@ -248,7 +258,6 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	SvcWriteSuccessResponse(w)
-
 }
 
 // SvcHandlerGetUnpaidAsms generates a list of all unpaid assessments for a payor
@@ -285,9 +294,10 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 		ar, err := rlib.GetAR(asm.ARID)
 		if err != nil {
 			fmt.Printf("%s: Error while getting AR (ARID=%d) for Assessment: %d, error=<%s>\n", funcname, asm.ARID, asm.ASMID, err.Error())
-		} else {
-			rec.Name = ar.Name
+			SvcGridErrorReturn(w, err, funcname)
+			return
 		}
+		rec.Name = ar.Name
 		rec.ASMID = asm.ASMID
 		rec.ARID = asm.ARID
 		res.Records = append(res.Records, rec)
