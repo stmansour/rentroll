@@ -106,9 +106,9 @@ type GetReceiptResponse struct {
 }
 
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
-func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) PrReceiptGrid {
-	rlib.Errcheck(rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule))
-	return q
+func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
+	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule)
+	return q, err
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -151,12 +151,12 @@ var receiptsQuerySelectFields = []string{
 //  @Response SearchReceiptsResponse
 // wsdoc }
 func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcSearchHandlerReceipts"
-	fmt.Printf("Entered %s\n", funcname)
 	var (
-		err error
-		g   SearchReceiptsResponse
+		funcname = "SvcSearchHandlerReceipts"
+		err      error
+		g        SearchReceiptsResponse
 	)
+	fmt.Printf("Entered %s\n", funcname)
 
 	whr := `Receipt.BID=%d AND Receipt.Dt >= %q and Receipt.Dt < %q`
 	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
@@ -188,7 +188,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
 		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -214,7 +214,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("Error from DB Query: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -225,7 +225,11 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		var q PrReceiptGrid
 		q.Recid = i
 
-		q = receiptsGridRowScan(rows, q)
+		q, err = receiptsGridRowScan(rows, q)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -235,7 +239,11 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		i++
 	}
 
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
@@ -252,9 +260,14 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcFormHandlerReceipt\n")
-	var err error
+	var (
+		funcname = "SvcFormHandlerReceipt"
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
 	if d.RCPTID, err = SvcExtractIDFromURI(r.RequestURI, "RCPTID", 3, w); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -269,7 +282,7 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -287,9 +300,11 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveReceipt"
-	var err error
-	fmt.Printf("SvcFormHandlerReceipt save\n")
+	var (
+		funcname = "saveReceipt"
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
 	//-------------------------------------------------
@@ -300,7 +315,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
@@ -313,7 +328,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var bar SaveReceiptOther
 	if err := json.Unmarshal(data, &bar); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("bar.Record = %#v\n", bar.Record)
@@ -322,14 +337,14 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	a.ARID, err = rlib.IntFromString(bar.Record.ARID.ID, "Invalid ARID")
 	if err != nil {
 		e := fmt.Errorf("%s: Bad ARID value: %s", funcname, bar.Record.ARID.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("saveReceipt - second migrate: a = %#v\n", a)
@@ -347,7 +362,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d\n: %s", funcname, d.RCPTID, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 

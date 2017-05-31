@@ -22,8 +22,13 @@ type UpdateRAPeopleInput struct {
 //        0   1   2    3
 // 		/v1/ruser/BID/RID?&dt=2017-02-01
 func SvcRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("\tentered SvcRUser\n")
-	var err error
+
+	var (
+		funcname = "SvcRUser"
+		err      error
+	)
+	fmt.Printf("entered %s\n", funcname)
+
 	now := time.Now()
 	d.Dt = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC) // default to current date
 
@@ -37,7 +42,8 @@ func SvcRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if f := q["dt"]; len(f) > 0 {
 		d.Dt, err = rlib.StringToDate(f[0])
 		if err != nil {
-			SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", f[0]))
+			e := fmt.Errorf("invalid date:  %s", f[0])
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -59,7 +65,8 @@ func SvcRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		deleteRUser(w, r, d)
 		return
 	default:
-		SvcGridErrorReturn(w, fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd))
+		err = fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd)
+		SvcGridErrorReturn(w, err, funcname)
 	}
 }
 
@@ -75,25 +82,29 @@ func SvcRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "deleteRUser"
+	var (
+		funcname = "deleteRUser"
+		err      error
+	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
+
 	var del DeleteRAPeople
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("Delete:  RID = %d, BID = %d, TCID = %d\n", d.RID, d.BID, del.TCID)
 
-	_, err := rlib.GetRentableUserByRBT(d.RID, d.BID, del.TCID)
+	_, err = rlib.GetRentableUserByRBT(d.RID, d.BID, del.TCID)
 	if err != nil {
 		e := fmt.Errorf("Error retrieving RentableUser: %s", err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	if err := rlib.DeleteRentableUserByRBT(d.RID, d.BID, del.TCID); err != nil {
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	SvcWriteSuccessResponse(w)
@@ -114,7 +125,10 @@ func deleteRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveRUser"
+	var (
+		funcname = "saveRUser"
+		err      error
+	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
@@ -128,7 +142,7 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -142,7 +156,7 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var bar SaveRAPeopleOther
 	if err := json.Unmarshal(data, &bar); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -151,7 +165,7 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	// fmt.Printf("saveRUser - second migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
@@ -164,30 +178,29 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if a.TCID == n[i].TCID && rlib.DateRangeOverlap(&a.DtStart, &a.DtStop, &n[i].DtStart, &n[i].DtStop) {
 			e := fmt.Errorf("There is already an overlapping record for this user from %s to %s",
 				n[i].DtStart.Format(rlib.RRDATEFMT4), n[i].DtStop.Format(rlib.RRDATEFMT4))
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 	}
 
-	var err error
 	// Try to read an existing record...
 	_, err = rlib.GetRentableUserByRBT(a.RID, a.BID, a.TCID)
 	if err != nil && !strings.Contains(err.Error(), "no rows") {
 		fmt.Printf("Error from GetRentableUserByRBT: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	if err == nil {
 		var t rlib.Transactant
 		err = rlib.GetTransactant(a.TCID, &t)
 		err = fmt.Errorf("%s (%s) is already listed as a user", t.GetUserName(), t.IDtoString())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
 	if err = rlib.InsertRentableUser(&a); err != nil {
 		e := fmt.Errorf("%s: Error saving RUser (RID=%d): %s", funcname, d.RID, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	SvcWriteSuccessResponseWithID(w, a.RUID)
@@ -195,13 +208,15 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // SvcUpdateRUser is called when a Rentable User is updated from the RentableUserGrid
 func SvcUpdateRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcUpdateRUser"
+	var (
+		funcname = "SvcUpdateRUser"
+	)
 	fmt.Printf("Entered: %s\n", funcname)
 	var foo UpdateRAPeopleInput
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -212,7 +227,7 @@ func SvcUpdateRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		ruser, err := rlib.GetRentableUser(foo.Changes[i].Recid)
 		if err != nil {
 			e := fmt.Errorf("%s: Error getting RentableUser:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e)
+			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 		fmt.Printf("Found ruser: %#v\n", ruser)
@@ -229,7 +244,7 @@ func SvcUpdateRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if changes > 0 {
 			if err := rlib.UpdateRentableUser(&ruser); err != nil {
 				e := fmt.Errorf("%s: Error updating RentableUser:  %s", funcname, err.Error())
-				SvcGridErrorReturn(w, e)
+				SvcGridErrorReturn(w, e, funcname)
 				return
 			}
 		}

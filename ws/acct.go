@@ -195,16 +195,18 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 	// set g.Total to the total number of rows of this data...
 	g.Total, err = GetRowCount("GLAccount", qw)
 	if err != nil {
-		fmt.Printf("Error from GetRowCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
 	fmt.Printf("db query = %s\n", q)
 
 	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
 	defer rows.Close()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// this holds LID keys in ascending order
 	var sortedLIDKeys rlib.Int64Range
@@ -234,7 +236,12 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 			break // if we've added the max number requested, then exit
 		}
 	}
-	rlib.Errcheck(rows.Err())
+
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// this holds the list of deleting account from map, after parent-child relation build-up
 	deleteAcctKeys := []int64{}
@@ -336,13 +343,18 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcFormHandlerGLAccounts\n")
+	var (
+		err      error
+		funcname = "SvcFormHandlerGLAccounts"
+	)
+	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("Request: %s:  BID = %d,  LID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
 		if d.ID < 0 {
-			SvcGridErrorReturn(w, fmt.Errorf("GLAccount ID is required but was not specified"))
+			err = fmt.Errorf("GLAccount ID is required but was not specified")
+			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 		getGLAccount(w, r, d)
@@ -354,8 +366,8 @@ func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Service
 		deleteGLAccount(w, r, d)
 		break
 	default:
-		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err)
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -387,9 +399,8 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// get data
 	data := []byte(d.data)
 
-	if err := json.Unmarshal(data, &foo); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+	if err = json.Unmarshal(data, &foo); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -408,8 +419,8 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = rlib.UpdateLedger(&a)
 	}
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving receipt (LID=%d\n: %s", funcname, d.ID, err.Error())
-		SvcGridErrorReturn(w, e)
+		e := fmt.Errorf("Error saving receipt (LID=%d), Error:= %s\n", d.ID, err.Error())
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -476,24 +487,32 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
+	defer rows.Close()
 	if err != nil {
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	defer rows.Close()
 
 	for rows.Next() {
 		var gg AcctSendForm
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
-		rlib.Errcheck(rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.RAAssociated, &gg.AllowPost, &gg.ManageToBudget, &gg.Description, &gg.LastModTime, &gg.LastModBy))
+		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.RAAssociated, &gg.AllowPost, &gg.ManageToBudget, &gg.Description, &gg.LastModTime, &gg.LastModBy)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		g.Record = gg
 	}
 
 	// error check
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
@@ -515,13 +534,12 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 	var del AcctDeleteForm
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
 	if err := rlib.DeleteLedger(del.LID); err != nil {
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 

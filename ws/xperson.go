@@ -173,14 +173,20 @@ type TransactantsTypedownResponse struct {
 //  @Response TransactantsTypedownResponse
 // wsdoc }
 func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var g TransactantsTypedownResponse
-	var err error
+	var (
+		funcname = "SvcTransactantTypeDown"
+		g        TransactantsTypedownResponse
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
 	fmt.Printf("handle typedown: GetTransactantsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	g.Records, err = rlib.GetTransactantTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	fmt.Printf("GetTransactantTypeDown returned %d matches\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	if err != nil {
-		SvcGridErrorReturn(w, fmt.Errorf("Error getting typedown matches: %s", err.Error()))
+		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	for i := 0; i < len(g.Records); i++ {
@@ -242,9 +248,9 @@ var transactantSelectFields = []string{
 }
 
 // transactantRowScan scans a result from sql row and dump it in a rlib.Transactant struct
-func transactantRowScan(rows *sql.Rows, t rlib.Transactant) rlib.Transactant {
-	rlib.Errcheck(rows.Scan(&t.TCID, &t.BID, &t.NLID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.LastModTime, &t.LastModBy))
-	return t
+func transactantRowScan(rows *sql.Rows, t rlib.Transactant) (rlib.Transactant, error) {
+	err := rows.Scan(&t.TCID, &t.BID, &t.NLID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.LastModTime, &t.LastModBy)
+	return t, err
 }
 
 // SvcSearchHandlerTransactants handles the search query for Transactants from the Transactant Grid.
@@ -258,12 +264,13 @@ func transactantRowScan(rows *sql.Rows, t rlib.Transactant) rlib.Transactant {
 //  @Response SearchTransactantsResponse
 // wsdoc }
 func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcSearchHandlerTransactants\n")
 
 	var (
-		err error
-		g   SearchTransactantsResponse
+		funcname = "SvcSearchHandlerTransactants"
+		err      error
+		g        SearchTransactantsResponse
 	)
+	fmt.Printf("Entered %s\n", funcname)
 
 	const (
 		limitClause int = 100
@@ -301,7 +308,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	g.Total, err = GetQueryCount(countQuery, qc) // total number of rows that match the criteria
 	if err != nil {
 		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -326,7 +333,10 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
-	rlib.Errcheck(err)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 	defer rows.Close()
 
 	i := int64(d.wsSearchReq.Offset)
@@ -336,7 +346,11 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 		t.Recid = i
 
 		// get record of transactant
-		t = transactantRowScan(rows, t)
+		t, err = transactantRowScan(rows, t)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		g.Records = append(g.Records, t)
 		count++ // update the count only after adding the record
@@ -346,7 +360,11 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 		i++ // update the index no matter what
 	}
 	// error check
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// write response
 	g.Status = "success"
@@ -364,10 +382,14 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcFormHandlerXPerson\n")
-	var err error
+	var (
+		funcname = "SvcFormHandlerXPerson"
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
 
 	if d.TCID, err = SvcExtractIDFromURI(r.RequestURI, "TCID", 3, w); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -382,7 +404,7 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -398,15 +420,19 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Response SearchTransactantsResponse
 // wsdoc }
 func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveXPerson"
+	var (
+		funcname = "saveXPerson"
+		err      error
+	)
+
 	target := `"record":`
-	fmt.Printf("SvcFormHandlerXPerson save\n")
+	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
 	fmt.Printf("record is at index = %d\n", i)
 	if i < 0 {
 		e := fmt.Errorf("saveXPerson: cannot find %s in form json", target)
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	s := d.data[i+len(target):]
@@ -420,11 +446,11 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var gxp RPersonForm
 	var xp rlib.XPerson
 
-	err := json.Unmarshal([]byte(s), &gxp)
+	err = json.Unmarshal([]byte(s), &gxp)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("saveXPersonL Start migration\n")
@@ -442,7 +468,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	var ok bool
@@ -465,7 +491,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("Could not map EligibleFutureUser value: %s", gxpo.EligibleFutureUser.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	xp.Psp.EmployerState = gxpo.EmployerState.ID
@@ -473,7 +499,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s", gxpo.EligibleFuturePayor.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -482,27 +508,27 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	err = rlib.UpdateTransactant(&xp.Trn)
 	if err != nil {
 		e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	err = rlib.UpdateUser(&xp.Usr)
 	if err != nil {
 		e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	err = rlib.UpdateProspect(&xp.Psp)
 	if err != nil {
 		e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	err = rlib.UpdatePayor(&xp.Pay)
 	if err != nil {
 		e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	SvcWriteSuccessResponse(w)

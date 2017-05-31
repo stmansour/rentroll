@@ -35,7 +35,12 @@ type RAPets struct {
 // 		/v1/rapets/BID/RAID?dt=2017-02-01
 //-----------------------------------------------------------------------------
 func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("entered SvcRAPets\n")
+	var (
+		funcname = "SvcRAPets"
+		err      error
+	)
+
+	fmt.Printf("entered %s\n", funcname)
 	s := r.URL.String()                 // ex: /v1/rapets/CCC/10?dt=2017-02-01
 	fmt.Printf("s = %s\n", s)           // x
 	s1 := strings.Split(s, "?")         // ex: /v1/rapets/CCC/10?dt=2017-02-01
@@ -48,7 +53,7 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	raid, err := rlib.IntFromString(ss[3], "bad RAID value")
 	if err != nil {
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -96,7 +101,8 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("gxp = %#v\n", gxp)
 	b, err := json.Marshal(&gxp)
 	if err != nil {
-		SvcGridErrorReturn(w, fmt.Errorf("cannot marshal gxp:  %s", err.Error()))
+		err = fmt.Errorf("cannot marshal gxp:  %s", err.Error())
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("len(b) = %d\n", len(b))
