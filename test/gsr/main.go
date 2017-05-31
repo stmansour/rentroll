@@ -17,16 +17,17 @@ import (
 
 // App is the global application structure
 var App struct {
-	dbdir   *sql.DB        // phonebook db
-	dbrr    *sql.DB        //rentroll db
-	AcctDep string         // account depository
-	DBDir   string         // phonebook database
-	DBRR    string         //rentroll database
-	DBUser  string         // user for all databases
-	DtStart time.Time      // range start time
-	DtStop  time.Time      // range stop time
-	BUD     string         // business unit designator
-	Xbiz    rlib.XBusiness // xbusiness associated with -G  (BUD)
+	dbdir     *sql.DB        // phonebook db
+	dbrr      *sql.DB        // rentroll db
+	AcctDep   string         // account depository
+	DBDir     string         // phonebook database
+	DBRR      string         // rentroll database
+	DBUser    string         // user for all databases
+	DtStart   time.Time      // range start time
+	DtStop    time.Time      // range stop time
+	BUD       string         // business unit designator
+	GenDbOnly bool           // if true, just set up the db with unallocated funds and exit
+	Xbiz      rlib.XBusiness // xbusiness associated with -G  (BUD)
 }
 
 func bizErrCheck(sa []string) {
@@ -47,9 +48,11 @@ func loaderGetBiz(s string) int64 {
 func readCommandLineArgs() {
 	pDates := flag.String("g", "", "Date Range.  Example: 1/1/16,2/1/16")
 	pBUD := flag.String("G", "", "BUD - business unit designator")
+	pDB := flag.Bool("db", false, "Just generate the db with unallocated funds and exit. Do not apply unallocated funds.")
 
 	flag.Parse()
 	App.BUD = strings.TrimSpace(*pBUD)
+	App.GenDbOnly = *pDB
 	var err error
 	s := *pDates
 	if len(s) > 0 {
@@ -148,10 +151,8 @@ func createJournalAndLedgerEntries(xbiz *rlib.XBusiness, r *rlib.Receipt, d1, d2
 	return nil
 }
 
-func doTest() {
-	// INITIALIZE...
-	var xbiz rlib.XBusiness
-	rlib.InitBizInternals(1, &xbiz)
+func addUnallocatedReceipts(xbiz *rlib.XBusiness, bid int64) {
+	rlib.InitBizInternals(1, xbiz)
 	rlib.InitLedgerCache()
 	dt2 := time.Now()
 	dt1 := dt2.AddDate(0, 0, -6)
@@ -163,7 +164,6 @@ func doTest() {
 		month++
 	}
 	d2 := time.Date(dt2.Year(), month, 1, 0, 0, 0, 0, time.UTC) // up to but not including beginning of next month
-	bid := int64(1)                                             // Business ID = 1
 
 	//----------------------------------------------------
 	// We'll create 2 receipts; for $4000 and $3500
@@ -175,10 +175,21 @@ func doTest() {
 		return
 	}
 
-	if nil != createJournalAndLedgerEntries(&xbiz, &r1, &d1, &d2, &dt1, &dt2) {
+	if nil != createJournalAndLedgerEntries(xbiz, &r1, &d1, &d2, &dt1, &dt2) {
 		return
 	}
-	if nil != createJournalAndLedgerEntries(&xbiz, &r2, &d1, &d2, &dt1, &dt2) {
+	if nil != createJournalAndLedgerEntries(xbiz, &r2, &d1, &d2, &dt1, &dt2) {
+		return
+	}
+
+}
+
+func doTest() {
+	// INITIALIZE...
+	var xbiz rlib.XBusiness
+	bid := int64(1) // Business ID = 1 = REX
+	addUnallocatedReceipts(&xbiz, bid)
+	if App.GenDbOnly {
 		return
 	}
 
@@ -218,7 +229,6 @@ func doTest() {
 	// We assume the user chose to work on Payor with TCID = 2
 	dt := time.Now()
 	bizlogic.AutoAllocatePayorReceipts(int64(2), &dt)
-
 }
 
 func main() {

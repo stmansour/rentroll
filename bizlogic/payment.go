@@ -99,17 +99,25 @@ func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
 //  rcpt   - the receipt from which funds will be taken to pay the assessment
 //  needed - the amount needed to fully pay the assessment.  Its value on return is set to
 //           the amount still needed to pay off the assessment.
-//  amt    - the amount that will be taken from the receipt to apply toward the assessment.
-//           this amount may be less than needed -- the remaining funds on a receipt may not
-//           always be enough to cover the assessment.
+//  amt    - pointer to the amount to apply toward the assessment.
+//           This amount may be less than what is needed -- the remaining funds on a receipt may not
+//           always be enough to cover the assessment.  If the supplied receipt has enough funds to
+//           cover *amt, then upon return *amt will be 0.00.  If there were not enough funds, *amt will
+//           contain the amount still needed to be paid by another receipt.
 //  dt     - timestamp to mark on the allocation for this payment
-func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt float64, dt *time.Time) error {
+func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt *float64, dt *time.Time) error {
 	funcname := "PayAssessment"
 
-	amtToUse := amt
-	if amt > *needed {
+	amtToUse := *amt
+	if *amt > *needed {
 		amtToUse = *needed
 	}
+
+	amtAvailableInRcpt := RemainingReceiptFunds(rcpt)
+	if amtAvailableInRcpt < *amt { // if the amount of funds in this receipt is less than what the user asked to pay...
+		amtToUse = amtAvailableInRcpt // ... update the amount to use
+	}
+	(*amt) -= amtToUse // update the amt for the caller
 
 	//-----------------------
 	// pay the assessment
@@ -158,7 +166,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	// update the receipt as partially or fully allocated as needed...
 	//------------------------------------------------------------------
 	rcpt.FLAGS &= 0x7ffffffc // zero-out bits 0-1
-	if amt-amtToUse > ROUNDINGERR {
+	if amtAvailableInRcpt-amtToUse > ROUNDINGERR {
 		fmt.Printf("SET RECEIPT FLAGS TO: 1 - some funds remain\n")
 		rcpt.FLAGS |= 1 // there are still some funds left */
 	} else {
@@ -262,7 +270,7 @@ func AutoAllocatePayorReceipts(tcid int64, dt *time.Time) error {
 			amt := RemainingReceiptFunds(&n[j])
 			fmt.Printf("Needed for ASMID %d :  %.2f\n", m[i].ASMID, needed)
 			fmt.Printf("Funds remaining in receipt %d:  %.2f\n", n[j].RCPTID, amt)
-			err := PayAssessment(&m[i], &n[j], &needed, amt, dt)
+			err := PayAssessment(&m[i], &n[j], &needed, &amt, dt)
 			fmt.Printf("\n")
 			if err != nil {
 				return err
