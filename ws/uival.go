@@ -57,7 +57,7 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcWrite(w, []byte(s))
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 }

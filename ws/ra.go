@@ -189,10 +189,9 @@ var rentalAgrQuerySelectFields = []string{
 }
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
-func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) RentalAgr {
-	rlib.Errcheck(rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors, &q.PayorIsCompany, &q.PayorCompanyName))
-	return q
-
+func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) (RentalAgr, error) {
+	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors, &q.PayorIsCompany, &q.PayorCompanyName)
+	return q, err
 }
 
 // SvcSearchHandlerRentalAgr generates a report of all RentalAgreements defined business d.BID
@@ -206,13 +205,15 @@ func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) RentalAgr {
 //  @Response RentalAgrSearchResponse
 // wsdoc }
 func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcSearchHandlerRentalAgr\n")
 
 	var (
-		err error
-		g   RentalAgrSearchResponse
-		t   = time.Now()
+		funcname = "SvcSearchHandlerRentalAgr"
+		err      error
+		g        RentalAgrSearchResponse
+		t        = time.Now()
 	)
+
+	fmt.Printf("Entered %s\n", funcname)
 
 	const (
 		limitClause int = 100
@@ -253,7 +254,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
 		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -278,7 +279,10 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
-	rlib.Errcheck(err)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 	defer rows.Close()
 
 	i := int64(d.wsSearchReq.Offset)
@@ -289,7 +293,11 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		q.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
 
 		// get records info in struct q
-		q = rentalAgrRowScan(rows, q)
+		q, err = rentalAgrRowScan(rows, q)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		// if it is company then override/fill Payors value
 		if q.PayorIsCompany.Valid && q.PayorIsCompany.Bool {
@@ -304,7 +312,11 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		i++
 	}
 	// error check
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// write response
 	g.Status = "success"
@@ -323,9 +335,13 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered SvcFormHandlerRentalAgreement\n")
-	var err error
+	var (
+		funcname = "SvcFormHandlerRentalAgreement"
+		err      error
+	)
 
 	if d.RAID, err = SvcExtractIDFromURI(r.RequestURI, "RAID", 3, w); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -340,7 +356,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -355,7 +371,12 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "saveRentalAgreement"
+
+	var (
+		funcname = "saveRentalAgreement"
+		err      error
+	)
+
 	target := `"record":`
 	fmt.Printf("SvcFormHandlerRentalAgreement save\n")
 	fmt.Printf("record data = %s\n", d.data)
@@ -363,7 +384,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	fmt.Printf("record is at index = %d\n", i)
 	if i < 0 {
 		e := fmt.Errorf("saveRentalAgreement: cannot find %s in form json", target)
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	s := d.data[i+len(target):]
@@ -378,10 +399,10 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	fmt.Printf("A\n")
 
-	err := json.Unmarshal([]byte(s), &foo)
+	err = json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("B\n")
@@ -399,7 +420,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("C\n")
@@ -409,7 +430,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	if !ok {
 		e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	a.Renewal, ok = rlib.RenewalMap[bar.Renewal.Text]
@@ -417,7 +438,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	if !ok {
 		e := fmt.Errorf("could not map %s to a Renewal value", bar.Renewal.ID)
 		rlib.LogAndPrintError(funcname, e)
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -434,7 +455,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	if err != nil {
 		e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	SvcWriteSuccessResponseWithID(w, a.RAID)
@@ -452,11 +473,18 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //  @Response GetRentalAgreementResponse
 // wsdoc }
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var g GetRentalAgreementResponse
+	var (
+		funcname = "getRentalAgreement"
+		err      error
+		g        GetRentalAgreementResponse
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+
 	a, err := rlib.GetRentalAgreement(d.RAID)
 	if err != nil {
 		e := fmt.Errorf("getRentalAgreement: cannot read RentalAgreement RAID = %d, err = %s", d.RAID, err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	if a.RAID > 0 {

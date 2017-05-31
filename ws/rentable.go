@@ -109,12 +109,18 @@ type RentableDetails struct {
 //  @Response RentablesTypedownResponse
 // wsdoc }
 func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var g RentableTypedownResponse
-	var err error
+	var (
+		funcname = "SvcRentableTypeDown"
+		g        RentableTypedownResponse
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
 	fmt.Printf("handle typedown: GetRentablesTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	g.Records, err = rlib.GetRentableTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	if err != nil {
-		SvcGridErrorReturn(w, fmt.Errorf("Error getting typedown matches: %s", err.Error()))
+		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("GetRentableTypeDown returned %d matches\n", len(g.Records))
@@ -151,15 +157,15 @@ var rentablesQuerySelectFields = []string{
 }
 
 // rentablesRowScan scans a result from sql row and dump it in a PrRentableOther struct
-func rentablesRowScan(rows *sql.Rows, q PrRentableOther) PrRentableOther {
+func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error) {
 	var rStatus int64
 
-	rlib.Errcheck(rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &rStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop))
+	err := rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &rStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
 
 	// convert status int to string, human readable
 	q.RentableStatus = rlib.RentableStatusToString(rStatus)
 
-	return q
+	return q, err
 }
 
 // SvcSearchHandlerRentables generates a report of all Rentables defined business d.BID
@@ -174,13 +180,13 @@ func rentablesRowScan(rows *sql.Rows, q PrRentableOther) PrRentableOther {
 // wsdoc }
 func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
-	fmt.Printf("Entered SvcSearchHandlerRentables\n")
-
 	var (
-		err error
-		g   SearchRentablesResponse
-		t   = time.Now()
+		funcname = "SvcSearchHandlerRentables"
+		err      error
+		g        SearchRentablesResponse
+		t        = time.Now()
 	)
+	fmt.Printf("Entered %s\n", funcname)
 
 	// fetch records from the database under this limit
 	const (
@@ -247,7 +253,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
 		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -272,7 +278,10 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
-	rlib.Errcheck(err)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 	defer rows.Close()
 
 	// get records by iteration
@@ -284,7 +293,11 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		q.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
 
 		// get records in q struct
-		q = rentablesRowScan(rows, q)
+		q, err = rentablesRowScan(rows, q)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -294,7 +307,11 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		i++
 	}
 	// error check
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// write response
 	g.Status = "success"
@@ -312,10 +329,15 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcFormHandlerRentable\n")
 
-	var err error
+	var (
+		funcname = "SvcFormHandlerRentable"
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
 	if d.RID, err = SvcExtractIDFromURI(r.RequestURI, "RID", 3, w); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -330,7 +352,7 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err)
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -346,14 +368,19 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// funcname := "saveRentable"
+	var (
+		funcname = "saveRentable"
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
 	target := `"record":`
 	// fmt.Printf("SvcFormHandlerRentable save\n")
 	// fmt.Printf("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
 	if i < 0 {
 		e := fmt.Errorf("saveRentable: cannot find %s in form json", target)
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	s := d.data[i+len(target):]
@@ -366,7 +393,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// fmt.Println(rfRecord)
 	// if err != nil {
 	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-	// 	SvcGridErrorReturn(w, e)
+	// 	SvcGridErrorReturn(w, e, funcname)
 	// 	return
 	// }
 
@@ -395,10 +422,10 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		foo RentableForm
 	)
 
-	err := json.Unmarshal([]byte(s), &foo)
+	err = json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -408,7 +435,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// err = json.Unmarshal([]byte(s), &bar)
 	// if err != nil {
 	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-	// 	SvcGridErrorReturn(w, e)
+	// 	SvcGridErrorReturn(w, e, funcname)
 	// 	return
 	// }
 
@@ -429,7 +456,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	err = rlib.UpdateRentable(&a)
 	if err != nil {
 		e := fmt.Errorf("Error updating rentable: %s", err.Error())
-		SvcGridErrorReturn(w, e)
+		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	SvcWriteSuccessResponse(w)
@@ -463,11 +490,13 @@ var rentableFormSelectFields = []string{
 //  @Response GetRentableResponse
 // wsdoc }
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("entered getRentable\n")
+
 	var (
-		g GetRentableResponse
-		t = time.Now()
+		funcname = "getRentable"
+		g        GetRentableResponse
+		t        = time.Now()
 	)
+	fmt.Printf("entered %s\n", funcname)
 
 	rentableQuery := `
 	SELECT
@@ -492,7 +521,10 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
-	rlib.Errcheck(err)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 	defer rows.Close()
 
 	for rows.Next() {
@@ -507,7 +539,11 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		var rStatus int64
-		rlib.Errcheck(rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &rStatus, &gg.RSDtStart, &gg.RSDtStop))
+		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &rStatus, &gg.RSDtStart, &gg.RSDtStop)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 
 		// convert status int to string, human readable
 		gg.RentableStatus = rlib.RentableStatusToString(rStatus)
@@ -515,7 +551,11 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Record = gg
 	}
 	// error check
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// write response
 	g.Status = "success"

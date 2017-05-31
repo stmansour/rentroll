@@ -858,6 +858,32 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
     .fail(function(data){
         console.log("Payor Fund Allocation failed.")
     });
-
-
 });
+
+
+//-----------------------------------------------------------------------------
+// getFormSubmitData - get form submit data
+// @params, w2ui form record object
+// @return
+// @description Helps to build form submit data, it modify record object so that each
+// item in record has just a value instead of another object
+//-----------------------------------------------------------------------------
+function getFormSubmitData(record) {
+    "use strict";
+
+    // check that it is typeof object or not
+    if (! typeof record === "object") {
+        return;
+    }
+
+    // iterate over each record
+    for(var key in record) {
+        var item = record[key];
+        if (typeof item === "object") {
+            record[key] = item.id;
+        }
+    }
+
+    // return record;
+}
+
