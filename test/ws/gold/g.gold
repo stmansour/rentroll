@@ -1,4 +1,4 @@
 {
-    "message": "Error: saveAssessment: Error saving assessment (ASMID=1\n: Unknown state: note an update, and not a new record\n",
+    "message": "Error: Error saving assessment (ASMID=1\n: Unknown state: note an update, and not a new record\n",
     "status": "error"
 }
