@@ -169,7 +169,7 @@ func addUnallocatedReceipts(xbiz *rlib.XBusiness, bid int64) {
 	// We'll create 2 receipts; for $4000 and $3500
 	//----------------------------------------------------
 	r1 := createReceipt(bid, float64(4000), "9846", &dt1)
-	r2 := createReceipt(bid, float64(3500), "9859", &dt2)
+	r2 := createReceipt(bid, float64(2500), "9859", &dt2)
 	if r1.RCPTID == 0 || r2.RCPTID == 0 {
 		fmt.Printf("Could not create receipts\n")
 		return
@@ -181,7 +181,6 @@ func addUnallocatedReceipts(xbiz *rlib.XBusiness, bid int64) {
 	if nil != createJournalAndLedgerEntries(xbiz, &r2, &d1, &d2, &dt1, &dt2) {
 		return
 	}
-
 }
 
 func doTest() {
@@ -227,8 +226,22 @@ func doTest() {
 	}
 
 	// We assume the user chose to work on Payor with TCID = 2
+	tcid := int64(2)
 	dt := time.Now()
-	bizlogic.AutoAllocatePayorReceipts(int64(2), &dt)
+	bizlogic.AutoAllocatePayorReceipts(tcid, &dt)
+
+	// print remaining unpaid assessments, and remaining receipts with unallocated funds
+	m := bizlogic.GetAllUnpaidAssessmentsForPayor(bid, tcid, &dt)
+	fmt.Printf("\n\nRemaining unpaid assessments for payor %d:  %d\n", tcid, len(m))
+	for i := 0; i < len(m); i++ {
+		fmt.Printf("%d. Assessment %d, amount still owed: %.2f\n", i, m[i].ASMID, bizlogic.AssessmentUnpaidPortion(&m[i]))
+	}
+	n := rlib.GetUnallocatedReceiptsByPayor(bid, tcid)
+	fmt.Printf("\nRemaining unallocated funds for payor %d:  %d\n", tcid, len(n))
+	for i := 0; i < len(n); i++ {
+		fmt.Printf("%d. Receipt %d, amount remaining: %.2f\n", i, n[i].RCPTID, bizlogic.RemainingReceiptFunds(&n[i]))
+	}
+	fmt.Printf("-------------------------------------------------------------\n")
 }
 
 func main() {

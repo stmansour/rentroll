@@ -743,7 +743,8 @@ function unallocAmountRemaining() {
     for (var i=0; i < w2ui.unpaidASMsGrid.records.length; i++) {
         totalFunds -= w2ui.unpaidASMsGrid.records[i].Allocate;
     }
-    var dispAmt = parseFloat(totalFunds).toFixed( 2 );
+    // var dispAmt = parseFloat(totalFunds).toFixed( 2 );
+    var dispAmt = number_format(totalFunds, 2, '.', ',');
     document.getElementById("total_fund_amount").innerHTML = dispAmt;
 }
 
@@ -764,14 +765,20 @@ var _unAllocRcpts = {
     layoutPanels: {
         top: function(unallocFund, person, tcid) {
             "use strict";
-            return `
+            return `<html>
+                <head>
+                <link rel="stylesheet" href="/html/rentroll.css">
+                </head>
+                <body>
                 <div style="display: table; width: 100%; height: 40%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: left;width: 100%;">
-                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;">`+person+`</p>Remaining unallocated funds:
+                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;" name="unallocForm">`+person+`<br><br>Remaining unallocated funds:
                         <span id="total_fund_amount" data-fund="`+unallocFund+`" style="padding: 10px; color: #00AA00; font-size: 1.5rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</span>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto Allocate</button></p>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto-Allocate</button></p>
                     </div>
-                </div>`;
+                </div>
+                </body>
+                </html>`;
         },
         bottom: function() {
             "use strict";
@@ -858,6 +865,100 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
     .fail(function(data){
         console.log("Payor Fund Allocation failed.")
     });
-
-
 });
+
+function number_format(number, decimals, dec_point, thousands_sep) {
+    // http://kevin.vanzonneveld.net
+    // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // +     bugfix by: Michael White (http://getsprink.com)
+    // +     bugfix by: Benjamin Lupton
+    // +     bugfix by: Allan Jensen (http://www.winternet.no)
+    // +    revised by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+    // +     bugfix by: Howard Yeend
+    // +    revised by: Luke Smith (http://lucassmith.name)
+    // +     bugfix by: Diogo Resende
+    // +     bugfix by: Rival
+    // +      input by: Kheang Hok Chin (http://www.distantia.ca/)
+    // +   improved by: davook
+    // +   improved by: Brett Zamir (http://brett-zamir.me)
+    // +      input by: Jay Klehr
+    // +   improved by: Brett Zamir (http://brett-zamir.me)
+    // +      input by: Amir Habibi (http://www.residence-mixte.com/)
+    // +     bugfix by: Brett Zamir (http://brett-zamir.me)
+    // +   improved by: Theriault
+    // +   improved by: Drew Noakes
+    // *     example 1: number_format(1234.56);
+    // *     returns 1: '1,235'
+    // *     example 2: number_format(1234.56, 2, ',', ' ');
+    // *     returns 2: '1 234,56'
+    // *     example 3: number_format(1234.5678, 2, '.', '');
+    // *     returns 3: '1234.57'
+    // *     example 4: number_format(67, 2, ',', '.');
+    // *     returns 4: '67,00'
+    // *     example 5: number_format(1000);
+    // *     returns 5: '1,000'
+    // *     example 6: number_format(67.311, 2);
+    // *     returns 6: '67.31'
+    // *     example 7: number_format(1000.55, 1);
+    // *     returns 7: '1,000.6'
+    // *     example 8: number_format(67000, 5, ',', '.');
+    // *     returns 8: '67.000,00000'
+    // *     example 9: number_format(0.9, 0);
+    // *     returns 9: '1'
+    // *    example 10: number_format('1.20', 2);
+    // *    returns 10: '1.20'
+    // *    example 11: number_format('1.20', 4);
+    // *    returns 11: '1.2000'
+    // *    example 12: number_format('1.2000', 3);
+    // *    returns 12: '1.200'
+    var n = !isFinite(+number) ? 0 : +number, 
+        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+        toFixedFix = function (n, prec) {
+            // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+            var k = Math.pow(10, prec);
+            return Math.round(n * k) / k;
+        },
+        s = (prec ? toFixedFix(n, prec) : Math.round(n)).toString().split('.');
+    if (s[0].length > 3) {
+        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+    }
+    if ((s[1] || '').length < prec) {
+        s[1] = s[1] || '';
+        s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
+}
+
+// var exampleNumber = 1;
+// function test(expected, number, decimals, dec_point, thousands_sep)
+// {
+//     var actual = number_format(number, decimals, dec_point, thousands_sep);
+//     var result = document.createElement('div');
+//     if (actual !== expected)
+//     {
+//         debugger;
+//         result.textContent =
+//             'Test case ' + exampleNumber + ' failed. ' +
+//             'Expected "' + expected + '" but got "' + actual + '"';
+//     } else {
+//         result.textContent = 'Test case ' + exampleNumber + ' passed.'
+//     }
+//     document.getElementById('container').appendChild(result);
+//     exampleNumber++;
+// }
+
+// test('1,235',    1234.56);
+// test('1 234,56', 1234.56, 2, ',', ' ');
+// test('1234.57',  1234.5678, 2, '.', '');
+// test('67,00',    67, 2, ',', '.');
+// test('1,000',    1000);
+// test('67.31',    67.311, 2);
+// test('1,000.6',  1000.55, 1);
+// test('67.000,00000', 67000, 5, ',', '.');
+// test('1',        0.9, 0);
+// test('1.20',     '1.20', 2);
+// test('1.2000',   '1.20', 4);
+// test('1.200',    '1.2000', 3);

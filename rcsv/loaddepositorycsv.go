@@ -55,6 +55,11 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 		if err == nil {
 			d.LID = int64(i)
 		}
+		// validate that this is a valid LID
+		acct := rlib.GetLedger(d.LID)
+		if acct.LID != d.LID {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Ledger with ID %d does not exist", funcname, lineno, d.LID)
+		}
 	}
 
 	//-------------------------------------------------------------------

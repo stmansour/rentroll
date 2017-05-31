@@ -33,6 +33,7 @@ type UnpaidAsm struct {
 	Name       string           `json:"Assessment"`
 	Amount     float64          `json:"Amount"`
 	AmountPaid float64          `json:"AmountPaid"`
+	AmountOwed float64          `json:"AmountOwed"`
 	Allocate   rlib.NullFloat64 `json:"Allocate"`
 }
 
@@ -228,18 +229,19 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		fmt.Printf("ASMID = %d, Requested Amount = %.2f, AR = %d\n", asm.ASMID, amt, asm.ARID)
 
 		for j := 0; j < len(n); j++ {
-			fmt.Printf("Entered for Receipt: %d\n", n[j].RCPTID)
+			fmt.Printf("*******************\nprocessing Receipt: %d\n", n[j].RCPTID)
 			if n[j].FLAGS&3 == 2 { // if there are no funds left in this receipt...
 				continue // move on to the next receipt
 			}
 
 			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &dt)
-			fmt.Printf("Applied %.2f to ASMID: %d.  Amount still owed: %.2f\n", amt, asm.ASMID, needed)
+			fmt.Printf("amt = %.2f .  Amount still owed: %.2f\n", amt, needed)
 			if err != nil {
 				SvcGridErrorReturn(w, err)
 				return
 			}
 			if amt < bizlogic.ROUNDINGERR { // if we've applied the requested amount...
+				fmt.Printf("ASMID %d is paid off, moving on to next record\n", asm.ASMID)
 				break // ... then break out of the loop; we're done
 			}
 		}
@@ -278,7 +280,8 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 		rec.Recid = i
 		rec.DtStart = rlib.JSONTime(asm.Start)
 		rec.Amount = asm.Amount
-		rec.AmountPaid = asm.Amount - bizlogic.AssessmentUnpaidPortion(&m[i])
+		rec.AmountOwed = bizlogic.AssessmentUnpaidPortion(&m[i])
+		rec.AmountPaid = rec.Amount - rec.AmountOwed
 		ar, err := rlib.GetAR(asm.ARID)
 		if err != nil {
 			fmt.Printf("%s: Error while getting AR (ARID=%d) for Assessment: %d, error=<%s>\n", funcname, asm.ARID, asm.ASMID, err.Error())

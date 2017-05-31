@@ -680,7 +680,7 @@ type Receipt struct {
 	RCPTID          int64     // unique id for this receipt
 	PRCPTID         int64     // Parent RCPTID, points to RCPT being amended/corrected by this receipt
 	BID             int64     // which business
-	TCID            int64     // payor that sent in the payment
+	TCID            int64     // payor that sent in the payment - even if OtherPayorName is present this field must have the payor for whom the OtherPayorName is paying
 	PMTID           int64     // what type of payment
 	DEPID           int64     // the depository where this receipt will be deposited
 	DID             int64     // the Deposit ID to which this receipt belongs
