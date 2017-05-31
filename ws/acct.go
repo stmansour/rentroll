@@ -53,7 +53,6 @@ type AcctDeleteForm struct {
 
 // AcctSendForm is the response data to request for a GLAccount
 type AcctSendForm struct {
-	Recid          int `json:"recid"` // this is for the grid widget
 	LID            int64
 	PLID           int64
 	BID            int64
@@ -75,28 +74,23 @@ type AcctSendForm struct {
 
 // AcctSaveForm used save inputs directly
 type AcctSaveForm struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	LID         int64
-	BID         int64
-	RAID        int64
-	TCID        int64
-	GLNumber    string
-	Name        string
-	AcctType    string
-	Description string
-	LastModTime rlib.JSONTime
-	LastModBy   int64
-}
-
-// AcctSaveOther is a struct to handle the UI list box selections
-type AcctSaveOther struct {
-	BUD            rlib.W2uiHTMLSelect
-	PLID           rlib.W2uiHTMLSelect
-	Status         rlib.W2uiHTMLSelect
-	Type           rlib.W2uiHTMLSelect
-	RAAssociated   rlib.W2uiHTMLSelect
-	AllowPost      rlib.W2uiHTMLSelect
-	ManageToBudget rlib.W2uiHTMLSelect
+	LID            int64
+	BID            int64
+	RAID           int64
+	TCID           int64
+	GLNumber       string
+	Name           string
+	AcctType       string
+	Description    string
+	LastModTime    rlib.JSONTime
+	LastModBy      int64
+	BUD            rlib.XJSONBud
+	PLID           int64
+	Status         int64
+	Type           int64
+	RAAssociated   int64
+	AllowPost      int64
+	ManageToBudget int64
 }
 
 // SaveAcctInput is the input data format for a Save command
@@ -105,14 +99,6 @@ type SaveAcctInput struct {
 	Recid    int64        `json:"recid"`
 	FormName string       `json:"name"`
 	Record   AcctSaveForm `json:"record"`
-}
-
-// SaveAcctOther is the input data format for the "other" data on the Save command
-type SaveAcctOther struct {
-	Status string        `json:"status"`
-	Recid  int64         `json:"recid"`
-	Name   string        `json:"name"`
-	Record AcctSaveOther `json:"record"`
 }
 
 // GetGLAccountResponse is the response to a Get GLAccount request
@@ -391,7 +377,6 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveGLAccount"
 		foo      SaveAcctInput
-		bar      SaveAcctOther
 		a        rlib.GLAccount
 		err      error
 	)
@@ -408,67 +393,9 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err := json.Unmarshal(data, &bar); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
 	// migrate foo.Record data to a struct's fields
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAcct - first migrate: a = %#v\n", a)
-
-	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BUD.ID]
-	if !ok {
-		e := fmt.Errorf("%s: Could not map BUD value: %s", funcname, bar.Record.BUD.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	a.PLID, ok = rlib.StringToInt64(bar.Record.PLID.ID) // PLID has drop list
-	if !ok {
-		e := fmt.Errorf("%s: invalid PLID value: %s", funcname, bar.Record.PLID.ID)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	a.Status, ok = rlib.StringToInt64(bar.Record.Status.ID) // Status has drop list
-	if !ok {
-		e := fmt.Errorf("%s: invalid Status value: %s", funcname, bar.Record.Status.ID)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	a.Type, ok = rlib.StringToInt64(bar.Record.Type.ID) // Type has drop list
-	if !ok {
-		e := fmt.Errorf("%s: Invalid Type value: %s", funcname, bar.Record.Type.ID)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	a.RAAssociated, ok = rlib.StringToInt64(bar.Record.RAAssociated.ID) // RAAssociated has drop list
-	if !ok {
-		e := fmt.Errorf("%s: Invalid RAAssociated value: %s", funcname, bar.Record.RAAssociated.ID)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	a.AllowPost, ok = rlib.StringToInt64(bar.Record.AllowPost.ID) // AllowPost has drop list
-	if !ok {
-		e := fmt.Errorf("%s: Invalid AllowPost value: %s", funcname, bar.Record.AllowPost.ID)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-
-	a.ManageToBudget, ok = rlib.StringToInt64(bar.Record.ManageToBudget.ID) // ManageToBudget has drop list
-	if !ok {
-		e := fmt.Errorf("%s: Invalid ManageToBudget value: %s", funcname, bar.Record.ManageToBudget.ID)
-		SvcGridErrorReturn(w, e)
-		return
-	}
-	fmt.Printf("saveAcct - second migrate: a = %#v\n", a)
 
 	// save or update
 	if a.LID == 0 && d.ID == 0 {
@@ -557,7 +484,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	for rows.Next() {
 		var gg AcctSendForm
-
+		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
 		rlib.Errcheck(rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.RAAssociated, &gg.AllowPost, &gg.ManageToBudget, &gg.Description, &gg.LastModTime, &gg.LastModBy))
