@@ -401,7 +401,7 @@ function buildPageElements() {
         nodes: [
             { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'allocfunds', text: 'Pay Assessments', icon: 'fa fa-pencil' },
+                        { id: 'allocfunds', text: 'Apply Payments', icon: 'fa fa-thumbs-o-up' },
                         { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
                         { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
                         { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
@@ -752,6 +752,19 @@ function buildPageElements() {
         ],
         onRefresh: function(/*event*/) {
             unallocAmountRemaining();
+            refreshUnallocAmtSummaries();
+        },
+        onLoad: function(event) {
+            event.done(function () {
+                if (w2ui.unpaidASMsGrid.summary.length === 0) {
+                    w2ui.unpaidASMsGrid.add({recid: 's-1', Date: '', Assessment: '', Amount: 0, AmountPaid: 0, AmountOwed: 0, Allocate: 0, w2ui: {summary: true}});
+                }
+            });
+        },
+        onRender: function(event) {
+            event.done(function() {
+                refreshUnallocAmtSummaries();
+            });
         },
         onChange: function(event) {
             event.onComplete = function() {
@@ -790,6 +803,7 @@ function buildPageElements() {
                     tgrid.records[rec_index].w2ui = {};                        // clear w2ui object in record
                 });
                 tgrid.save();
+                refreshUnallocAmtSummaries();
             };
         }
     });
@@ -1813,13 +1827,6 @@ function buildPageElements() {
                     calcRarGridContractRent(obj);
             });
         },
-        onLoad: function(event) {
-                event.done(function () {
-                    if (w2ui.rarGrid.summary.length === 0) {
-                        w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
-                    }
-            });
-        },
         onRender: function(event) {
             var obj = this;
             event.done(function() {
@@ -1828,6 +1835,13 @@ function buildPageElements() {
         },
         onRefresh: function(/*event*/) {
             calcRarGridContractRent(this);
+        },
+        onLoad: function(event) {
+                event.done(function () {
+                    if (w2ui.rarGrid.summary.length === 0) {
+                        w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
+                    }
+            });
         },
      });
 
