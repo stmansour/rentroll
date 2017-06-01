@@ -526,7 +526,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //	@Synopsis Delete record for a AR
 //  @Description  Delete record from database ars :ARID
 //	@Input WebGridSearchRequest
-//  @Response DeleteARResposne
+//  @Response SvcWriteSuccessResponse
 // wsdoc }
 func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (

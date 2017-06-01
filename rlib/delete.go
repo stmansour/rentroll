@@ -418,3 +418,39 @@ func DeleteSLStrings(id int64) error {
 	}
 	return err
 }
+
+// DeleteTransactant deletes the Transactant with the specified id from the database
+func DeleteTransactant(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteTransactant.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Transactant id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteUser deletes the User with the specified id from the database
+func DeleteUser(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteUser.Exec(id)
+	if err != nil {
+		Ulog("Error deleting User id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteProspect deletes the Prospect with the specified id from the database
+func DeleteProspect(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteProspect.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Prospect id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeletePayor deletes the Payor with the specified id from the database
+func DeletePayor(id int64) error {
+	_, err := RRdb.Prepstmt.DeletePayor.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Payor id=%d error: %v\n", id, err)
+	}
+	return err
+}

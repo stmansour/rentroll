@@ -766,7 +766,7 @@ function buildPageElements() {
                     // Is an amount present?
                     if (item.Allocate > 0) {                                   // if so...
                         var fundsAllocated = 0;
-                        var fundsRemaining = 0;           
+                        var fundsRemaining = 0;
                         tgrid.records.forEach(function(rec) {                  // first calculate the allocated funds...
                             if (rec_index != rec.recid) {
                                 fundsAllocated += rec.Allocate;
@@ -774,11 +774,11 @@ function buildPageElements() {
                         });
                         fundsRemaining = total_fund - fundsAllocated;          // then calculate how much is left
 
-                        // How much do we pay...  
+                        // How much do we pay...
                         var owed = tgrid.records[rec_index].AmountOwed;        // here's how much is still owed
-                        var amtToPay = 
+                        var amtToPay =
                             owed >= fundsAllocated ? owed : fundsRemaining;    // if we have enough, pay it all, otherwise pay what we can
-                        
+
                         if (item.Allocate >= amtToPay) {                       // paying more than what is owed?
                             tgrid.records[rec_index].Allocate = amtToPay;      // if so, then set it to the amount owed
                         } else {
@@ -1064,6 +1064,7 @@ function buildPageElements() {
             header: false,
             toolbar: true,
             footer: true,
+            toolbarAdd: true,
             lineNumbers: false,
             selectColumn: false,
             expandColumn: false
@@ -1101,7 +1102,82 @@ function buildPageElements() {
                     this.select(1);
                 }
             };
-        }
+        },
+        onAdd: function(event) {
+            // insert an empty record....
+            var x = getCurrentBusiness();
+            var BID=x.value;
+            var BUD = getBUDfromBID(BID);
+            var y = new Date();
+
+            var record = {
+                recid: 0,
+                FirstName: "",
+                LastName: "",
+                MiddleName: "",
+                PreferredName: "",
+                PrimaryEmail: "",
+                TCID: 0,
+                BID: BUD,
+                NLID: 0,
+                CompanyName: "",
+                IsCompany: 0,
+                SecondaryEmail: "",
+                WorkPhone: "",
+                CellPhone: "",
+                Address: "",
+                Address2: "",
+                City: "",
+                State: "",
+                PostalCode: "",
+                Country: "",
+                Website: "",
+                LastModTime: w2uiDateControlString(y),
+                LastModBy: 0,
+                Points: 0,
+                DateofBirth: "1/1/1900",
+                EmergencyContactName: "",
+                EmergencyContactAddress: "",
+                EmergencyContactTelephone: "",
+                EmergencyEmail: "",
+                AlternateAddress: "",
+                EligibleFutureUser: "no",
+                Industry: "",
+                SourceSLSID: 0,
+                CreditLimit: 0.00,
+                TaxpayorID: "",
+                AccountRep: 0,
+                EligibleFuturePayor: "no",
+                EmployerName: "",
+                EmployerStreetAddress: "",
+                EmployerCity: "",
+                EmployerState: "",
+                EmployerPostalCode: "",
+                EmployerEmail: "",
+                EmployerPhone: "",
+                Occupation: "",
+                ApplicationFee: 0.00,
+                DesiredUsageStartDate: "1/1/1900",
+                RentableTypePreference: 0,
+                FLAGS: 0,
+                Approver: 0,
+                DeclineReasonSLSID: 0,
+                OtherPreferences: "",
+                FollowUpDate: "1/1/1900",
+                CSAgent: 0,
+                OutcomeSLSID: 0,
+                FloatingDeposit: 0.00,
+                RAID: 0,
+            }
+
+            w2ui.transactantForm.record = record;
+            w2ui.transactantForm.refresh();
+
+            w2ui.transactantForm.url = '/v1/person/' + BID + '/0';
+            w2ui.toplayout.content('right', w2ui.transactantForm);
+            w2ui.toplayout.sizeTo('right', 700);
+            w2ui.toplayout.show('right', true);
+        },
     });
 
     //------------------------------------------------------------------------
@@ -1136,7 +1212,7 @@ function buildPageElements() {
             { field: 'Country', type: 'text', required: false, html: { caption: 'Country', page: 0, column: 0 } },
             { field: 'Website', type: 'text', required: false, html: { caption: 'Website', page: 0, column: 0 } },
             { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'text', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             { field: 'Points', type: 'text', required: false, html: { caption: 'Points', page: 1, column: 0 } },
             { field: 'DateofBirth', type: 'date', required: false, html: { caption: 'Date of Birth', page: 1, column: 0 } },
             { field: 'EmergencyContactName', type: 'text', required: false, html: { caption: 'Emerg Cntct Name', page: 1, column: 0 } },
@@ -1211,15 +1287,61 @@ function buildPageElements() {
                 });
             },
             reset: function () {
-                w2ui.mainlayout.refresh();
+                this.clear();
+            },
+            delete: function(target, data) {
 
-            }
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+
+                    var tgrid = w2ui.transactantsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.TCID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Transactant request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Transactant failed.")
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onSubmit: function(target, data) {
+            // var BUD = data.postData.record.BID.id;
+            // app.BizMap.forEach(function(biz) {
+            //     if (BUD == biz.BUD) {
+            //         data.postData.record.BID = biz.BID;
+            //     }
+            // });
+            // // modify form data for server request
+            // getFormSubmitData(data.postData.record);
         },
         onRefresh: function() {
             var f = w2ui.transactantForm;
             var r = f.record;
-            var name = r.FirstName + ' ' + r.LastName;
-            var title = 'Edit ' + app.sTransactant + ' - ' + name +' (' + r.TCID + ')';
+            var title;
+            if (r.TCID) {
+                var name = r.FirstName + ' ' + r.LastName;
+                title = 'Edit ' + app.sTransactant + ' - ' + name +' (' + r.TCID + ')';
+            } else {
+                title = 'Edit '+app.sTransactant+' (new)';
+            }
             f.header = title;
         }
     });
