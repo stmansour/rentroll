@@ -866,7 +866,32 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
         console.log("Payor Fund Allocation failed.")
     });
 });
-<<<<<<< HEAD
+
+//-----------------------------------------------------------------------------
+// getFormSubmitData - get form submit data
+// @params, w2ui form record object
+// @return
+// @description Helps to build form submit data, it modify record object so that each
+// item in record has just a value instead of another object
+//-----------------------------------------------------------------------------
+function getFormSubmitData(record) {
+    "use strict";
+
+    // check that it is typeof object or not
+    if (! typeof record === "object") {
+        return;
+    }
+
+    // iterate over each record
+    for(var key in record) {
+        var item = record[key];
+        if (typeof item === "object") {
+            record[key] = item.id;
+        }
+    }
+
+    // return record;
+}
 
 function number_format(number, decimals, dec_point, thousands_sep) {
     // http://kevin.vanzonneveld.net
@@ -913,7 +938,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
     // *    returns 11: '1.2000'
     // *    example 12: number_format('1.2000', 3);
     // *    returns 12: '1.200'
-    var n = !isFinite(+number) ? 0 : +number, 
+    var n = !isFinite(+number) ? 0 : +number,
         prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
         sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
         dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
@@ -963,33 +988,4 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 // test('1.20',     '1.20', 2);
 // test('1.2000',   '1.20', 4);
 // test('1.200',    '1.2000', 3);
-=======
 
-
-//-----------------------------------------------------------------------------
-// getFormSubmitData - get form submit data
-// @params, w2ui form record object
-// @return
-// @description Helps to build form submit data, it modify record object so that each
-// item in record has just a value instead of another object
-//-----------------------------------------------------------------------------
-function getFormSubmitData(record) {
-    "use strict";
-
-    // check that it is typeof object or not
-    if (! typeof record === "object") {
-        return;
-    }
-
-    // iterate over each record
-    for(var key in record) {
-        var item = record[key];
-        if (typeof item === "object") {
-            record[key] = item.id;
-        }
-    }
-
-    // return record;
-}
-
->>>>>>> 5dc78026e777ca282fa8d3ae7044ab2086975ded

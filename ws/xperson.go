@@ -160,6 +160,11 @@ type TransactantsTypedownResponse struct {
 	Records []rlib.TransactantTypeDown `json:"records"`
 }
 
+// DeletePersonForm holds ARID to delete it
+type DeletePersonForm struct {
+	TCID int64
+}
+
 // SvcTransactantTypeDown handles typedown requests for Transactants.  It returns
 // FirstName, LastName, and TCID
 // wsdoc {
@@ -402,6 +407,9 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	case "save":
 		saveXPerson(w, r, d)
 		break
+	case "delete":
+		deleteXPerson(w, r, d)
+		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err, funcname)
@@ -504,32 +512,71 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	//===============================================================
+	// save or update
+	if xp.Trn.TCID == 0 {
+		// this is new transactant record
+		fmt.Println(">>> Inserting New Transactant Record")
+		tcid, err := rlib.InsertTransactant(&xp.Trn)
+		if err != nil {
+			e := fmt.Errorf("%s: Insert Transactant error:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 
-	err = rlib.UpdateTransactant(&xp.Trn)
-	if err != nil {
-		e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	err = rlib.UpdateUser(&xp.Usr)
-	if err != nil {
-		e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
+		// update tcid in user, prospect, payor struct
+		xp.Usr.TCID = tcid
+		xp.Pay.TCID = tcid
+		xp.Psp.TCID = tcid
 
-	err = rlib.UpdateProspect(&xp.Psp)
-	if err != nil {
-		e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
+		_, err = rlib.InsertUser(&xp.Usr)
+		if err != nil {
+			e := fmt.Errorf("%s: Insert User error:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 
-	err = rlib.UpdatePayor(&xp.Pay)
-	if err != nil {
-		e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
+		_, err = rlib.InsertProspect(&xp.Psp)
+		if err != nil {
+			e := fmt.Errorf("%s: Insert Prospect error:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
+		_, err = rlib.InsertPayor(&xp.Pay)
+		if err != nil {
+			e := fmt.Errorf("%s: Insert Payor error:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+	} else {
+		fmt.Printf("Updating Transactant record with TCID: %d\n", xp.Trn.TCID)
+		err = rlib.UpdateTransactant(&xp.Trn)
+		if err != nil {
+			e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
+		err = rlib.UpdateUser(&xp.Usr)
+		if err != nil {
+			e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
+		err = rlib.UpdateProspect(&xp.Psp)
+		if err != nil {
+			e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
+		err = rlib.UpdatePayor(&xp.Pay)
+		if err != nil {
+			e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 	}
 	SvcWriteSuccessResponse(w)
 }
@@ -562,4 +609,52 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
+}
+
+// deleteXPerson request to delete Person with TCID from database
+// wsdoc {
+//  @Title  Delete Transactant, User, Prospect, Payor
+//	@URL /v1/person/:BUI/:TCID
+//  @Method  DELETE
+//	@Synopsis Delete record for a Person
+//  @Description  Delete record from database :TCID
+//	@Input DeletePersonForm
+//  @Response SvcWriteSuccessResponse
+// wsdoc }
+func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "deleteXPerson"
+		del      DeletePersonForm
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// delete Prospect
+	if err := rlib.DeleteProspect(del.TCID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	// delete Payor
+	if err := rlib.DeletePayor(del.TCID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	// delete User
+	if err := rlib.DeleteUser(del.TCID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	// finally delete Transactant
+	if err := rlib.DeleteTransactant(del.TCID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
 }

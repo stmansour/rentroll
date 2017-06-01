@@ -565,6 +565,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdatePayor, err = RRdb.Dbrr.Prepare("UPDATE Payor SET " + s3 + " WHERE TCID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeletePayor, err = RRdb.Dbrr.Prepare("DELETE from Payor WHERE TCID=?")
+	Errcheck(err)
 
 	//==========================================
 	// PROSPECT
@@ -577,6 +579,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.InsertProspect, err = RRdb.Dbrr.Prepare("INSERT INTO Prospect (" + s4 + ") VALUES(" + s5 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateProspect, err = RRdb.Dbrr.Prepare("UPDATE Prospect SET " + s3 + " WHERE TCID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteProspect, err = RRdb.Dbrr.Prepare("DELETE from Prospect WHERE TCID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -975,6 +979,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateTransactant, err = RRdb.Dbrr.Prepare("UPDATE Transactant SET " + s3 + " WHERE TCID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeleteTransactant, err = RRdb.Dbrr.Prepare("DELETE from Transactant WHERE TCID=?")
+	Errcheck(err)
 
 	//==========================================
 	// UIGrid
@@ -997,8 +1003,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateUser, err = RRdb.Dbrr.Prepare("UPDATE User SET " + s3 + " WHERE TCID=?")
 	Errcheck(err)
-	// RRdb.Prepstmt.DeleteUser, err = RRdb.Dbrr.Prepare("DELETE from User WHERE TCID=?")
-	// Errcheck(err)
+	RRdb.Prepstmt.DeleteUser, err = RRdb.Dbrr.Prepare("DELETE from User WHERE TCID=?")
+	Errcheck(err)
 
 	//==========================================
 	// Vehicle
