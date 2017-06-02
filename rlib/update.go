@@ -115,7 +115,7 @@ func UpdateRentable(a *Rentable) error {
 
 // UpdateRentableStatus updates a RentableStatus record in the database
 func UpdateRentableStatus(a *RentableStatus) error {
-	_, err := RRdb.Prepstmt.UpdateRentableStatus.Exec(a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+	_, err := RRdb.Prepstmt.UpdateRentableStatus.Exec(a.BID, a.RID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy, a.RSID)
 	return updateError(err, "RentableStatus", *a)
 }
 
@@ -195,7 +195,7 @@ func UpdateRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 // UpdateRentableTypeRef updates a RentableTypeRef record in the database
 func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	//  SET BID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?"
-	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.LastModBy, a.RID, a.DtStart, a.DtStop)
+	_, err := RRdb.Prepstmt.UpdateRentableTypeRef.Exec(a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.LastModBy, a.RTRID)
 	return updateError(err, "RentableTypeRef", *a)
 }
 

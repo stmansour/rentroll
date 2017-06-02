@@ -320,14 +320,24 @@ func ReadRentables(rows *sql.Rows, a *Rentable) error {
 	return rows.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.LastModTime, &a.LastModBy)
 }
 
+// ReadRentableTypeRef reads a full RentableTypeRef structure of data from the database based on the supplied Row pointer.
+func ReadRentableTypeRef(row *sql.Row, a *RentableTypeRef) error {
+	return row.Scan(&a.RTRID, &a.RID, &a.BID, &a.RTID, &a.OverrideRentCycle, &a.OverrideProrationCycle, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentableTypeRefs reads a full RentableTypeRef structure of data from the database based on the supplied Rows pointer.
+func ReadRentableTypeRefs(rows *sql.Rows, a *RentableTypeRef) error {
+	return rows.Scan(&a.RTRID, &a.RID, &a.BID, &a.RTID, &a.OverrideRentCycle, &a.OverrideProrationCycle, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
+}
+
 // ReadRentableStatus reads a full RentableStatus structure of data from the database based on the supplied Row pointer.
-func ReadRentableStatus(row *sql.Rows, a *RentableStatus) error {
-	return row.Scan(&a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status, &a.LastModTime, &a.LastModBy)
+func ReadRentableStatus(row *sql.Row, a *RentableStatus) error {
+	return row.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentableStatuss reads a full RentableStatus structure of data from the database based on the supplied Rows pointer.
 func ReadRentableStatuss(rows *sql.Rows, a *RentableStatus) error {
-	return rows.Scan(&a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentalAgreement reads a full RentalAgreement structure of data from the database based on the supplied Row pointer.
