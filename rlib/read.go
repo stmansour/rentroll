@@ -326,7 +326,7 @@ func ReadRentableTypeRef(row *sql.Row, a *RentableTypeRef) error {
 }
 
 // ReadRentableTypeRefs reads a full RentableTypeRef structure of data from the database based on the supplied Rows pointer.
-func ReadRentableTypeRefs(rows *sql.Row, a *RentableTypeRef) error {
+func ReadRentableTypeRefs(rows *sql.Rows, a *RentableTypeRef) error {
 	return rows.Scan(&a.RTRID, &a.RID, &a.BID, &a.RTID, &a.OverrideRentCycle, &a.OverrideProrationCycle, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy)
 }
 
