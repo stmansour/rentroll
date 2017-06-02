@@ -1431,6 +1431,14 @@ func GetRentableSpecialtyRefsByRange(r *Rentable, d1, d2 *time.Time) []RentableS
 	return rs
 }
 
+// GetRentableTypeRef gets RentableTypeRef record for given RTRID -- RentableTypeRef ID (unique ID)
+func GetRentableTypeRef(rtrid int64) (RentableTypeRef, error) {
+	var rtr RentableTypeRef
+	row := RRdb.Prepstmt.GetRentableTypeRef.QueryRow(rtrid)
+	err := ReadRentableTypeRef(row, &rtr)
+	return rtr, err
+}
+
 // SelectRentableTypeRefForDate returns the first RTID of the list where the supplied date falls in range
 func SelectRentableTypeRefForDate(rta *[]RentableTypeRef, dt *time.Time) RentableTypeRef {
 	for i := 0; i < len(*rta); i++ {
@@ -1480,6 +1488,14 @@ func GetRentableTypeRefForDate(RID int64, d1 *time.Time) RentableTypeRef {
 	return r
 }
 
+// GetRentableStatus gets RentableStatus record for given RSID -- RentableStatus ID (unique ID)
+func GetRentableStatus(rsid int64) (RentableStatus, error) {
+	var rs RentableStatus
+	row := RRdb.Prepstmt.GetRentableStatus.QueryRow(rsid)
+	err := ReadRentableStatus(row, &rs)
+	return rs, err
+}
+
 // GetRentableStatusByRange loads all the RentableStatus records that overlap the supplied time range
 func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 	var rs []RentableStatus
@@ -1488,7 +1504,7 @@ func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableStatus
-		ReadRentableStatus(rows, &a)
+		ReadRentableStatuss(rows, &a)
 		rs = append(rs, a)
 	}
 	Errcheck(rows.Err())
