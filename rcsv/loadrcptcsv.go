@@ -17,10 +17,10 @@ import (
 // }
 
 // CVS record format:
-// 0    1           2      3      4            5              6        7                     8                                           9
-// BID, RAID,       PMTID, DEPID, Dt,           DocNo,        Amount,  AR,                   AcctRule,                                   Comment
-// REH, RA00000001, 2,     1,     "2004-01-01", 1254,         1000.00, "Rent Payment Check", "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _",
-// REH, RA00000001, 1,     1,     "2015-11-21", 883789238746, 294.66,  "Rent Payment Check", "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
+// 0    1,    2           3      4      5             6             7        8                     9                                           10
+// BID, TCID, RAID,       PMTID, DEPID, Dt,           DocNo,        Amount,  AR,                   AcctRule,                                   Comment
+// REH, TCID, RA00000001, 2,     1,     "2004-01-01", 1254,         1000.00, "Rent Payment Check", "ASM(7) d ${rlib.DFLT} _, ASM(7) c 11002 _",
+// REH, TCID, RA00000001, 1,     1,     "2015-11-21", 883789238746, 294.66,  "Rent Payment Check", "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
 
 // GenerateReceiptAllocations processes the AcctRule for the supplied rlib.Receipt and generates rlib.ReceiptAllocation records
 func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusiness) error {
@@ -82,6 +82,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 
 	const (
 		BUD      = 0
+		TCID     = iota
 		RAID     = iota
 		PMTID    = iota
 		DEPID    = iota
@@ -96,6 +97,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	// csvCols is an array that defines all the columns that should be in this csv file
 	var csvCols = []CSVColumn{
 		{"BUD", BUD},
+		{"TCID", TCID},
 		{"RAID", RAID},
 		{"PMTID", PMTID},
 		{"DEPID", DEPID},
@@ -121,11 +123,27 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	if len(bud) > 0 {
 		b1 := rlib.GetBusinessByDesignation(bud)
 		if len(b1.Designation) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("CreateLedgerMarkers: rlib.Business with designation %s does not exist", sa[0])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		r.BID = b1.BID
 		rlib.GetXBusiness(r.BID, &xbiz)
 	}
+
+	//-------------------------------------------------------------------
+	// Who is the payor?
+	//-------------------------------------------------------------------
+	payors, err := CSVLoaderTransactantList(r.BID, sa[TCID])
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error: %s", funcname, lineno, err.Error())
+	}
+	if len(payors) > 1 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - only one payor can be assigned: %s", funcname, lineno, sa[TCID])
+	}
+	if payors[0].TCID == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - payor cannot be found: %s", funcname, lineno, sa[TCID])
+
+	}
+	r.TCID = payors[0].TCID
 
 	pmtTypes := rlib.GetPaymentTypesByBusiness(r.BID)
 

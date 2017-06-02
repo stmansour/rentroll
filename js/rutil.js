@@ -748,6 +748,26 @@ function unallocAmountRemaining() {
     document.getElementById("total_fund_amount").innerHTML = dispAmt;
 }
 
+//-----------------------------------------------------------------------------
+// refreshUnallocAmtSummaries - This routine totals the summary columns for the
+// unpaid assessments grid.
+// @params
+// @return
+//-----------------------------------------------------------------------------
+function refreshUnallocAmtSummaries() {
+    "use strict";
+    var amt = 0;
+    var amtPaid = 0;
+    var amtOwed = 0;
+    var alloc = 0;
+    for (var i=0; i < w2ui.unpaidASMsGrid.records.length; i++) {
+        amt += w2ui.unpaidASMsGrid.records[i].Amount;
+        amtPaid += w2ui.unpaidASMsGrid.records[i].AmountPaid;
+        amtOwed += w2ui.unpaidASMsGrid.records[i].AmountOwed;
+        alloc += w2ui.unpaidASMsGrid.records[i].Allocate;
+    }
+    w2ui.unpaidASMsGrid.set('s-1', {Amount: amt, AmountPaid: amtPaid, AmountOwed: amtOwed, Allocate: alloc});
+}
 
 
 // int_to_bool converts int to bool. i.e, 0: false, 1: true
@@ -772,9 +792,11 @@ var _unAllocRcpts = {
                 <body>
                 <div style="display: table; width: 100%; height: 40%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: left;width: 100%;">
-                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;" name="unallocForm">`+person+`<br><br>Remaining unallocated funds:
-                        <span id="total_fund_amount" data-fund="`+unallocFund+`" style="padding: 10px; color: #00AA00; font-size: 1.5rem; font-weight: bold; margin: 10px auto; width: 30%;">`+unallocFund+`</span>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto-Allocate</button></p>
+                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;" name="unallocForm">`+person+`<br>Remaining unallocated funds:
+                        <span id="total_fund_amount" data-fund="`+unallocFund+`"
+                        style="padding: 10px; color: #00AA00; font-size: 1.5rem; font-weight: bold; margin: 10px auto; width: 30%;">`+
+                        unallocFund+
+                        `</span>&nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto-Allocate</button></p>
                     </div>
                 </div>
                 </body>
@@ -813,6 +835,8 @@ jQuery(document).on('click', '#auto_allocate_btn', function(event) {
 
     for (var i = 0; i < grid.records.length; i++) {
         if (fund <= 0) {
+            refreshUnallocAmtSummaries();
+            unallocAmountRemaining();
             return false;
         }
 
@@ -833,8 +857,6 @@ jQuery(document).on('click', '#auto_allocate_btn', function(event) {
         // decrement fund value by whatever the amount allocated for each record
         fund = fund - grid.records[i].Allocate;
     }
-
-    unallocAmountRemaining();
 });
 
 jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
@@ -862,8 +884,8 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
         w2ui.toplayout.render();
         tgrid.reload();
     })
-    .fail(function(data){
-        console.log("Payor Fund Allocation failed.")
+    .fail(function(/*data*/){
+        console.log("Payor Fund Allocation failed.");
     });
 });
 

@@ -401,7 +401,7 @@ function buildPageElements() {
         nodes: [
             { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'allocfunds', text: 'Pay Assessments', icon: 'fa fa-pencil' },
+                        { id: 'allocfunds', text: 'Apply Payments', icon: 'fa fa-thumbs-o-up' },
                         { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
                         { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
                         { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
@@ -675,6 +675,7 @@ function buildPageElements() {
                     w2ui.toplayout.show('right', true);
                     w2ui.toplayout.content('right', w2ui.allocfundsLayout);
                     w2ui.toplayout.sizeTo('right', 700);
+                    w2ui.toplayout.render();
                 })
                 .fail(function(data) {
                     console.log('ERROR, unable to get payor fund for TCID', rec.TCID);
@@ -752,44 +753,54 @@ function buildPageElements() {
         ],
         onRefresh: function(/*event*/) {
             unallocAmountRemaining();
+            refreshUnallocAmtSummaries();
+        },
+        onLoad: function(event) {
+            event.done(function () {
+                if (w2ui.unpaidASMsGrid.summary.length === 0) {
+                    w2ui.unpaidASMsGrid.add({recid: 's-1', Date: '', Assessment: '', Amount: 0, AmountPaid: 0, AmountOwed: 0, Allocate: 0, w2ui: {summary: true}});
+                }
+            });
+        },
+        onRender: function(event) {
+            event.done(function() {
+                refreshUnallocAmtSummaries();
+                unallocAmountRemaining();
+            });
         },
         onChange: function(event) {
             event.onComplete = function() {
                 var tgrid = w2ui.unpaidASMsGrid;
                 var c = w2ui[event.target].getChanges();
                 var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
-
-                c.forEach(function(item) {
-                    // get record index in `records` array
-                    var rec_index = tgrid.get(item.recid, true);
-
-                    // Is an amount present?
-                    if (item.Allocate > 0) {                                   // if so...
+                for (var i = 0; i < c.length; i++) {
+                    var rec_index = tgrid.get(c[i].recid, true);         // get record index in `records` array
+                    if (c[i].Allocate > 0) {                             // Is an amount present?                                
                         var fundsAllocated = 0;
                         var fundsRemaining = 0;
-                        tgrid.records.forEach(function(rec) {                  // first calculate the allocated funds...
-                            if (rec_index != rec.recid) {
-                                fundsAllocated += rec.Allocate;
+                        for (var j=0; j < tgrid.records.length; j++) {   // how much has been allocated everywhere else?
+                            if (rec_index != tgrid.records[j].recid) {
+                                fundsAllocated += tgrid.records[j].Allocate;
                             }
-                        });
-                        fundsRemaining = total_fund - fundsAllocated;          // then calculate how much is left
-
-                        // How much do we pay...
-                        var owed = tgrid.records[rec_index].AmountOwed;        // here's how much is still owed
-                        var amtToPay =
-                            owed >= fundsAllocated ? owed : fundsRemaining;    // if we have enough, pay it all, otherwise pay what we can
-
-                        if (item.Allocate >= amtToPay) {                       // paying more than what is owed?
-                            tgrid.records[rec_index].Allocate = amtToPay;      // if so, then set it to the amount owed
-                        } else {
-                            tgrid.records[rec_index].Allocate = item.Allocate; // otherwise pay what they asked
                         }
-                    } else {                                                   // if Allocated amount is not greater than zero
+                        fundsRemaining = total_fund - fundsAllocated;    // how much remains?
+                        var owed = tgrid.records[rec_index].AmountOwed;  // here's how much is still owed
+                        var amtToPay = c[i].Allocate;                    // start by paying what the user asked
+                        if (amtToPay > fundsRemaining) { 
+                            amtToPay = fundsRemaining;                   // adjust if it's more than what is available
+                        }
+                        if (amtToPay > owed) {
+                            amtToPay = owed;                             // adjust if it's more than what is owed
+                        }
+                        tgrid.records[rec_index].Allocate = amtToPay;
+                    } else {                                             // if Allocated amount is not greater than zero
                         tgrid.records[rec_index].Allocate = 0;
                     }
-                    tgrid.records[rec_index].w2ui = {};                        // clear w2ui object in record
-                });
+                    tgrid.records[rec_index].w2ui = {};                  // clear w2ui object in record
+                }
                 tgrid.save();
+                refreshUnallocAmtSummaries();
+                unallocAmountRemaining();
             };
         }
     });
@@ -1868,13 +1879,6 @@ function buildPageElements() {
                     calcRarGridContractRent(obj);
             });
         },
-        onLoad: function(event) {
-                event.done(function () {
-                    if (w2ui.rarGrid.summary.length === 0) {
-                        w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
-                    }
-            });
-        },
         onRender: function(event) {
             var obj = this;
             event.done(function() {
@@ -1883,6 +1887,13 @@ function buildPageElements() {
         },
         onRefresh: function(/*event*/) {
             calcRarGridContractRent(this);
+        },
+        onLoad: function(event) {
+                event.done(function () {
+                    if (w2ui.rarGrid.summary.length === 0) {
+                        w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
+                    }
+            });
         },
      });
 

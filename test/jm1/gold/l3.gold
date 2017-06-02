@@ -21,12 +21,12 @@ J00000025   Gross Scheduled Rent-Taxable  309 1/2 Rexford [Rex2, monthly]
             Accounts Receivable                                                     03/01/2016  RA00000002  309 1/2 Rexford  12000          3,550.00
             Gross Scheduled Rent-Taxable                                            03/01/2016  RA00000002  309 1/2 Rexford  41000         -3,550.00
                                                                                                                                                     
-J00000026   Payment - Read,Read   #2003  3750.00                                                                                                    
+J00000026   Payment - Aaron Read   #2003  3750.00                                                                                                   
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     03/01/2016  RA00000001  309 Rexford      12000         -3,750.00
             Cash                                                                    03/01/2016  RA00000001  309 Rexford      10000          3,750.00
                                                                                                                                                     
-J00000027   Payment - Costea,Costea   #1924  3550.00                                                                                                
+J00000027   Payment - Rita Costea   #1924  3550.00                                                                                                  
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     03/05/2016  RA00000002  309 1/2 Rexford  12000         -3,550.00
             Cash                                                                    03/05/2016  RA00000002  309 1/2 Rexford  10000          3,550.00

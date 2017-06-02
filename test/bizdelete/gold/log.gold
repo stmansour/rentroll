@@ -1,11 +1,11 @@
 Test Name:    Business Delete Test
 Test Purpose: Creates many records for a business, then tests DeleteBusinessFromDB to remove them
-Date/Time:    Fri May 12 12:29:11 PDT 2017
+Date/Time:    Thu Jun  1 17:59:47 PDT 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/05/12 12:29:12 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+2017/06/01 17:59:48 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -53,7 +53,7 @@ Rental Agreement start/stop: 11/21/2015 - 11/21/2016
 CreateAssessmentsFromCSV: line 19 - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: 0
 Rental Agreement start/stop: 11/21/2015 - 11/21/2016 
       Assessment start/stop: 10/8/2015 - 10/8/2015 
-CreateLedgerMarkers: rlib.Business with designation QQQ does not exist
+CreateReceiptsFromCSV: line 4 - rlib.Business with designation QQQ does not exist
 CreateReceiptsFromCSV: line 5 -  error loading Rental Agreement RA00099991, err = sql: no rows in result set
 CreateReceiptsFromCSV: line 6 -  Payment type is invalid: 999
 CreateReceiptsFromCSV: line 7 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 1999 does not exist
@@ -98,4 +98,4 @@ Could not find Business Unit named REX
 Could not find Business Unit named REX
 Could not find Business Unit named REX
 Could not find Business Unit named REX
-Test completed: Fri May 12 12:29:14 PDT 2017
+Test completed: Thu Jun  1 17:59:50 PDT 2017
