@@ -671,13 +671,32 @@ func InsertRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 
 // InsertRentableStatus writes a new RentableStatus record to the database
 func InsertRentableStatus(a *RentableStatus) error {
-	_, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy)
+	if nil != err {
+		Ulog("InsertRentableStatus: error inserting RentableStatus:  %v\n", err)
+		Ulog("RentableStatus = %#v\n", *a)
+		return err
+	}
+	id, err := res.LastInsertId()
+	if err == nil {
+		a.RSID = int64(id)
+	}
 	return err
+
 }
 
 // InsertRentableTypeRef writes a new RentableTypeRef record to the database
 func InsertRentableTypeRef(a *RentableTypeRef) error {
-	_, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.LastModBy)
+	if nil != err {
+		Ulog("InsertRentableTypeRef: error inserting RentableTypeRef:  %v\n", err)
+		Ulog("RentableTypeRef = %#v\n", *a)
+		return err
+	}
+	id, err := res.LastInsertId()
+	if err == nil {
+		a.RTRID = int64(id)
+	}
 	return err
 }
 

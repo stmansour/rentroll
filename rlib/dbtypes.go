@@ -843,6 +843,7 @@ type Rentable struct {
 
 // RentableTypeRef is the time-based Rentable type attribute
 type RentableTypeRef struct {
+	RTRID                  int64     // unique ID for this Rentable Type Reference
 	RID                    int64     // the Rentable to which this record belongs
 	BID                    int64     // Business
 	RTID                   int64     // the Rentable's type during this time range
@@ -879,6 +880,7 @@ type RentableSpecialtyRef struct {
 
 // RentableStatus archives the state of a Rentable during the specified period of time
 type RentableStatus struct {
+	RSID             int64     // unique ID for this Rentable Status
 	RID              int64     // associated Rentable
 	BID              int64     // associated business
 	DtStart          time.Time // start of period
@@ -1160,9 +1162,11 @@ type RRprepSQL struct {
 	GetRentableSpecialtyRefsByRange      *sql.Stmt
 	GetRentableSpecialtyType             *sql.Stmt
 	GetRentableSpecialtyTypeByName       *sql.Stmt
+	GetRentableStatus                    *sql.Stmt
 	GetRentableStatusByRange             *sql.Stmt
 	GetRentableType                      *sql.Stmt
 	GetRentableTypeByStyle               *sql.Stmt
+	GetRentableTypeRef                   *sql.Stmt
 	GetRentableTypeRefsByRange           *sql.Stmt
 	GetRentableUser                      *sql.Stmt
 	GetRentableUserByRBT                 *sql.Stmt

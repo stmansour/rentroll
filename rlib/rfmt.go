@@ -165,6 +165,16 @@ func RentableStatusToString(n int64) string {
 	return RentableStatusString[n]
 }
 
+// RentableStatusToNumber returns a number representation for the status value
+func RentableStatusToNumber(rs string) int64 {
+	for i, status := range RentableStatusString {
+		if strings.Contains(status, rs) {
+			return int64(i)
+		}
+	}
+	return 0 // 0 for unknown
+}
+
 var acceptedDateFmts = []string{
 	RRDATEINPFMT,
 	RRDATEFMT2,
@@ -260,4 +270,14 @@ func Int64InSlice(i64 int64, list []int64) bool {
 		}
 	}
 	return false
+}
+
+// IsDateBefore check whether bT(beforeTime)'s time/day is before of aT(afterTime)'s time
+func IsDateBefore(bT, aT time.Time) bool {
+	return bT.Before(aT)
+}
+
+// DateDiff gives diff between two dates with type of int64
+func DateDiff(a, b time.Time) int64 {
+	return int64(a.Sub(b))
 }

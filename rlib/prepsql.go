@@ -821,17 +821,18 @@ func buildPreparedStatements() {
 	//===============================
 	//  RentableTypeRef
 	//===============================
-	flds = "RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModTime,LastModBy"
+	flds = "RTRID,RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModTime,LastModBy"
 	RRdb.DBFields["RentableTypeRef"] = flds
+	RRdb.Prepstmt.GetRentableTypeRef, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RTRID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetRentableTypeRefsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RID=? and DtStop>? and DtStart<? ORDER BY DtStart ASC")
 	Errcheck(err)
-
 	//s1, s2, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentableTypeRef, err = RRdb.Dbrr.Prepare("INSERT INTO RentableTypeRef (RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableTypeRef, err = RRdb.Dbrr.Prepare("UPDATE RentableTypeRef SET BID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,DtStart=?,DtStop=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?")
+	RRdb.Prepstmt.UpdateRentableTypeRef, err = RRdb.Dbrr.Prepare("UPDATE RentableTypeRef SET BID=?,RID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,DtStart=?,DtStop=?,LastModBy=? WHERE RTRID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableTypeRef, err = RRdb.Dbrr.Prepare("DELETE from RentableTypeRef WHERE RID=? and DtStart=? and DtStop=?")
+	RRdb.Prepstmt.DeleteRentableTypeRef, err = RRdb.Dbrr.Prepare("DELETE from RentableTypeRef WHERE RTRID=?")
 	Errcheck(err)
 
 	//===============================
@@ -864,16 +865,17 @@ func buildPreparedStatements() {
 	//===============================
 	//  RentableStatus
 	//===============================
-	flds = "RID,BID,DtStart,DtStop,DtNoticeToVacate,Status,LastModTime,LastModBy"
+	flds = "RSID,RID,BID,DtStart,DtStop,DtNoticeToVacate,Status,LastModTime,LastModBy"
 	RRdb.DBFields["RentableStatus"] = flds
+	RRdb.Prepstmt.GetRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RSID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? and DtStop>? and DtStart<?")
 	Errcheck(err)
-
 	RRdb.Prepstmt.InsertRentableStatus, err = RRdb.Dbrr.Prepare("INSERT INTO RentableStatus (RID,BID,DtStart,DtStop,DtNoticeToVacate,Status,LastModBy) VALUES(?,?,?,?,?,?,?)")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableStatus, err = RRdb.Dbrr.Prepare("UPDATE RentableStatus SET BID=?,DtNoticeToVacate=?,Status=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?")
+	RRdb.Prepstmt.UpdateRentableStatus, err = RRdb.Dbrr.Prepare("UPDATE RentableStatus SET BID=?,RID=?,DtStart=?,DtStop=?,DtNoticeToVacate=?,Status=?,LastModBy=? WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableStatus, err = RRdb.Dbrr.Prepare("DELETE from RentableStatus WHERE RID=? and DtStart=? and DtStop=?")
+	RRdb.Prepstmt.DeleteRentableStatus, err = RRdb.Dbrr.Prepare("DELETE from RentableStatus WHERE RSID=?")
 	Errcheck(err)
 
 	//===============================

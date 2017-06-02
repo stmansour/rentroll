@@ -288,12 +288,11 @@ func DeleteReceiptAllocations(rcptid int64) error {
 	return err
 }
 
-// DeleteRentableTypeRef deletes RentableTypeRef records with the supplied rid, dtstart and dtstop
-func DeleteRentableTypeRef(rid int64, dtstart, dtstop *time.Time) error {
-	_, err := RRdb.Prepstmt.DeleteRentableTypeRef.Exec(rid, dtstart, dtstop)
+// DeleteRentableTypeRef deletes RentableTypeRef records with the supplied rtrid
+func DeleteRentableTypeRef(rtrid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentableTypeRef.Exec(rtrid)
 	if err != nil {
-		Ulog("Error deleting RentableTypeRef with rid=%d, dtstart=%s, dtstop=%s, error: %v\n",
-			rid, dtstart.Format(RRDATEINPFMT), dtstop.Format(RRDATEINPFMT), err)
+		Ulog("Error deleting RentableTypeRef with rtrid=%d\n", rtrid, err)
 	}
 	return err
 }
@@ -308,12 +307,11 @@ func DeleteRentableSpecialtyRef(rid int64, dtstart, dtstop *time.Time) error {
 	return err
 }
 
-// DeleteRentableStatus deletes RentableStatus records with the supplied rid, dtstart and dtstop
-func DeleteRentableStatus(rid int64, dtstart, dtstop *time.Time) error {
-	_, err := RRdb.Prepstmt.DeleteRentableStatus.Exec(rid, dtstart, dtstop)
+// DeleteRentableStatus deletes RentableStatus records with the supplied rsid
+func DeleteRentableStatus(rsid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentableStatus.Exec(rsid)
 	if err != nil {
-		Ulog("Error deleting RentableStatus with rid=%d, dtstart=%s, dtstop=%s, error: %v\n",
-			rid, dtstart.Format(RRDATEINPFMT), dtstop.Format(RRDATEINPFMT), err)
+		Ulog("Error deleting RentableStatus with rsid=%d\n", rsid, err)
 	}
 	return err
 }
