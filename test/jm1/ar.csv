@@ -1,3 +1,4 @@
-Bud,Name,ARType,    DebitLID,CreditLID,Description, RARequired
-REX,Rent Non-Taxable,Assessment,"Accounts Receivable","Gross Scheduled Rent-Not Taxable",Rent for non-taxable rooms / properties,0
-REX,Rent Payment Check,Receipt,"Cash BofA","Accounts Receivable","Rent paid by check",0
+Bud,Name,ARType,    DebitLID,CreditLID,Description
+REX,Rent Non-Taxable,Assessment,"Accounts Receivable","Gross Scheduled Rent-Not Taxable",Rent for non-taxable rooms / properties
+REX,Late Fee,Assessment,"Accounts Receivable","Late Fees",Assessed when payments are 7 days or more overdue
+REX,Payment By Check,Receipt,"Cash BofA","Unapplied Funds","Unapplied Funds"
