@@ -398,11 +398,38 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	var (
-		ok  bool
-		rt  rlib.Rentable
-		rs  rlib.RentableStatus
-		rtr rlib.RentableTypeRef
+		ok          bool
+		rt          rlib.Rentable
+		rs          rlib.RentableStatus
+		rtr         rlib.RentableTypeRef
+		currentTime = time.Now()
 	)
+
+	// checks for valid values
+	requestedBID, ok := rlib.RRdb.BUDlist[string(rfRecord.BID)]
+	if !ok {
+		e := fmt.Errorf("Invalid Business ID found. BID: %s", rfRecord.BID)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	// check whether rentable type is provided or not
+	if !(rfRecord.RTID > 0) {
+		e := fmt.Errorf("Rentable Type must be provided.")
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	// StopDate should not be before Today's date
+	if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
+		e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date.")
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	// StopDate should not be before Today's date
+	if !(rlib.IsDateBefore((time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))) {
+		e := fmt.Errorf("RentableStatus Stop Date should not be before Start Date.")
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
 
 	if rfRecord.RID > 0 {
 		fmt.Printf("Updating Rentable with RID: %d ...\n", rfRecord.RID)
@@ -414,14 +441,8 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		rt.RentableName = rfRecord.RentableName
-		rt.BID, ok = rlib.RRdb.BUDlist[string(rfRecord.BID)]
-		if !ok {
-			e := fmt.Errorf("Invalid Business ID found. BID: %s", rfRecord.BID)
-			SvcGridErrorReturn(w, e, funcname)
-			return
-		}
-
-		// Now just update the database
+		rt.BID = requestedBID
+		// Now just update the Rentable Record
 		err = rlib.UpdateRentable(&rt)
 		if err != nil {
 			e := fmt.Errorf("Error updating rentable: %s", err.Error())
@@ -447,7 +468,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			rtr.BID = rt.BID
 			rtr.RTID = rfRecord.RTID
 			// overwrite stop date as today's date
-			rtr.DtStop = time.Now()
+			rtr.DtStop = currentTime
 			err = rlib.UpdateRentableTypeRef(&rtr)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
@@ -457,7 +478,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 			// insert new record of Rentable Type Ref with startDate today and new StopDate
 			nrtr := rtr
-			nrtr.DtStart = time.Now()
+			nrtr.DtStart = currentTime
 			nrtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
 			err = rlib.InsertRentableTypeRef(&nrtr)
 			if err != nil {
@@ -484,7 +505,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if (time.Time)(rfRecord.RSDtStop).Sub(rs.DtStop) != 0 {
 			rs.BID = rt.BID
 			rs.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
-			rs.DtStop = time.Now()
+			rs.DtStop = currentTime
 			err = rlib.UpdateRentableStatus(&rs)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
@@ -494,7 +515,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 			// insert new record of Rentable Status with startDate today and new StopDate
 			nrs := rs
-			nrs.DtStart = time.Now()
+			nrs.DtStart = currentTime
 			nrs.DtStop = (time.Time)(rfRecord.RSDtStop)
 			err = rlib.InsertRentableStatus(&nrs)
 			if err != nil {
@@ -505,6 +526,54 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		fmt.Println("Inserting new Rentable Record...")
+		fmt.Printf("Given RTID is %d\n", rfRecord.RTID)
+
+		rt.RentableName = rfRecord.RentableName
+		rt.BID = requestedBID
+		rid, err := rlib.InsertRentable(&rt)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		if !(rid > 0) {
+			e := fmt.Errorf("Unable to insert new Rentable record.")
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		// assign RID for this rentable
+		rt.RID = rid
+		fmt.Printf("New Rentable record has been saved with RID: %d\n", rt.RID)
+
+		// insert rentable status for this Rentable
+		rs.RID = rt.RID
+		rs.BID = rt.BID
+		rs.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
+		rs.DtStart = currentTime
+		rs.DtStop = (time.Time)(rfRecord.RSDtStop)
+		err = rlib.InsertRentableStatus(&rs)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		fmt.Printf("RentableStatus has been saved for Rentable(%d), RSID: %d\n", rt.RID, rs.RSID)
+
+		// insert RentableTypeRef for this Rentable
+		rtr.BID = rt.BID
+		rtr.RID = rt.RID
+		rtr.RTID = rfRecord.RTID
+		rtr.DtStart = currentTime
+		rtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
+		// which default values should be inserted for OverrideRentCycle, OverrideProrationCycle
+		// rtr.OverrideRentCycle = 0
+		// rtr.OverrideProrationCycle = 0
+
+		err = rlib.InsertRentableTypeRef(&rtr)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		fmt.Printf("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)
+
 	}
 
 	SvcWriteSuccessResponse(w)

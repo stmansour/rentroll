@@ -1375,6 +1375,7 @@ function buildPageElements() {
         show: {
             header: false,
             toolbar: true,
+            toolbarAdd: true,
             searches: true,
             footer: true,
             lineNumbers: false,
@@ -1425,7 +1426,56 @@ function buildPageElements() {
                     this.select(1);
                 }
             };
-        }
+        },
+        onAdd: function(event) {
+            var x = getCurrentBusiness();
+            var BID=parseInt(x.value);
+            var BUD = getBUDfromBID(BID);
+
+            var y = new Date();
+
+            var record = {
+                recid: 0,
+                BID: BUD,
+                RID: 0,
+                RentableName: "",
+                RARID: 0,
+                RAID: 0,
+                RARDtStart: w2uiDateControlString(y),
+                RARDtStop: "1/1/9999",
+                RTID: {id: 0, text: ''},
+                RTRID: 0,
+                RTRefDtStart: w2uiDateControlString(y),
+                RTRefDtStop: "1/1/9999",
+                RSID: 0,
+                RentableStatus: "unknown",
+                RSDtStart: w2uiDateControlString(y),
+                RSDtStop: "1/1/9999",
+                CurrentDate: y,
+            };
+
+            getRentableTypes(BID)
+            .done(function(data){
+                app["rt_list"] = data;
+
+                // set typedown list in rentableform - RentableType field
+                w2ui.rentableForm.get("RTID").options.items = app.rt_list.records;
+                w2ui.rentableForm.get("RTID").options.selected = {};
+                // must call refresh when form field has been set
+                w2ui.rentableForm.refresh();
+            })
+            .fail(function(){
+                console.log("Failed to get rentable type list");
+            });
+
+            w2ui.rentableForm.record = record;
+            w2ui.rentableForm.refresh();
+
+            w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
+            w2ui.toplayout.content('right', w2ui.rentableForm);
+            w2ui.toplayout.sizeTo('right', 700);
+            w2ui.toplayout.show('right', true);
+        },
     });
 
     //------------------------------------------------------------------------
@@ -1496,12 +1546,20 @@ function buildPageElements() {
         },
         onSubmit: function(target, data){
             // server request form data
+            delete data.postData.record.RARID;
+            delete data.postData.record.RAID;
+            delete data.postData.record.RARDtStop;
+            delete data.postData.record.RARDtStart;
             getFormSubmitData(data.postData.record);
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentableForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
+            if (r.RID) {
+                f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
+            } else {
+                f.header = 'Edit ' + app.sRentable + ' (new) as of '+ r.CurrentDate;
+            }
         }
     });
 

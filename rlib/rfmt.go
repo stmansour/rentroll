@@ -271,3 +271,13 @@ func Int64InSlice(i64 int64, list []int64) bool {
 	}
 	return false
 }
+
+// IsDateBefore check whether bT(beforeTime)'s time/day is before of aT(afterTime)'s time
+func IsDateBefore(bT, aT time.Time) bool {
+	return bT.Before(aT)
+}
+
+// DateDiff gives diff between two dates with type of int64
+func DateDiff(a, b time.Time) int64 {
+	return int64(a.Sub(b))
+}
