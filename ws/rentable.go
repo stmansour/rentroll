@@ -414,19 +414,19 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	// check whether rentable type is provided or not
 	if !(rfRecord.RTID > 0) {
-		e := fmt.Errorf("Rentable Type must be provided.")
+		e := fmt.Errorf("Rentable Type must be provided")
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	// StopDate should not be before Today's date
 	if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
-		e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date.")
+		e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date")
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 	// StopDate should not be before Today's date
 	if !(rlib.IsDateBefore((time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))) {
-		e := fmt.Errorf("RentableStatus Stop Date should not be before Start Date.")
+		e := fmt.Errorf("RentableStatus Stop Date should not be before Start Date")
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
@@ -536,7 +536,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		if !(rid > 0) {
-			e := fmt.Errorf("Unable to insert new Rentable record.")
+			e := fmt.Errorf("Unable to insert new Rentable record")
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
