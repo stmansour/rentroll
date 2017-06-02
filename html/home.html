@@ -764,6 +764,7 @@ function buildPageElements() {
         onRender: function(event) {
             event.done(function() {
                 refreshUnallocAmtSummaries();
+                unallocAmountRemaining();
             });
         },
         onChange: function(event) {
@@ -798,6 +799,7 @@ function buildPageElements() {
                 }
                 tgrid.save();
                 refreshUnallocAmtSummaries();
+                unallocAmountRemaining();
             };
         }
     });

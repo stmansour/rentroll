@@ -836,6 +836,7 @@ jQuery(document).on('click', '#auto_allocate_btn', function(event) {
     for (var i = 0; i < grid.records.length; i++) {
         if (fund <= 0) {
             refreshUnallocAmtSummaries();
+            unallocAmountRemaining();
             return false;
         }
 
@@ -856,9 +857,6 @@ jQuery(document).on('click', '#auto_allocate_btn', function(event) {
         // decrement fund value by whatever the amount allocated for each record
         fund = fund - grid.records[i].Allocate;
     }
-
-    unallocAmountRemaining();
-    refreshUnallocAmtSummaries();
 });
 
 jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
