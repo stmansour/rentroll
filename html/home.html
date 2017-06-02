@@ -1407,8 +1407,8 @@ function buildPageElements() {
                             app["rt_list"] = data;
 
                             // set typedown list in rentableform - RentableType field
-                            w2ui.rentableForm.get("RentableType").options.items = app.rt_list.records;
-                            w2ui.rentableForm.get("RentableType").options.selected = {id: ob.RTID, text: ob.Name};
+                            w2ui.rentableForm.get("RTID").options.items = app.rt_list.records;
+                            w2ui.rentableForm.get("RTID").options.selected = {id: ob.RTID, text: ob.Name};
 
                             // must call refresh when form field has been set
                             w2ui.rentableForm.refresh();
@@ -1446,10 +1446,12 @@ function buildPageElements() {
             { field: 'RARDtStart', type: 'date', required: false, html: { caption: 'Rentable Agreement Start', page: 0, column: 0 } },
             { field: 'RARDtStop', type: 'date', required: false, html: { caption: 'Rentable Agreement Stop', page: 0, column: 0 } },
             { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
-            { field: 'RentableType', type: 'list', required: false, html: { caption: 'RentableType', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'RTID', type: 'int', required: false },
+            { field: 'RTID', type: 'list', required: false, html: { caption: 'RentableType', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            // { field: 'RTID', type: 'int', required: false },
+            { field: 'RTRID', type: 'int', required: false, html: { caption: 'RentableTypeRef ID', page: 0, column: 0 } },
             { field: 'RTRefDtStart', type: 'date', required: false, html: { caption: 'Rentable Type Ref Start', page: 0, column: 0 } },
             { field: 'RTRefDtStop', type: 'date', required: false, html: { caption: 'Rentable Type Ref Stop', page: 0, column: 0 } },
+            { field: 'RSID', type: 'int', required: false, html: { caption: 'RentableStatus ID', page: 0, column: 0 } },
             { field: 'RentableStatus', type: 'list', options: {items: app.rentableStatusList}, required: false, html: { caption: 'RentableStatus', page: 0, column: 0 } },
             { field: 'RSDtStart', type: 'date', required: false, html: { caption: 'Rentable Status Start', page: 0, column: 0 } },
             { field: 'RSDtStop', type: 'date', required: false, html: { caption: 'Rentable Status Stop', page: 0, column: 0 } },
@@ -1493,13 +1495,8 @@ function buildPageElements() {
             }
         },
         onSubmit: function(target, data){
-            console.log("RentableForm POST data");
-            // object to value before submit to server
-            // data.postData.record.BID=data.postData.record.BID.id;
-            // data.postData.record.RentableStatus=data.postData.record.RentableStatus.id;
-            // data.postData.record.RentableType=data.postData.record.RentableType.text; // does not required at server side, but for json unmarshling IT needs to be converted
-            // data.postData.record.RTID=data.postData.record.RentableType.id;
-            console.log(data.postData.record);
+            // server request form data
+            getFormSubmitData(data.postData.record);
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentableForm;

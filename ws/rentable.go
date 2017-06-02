@@ -87,9 +87,11 @@ type RentableDetails struct {
 	RARDtStart     rlib.NullTime  // RentalAgreementStart Date
 	RARDtStop      rlib.NullTime  // RentalAgreementStop Date
 	RTID           int64          // Rentable type id
+	RTRID          int64          // Rentable Type Reference ID
 	RTRefDtStart   rlib.JSONTime  // Rentable Type Reference Stop Date
 	RTRefDtStop    rlib.JSONTime  // Rentable Type Reference Start Date
 	RentableType   string         // Rentable Type Name
+	RSID           int64          // Rentable Status ID
 	RentableStatus string         // rentable status
 	RSDtStart      rlib.JSONTime  // rentable status start date
 	RSDtStop       rlib.JSONTime  // rentable status stop date
@@ -373,10 +375,9 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err      error
 	)
 	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
 
 	target := `"record":`
-	// fmt.Printf("SvcFormHandlerRentable save\n")
-	// fmt.Printf("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
 	if i < 0 {
 		e := fmt.Errorf("saveRentable: cannot find %s in form json", target)
@@ -386,79 +387,126 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
 
-	// // rentable Form Record
-	// var rfRecord RentableDetails
-	// fmt.Println("Before Unmarshaling JSON.....")
-	// err := json.Unmarshal([]byte(s), &rfRecord)
-	// fmt.Println(rfRecord)
-	// if err != nil {
-	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-	// 	SvcGridErrorReturn(w, e, funcname)
-	// 	return
-	// }
-
-	// // get rental agreement object associated with this rentable
-	// rarRecords := rlib.GetRentalAgreementRentables(rfRecord.RARID, (*time.Time)(&rfRecord.RARDtStart), (*time.Time)(&rfRecord.RARDtStop))
-	// fmt.Println("Rental Agreement Rentables Records....")
-	// fmt.Printf("Length of records: %d\n", len(rarRecords))
-	// fmt.Printf("%#v\n", rarRecords)
-
-	// // get rental type ref object associated with this rentable
-	// rtrRecords := rlib.GetRentableTypeRefsByRange(rfRecord.RID, (*time.Time)(&rfRecord.RTRefDtStart), (*time.Time)(&rfRecord.RTRefDtStop))
-	// fmt.Println("Rental Type Ref Records....")
-	// fmt.Printf("Length of records: %d\n", len(rtrRecords))
-	// fmt.Printf("%#v\n", rtrRecords)
-
-	// // get rental status record associated with this rentable
-	// rsRecords := rlib.GetRentableStatusByRange(rfRecord.RID, (*time.Time)(&rfRecord.RSDtStart), (*time.Time)(&rfRecord.RSDtStop))
-	// fmt.Println("Rental Status Records....")
-	// fmt.Printf("Length of records: %d\n", len(rsRecords))
-	// fmt.Printf("%#v\n", rsRecords)
-
-	var (
-		// ok bool
-		// a  rlib.Rentable
-		// bar RentableOther
-		foo RentableForm
-	)
-
-	err = json.Unmarshal([]byte(s), &foo)
+	// rentable Form Record
+	var rfRecord RentableDetails
+	err = json.Unmarshal([]byte(s), &rfRecord)
+	rlib.Errcheck(err)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
-	// // migrate the variables that transfer without needing special handling...
-	// rlib.MigrateStructVals(&foo, &a)
+	var (
+		ok  bool
+		rt  rlib.Rentable
+		rs  rlib.RentableStatus
+		rtr rlib.RentableTypeRef
+	)
 
-	// err = json.Unmarshal([]byte(s), &bar)
-	// if err != nil {
-	// 	e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-	// 	SvcGridErrorReturn(w, e, funcname)
-	// 	return
-	// }
+	if rfRecord.RID > 0 {
+		fmt.Printf("Updating Rentable with RID: %d ...\n", rfRecord.RID)
+		// get Rentable from RID
+		rt = rlib.GetRentable(rfRecord.RID)
+		if !(rt.RID > 0) {
+			e := fmt.Errorf("No such Rentable exists, RID: %d", rfRecord.RID)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		rt.RentableName = rfRecord.RentableName
+		rt.BID, ok = rlib.RRdb.BUDlist[string(rfRecord.BID)]
+		if !ok {
+			e := fmt.Errorf("Invalid Business ID found. BID: %s", rfRecord.BID)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 
-	// get Rentable from RID
-	// NOTE: AS OF NOW, JUST ALLOW RENTABLE NAME BEING UPDATED
-	a := rlib.GetRentable(foo.RID)
-	a.RentableName = foo.RentableName
+		// Now just update the database
+		err = rlib.UpdateRentable(&rt)
+		if err != nil {
+			e := fmt.Errorf("Error updating rentable: %s", err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 
-	// a.BID, ok = rlib.RRdb.BUDlist[bar.BID.ID]
-	// if !ok {
-	// 	e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
-	// 	rlib.Ulog("%s", e.Error())
-	// 	SvcGridErrorReturn(w, e)
-	// 	return
-	// }
+		fmt.Printf("Updating RentableTypeRef with RTRID: %d, RID: %d, RTID: %d, DtStart: %#v, DtStop: %#v ...\n", rfRecord.RTRID, rfRecord.RID, rfRecord.RTID, rfRecord.RTRefDtStart, rfRecord.RTRefDtStop)
+		// get rental type ref object associated with this rentable
+		rtr, err = rlib.GetRentableTypeRef(rfRecord.RTRID)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		// check for valid Stop Date value
+		if (time.Time)(rfRecord.RTRefDtStop).Before(rtr.DtStart) {
+			e := fmt.Errorf("RentableTypeRef's Stop Date can't be before Start Date")
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		// if same stop date is given then don't <update and insert new one>, just skip it
+		if (time.Time)(rfRecord.RTRefDtStop).Sub(rtr.DtStop) != 0 {
+			rtr.BID = rt.BID
+			rtr.RTID = rfRecord.RTID
+			// overwrite stop date as today's date
+			rtr.DtStop = time.Now()
+			err = rlib.UpdateRentableTypeRef(&rtr)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			fmt.Printf("RentableTypeRef has been updated with StopDate as Today's Date (%s), RID:%d, RTRID:%d\n", rtr.DtStop, rtr.RID, rtr.RTRID)
 
-	// Now just update the database
-	err = rlib.UpdateRentable(&a)
-	if err != nil {
-		e := fmt.Errorf("Error updating rentable: %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
+			// insert new record of Rentable Type Ref with startDate today and new StopDate
+			nrtr := rtr
+			nrtr.DtStart = time.Now()
+			nrtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
+			err = rlib.InsertRentableTypeRef(&nrtr)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			fmt.Printf("RentableTypeRef new record been inserted with StopDate: %s, RID:%d, RTRID:%d\n", nrtr.DtStop, nrtr.RID, nrtr.RTRID)
+		}
+
+		fmt.Printf("Updating RentableStatus with RSID: %d, RID: %d, Status: %s, DtStart: %#v, DtStop: %#v ...\n", rfRecord.RSID, rfRecord.RID, rfRecord.RentableStatus, rfRecord.RSDtStart, rfRecord.RSDtStop)
+		// get rental status record associated with this rentable
+		rs, err = rlib.GetRentableStatus(rfRecord.RSID)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		// check for valid Stop Date value
+		if (time.Time)(rfRecord.RSDtStop).Before(rs.DtStart) {
+			e := fmt.Errorf("RentableStatus's Stop Date can't be before Start Date")
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		// if same stop date is given then don't <update and insert new one>, just skip it
+		if (time.Time)(rfRecord.RSDtStop).Sub(rs.DtStop) != 0 {
+			rs.BID = rt.BID
+			rs.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
+			rs.DtStop = time.Now()
+			err = rlib.UpdateRentableStatus(&rs)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			fmt.Printf("RentableStatus new record been updated with StopDate as Today's date (%s) with RID:%d, RSID:%d\n", rs.DtStop, rs.RID, rs.RSID)
+
+			// insert new record of Rentable Status with startDate today and new StopDate
+			nrs := rs
+			nrs.DtStart = time.Now()
+			nrs.DtStop = (time.Time)(rfRecord.RSDtStop)
+			err = rlib.InsertRentableStatus(&nrs)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			fmt.Printf("RentableStatus new record been inserted with StopDate: %s, RID:%d, RSID:%d\n", nrs.DtStop, nrs.RID, nrs.RSID)
+		}
+	} else {
+		fmt.Println("Inserting new Rentable Record...")
 	}
+
 	SvcWriteSuccessResponse(w)
 }
 
@@ -471,9 +519,11 @@ var rentableFormSelectFields = []string{
 	"RentalAgreementRentables.RARDtStart",
 	"RentalAgreementRentables.RARDtStop",
 	"RentableTypeRef.RTID",
+	"RentableTypeRef.RTRID",
 	"RentableTypeRef.DtStart as RTRefDtStart",
 	"RentableTypeRef.DtStop as RTRefDtStop",
 	"RentableTypes.Name",
+	"RentableStatus.RSID",
 	"RentableStatus.Status as RentableStatus",
 	"RentableStatus.DtStart as RSDtStart",
 	"RentableStatus.DtStop as RSDtStop",
@@ -500,7 +550,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rentableQuery := `
 	SELECT
-		{{.SelectClause}}
+		DISTINCT {{.SelectClause}}
 	FROM Rentable
 	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
 	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
@@ -539,7 +589,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		var rStatus int64
-		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &rStatus, &gg.RSDtStart, &gg.RSDtStop)
+		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &gg.RSID, &rStatus, &gg.RSDtStart, &gg.RSDtStop)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
