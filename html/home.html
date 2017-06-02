@@ -41,6 +41,7 @@ var app = {
     uid: 211,
     lastReport: '',
     WidestFormWidth: 900,
+    TmpTCID: 0,  // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
@@ -655,15 +656,11 @@ function buildPageElements() {
         onSelect:  function(event) {
             event.onComplete = function() {
                 var rec = this.get(event.recid);
-
+                app.TmpTCID = rec.TCID; // store here in case it is deselected by the time the Save function needs it
                 getPayorFund(rec.BID, rec.TCID)
                 .done(function(data) {
-
-                    // store fund in app variable
-                    app["payor_fund"] = data.record.fund;
-
-                    // load grid data
-                    w2ui.unpaidASMsGrid.load('/v1/unpaidasms/'+rec.BID+'/'+rec.TCID);
+                    app.payor_fund = data.record.fund;  // store fund in app variable
+                    w2ui.unpaidASMsGrid.load('/v1/unpaidasms/'+rec.BID+'/'+rec.TCID);   // load grid data
 
                     var top = _unAllocRcpts.layoutPanels.top(app.payor_fund, rec.Name, rec.TCID),
                         bottom = _unAllocRcpts.layoutPanels.bottom();
@@ -677,10 +674,10 @@ function buildPageElements() {
                     w2ui.toplayout.sizeTo('right', 700);
                     w2ui.toplayout.render();
                 })
-                .fail(function(data) {
+                .fail(function(/*data*/) {
                     console.log('ERROR, unable to get payor fund for TCID', rec.TCID);
                 });
-            }
+            };
         },
     });
 
@@ -716,7 +713,7 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------------
-    //   unallocated receipts grid - allocate funds layout
+    //   UNPAID ASSESSMENTS GRID
     //------------------------------------------------------------------------------
 
     $().w2grid({
@@ -744,7 +741,7 @@ function buildPageElements() {
             { field: 'recid', type: 'int', caption: 'recid', size: '40px', hidden: true},
             { field: 'Date', render: 'date', caption: 'Date', size: '60px' },
             { field: 'Assessment', caption: 'Assessment', size: '10%' },
-            { field: 'Amount', render: 'money', caption: 'Assessment Amount', size: '10%' },
+            { field: 'Amount', render: 'money', caption: 'Amount', size: '10%' },
             { field: 'AmountPaid', render: 'money', caption: 'Amount Paid', size: '10%' },
             { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '10%' },
             { field: 'ARID', hidden: true },

@@ -25,6 +25,8 @@ var App struct {
 	DBUser    string         // user for all databases
 	DtStart   time.Time      // range start time
 	DtStop    time.Time      // range stop time
+	Bal       int            // if < 0 make the total funds less than what is needed, == 0 means equal to what is needed, > 0 means more than what is needed
+	Chk2      float64        // amount of check2
 	BUD       string         // business unit designator
 	GenDbOnly bool           // if true, just set up the db with unallocated funds and exit
 	Xbiz      rlib.XBusiness // xbusiness associated with -G  (BUD)
@@ -48,6 +50,7 @@ func loaderGetBiz(s string) int64 {
 func readCommandLineArgs() {
 	pDates := flag.String("g", "", "Date Range.  Example: 1/1/16,2/1/16")
 	pBUD := flag.String("G", "", "BUD - business unit designator")
+	pBal := flag.String("funds", "eq", "less: less funds than needed, eq: exactly what is needed,  more: than what is needed")
 	pDB := flag.Bool("db", false, "Just generate the db with unallocated funds and exit. Do not apply unallocated funds.")
 
 	flag.Parse()
@@ -67,6 +70,19 @@ func readCommandLineArgs() {
 			fmt.Printf("Invalid stop date:  %s\n", ss[1])
 			os.Exit(1)
 		}
+	}
+
+	switch strings.ToLower(*pBal) {
+	case "eq":
+		App.Chk2 = float64(3100)
+	case "less":
+		App.Chk2 = float64(2500)
+	case "more":
+		App.Chk2 = float64(3500)
+	default:
+		fmt.Printf("Unexpected funds value: %s, expecting one of { eq | less | more }\n", *pBal)
+		fmt.Printf("Proceeding with default value of \"eq\"\n")
+		App.Chk2 = float64(3100)
 	}
 }
 
@@ -169,7 +185,7 @@ func addUnallocatedReceipts(xbiz *rlib.XBusiness, bid int64) {
 	// We'll create 2 receipts; for $4000 and $3500
 	//----------------------------------------------------
 	r1 := createReceipt(bid, float64(4000), "9846", &dt1)
-	r2 := createReceipt(bid, float64(2500), "9859", &dt2)
+	r2 := createReceipt(bid, App.Chk2, "9859", &dt2)
 	if r1.RCPTID == 0 || r2.RCPTID == 0 {
 		fmt.Printf("Could not create receipts\n")
 		return

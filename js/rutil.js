@@ -835,9 +835,7 @@ jQuery(document).on('click', '#auto_allocate_btn', function(event) {
 
     for (var i = 0; i < grid.records.length; i++) {
         if (fund <= 0) {
-            refreshUnallocAmtSummaries();
-            unallocAmountRemaining();
-            return false;
+            break;
         }
 
         // if it has already been paid, then move on to the next record
@@ -857,6 +855,9 @@ jQuery(document).on('click', '#auto_allocate_btn', function(event) {
         // decrement fund value by whatever the amount allocated for each record
         fund = fund - grid.records[i].Allocate;
     }
+    refreshUnallocAmtSummaries();
+    unallocAmountRemaining();
+    return false;
 });
 
 jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
@@ -867,9 +868,11 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
         return;
     }
 
-    rec = tgrid.get(rec[0]);
-    var tcid = rec.TCID,
-        bid = rec.BID;
+    // rec = tgrid.get(rec[0]);
+    var tcid = app.TmpTCID,
+        x = getCurrentBusiness();
+    var bid = parseInt(x.value,10);
+
 
     var params = {cmd: 'save', TCID: tcid, BID: bid, records: w2ui.unpaidASMsGrid.records };
     var dat = JSON.stringify(params);

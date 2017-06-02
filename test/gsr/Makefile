@@ -13,6 +13,15 @@ gsr: *.go config.json config.json
 unalloc:
 	./unalloc.sh
 
+more: unalloc
+	./gsr -funds more -db
+
+less: unalloc
+	./gsr -funds less -db
+
+eq: unalloc
+	./gsr -funds eq -db
+
 config.json:
 	@getfile.sh accord/db/confdev.json ; cp confdev.json config.json
 
