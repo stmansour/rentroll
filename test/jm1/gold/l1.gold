@@ -20,17 +20,17 @@ J00000009   Gross Scheduled Rent-Taxable  311 Rexford [Rex3, monthly]
             Accounts Receivable                                                     01/01/2016  RA00000003  311 Rexford      12000          4,400.00
             Gross Scheduled Rent-Taxable                                            01/01/2016  RA00000003  311 Rexford      41000         -4,400.00
                                                                                                                                                     
-J00000010   Payment - Read,Read   #1183  3500.00                                                                                                    
+J00000010   Payment - Aaron Read   #1183  3500.00                                                                                                   
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     01/02/2016  RA00000001  309 Rexford      12000         -3,500.00
             Cash                                                                    01/02/2016  RA00000001  309 Rexford      10000          3,500.00
                                                                                                                                                     
-J00000011   Payment - Costea,Costea   #1631  3550.00                                                                                                
+J00000011   Payment - Rita Costea   #1631  3550.00                                                                                                  
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     01/04/2016  RA00000002  309 1/2 Rexford  12000         -3,550.00
             Cash                                                                    01/04/2016  RA00000002  309 1/2 Rexford  10000          3,550.00
                                                                                                                                                     
-J00000012   Payment - Haroutunian   #258  4400.00                                                                                                   
+J00000012   Payment - Gagik Haroutunian   #258  4400.00                                                                                             
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     01/31/2016  RA00000003  311 Rexford      12000         -4,400.00
             Cash                                                                    01/31/2016  RA00000003  311 Rexford      10000          4,400.00

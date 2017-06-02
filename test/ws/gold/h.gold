@@ -7,13 +7,13 @@
         "DocNo": "1631",
         "Dt": "1/4/2016",
         "LastModBy": 0,
-        "LastModTime": "5/8/2017",
+        "LastModTime": "6/1/2017",
         "OtherPayorName": "",
         "PMTID": 1,
         "PRCPTID": 0,
         "Payor": "",
         "RCPTID": 5,
-        "TCID": 0,
+        "TCID": 3,
         "recid": 0
     },
     "status": "success"

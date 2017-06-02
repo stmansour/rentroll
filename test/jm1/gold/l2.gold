@@ -24,18 +24,17 @@ J00000017   Employee Concessions  311 Rexford [Rex3]
             Accounts Receivable                                                     02/01/2016  RA00000003  311 Rexford      12000            111.26
             Food Services                                                           02/01/2016  RA00000003  311 Rexford      41202           -111.26
                                                                                                                                                     
-J00000018   Payment - Read,Read   #1193  3500.00                                                                                                    
+J00000018   Payment - Aaron Read   #1193  3500.00                                                                                                   
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     02/01/2016  RA00000001  309 Rexford      12000         -3,500.00
             Cash                                                                    02/01/2016  RA00000001  309 Rexford      10000          3,500.00
                                                                                                                                                     
-J00000019   Payment - Costea,Costea   #1652  3550.00                                                                                                
+J00000019   Payment - Rita Costea   #1652  3550.00                                                                                                  
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     02/02/2016  RA00000002  309 1/2 Rexford  12000         -3,550.00
             Cash                                                                    02/02/2016  RA00000002  309 1/2 Rexford  10000          3,550.00
                                                                                                                                                     
-J00000020   Payment - No payors for RAID 3 on 02/16/2016                                                                                            
-               #268  1173.33                                                                                                                        
+J00000020   Payment - Gagik Haroutunian   #268  1173.33                                                                                             
             Gross Scheduled Rent-Taxable                                                                                                            
             Accounts Receivable                                                     02/16/2016  RA00000003  311 Rexford      12000         -1,062.07
             Cash                                                                    02/16/2016  RA00000003  311 Rexford      10000          1,062.07

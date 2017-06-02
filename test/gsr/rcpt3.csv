@@ -1,2 +1,0 @@
-BUD,RAID,PMTID,Dt,DocNo,Amount,AcctRule,Comment
-REX,RA00000001,1,"2017-05-02",1142,4000.00,"ASM(4) c ${GLGENRCV} _, ASM(4) d ${GLCASH} _",

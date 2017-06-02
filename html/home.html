@@ -771,37 +771,31 @@ function buildPageElements() {
                 var tgrid = w2ui.unpaidASMsGrid;
                 var c = w2ui[event.target].getChanges();
                 var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
-
-                c.forEach(function(item) {
-                    // get record index in `records` array
-                    var rec_index = tgrid.get(item.recid, true);
-
-                    // Is an amount present?
-                    if (item.Allocate > 0) {                                   // if so...
+                for (var i = 0; i < c.length; i++) {
+                    var rec_index = tgrid.get(c[i].recid, true);         // get record index in `records` array
+                    if (c[i].Allocate > 0) {                             // Is an amount present?                                
                         var fundsAllocated = 0;
                         var fundsRemaining = 0;
-                        tgrid.records.forEach(function(rec) {                  // first calculate the allocated funds...
-                            if (rec_index != rec.recid) {
-                                fundsAllocated += rec.Allocate;
+                        for (var j=0; j < tgrid.records.length; j++) {   // how much has been allocated everywhere else?
+                            if (rec_index != tgrid.records[j].recid) {
+                                fundsAllocated += tgrid.records[j].Allocate;
                             }
-                        });
-                        fundsRemaining = total_fund - fundsAllocated;          // then calculate how much is left
-
-                        // How much do we pay...
-                        var owed = tgrid.records[rec_index].AmountOwed;        // here's how much is still owed
-                        var amtToPay =
-                            owed >= fundsAllocated ? owed : fundsRemaining;    // if we have enough, pay it all, otherwise pay what we can
-
-                        if (item.Allocate >= amtToPay) {                       // paying more than what is owed?
-                            tgrid.records[rec_index].Allocate = amtToPay;      // if so, then set it to the amount owed
-                        } else {
-                            tgrid.records[rec_index].Allocate = item.Allocate; // otherwise pay what they asked
                         }
-                    } else {                                                   // if Allocated amount is not greater than zero
+                        fundsRemaining = total_fund - fundsAllocated;    // how much remains?
+                        var owed = tgrid.records[rec_index].AmountOwed;  // here's how much is still owed
+                        var amtToPay = c[i].Allocate;                    // start by paying what the user asked
+                        if (amtToPay > fundsRemaining) { 
+                            amtToPay = fundsRemaining;                   // adjust if it's more than what is available
+                        }
+                        if (amtToPay > owed) {
+                            amtToPay = owed;                             // adjust if it's more than what is owed
+                        }
+                        tgrid.records[rec_index].Allocate = amtToPay;
+                    } else {                                             // if Allocated amount is not greater than zero
                         tgrid.records[rec_index].Allocate = 0;
                     }
-                    tgrid.records[rec_index].w2ui = {};                        // clear w2ui object in record
-                });
+                    tgrid.records[rec_index].w2ui = {};                  // clear w2ui object in record
+                }
                 tgrid.save();
                 refreshUnallocAmtSummaries();
             };
