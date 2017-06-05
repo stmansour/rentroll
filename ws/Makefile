@@ -17,7 +17,7 @@ ws: ver.go *.go webdoc
 	@echo "*** ${THISDIR}: completed build ***"
 
 ver.go:
-	./mkver.sh
+	./mkver.sh ws
 
 webdoc:
 	rm -rf doc
