@@ -22,6 +22,23 @@ function getBUDfromBID(BID) {
 }
 
 //-----------------------------------------------------------------------------
+// getBIDfromBUD  - given the BUD return the associated BID. Returns
+//                  undefined if BUD is not found
+// @params  BUD   - the BUD for the business of interest
+// @return  the BID (or `undefined` if not found)
+//-----------------------------------------------------------------------------
+function getBIDfromBUD(BUD) {
+    "use strict";
+    var BID;
+    for (var i=0; i<app.BizMap.length; i++) {
+        if (BUD == app.BizMap[i].BUD) {
+            BID = app.BizMap[i].BID;
+        }
+    }
+    return BID;
+}
+
+//-----------------------------------------------------------------------------
 // getPaymentTypeName - searches BUD's Payment Types for PMTID.  If found the
 //                  Name is returned, else an empty string is returned.
 // @params  BUD   - the BUD for the business of interest
@@ -713,6 +730,15 @@ function getRentableTypes(BID) {
         type: "GET",
         url: "/v1/rtlist/"+BID,
         dataType: "json",
+    }).done(function(data) {
+        if (data.status == "success") {
+            var BUD = getBUDfromBID(BID);
+            if (data.records) {
+                app.rt_list[BUD] = data.records;
+            } else {
+                app.rt_list[BUD] = [];
+            }
+        }
     });
 }
 
@@ -727,6 +753,15 @@ function getGLAccounts(BID) {
         type: "GET",
         url: "/v1/gllist/"+BID,
         dataType: "json",
+    }).done(function(data) {
+        if (data.status == "success") {
+            var BUD = getBUDfromBID(BID);
+            if (data.records) {
+                app.gl_accounts[BUD] = data.records;
+            } else{
+                app.gl_accounts[BUD] = [];
+            }
+        }
     });
 }
 

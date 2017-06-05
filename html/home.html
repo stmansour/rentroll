@@ -62,8 +62,8 @@ var app = {
     receiptsToolbarOnClickAdded: false,
     paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
     arList: [{id: 0, text:"Assessment"}, {id:1, text:"Receipt"}],
-    rt_list: [],
-    gl_accounts: [],
+    rt_list: {},
+    gl_accounts: {}, // this holds the list of GLAccount per business
     rof: {"csv": 4, "pdf": 3}, // report export/output format
     pdfPageWidth: 8.5, // defaults to USLetter Portrait width
     pdfPageHeight: 11, // defaults to USLetter Portrait height
@@ -772,7 +772,7 @@ function buildPageElements() {
                 var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
                 for (var i = 0; i < c.length; i++) {
                     var rec_index = tgrid.get(c[i].recid, true);         // get record index in `records` array
-                    if (c[i].Allocate > 0) {                             // Is an amount present?                                
+                    if (c[i].Allocate > 0) {                             // Is an amount present?
                         var fundsAllocated = 0;
                         var fundsRemaining = 0;
                         for (var j=0; j < tgrid.records.length; j++) {   // how much has been allocated everywhere else?
@@ -783,7 +783,7 @@ function buildPageElements() {
                         fundsRemaining = total_fund - fundsAllocated;    // how much remains?
                         var owed = tgrid.records[rec_index].AmountOwed;  // here's how much is still owed
                         var amtToPay = c[i].Allocate;                    // start by paying what the user asked
-                        if (amtToPay > fundsRemaining) { 
+                        if (amtToPay > fundsRemaining) {
                             amtToPay = fundsRemaining;                   // adjust if it's more than what is available
                         }
                         if (amtToPay > owed) {
@@ -856,7 +856,6 @@ function buildPageElements() {
                         return;
                     }
                     else {
-                        app["gl_accounts"] = data;
                         setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID);
                     }
                 })
@@ -948,6 +947,37 @@ function buildPageElements() {
                 }
             }
         },
+        onChange: function(event) {
+            if (event.target === "BUD" && event.type === "change") {
+                var BUD = event.value_new.id;
+                var BID = getBIDfromBUD(BUD);
+                var r = w2ui.accountForm.record;
+
+                // update the BID in record
+                r.BID = BID;
+
+                // change the choice of parent account list
+                getGLAccounts(BID)
+                .done(function(data) {
+                    // set Parent Account list
+                    var PLIDs = [{id: 0, text: 'No Parent LID'}];
+                    // don't include itself in parent account choice -- drop list
+                    var parent_account_choice = [];
+                    app.gl_accounts[BUD].forEach(function(item) {
+                        if (item.id != r.LID) {
+                            parent_account_choice.push(item);
+                        }
+                    });
+                    PLIDs = PLIDs.concat(parent_account_choice);
+                    $("#accountForm").find('input[name=PLID]').w2field('list',{
+                        items: PLIDs,
+                        selected: {},
+                    });
+
+                    w2ui.accountForm.refresh();
+                });
+            };
+        },
         onSubmit: function(target, data) {
             // modify form data for server request
             getFormSubmitData(data.postData.record);
@@ -1008,6 +1038,7 @@ function buildPageElements() {
             event.onComplete = function() {
                 var f = w2ui.accountForm;
                 var r = f.record;
+                var BUD = getBUDfromBID(r.BID);
                 if (r.LID) {
                     f.header = 'Edit Account Detail' + ' (' + r.LID + ')';
                 } else {
@@ -1045,7 +1076,14 @@ function buildPageElements() {
 
                 // set Parent Account list
                 var PLIDs = [{id: 0, text: 'No Parent LID'}];
-                PLIDs = PLIDs.concat(app.gl_accounts.records);
+                // don't include itself in parent account choice -- drop list
+                var parent_account_choice = [];
+                app.gl_accounts[BUD].forEach(function(item) {
+                    if (item.id != r.LID) {
+                        parent_account_choice.push(item);
+                    }
+                });
+                PLIDs = PLIDs.concat(parent_account_choice);
                 $("#accountForm").find('input[name=PLID]').w2field('list',{
                     items: PLIDs,
                     selected: r.PLID,
@@ -1409,14 +1447,13 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
+                        var BUD = getBUDfromBID(ob.BID);
                         console.log('rentable form url: ' + '/v1/rentable/' + ob.BID + '/' + ob.RID);
 
                         getRentableTypes(ob.BID)
                         .done(function(data){
-                            app["rt_list"] = data;
-
                             // set typedown list in rentableform - RentableType field
-                            w2ui.rentableForm.get("RTID").options.items = app.rt_list.records;
+                            w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
                             w2ui.rentableForm.get("RTID").options.selected = {id: ob.RTID, text: ob.Name};
 
                             // must call refresh when form field has been set
@@ -1464,10 +1501,9 @@ function buildPageElements() {
 
             getRentableTypes(BID)
             .done(function(data){
-                app["rt_list"] = data;
 
                 // set typedown list in rentableform - RentableType field
-                w2ui.rentableForm.get("RTID").options.items = app.rt_list.records;
+                w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
                 w2ui.rentableForm.get("RTID").options.selected = {};
                 // must call refresh when form field has been set
                 w2ui.rentableForm.refresh();
@@ -3029,6 +3065,7 @@ function buildPageElements() {
 
                     // get selected element as multiSelect is false
                     var ob = this.get(sel[0]);
+                    var BUD = getBUDfromBID(ob.BID);
 
                     // get gl account list
                     getGLAccounts(ob.BID)
@@ -3036,12 +3073,11 @@ function buildPageElements() {
                         if (data.status != 'success') {
                             w2ui.depForm.message(data.message);
                         } else {
-                            app["gl_accounts"] = data;
 
-                            var gl_selected = {id: ob.LID, text:  ob.GLNumber+" (" + ob.LdgrName + ")"};
-
-                            w2ui.depForm.get('LID').options.items=app.gl_accounts.records;
-                            w2ui.depForm.get('LID').options.selected=gl_selected;
+                            var gl_selected = {id: ob.LID, text: ob.GLNumber+" "+"(" + ob.LdgrName + ")"};
+                            // get gl accounts for BUD
+                            w2ui.depForm.get('LID').options.items = app.gl_accounts[BUD];
+                            w2ui.depForm.get('LID').options.selected = gl_selected;
 
                             // refresh the form
                             w2ui.depForm.refresh();
@@ -3075,11 +3111,11 @@ function buildPageElements() {
                     w2ui.toplayout.sizeTo('right', 700);
                     return;
                 } else {
-                    app["gl_accounts"] = data;
 
-                    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var gl_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
                     var gl_accounts_items = [gl_accounts_pre_selected];
-                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts.records);
+                    // get gl account list for BUD from `gl_accounts` key of `app`
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
 
                     w2ui.depForm.get('LID').options.items = gl_accounts_items;
                     w2ui.depForm.get('LID').options.selected = gl_accounts_pre_selected;
@@ -3275,6 +3311,7 @@ function buildPageElements() {
 
                     // multi select is false
                     var ob = this.get(sel[0]);
+                    var BUD = getBUDfromBID(ob.BID);
 
                     // set ARType DropDown list
                     var artype_selected;
@@ -3289,16 +3326,15 @@ function buildPageElements() {
                     // get gl account list
                     getGLAccounts(ob.BID)
                     .done(function(data){
-                        app["gl_accounts"] = data;
 
                         // set fields
                         w2ui.arsForm.get('ARType').options.items=artype_items;
                         w2ui.arsForm.get('ARType').options.selected=artype_selected;
 
-                        w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts.records;
+                        w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts[BUD];
                         w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
 
-                        w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts.records;
+                        w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts[BUD];
                         w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
 
                         // refresh the form
@@ -3334,8 +3370,6 @@ function buildPageElements() {
                     return;
                 }
                 else {
-                    app["gl_accounts"] = data;
-
                     var artype_pre_selected = {id: 0, text: "Select AR type"};
                     var artype_items = [artype_pre_selected];
                     Object.keys(app.ARTypes).forEach(function(artype_id){
@@ -3344,7 +3378,7 @@ function buildPageElements() {
 
                     var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
                     var gl_accounts_items = [gl_accounts_pre_selected];
-                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts.records);
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
 
                     w2ui.arsForm.get('ARType').options.items = artype_items;
                     w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
