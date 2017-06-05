@@ -408,8 +408,38 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAcct - first migrate: a = %#v\n", a)
 
+	// data validation
+	if a.Name == "" {
+		err := fmt.Errorf("Provide account name")
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
 	// save or update
 	if a.LID == 0 && d.ID == 0 {
+
+		// check that given name is already exists for business
+		// VALIDATION 2
+		existQuery := `SELECT LID FROM GLAccount WHERE {{.WhereClause}};`
+		qc := queryClauses{"WhereClause": fmt.Sprintf("Name=\"%s\"", strings.ToLower(a.Name))}
+
+		q := renderSQLQuery(existQuery, qc)
+		fmt.Printf("db query = %s\n", q)
+
+		// execute the query
+		rows, err := rlib.RRdb.Dbrr.Query(q)
+		defer rows.Close()
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+
+		for rows.Next() {
+			err := fmt.Errorf("GLAccount is already exists with given name")
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+
 		// This is a new AR
 		fmt.Printf(">>>> NEW GL Account IS BEING ADDED\n")
 		_, err = rlib.InsertLedger(&a)
