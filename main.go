@@ -81,7 +81,7 @@ func readCommandLineArgs() {
 
 	flag.Parse()
 	if *verPtr {
-		fmt.Printf("Version:    %s\nBuild Time: %s\nBuild Machine: %s\n", getVersionNo(), getBuildTime(), getBuildMachine())
+		fmt.Printf("Version:    %s\nBuild Time: %s\nBuild Machine: %s\n", ws.GetVersionNo(), ws.GetBuildTime(), ws.GetBuildMachine())
 		os.Exit(0)
 	}
 	App.DBDir = *dbnmPtr

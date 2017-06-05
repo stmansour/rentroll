@@ -6,7 +6,7 @@ WEBDOC=${WEBDOCDIR}/webdoc
 WEBCSS=${WEBDOCDIR}/doc.css
 THISDIR="ws"
 
-ws: *.go webdoc
+ws: ver.go *.go webdoc
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -15,6 +15,9 @@ ws: *.go webdoc
 	go install
 	@rm -f fail
 	@echo "*** ${THISDIR}: completed build ***"
+
+ver.go:
+	./mkver.sh
 
 webdoc:
 	rm -rf doc
@@ -31,6 +34,7 @@ test:
 	@echo "*** ${THISDIR}: completed testing - ALL TESTS PASS ***"
 
 clean:
+	rm -f ver.go
 	go clean
 	rm -f fail GoAnalyzerError.log
 	@echo "*** ${THISDIR}: completed clean ***"

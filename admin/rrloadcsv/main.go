@@ -114,7 +114,7 @@ func readCommandLineArgs() {
 
 	flag.Parse()
 	if *verPtr {
-		fmt.Printf("Version:    %s\nBuild Time: %s\n", getVersionNo(), getBuildTime())
+		fmt.Printf("Version:    %s\nBuild Time: %s\n", GetVersionNo(), GetBuildTime())
 		os.Exit(0)
 	}
 	App.AcctDep = *pAD

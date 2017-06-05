@@ -144,6 +144,7 @@ var Svcs = []ServiceHandler{
 	{"dep", SvcHandlerDepository, true},
 	{"pmts", SvcHandlerPaymentType, true},
 	{"person", SvcFormHandlerXPerson, true},
+	{"ping", SvcHandlerPing, true},
 	{"rapayor", SvcRAPayor, true},
 	{"rapets", SvcRAPets, true},
 	{"rar", SvcRARentables, true},
@@ -255,6 +256,12 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	svcDebugTxnEnd()
+}
+
+// SvcHandlerPing is the most basic test that you can run against the server
+// see if it is alive and taking requests. It will return its version number.
+func SvcHandlerPing(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Fprintf(w, "Accord Rentroll - Version %s\n", GetVersionNo())
 }
 
 func getBIDfromBUI(s string) (int64, error) {
