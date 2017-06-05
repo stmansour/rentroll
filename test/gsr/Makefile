@@ -23,7 +23,7 @@ eq: unalloc
 	./gsr -funds eq -db
 
 config.json:
-	@getfile.sh accord/db/confdev.json ; cp confdev.json config.json
+	/usr/local/accord/bin/getfile.sh accord/db/confdev.json ; cp confdev.json config.json
 
 clean:
 	rm -f rentroll.log log ll.g llog [a-z] [a-z][a-z] [a-z][0-9] [a-z][0-9][a-z] fail *.json unalloc.sql

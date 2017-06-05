@@ -2285,16 +2285,12 @@ function buildPageElements() {
             r.PmtTypeName = getPaymentTypeName(BUD,r.PMTID);
         },
         onValidate: function (event) {
-            // create your own validation and display error
-            // if (this.record.DocNo == '' && this.record.PmtTypeName.id != 'Cash') {
-            //   $(this.get('DocNo').el).w2tag('<--- Error Here');
-            //   // cancel default error handling
-            //   event.preventDefault();
-            // }
-            // event.errors.push({
-            //     field: this.get('date1'),
-            //     error: 'Registration date should be prior to submission date'
-            // });
+            if (this.record.Amount < 0.01) {
+                event.errors.push({
+                    field: this.get('Amount'),
+                    error: 'Amount must be at least $0.01'
+                });
+            }
         },
         onChange: function(event) {
             console.log('Form Value changed:  event = ', event);
