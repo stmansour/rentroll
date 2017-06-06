@@ -495,7 +495,7 @@ CREATE TABLE Rentable (
     RID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique identifier for this Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                 -- Business associated with this Rentable
     RentableName VARCHAR(100) NOT NULL DEFAULT '',                 -- must be unique, name for this instance, "101" for a room number, CP744 carport number, etc
-    AssignmentTime SMALLINT NOT NULL DEFAULT 0,                    -- Unknown = 0, Pre-assign = 1, assign at occupy commencement = 2
+    AssignmentTime SMALLINT NOT NULL DEFAULT 0,                    -- Unknown = 0, OK to pre-assign = 1, assign at occupancy commencement = 2
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                         -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     PRIMARY KEY (RID)

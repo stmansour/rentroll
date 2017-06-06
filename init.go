@@ -5,6 +5,7 @@ import (
 	"gotable"
 	"os"
 	"rentroll/rlib"
+	"rentroll/ws"
 	"strings"
 	"text/template"
 )
@@ -16,8 +17,8 @@ func initRentRoll() {
 
 	RRfuncMap = template.FuncMap{
 		"DateToString": rlib.DateToString,
-		"getVersionNo": getVersionNo,
-		"getBuildTime": getBuildTime,
+		"GetVersionNo": ws.GetVersionNo,
+		"getBuildTime": ws.GetBuildTime,
 		"RRCommaf":     rlib.RRCommaf,
 		"LMSum":        LMSum,
 	}

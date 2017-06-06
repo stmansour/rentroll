@@ -14,6 +14,7 @@ RENTROLLHOME="/home/ec2-user/apps/${PROGNAME}"
 DATABASENAME="${PROGNAME}"
 DBUSER="ec2-user"
 IAM=$(whoami)
+OS=$(uname)
 
 
 usage() {
@@ -130,16 +131,39 @@ start() {
 		touch /var/lock/${PROGNAME}
 	fi
 
-	# give ${PROGNAME} a few seconds to start up before initiating the watchdog
-	# sleep 5
-	# if [ "${STARTPBONLY}" -ne "1" ]; then
-	# 	stopwatchdog
-	# 	./pbwatchdog ${WATCHDOGOPTS} >pbwatchdogstartup.out 2>&1 &
-	# fi
+	#---------------------------------------------------
+	# If the watchdog is NOT running, then start it...
+	#---------------------------------------------------
+	W=$(ps -ef | grep "rrwatchdog" | grep "bash" | wc -l)
+	if [ ${W} == 0 ]; then
+		./rrwatchdog &
+	fi
 }
 
 stop() {
-	# stopwatchdog
+	#---------------------------------------------------
+	# stop watchdog first
+	#---------------------------------------------------
+	W=$(ps -ef | grep "rrwatchdog" | grep "bash" | wc -l)
+	if [ ${W} == 1 ]; then
+		case "${OS}" in
+		"Darwin")
+			pid=$(ps -ef | grep rrwatchdog | grep "bash" | sed -e 's/[ \t]*[0-9][0-9]*[ \t][ \t]*\([0-9][0-9]*\)[ \t].*/\1/')
+			;;
+		"Linux")
+			pid=$(ps -ef | grep rrwatchdog | grep "bash" | sed -e 's/[^ \t]*[ \t][ \t]*\([0-9][0-9]*\)[ \t].*/\1/')
+			;;
+		"*")
+			echo "Unsupported Operating System"
+			exit 1
+			;;
+		esac
+		kill ${pid}
+	fi
+
+	#---------------------------------------------------
+	# now stop the server
+	#---------------------------------------------------
 	killall -9 rentroll
 	if [ ${IAM} == "root" ]; then
 		sleep 6

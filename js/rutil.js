@@ -780,7 +780,10 @@ function unallocAmountRemaining() {
     }
     // var dispAmt = parseFloat(totalFunds).toFixed( 2 );
     var dispAmt = number_format(totalFunds, 2, '.', ',');
-    document.getElementById("total_fund_amount").innerHTML = dispAmt;
+    var x = document.getElementById("total_fund_amount");
+    if (x !== null) {
+        x.innerHTML = dispAmt;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -791,6 +794,7 @@ function unallocAmountRemaining() {
 //-----------------------------------------------------------------------------
 function refreshUnallocAmtSummaries() {
     "use strict";
+    if (w2ui.unpaidASMsGrid.records.length == 0 ) { return; }
     var amt = 0;
     var amtPaid = 0;
     var amtOwed = 0;

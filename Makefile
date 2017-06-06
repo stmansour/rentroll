@@ -4,13 +4,12 @@ COUNTOL=${TOP}/tools/bashtools/countol.sh
 
 .PHONY:  test
 
-rentroll: ver.go *.go config.json
+rentroll: *.go config.json
 	@find . -name "fail" -exec rm -r "{}" \;
 	@touch fail
 	for dir in $(DIRS); do make -C $$dir;done
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
-	./mkver.sh
 	go build
 	@rm -f fail
 	@tools/bashtools/buildcheck.sh BUILD
@@ -40,9 +39,6 @@ stats:
 	@echo "----------------------------------------"
 	@find . -name "*.go" | srcstats
 	@echo "----------------------------------------"
-
-ver.go:
-	./mkver.sh
 
 clean:
 	for dir in $(DIRS); do make -C $$dir clean;done

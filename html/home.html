@@ -402,7 +402,7 @@ function buildPageElements() {
         nodes: [
             { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'allocfunds', text: 'Apply Payments', icon: 'fa fa-thumbs-o-up' },
+                        { id: 'allocfunds', text: 'Apply Payments', icon: 'fa fa-check-circle-o' },
                         { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
                         { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
                         { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
@@ -2302,16 +2302,12 @@ function buildPageElements() {
             r.PmtTypeName = getPaymentTypeName(BUD,r.PMTID);
         },
         onValidate: function (event) {
-            // create your own validation and display error
-            // if (this.record.DocNo == '' && this.record.PmtTypeName.id != 'Cash') {
-            //   $(this.get('DocNo').el).w2tag('<--- Error Here');
-            //   // cancel default error handling
-            //   event.preventDefault();
-            // }
-            // event.errors.push({
-            //     field: this.get('date1'),
-            //     error: 'Registration date should be prior to submission date'
-            // });
+            if (this.record.Amount < 0.01) {
+                event.errors.push({
+                    field: this.get('Amount'),
+                    error: 'Amount must be at least $0.01'
+                });
+            }
         },
         onChange: function(event) {
             console.log('Form Value changed:  event = ', event);
@@ -2379,7 +2375,7 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'epoch', size: '10px', style: 'text-align: center', sortable: true,
                     render: function (record /*, index, col_index*/) {
-                        if (record.RentCycle !== 'Norecur' && record.PASMID === 0) {
+                        if (record.RentCycle !== 0 && record.PASMID === 0) {
                             return '<i class="fa fa-refresh" aria-hidden="true"></i>';
                         }
                         return '';
@@ -2388,6 +2384,7 @@ function buildPageElements() {
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
+            {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
             {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
@@ -2434,7 +2431,7 @@ function buildPageElements() {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                     eval(data);
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
-                    w2ui.asmEpochForm.refresh();
+                    //w2ui.asmEpochForm.refresh();
                     return;
                 }
                 if (data.status != 'success') {

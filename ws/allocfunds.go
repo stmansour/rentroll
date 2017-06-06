@@ -149,18 +149,18 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		return
 	}
 
-	now := time.Now()
+	// now := time.Now()
 	for _, t := range u {
 		var q UnallocatedReceiptsPayors
 
-		// We know that the payor has funds in one or more receipts that has
-		// not yet been allocated. However, there may not be any assessments
-		// toward which we can apply the funds.  If this is the case, then just
-		// skip to the next payor
-		m := bizlogic.GetAllUnpaidAssessmentsForPayor(t.BID, t.TCID, &now)
-		if len(m) == 0 { // no assessments to pay? ...
-			continue // then move on to the next payor
-		}
+		// // We know that the payor has funds in one or more receipts that has
+		// // not yet been allocated. However, there may not be any assessments
+		// // toward which we can apply the funds.  If this is the case, then just
+		// // skip to the next payor
+		// m := bizlogic.GetAllUnpaidAssessmentsForPayor(t.BID, t.TCID, &now)
+		// if len(m) == 0 { // no assessments to pay? ...
+		// 	continue // then move on to the next payor
+		// }
 
 		q.Recid = i
 		q.TCID = t.TCID
