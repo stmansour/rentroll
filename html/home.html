@@ -2185,12 +2185,12 @@ function buildPageElements() {
             .done( function(data) {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                     eval(data);
-                    w2ui.asmEpochForm.fields[0].options.items = app.Receipts[BUD];
-                    w2ui.asmEpochForm.refresh();
+                    w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
+                    w2ui.receiptForm.refresh();
                     return;
                 }
                 if (data.status != 'success') {
-                    w2ui.asmEpochForm.message(data.message);
+                    w2ui.receiptForm.message(data.message);
                 }
             })
             .fail( function() {

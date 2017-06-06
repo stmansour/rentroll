@@ -59,7 +59,7 @@ type AssessmentSaveOther struct {
 	BID            rlib.W2uiHTMLSelect
 	RentCycle      rlib.W2uiHTMLSelect
 	ProrationCycle rlib.W2uiHTMLSelect
-	ARID           rlib.W2uiHTMLSelect
+	ARID           rlib.W2uiHTMLIdTextSelect
 }
 
 // AssessmentGrid is a structure specifically for the UI Grid.
@@ -357,12 +357,14 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	a.RentCycle = rlib.CycleFreqMap[bar.Record.RentCycle.ID]
 	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
-	a.ARID, err = strconv.ParseInt(bar.Record.ARID.ID, 10, 64)
-	if err != nil {
-		e := fmt.Errorf("Could not convert ARID %s to an int", bar.Record.BID.ID)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
+
+	a.ARID = int64(bar.Record.ARID.ID)
+	// a.ARID, err = strconv.ParseInt(bar.Record.ARID.ID, 10, 64)
+	// if err != nil {
+	// 	e := fmt.Errorf("Could not convert ARID %s to an int", bar.Record.ARID.ID)
+	// 	SvcGridErrorReturn(w, e, funcname)
+	// 	return
+	// }
 	fmt.Printf("after conversion: a.ARID = %d\n", a.ARID)
 
 	// Now just update the database

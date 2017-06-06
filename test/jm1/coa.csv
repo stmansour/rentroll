@@ -70,6 +70,7 @@ REX,Bad Debt,49992,42000,Other Income,Income,0,active,Unassociated,,12/1/15,yes,
 REX,Income Suspense,49998,42000,Other Income,Income,,active,Unassociated,,12/1/15,yes,0,0,
 REX,Other Business Income,49999,42000,Other Income,Income,0,active,Unassociated,,12/1/15,yes,0,0,
 REX,Cash BofA,10001,,Cash,Bank Account,0,active,Unassociated,,12/1/15,yes,0,0,
+REX,Unapplied Funds,10100,,Payment,Holding Account,0,active,Unassociated,,12/1/15,yes,3,0,Holding account
 CCC,Cash,10000,,Cash,Bank Account,0,active,Unassociated,10,12/1/15,yes,3,0,Main cash account
 CCC,Credit Card Clearing,11000,,Cash,Current Asset,0,active,Unassociated,,12/1/15,yes,0,0,
 CCC,Accounts Receivable,12000,,Account Receivable,Current Asset,0,active,Unassociated,11,12/1/15,yes,0,0,

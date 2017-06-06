@@ -30,6 +30,16 @@ Opening Balance                                                                 
 Closing Balance                                          04/30/2016                                                                0.00
 
 
+Unapplied Funds
+GL Account: 10100
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          04/30/2016                                                                0.00
+
+
 Credit Card Clearing
 GL Account: 11000
                                                                      Journal    Rental                                                 

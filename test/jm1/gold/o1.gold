@@ -11,6 +11,8 @@ LID        GLNumber  Name                                   Balance       Balanc
 ---------  --------  --------------------------------  ------------  ------------
 L00000006            Security Deposit Receivable               0.00              
 L00000001  10000     Cash                                               24,750.00
+L00000088  10001     Cash BofA                                               0.00
+L00000089  10100     Unapplied Funds                                         0.00
 L00000025  11000     Credit Card Clearing                                    0.00
 L00000002  12000     Accounts Receivable                                     0.00
 L00000007  30000     Security Deposits                                 -13,300.00
@@ -64,5 +66,21 @@ L00000068  41411     Eviction Fee Reimbursement                              0.0
 L00000069  41412     Extra Person Charge                                     0.00
 L00000070  41413     Forfeited Security Deposit                              0.00
 L00000071  41414     Damage Fee                                              0.00
+L00000072  41415     CAM Fees                                                0.00
+L00000073  41499     Other Miscellaneous Income                              0.00
+L00000074  41500     Taxes Collected in Trust                                0.00
+L00000075  41501     Sales Taxes                                             0.00
+L00000076  41502     Transient Occupancy Taxes                               0.00
+L00000077  42000     Business Income                           0.00              
+L00000078  42100     Convenience Store                                       0.00
+L00000079  42200     Fitness Center Revenue                                  0.00
+L00000080  42300     Vending Income                                          0.00
+L00000081  42400     Restaurant Sales                                        0.00
+L00000082  42500     Bar Sales                                               0.00
+L00000083  42600     Spa Sales                                               0.00
+L00000084  49991     Cash Over/Short                                         0.00
+L00000085  49992     Bad Debt                                                0.00
+L00000086  49998     Income Suspense                                         0.00
+L00000087  49999     Other Business Income                                   0.00
 ---------  --------  --------------------------------  ------------  ------------
                                                                              0.00

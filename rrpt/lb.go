@@ -31,18 +31,15 @@ func LedgerBalanceReportTable(ri *ReporterInfo) gotable.Table {
 		return tbl
 	}
 
-	for i := int64(0); i < int64(len(rlib.RRdb.BizTypes[bid].GLAccounts)); i++ {
-		acct, ok := rlib.RRdb.BizTypes[bid].GLAccounts[i]
-		if ok {
-			tbl.AddRow()
-			tbl.Puts(-1, 0, acct.IDtoString())
-			tbl.Puts(-1, 1, acct.GLNumber)
-			tbl.Puts(-1, 2, acct.Name)
-			if rlib.RRdb.BizTypes[bid].GLAccounts[i].AllowPost != 0 {
-				tbl.Putf(-1, 4, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
-			} else {
-				tbl.Putf(-1, 3, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
-			}
+	for _, acct := range rlib.RRdb.BizTypes[bid].GLAccounts {
+		tbl.AddRow()
+		tbl.Puts(-1, 0, acct.IDtoString())
+		tbl.Puts(-1, 1, acct.GLNumber)
+		tbl.Puts(-1, 2, acct.Name)
+		if acct.AllowPost != 0 {
+			tbl.Putf(-1, 4, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
+		} else {
+			tbl.Putf(-1, 3, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
 		}
 	}
 	tbl.Sort(0, len(tbl.Row)-1, 1)
