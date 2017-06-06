@@ -510,8 +510,8 @@ CREATE TABLE RentableTypeRef (
     RTID BIGINT NOT NULL DEFAULT 0,                                 -- the Rentable type for this period
     OverrideRentCycle BIGINT NOT NULL DEFAULT 0,                    -- RentCycle override. 0 = unset (use RentableType.RentCycle), > 0 means the override frequency
     OverrideProrationCycle BIGINT NOT NULL DEFAULT 0,               -- Proration override. 0 = unset (use RentableType.Proration), > 0 means the override proration
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that modified it
     PRIMARY KEY (RTRID)
@@ -522,8 +522,8 @@ CREATE TABLE RentableStatus (
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
     Status SMALLINT NOT NULL DEFAULT 0,                             -- 0 = UNKNOWN -- 1 = ONLINE, 2 = ADMIN, 3 = EMPLOYEE, 4 = OWNEROCC, 5 = OFFLINE,
-    DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
-    DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     DtNoticeToVacate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- user has indicated they will vacate on this date
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that modified it
