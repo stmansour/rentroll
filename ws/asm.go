@@ -73,6 +73,7 @@ type AssessmentGrid struct {
 	Rentable string // the RentableName
 	// ATypeLID  int64         // what type of assessment
 	RAID      int64           // associated Rental Agreement
+	RentCycle int64           // Rent Cycle
 	Amount    float64         // how much
 	Start     rlib.JSONTime   // start time
 	Stop      rlib.JSONTime   // stop time, may be the same as start time or later
@@ -112,7 +113,7 @@ type GetAssessmentResponse struct {
 
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
 func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) (AssessmentGrid, error) {
-	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule)
+	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule)
 	return q, err
 }
 
@@ -124,6 +125,7 @@ var asmFieldsMap = map[string][]string{
 	"RID":          {"Assessments.RID"},
 	"RentableName": {"Rentable.RentableName"},
 	"RAID":         {"Assessments.RAID"},
+	"RentCycle":    {"Assessments.RentCycle"},
 	"Amount":       {"Assessments.Amount"},
 	"Start":        {"Assessments.Start"},
 	"Stop":         {"Assessments.Stop"},
@@ -140,6 +142,7 @@ var asmQuerySelectFields = []string{
 	"Assessments.RID",
 	"Rentable.RentableName",
 	"Assessments.RAID",
+	"Assessments.RentCycle",
 	"Assessments.Amount",
 	"Assessments.Start",
 	"Assessments.Stop",
@@ -168,71 +171,6 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
-
-	// // TODO: Add dates to default search -- this month
-	// srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
-	// order := "Start ASC"                 // default ORDER
-	// q, qw := gridBuildQuery("Assessments", srch, order, d, &p)
-
-	// // set g.Total to the total number of rows of this data...
-	// g.Total, err = GetRowCount("Assessments", qw)
-	// if err != nil {
-	// 	SvcGridErrorReturn(w, err, funcname)
-	// 	return
-	// }
-
-	// fmt.Printf("db query = %s\n", q)
-
-	// rows, err := rlib.RRdb.Dbrr.Query(q)
-	// if err != nil {
-	// 	SvcGridErrorReturn(w, err, funcname)
-	// 	return
-	// }
-	// defer rows.Close()
-
-	// i := int64(d.wsSearchReq.Offset)
-	// count := 0
-	// for rows.Next() {
-	// 	var p rlib.Assessment
-	// 	var q AssessmentGrid
-	// 	rlib.ReadAssessments(rows, &p)
-	// 	rlib.MigrateStructVals(&p, &q)
-	// 	q.Recid = i
-	// 	g.Records = append(g.Records, q)
-	// 	count++ // update the count only after adding the record
-	// 	if count >= d.wsSearchReq.Limit {
-	// 		break // if we've added the max number requested, then exit
-	// 	}
-	// 	i++
-	// }
-	// fmt.Printf("g.Total = %d\n", g.Total)
-	// err = rows.Err()
-	// if err != nil {
-	// 	SvcGridErrorReturn(w, err, funcname)
-	// 	return
-	// }
-	// w.Header().Set("Content-Type", "application/json")
-	// g.Status = "success"
-	// SvcWriteResponse(&g, w)
-
-	// type Assessment struct {
-	// ASMID          int64     // unique id for this assessment
-	// PASMID         int64     // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
-	// BID            int64     // what Business
-	// RID            int64     // the Rentable
-	// ATypeLID       int64     // what type of assessment
-	// RAID           int64     // associated Rental Agreement
-	// Amount         float64   // how much
-	// Start          time.Time // start time
-	// Stop           time.Time // stop time, may be the same as start time or later
-	// RentCycle      int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, G = quarterly, 8 = yearly
-	// ProrationCycle int64     // 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
-	// InvoiceNo      int64     // A uniqueID for the invoice number
-	// AcctRule       string    // expression showing how to account for the amount
-	// Comment        string
-	// LastModTime    time.Time
-	// LastModBy      int64
-	// }
 
 	whr := `Assessments.BID = %d AND Assessments.Stop > %q AND Assessments.Start < %q`
 	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))

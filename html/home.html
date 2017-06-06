@@ -2358,7 +2358,7 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'epoch', size: '10px', style: 'text-align: center', sortable: true,
                     render: function (record /*, index, col_index*/) {
-                        if (record.RentCycle !== 'Norecur' && record.PASMID === 0) {
+                        if (record.RentCycle !== 0 && record.PASMID === 0) {
                             return '<i class="fa fa-refresh" aria-hidden="true"></i>';
                         }
                         return '';
@@ -2367,6 +2367,7 @@ function buildPageElements() {
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
+            {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
             {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
@@ -2413,7 +2414,7 @@ function buildPageElements() {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                     eval(data);
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
-                    w2ui.asmEpochForm.refresh();
+                    //w2ui.asmEpochForm.refresh();
                     return;
                 }
                 if (data.status != 'success') {
