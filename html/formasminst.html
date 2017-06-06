@@ -15,7 +15,9 @@
 <div id="asmForm">
     <div class="w2ui-page page-0">	<!-- Assessment -->
 
-		<div class="w3-panel w3-card-2"><p id="AssessmentEpochOrInstance">Instance</p></div>
+		<div class="w3-panel">
+		<p id="AssessmentEpochOrInstance">This is an instance of a recurring assessment.</p>
+		</div>
 	    <div class="w2ui-field">
 	        <input name="recid" type="hidden" />
 	    </div>
@@ -26,10 +28,10 @@
 	        <label>Business Unit:</label><div><input name="BID" type="list" /></div>
 	    </div>
 	    <div class="w2ui-field">
-	        <label>RID:</label><div><input name="RID" type="w2int" /></div>
+	        <label>Account Rule:</label><div><input name="ARID" type="list" style="width: 100%"/></div>
 	    </div>
 	    <div class="w2ui-field">
-	        <label>ATypeLID:</label><div><input name="ATypeLID" type="w2int" /></div>
+	        <label>RID:</label><div><input name="RID" type="w2int" /></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <label>RAID:</label><div><input name="RAID" type="w2int" /></div>
@@ -46,17 +48,18 @@
 	        <div><input name="Stop" type="us-date1" size="11"></div>
 	    </div>
 	    <div class="w2ui-field">
-	        <label>Invoice Number:</label><div><input name="InvoiceNo" type="text" /></div>
+	        <label>RentCycle:</label><div><input name="RentCycle" type="list" /></div>
 	    </div>
 	    <div class="w2ui-field">
-	        <label>Account Rule:</label><div><input name="AcctRule" type="text" style="width: 100%"/></div>
+	        <label>ProrationCycle:</label><div><input name="ProrationCycle" type="list" /></div>
+	    </div>
+	    <div class="w2ui-field">
+	        <label>Invoice Number:</label><div><input name="InvoiceNo" type="text" /></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <label>Comment:</label><div><input name="Comment" type="text" style="width: 100%"/></div>
 	    </div>
 	    <div class="w2ui-field"><input type="hidden" name="PASMID" /></div>
-	    <div class="w2ui-field"><input type="hidden" name="RentCycle" /></div>
-	    <div class="w2ui-field"><input type="hidden" name="ProrationCycle" /></div>
 	    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
 	    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
 	</div>  <!-- end of page 0, Rentable -->

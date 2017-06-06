@@ -2396,9 +2396,31 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        var form = (ob.RentCycle !== 'Norecur' && ob.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
+                        var form = (ob.RentCycle !== 0 && ob.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
                         var myurl = '/v1/asm/' + ob.BID + '/' + ob.ASMID;
                         console.log( 'calling setToForm( '+form+', ' + myurl + ')');
+                        
+                        // before setting to the form, get the list of AcctRules...
+                        var x = getCurrentBusiness();
+                        var Bid = x.value;
+                        var Bud = getBUDfromBID(Bid);
+                        $.get('/v1/uival/' + x.value + '/app.Assessments' )
+                        .done( function(data) {
+                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                                eval(data);
+                                w2ui.asmInstForm.fields[0].options.items = app.Assessments[Bud];
+                                w2ui.asmInstForm.record = {ARID: Bud };
+                                w2ui.asmInstForm.refresh();
+                                return;
+                            }
+                            if (data.status != 'success') {
+                                w2ui.asmsGrid.message(data.message);
+                            }
+                        })
+                        .fail( function() {
+                            console.log('Error getting /v1/uilists');
+                         });
+
                         setToForm(form, myurl);
                     }
                 } else {
@@ -2414,7 +2436,6 @@ function buildPageElements() {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                     eval(data);
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
-                    //w2ui.asmEpochForm.refresh();
                     return;
                 }
                 if (data.status != 'success') {
@@ -2540,6 +2561,20 @@ function buildPageElements() {
                 }
             },
         },
+        onValidate: function (event) {
+            if (this.record.ARID.id == 0) {
+                event.errors.push({
+                    field: this.get('ARID'),
+                    error: 'The Account Rule needs to be set'
+                });
+            }
+            if (this.record.Amount < 0.01) {
+                event.errors.push({
+                    field: this.get('Amount'),
+                    error: 'Amount must be at least $0.01'
+                });
+            }
+        },
         actions: {
             save: function () {
                 //var obj = this;
@@ -2587,19 +2622,18 @@ function buildPageElements() {
         url: '/v1/asm',
         formURL: '/html/formasminst.html',
         fields: [
+            { field: 'ARID',          type: 'list',   required: true, options:  {items: app.Assessments} },
             { field: 'recid',         type: 'int',    required: false },
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: false },
             { field: 'PASMID',        type: 'w2int',   required: false },
             { field: 'RID',           type: 'w2int',   required: false },
-            { field: 'ATypeLID',      type: 'w2int',  required: true },
             { field: 'RAID',          type: 'w2int',  required: false },
             { field: 'Amount',        type: 'money',  required: true },
             { field: 'Start',         type: 'date',   required: true },
             { field: 'Stop',          type: 'date',   required: true },
             { field: 'RentCycle',     type: 'list',   options:  {items: app.cycleFreq}, required: true },
             { field: 'ProrationCycle',type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'AcctRule',      type: 'text',   required: true },
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
@@ -2653,15 +2687,16 @@ function buildPageElements() {
                     });
                 };
             }
-            var hdr = '';
-            if (r.RentCycle !== 'Norecur' && r.PASMID === 0) {
-                // EPOCH
-                hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
-            } else {
-                // INSTANCE has 3 variables: ParentASM, RentCycle, Proration
-                hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle, r.ProrationCycle);
-            }
-            document.getElementById("AssessmentEpochOrInstance").innerHTML = hdr;
+            // var hdr = '';
+            // if (typeof r.RentCycle == "object") { return; }
+            // if (r.RentCycle.text !== 'Norecur' && r.PASMID === 0) {
+            //     // EPOCH
+            //     hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
+            // } else {
+            //     // INSTANCE has 3 variables: ParentASM, RentCycle, Proration
+            //     hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, r.ProrationCycle.text);
+            // }
+            // document.getElementById("AssessmentEpochOrInstance").innerHTML = hdr;
         }
     });
 

@@ -13,13 +13,12 @@ import (
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
 // automatically populated from an rlib.Assessment struct.
 type AssessmentSendForm struct {
-	Recid    int64 `json:"recid"` // this is to support the w2ui form
-	ASMID    int64 // unique id for this assessment
-	BID      rlib.XJSONBud
-	PASMID   int64
-	RID      int64
-	Rentable string
-	// ATypeLID       int64
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	ASMID          int64 // unique id for this assessment
+	BID            rlib.XJSONBud
+	PASMID         int64
+	RID            int64
+	Rentable       string
 	RAID           int64
 	Amount         float64
 	Start          rlib.JSONTime
@@ -27,7 +26,7 @@ type AssessmentSendForm struct {
 	RentCycle      rlib.XJSONCycleFreq
 	ProrationCycle rlib.XJSONCycleFreq
 	InvoiceNo      int64
-	AcctRule       string
+	ARID           int64
 	Comment        string
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
@@ -102,6 +101,7 @@ type SaveAssessmentOther struct {
 	Status string              `json:"status"`
 	Recid  int64               `json:"recid"`
 	Name   string              `json:"name"`
+	ARID   int64               `json:"ARID"`
 	Record AssessmentSaveOther `json:"record"`
 }
 
@@ -357,21 +357,23 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	a.RentCycle = rlib.CycleFreqMap[bar.Record.RentCycle.ID]
 	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
-	a.ARID, err = rlib.IntFromString(bar.Record.ARID.ID, "Invalid ARID")
+	a.ARID, err = strconv.ParseInt(bar.Record.ARID.ID, 10, 64)
 	if err != nil {
-		e := fmt.Errorf("Bad ARID value: %s", bar.Record.ARID.ID)
-		rlib.Ulog("%s", e.Error())
+		e := fmt.Errorf("Could not convert ARID %s to an int", bar.Record.BID.ID)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
+	fmt.Printf("after conversion: a.ARID = %d\n", a.ARID)
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
 		// This is a new record
-		err = rlib.UpdateAssessment(&a)
 		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
 		_, err = rlib.InsertAssessment(&a)
 
+	} else if a.ASMID > 0 || d.ASMID > 0 {
+		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
+		err = rlib.UpdateAssessment(&a)
 	} else {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}
@@ -394,7 +396,7 @@ var asmFormSelectFields = []string{
 	"Assessments.RentCycle",
 	"Assessments.ProrationCycle",
 	"Assessments.InvoiceNo",
-	"Assessments.AcctRule",
+	"Assessments.ARID",
 	"Assessments.Comment",
 	"Assessments.LastModTime",
 	"Assessments.LastModBy",
@@ -459,7 +461,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		var rentCycle, prorationCycle int64
 
-		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.AcctRule, &gg.Comment, &gg.LastModTime, &gg.LastModBy)
+		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
