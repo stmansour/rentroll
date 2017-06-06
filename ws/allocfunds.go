@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"sort"
 	"time"
 )
 
@@ -127,6 +128,8 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 	u := map[int64]rlib.Transactant{}
 
+	var payorTCIDList rlib.Int64Range
+
 	// get the transactants list
 	for rows.Next() {
 		// get receipts record
@@ -142,6 +145,9 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		}
 
 		u[r.TCID] = t
+		if !rlib.Int64InSlice(r.TCID, payorTCIDList) {
+			payorTCIDList = append(payorTCIDList, r.TCID)
+		}
 	}
 	err = rows.Err()
 	if err != nil {
@@ -149,8 +155,12 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		return
 	}
 
+	// sort the order of payors TCID
+	sort.Sort(payorTCIDList)
+
 	// now := time.Now()
-	for _, t := range u {
+	for _, tcid := range payorTCIDList {
+		t := u[tcid]
 		var q UnallocatedReceiptsPayors
 
 		// // We know that the payor has funds in one or more receipts that has
