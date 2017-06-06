@@ -96,6 +96,7 @@ type RentableDetails struct {
 	RSDtStart      rlib.JSONTime  // rentable status start date
 	RSDtStop       rlib.JSONTime  // rentable status stop date
 	CurrentDate    rlib.JSONTime
+	AssignmentTime int64 // assignment time
 }
 
 // SvcRentableTypeDown handles typedown requests for Rentables.  It returns
@@ -444,8 +445,9 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-		rt.RentableName = rfRecord.RentableName
 		rt.BID = requestedBID
+		rt.RentableName = rfRecord.RentableName
+		rt.AssignmentTime = rfRecord.AssignmentTime
 		// Now just update the Rentable Record
 		err = rlib.UpdateRentable(&rt)
 		if err != nil {
@@ -537,8 +539,9 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		fmt.Println("Inserting new Rentable Record...")
 		fmt.Printf("Given RTID is %d\n", rfRecord.RTID)
 
-		rt.RentableName = rfRecord.RentableName
 		rt.BID = requestedBID
+		rt.RentableName = rfRecord.RentableName
+		rt.AssignmentTime = rfRecord.AssignmentTime
 		rid, err := rlib.InsertRentable(&rt)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
@@ -605,6 +608,7 @@ var rentableFormSelectFields = []string{
 	"RentableStatus.Status as RentableStatus",
 	"RentableStatus.DtStart as RSDtStart",
 	"RentableStatus.DtStop as RSDtStop",
+	"Rentable.AssignmentTime",
 }
 
 // getRentable returns the requested rentable
@@ -667,7 +671,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		var rStatus int64
-		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &gg.RSID, &rStatus, &gg.RSDtStart, &gg.RSDtStop)
+		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &gg.RSID, &rStatus, &gg.RSDtStart, &gg.RSDtStop, &gg.AssignmentTime)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return

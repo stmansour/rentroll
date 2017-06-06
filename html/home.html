@@ -1497,6 +1497,7 @@ function buildPageElements() {
                 RSDtStart: w2uiDateControlString(y),
                 RSDtStop: "1/1/9999",
                 CurrentDate: y,
+                AssignmentTime: 0,
             };
 
             getRentableTypes(BID)
@@ -1550,7 +1551,7 @@ function buildPageElements() {
             { field: 'RSDtStart', type: 'date', required: false, html: { caption: 'Rentable Status Start', page: 0, column: 0 } },
             { field: 'RSDtStop', type: 'date', required: false, html: { caption: 'Rentable Status Stop', page: 0, column: 0 } },
             { field: 'CurrentDate', type: 'date', required: false },
-            // { field: 'AssignmentTime', type: 'list', options: {items: app.assignmentTimeList}, required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+            { field: 'AssignmentTime', type: 'list', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -1596,13 +1597,29 @@ function buildPageElements() {
             delete data.postData.record.RARDtStart;
             getFormSubmitData(data.postData.record);
         },
-        onRefresh: function(/*event*/) {
-            var f = w2ui.rentableForm;
-            var r = f.record;
-            if (r.RID) {
-                f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
-            } else {
-                f.header = 'Edit ' + app.sRentable + ' (new) as of '+ r.CurrentDate;
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.rentableForm;
+                var r = f.record;
+                if (r.RID) {
+                    f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
+                } else {
+                    f.header = 'Edit ' + app.sRentable + ' (new) as of '+ r.CurrentDate;
+                }
+
+                // assignmentTime selected and items for w2field
+                var assignmentItems = [], assignSelected = {};
+                app.assignmentTimeList.forEach(function(item, index) {
+                    if (index == r.AssignmentTime) {
+                        assignSelected = { id: index, text: item };
+                    }
+                    assignmentItems.push({ id: index, text: item })
+                });
+                // fill the field with values
+                $("#rentableForm").find('input[name=AssignmentTime]').w2field('list', {
+                    items: assignmentItems,
+                    selected: assignSelected,
+                });
             }
         }
     });
