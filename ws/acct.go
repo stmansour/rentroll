@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"sort"
-	"strconv"
+	// "sort"
+	// "strconv"
 	"strings"
 	"time"
 )
@@ -188,8 +188,8 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 
 	fmt.Printf("Entered %s\n", funcname)
 
-	srch := fmt.Sprintf("BID=%d", d.BID)                 // default WHERE clause
-	order := "PLID ASC, LID ASC, GLNumber ASC, Name ASC" // default ORDER
+	srch := fmt.Sprintf("BID=%d", d.BID) // default WHERE clause
+	order := "GLNumber ASC, Name ASC"    // default ORDER
 	q, qw := gridBuildQuery("GLAccount", srch, order, d, &p)
 
 	// set g.Total to the total number of rows of this data...
@@ -198,7 +198,6 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-
 	fmt.Printf("db query = %s\n", q)
 
 	rows, err := rlib.RRdb.Dbrr.Query(q)
@@ -208,130 +207,205 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 		return
 	}
 
-	// this holds LID keys in ascending order
-	var sortedLIDKeys rlib.Int64Range
-
-	// this map holds values LID -> PLID
-	acctParentMap := make(map[int64]int64)
-
-	// account link: LID -> GLAccount
-	acctMap := make(map[int64]GLAccount)
-
 	count := 0
 	for rows.Next() {
 		var p GLAccount
 		var q rlib.GLAccount
 		rlib.ReadGLAccounts(rows, &q)
 		rlib.MigrateStructVals(&q, &p)
+		p.Recid = count
 
-		// map the account with its LID
-		acctMap[p.LID] = p
-		// map account's parent account
-		acctParentMap[p.LID] = p.PLID
-		// append LID in sorted slice
-		sortedLIDKeys = append(sortedLIDKeys, p.LID)
+		g.Records = append(g.Records, p)
 
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
 		}
 	}
-
 	err = rows.Err()
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
-	// this holds the list of deleting account from map, after parent-child relation build-up
-	deleteAcctKeys := []int64{}
-
-	// descending order of LID
-	sort.Sort(sort.Reverse(sortedLIDKeys))
-
-	// find child accounts of parent account, fit it in tree
-	for _, lid := range sortedLIDKeys {
-
-		// get parent LID
-		plid := acctParentMap[lid]
-
-		// if this account is at most parent level then keep continue
-		if plid == 0 {
-			continue
-		}
-
-		// get parent account
-		parentAcct, _ := acctMap[plid]
-
-		// get account
-		childAcct := acctMap[lid]
-
-		parentAcct.W2UIChild.Children = append(parentAcct.W2UIChild.Children, childAcct)
-		acctMap[plid] = parentAcct
-		deleteAcctKeys = append(deleteAcctKeys, lid)
-	}
-
-	// now delete records which has been put as in child of other account
-	for _, id := range deleteAcctKeys {
-		delete(acctMap, id)
-	}
-
-	// this holds PLID keys in ascending order
-	var sortedPLIDKeys rlib.Int64Range
-
-	for plid := range acctMap {
-		sortedPLIDKeys = append(sortedPLIDKeys, plid)
-	}
-
-	// now sort it in ascending order
-	sort.Sort(sortedPLIDKeys)
-
-	// setRecid is internal function to set Recid used in w2ui grid
-	setRecid := func(acctMap map[int64]GLAccount) {
-
-		// recursive routine
-		// first declare the function signature, so that we can call it recursively
-		var childAcctRecid func(acct GLAccount, recid int)
-
-		childAcctRecid = func(acct GLAccount, recid int) {
-			if len(acct.W2UIChild.Children) > 0 {
-				for id, childAcct := range acct.W2UIChild.Children {
-					recidx := id
-					// childID would be parentID + incremental id
-					childID, _ := strconv.Atoi(strconv.Itoa(acct.Recid) + strconv.Itoa(recidx))
-					childAcct.Recid = childID
-					acct.W2UIChild.Children[id] = childAcct
-					childAcctRecid(childAcct, childID)
-				}
-				// TODO: what if someone want to see in ascending order
-			}
-		}
-
-		mostParentCount := 1
-		for _, plid := range sortedPLIDKeys {
-			acct := acctMap[plid]
-			acct.Recid = mostParentCount
-			acctMap[plid] = acct
-			childAcctRecid(acct, mostParentCount)
-			mostParentCount++
-		}
-	}
-
-	setRecid(acctMap)
-
-	// web response
-	var records []GLAccount
-	for _, plid := range sortedPLIDKeys {
-		acct := acctMap[plid]
-		records = append(records, acct)
-	}
-	g.Records = records
-	g.Total = int64(len(g.Records))
-
-	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
+	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }
+
+// ============================================== //
+// This following routine is arranging accounts in parent-child
+// fashion (according to w2ui subgrid style), as of now just
+// disable it, later it will need to be fixed
+// ============================================== //
+
+// // SvcSearchHandlerGLAccounts generates a report of all GLAccounts for a the business unit
+// // called out in d.BID
+// // wsdoc {
+// //  @Title  Search General Ledger Accounts
+// //	@URL /v1/accounts/:BUI
+// //  @Method  GET, POST
+// //	@Synopsis Return a list of General Ledger Accounts
+// //  @Description This service returns a list of General Ledger accounts
+// //	@Input WebGridSearchRequest
+// //  @Response SearchGLAccountsResponse
+// // wsdoc }
+// func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+
+// 	var (
+// 		funcname = "SvcSearchHandlerGLAccounts"
+// 		p        rlib.GLAccount
+// 		err      error
+// 		g        SearchGLAccountsResponse
+// 	)
+
+// 	fmt.Printf("Entered %s\n", funcname)
+
+// 	srch := fmt.Sprintf("BID=%d", d.BID)                 // default WHERE clause
+// 	order := "PLID ASC, LID ASC, GLNumber ASC, Name ASC" // default ORDER
+// 	q, qw := gridBuildQuery("GLAccount", srch, order, d, &p)
+
+// 	// set g.Total to the total number of rows of this data...
+// 	g.Total, err = GetRowCount("GLAccount", qw)
+// 	if err != nil {
+// 		SvcGridErrorReturn(w, err, funcname)
+// 		return
+// 	}
+// 	fmt.Printf("db query = %s\n", q)
+
+// 	rows, err := rlib.RRdb.Dbrr.Query(q)
+// 	defer rows.Close()
+// 	if err != nil {
+// 		SvcGridErrorReturn(w, err, funcname)
+// 		return
+// 	}
+
+// 	// this holds LID keys in ascending order
+// 	var sortedLIDKeys rlib.Int64Range
+
+// 	// this map holds values LID -> PLID
+// 	acctParentMap := make(map[int64]int64)
+
+// 	// account link: LID -> GLAccount
+// 	acctMap := make(map[int64]GLAccount)
+
+// 	count := 0
+// 	for rows.Next() {
+// 		var p GLAccount
+// 		var q rlib.GLAccount
+// 		rlib.ReadGLAccounts(rows, &q)
+// 		rlib.MigrateStructVals(&q, &p)
+
+// 		// map the account with its LID
+// 		acctMap[p.LID] = p
+// 		// map account's parent account
+// 		acctParentMap[p.LID] = p.PLID
+// 		// append LID in sorted slice
+// 		sortedLIDKeys = append(sortedLIDKeys, p.LID)
+
+// 		count++ // update the count only after adding the record
+// 		if count >= d.wsSearchReq.Limit {
+// 			break // if we've added the max number requested, then exit
+// 		}
+// 	}
+
+// 	err = rows.Err()
+// 	if err != nil {
+// 		SvcGridErrorReturn(w, err, funcname)
+// 		return
+// 	}
+
+// 	// this holds the list of deleting account from map, after parent-child relation build-up
+// 	deleteAcctKeys := []int64{}
+
+// 	// descending order of LID
+// 	sort.Sort(sort.Reverse(sortedLIDKeys))
+
+// 	// find child accounts of parent account, fit it in tree
+// 	for _, lid := range sortedLIDKeys {
+
+// 		// get parent LID
+// 		plid := acctParentMap[lid]
+
+// 		// if this account is at most parent level then keep continue
+// 		if plid == 0 {
+// 			continue
+// 		}
+
+// 		// get parent account
+// 		parentAcct, _ := acctMap[plid]
+
+// 		// get account
+// 		childAcct := acctMap[lid]
+
+// 		parentAcct.W2UIChild.Children = append(parentAcct.W2UIChild.Children, childAcct)
+// 		acctMap[plid] = parentAcct
+// 		deleteAcctKeys = append(deleteAcctKeys, lid)
+// 	}
+
+// 	// now delete records which has been put as in child of other account
+// 	for _, id := range deleteAcctKeys {
+// 		delete(acctMap, id)
+// 	}
+
+// 	// this holds PLID keys in ascending order
+// 	var sortedPLIDKeys rlib.Int64Range
+
+// 	for plid := range acctMap {
+// 		sortedPLIDKeys = append(sortedPLIDKeys, plid)
+// 	}
+
+// 	// now sort it in ascending order
+// 	sort.Sort(sortedPLIDKeys)
+
+// 	// setRecid is internal function to set Recid used in w2ui grid
+// 	setRecid := func(acctMap map[int64]GLAccount) {
+
+// 		// recursive routine
+// 		// first declare the function signature, so that we can call it recursively
+// 		var childAcctRecid func(acct GLAccount, recid int)
+
+// 		childAcctRecid = func(acct GLAccount, recid int) {
+// 			if len(acct.W2UIChild.Children) > 0 {
+// 				for id, childAcct := range acct.W2UIChild.Children {
+// 					recidx := id
+// 					// childID would be parentID + incremental id
+// 					childID, _ := strconv.Atoi(strconv.Itoa(acct.Recid) + strconv.Itoa(recidx))
+// 					childAcct.Recid = childID
+// 					acct.W2UIChild.Children[id] = childAcct
+// 					childAcctRecid(childAcct, childID)
+// 				}
+// 				// TODO: what if someone want to see in ascending order
+// 			}
+// 		}
+
+// 		mostParentCount := 1
+// 		for _, plid := range sortedPLIDKeys {
+// 			acct := acctMap[plid]
+// 			acct.Recid = mostParentCount
+// 			acctMap[plid] = acct
+// 			childAcctRecid(acct, mostParentCount)
+// 			mostParentCount++
+// 		}
+// 	}
+
+// 	setRecid(acctMap)
+
+// 	// web response
+// 	var records []GLAccount
+// 	for _, plid := range sortedPLIDKeys {
+// 		acct := acctMap[plid]
+// 		records = append(records, acct)
+// 	}
+// 	g.Records = records
+// 	g.Total = int64(len(g.Records))
+
+// 	g.Status = "success"
+// 	w.Header().Set("Content-Type", "application/json")
+// 	SvcWriteResponse(&g, w)
+// }
+
+// ======================================================= //
 
 // SvcFormHandlerGLAccounts formats a complete data record for a gl account suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the LID as follows:
