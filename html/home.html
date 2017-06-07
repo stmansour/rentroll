@@ -1663,13 +1663,15 @@ function buildPageElements() {
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
             {field: 'Payors', caption: 'Payor(s)', size: '250px', sortable: true,
                 render: function (record, index, col_index) {
-                    var icon;
-                    if (record.PayorIsCompany) {
-                        icon = 'fa-building-o'
-                    } else {
-                        icon = 'fa-user-o'
+                    if (record) {
+                        var icon;
+                        if (record.PayorIsCompany) {
+                            icon = 'fa-building-o'
+                        } else {
+                            icon = 'fa-user-o'
+                        }
+                        return '<i class="fa '+icon+'"></i>&nbsp;<span>'+record.Payors+'</span>';
                     }
-                    return '<i class="fa '+icon+'"></i>&nbsp;<span>'+record.Payors+'</span>';
                 },
             },
             {field: 'AgreementStart', caption: 'Agreement<br>Start', render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
@@ -2416,7 +2418,7 @@ function buildPageElements() {
                         var form = (ob.RentCycle !== 0 && ob.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
                         var myurl = '/v1/asm/' + ob.BID + '/' + ob.ASMID;
                         console.log( 'calling setToForm( '+form+', ' + myurl + ')');
-                        
+
                         // before setting to the form, get the list of AcctRules...
                         var x = getCurrentBusiness();
                         var Bid = x.value;
