@@ -3888,31 +3888,36 @@ function finishInitialization() {
     var d2 = dateMonthFwd(d1);
     app.D2 = dateControlString(d2);
 }
-function handleData(data,status) {
-    if (status == "success") {
-        if (data.substring(11,14) == "err") {
-            console.log('ERROR: '+data);
-        } else {
-/* jshint ignore:start */
-            eval(data); // defines all the lists; values for the dropdown lists
-/* jshint ignore:end */
-            console.log("SUCCESSFULLY LOADED LISTS");
-        }
-    } else {
-        console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + status);
-    }
-    finishInitialization();
-}
+
 $(function () {
     "use strict";
     $.get('/v1/uilists/' + app.language + '/' + app.template)
-    .done(handleData)
+    .done(function(data, textStatus, jqXHR) {
+
+        if (data.substring(11,14) == "err") {
+            console.log('ERROR: '+data);
+        }
+
+        // if status is success then
+        if (jqXHR.status == 200) {
+            var app_data = JSON.parse(data);
+            // fit all lists, values, maps in app variable
+            for( var key in app_data ) {
+                app[key] = app_data[key];
+            }
+        } else {
+            console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + textStatus);
+        }
+
+        // finish initialization
+        finishInitialization();
+
+    })
     .fail( function() {
         console.log('Error getting /v1/uilists');
-     });
-}
+    });
 
-);
+});
 
 </script>
 
