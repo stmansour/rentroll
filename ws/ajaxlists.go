@@ -177,7 +177,15 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// --------------- LIST DOWN ACCOUNT STUFF ----------------------
-	accountStuff := getAccountThingJSList()
+	accountStuffData := getAccountThingJSList()
+	accountStuff := make(map[string][]IDTextMap)
+	for k, v := range accountStuffData {
+		list := []IDTextMap{}
+		for i, txt := range v {
+			list = append(list, IDTextMap{ID: i, Text: txt})
+		}
+		accountStuff[k] = list
+	}
 	appData["account_stuff"] = accountStuff
 
 	// send down then json stuff
