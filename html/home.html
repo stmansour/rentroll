@@ -2186,10 +2186,34 @@ function buildPageElements() {
             $.get('/v1/uival/' + x.value + '/app.Receipts' )
             .done( function(data) {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                    eval(data);
+                    app.Receipts = JSON.parse(data);
+
+                    var y = new Date();
+                    var pmt_options = buildPaymentTypeOptions(BUD);
+                    var ptInit = (options.length > 0) ? options[0] : '';
+                    var record = {
+                        recid: 0,
+                        RCPTID: 0,
+                        PRCPTID: 0,
+                        ARID: 0,
+                        BID: BUD,
+                        PMTID: 0,
+                        PmtTypeName: ptInit,
+                        Dt: w2uiDateControlString(y),
+                        DocNo: '',
+                        Payor: '',
+                        TCID: 0,
+                        Amount: 0,
+                        Comment: '',
+                        OtherPayorName: '',
+                    };
+                    w2ui.receiptForm.fields[0].options.items = pmt_options;
                     w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
                     w2ui.receiptForm.refresh();
-                    return;
+                    w2ui.receiptForm.record = record;
+                    w2ui.toplayout.content('right', w2ui.receiptForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 400);
                 }
                 if (data.status != 'success') {
                     w2ui.receiptForm.message(data.message);
@@ -2198,31 +2222,6 @@ function buildPageElements() {
             .fail( function() {
                 console.log('Error getting /v1/uival/'+BUD+'/app.Receipts');
              });
-            var y = new Date();
-            var options = buildPaymentTypeOptions(BUD);
-            var ptInit = (options.length > 0) ? options[0] : '';
-            var record = {
-                recid: 0,
-                RCPTID: 0,
-                PRCPTID: 0,
-                ARID: 0,
-                BID: BUD,
-                PMTID: 0,
-                PmtTypeName: ptInit,
-                Dt: w2uiDateControlString(y),
-                DocNo: '',
-                Payor: '',
-                TCID: 0,
-                Amount: 0,
-                Comment: '',
-                OtherPayorName: '',
-            };
-            w2ui.receiptForm.fields[0].options.items = options;
-            w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
-            w2ui.receiptForm.record = record;
-            w2ui.toplayout.content('right', w2ui.receiptForm);
-            w2ui.toplayout.show('right', true);
-            w2ui.toplayout.sizeTo('right', 400);
         },
     });
 
@@ -2426,21 +2425,19 @@ function buildPageElements() {
                         $.get('/v1/uival/' + x.value + '/app.Assessments' )
                         .done( function(data) {
                             if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                eval(data);
-                                w2ui.asmInstForm.fields[0].options.items = app.Assessments[Bud];
-                                w2ui.asmInstForm.record = {ARID: Bud };
-                                w2ui.asmInstForm.refresh();
-                                return;
+                                app.Assessments = JSON.parse(data);
+                                w2ui[form].get('ARID').options.items = app.Assessments[Bud];
+                                w2ui[form].refresh();
+
+                                setToForm(form, myurl);
                             }
                             if (data.status != 'success') {
                                 w2ui.asmsGrid.message(data.message);
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uilists');
+                            console.log('Error getting /v1/uival/' + x.value + '/app.Assessments');
                          });
-
-                        setToForm(form, myurl);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -2453,51 +2450,52 @@ function buildPageElements() {
             $.get('/v1/uival/' + x.value + '/app.Assessments' )
             .done( function(data) {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                    eval(data);
+                    app.Assessments = JSON.parse(data);
+
+                    // Insert an empty record...
+                    var BID=x.value;
+                    var BUD = getBUDfromBID(BID);
+                    app.ridRentablePicker.BID = BID; // needed by typedown
+                    w2ui.asmEpochForm.url = '/v1/asm/' + BID + '/0';
+                    var y = new Date();
+                    var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                        var record = {
+                        ARID: 0,
+                        recid: 0,
+                        RID: 0,
+                        ASMID: 0,
+                        PASMID: 0,
+                        ATypeLID: 0,
+                        InvoiceNo: 0,
+                        RAID: 0,
+                        BID: BUD,
+                        Start: w2uiDateControlString(y),
+                        Stop: w2uiDateControlString(y1),
+                        RentCycle: 'Monthly',
+                        ProrationCycle: 'Daily',
+                        TCID: 0,
+                        Amount: 0,
+                        AcctRule: '',
+                        Comment: '',
+                        LastModTime: w2uiDateControlString(y),
+                        LastModBy: 0,
+                    };
+                    w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
-                    return;
+                    w2ui.asmEpochForm.record = record;
+
+                    w2ui.asmEpochForm.refresh();
+                    w2ui.toplayout.content('right', w2ui.asmEpochForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 400);
                 }
                 if (data.status != 'success') {
                     w2ui.asmEpochForm.message(data.message);
                 }
             })
             .fail( function() {
-                console.log('Error getting /v1/uilists');
+                console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
              });
-            // Insert an empty record...
-            var BID=x.value;
-            var BUD = getBUDfromBID(BID);
-            app.ridRentablePicker.BID = BID; // needed by typedown
-            w2ui.asmEpochForm.url = '/v1/asm/' + BID + '/0';
-            var y = new Date();
-            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                var record = {
-                ARID: 0,
-                recid: 0,
-                RID: 0,
-                ASMID: 0,
-                PASMID: 0,
-                ATypeLID: 0,
-                InvoiceNo: 0,
-                RAID: 0,
-                BID: BUD,
-                Start: w2uiDateControlString(y),
-                Stop: w2uiDateControlString(y1),
-                RentCycle: 'Monthly',
-                ProrationCycle: 'Daily',
-                TCID: 0,
-                Amount: 0,
-                AcctRule: '',
-                Comment: '',
-                LastModTime: w2uiDateControlString(y),
-                LastModBy: 0,
-            };
-            w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-            w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
-            w2ui.asmEpochForm.record = record;
-            w2ui.toplayout.content('right', w2ui.asmEpochForm);
-            w2ui.toplayout.show('right', true);
-            w2ui.toplayout.sizeTo('right', 400);
         },
         onRequest: function(/*event*/) {
             w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
@@ -2532,7 +2530,7 @@ function buildPageElements() {
         url: '/v1/asm',
         formURL: '/html/formasmepoch.html',
         fields: [
-            { field: 'ARID',          type: 'list',   required: true, options:  {items: app.Assessments} },
+            { field: 'ARID',          type: 'list',   required: true, options: { items: app.Assessments }},
             { field: 'recid',         type: 'int',    required: false },
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
@@ -2641,7 +2639,7 @@ function buildPageElements() {
         url: '/v1/asm',
         formURL: '/html/formasminst.html',
         fields: [
-            { field: 'ARID',          type: 'list',   required: true, options:  {items: app.Assessments} },
+            { field: 'ARID',          type: 'list',   required: true, options: { items: app.Assessments } },
             { field: 'recid',         type: 'int',    required: false },
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: false },

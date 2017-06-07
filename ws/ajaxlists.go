@@ -22,57 +22,6 @@ var USStateAbbr = []string{"AK", "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "FL",
 
 var yesno = []string{"no", "yes"}
 
-// String2Int64MapToJSList generates a string of JS code that assigns
-// all the map strings in m to an array.  Suitable for a JS eval call.
-func String2Int64MapToJSList(name string, m *rlib.Str2Int64Map) string {
-	s := name + "=["
-	l := len(*m)
-	i := 0
-	for k := range *m {
-		s += "'" + k + "'"
-		if i+1 < l {
-			s += ","
-		}
-		i++
-	}
-	s += "];\n"
-	return s
-}
-
-// String2Int64MapToJSIdTextList generates a string of JS code that assigns
-// all the map strings in m to an array.  Suitable for a JS eval call.
-func String2Int64MapToJSIdTextList(name string, m *rlib.Str2Int64Map) string {
-	s := name + "=["
-	l := len(*m)
-	i := 0
-	for k, v := range *m {
-		s += fmt.Sprintf("{id:%d,text:%q}", v, k)
-		if i+1 < l {
-			s += ","
-		}
-		i++
-	}
-	s += "];\n"
-	return s
-}
-
-// StringListToJSList generates a string of JS code that assigns
-// all the map strings in m to an array.  Suitable for a JS eval call.
-func StringListToJSList(name string, m *[]string) string {
-	s := name + "=["
-	l := len(*m)
-	i := 0
-	for k := 0; k < l; k++ {
-		s += "'" + (*m)[k] + "'"
-		if i+1 < l {
-			s += ","
-		}
-		i++
-	}
-	s += "];\n"
-	return s
-}
-
 var smapToJS = []struct {
 	name   string
 	valmap *rlib.Str2Int64Map
@@ -83,7 +32,7 @@ var smapToJS = []struct {
 	{"cycleFreq", &rlib.CycleFreqMap},
 }
 
-var idTextMaps = []struct {
+var idTextMapList = []struct {
 	name   string
 	valmap *rlib.Str2Int64Map
 }{
@@ -112,6 +61,12 @@ type pmtMap struct {
 	Name  string
 }
 
+// IDTextMap drop list for w2ui {id: ID, text: Text}
+type IDTextMap struct {
+	ID   int64  `json:"id"`
+	Text string `json:"text"`
+}
+
 // SvcUILists returns JSON for the Javascript lists needed for the UI.  Typically,
 // these lists are put into a map such as rlib.Str2Int64Map or a slice of strings.
 // Then the map or slice is entered into either smapToJS or ssliceToJS so that it
@@ -129,7 +84,7 @@ type pmtMap struct {
 //  @Desc LANGUAGE is optional, it defaults to "en-us".  TEMPLATE is also options, and it
 //  @Desc defaults to "default"
 //	@Input WebGridSearchRequest
-//  @Response JSONDataResponse
+//  @Response JSONResponse
 // wsdoc }
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcUILists"
@@ -169,12 +124,20 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// --------------- MAPPING - smapToJS ----------------------
 	for i := 0; i < len(smapToJS); i++ {
-		appData[smapToJS[i].name] = smapToJS[i].valmap
+		list := []string{}
+		for k := range *smapToJS[i].valmap {
+			list = append(list, k)
+		}
+		appData[smapToJS[i].name] = list
 	}
 
 	// --------------- LIST DOWN ID TEXT MAPS ----------------------
-	for i := 0; i < len(idTextMaps); i++ {
-		appData[idTextMaps[i].name] = idTextMaps[i].valmap
+	for i := 0; i < len(idTextMapList); i++ {
+		list := []IDTextMap{}
+		for txt, id := range *idTextMapList[i].valmap {
+			list = append(list, IDTextMap{ID: id, Text: txt})
+		}
+		appData[idTextMapList[i].name] = list
 	}
 
 	// --------------- LIST DOWN PAYMENT TYPES ----------------------
