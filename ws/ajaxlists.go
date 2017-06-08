@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"rentroll/rlib"
+	"sort"
 	"strings"
 
 	"github.com/kardianos/osext"
@@ -125,8 +126,19 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// --------------- MAPPING - smapToJS ----------------------
 	for i := 0; i < len(smapToJS); i++ {
 		list := []string{}
-		for k := range *smapToJS[i].valmap {
-			list = append(list, k)
+
+		// sort out items of valmap, based on int64 value
+		sortList := rlib.Int64Range{}
+		i64ToSMap := map[int64]string{}
+		for s, i64 := range *smapToJS[i].valmap {
+			sortList = append(sortList, i64)
+			i64ToSMap[i64] = s
+		}
+		sort.Sort(sortList)
+
+		for _, i64 := range sortList {
+			v := i64ToSMap[i64]
+			list = append(list, v)
 		}
 		appData[smapToJS[i].name] = list
 	}
@@ -134,7 +146,18 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// --------------- LIST DOWN ID TEXT MAPS ----------------------
 	for i := 0; i < len(idTextMapList); i++ {
 		list := []IDTextMap{}
+
+		// sort out items of valmap, based on int64 value
+		sortList := rlib.Int64Range{}
+		i64ToSMap := map[int64]string{}
 		for txt, id := range *idTextMapList[i].valmap {
+			sortList = append(sortList, id)
+			i64ToSMap[id] = txt
+		}
+		sort.Sort(sortList)
+
+		for _, id := range sortList {
+			txt := i64ToSMap[id]
 			list = append(list, IDTextMap{ID: id, Text: txt})
 		}
 		appData[idTextMapList[i].name] = list
