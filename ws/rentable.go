@@ -184,10 +184,10 @@ func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error
 func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var (
-		funcname    = "SvcSearchHandlerRentables"
-		err         error
-		g           SearchRentablesResponse
-		currentTime = time.Now()
+		funcname = "SvcSearchHandlerRentables"
+		err      error
+		g        SearchRentablesResponse
+		// currentTime = time.Now()
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -197,15 +197,19 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	)
 
 	// default search (where clause) and sort (order by clause)
-	defaultWhere := `Rentable.BID=%d
-		AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL)
-		AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL)
-		AND (RentableTypeRef.DtStart<=%q OR RentableTypeRef.DtStart IS NULL)
-		AND (RentableTypeRef.DtStop>%q OR RentableTypeRef.DtStop IS NULL)
-		AND (RentableStatus.DtStart<=%q OR RentableStatus.DtStart IS NULL)
-		AND (RentableStatus.DtStop>%q OR RentableStatus.DtStop IS NULL)`
-	srch := fmt.Sprintf(defaultWhere, d.BID, currentTime, currentTime, currentTime, currentTime, currentTime, currentTime) // default WHERE clause
-	order := "Rentable.RentableName ASC"                                                                                   // default ORDER
+	// defaultWhere := `Rentable.BID=%d
+	// 	AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL)
+	// 	AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL)
+	// 	AND (RentableTypeRef.DtStart<=%q OR RentableTypeRef.DtStart IS NULL)
+	// 	AND (RentableTypeRef.DtStop>%q OR RentableTypeRef.DtStop IS NULL)
+	// 	AND (RentableStatus.DtStart<=%q OR RentableStatus.DtStart IS NULL)
+	// 	AND (RentableStatus.DtStop>%q OR RentableStatus.DtStop IS NULL)`
+	// srch := fmt.Sprintf(defaultWhere, d.BID, currentTime, currentTime, currentTime, currentTime, currentTime, currentTime)  // default WHERE clause
+
+	// Show All Renbles no matter in what state they are,
+	srch := fmt.Sprintf(`Rentable.BID=%d`, d.BID)
+	// show active rentable first by RenalAgreement Dates
+	order := "RentalAgreementRentables.RARDtStop DESC, RentalAgreementRentables.RARDtStart DESC, Rentable.RentableName ASC" // default ORDER
 
 	// check that RentableStatus is there in search fields
 	// if exists then modify it
