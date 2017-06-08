@@ -24,5 +24,8 @@ func RRReadConfig() error {
 		log.Fatal(err)
 	}
 	RRdb.Zone, err = time.LoadLocation(AppConfig.Timezone)
+	if err != nil {
+		LogAndPrintError("Error loading timezone %s : %s\n", AppConfig.Timezone, err.Error())
+	}
 	return err
 }
