@@ -403,9 +403,9 @@ function buildPageElements() {
             { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
                         { id: 'allocfunds', text: 'Apply Payments', icon: 'fa fa-check-circle-o' },
-                        { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
-                        { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
-                        { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
+                        // { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
+                        // { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
+                        // { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
                 ]
             },
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
@@ -415,8 +415,8 @@ function buildPageElements() {
                         { id: 'rentalagrs',  text: plural(app.sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
                         { id: 'asms',  text: plural(app.sAssessment),  icon: 'fa fa-star-o', hint: plural(app.sAssessment) },
                         { id: 'receipts',  text: plural(app.sReceipt),  icon: 'fa fa-star', hint: plural(app.sReceipt) },
-                        { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
-                        { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
+                        // { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
+                        // { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
                 ]
             },
             { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
@@ -2148,7 +2148,26 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; i++) {
                         var ob = this.get(sel[i]);
-                        setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400);
+
+                        var x = getCurrentBusiness();
+                        var Bid = x.value;
+                        var Bud = getBUDfromBID(Bid);
+                        $.get('/v1/uival/' + x.value + '/app.Receipts' )
+                        .done( function(data) {
+                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                                app.Receipts = JSON.parse(data);
+                                w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
+                                w2ui.receiptForm.refresh();
+                                setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400);
+                            }
+                            if (data.status != 'success') {
+                                w2ui.receiptForm.message(data.message);
+                            }
+                        })
+                        .fail( function() {
+                            console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
+                         });
+                        
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
