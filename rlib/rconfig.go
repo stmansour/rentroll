@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"extres"
+	"fmt"
 	"log"
 	"time"
 
@@ -25,7 +26,8 @@ func RRReadConfig() error {
 	}
 	RRdb.Zone, err = time.LoadLocation(AppConfig.Timezone)
 	if err != nil {
-		LogAndPrintError("Error loading timezone %s : %s\n", AppConfig.Timezone, err.Error())
+		fmt.Printf("Error loading timezone %s : %s\n", AppConfig.Timezone, err.Error())
+		Ulog("Error loading timezone %s : %s", AppConfig.Timezone, err.Error())
 	}
 	return err
 }
