@@ -998,9 +998,6 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
-            reset: function() {
-                this.clear();
-            },
             delete: function() {
 
                 var form = this;
@@ -1332,9 +1329,6 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
-            reset: function () {
-                this.clear();
-            },
             delete: function(target, data) {
 
                 var form = this;
@@ -1584,10 +1578,6 @@ function buildPageElements() {
                 });
 
             },
-            reset: function() {
-                var f = w2ui.rentableForm;
-                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.RID + '   Name = ' + f.record.RentableName);
-            }
         },
         onSubmit: function(target, data){
             // server request form data
@@ -1875,9 +1865,6 @@ function buildPageElements() {
                     w2ui.toplayout.hide('right',true);
                     tgrid.reload();
                 });
-            },
-            reset: function() {
-                w2ui.mainlayout.refresh();
             },
         },
         onRefresh: function(/*event*/) {
@@ -2190,7 +2177,7 @@ function buildPageElements() {
 
                     var y = new Date();
                     var pmt_options = buildPaymentTypeOptions(BUD);
-                    var ptInit = (options.length > 0) ? options[0] : '';
+                    var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                     var record = {
                         recid: 0,
                         RCPTID: 0,
@@ -2343,10 +2330,6 @@ function buildPageElements() {
                     grid.reload();
                 });
             },
-            reset: function() {
-                var f = w2ui.receiptForm;
-                console.log('f:   recid = ' + f.record.recid + '   RCPTID = ' + f.record.RCPTID );
-            }
         },
    });
 
@@ -2607,12 +2590,7 @@ function buildPageElements() {
                     w2ui.toplayout.hide('right',true);
                     tgrid.reload();
                 });
-
             },
-            reset: function() {
-                var f = w2ui.asmEpochForm;
-                console.log('reset: ASMID = ' + f.record.ASMID );
-            }
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.asmEpochForm;
@@ -2686,10 +2664,6 @@ function buildPageElements() {
                 });
 
             },
-            reset: function() {
-                var f = w2ui.asmInstForm;
-                console.log('reset: ASMID = ' + f.record.ASMID );
-            }
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.asmInstForm;
@@ -3011,9 +2985,6 @@ function buildPageElements() {
                     console.log("Save Payment Type failed.")
                 });
             },
-            reset: function() {
-                this.clear();
-            },
             delete: function() {
 
                 var form = this;
@@ -3263,10 +3234,6 @@ function buildPageElements() {
                 .fail(function(data){
                     console.log("Save Depository failed.")
                 });
-            },
-            reset: function(target, data) {
-                var f = w2ui.depForm;
-                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.DEPID + '   Name = ' + f.record.Name);
             },
             delete: function(target, data) {
 
@@ -3553,10 +3520,6 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
-            reset: function() {
-                var f = w2ui.arsForm;
-                console.log('f:   recid = ' + f.record.recid + '   RID = ' + f.record.ARID + '   Name = ' + f.record.Name);
-            }
         },
         onSubmit: function(target, data){
             console.log("arsForm POST data");
