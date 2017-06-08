@@ -141,14 +141,18 @@ function setToForm(sform, url, width) {
     }
     //console.log('sform = ' + sform + '  url = ' + url + '   <<<<   WIDTH = ' + width);
     var f = w2ui[sform];
-    w2ui.toplayout.show('right', true);
-    w2ui.toplayout.content('right', f);
-    w2ui.toplayout.sizeTo('right', width);
     if (url.length > 0) {
         f.url = url;
-        f.request();
+        f.request(function(event) {
+            // only render the toplayout after server has sent down data
+            // so that w2ui can bind values with field's html control,
+            // otherwise it is unable to find html controls
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.content('right', f);
+            w2ui.toplayout.sizeTo('right', width);
+            w2ui.toplayout.render();
+        });
     }
-    w2ui.toplayout.render();
 }
 
 //-----------------------------------------------------------------------------

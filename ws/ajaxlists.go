@@ -1,8 +1,8 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -22,57 +22,6 @@ var USStateAbbr = []string{"AK", "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "FL",
 
 var yesno = []string{"no", "yes"}
 
-// String2Int64MapToJSList generates a string of JS code that assigns
-// all the map strings in m to an array.  Suitable for a JS eval call.
-func String2Int64MapToJSList(name string, m *rlib.Str2Int64Map) string {
-	s := name + "=["
-	l := len(*m)
-	i := 0
-	for k := range *m {
-		s += "'" + k + "'"
-		if i+1 < l {
-			s += ","
-		}
-		i++
-	}
-	s += "];\n"
-	return s
-}
-
-// String2Int64MapToJSIdTextList generates a string of JS code that assigns
-// all the map strings in m to an array.  Suitable for a JS eval call.
-func String2Int64MapToJSIdTextList(name string, m *rlib.Str2Int64Map) string {
-	s := name + "=["
-	l := len(*m)
-	i := 0
-	for k, v := range *m {
-		s += fmt.Sprintf("{id:%d,text:%q}", v, k)
-		if i+1 < l {
-			s += ","
-		}
-		i++
-	}
-	s += "];\n"
-	return s
-}
-
-// StringListToJSList generates a string of JS code that assigns
-// all the map strings in m to an array.  Suitable for a JS eval call.
-func StringListToJSList(name string, m *[]string) string {
-	s := name + "=["
-	l := len(*m)
-	i := 0
-	for k := 0; k < l; k++ {
-		s += "'" + (*m)[k] + "'"
-		if i+1 < l {
-			s += ","
-		}
-		i++
-	}
-	s += "];\n"
-	return s
-}
-
 var smapToJS = []struct {
 	name   string
 	valmap *rlib.Str2Int64Map
@@ -83,7 +32,7 @@ var smapToJS = []struct {
 	{"cycleFreq", &rlib.CycleFreqMap},
 }
 
-var idTextMaps = []struct {
+var idTextMapList = []struct {
 	name   string
 	valmap *rlib.Str2Int64Map
 }{
@@ -100,15 +49,22 @@ var ssliceToJS = []struct {
 	{"rentableStatusList", &rlib.RentableStatusString},
 }
 
-// sendBusinessMap creates a map that can be used by the client to associate
-// a BUD with a BID.
-//
-func sendBusinessMap(w http.ResponseWriter) {
-	io.WriteString(w, "app.BizMap=[")
-	for k, v := range rlib.RRdb.BUDlist {
-		fmt.Fprintf(w, "{BUD: %q, BID: %d},\n", k, v)
-	}
-	io.WriteString(w, "];\n")
+// bizMap struct, used in app.BizMap on front-end side
+type bizMap struct {
+	BID int64
+	BUD string
+}
+
+// pmtMap struct, used in app.pmtTypes on front-end side
+type pmtMap struct {
+	PMTID int64
+	Name  string
+}
+
+// IDTextMap drop list for w2ui {id: ID, text: Text}
+type IDTextMap struct {
+	ID   int64  `json:"id"`
+	Text string `json:"text"`
 }
 
 // SvcUILists returns JSON for the Javascript lists needed for the UI.  Typically,
@@ -123,12 +79,12 @@ func sendBusinessMap(w http.ResponseWriter) {
 //  @Title  Get UI Lists
 //	@URL /v1/uilists/:LANGUAGE/:TEMPLATE
 //  @Method  GET
-//	@Synopsis Return string lists that are used in the UI
+//	@Synopsis Return jsonReponse lists that are used in the UI
 //  @Desc Return data can be processed by eval() to create the string lists used in the UI.
 //  @Desc LANGUAGE is optional, it defaults to "en-us".  TEMPLATE is also options, and it
 //  @Desc defaults to "default"
 //	@Input WebGridSearchRequest
-//  @Response string
+//  @Response JSONResponse
 // wsdoc }
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcUILists"
@@ -153,42 +109,55 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	fmt.Printf("Language: %s\nTemplate: %s\n", language, template)
 
-	sendBusinessMap(w)
+	// appData will hold the map of data with key as string
+	// value would be any type, typically it will be used in front-end side
+	// to hold the config values in `app` variable
+	appData := make(map[string]interface{})
 
-	//------------------------------------------
-	// send the maps...
-	//------------------------------------------
+	// --------------- LIST DOWN BUSINESSESS ----------------------
+	// set business map in app
+	businessList := []bizMap{}
+	for bud, bid := range rlib.RRdb.BUDlist {
+		businessList = append(businessList, bizMap{BID: bid, BUD: bud})
+	}
+	appData["BizMap"] = businessList
+
+	// --------------- MAPPING - smapToJS ----------------------
 	for i := 0; i < len(smapToJS); i++ {
-		io.WriteString(w, String2Int64MapToJSList("app."+smapToJS[i].name, smapToJS[i].valmap))
-	}
-	//------------------------------------------
-	// send the idText maps...
-	//------------------------------------------
-	for i := 0; i < len(idTextMaps); i++ {
-		io.WriteString(w, String2Int64MapToJSIdTextList("app."+idTextMaps[i].name, idTextMaps[i].valmap))
-	}
-
-	fmt.Fprintf(w, "app.pmtTypes=[];\n")
-	for k, v := range rlib.RRdb.BUDlist {
-		m := rlib.GetPaymentTypesByBusiness(v) // get the payment types for this business
-		as := fmt.Sprintf("app.pmtTypes['%s']=[", k)
-		for pmt, a := range m {
-			as += fmt.Sprintf("{PMTID: %d, Name: %q},", pmt, a.Name)
+		list := []string{}
+		for k := range *smapToJS[i].valmap {
+			list = append(list, k)
 		}
-		as += "];\n"
-		io.WriteString(w, as)
+		appData[smapToJS[i].name] = list
 	}
 
-	//------------------------------------------
-	// now the slices...
-	//------------------------------------------
+	// --------------- LIST DOWN ID TEXT MAPS ----------------------
+	for i := 0; i < len(idTextMapList); i++ {
+		list := []IDTextMap{}
+		for txt, id := range *idTextMapList[i].valmap {
+			list = append(list, IDTextMap{ID: id, Text: txt})
+		}
+		appData[idTextMapList[i].name] = list
+	}
+
+	// --------------- LIST DOWN PAYMENT TYPES ----------------------
+	var pmtTypes = make(map[string][]pmtMap)
+	for bud, bid := range rlib.RRdb.BUDlist {
+		bizPmtList := []pmtMap{}
+		m := rlib.GetPaymentTypesByBusiness(bid) // get the payment types for this business
+		for pmt, a := range m {
+			bizPmtList = append(bizPmtList, pmtMap{PMTID: pmt, Name: a.Name})
+		}
+		pmtTypes[bud] = bizPmtList
+	}
+	appData["pmtTypes"] = pmtTypes
+
+	// --------------- LIST DOWN SLICES ----------------------
 	for i := 0; i < len(ssliceToJS); i++ {
-		io.WriteString(w, StringListToJSList("app."+ssliceToJS[i].name, ssliceToJS[i].valslice))
+		appData[ssliceToJS[i].name] = ssliceToJS[i].valslice
 	}
 
-	//------------------------------------------
-	// now the language/template strings...
-	//------------------------------------------
+	// --------------- LIST DOWN LANGUAGE/TEMPLATE STRINGS ----------------------
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
@@ -204,21 +173,24 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	m := rlib.LoadCSV(fname)
 	for i := 0; i < len(m); i++ {
-		s := fmt.Sprintf("%s.%s='%s';\n", "app", m[i][0], m[i][1])
-		io.WriteString(w, s)
+		appData[m[i][0]] = m[i][1]
 	}
 
-	//------------------------------------------
-	// send down the account things
-	//------------------------------------------
-	al := getAccountThingJSList()
-	io.WriteString(w, fmt.Sprintf("app.account_stuff={};\n"))
-	for n, thingMap := range al {
-		t := fmt.Sprintf("app.account_stuff['%s']=[", n)
-		for id, text := range thingMap {
-			t += fmt.Sprintf("{id: %d, text: '%s'},", id, text)
+	// --------------- LIST DOWN ACCOUNT STUFF ----------------------
+	accountStuffData := getAccountThingJSList()
+	accountStuff := make(map[string][]IDTextMap)
+	for k, v := range accountStuffData {
+		list := []IDTextMap{}
+		for i, txt := range v {
+			list = append(list, IDTextMap{ID: i, Text: txt})
 		}
-		t += "];\n"
-		io.WriteString(w, t)
+		accountStuff[k] = list
+	}
+	appData["account_stuff"] = accountStuff
+
+	// send down then json stuff
+	if err := json.NewEncoder(w).Encode(appData); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
 	}
 }
