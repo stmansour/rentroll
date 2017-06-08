@@ -45,9 +45,18 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 		}
 		return p, r.RentableName, sra
 	case rlib.JNLTYPEASMT:
+		reason := ""
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)
-		return "Assessment - " + rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name, r.RentableName, sra
+		if a.ARID > 0 {
+			ar, err := rlib.GetAR(a.ARID)
+			if err == nil {
+				reason = ar.Name
+			}
+		} else {
+			reason = rlib.RRdb.BizTypes[l.BID].GLAccounts[a.ATypeLID].Name
+		}
+		return "Assessment - " + reason, r.RentableName, sra
 
 	default:
 		fmt.Printf("getLedgerEntryDescription: unrecognized type: %d\n", j.Type)

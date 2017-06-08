@@ -8,6 +8,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
@@ -359,12 +360,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
 
 	a.ARID = int64(bar.Record.ARID.ID)
-	// a.ARID, err = strconv.ParseInt(bar.Record.ARID.ID, 10, 64)
-	// if err != nil {
-	// 	e := fmt.Errorf("Could not convert ARID %s to an int", bar.Record.ARID.ID)
-	// 	SvcGridErrorReturn(w, e, funcname)
-	// 	return
-	// }
 	fmt.Printf("after conversion: a.ARID = %d\n", a.ARID)
 
 	// Now just update the database
@@ -372,6 +367,38 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// This is a new record
 		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
 		_, err = rlib.InsertAssessment(&a)
+
+		//------------------------------------------------
+		// Add it to the Journal
+		//------------------------------------------------
+		var xbiz rlib.XBusiness
+		rlib.GetXBusiness(a.BID, &xbiz)
+		d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+		mon, year := rlib.IncMonths(a.Start.Month(), int64(a.Start.Year()))
+		d2 := time.Date(int(year), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+		rlib.ProcessJournalEntry(&a, &xbiz, &d1, &d2)
+		//------------------------------------------------
+		// read back the Journal entry that was made...
+		//------------------------------------------------
+		ja := rlib.GetJournalAllocationByASMID(a.ASMID)
+		if ja.JAID == 0 {
+			e := fmt.Errorf("Could not find JournalAllocation for ASMID = %d", a.ASMID)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		jnl := rlib.GetJournal(ja.JID)
+		if jnl.JID == 0 {
+			e := fmt.Errorf("Could not find Journal for ASMID = %d", a.ASMID)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		jnl.JA = append(jnl.JA, ja)
+
+		//------------------------------------------------
+		// Add it to the Ledgers...
+		//------------------------------------------------
+		rlib.InitLedgerCache()
+		rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2)
 
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
@@ -384,6 +411,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
+
 	SvcWriteSuccessResponse(w)
 }
 

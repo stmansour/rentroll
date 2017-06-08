@@ -1007,7 +1007,9 @@ type RRprepSQL struct {
 	CountBusinessRentableTypes           *sql.Stmt
 	CountBusinessRentalAgreements        *sql.Stmt
 	CountBusinessTransactants            *sql.Stmt
+	DeleteAccountDepository              *sql.Stmt
 	DeleteAllRentalAgreementPets         *sql.Stmt
+	DeleteAR                             *sql.Stmt
 	DeleteCustomAttribute                *sql.Stmt
 	DeleteCustomAttributeRef             *sql.Stmt
 	DeleteDemandSource                   *sql.Stmt
@@ -1018,6 +1020,7 @@ type RRprepSQL struct {
 	DeleteInvoice                        *sql.Stmt
 	DeleteInvoiceAssessments             *sql.Stmt
 	DeleteInvoicePayors                  *sql.Stmt
+	DeleteJournalAllocation              *sql.Stmt
 	DeleteJournalAllocations             *sql.Stmt
 	DeleteJournalEntry                   *sql.Stmt
 	DeleteJournalMarker                  *sql.Stmt
@@ -1027,27 +1030,39 @@ type RRprepSQL struct {
 	DeleteNote                           *sql.Stmt
 	DeleteNoteList                       *sql.Stmt
 	DeleteNoteType                       *sql.Stmt
+	DeletePaymentType                    *sql.Stmt
+	DeletePayor                          *sql.Stmt
+	DeleteProspect                       *sql.Stmt
 	DeleteRatePlan                       *sql.Stmt
 	DeleteRatePlanRef                    *sql.Stmt
 	DeleteRatePlanRefRTRate              *sql.Stmt
 	DeleteRatePlanRefSPRate              *sql.Stmt
 	DeleteReceipt                        *sql.Stmt
+	DeleteReceiptAllocation              *sql.Stmt
 	DeleteReceiptAllocations             *sql.Stmt
 	DeleteRentableSpecialtyRef           *sql.Stmt
 	DeleteRentableStatus                 *sql.Stmt
 	DeleteRentableTypeRef                *sql.Stmt
+	DeleteRentableUser                   *sql.Stmt
 	DeleteRentableUserByRBT              *sql.Stmt
+	DeleteRentalAgreementPayor           *sql.Stmt
 	DeleteRentalAgreementPayorByRBT      *sql.Stmt
 	DeleteRentalAgreementPet             *sql.Stmt
+	DeleteRentalAgreementRentable        *sql.Stmt
 	DeleteRentalAgreementTax             *sql.Stmt
 	DeleteSLString                       *sql.Stmt
 	DeleteSLStrings                      *sql.Stmt
 	DeleteStringList                     *sql.Stmt
+	DeleteTransactant                    *sql.Stmt
+	DeleteUser                           *sql.Stmt
 	DeleteVehicle                        *sql.Stmt
 	FindAgreementByRentable              *sql.Stmt
 	FindTCIDByNote                       *sql.Stmt
 	FindTransactantByPhoneOrEmail        *sql.Stmt
+	GetAccountDepository                 *sql.Stmt
 	GetAgreementsForRentable             *sql.Stmt
+	GetAllAccountDepositories            *sql.Stmt
+	GetAllARs                            *sql.Stmt
 	GetAllAssessmentsByBusiness          *sql.Stmt
 	GetAllAssessmentsByRAID              *sql.Stmt
 	GetAllBusinesses                     *sql.Stmt
@@ -1081,6 +1096,9 @@ type RRprepSQL struct {
 	GetAllStringLists                    *sql.Stmt
 	GetAllTransactants                   *sql.Stmt
 	GetAllTransactantsForBID             *sql.Stmt
+	GetAR                                *sql.Stmt
+	GetARByName                          *sql.Stmt
+	GetARsByType                         *sql.Stmt
 	GetAssessment                        *sql.Stmt
 	GetAssessmentDuplicate               *sql.Stmt
 	GetAssessmentInstance                *sql.Stmt
@@ -1116,6 +1134,7 @@ type RRprepSQL struct {
 	GetLatestLedgerMarkerByLID           *sql.Stmt
 	GetLedger                            *sql.Stmt
 	GetLedgerByGLNo                      *sql.Stmt
+	GetLedgerByName                      *sql.Stmt
 	GetLedgerByType                      *sql.Stmt
 	GetLedgerEntriesForRAID              *sql.Stmt
 	GetLedgerEntriesForRentable          *sql.Stmt
@@ -1138,6 +1157,7 @@ type RRprepSQL struct {
 	GetPaymentTypeByName                 *sql.Stmt
 	GetPaymentTypesByBusiness            *sql.Stmt
 	GetPayor                             *sql.Stmt
+	GetPayorUnallocatedReceiptsCount     *sql.Stmt
 	GetProspect                          *sql.Stmt
 	GetRALedgerMarkerOnOrBefore          *sql.Stmt
 	GetRARentableForDate                 *sql.Stmt
@@ -1148,11 +1168,12 @@ type RRprepSQL struct {
 	GetRatePlanRefsInRange               *sql.Stmt
 	GetRatePlanRefSPRate                 *sql.Stmt
 	GetReceipt                           *sql.Stmt
+	GetReceiptAllocation                 *sql.Stmt
 	GetReceiptAllocations                *sql.Stmt
-	GetReceiptDuplicate                  *sql.Stmt
-	GetReceiptsInDateRange               *sql.Stmt
 	GetReceiptAllocationsByASMID         *sql.Stmt
 	GetReceiptAllocationsInRAIDDateRange *sql.Stmt
+	GetReceiptDuplicate                  *sql.Stmt
+	GetReceiptsInDateRange               *sql.Stmt
 	GetRecurringAssessmentsByBusiness    *sql.Stmt
 	GetRentable                          *sql.Stmt
 	GetRentableByName                    *sql.Stmt
@@ -1166,6 +1187,7 @@ type RRprepSQL struct {
 	GetRentableStatusByRange             *sql.Stmt
 	GetRentableType                      *sql.Stmt
 	GetRentableTypeByStyle               *sql.Stmt
+	GetRentableTypeDown                  *sql.Stmt
 	GetRentableTypeRef                   *sql.Stmt
 	GetRentableTypeRefsByRange           *sql.Stmt
 	GetRentableUser                      *sql.Stmt
@@ -1174,11 +1196,13 @@ type RRprepSQL struct {
 	GetRentalAgreement                   *sql.Stmt
 	GetRentalAgreementByBusiness         *sql.Stmt
 	GetRentalAgreementByRATemplateName   *sql.Stmt
+	GetRentalAgreementPayor              *sql.Stmt
 	GetRentalAgreementPayorByRBT         *sql.Stmt
 	GetRentalAgreementPayorsInRange      *sql.Stmt
 	GetRentalAgreementPet                *sql.Stmt
 	GetRentalAgreementRentable           *sql.Stmt
 	GetRentalAgreementRentables          *sql.Stmt
+	GetRentalAgreementsByPayor           *sql.Stmt
 	GetRentalAgreementsForRentable       *sql.Stmt
 	GetRentalAgreementTax                *sql.Stmt
 	GetRentalAgreementTemplate           *sql.Stmt
@@ -1189,12 +1213,17 @@ type RRprepSQL struct {
 	GetStringListByName                  *sql.Stmt
 	GetTransactant                       *sql.Stmt
 	GetTransactantTypeDown               *sql.Stmt
+	GetUnallocatedReceipts               *sql.Stmt
+	GetUnallocatedReceiptsByPayor        *sql.Stmt
 	GetUnitAssessments                   *sql.Stmt
+	GetUnpaidAssessmentsByRAID           *sql.Stmt
 	GetUser                              *sql.Stmt
 	GetVehicle                           *sql.Stmt
 	GetVehiclesByBID                     *sql.Stmt
 	GetVehiclesByLicensePlate            *sql.Stmt
 	GetVehiclesByTransactant             *sql.Stmt
+	InsertAccountDepository              *sql.Stmt
+	InsertAR                             *sql.Stmt
 	InsertAssessment                     *sql.Stmt
 	InsertAssessmentType                 *sql.Stmt
 	InsertBuilding                       *sql.Stmt
@@ -1251,6 +1280,8 @@ type RRprepSQL struct {
 	ReadRatePlan                         *sql.Stmt
 	ReadRatePlanRef                      *sql.Stmt
 	UIRAGrid                             *sql.Stmt
+	UpdateAccountDepository              *sql.Stmt
+	UpdateAR                             *sql.Stmt
 	UpdateAssessment                     *sql.Stmt
 	UpdateBusiness                       *sql.Stmt
 	UpdateCustomAttribute                *sql.Stmt
@@ -1259,6 +1290,7 @@ type RRprepSQL struct {
 	UpdateDepositMethod                  *sql.Stmt
 	UpdateDepository                     *sql.Stmt
 	UpdateInvoice                        *sql.Stmt
+	UpdateJournalAllocation              *sql.Stmt
 	UpdateLedger                         *sql.Stmt
 	UpdateLedgerMarker                   *sql.Stmt
 	UpdateNote                           *sql.Stmt
@@ -1271,6 +1303,7 @@ type RRprepSQL struct {
 	UpdateRatePlanRefRTRate              *sql.Stmt
 	UpdateRatePlanRefSPRate              *sql.Stmt
 	UpdateReceipt                        *sql.Stmt
+	UpdateReceiptAllocation              *sql.Stmt
 	UpdateRentable                       *sql.Stmt
 	UpdateRentableSpecialtyRef           *sql.Stmt
 	UpdateRentableStatus                 *sql.Stmt
@@ -1288,44 +1321,7 @@ type RRprepSQL struct {
 	UpdateTransactant                    *sql.Stmt
 	UpdateUser                           *sql.Stmt
 	UpdateVehicle                        *sql.Stmt
-	GetRentableTypeDown                  *sql.Stmt
-	DeleteRentalAgreementRentable        *sql.Stmt
-	DeleteRentalAgreementPayor           *sql.Stmt
-	DeleteRentableUser                   *sql.Stmt
-	GetRentalAgreementPayor              *sql.Stmt
-	GetReceiptAllocation                 *sql.Stmt
-	DeleteReceiptAllocation              *sql.Stmt
-	UpdateReceiptAllocation              *sql.Stmt
-	DeleteJournalAllocation              *sql.Stmt
-	UpdateJournalAllocation              *sql.Stmt
-	GetAccountDepository                 *sql.Stmt
-	GetAllAccountDepositories            *sql.Stmt
-	InsertAccountDepository              *sql.Stmt
-	UpdateAccountDepository              *sql.Stmt
-	DeleteAccountDepository              *sql.Stmt
-	DeletePaymentType                    *sql.Stmt
-	GetAR                                *sql.Stmt
-	GetARByName                          *sql.Stmt
-	GetAllARs                            *sql.Stmt
-	InsertAR                             *sql.Stmt
-	UpdateAR                             *sql.Stmt
-	DeleteAR                             *sql.Stmt
-	GetLedgerByName                      *sql.Stmt
-	GetARsByType                         *sql.Stmt
-	GetRentalAgreementsByPayor           *sql.Stmt
-	GetUnpaidAssessmentsByRAID           *sql.Stmt
-	GetUnallocatedReceipts               *sql.Stmt
-	GetUnallocatedReceiptsByPayor        *sql.Stmt
-	GetPayorUnallocatedReceiptsCount     *sql.Stmt
-
-	// GetPayorLedgerMarkerOnOrBefore    *sql.Stmt
-	// GetJournalInstance                *sql.Stmt
-	// GetSecDepBalanceLedger            *sql.Stmt
-	// GetLedgerMarkerByRAID             *sql.Stmt
-	DeletePayor       *sql.Stmt
-	DeleteProspect    *sql.Stmt
-	DeleteTransactant *sql.Stmt
-	DeleteUser        *sql.Stmt
+	GetJournalAllocationByASMID          *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
@@ -1443,6 +1439,7 @@ var RRdb struct {
 	BizTypes map[int64]*BusinessTypeLists // details about a business
 	BUDlist  Str2Int64Map                 //list of known business Designations
 	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
+	Zone     *time.Location               // what timezone should the server use?
 }
 
 func buildBusinessDesignationMap() map[string]int64 {

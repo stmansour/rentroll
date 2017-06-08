@@ -363,22 +363,29 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteJournalEntry, err = RRdb.Dbrr.Prepare("DELETE FROM Journal WHERE JID=?")
 	Errcheck(err)
 
+	//==========================================
 	// Journal Allocation
-	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule from JournalAllocation WHERE JAID=?")
+	//==========================================
+	flds = "JAID,BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule"
+	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE JAID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT JAID,BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule from JournalAllocation WHERE JID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
+	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE JID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
+	Errcheck(err)
+	RRdb.Prepstmt.GetJournalAllocationByASMID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE ASMID=?")
 	Errcheck(err)
 
 	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO JournalAllocation (BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule) VALUES(?,?,?,?,?,?,?,?)")
 	Errcheck(err)
-
 	RRdb.Prepstmt.DeleteJournalAllocation, err = RRdb.Dbrr.Prepare("DELETE FROM JournalAllocation WHERE JAID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteJournalAllocations, err = RRdb.Dbrr.Prepare("DELETE FROM JournalAllocation WHERE JID=?")
 	Errcheck(err)
-
 	RRdb.Prepstmt.UpdateJournalAllocation, err = RRdb.Dbrr.Prepare("UPDATE JournalAllocation SET BID=?,JID=?,RID=?,RAID=?,TCID=?,Amount=?,ASMID=?,AcctRule=? WHERE JAID=?")
 	Errcheck(err)
+
+	//==========================================
+	// Journal Markers
+	//==========================================
 	RRdb.Prepstmt.GetJournalMarker, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker WHERE JMID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalMarkers, err = RRdb.Dbrr.Prepare("SELECT JMID,BID,State,DtStart,DtStop from JournalMarker ORDER BY JMID DESC LIMIT ?")

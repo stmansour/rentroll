@@ -3,6 +3,7 @@ package rlib
 import (
 	"extres"
 	"log"
+	"time"
 
 	"github.com/kardianos/osext"
 )
@@ -19,5 +20,9 @@ func RRReadConfig() error {
 	}
 	fname := folderPath + "/config.json"
 	err = extres.ReadConfig(fname, &AppConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	RRdb.Zone, err = time.LoadLocation(AppConfig.Timezone)
 	return err
 }

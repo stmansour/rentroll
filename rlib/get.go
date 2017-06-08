@@ -594,6 +594,15 @@ func GetJournalAllocations(j *Journal) {
 	}
 }
 
+// GetJournalAllocationByASMID gets the journal allocation record that references
+// the supplied ASMID.
+func GetJournalAllocationByASMID(id int64) JournalAllocation {
+	var a JournalAllocation
+	row := RRdb.Prepstmt.GetJournalAllocationByASMID.QueryRow(id)
+	ReadJournalAllocation(row, &a)
+	return a
+}
+
 //=======================================================
 //  L E D G E R   M A R K E R
 //=======================================================
