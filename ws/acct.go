@@ -109,48 +109,48 @@ type GetGLAccountResponse struct {
 
 // acctStatus map
 var acctStatus = map[int64]string{
-	0: "unknown",
-	1: "inactive",
-	2: "active",
+	0: "Unknown",
+	1: "Inactive",
+	2: "Active",
 }
 
 // account type
 var acctType = map[int64]string{
-	0: "Not a spacial account of any kind",
-	1: "balance for this particular RentalAgreement",
-	2: "balance for this payor",
+	0: "Normal Account",
+	// 1: "balance for this particular RentalAgreement",
+	// 2: "balance for this payor",
 	// 3:  "Reserved",
 	// 4:  "Reserved",
 	// 5:  "Reserved",
 	// 6:  "Reserved",
 	// 7:  "Reserved",
 	// 8:  "Reserved",
-	9:  "Reserved",
-	10: "default cash",
-	11: "GENRCV",
-	12: "GrossSchedRENT",
-	13: "LTL",
-	14: "VAC",
-	15: "sec dep receivable",
-	16: "sec dep assessment",
+	// 9:  "Reserved",
+	10: "Default Cash",
+	11: "Default General Receivables",
+	12: "Default Gross Scheduled Rent",
+	13: "Default Loss To Lease",
+	14: "Default Vacancy",
+	16: "Default Security Deposit",
+	17: "Default Owner Equity",
 }
 
 // associated with rental agreement?
 var acctRAAssociated = map[int64]string{
-	0: "unknown",
+	0: "Unknown",
 	1: "Unassociated with RentalAgreement",
 	2: "Associated with Rental Agreement",
 }
 
 // account allow posts
 var acctAllowPosts = map[int64]string{
-	0: "do not allow posts to this ledger", 1: "allow posts",
+	0: "Summary Account only, do not allow posts to this ledger", 1: "Allow posts",
 }
 
 // manage to budget
 var acctManageToBudget = map[int64]string{
-	0: "do not manage to budget; no ContractRent amount required",
-	1: "Manage to budget, ContractRent required",
+	0: "No (GSR amount is not required)",
+	1: "Yes, (GSR amount is required)",
 }
 
 // getAccountThingJSList sending down list related with accounts info

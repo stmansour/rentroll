@@ -411,29 +411,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
-
-		// We do not allo
-
-		// //------------------------------------------------
-		// // First, get a copy of the old assessment.
-		// // We will need this // to know what to change.
-		// //------------------------------------------------
-		// a0, err := rlib.GetAssessment(a.ASMID)
-		// if err != nil {
-		// 	e := fmt.Errorf("Could not read assessment ASMID = %d", a.ASMID)
-		// 	SvcGridErrorReturn(w, e, funcname)
-		// 	return
-		// }
-		//------------------------------------------------
-		// OK, now update the assessment...
-		//------------------------------------------------
 		err = rlib.UpdateAssessment(&a)
-
-		// // determine the key elements of the change:  amount and AR
-		// bAmt := a.Amount != a0.Amount
-		// bAR := a.ARID != a0.ARID
-		// fmt.Printf("Updated assessment %d.\nAmount changed: %t\nAR changed: %t\n", a.ASMID, bAmt, bAR)
-
 	} else {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}

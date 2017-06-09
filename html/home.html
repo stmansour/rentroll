@@ -859,47 +859,66 @@ function buildPageElements() {
                         setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID);
                     }
                 })
-                .fail(function(data) {
+                .fail(function(/*data*/) {
                     console.log("unable to get gl accounts list");
                     return;
                 });
-            }
+            };
         },
-        onAdd: function (event) {
+        onAdd: function (/*event*/) {
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
 
-            var y = new Date();
+            getGLAccounts(BID)
+           .done(function(data) {
+                if (data.status != 'success') {
+                    w2ui.accountForm.message(data.message);
+                    w2ui.toplayout.content('right', w2ui.accountForm);
+                    w2ui.toplayout.show('right', true);
+                    w2ui.toplayout.sizeTo('right', 700);
+                    return;
+                } else {
+                    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var gl_accounts_items = [gl_accounts_pre_selected];
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
+                    w2ui.accountForm.get('PLID').options.items = gl_accounts_items;
+                    w2ui.accountForm.get('PLID').options.selected = gl_accounts_pre_selected;
 
-            var record = {
-                recid: 0,
-                LID: 0,
-                PLID: 0,
-                BID: BID,
-                BUD: BUD,
-                RAID: 0,
-                TCID: 0,
-                GLNumber: '',
-                Status: 0,
-                Type: 0,
-                Name: '',
-                AcctType: '',
-                RAAssociated: 0,
-                AllowPost: 0,
-                ManageToBudget: 0,
-                Description: '',
-                LastModTime: w2uiDateControlString(y),
-                LastModBy: 0,
-            };
+                    var y = new Date();
 
-            w2ui.accountForm.record = record;
-            w2ui.accountForm.refresh();
-
-            w2ui.accountForm.url = '/v1/account/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.accountForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
+                    var record = {
+                        recid: 0,
+                        LID: 0,
+                        PLID: gl_accounts_pre_selected,
+                        BID: BID,
+                        BUD: BUD,
+                        RAID: 0,
+                        TCID: 0,
+                        GLNumber: '',
+                        Status: 2,
+                        Type: 0,
+                        Name: '',
+                        AcctType: '',
+                        RAAssociated: 0,
+                        AllowPost: 1,
+                        ManageToBudget: 0,
+                        Description: '',
+                        LastModTime: w2uiDateControlString(y),
+                        LastModBy: 0,
+                    };
+                    w2ui.accountForm.record = record;
+                    w2ui.accountForm.refresh();
+                    w2ui.accountForm.url = '/v1/account/' + BID + '/0';
+                    w2ui.toplayout.content('right', w2ui.accountForm);
+                    w2ui.toplayout.sizeTo('right', 700);
+                    w2ui.toplayout.show('right', true);
+                }
+            })
+            .fail( function() {
+                console.log('unable to get GLAccounts');
+                return;
+             });
         },
     });
 
@@ -915,19 +934,19 @@ function buildPageElements() {
         fields: [
             { field: "recid", required: false, type: 'int', html: { caption: "recid", page: 0, column: 0 } },
             { field: "LID", required: false, type: 'int', html: { caption: "LID", page: 0, column: 0 } },
-            { field: "PLID", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "PLID", page: 0, column: 0 } },
+            { field: 'PLID', type: 'list', required: false, html: { caption: 'Parent Acct', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
-            { field: "BUD", required: false, options: { items: app.businesses, maxDropHeight: 350, selected: {} }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
+            { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
             { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
             { field: "TCID", required: false, type: 'int', html: { caption: "TCID", page: 0, column: 0 } },
             { field: "GLNumber", required: false, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
-            { field: "Status", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
-            { field: "Type", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
-            { field: "Name", required: false, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
-            { field: "AcctType", required: false, type: 'text', html: { caption: "AcctType", page: 0, column: 0 } },
-            { field: "RAAssociated", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
-            { field: "AllowPost", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
-            { field: "ManageToBudget", required: false, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "ManageToBudget", page: 0, column: 0 } },
+            { field: "Status", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
+            { field: "Type", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
+            { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
+            { field: "AcctType", required: false, type: 'text', html: { caption: "QB Accountt Type", page: 0, column: 0 } },
+            { field: "RAAssociated", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
+            { field: "AllowPost", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
+            { field: "ManageToBudget", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
             { field: "Description", required: false, type: 'int', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
@@ -958,7 +977,7 @@ function buildPageElements() {
 
                 // change the choice of parent account list
                 getGLAccounts(BID)
-                .done(function(data) {
+                .done(function(/*data*/) {
                     // set Parent Account list
                     var PLIDs = [{id: 0, text: 'No Parent LID'}];
                     // don't include itself in parent account choice -- drop list
@@ -976,7 +995,7 @@ function buildPageElements() {
 
                     w2ui.accountForm.refresh();
                 });
-            };
+            }
         },
         onSubmit: function(target, data) {
             // modify form data for server request
@@ -3396,7 +3415,6 @@ function buildPageElements() {
             // get latest gl accounts first
             getGLAccounts(BID)
             .done(function(data) {
-
                 if (data.status != 'success') {
                     w2ui.arsForm.message(data.message);
                     w2ui.toplayout.content('right', w2ui.arsForm);

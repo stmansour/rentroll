@@ -380,7 +380,6 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------
 		// Add it to the Journal
 		//------------------------------------------------
-		// rlib.GetXBusiness(a.BID, &xbiz)
 		d1 := time.Date(a.Dt.Year(), a.Dt.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
 		mon, year := rlib.IncMonths(a.Dt.Month(), int64(a.Dt.Year()))
 		d2 := time.Date(int(year), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
