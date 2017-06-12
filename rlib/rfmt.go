@@ -201,6 +201,9 @@ func StringToDate(s string) (time.Time, error) {
 
 // IncMonths enables arithmetic operations on months. Returns
 // two values =  years & months.
+// @params
+//	m = current month
+//  n = number of months to increment
 func IncMonths(m time.Month, n int64) (time.Month, int64) {
 	y := int64(0)
 	mo := int64(m) + n - int64(1)
