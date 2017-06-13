@@ -6,7 +6,7 @@
 # Your script can override the following values:
 #
 # 	BUD="REX"    - name of the business to use for your tests
-# 	RRDATERANGE  - default RentRoll date range. You can override this 
+# 	RRDATERANGE  - default RentRoll date range. You can override this
 #                  value with a different range.
 #############################################################################
 
@@ -116,7 +116,7 @@ CA)  Custom Attributes
 D)   Delinquency
 DE)  Deposits
 DM)  Deposit Methods
-DY)  Depositories 
+DY)  Depositories
 G)   GSR
 I)   Invoice
 IR)  Invoice Report
@@ -270,13 +270,13 @@ tdir() {
 
 
 #############################################################################
-# docsvtest()  
-#    The purpose of this routine is to call rrloadcsv with the 
+# docsvtest()
+#    The purpose of this routine is to call rrloadcsv with the
 #     parameters supplied in $2 and send its output to a file
 #     named $1. After trrloadcsv completes, the output in $1 will
 #     be compared with the output in gold/$1.gold.  If there are
-#     no diffs, then the test passes.  If there are diffs, then 
-#     it terminates execution of the script after doing 
+#     no diffs, then the test passes.  If there are diffs, then
+#     it terminates execution of the script after doing
 #     the following:
 #
 #        (a) Displays the diffs
@@ -308,8 +308,8 @@ tdir() {
 #            and you've validated in some other way that everything is
 #            working after such a change.  By convention, all of my
 #            "function.sh" scripts use the -o option to set FORCEGOOD
-#            to 1.    
-#                  
+#            to 1.
+#
 #	Parameters:
 # 		$1 = base file name
 #		$2 = app options to reproduce
@@ -349,7 +349,7 @@ docsvtest () {
 			exit 1
 		fi
 	else
-		echo 
+		echo
 	fi
 }
 
@@ -392,14 +392,14 @@ dorrtest () {
 			exit 1
 		fi
 	else
-		echo 
+		echo
 	fi
 }
 
 #############################################################################
-# doCompareIgnoreDates()  
+# doCompareIgnoreDates()
 #	just like docsvtest only for Onesite
-#                 
+#
 #	Parameters:
 # 		$1 = base file name
 #		$2 = app options to reproduce
@@ -440,9 +440,9 @@ doCompareIgnoreDates() {
 }
 
 #############################################################################
-# doOnesiteTest()  
+# doOnesiteTest()
 #	just like docsvtest only for Onesite
-#                 
+#
 #	Parameters:
 # 		$1 = base file name
 #		$2 = app options to reproduce
@@ -466,14 +466,14 @@ doOnesiteTest () {
 		fi
 		doCompareIgnoreDates "${1}" "${2}" "${3}"
 	else
-		echo 
+		echo
 	fi
 }
 
 #############################################################################
-# docsvIgnoreDatesTest()  
+# docsvIgnoreDatesTest()
 #	just like docsvtest only ignore dates in known good files
-#                 
+#
 #	Parameters:
 # 		$1 = base file name
 #		$2 = app options to reproduce
@@ -497,7 +497,7 @@ docsvIgnoreDatesTest () {
 		fi
 		doCompareIgnoreDates "${1}" "${2}" "${3}"
 	else
-		echo 
+		echo
 	fi
 }
 
@@ -594,7 +594,26 @@ EOF
 			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
 			echo "Created a default $1.gold for you. Update this file with known-good output."
 		fi
-		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
+
+		#--------------------------------------------------------------------
+		# The actual data has timestamp information that changes every run.
+		# The timestamp can be filtered out for purposes of testing whether
+		# or not the web service could be called and can return the expected
+		# data.
+		#--------------------------------------------------------------------
+		declare -a out_filters=(
+			's/\s+(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]*)(.*)/currentTime/'
+			's/\s+(20[1-4][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]*)(.*)/currentTime/'
+		)
+		cp gold/${1}.gold qqx
+		cp ${1} qqy
+		for f in "${out_filters[@]}"
+		do
+			perl -pe "$f" qqx > qqx1; mv qqx1 qqx
+			perl -pe "$f" qqy > qqy1; mv qqy1 qqy
+		done
+
+		UDIFFS=$(diff qqx qqy | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			if [ ${SHOWCOMMAND} -eq 1 ]; then
 				echo "PASSED	cmd: ${CSVLOAD} ${2}"
@@ -611,13 +630,14 @@ EOF
 			exit 1
 		fi
 	else
-		echo 
+		echo
 	fi
+	rm -f qqx qqy
 }
 
 ##########################################################################
 # logcheck()
-#   Compares log to log.gold 
+#   Compares log to log.gold
 #   Date related fields are detected with a regular expression and changed
 #   to "current time".  More filters may be needed depending on what goes
 #   into the logfile.
@@ -640,9 +660,9 @@ logcheck() {
 		declare -a out_filters=(
 			's/^Date\/Time:.*/current time/'
 			's/^Test completed:.*/current time/'
-			's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
-			's/(20[1-4][0-9]\/[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
-			's/(20[1-4][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'	
+			's/(20[1-4][0-9]\/[0-1][0-9]\/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'
+			's/(20[1-4][0-9]\/[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'
+			's/(20[1-4][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] )(.*)/$2/'
 		)
 		cp ${GOLD}/${LOGFILE}.gold ll.g
 		cp log llog
@@ -673,7 +693,7 @@ logcheck() {
 
 ##########################################################################
 # genericlogcheck()
-#   Compares the supplied file $1 to gold/$1.gold 
+#   Compares the supplied file $1 to gold/$1.gold
 #	Parameters:
 # 		$1 = base file name
 #		$2 = app options to reproduce
@@ -703,7 +723,7 @@ genericlogcheck() {
 			exit 1
 		fi
 	else
-		echo 
+		echo
 	fi
 }
 
@@ -711,7 +731,7 @@ genericlogcheck() {
 # startRentRollServer()
 #	Kills any currently running instances of the server
 #   then starts it up again.  The port is set to the
-#   default port of 8270.  If you set RRPORT prior 
+#   default port of 8270.  If you set RRPORT prior
 #   to including base.sh to override the port number
 #########################################################
 startRentRollServer () {
@@ -766,6 +786,7 @@ dojsonPOST () {
 		#--------------------------------------------------------------------
 		declare -a out_filters=(
 			's/(^[ \t]+"LastModTime":).*/$1 TIMESTAMP/'
+			's/(^[ \t]+"CreateTS":).*/$1 TIMESTAMP/'
 		)
 		cp gold/${3}.gold qqx
 		cp ${3} qqy
@@ -797,7 +818,7 @@ dojsonPOST () {
 			exit 1
 		fi
 	else
-		echo 
+		echo
 	fi
 	rm -f qqx qqy
 }
@@ -865,7 +886,7 @@ dojsonGET () {
 			exit 1
 		fi
 	else
-		echo 
+		echo
 	fi
 	rm -f qqx qqy
 }
@@ -933,7 +954,7 @@ doPlainGET () {
 			exit 1
 		fi
 	else
-		echo 
+		echo
 	fi
 	rm -f qqx qqy
 }
@@ -994,4 +1015,4 @@ else
 	exit 1
 fi
 
- 
+
