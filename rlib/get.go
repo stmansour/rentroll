@@ -172,7 +172,7 @@ func GetAssessmentDuplicate(start *time.Time, amt float64, pasmid, rid, raid, at
 // the return structure will be empty
 func GetBuilding(id int64) Building {
 	var t Building
-	err := RRdb.Prepstmt.GetBuilding.QueryRow(id).Scan(&t.BLDGID, &t.BID, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.LastModTime, &t.LastModBy)
+	err := RRdb.Prepstmt.GetBuilding.QueryRow(id).Scan(&t.BLDGID, &t.BID, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.CreateTS, &t.CreateBy, &t.LastModTime, &t.LastModBy)
 	if err != nil {
 		Ulog("GetBuilding: err = %v\n", err)
 	}
@@ -410,14 +410,14 @@ func GetDepositParts(id int64) ([]DepositPart, error) {
 // GetDepositMethod reads a DepositMethod structure based on the supplied Deposit id
 func GetDepositMethod(id int64) (DepositMethod, error) {
 	var a DepositMethod
-	err := RRdb.Prepstmt.GetDepositMethod.QueryRow(id).Scan(&a.DPMID, &a.BID, &a.Name)
+	err := RRdb.Prepstmt.GetDepositMethod.QueryRow(id).Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy)
 	return a, err
 }
 
 // GetDepositMethodByName reads a DepositMethod structure based on the supplied BID and Name
 func GetDepositMethodByName(bid int64, name string) (DepositMethod, error) {
 	var a DepositMethod
-	err := RRdb.Prepstmt.GetDepositMethodByName.QueryRow(bid, name).Scan(&a.DPMID, &a.BID, &a.Name)
+	err := RRdb.Prepstmt.GetDepositMethodByName.QueryRow(bid, name).Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy)
 	return a, err
 }
 
@@ -429,7 +429,7 @@ func GetAllDepositMethods(bid int64) []DepositMethod {
 	defer rows.Close()
 	for rows.Next() {
 		var r DepositMethod
-		Errcheck(rows.Scan(&r.DPMID, &r.BID, &r.Name))
+		Errcheck(rows.Scan(&r.DPMID, &r.BID, &r.Name, &r.CreateTS, &r.CreateBy))
 		t = append(t, r)
 	}
 	Errcheck(rows.Err())
@@ -556,7 +556,7 @@ func GetJournalMarkers(n int64) []JournalMarker {
 	t = make([]JournalMarker, 0)
 	for rows.Next() {
 		var r JournalMarker
-		Errcheck(rows.Scan(&r.JMID, &r.BID, &r.State, &r.DtStart, &r.DtStop))
+		Errcheck(rows.Scan(&r.JMID, &r.BID, &r.State, &r.DtStart, &r.DtStop, &r.CreateTS, &r.CreateBy))
 		t = append(t, r)
 	}
 	return t
@@ -955,7 +955,7 @@ func GetNoteAndChildNotes(nid int64) Note {
 // GetNoteList reads a NoteList structure based on the supplied NoteList id
 func GetNoteList(nlid int64) NoteList {
 	var m NoteList
-	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.BID, &m.LastModTime, &m.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.BID, &m.CreateTS, &m.CreateBy, &m.LastModTime, &m.LastModBy))
 	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
 	Errcheck(err)
 	defer rows.Close()
@@ -975,7 +975,7 @@ func GetNoteList(nlid int64) NoteList {
 
 // GetNoteType reads a NoteType structure based on the supplied NoteType id
 func GetNoteType(ntid int64, t *NoteType) {
-	Errcheck(RRdb.Prepstmt.GetNoteType.QueryRow(ntid).Scan(&t.NTID, &t.BID, &t.Name, &t.LastModTime, &t.LastModBy))
+	Errcheck(RRdb.Prepstmt.GetNoteType.QueryRow(ntid).Scan(&t.NTID, &t.BID, &t.Name, &t.CreateTS, &t.CreateBy, &t.LastModTime, &t.LastModBy))
 }
 
 // GetAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
@@ -986,7 +986,7 @@ func GetAllNoteTypes(bid int64) []NoteType {
 	defer rows.Close()
 	for rows.Next() {
 		var p NoteType
-		Errcheck(rows.Scan(&p.NTID, &p.BID, &p.Name, &p.LastModTime, &p.LastModBy))
+		Errcheck(rows.Scan(&p.NTID, &p.BID, &p.Name, &p.CreateTS, &p.CreateBy, &p.LastModTime, &p.LastModBy))
 		m = append(m, p)
 	}
 	Errcheck(rows.Err())
@@ -1363,7 +1363,7 @@ func GetRentableUserByRBT(rid, bid, tcid int64) (RentableUser, error) {
 // GetRentableSpecialtyTypeByName returns a list of specialties associated with the supplied Rentable
 func GetRentableSpecialtyTypeByName(bid int64, name string) RentableSpecialty {
 	var rsp RentableSpecialty
-	err := RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(bid, name).Scan(&rsp.RSPID, &rsp.BID, &rsp.Name, &rsp.Fee, &rsp.Description)
+	err := RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(bid, name).Scan(&rsp.RSPID, &rsp.BID, &rsp.Name, &rsp.Fee, &rsp.Description, &rsp.CreateTS, &rsp.CreateBy)
 	if err != nil {
 		s := err.Error()
 		if !strings.Contains(s, "no rows") {
@@ -1376,7 +1376,7 @@ func GetRentableSpecialtyTypeByName(bid int64, name string) RentableSpecialty {
 // GetRentableSpecialtyType returns the RentableSpecialty record for the supplied RSPID
 func GetRentableSpecialtyType(rspid int64) (RentableSpecialty, error) {
 	var rs RentableSpecialty
-	err := RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(rspid).Scan(&rs.RSPID, &rs.BID, &rs.Name, &rs.Fee, &rs.Description)
+	err := RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(rspid).Scan(&rs.RSPID, &rs.BID, &rs.Name, &rs.Fee, &rs.Description, &rs.CreateTS, &rs.CreateBy)
 	return rs, err
 }
 
@@ -1433,7 +1433,7 @@ func GetRentableSpecialtyRefsByRange(r *Rentable, d1, d2 *time.Time) []RentableS
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableSpecialtyRef
-		Errcheck(rows.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 		rs = append(rs, a)
 	}
 	Errcheck(rows.Err())
@@ -1527,7 +1527,7 @@ func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 // GetRentableType returns characteristics of the Rentable
 func GetRentableType(rtid int64, rt *RentableType) error {
 	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle,
-		&rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+		&rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.CreateTS, &rt.CreateBy, &rt.LastModTime, &rt.LastModBy)
 	if nil == err {
 		var cerr error
 		rt.CA, cerr = GetAllCustomAttributes(ELEMRENTABLETYPE, rtid)
@@ -1541,7 +1541,8 @@ func GetRentableType(rtid int64, rt *RentableType) error {
 // GetRentableTypeByStyle returns characteristics of the Rentable
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle, &rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.LastModTime, &rt.LastModBy)
+	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name,
+		&rt.RentCycle, &rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.CreateTS, &rt.CreateBy, &rt.LastModTime, &rt.LastModBy)
 	return rt, err
 }
 
@@ -1554,7 +1555,8 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.LastModTime, &a.LastModBy))
+		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC,
+			&a.ManageToBudget, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 		a.MR = make([]RentableMarketRate, 0)
 		GetRentableMarketRates(&a)
 		t[a.RTID] = a

@@ -138,8 +138,8 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 
 	for rows.Next() {
 		var p rlib.Rentable
-		rlib.Errcheck(rows.Scan(&p.RID, &p.BID, &p.RentableName, &p.AssignmentTime, &p.LastModTime, &p.LastModBy)) // read the rentable
-		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2)                                                      // its RentableType is time sensitive
+		rlib.Errcheck(rlib.ReadRentables(rows, &p))
+		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2) // its RentableType is time sensitive
 
 		rtid := p.RT[0].RTID  // select its value at the beginning of this period
 		sqft := int64(0)      // assume no custom attribute

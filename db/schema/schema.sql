@@ -59,6 +59,8 @@ CREATE TABLE Tax (
     Instructions VARCHAR(1024) NOT NULL DEFAULT '',         -- filing instructions
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(TAXID)
 );
 
@@ -71,7 +73,9 @@ CREATE TABLE TaxRate (
     Fee DECIMAL(19,4) NOT NULL DEFAULT 0,                   -- floating point number.  Set to 0 if not applicable.
     Formula VARCHAR(256) NOT NULL DEFAULT '',               -- RPN calculator notation of formula, Set to '' if not needed
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0                  -- employee UID (from phonebook) that modified it
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 CREATE TABLE StringList (
@@ -80,6 +84,8 @@ CREATE TABLE StringList (
     Name VARCHAR(50) NOT NULL DEFAULT '',                   -- stringlist name
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(SLID)
 );
 
@@ -90,6 +96,8 @@ CREATE TABLE SLString (
     Value VARCHAR(256) NOT NULL DEFAULT '',                 -- value of this string
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(SLSID)
 );
 
@@ -99,6 +107,8 @@ CREATE TABLE NoteType (
     Name VARCHAR(128) NOT NULL DEFAULT '',                  -- General, Payment, Receipt, ...
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (NTID)
 );
 
@@ -114,6 +124,8 @@ CREATE TABLE Notes (
     Comment VARCHAR(1024) NOT NULL DEFAULT '',              -- the actual note
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (NID)
 );
 
@@ -122,6 +134,8 @@ CREATE TABLE NoteList (
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (NLID)
 );
 
@@ -139,6 +153,8 @@ CREATE TABLE CustomAttr (
     Units VARCHAR (256) NOT NULL DEFAULT '',   -- optional units value
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                     -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (CID)
 );
 
@@ -146,7 +162,9 @@ CREATE TABLE CustomAttrRef (
     ElementType BIGINT NOT NULL,                -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
     BID         BIGINT NOT NULL DEFAULT 0,      -- Business associated with this NoteType
     ID          BIGINT NOT NULL,                -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
-    CID         BIGINT NOT NULL                 -- uid of the custom attribute
+    CID         BIGINT NOT NULL,                -- uid of the custom attribute
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- ===========================================
@@ -158,6 +176,8 @@ CREATE TABLE RentalAgreementTemplate (
     RATemplateName VARCHAR(100) DEFAULT '',     -- Rental Agreement Template Name
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,     -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RATID)
 );
 
@@ -199,6 +219,8 @@ CREATE TABLE RentalAgreement (
     RightOfFirstRefusal VARCHAR(128) NOT NULL DEFAULT '',               -- Tenant may have the right to purchase their premises if LL chooses to sell
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RAID)
 );
 
@@ -211,6 +233,8 @@ CREATE TABLE RentalAgreementRentables (
     ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
     RARDtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when this Rentable was added to the agreement
     RARDtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- date when this Rentable was no longer being billed to this agreement
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RARID)
 );
 
@@ -222,6 +246,8 @@ CREATE TABLE RentalAgreementPayors (
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this Payor was no longer being billed to this agreement
     FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1 << 0 is the bit that indicates this payor is a 'guarantor'
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RAPID)
 );
 
@@ -232,6 +258,8 @@ CREATE TABLE RentableUsers (
     TCID BIGINT NOT NULL DEFAULT 0,                           -- the Users of the rentable
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00' ,      -- date when this User was no longer being billed to this agreement
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RUID)
 );
 
@@ -240,7 +268,9 @@ CREATE TABLE RentalAgreementTax (
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this flag went into effect
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this flag was no longer in effect
-    FLAGS BIGINT NOT NULL DEFAULT 0                           -- 1 << 0 is the bit that indicates whether or not the rental agreement is taxable
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1 << 0 is the bit that indicates whether or not the rental agreement is taxable
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 CREATE TABLE RentalAgreementPets (
@@ -256,6 +286,8 @@ CREATE TABLE RentalAgreementPets (
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this User was no longer being billed to this agreement
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (PETID)
 );
 
@@ -269,6 +301,8 @@ CREATE TABLE CommissionLedger (
     Percent DECIMAL(19,4) NOT NULL DEFAULT 0,       -- what percent are we paying them. If 0 then we're paying a specific Amount
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0,        -- what amount are we paying them. If 0 then we're paying a percentage
     PaymentDueDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- enterer will fill it out
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(CLID)
 );
 
@@ -283,6 +317,8 @@ CREATE TABLE RatePlan (
     Name VARCHAR(100) NOT NULL DEFAULT '',              -- The name of this RatePlan
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(RPID)
 );
     -- these flags are Property-Industry-specific.  IMPLEMENT THESE
@@ -305,6 +341,8 @@ CREATE TABLE RatePlanRef (
     FLAGS BIGINT NOT NULL DEFAULT 0,                    -- 1<<0 -- HideRate
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(RPRID)
 );
 
@@ -314,7 +352,9 @@ CREATE TABLE RatePlanRefRTRate (
     BID BIGINT NOT NULL DEFAULT 0,          -- Business
     RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
     FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-    Val DECIMAL(19,4) NOT NULL DEFAULT 0    -- Val
+    Val DECIMAL(19,4) NOT NULL DEFAULT 0,   -- Val
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 -- RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 CREATE TABLE RatePlanRefSPRate (
@@ -323,7 +363,9 @@ CREATE TABLE RatePlanRefSPRate (
     RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
     RSPID BIGINT NOT NULL DEFAULT 0,        -- which Specialty
     FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-    Val DECIMAL(19,4) NOT NULL DEFAULT 0    -- Val
+    Val DECIMAL(19,4) NOT NULL DEFAULT 0,   -- Val
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- Rate plans can have other deliverables. These can be things like 2 tickets to SeaWorld, free meal vouchers, etc.
@@ -332,7 +374,9 @@ CREATE TABLE RatePlanRefSPRate (
 CREATE TABLE RatePlanOD (
     RPRID BIGINT NOT NULL DEFAULT 0,        -- with which RatePlanRef is this OtherDeliverable associated?
     BID BIGINT NOT NULL DEFAULT 0,          -- Business
-    ODID BIGINT NOT NULL DEFAULT 0          -- points to an OtherDeliverables
+    ODID BIGINT NOT NULL DEFAULT 0,         -- points to an OtherDeliverables
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- These are for promotions - like 2 Seaworld tickets, etc.  Referenced by Rate Plan Refs
@@ -342,6 +386,8 @@ CREATE TABLE OtherDeliverables (
     BID BIGINT NOT NULL DEFAULT 0,          -- Business
     Name VARCHAR(256),                      -- Description of the other deliverables. Ex: 2 Seaworld tickets
     Active SMALLINT NOT NULL DEFAULT 0,     -- Flag: Is this list still active?  0 = not active, 1 = active
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(ODID)
 );
 
@@ -364,6 +410,8 @@ CREATE TABLE Business (
     DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,           -- default for every rentable type - useful to initialize UI
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (BID)
 );
 --    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,     -- yes/no  0 = no, 1 = yes
@@ -382,6 +430,8 @@ CREATE TABLE RentableTypes (
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RTID)
 );
 
@@ -390,7 +440,9 @@ CREATE TABLE RentableMarketRate (
     BID BIGINT NOT NULL DEFAULT 0,                              -- associated Business id
     MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
-    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
+    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',     -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- RentableType RTID needs to have tax TAXID applied to rental assessments.
@@ -400,7 +452,9 @@ CREATE TABLE RentableTypeTax (
     BID BIGINT NOT NULL DEFAULT 0,                              -- associated Business id
     TAXID BIGINT NOT NULL DEFAULT 0,                            -- which tax
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
-    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59'      -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
+    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',     -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- ===========================================
@@ -417,6 +471,8 @@ CREATE TABLE RentableSpecialty (
     Name VARCHAR(100) NOT NULL DEFAULT '',
     Fee DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Description VARCHAR(256) NOT NULL DEFAULT '',
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RSPID)
 );
 
@@ -428,6 +484,8 @@ CREATE TABLE PaymentType (
     BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
     Description VARCHAR(256) NOT NULL DEFAULT '',
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
     PRIMARY KEY (PMTID)
@@ -443,6 +501,8 @@ CREATE TABLE AvailabilityTypes (
     AVAILID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (AVAILID)
 );
 
@@ -458,13 +518,17 @@ CREATE TABLE AvailabilityTypes (
 -- applicable Assessments for a specific Business
 CREATE TABLE BusinessAssessments (
     BID BIGINT NOT NULL DEFAULT 0,
-    ATypeLID BIGINT NOT NULL DEFAULT 0
+    ATypeLID BIGINT NOT NULL DEFAULT 0,
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- applicable Assessments for a specific Business
 CREATE TABLE BusinessPaymentTypes (
     BID BIGINT NOT NULL DEFAULT 0,
-    PMTID MEDIUMINT NOT NULL DEFAULT 0
+    PMTID MEDIUMINT NOT NULL DEFAULT 0,
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- **************************************
@@ -483,6 +547,8 @@ CREATE TABLE Building (
     Country VARCHAR(100) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (BLDGID)
 );
 
@@ -498,6 +564,8 @@ CREATE TABLE Rentable (
     AssignmentTime SMALLINT NOT NULL DEFAULT 0,                    -- Unknown = 0, OK to pre-assign = 1, assign at occupancy commencement = 2
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                         -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RID)
     -- RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,            -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
     -- RentCycle SMALLINT NOT NULL DEFAULT 0,                      -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
@@ -514,6 +582,8 @@ CREATE TABLE RentableTypeRef (
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RTRID)
 );
 
@@ -526,7 +596,9 @@ CREATE TABLE RentableStatus (
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     DtNoticeToVacate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- user has indicated they will vacate on this date
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that modified it
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RSID)
 );
 
@@ -537,7 +609,9 @@ CREATE TABLE RentableSpecialtyRef (
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that modified it
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 
@@ -567,6 +641,8 @@ CREATE TABLE Assessments (
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (ASMID)
 );
 
@@ -579,7 +655,9 @@ CREATE TABLE AssessmentTax (
     OverrideTaxApprover MEDIUMINT NOT NULL DEFAULT 0,       -- if tax is overridden, who approved it
     OverrideAmount DECIMAL(19,4) NOT NULL DEFAULT 0,        -- Don't calculate. Use this amount. OverrideApprover required.  0 if not applicable.
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
-    LastModBy MEDIUMINT NOT NULL DEFAULT 0                  -- employee UID (from phonebook) that modified it
+    LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- **************************************
@@ -600,6 +678,8 @@ CREATE TABLE AR (
     DtStop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date for recurrent assessments; the date/time of the assessment for instances
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY(ARID)
 );
 
@@ -616,6 +696,8 @@ CREATE TABLE DemandSource (
     Industry VARCHAR(100),                                  -- What industry -- THIS BECOMES A REFERENCE TO "Industry" StringList
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (SourceSLSID)
 );
 
@@ -626,6 +708,8 @@ CREATE TABLE LeadSource (
     IndustrySLID BIGINT NOT NULL DEFAULT 0,                 -- What industry -- THIS BECOMES A REFERENCE TO "Industry" StringList
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LSID)
 );
 
@@ -656,6 +740,8 @@ CREATE TABLE Transactant (
     Website VARCHAR(100) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                              -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (TCID)
 );
 
@@ -696,6 +782,8 @@ CREATE TABLE Prospect (
     RAID BIGINT NOT NULL DEFAULT 0,                         -- created to hold On Account amount of Floating Deposit  -- Make this 0 after Prospect becomes Transactant
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (TCID)
 );
 
@@ -724,6 +812,8 @@ CREATE TABLE User (
     SourceSLSID BIGINT NOT NULL DEFAULT 0,                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                       -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (TCID)
 );
 
@@ -743,6 +833,8 @@ CREATE TABLE Vehicle (
     DtStop DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                       -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (VID)
 );
 
@@ -751,7 +843,7 @@ CREATE TABLE Vehicle (
 -- ===========================================
 --   PAYOR
 -- ===========================================
-CREATE TABLE Payor  (
+CREATE TABLE Payor (
     -- PID BIGINT NOT NULL DEFAULT 0,                           -- unique id of this Payor
     TCID BIGINT NOT NULL DEFAULT 0,                             -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                              -- which business
@@ -761,6 +853,8 @@ CREATE TABLE Payor  (
     EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,            -- yes/no
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (TCID)
 );
 
@@ -788,6 +882,8 @@ CREATE TABLE Receipt (
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RCPTID)
 );
 
@@ -800,6 +896,8 @@ CREATE TABLE ReceiptAllocation (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ASMID BIGINT NOT NULL DEFAULT 0,                            -- the id of the assessment that caused this payment
     AcctRule VARCHAR(150),
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RCPAID)
 );
 
@@ -812,6 +910,8 @@ CREATE TABLE DepositMethod (
     DPMID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                              -- which business
     Name VARCHAR(50) NOT NULL DEFAULT '',                       -- 0 = not specified, 1 = Hand Delivery, Scanned Batch, US Mail
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (DPMID)
 );
 
@@ -823,6 +923,8 @@ CREATE TABLE Depository (
     AccountNo VARCHAR(256),                                     -- account number at this Depository
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (DEPID)
 );
 
@@ -835,13 +937,17 @@ CREATE TABLE Deposit (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- total amount of all Receipts in this deposit
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (DID)
 );
 
 CREATE TABLE DepositPart (
     DID BIGINT NOT NULL DEFAULT 0,
     BID BIGINT NOT NULL DEFAULT 0,                              -- business id
-    RCPTID BIGINT NOT NULL DEFAULT 0
+    RCPTID BIGINT NOT NULL DEFAULT 0,
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 -- **************************************
@@ -859,19 +965,25 @@ CREATE TABLE Invoice (
     DeliveredBy VARCHAR(256) NOT NULL DEFAULT '',               -- mail, FedEx, UPS, ...
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (InvoiceNo)
 );
 
 CREATE TABLE InvoiceAssessment (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
-    ASMID BIGINT NOT NULL DEFAULT 0                             -- assessment id
+    ASMID BIGINT NOT NULL DEFAULT 0,                            -- assessment id
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 CREATE TABLE InvoicePayor (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
-    PID BIGINT NOT NULL DEFAULT 0                               -- Payor id
+    PID BIGINT NOT NULL DEFAULT 0,                              -- Payor id
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
 );
 
 
@@ -893,6 +1005,8 @@ CREATE TABLE Journal (
     Comment VARCHAR(256) NOT NULL DEFAULT '',                      -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                         -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (JID)
 );
 
@@ -906,6 +1020,8 @@ CREATE TABLE JournalAllocation (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     --
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (JAID)
 );
 
@@ -917,6 +1033,8 @@ CREATE TABLE JournalMarker (
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (JMID)
 );
 
@@ -953,6 +1071,8 @@ CREATE TABLE LedgerEntry (
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LEID)
 );
 
@@ -968,6 +1088,8 @@ CREATE TABLE LedgerMarker (
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LMID)
 );
 
@@ -996,6 +1118,8 @@ CREATE TABLE GLAccount (
     Description VARCHAR(1024) NOT NULL DEFAULT '',  -- describe the assessment
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                          -- when was this record last written
     LastModBy MEDIUMINT NOT NULL DEFAULT 0,         -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LID)
 );
 

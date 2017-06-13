@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-// IDtoString is the method to produce a consistent printable id string
-func (t *AccountDepository) IDtoString() string {
-	return IDtoString("AD", t.ADID)
-}
+// // IDtoString is the method to produce a consistent printable id string
+// func (t *AccountDepository) IDtoString() string {
+// 	return IDtoString("AD", t.ADID)
+// }
 
 //-------------------------------------------------
 //  ASSESSMENT

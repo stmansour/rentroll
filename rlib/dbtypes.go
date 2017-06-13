@@ -145,16 +145,18 @@ const (
 // TCID = Transactant id == PayorID == UserID == ProspectID
 //==========================================
 
-// AccountDepository is used to define the account(s) where deposits for a GL Account (LID)
-// can be made
-type AccountDepository struct {
-	ADID        int64     // unique id for a depository
-	BID         int64     // business id
-	LID         int64     // the GL account that represents this depository
-	DEPID       int64     // Depository to associate
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
-}
+// // AccountDepository is used to define the account(s) where deposits for a GL Account (LID)
+// // can be made
+// type AccountDepository struct {
+// 	ADID        int64     // unique id for a depository
+// 	BID         int64     // business id
+// 	LID         int64     // the GL account that represents this depository
+// 	DEPID       int64     // Depository to associate
+// 	LastModTime time.Time // when was this record last written
+// 	LastModBy   int64     // employee UID (from phonebook) that modified it
+// 	CreateTS    time.Time // when was this record created
+// 	CreateBy    int64     // employee UID (from phonebook) that created it
+// }
 
 // StringList is a generic list structure for lists of strings. These could be used to implement things like
 // the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
@@ -166,6 +168,8 @@ type StringList struct {
 	LastModTime time.Time  // when was this record last written
 	LastModBy   int64      // employee UID (from phonebook) that modified it
 	S           []SLString // array of SLStrings associated with this SLID
+	CreateTS    time.Time  // when was this record created
+	CreateBy    int64      // employee UID (from phonebook) that created it
 }
 
 // SLString defines an individual string member of a StringList
@@ -176,6 +180,8 @@ type SLString struct {
 	Value       string    // value of this string
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // NoteType describes the type of note this is
@@ -185,6 +191,8 @@ type NoteType struct {
 	Name        string    // the actual note
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Note is dated comment from a user
@@ -201,6 +209,8 @@ type Note struct {
 	CN          []Note    // array of child notes
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // NoteList is a collection of Notes (NIDs)
@@ -210,6 +220,8 @@ type NoteList struct {
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	N           []Note    // the list of notes
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // CustomAttribute is a struct containing user-defined custom attributes for objects
@@ -224,15 +236,19 @@ type CustomAttribute struct {
 	LastModBy   int64     // who changed it last
 	fval        float64   // the float value once converted
 	ival        int64     // the int value once converted
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // CustomAttributeRef is a reference to a Custom Attribute. A query of the form:
 //		SELECT CID FROM CustomAttributeRef
 type CustomAttributeRef struct {
-	ElementType int64 // what type of element:  1=person, 2=company, 3=Business-unit, 4 = executable service, 5=RentableType
-	BID         int64 // business associated with this CustomAttributeRef
-	ID          int64 // the UID of the element type. That is, if ElementType == 5, the ID is the RTID (Rentable type id)
-	CID         int64 // uid of the custom attribute
+	ElementType int64     // what type of element:  1=person, 2=company, 3=Business-unit, 4 = executable service, 5=RentableType
+	BID         int64     // business associated with this CustomAttributeRef
+	ID          int64     // the UID of the element type. That is, if ElementType == 5, the ID is the RTID (Rentable type id)
+	CID         int64     // uid of the custom attribute
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // AssessmentType is a list of charges that the company can make
@@ -246,6 +262,8 @@ type AssessmentType struct {
 	Prorate     int64     //
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementTemplate is a template used to set up new rental agreements
@@ -255,6 +273,8 @@ type RentalAgreementTemplate struct {
 	RATemplateName string    // RATemplateName a string associated with each rental type agreement (essentially, the doc name)
 	LastModTime    time.Time // when was this record last written
 	LastModBy      int64     // employee UID (from phonebook) that modified it
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementGrid is a struct for the Rental Agreement Grid in the UI
@@ -274,6 +294,8 @@ type RatePlan struct {
 	LastModTime time.Time           // when was this record last written
 	LastModBy   int64               // employee UID (from phonebook) that modified it
 	OD          []OtherDeliverables // other Deliverables associated with the rate plan
+	CreateTS    time.Time           // when was this record created
+	CreateBy    int64               // employee UID (from phonebook) that created it
 }
 
 // FlRatePlanGDS and the others are bit flags for the RatePlan custom attribute: FLAGS
@@ -299,6 +321,8 @@ type RatePlanRef struct {
 	LastModBy         int64               // employee UID (from phonebook) that modified it
 	RT                []RatePlanRefRTRate // all associated RentableType Rates
 	SP                []RatePlanRefSPRate // all associated RentableSpecialtyType Rates
+	CreateTS          time.Time           // when was this record created
+	CreateBy          int64               // employee UID (from phonebook) that created it
 }
 
 // FlRTRRefHide and the others are bit flags for the RatePlanRef
@@ -308,11 +332,13 @@ const (
 
 // RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 type RatePlanRefRTRate struct {
-	RPRID int64   // which RatePlanRef is this
-	BID   int64   // Business
-	RTID  int64   // which RentableType
-	FLAGS uint64  // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-	Val   float64 // Val
+	RPRID    int64     // which RatePlanRef is this
+	BID      int64     // Business
+	RTID     int64     // which RentableType
+	FLAGS    uint64    // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+	Val      float64   // Val
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // FlRTRpct and the others are bit flags for the RatePlanRefRTRate
@@ -323,12 +349,14 @@ const (
 
 // RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 type RatePlanRefSPRate struct {
-	RPRID int64   // which RatePlanRef is this
-	BID   int64   // Business
-	RTID  int64   // which RentableType
-	RSPID int64   // which Specialty
-	FLAGS uint64  // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-	Val   float64 // Val
+	RPRID    int64     // which RatePlanRef is this
+	BID      int64     // Business
+	RTID     int64     // which RentableType
+	RSPID    int64     // which Specialty
+	FLAGS    uint64    // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+	Val      float64   // Val
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // FlSPRpct and the others are bit flags for the RatePlanRefSPRate
@@ -340,19 +368,23 @@ const (
 // RatePlanOD defines which other deliverables are associated with a RatePlan.
 // A RatePlan can refer to multiple OtherDeliverables.
 type RatePlanOD struct {
-	RPRID int64 // with which RatePlan is this OtherDeliverable associated?
-	BID   int64 // Business
-	ODID  int64 // points to an OtherDeliverables
+	RPRID    int64     // with which RatePlan is this OtherDeliverable associated?
+	BID      int64     // Business
+	ODID     int64     // points to an OtherDeliverables
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // OtherDeliverables defines special offers associated with RatePlanRefs. These are for promotions. Examples of OtherDeliverables
 // would include things like 2 Seaworld tickets, etc.  Referenced by RatePlanRef
 // Multiple RatePlanRefs can refer to the same OtherDeliverables.
 type OtherDeliverables struct {
-	ODID   int64  // Unique ID for this OtherDeliverables
-	BID    int64  // Business
-	Name   string // Description of the other deliverables. Ex: 2 Seaworld tickets
-	Active int64  // Flag: Is this list still active?  dropdown interface lists only the active ones
+	ODID     int64     // Unique ID for this OtherDeliverables
+	BID      int64     // Business
+	Name     string    // Description of the other deliverables. Ex: 2 Seaworld tickets
+	Active   int64     // Flag: Is this list still active?  dropdown interface lists only the active ones
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreement binds one or more payors to one or more rentables
@@ -394,6 +426,8 @@ type RentalAgreement struct {
 	R                      []XRentable // all the rentables
 	P                      []XPerson   // all the payors
 	T                      []XPerson   // all the users
+	CreateTS               time.Time   // when was this record created
+	CreateBy               int64       // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementRentable describes a Rentable associated with a rental agreement
@@ -406,36 +440,44 @@ type RentalAgreementRentable struct {
 	ContractRent float64   // the rent
 	RARDtStart   time.Time // start date/time for this Rentable
 	RARDtStop    time.Time // stop date/time
+	CreateTS     time.Time // when was this record created
+	CreateBy     int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementPayor describes a Payor associated with a rental agreement
 type RentalAgreementPayor struct {
-	RAPID   int64 // unique id
-	RAID    int64
-	BID     int64     // Business
-	TCID    int64     // the payor's transactant id
-	DtStart time.Time // start date/time for this Payor
-	DtStop  time.Time // stop date/time
-	FLAGS   uint64    // 1<<0 is the bit that indicates this payor is a 'guarantor'
+	RAPID    int64 // unique id
+	RAID     int64
+	BID      int64     // Business
+	TCID     int64     // the payor's transactant id
+	DtStart  time.Time // start date/time for this Payor
+	DtStop   time.Time // stop date/time
+	FLAGS    uint64    // 1<<0 is the bit that indicates this payor is a 'guarantor'
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementTax - the time based attribute for whether the rental agreement is taxable
 type RentalAgreementTax struct {
-	RAID    int64     //associated rental agreement
-	BID     int64     // Business
-	DtStart time.Time // start date/time for this Payor
-	DtStop  time.Time // stop date/time
-	FLAGS   uint64    // 1<<0 is whether the agreement is taxable
+	RAID     int64     //associated rental agreement
+	BID      int64     // Business
+	DtStart  time.Time // start date/time for this Payor
+	DtStop   time.Time // stop date/time
+	FLAGS    uint64    // 1<<0 is whether the agreement is taxable
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // RentableUser describes a User associated with a rental agreement
 type RentableUser struct {
-	RUID    int64     // unique id
-	RID     int64     // associated Rentable
-	BID     int64     // associated business
-	TCID    int64     // pointer to Transactant
-	DtStart time.Time // start date/time for this User
-	DtStop  time.Time // stop date/time (when this person stopped being a User)
+	RUID     int64     // unique id
+	RID      int64     // associated Rentable
+	BID      int64     // associated business
+	TCID     int64     // pointer to Transactant
+	DtStart  time.Time // start date/time for this User
+	DtStop   time.Time // stop date/time (when this person stopped being a User)
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementPet describes a pet associated with a rental agreement. There can be as many as needed.
@@ -453,6 +495,8 @@ type RentalAgreementPet struct {
 	DtStop      time.Time
 	LastModTime time.Time
 	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // DemandSource is a structure
@@ -463,6 +507,8 @@ type DemandSource struct {
 	Industry    string    // what industry is this source in
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Transactant is the basic structure of information
@@ -491,6 +537,8 @@ type Transactant struct {
 	Website        string // person's website
 	LastModTime    time.Time
 	LastModBy      int64
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
 // Prospect contains info over and above
@@ -520,6 +568,8 @@ type Prospect struct {
 	RAID                   int64     // created to hold On Account amount of Floating Deposit
 	LastModTime            time.Time
 	LastModBy              int64
+	CreateTS               time.Time // when was this record created
+	CreateBy               int64     // employee UID (from phonebook) that created it
 }
 
 // User contains all info common to a person
@@ -540,6 +590,8 @@ type User struct {
 	LastModTime               time.Time
 	LastModBy                 int64
 	Vehicles                  []Vehicle
+	CreateTS                  time.Time // when was this record created
+	CreateBy                  int64     // employee UID (from phonebook) that created it
 }
 
 // TransactantTypeDown is the struct needed to match names in typedown controls
@@ -576,6 +628,8 @@ type Vehicle struct {
 	DtStop              time.Time
 	LastModTime         time.Time
 	LastModBy           int64
+	CreateTS            time.Time // when was this record created
+	CreateBy            int64     // employee UID (from phonebook) that created it
 }
 
 // Payor is attributes of the person financially responsible
@@ -590,6 +644,8 @@ type Payor struct {
 	EligibleFuturePayor int64
 	LastModTime         time.Time
 	LastModBy           int64
+	CreateTS            time.Time // when was this record created
+	CreateBy            int64     // employee UID (from phonebook) that created it
 }
 
 // XPerson of all person related attributes
@@ -620,6 +676,8 @@ type Assessment struct {
 	Comment        string
 	LastModTime    time.Time
 	LastModBy      int64
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
 // AR is the table that defines the AcctRules for Assessments and Receipts
@@ -636,6 +694,8 @@ type AR struct {
 	DtStop      time.Time
 	LastModTime time.Time
 	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Business is the set of attributes describing a rental or hotel Business
@@ -649,6 +709,8 @@ type Business struct {
 	LastModTime           time.Time // when was this record last written
 	LastModBy             int64     // employee UID (from phonebook) that modified it
 	// ParkingPermitInUse    int64     // yes/no  0 = no, 1 = yes
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // Building defines the location of a Building that is part of a Business
@@ -663,6 +725,8 @@ type Building struct {
 	Country     string
 	LastModTime time.Time
 	LastModBy   int
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // PaymentType describes how a payment was made
@@ -673,6 +737,8 @@ type PaymentType struct {
 	Description string
 	LastModTime time.Time
 	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Receipt saves the information associated with a payment made by a User to cover one or more Assessments
@@ -696,6 +762,8 @@ type Receipt struct {
 	LastModTime     time.Time
 	LastModBy       int64
 	RA              []ReceiptAllocation
+	CreateTS        time.Time // when was this record created
+	CreateBy        int64     // employee UID (from phonebook) that created it
 }
 
 // ReceiptAllocation defines an allocation of a Receipt amount.
@@ -708,6 +776,8 @@ type ReceiptAllocation struct {
 	Amount   float64
 	ASMID    int64
 	AcctRule string
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // Depository is a bank account or other account where deposits are made
@@ -719,6 +789,8 @@ type Depository struct {
 	AccountNo   string    // account number at this Depository
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Deposit is simply a list of receipts that form a deposit to a Depository. This struct contains
@@ -733,22 +805,28 @@ type Deposit struct {
 	LastModTime time.Time     // when was this record last written
 	LastModBy   int64         // employee UID (from phonebook) that modified it
 	DP          []DepositPart // array of DepositParts for this deposit
+	CreateTS    time.Time     // when was this record created
+	CreateBy    int64         // employee UID (from phonebook) that created it
 }
 
 // DepositPart is a reference to a Receipt that is part of this deposit.  Another way of
 // thinking about it is that this query produces the list of all receipts in a Deposit:
 //		SELECT RCPTID WHERE DIP=someDID
 type DepositPart struct {
-	DID    int64 // deposit id
-	BID    int64 // business id
-	RCPTID int64 // receipt id
+	DID      int64     // deposit id
+	BID      int64     // business id
+	RCPTID   int64     // receipt id
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // DepositMethod is a list of methods used to make deposits to a depository
 type DepositMethod struct {
-	DPMID int64  //the method id
-	BID   int64  // business id
-	Name  string // descriptive name
+	DPMID    int64     //the method id
+	BID      int64     // business id
+	Name     string    // descriptive name
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // Invoice is a structure that defines an invoice - a collection of assessments
@@ -763,24 +841,30 @@ type Invoice struct {
 	LastModBy   int64               // employee UID (from phonebook) that modified it
 	A           []InvoiceAssessment // list of assessments in this invoice
 	P           []InvoicePayor      // list of payors
+	CreateTS    time.Time           // when was this record created
+	CreateBy    int64               // employee UID (from phonebook) that created it
 }
 
 // InvoiceAssessment is a reference to an Assessment that is part of this invoice.  Another way of
 // thinking about it is that this query produces the list of all assessments in an invoice:
 //		SELECT ASMID WHERE InvoiceNo=somenumber
 type InvoiceAssessment struct {
-	InvoiceNo int64 // the invoice number
-	BID       int64 // bid
-	ASMID     int64 // assessment
+	InvoiceNo int64     // the invoice number
+	BID       int64     // bid
+	ASMID     int64     // assessment
+	CreateTS  time.Time // when was this record created
+	CreateBy  int64     // employee UID (from phonebook) that created it
 }
 
 // InvoicePayor is a reference to a Payor for this invoice.  Another way of
 // thinking about it is that this query produces the list of all payors for an invoice:
 //		SELECT PID WHERE InvoiceNo=somenumber
 type InvoicePayor struct {
-	InvoiceNo int64 // the invoice number
-	BID       int64 // bid
-	PID       int64 // Payor ID
+	InvoiceNo int64     // the invoice number
+	BID       int64     // bid
+	PID       int64     // Payor ID
+	CreateTS  time.Time // when was this record created
+	CreateBy  int64     // employee UID (from phonebook) that created it
 }
 
 // RentableSpecialty is the structure for attributes of a Rentable specialty
@@ -790,6 +874,8 @@ type RentableSpecialty struct {
 	Name        string
 	Fee         float64 // proration inherited from the rentable / rentable type.
 	Description string
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentableType is the set of attributes describing the different types of Rentable items
@@ -807,6 +893,8 @@ type RentableType struct {
 	MRCurrent      float64                    // the current market rate (historical values are in MR)
 	LastModTime    time.Time
 	LastModBy      int64
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
 // RentableMarketRate describes the market rate rent for a Rentable type over a time period
@@ -816,15 +904,19 @@ type RentableMarketRate struct {
 	MarketRate float64
 	DtStart    time.Time
 	DtStop     time.Time
+	CreateTS   time.Time // when was this record created
+	CreateBy   int64     // employee UID (from phonebook) that created it
 }
 
 // RentableTypeTax - the time based attribute for whether the rental agreement is taxable
 type RentableTypeTax struct {
-	RAID    int64     //associated rental agreement
-	BID     int64     // Business
-	DtStart time.Time // start date/time for this Payor
-	DtStop  time.Time // stop date/time
-	TAXID   int64     // which tax in the Tax Table
+	RAID     int64     //associated rental agreement
+	BID      int64     // Business
+	DtStart  time.Time // start date/time for this Payor
+	DtStop   time.Time // stop date/time
+	TAXID    int64     // which tax in the Tax Table
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // Rentable is the basic struct for  entities to rent
@@ -839,6 +931,8 @@ type Rentable struct {
 	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
 	RTCurrent      int64             // RentableType ID its current type (current as defined by system datetime), NOT A DB FIELD
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // RentableTypeRef is the time-based Rentable type attribute
@@ -853,6 +947,8 @@ type RentableTypeRef struct {
 	DtStop                 time.Time // timerange stop
 	LastModTime            time.Time
 	LastModBy              int64
+	CreateTS               time.Time // when was this record created
+	CreateBy               int64     // employee UID (from phonebook) that created it
 }
 
 // RentCycleRef is a simplified struct containing a rent cycle and the
@@ -876,6 +972,8 @@ type RentableSpecialtyRef struct {
 	DtStop      time.Time // timerange stop
 	LastModTime time.Time
 	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentableStatus archives the state of a Rentable during the specified period of time
@@ -889,6 +987,8 @@ type RentableStatus struct {
 	Status           int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
 	LastModTime      time.Time // time of last update to the db record
 	LastModBy        int64     // who made the update (Phonebook UID)
+	CreateTS         time.Time // when was this record created
+	CreateBy         int64     // employee UID (from phonebook) that created it
 }
 
 // XBusiness combines the Business struct and a map of the Business's Rentable types
@@ -919,28 +1019,36 @@ type Journal struct {
 	LastModBy   int64               // user making the mod
 	JA          []JournalAllocation // an array of Journal allocations, breaks the payment or assessment down, total of all the allocations equals the "Amount" above
 	//RAID        int64               // unique id of Rental Agreement
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // JournalAllocation describes how the associated Journal amount is allocated
 type JournalAllocation struct {
-	JAID     int64   // unique id for this allocation
-	BID      int64   // unique id of Business
-	JID      int64   // associated Journal entry
-	RID      int64   // associated Rentable
-	RAID     int64   // associated Rental Agreement
-	TCID     int64   // if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means the payment went to the unallocated funds account
-	Amount   float64 // amount of this allocation
-	ASMID    int64   // associated AssessmentID -- source of the charge
-	AcctRule string  // describes how this amount distributed across the accounts
+	JAID     int64     // unique id for this allocation
+	BID      int64     // unique id of Business
+	JID      int64     // associated Journal entry
+	RID      int64     // associated Rentable
+	RAID     int64     // associated Rental Agreement
+	TCID     int64     // if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means the payment went to the unallocated funds account
+	Amount   float64   // amount of this allocation
+	ASMID    int64     // associated AssessmentID -- source of the charge
+	AcctRule string    // describes how this amount distributed across the accounts
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // JournalMarker describes a period of time where the Journal entries have been locked down
 type JournalMarker struct {
-	JMID    int64
-	BID     int64
-	State   int64
-	DtStart time.Time
-	DtStop  time.Time
+	JMID        int64
+	BID         int64
+	State       int64
+	DtStart     time.Time
+	DtStop      time.Time
+	LastModTime time.Time
+	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // LedgerEntry is the structure for LedgerEntry attributes
@@ -959,6 +1067,8 @@ type LedgerEntry struct {
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod
 	//GLNo        string    // glnumber for the ledger -- DELETE THIS ATTRIBUTE
+	CreateTS time.Time // when was this record created
+	CreateBy int64     // employee UID (from phonebook) that created it
 }
 
 // LedgerMarker describes a period of time period described. The Balance can be
@@ -975,6 +1085,8 @@ type LedgerMarker struct {
 	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
@@ -997,69 +1109,71 @@ type GLAccount struct {
 	Description    string    // description for this account
 	LastModTime    time.Time // auto updated
 	LastModBy      int64     // user making the mod
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
-	CountBusinessCustomAttributes        *sql.Stmt
-	CountBusinessCustomAttrRefs          *sql.Stmt
-	CountBusinessRentables               *sql.Stmt
-	CountBusinessRentableTypes           *sql.Stmt
-	CountBusinessRentalAgreements        *sql.Stmt
-	CountBusinessTransactants            *sql.Stmt
-	DeleteAccountDepository              *sql.Stmt
-	DeleteAllRentalAgreementPets         *sql.Stmt
-	DeleteAR                             *sql.Stmt
-	DeleteCustomAttribute                *sql.Stmt
-	DeleteCustomAttributeRef             *sql.Stmt
-	DeleteDemandSource                   *sql.Stmt
-	DeleteDeposit                        *sql.Stmt
-	DeleteDepositMethod                  *sql.Stmt
-	DeleteDepository                     *sql.Stmt
-	DeleteDepositParts                   *sql.Stmt
-	DeleteInvoice                        *sql.Stmt
-	DeleteInvoiceAssessments             *sql.Stmt
-	DeleteInvoicePayors                  *sql.Stmt
-	DeleteJournalAllocation              *sql.Stmt
-	DeleteJournalAllocations             *sql.Stmt
-	DeleteJournalEntry                   *sql.Stmt
-	DeleteJournalMarker                  *sql.Stmt
-	DeleteLedger                         *sql.Stmt
-	DeleteLedgerEntry                    *sql.Stmt
-	DeleteLedgerMarker                   *sql.Stmt
-	DeleteNote                           *sql.Stmt
-	DeleteNoteList                       *sql.Stmt
-	DeleteNoteType                       *sql.Stmt
-	DeletePaymentType                    *sql.Stmt
-	DeletePayor                          *sql.Stmt
-	DeleteProspect                       *sql.Stmt
-	DeleteRatePlan                       *sql.Stmt
-	DeleteRatePlanRef                    *sql.Stmt
-	DeleteRatePlanRefRTRate              *sql.Stmt
-	DeleteRatePlanRefSPRate              *sql.Stmt
-	DeleteReceipt                        *sql.Stmt
-	DeleteReceiptAllocation              *sql.Stmt
-	DeleteReceiptAllocations             *sql.Stmt
-	DeleteRentableSpecialtyRef           *sql.Stmt
-	DeleteRentableStatus                 *sql.Stmt
-	DeleteRentableTypeRef                *sql.Stmt
-	DeleteRentableUser                   *sql.Stmt
-	DeleteRentableUserByRBT              *sql.Stmt
-	DeleteRentalAgreementPayor           *sql.Stmt
-	DeleteRentalAgreementPayorByRBT      *sql.Stmt
-	DeleteRentalAgreementPet             *sql.Stmt
-	DeleteRentalAgreementRentable        *sql.Stmt
-	DeleteRentalAgreementTax             *sql.Stmt
-	DeleteSLString                       *sql.Stmt
-	DeleteSLStrings                      *sql.Stmt
-	DeleteStringList                     *sql.Stmt
-	DeleteTransactant                    *sql.Stmt
-	DeleteUser                           *sql.Stmt
-	DeleteVehicle                        *sql.Stmt
-	FindAgreementByRentable              *sql.Stmt
-	FindTCIDByNote                       *sql.Stmt
-	FindTransactantByPhoneOrEmail        *sql.Stmt
-	GetAccountDepository                 *sql.Stmt
+	CountBusinessCustomAttributes *sql.Stmt
+	CountBusinessCustomAttrRefs   *sql.Stmt
+	CountBusinessRentables        *sql.Stmt
+	CountBusinessRentableTypes    *sql.Stmt
+	CountBusinessRentalAgreements *sql.Stmt
+	CountBusinessTransactants     *sql.Stmt
+	// DeleteAccountDepository              *sql.Stmt
+	DeleteAllRentalAgreementPets    *sql.Stmt
+	DeleteAR                        *sql.Stmt
+	DeleteCustomAttribute           *sql.Stmt
+	DeleteCustomAttributeRef        *sql.Stmt
+	DeleteDemandSource              *sql.Stmt
+	DeleteDeposit                   *sql.Stmt
+	DeleteDepositMethod             *sql.Stmt
+	DeleteDepository                *sql.Stmt
+	DeleteDepositParts              *sql.Stmt
+	DeleteInvoice                   *sql.Stmt
+	DeleteInvoiceAssessments        *sql.Stmt
+	DeleteInvoicePayors             *sql.Stmt
+	DeleteJournalAllocation         *sql.Stmt
+	DeleteJournalAllocations        *sql.Stmt
+	DeleteJournalEntry              *sql.Stmt
+	DeleteJournalMarker             *sql.Stmt
+	DeleteLedger                    *sql.Stmt
+	DeleteLedgerEntry               *sql.Stmt
+	DeleteLedgerMarker              *sql.Stmt
+	DeleteNote                      *sql.Stmt
+	DeleteNoteList                  *sql.Stmt
+	DeleteNoteType                  *sql.Stmt
+	DeletePaymentType               *sql.Stmt
+	DeletePayor                     *sql.Stmt
+	DeleteProspect                  *sql.Stmt
+	DeleteRatePlan                  *sql.Stmt
+	DeleteRatePlanRef               *sql.Stmt
+	DeleteRatePlanRefRTRate         *sql.Stmt
+	DeleteRatePlanRefSPRate         *sql.Stmt
+	DeleteReceipt                   *sql.Stmt
+	DeleteReceiptAllocation         *sql.Stmt
+	DeleteReceiptAllocations        *sql.Stmt
+	DeleteRentableSpecialtyRef      *sql.Stmt
+	DeleteRentableStatus            *sql.Stmt
+	DeleteRentableTypeRef           *sql.Stmt
+	DeleteRentableUser              *sql.Stmt
+	DeleteRentableUserByRBT         *sql.Stmt
+	DeleteRentalAgreementPayor      *sql.Stmt
+	DeleteRentalAgreementPayorByRBT *sql.Stmt
+	DeleteRentalAgreementPet        *sql.Stmt
+	DeleteRentalAgreementRentable   *sql.Stmt
+	DeleteRentalAgreementTax        *sql.Stmt
+	DeleteSLString                  *sql.Stmt
+	DeleteSLStrings                 *sql.Stmt
+	DeleteStringList                *sql.Stmt
+	DeleteTransactant               *sql.Stmt
+	DeleteUser                      *sql.Stmt
+	DeleteVehicle                   *sql.Stmt
+	FindAgreementByRentable         *sql.Stmt
+	FindTCIDByNote                  *sql.Stmt
+	FindTransactantByPhoneOrEmail   *sql.Stmt
+	// GetAccountDepository                 *sql.Stmt
 	GetAgreementsForRentable             *sql.Stmt
 	GetAllAccountDepositories            *sql.Stmt
 	GetAllARs                            *sql.Stmt
@@ -1222,106 +1336,106 @@ type RRprepSQL struct {
 	GetVehiclesByBID                     *sql.Stmt
 	GetVehiclesByLicensePlate            *sql.Stmt
 	GetVehiclesByTransactant             *sql.Stmt
-	InsertAccountDepository              *sql.Stmt
-	InsertAR                             *sql.Stmt
-	InsertAssessment                     *sql.Stmt
-	InsertAssessmentType                 *sql.Stmt
-	InsertBuilding                       *sql.Stmt
-	InsertBuildingWithID                 *sql.Stmt
-	InsertBusiness                       *sql.Stmt
-	InsertCustomAttribute                *sql.Stmt
-	InsertCustomAttributeRef             *sql.Stmt
-	InsertDemandSource                   *sql.Stmt
-	InsertDeposit                        *sql.Stmt
-	InsertDepositMethod                  *sql.Stmt
-	InsertDepository                     *sql.Stmt
-	InsertDepositPart                    *sql.Stmt
-	InsertInvoice                        *sql.Stmt
-	InsertInvoiceAssessment              *sql.Stmt
-	InsertInvoicePayor                   *sql.Stmt
-	InsertJournal                        *sql.Stmt
-	InsertJournalAllocation              *sql.Stmt
-	InsertJournalMarker                  *sql.Stmt
-	InsertLedger                         *sql.Stmt
-	InsertLedgerAllocation               *sql.Stmt
-	InsertLedgerEntry                    *sql.Stmt
-	InsertLedgerMarker                   *sql.Stmt
-	InsertNote                           *sql.Stmt
-	InsertNoteList                       *sql.Stmt
-	InsertNoteType                       *sql.Stmt
-	InsertPaymentType                    *sql.Stmt
-	InsertPayor                          *sql.Stmt
-	InsertProspect                       *sql.Stmt
-	InsertRatePlan                       *sql.Stmt
-	InsertRatePlanRef                    *sql.Stmt
-	InsertRatePlanRefRTRate              *sql.Stmt
-	InsertRatePlanRefSPRate              *sql.Stmt
-	InsertReceipt                        *sql.Stmt
-	InsertReceiptAllocation              *sql.Stmt
-	InsertRentable                       *sql.Stmt
-	InsertRentableMarketRates            *sql.Stmt
-	InsertRentableSpecialtyRef           *sql.Stmt
-	InsertRentableSpecialtyType          *sql.Stmt
-	InsertRentableStatus                 *sql.Stmt
-	InsertRentableType                   *sql.Stmt
-	InsertRentableTypeRef                *sql.Stmt
-	InsertRentableUser                   *sql.Stmt
-	InsertRentalAgreement                *sql.Stmt
-	InsertRentalAgreementPayor           *sql.Stmt
-	InsertRentalAgreementPet             *sql.Stmt
-	InsertRentalAgreementRentable        *sql.Stmt
-	InsertRentalAgreementTax             *sql.Stmt
-	InsertRentalAgreementTemplate        *sql.Stmt
-	InsertSLString                       *sql.Stmt
-	InsertStringList                     *sql.Stmt
-	InsertTransactant                    *sql.Stmt
-	InsertUser                           *sql.Stmt
-	InsertVehicle                        *sql.Stmt
-	ReadRatePlan                         *sql.Stmt
-	ReadRatePlanRef                      *sql.Stmt
-	UIRAGrid                             *sql.Stmt
-	UpdateAccountDepository              *sql.Stmt
-	UpdateAR                             *sql.Stmt
-	UpdateAssessment                     *sql.Stmt
-	UpdateBusiness                       *sql.Stmt
-	UpdateCustomAttribute                *sql.Stmt
-	UpdateDemandSource                   *sql.Stmt
-	UpdateDeposit                        *sql.Stmt
-	UpdateDepositMethod                  *sql.Stmt
-	UpdateDepository                     *sql.Stmt
-	UpdateInvoice                        *sql.Stmt
-	UpdateJournalAllocation              *sql.Stmt
-	UpdateLedger                         *sql.Stmt
-	UpdateLedgerMarker                   *sql.Stmt
-	UpdateNote                           *sql.Stmt
-	UpdateNoteType                       *sql.Stmt
-	UpdatePaymentType                    *sql.Stmt
-	UpdatePayor                          *sql.Stmt
-	UpdateProspect                       *sql.Stmt
-	UpdateRatePlan                       *sql.Stmt
-	UpdateRatePlanRef                    *sql.Stmt
-	UpdateRatePlanRefRTRate              *sql.Stmt
-	UpdateRatePlanRefSPRate              *sql.Stmt
-	UpdateReceipt                        *sql.Stmt
-	UpdateReceiptAllocation              *sql.Stmt
-	UpdateRentable                       *sql.Stmt
-	UpdateRentableSpecialtyRef           *sql.Stmt
-	UpdateRentableStatus                 *sql.Stmt
-	UpdateRentableTypeRef                *sql.Stmt
-	UpdateRentableUser                   *sql.Stmt
-	UpdateRentableUserByRBT              *sql.Stmt
-	UpdateRentalAgreement                *sql.Stmt
-	UpdateRentalAgreementPayor           *sql.Stmt
-	UpdateRentalAgreementPayorByRBT      *sql.Stmt
-	UpdateRentalAgreementPet             *sql.Stmt
-	UpdateRentalAgreementRentable        *sql.Stmt
-	UpdateRentalAgreementTax             *sql.Stmt
-	UpdateSLString                       *sql.Stmt
-	UpdateStringList                     *sql.Stmt
-	UpdateTransactant                    *sql.Stmt
-	UpdateUser                           *sql.Stmt
-	UpdateVehicle                        *sql.Stmt
-	GetJournalAllocationByASMID          *sql.Stmt
+	// InsertAccountDepository              *sql.Stmt
+	InsertAR                      *sql.Stmt
+	InsertAssessment              *sql.Stmt
+	InsertAssessmentType          *sql.Stmt
+	InsertBuilding                *sql.Stmt
+	InsertBuildingWithID          *sql.Stmt
+	InsertBusiness                *sql.Stmt
+	InsertCustomAttribute         *sql.Stmt
+	InsertCustomAttributeRef      *sql.Stmt
+	InsertDemandSource            *sql.Stmt
+	InsertDeposit                 *sql.Stmt
+	InsertDepositMethod           *sql.Stmt
+	InsertDepository              *sql.Stmt
+	InsertDepositPart             *sql.Stmt
+	InsertInvoice                 *sql.Stmt
+	InsertInvoiceAssessment       *sql.Stmt
+	InsertInvoicePayor            *sql.Stmt
+	InsertJournal                 *sql.Stmt
+	InsertJournalAllocation       *sql.Stmt
+	InsertJournalMarker           *sql.Stmt
+	InsertLedger                  *sql.Stmt
+	InsertLedgerAllocation        *sql.Stmt
+	InsertLedgerEntry             *sql.Stmt
+	InsertLedgerMarker            *sql.Stmt
+	InsertNote                    *sql.Stmt
+	InsertNoteList                *sql.Stmt
+	InsertNoteType                *sql.Stmt
+	InsertPaymentType             *sql.Stmt
+	InsertPayor                   *sql.Stmt
+	InsertProspect                *sql.Stmt
+	InsertRatePlan                *sql.Stmt
+	InsertRatePlanRef             *sql.Stmt
+	InsertRatePlanRefRTRate       *sql.Stmt
+	InsertRatePlanRefSPRate       *sql.Stmt
+	InsertReceipt                 *sql.Stmt
+	InsertReceiptAllocation       *sql.Stmt
+	InsertRentable                *sql.Stmt
+	InsertRentableMarketRates     *sql.Stmt
+	InsertRentableSpecialtyRef    *sql.Stmt
+	InsertRentableSpecialtyType   *sql.Stmt
+	InsertRentableStatus          *sql.Stmt
+	InsertRentableType            *sql.Stmt
+	InsertRentableTypeRef         *sql.Stmt
+	InsertRentableUser            *sql.Stmt
+	InsertRentalAgreement         *sql.Stmt
+	InsertRentalAgreementPayor    *sql.Stmt
+	InsertRentalAgreementPet      *sql.Stmt
+	InsertRentalAgreementRentable *sql.Stmt
+	InsertRentalAgreementTax      *sql.Stmt
+	InsertRentalAgreementTemplate *sql.Stmt
+	InsertSLString                *sql.Stmt
+	InsertStringList              *sql.Stmt
+	InsertTransactant             *sql.Stmt
+	InsertUser                    *sql.Stmt
+	InsertVehicle                 *sql.Stmt
+	ReadRatePlan                  *sql.Stmt
+	ReadRatePlanRef               *sql.Stmt
+	UIRAGrid                      *sql.Stmt
+	// UpdateAccountDepository         *sql.Stmt
+	UpdateAR                        *sql.Stmt
+	UpdateAssessment                *sql.Stmt
+	UpdateBusiness                  *sql.Stmt
+	UpdateCustomAttribute           *sql.Stmt
+	UpdateDemandSource              *sql.Stmt
+	UpdateDeposit                   *sql.Stmt
+	UpdateDepositMethod             *sql.Stmt
+	UpdateDepository                *sql.Stmt
+	UpdateInvoice                   *sql.Stmt
+	UpdateJournalAllocation         *sql.Stmt
+	UpdateLedger                    *sql.Stmt
+	UpdateLedgerMarker              *sql.Stmt
+	UpdateNote                      *sql.Stmt
+	UpdateNoteType                  *sql.Stmt
+	UpdatePaymentType               *sql.Stmt
+	UpdatePayor                     *sql.Stmt
+	UpdateProspect                  *sql.Stmt
+	UpdateRatePlan                  *sql.Stmt
+	UpdateRatePlanRef               *sql.Stmt
+	UpdateRatePlanRefRTRate         *sql.Stmt
+	UpdateRatePlanRefSPRate         *sql.Stmt
+	UpdateReceipt                   *sql.Stmt
+	UpdateReceiptAllocation         *sql.Stmt
+	UpdateRentable                  *sql.Stmt
+	UpdateRentableSpecialtyRef      *sql.Stmt
+	UpdateRentableStatus            *sql.Stmt
+	UpdateRentableTypeRef           *sql.Stmt
+	UpdateRentableUser              *sql.Stmt
+	UpdateRentableUserByRBT         *sql.Stmt
+	UpdateRentalAgreement           *sql.Stmt
+	UpdateRentalAgreementPayor      *sql.Stmt
+	UpdateRentalAgreementPayorByRBT *sql.Stmt
+	UpdateRentalAgreementPet        *sql.Stmt
+	UpdateRentalAgreementRentable   *sql.Stmt
+	UpdateRentalAgreementTax        *sql.Stmt
+	UpdateSLString                  *sql.Stmt
+	UpdateStringList                *sql.Stmt
+	UpdateTransactant               *sql.Stmt
+	UpdateUser                      *sql.Stmt
+	UpdateVehicle                   *sql.Stmt
+	GetJournalAllocationByASMID     *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

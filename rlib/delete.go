@@ -2,14 +2,14 @@ package rlib
 
 import "time"
 
-// DeleteAccountDepository deletes AccountDepository records with the supplied id
-func DeleteAccountDepository(id int64) error {
-	_, err := RRdb.Prepstmt.DeleteAccountDepository.Exec(id)
-	if err != nil {
-		Ulog("Error deleting AccountDepository for id = %d, error: %v\n", id, err)
-	}
-	return err
-}
+// // DeleteAccountDepository deletes AccountDepository records with the supplied id
+// func DeleteAccountDepository(id int64) error {
+// 	_, err := RRdb.Prepstmt.DeleteAccountDepository.Exec(id)
+// 	if err != nil {
+// 		Ulog("Error deleting AccountDepository for id = %d, error: %v\n", id, err)
+// 	}
+// 	return err
+// }
 
 // DeleteAR deletes AR records with the supplied id
 func DeleteAR(id int64) error {
