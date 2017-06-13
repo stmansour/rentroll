@@ -1417,6 +1417,7 @@ type RRprepSQL struct {
 	UpdateTransactant                    *sql.Stmt
 	UpdateUser                           *sql.Stmt
 	UpdateVehicle                        *sql.Stmt
+	GetAssessmentInstancesByParent       *sql.Stmt
 	GetJournalAllocationByASMID          *sql.Stmt
 }
 
