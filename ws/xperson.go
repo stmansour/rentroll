@@ -225,6 +225,8 @@ var transactantGridFieldsMap = map[string][]string{
 	"Website":        {"Transactant.Website"},
 	"LastModTime":    {"Transactant.LastModTime"},
 	"LastModBy":      {"Transactant.LastModBy"},
+	"CreateTS":       {"Transactant.CreateTS"},
+	"CreateBy":       {"Transactant.CreateBy"},
 }
 
 var transactantSelectFields = []string{
@@ -250,11 +252,13 @@ var transactantSelectFields = []string{
 	"Transactant.Website",
 	"Transactant.LastModTime",
 	"Transactant.LastModBy",
+	"Transactant.CreateTS",
+	"Transactant.CreateBy",
 }
 
 // transactantRowScan scans a result from sql row and dump it in a rlib.Transactant struct
 func transactantRowScan(rows *sql.Rows, t rlib.Transactant) (rlib.Transactant, error) {
-	err := rows.Scan(&t.TCID, &t.BID, &t.NLID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.LastModTime, &t.LastModBy)
+	err := rows.Scan(&t.TCID, &t.BID, &t.NLID, &t.FirstName, &t.MiddleName, &t.LastName, &t.PreferredName, &t.CompanyName, &t.IsCompany, &t.PrimaryEmail, &t.SecondaryEmail, &t.WorkPhone, &t.CellPhone, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.Website, &t.LastModTime, &t.LastModBy, &t.CreateTS, &t.CreateBy)
 	return t, err
 }
 
