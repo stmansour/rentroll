@@ -145,19 +145,6 @@ const (
 // TCID = Transactant id == PayorID == UserID == ProspectID
 //==========================================
 
-// // AccountDepository is used to define the account(s) where deposits for a GL Account (LID)
-// // can be made
-// type AccountDepository struct {
-// 	ADID        int64     // unique id for a depository
-// 	BID         int64     // business id
-// 	LID         int64     // the GL account that represents this depository
-// 	DEPID       int64     // Depository to associate
-// 	LastModTime time.Time // when was this record last written
-// 	LastModBy   int64     // employee UID (from phonebook) that modified it
-// 	CreateTS    time.Time // when was this record created
-// 	CreateBy    int64     // employee UID (from phonebook) that created it
-// }
-
 // StringList is a generic list structure for lists of strings. These could be used to implement things like
 // the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
 // moving out, etc.
@@ -1115,67 +1102,64 @@ type GLAccount struct {
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
-	CountBusinessCustomAttributes *sql.Stmt
-	CountBusinessCustomAttrRefs   *sql.Stmt
-	CountBusinessRentables        *sql.Stmt
-	CountBusinessRentableTypes    *sql.Stmt
-	CountBusinessRentalAgreements *sql.Stmt
-	CountBusinessTransactants     *sql.Stmt
-	// DeleteAccountDepository              *sql.Stmt
-	DeleteAllRentalAgreementPets    *sql.Stmt
-	DeleteAR                        *sql.Stmt
-	DeleteCustomAttribute           *sql.Stmt
-	DeleteCustomAttributeRef        *sql.Stmt
-	DeleteDemandSource              *sql.Stmt
-	DeleteDeposit                   *sql.Stmt
-	DeleteDepositMethod             *sql.Stmt
-	DeleteDepository                *sql.Stmt
-	DeleteDepositParts              *sql.Stmt
-	DeleteInvoice                   *sql.Stmt
-	DeleteInvoiceAssessments        *sql.Stmt
-	DeleteInvoicePayors             *sql.Stmt
-	DeleteJournalAllocation         *sql.Stmt
-	DeleteJournalAllocations        *sql.Stmt
-	DeleteJournalEntry              *sql.Stmt
-	DeleteJournalMarker             *sql.Stmt
-	DeleteLedger                    *sql.Stmt
-	DeleteLedgerEntry               *sql.Stmt
-	DeleteLedgerMarker              *sql.Stmt
-	DeleteNote                      *sql.Stmt
-	DeleteNoteList                  *sql.Stmt
-	DeleteNoteType                  *sql.Stmt
-	DeletePaymentType               *sql.Stmt
-	DeletePayor                     *sql.Stmt
-	DeleteProspect                  *sql.Stmt
-	DeleteRatePlan                  *sql.Stmt
-	DeleteRatePlanRef               *sql.Stmt
-	DeleteRatePlanRefRTRate         *sql.Stmt
-	DeleteRatePlanRefSPRate         *sql.Stmt
-	DeleteReceipt                   *sql.Stmt
-	DeleteReceiptAllocation         *sql.Stmt
-	DeleteReceiptAllocations        *sql.Stmt
-	DeleteRentableSpecialtyRef      *sql.Stmt
-	DeleteRentableStatus            *sql.Stmt
-	DeleteRentableTypeRef           *sql.Stmt
-	DeleteRentableUser              *sql.Stmt
-	DeleteRentableUserByRBT         *sql.Stmt
-	DeleteRentalAgreementPayor      *sql.Stmt
-	DeleteRentalAgreementPayorByRBT *sql.Stmt
-	DeleteRentalAgreementPet        *sql.Stmt
-	DeleteRentalAgreementRentable   *sql.Stmt
-	DeleteRentalAgreementTax        *sql.Stmt
-	DeleteSLString                  *sql.Stmt
-	DeleteSLStrings                 *sql.Stmt
-	DeleteStringList                *sql.Stmt
-	DeleteTransactant               *sql.Stmt
-	DeleteUser                      *sql.Stmt
-	DeleteVehicle                   *sql.Stmt
-	FindAgreementByRentable         *sql.Stmt
-	FindTCIDByNote                  *sql.Stmt
-	FindTransactantByPhoneOrEmail   *sql.Stmt
-	// GetAccountDepository                 *sql.Stmt
+	CountBusinessCustomAttributes        *sql.Stmt
+	CountBusinessCustomAttrRefs          *sql.Stmt
+	CountBusinessRentables               *sql.Stmt
+	CountBusinessRentableTypes           *sql.Stmt
+	CountBusinessRentalAgreements        *sql.Stmt
+	CountBusinessTransactants            *sql.Stmt
+	DeleteAllRentalAgreementPets         *sql.Stmt
+	DeleteAR                             *sql.Stmt
+	DeleteCustomAttribute                *sql.Stmt
+	DeleteCustomAttributeRef             *sql.Stmt
+	DeleteDemandSource                   *sql.Stmt
+	DeleteDeposit                        *sql.Stmt
+	DeleteDepositMethod                  *sql.Stmt
+	DeleteDepository                     *sql.Stmt
+	DeleteDepositParts                   *sql.Stmt
+	DeleteInvoice                        *sql.Stmt
+	DeleteInvoiceAssessments             *sql.Stmt
+	DeleteInvoicePayors                  *sql.Stmt
+	DeleteJournalAllocation              *sql.Stmt
+	DeleteJournalAllocations             *sql.Stmt
+	DeleteJournalEntry                   *sql.Stmt
+	DeleteJournalMarker                  *sql.Stmt
+	DeleteLedger                         *sql.Stmt
+	DeleteLedgerEntry                    *sql.Stmt
+	DeleteLedgerMarker                   *sql.Stmt
+	DeleteNote                           *sql.Stmt
+	DeleteNoteList                       *sql.Stmt
+	DeleteNoteType                       *sql.Stmt
+	DeletePaymentType                    *sql.Stmt
+	DeletePayor                          *sql.Stmt
+	DeleteProspect                       *sql.Stmt
+	DeleteRatePlan                       *sql.Stmt
+	DeleteRatePlanRef                    *sql.Stmt
+	DeleteRatePlanRefRTRate              *sql.Stmt
+	DeleteRatePlanRefSPRate              *sql.Stmt
+	DeleteReceipt                        *sql.Stmt
+	DeleteReceiptAllocation              *sql.Stmt
+	DeleteReceiptAllocations             *sql.Stmt
+	DeleteRentableSpecialtyRef           *sql.Stmt
+	DeleteRentableStatus                 *sql.Stmt
+	DeleteRentableTypeRef                *sql.Stmt
+	DeleteRentableUser                   *sql.Stmt
+	DeleteRentableUserByRBT              *sql.Stmt
+	DeleteRentalAgreementPayor           *sql.Stmt
+	DeleteRentalAgreementPayorByRBT      *sql.Stmt
+	DeleteRentalAgreementPet             *sql.Stmt
+	DeleteRentalAgreementRentable        *sql.Stmt
+	DeleteRentalAgreementTax             *sql.Stmt
+	DeleteSLString                       *sql.Stmt
+	DeleteSLStrings                      *sql.Stmt
+	DeleteStringList                     *sql.Stmt
+	DeleteTransactant                    *sql.Stmt
+	DeleteUser                           *sql.Stmt
+	DeleteVehicle                        *sql.Stmt
+	FindAgreementByRentable              *sql.Stmt
+	FindTCIDByNote                       *sql.Stmt
+	FindTransactantByPhoneOrEmail        *sql.Stmt
 	GetAgreementsForRentable             *sql.Stmt
-	GetAllAccountDepositories            *sql.Stmt
 	GetAllARs                            *sql.Stmt
 	GetAllAssessmentsByBusiness          *sql.Stmt
 	GetAllAssessmentsByRAID              *sql.Stmt
@@ -1336,111 +1320,108 @@ type RRprepSQL struct {
 	GetVehiclesByBID                     *sql.Stmt
 	GetVehiclesByLicensePlate            *sql.Stmt
 	GetVehiclesByTransactant             *sql.Stmt
-	// InsertAccountDepository              *sql.Stmt
-	InsertAR                      *sql.Stmt
-	InsertAssessment              *sql.Stmt
-	InsertAssessmentType          *sql.Stmt
-	InsertBuilding                *sql.Stmt
-	InsertBuildingWithID          *sql.Stmt
-	InsertBusiness                *sql.Stmt
-	InsertCustomAttribute         *sql.Stmt
-	InsertCustomAttributeRef      *sql.Stmt
-	InsertDemandSource            *sql.Stmt
-	InsertDeposit                 *sql.Stmt
-	InsertDepositMethod           *sql.Stmt
-	InsertDepository              *sql.Stmt
-	InsertDepositPart             *sql.Stmt
-	InsertInvoice                 *sql.Stmt
-	InsertInvoiceAssessment       *sql.Stmt
-	InsertInvoicePayor            *sql.Stmt
-	InsertJournal                 *sql.Stmt
-	InsertJournalAllocation       *sql.Stmt
-	InsertJournalMarker           *sql.Stmt
-	InsertLedger                  *sql.Stmt
-	InsertLedgerAllocation        *sql.Stmt
-	InsertLedgerEntry             *sql.Stmt
-	InsertLedgerMarker            *sql.Stmt
-	InsertNote                    *sql.Stmt
-	InsertNoteList                *sql.Stmt
-	InsertNoteType                *sql.Stmt
-	InsertPaymentType             *sql.Stmt
-	InsertPayor                   *sql.Stmt
-	InsertProspect                *sql.Stmt
-	InsertRatePlan                *sql.Stmt
-	InsertRatePlanRef             *sql.Stmt
-	InsertRatePlanRefRTRate       *sql.Stmt
-	InsertRatePlanRefSPRate       *sql.Stmt
-	InsertReceipt                 *sql.Stmt
-	InsertReceiptAllocation       *sql.Stmt
-	InsertRentable                *sql.Stmt
-	InsertRentableMarketRates     *sql.Stmt
-	InsertRentableSpecialtyRef    *sql.Stmt
-	InsertRentableSpecialtyType   *sql.Stmt
-	InsertRentableStatus          *sql.Stmt
-	InsertRentableType            *sql.Stmt
-	InsertRentableTypeRef         *sql.Stmt
-	InsertRentableUser            *sql.Stmt
-	InsertRentalAgreement         *sql.Stmt
-	InsertRentalAgreementPayor    *sql.Stmt
-	InsertRentalAgreementPet      *sql.Stmt
-	InsertRentalAgreementRentable *sql.Stmt
-	InsertRentalAgreementTax      *sql.Stmt
-	InsertRentalAgreementTemplate *sql.Stmt
-	InsertSLString                *sql.Stmt
-	InsertStringList              *sql.Stmt
-	InsertTransactant             *sql.Stmt
-	InsertUser                    *sql.Stmt
-	InsertVehicle                 *sql.Stmt
-	ReadRatePlan                  *sql.Stmt
-	ReadRatePlanRef               *sql.Stmt
-	UIRAGrid                      *sql.Stmt
-	// UpdateAccountDepository         *sql.Stmt
-	UpdateAR                        *sql.Stmt
-	UpdateAssessment                *sql.Stmt
-	UpdateBusiness                  *sql.Stmt
-	UpdateCustomAttribute           *sql.Stmt
-	UpdateDemandSource              *sql.Stmt
-	UpdateDeposit                   *sql.Stmt
-	UpdateDepositMethod             *sql.Stmt
-	UpdateDepository                *sql.Stmt
-	UpdateInvoice                   *sql.Stmt
-	UpdateJournalAllocation         *sql.Stmt
-	UpdateLedger                    *sql.Stmt
-	UpdateLedgerMarker              *sql.Stmt
-	UpdateNote                      *sql.Stmt
-	UpdateNoteType                  *sql.Stmt
-	UpdatePaymentType               *sql.Stmt
-	UpdatePayor                     *sql.Stmt
-	UpdateProspect                  *sql.Stmt
-	UpdateRatePlan                  *sql.Stmt
-	UpdateRatePlanRef               *sql.Stmt
-	UpdateRatePlanRefRTRate         *sql.Stmt
-	UpdateRatePlanRefSPRate         *sql.Stmt
-	UpdateReceipt                   *sql.Stmt
-	UpdateReceiptAllocation         *sql.Stmt
-	UpdateRentable                  *sql.Stmt
-	UpdateRentableSpecialtyRef      *sql.Stmt
-	UpdateRentableStatus            *sql.Stmt
-	UpdateRentableTypeRef           *sql.Stmt
-	UpdateRentableUser              *sql.Stmt
-	UpdateRentableUserByRBT         *sql.Stmt
-	UpdateRentalAgreement           *sql.Stmt
-	UpdateRentalAgreementPayor      *sql.Stmt
-	UpdateRentalAgreementPayorByRBT *sql.Stmt
-	UpdateRentalAgreementPet        *sql.Stmt
-	UpdateRentalAgreementRentable   *sql.Stmt
-	UpdateRentalAgreementTax        *sql.Stmt
-	UpdateSLString                  *sql.Stmt
-	UpdateStringList                *sql.Stmt
-	UpdateTransactant               *sql.Stmt
-	UpdateUser                      *sql.Stmt
-	UpdateVehicle                   *sql.Stmt
-	GetJournalAllocationByASMID     *sql.Stmt
+	InsertAR                             *sql.Stmt
+	InsertAssessment                     *sql.Stmt
+	InsertAssessmentType                 *sql.Stmt
+	InsertBuilding                       *sql.Stmt
+	InsertBuildingWithID                 *sql.Stmt
+	InsertBusiness                       *sql.Stmt
+	InsertCustomAttribute                *sql.Stmt
+	InsertCustomAttributeRef             *sql.Stmt
+	InsertDemandSource                   *sql.Stmt
+	InsertDeposit                        *sql.Stmt
+	InsertDepositMethod                  *sql.Stmt
+	InsertDepository                     *sql.Stmt
+	InsertDepositPart                    *sql.Stmt
+	InsertInvoice                        *sql.Stmt
+	InsertInvoiceAssessment              *sql.Stmt
+	InsertInvoicePayor                   *sql.Stmt
+	InsertJournal                        *sql.Stmt
+	InsertJournalAllocation              *sql.Stmt
+	InsertJournalMarker                  *sql.Stmt
+	InsertLedger                         *sql.Stmt
+	InsertLedgerAllocation               *sql.Stmt
+	InsertLedgerEntry                    *sql.Stmt
+	InsertLedgerMarker                   *sql.Stmt
+	InsertNote                           *sql.Stmt
+	InsertNoteList                       *sql.Stmt
+	InsertNoteType                       *sql.Stmt
+	InsertPaymentType                    *sql.Stmt
+	InsertPayor                          *sql.Stmt
+	InsertProspect                       *sql.Stmt
+	InsertRatePlan                       *sql.Stmt
+	InsertRatePlanRef                    *sql.Stmt
+	InsertRatePlanRefRTRate              *sql.Stmt
+	InsertRatePlanRefSPRate              *sql.Stmt
+	InsertReceipt                        *sql.Stmt
+	InsertReceiptAllocation              *sql.Stmt
+	InsertRentable                       *sql.Stmt
+	InsertRentableMarketRates            *sql.Stmt
+	InsertRentableSpecialtyRef           *sql.Stmt
+	InsertRentableSpecialtyType          *sql.Stmt
+	InsertRentableStatus                 *sql.Stmt
+	InsertRentableType                   *sql.Stmt
+	InsertRentableTypeRef                *sql.Stmt
+	InsertRentableUser                   *sql.Stmt
+	InsertRentalAgreement                *sql.Stmt
+	InsertRentalAgreementPayor           *sql.Stmt
+	InsertRentalAgreementPet             *sql.Stmt
+	InsertRentalAgreementRentable        *sql.Stmt
+	InsertRentalAgreementTax             *sql.Stmt
+	InsertRentalAgreementTemplate        *sql.Stmt
+	InsertSLString                       *sql.Stmt
+	InsertStringList                     *sql.Stmt
+	InsertTransactant                    *sql.Stmt
+	InsertUser                           *sql.Stmt
+	InsertVehicle                        *sql.Stmt
+	ReadRatePlan                         *sql.Stmt
+	ReadRatePlanRef                      *sql.Stmt
+	UIRAGrid                             *sql.Stmt
+	UpdateAR                             *sql.Stmt
+	UpdateAssessment                     *sql.Stmt
+	UpdateBusiness                       *sql.Stmt
+	UpdateCustomAttribute                *sql.Stmt
+	UpdateDemandSource                   *sql.Stmt
+	UpdateDeposit                        *sql.Stmt
+	UpdateDepositMethod                  *sql.Stmt
+	UpdateDepository                     *sql.Stmt
+	UpdateInvoice                        *sql.Stmt
+	UpdateJournalAllocation              *sql.Stmt
+	UpdateLedger                         *sql.Stmt
+	UpdateLedgerMarker                   *sql.Stmt
+	UpdateNote                           *sql.Stmt
+	UpdateNoteType                       *sql.Stmt
+	UpdatePaymentType                    *sql.Stmt
+	UpdatePayor                          *sql.Stmt
+	UpdateProspect                       *sql.Stmt
+	UpdateRatePlan                       *sql.Stmt
+	UpdateRatePlanRef                    *sql.Stmt
+	UpdateRatePlanRefRTRate              *sql.Stmt
+	UpdateRatePlanRefSPRate              *sql.Stmt
+	UpdateReceipt                        *sql.Stmt
+	UpdateReceiptAllocation              *sql.Stmt
+	UpdateRentable                       *sql.Stmt
+	UpdateRentableSpecialtyRef           *sql.Stmt
+	UpdateRentableStatus                 *sql.Stmt
+	UpdateRentableTypeRef                *sql.Stmt
+	UpdateRentableUser                   *sql.Stmt
+	UpdateRentableUserByRBT              *sql.Stmt
+	UpdateRentalAgreement                *sql.Stmt
+	UpdateRentalAgreementPayor           *sql.Stmt
+	UpdateRentalAgreementPayorByRBT      *sql.Stmt
+	UpdateRentalAgreementPet             *sql.Stmt
+	UpdateRentalAgreementRentable        *sql.Stmt
+	UpdateRentalAgreementTax             *sql.Stmt
+	UpdateSLString                       *sql.Stmt
+	UpdateStringList                     *sql.Stmt
+	UpdateTransactant                    *sql.Stmt
+	UpdateUser                           *sql.Stmt
+	UpdateVehicle                        *sql.Stmt
+	GetJournalAllocationByASMID          *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
 var AllTables = []string{
-	//"AccountDepository",
 	"AOR",
 	"AssessmentTax",
 	"Assessments",

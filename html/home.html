@@ -947,7 +947,7 @@ function buildPageElements() {
             { field: "RAAssociated", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
             { field: "AllowPost", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
             { field: "ManageToBudget", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
-            { field: "Description", required: false, type: 'int', html: { caption: "Description", page: 0, column: 0 } },
+            { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
         ],
@@ -1239,6 +1239,7 @@ function buildPageElements() {
             w2ui.toplayout.content('right', w2ui.transactantForm);
             w2ui.toplayout.sizeTo('right', 700);
             w2ui.toplayout.show('right', true);
+            w2ui.toplayout.render();
         },
     });
 
@@ -1285,7 +1286,7 @@ function buildPageElements() {
             { field: 'EligibleFutureUser', type: 'list', options: {items: app.yesNoList}, required: false, html: { caption: 'Eligible Future User', page: 1, column: 0 } },
             { field: 'Industry', type: 'text', required: false, html: { caption: 'Industry', page: 1, column: 0 } },
             { field: 'SourceSLSID', type: 'w2int', required: false, html: { caption: 'Source SLSID', page: 1, column: 0 } },
-            { field: 'CreditLimit', type: 'w2float', required: false, html: {caption: 'Credit Limit', page: 2, column: 0 } },
+            { field: 'CreditLimit', type: 'money', required: false, html: {caption: 'Credit Limit', page: 2, column: 0 } },
             { field: 'TaxpayorID', type: 'text', required: false, html: {caption: 'Taxpayor ID', page: 2, column: 0 } },
             { field: 'AccountRep', type: 'text', required: false, html: {caption: 'Account Rep', page: 2, column: 0 } },
             { field: 'EligibleFuturePayor', type: 'list', options: {items: app.yesNoList}, required: false, html: {caption: 'Eligible Future Payor', page: 2, column: 0 } },
@@ -1372,24 +1373,14 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
-                        console.log("Delete Transactant failed.")
+                    .fail(function(/*data*/){
+                        console.log("Delete Transactant failed.");
                     });
                 })
                 .no(function() {
                     return;
                 });
             },
-        },
-        onSubmit: function(target, data) {
-            // var BUD = data.postData.record.BID.id;
-            // app.BizMap.forEach(function(biz) {
-            //     if (BUD == biz.BUD) {
-            //         data.postData.record.BID = biz.BID;
-            //     }
-            // });
-            // // modify form data for server request
-            // getFormSubmitData(data.postData.record);
         },
         onRefresh: function() {
             var f = w2ui.transactantForm;
@@ -2556,7 +2547,7 @@ function buildPageElements() {
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
             { field: 'PASMID',        type: 'w2int',  required: false },
-            { field: 'Rentable', required: true,  /* INDEX 5 -- if changed, then change URL for Typedown in asmsGrid onAdd handler */
+            { field: 'Rentable', required: false,  /* INDEX 5 -- if changed, then change URL for Typedown in asmsGrid onAdd handler */
                 type: 'enum',
                 options: {
                     url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
@@ -2572,7 +2563,7 @@ function buildPageElements() {
                 },
             },
             { field: 'InvoiceNo',     type: 'int',  required: false },
-            { field: 'RID',           type: 'int',  required: true },
+            { field: 'RID',           type: 'int',  required: false },
             { field: 'ATypeLID',      type: 'int',  required: true },
             { field: 'RAID',          type: 'int',  required: true },
             { field: 'Amount',        type: 'money',  required: true },
@@ -2906,6 +2897,9 @@ function buildPageElements() {
         ],
         onLoad: function(event) {
             if (event.xhr.status == 200) {
+                if (typeof data == "undefined") {
+                    return;
+                }
                 var temp_list = [];
                 var data = JSON.parse(event.xhr.responseText);
                 data.records.forEach(function(pmtRec){

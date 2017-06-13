@@ -383,32 +383,47 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
-		// This is a new record
 		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
+		// THIS WAS COMMENTED OUT BECAUSE IT IS BUSINESS LOGIC.  IT WILL BE ADDED IN A BIZ-LOGIC FUNCTION
+		// var ra rlib.RentalAgreement
+		// if a.RentCycle == rlib.RECURMONTHLY {
+		// 	ra, err = rlib.GetRentalAgreement(a.RAID) // first get the rental agreement and make sure the start date is on the Epoch DOM
+		// 	if err != nil {
+		// 		e := fmt.Errorf("Error getting rental agreement (RAID=%d\n: %s", a.RAID, err.Error())
+		// 		SvcGridErrorReturn(w, e, funcname)
+		// 		return
+		// 	}
+		// 	dt := time.Date(a.Start.Year(), a.Start.Month(), ra.RentCycleEpoch.Day(), a.Start.Hour(), a.Start.Minute(), a.Start.Second(), a.Start.Nanosecond(), a.Start.Location())
+		// 	inc := int64(0)
+		// 	mon := a.Start.Month()
+		// 	if a.Start.After(dt) {
+		// 		mon, inc = rlib.IncMonths(mon, int64(1))
+		// 	}
+		// 	dt = time.Date(int(inc)+a.Start.Year(), mon, ra.RentCycleEpoch.Day(), a.Start.Hour(), a.Start.Minute(), a.Start.Second(), a.Start.Nanosecond(), a.Start.Location())
+		// 	a.Start = dt // enforce the corrected epoch
+		// }
 		_, err = rlib.InsertAssessment(&a)
 
-		//------------------------------------------------
-		// Add it to the Journal
-		//------------------------------------------------
+		d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+		mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))
+		d2 := time.Date(int(inc)+a.Start.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
 		var xbiz rlib.XBusiness
 		rlib.GetXBusiness(a.BID, &xbiz)
-		d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-		mon, year := rlib.IncMonths(a.Start.Month(), int64(a.Start.Year()))
-		d2 := time.Date(int(year), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-		rlib.ProcessJournalEntry(&a, &xbiz, &d1, &d2)
+
 		//------------------------------------------------
 		// read back the Journal entry that was made...
 		//------------------------------------------------
-		bErr, jnl := getJournal(&a, w)
-		if bErr {
-			return
-		}
-		//------------------------------------------------
-		// Add it to the Ledgers...
-		//------------------------------------------------
 		rlib.InitLedgerCache()
-		rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2)
-
+		if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
+			fmt.Printf("Process Journal Entry: ASMID = %d\n", a.ASMID)
+			rlib.ProcessJournalEntry(&a, &xbiz, &d1, &d2)
+			fmt.Printf("Process non recurring assessment\n")
+			bErr, jnl := getJournal(&a, w)
+			if bErr {
+				return
+			}
+			rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2) // add to ledgers
+		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
 		err = rlib.UpdateAssessment(&a)

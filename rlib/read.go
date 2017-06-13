@@ -5,16 +5,6 @@ import "database/sql"
 // As the database structures change, having the calls that Read from the database into these structures located
 // in one place simplifies maintenance
 
-// ReadAccountDepository reads a full AccountDepository structure from the database based on the supplied row object
-// func ReadAccountDepository(row *sql.Row, a *AccountDepository) error {
-// 	return row.Scan(&a.ADID, &a.BID, &a.LID, &a.DEPID, &a.LastModTime, &a.LastModBy)
-// }
-
-// // ReadAccountDepositories reads a full AccountDepository structure from the database based on the supplied rows object
-// func ReadAccountDepositories(rows *sql.Rows, a *AccountDepository) error {
-// 	return rows.Scan(&a.ADID, &a.BID, &a.LID, &a.DEPID, &a.LastModTime, &a.LastModBy)
-// }
-
 // ReadAR reads a full AR structure from the database based on the supplied row object
 func ReadAR(row *sql.Row, a *AR) error {
 	return row.Scan(&a.ARID, &a.BID, &a.Name, &a.ARType, &a.DebitLID, &a.CreditLID, &a.Description, &a.RARequired, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)

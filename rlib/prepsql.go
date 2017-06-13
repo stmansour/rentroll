@@ -88,30 +88,6 @@ func GenSQLInsertAndUpdateStrings(s string) (string, string, string, string, str
 func buildPreparedStatements() {
 	var err error
 	var s1, s2, s3, s4, s5, flds string
-	// Prepare("select deduction from deductions where uid=?")
-	// Prepare("select type from compensation where uid=?")
-	// Prepare("INSERT INTO compensation (uid,type) VALUES(?,?)")
-	// Prepare("DELETE FROM compensation WHERE UID=?")
-	// Prepare("update classes set Name=?,Designation=?,Description=?,lastmodby=? where ClassCode=?")
-	// Errcheck(err)
-
-	//===============================
-	//  AccountDepository
-	//===============================
-	// flds = "ADID,BID,LID,DEPID,CreateTS,CreateBy,LastModTime,LastModBy"
-	// RRdb.DBFields["AccountDepository"] = flds
-	// RRdb.Prepstmt.GetAccountDepository, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AccountDepository WHERE ADID=?")
-	// Errcheck(err)
-	// RRdb.Prepstmt.GetAllAccountDepositories, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AccountDepository WHERE BID=?")
-	// Errcheck(err)
-
-	// s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	// RRdb.Prepstmt.InsertAccountDepository, err = RRdb.Dbrr.Prepare("INSERT INTO AccountDepository (" + s1 + ") VALUES(" + s2 + ")")
-	// Errcheck(err)
-	// RRdb.Prepstmt.UpdateAccountDepository, err = RRdb.Dbrr.Prepare("UPDATE AccountDepository SET " + s3 + " WHERE ADID=?")
-	// Errcheck(err)
-	// RRdb.Prepstmt.DeleteAccountDepository, err = RRdb.Dbrr.Prepare("DELETE FROM AccountDepository WHERE ADID=?")
-	// Errcheck(err)
 
 	//===============================
 	//  AccountRule
@@ -176,6 +152,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetAllAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=? AND Start<? AND Stop>=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RID=? AND Stop >= ? AND Start < ?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAssessmentInstancesByParent, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? AND Stop >= ? AND Start < ?")
 	Errcheck(err)
 	// FLAGS bits 0-1 mean: 0 = unpaid, 1 = partially paid, 2 = fully paid.
 	// So, FLAGS & 3 gives us the values of bits 0-1.  if the value is 0 or 1 then the assessment is not yet paid.

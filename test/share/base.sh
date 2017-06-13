@@ -268,6 +268,12 @@ tdir() {
 	TESTDIR=${p[$m]}
 }
 
+# goldpath simply creates a gold directory if it does not already exist.
+goldpath() {
+	if [ ! -d "./gold" ]; then
+		mkdir gold
+	fi
+}
 
 #############################################################################
 # docsvtest()
@@ -324,6 +330,7 @@ docsvtest () {
 	fi
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -367,6 +374,7 @@ dorrtest () {
 	${RENTROLL} ${2} >${1} 2>&1
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -457,6 +465,7 @@ doOnesiteTest () {
 	fi
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -488,6 +497,7 @@ docsvIgnoreDatesTest () {
 	fi
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -520,6 +530,7 @@ doRoomKeyTest () {
 	fi
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -587,6 +598,7 @@ EOF
 	mysql --no-defaults <xxqq >${1}
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -648,6 +660,7 @@ logcheck() {
 	echo -n "Test completed: " >> ${LOGFILE}
 	date >> ${LOGFILE}
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${LOGFILE} ${GOLD}/${LOGFILE}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -703,6 +716,7 @@ genericlogcheck() {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -770,6 +784,7 @@ dojsonPOST () {
 	${CMD} | python -m json.tool >${3} 2>>${LOGFILE}
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${3} ${GOLD}/${3}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -839,6 +854,7 @@ dojsonGET () {
 	${CMD} | python -m json.tool >${2} 2>>${LOGFILE}
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${2} ${GOLD}/${2}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
@@ -907,6 +923,7 @@ doPlainGET () {
 	${CMD} > ${2} 2>>${LOGFILE}
 
 	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
 		cp ${2} ${GOLD}/${2}.gold
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then

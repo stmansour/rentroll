@@ -128,6 +128,13 @@ func GetUnpaidAssessmentsByRAID(RAID int64) []Assessment {
 	return GetAssessmentsByRows(rows)
 }
 
+// GetAssessmentInstancesByParent for the supplied RAID
+func GetAssessmentInstancesByParent(id int64, d1, d2 *time.Time) []Assessment {
+	rows, err := RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(id, d1, d2)
+	Errcheck(err)
+	return GetAssessmentsByRows(rows)
+}
+
 // GetAssessmentsByRows for the supplied sql.Rows
 func GetAssessmentsByRows(rows *sql.Rows) []Assessment {
 	defer rows.Close()

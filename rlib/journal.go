@@ -295,6 +295,7 @@ func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 //=================================================================================================
 func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessment) error {
 	funcname := "ProcessNewAssessmentInstance"
+	// fmt.Printf("Entered %s\n", funcname)
 	if a.PASMID == 0 && a.RentCycle != RECURNONE { // if this assessment is not a single instance recurrence, then return an error
 		return fmt.Errorf("%s: Function only accepts non-recurring instances", funcname)
 	}
@@ -306,6 +307,7 @@ func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessm
 		a.ASMID = ASMID
 	}
 
+	// fmt.Printf("Calling journalAssessment for ASMID = %d\n", a.ASMID)
 	journalAssessment(xbiz, a.Start, a, d1, d2)
 	return nil
 }
@@ -360,9 +362,10 @@ func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time) {
 		ProcessNewAssessmentInstance(xbiz, d1, d2, a)
 	} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 		// TBD
-		fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RentCycle)
+		// fmt.Printf("Unhandled assessment recurrence type: %d\n", a.RentCycle)
 	} else {
 		// fmt.Printf("ProcessJournalEntry: 2\n")
+		// fmt.Printf("Instances that occur between %s and %s for assessment dates(%s-%s)\n", d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Start.Format(RRDATEFMT4), a.Stop.Format(RRDATEFMT4))
 		dl := a.GetRecurrences(d1, d2)
 		rangeDuration := d2.Sub(*d1)
 		// fmt.Printf("ProcessJournalEntry: 3... len(dl) = %d\n", len(dl))
