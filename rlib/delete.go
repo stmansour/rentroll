@@ -279,11 +279,38 @@ func DeleteReceiptAllocations(rcptid int64) error {
 	return err
 }
 
+// DeleteRentableType deletes RentableType records with the supplied rtid
+func DeleteRentableType(rtid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentableType.Exec(rtid)
+	if err != nil {
+		Ulog("Error deleting RentableType with rtid=%d\n", rtid, err)
+	}
+	return err
+}
+
+// DeleteRentableTypeRefWithRTID deletes RentableTypeRef records with the supplied RTID
+func DeleteRentableTypeRefWithRTID(rtid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentableTypeRefWithRTID.Exec(rtid)
+	if err != nil {
+		Ulog("Error deleting RentableTypeRef with rtid=%d\n", rtid, err)
+	}
+	return err
+}
+
 // DeleteRentableTypeRef deletes RentableTypeRef records with the supplied rtrid
 func DeleteRentableTypeRef(rtrid int64) error {
 	_, err := RRdb.Prepstmt.DeleteRentableTypeRef.Exec(rtrid)
 	if err != nil {
 		Ulog("Error deleting RentableTypeRef with rtrid=%d\n", rtrid, err)
+	}
+	return err
+}
+
+// DeleteRentableMarketRateInstance deletes RentableMarketRate instance with given RMRID
+func DeleteRentableMarketRateInstance(rmrid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentableMarketRateInstance.Exec(rmrid)
+	if err != nil {
+		Ulog("Error deleting RentableMarketRate with rmrid=%d, error: %v\n", rmrid, err)
 	}
 	return err
 }

@@ -186,6 +186,18 @@ func UpdateRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 	return updateError(err, "RentableSpecialtyRef", *a)
 }
 
+// UpdateRentableMarketRateInstance updates the given instance of RentableMarketRate
+func UpdateRentableMarketRateInstance(a *RentableMarketRate) error {
+	_, err := RRdb.Prepstmt.UpdateRentableMarketRateInstance.Exec(a.RTID, a.BID, a.MarketRate, a.DtStart, a.DtStop, a.RMRID)
+	return updateError(err, "RentableMarketRate", *a)
+}
+
+// UpdateRentableType updates a RentableType record in the database
+func UpdateRentableType(a *RentableType) error {
+	_, err := RRdb.Prepstmt.UpdateRentableType.Exec(a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.LastModBy, a.RTID)
+	return updateError(err, "RentableType", *a)
+}
+
 // UpdateRentableTypeRef updates a RentableTypeRef record in the database
 func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	//  SET BID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?"

@@ -164,13 +164,13 @@ func ReadLedgerEntries(rows *sql.Rows, a *LedgerEntry) {
 }
 
 // ReadRentableMarketRate reads a full RentableMarketRate structure of data from the database based on the supplied Rows pointer.
-func ReadRentableMarketRate(row *sql.Row, a *RentableMarketRate) {
-	Errcheck(row.Scan(&a.RTID, &a.BID, &a.MarketRate, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy))
+func ReadRentableMarketRate(row *sql.Row, a *RentableMarketRate) error {
+	return row.Scan(&a.RMRID, &a.RTID, &a.BID, &a.MarketRate, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy)
 }
 
 // ReadRentableMarketRates reads a full RentableMarketRate structure of data from the database based on the supplied Rows pointer.
-func ReadRentableMarketRates(rows *sql.Rows, a *RentableMarketRate) {
-	Errcheck(rows.Scan(&a.RTID, &a.BID, &a.MarketRate, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy))
+func ReadRentableMarketRates(rows *sql.Rows, a *RentableMarketRate) error {
+	return rows.Scan(&a.RMRID, &a.RTID, &a.BID, &a.MarketRate, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy)
 }
 
 // ReadLedgerMarker reads a full LedgerMarker structure of data from the database based on the supplied Rows pointer.

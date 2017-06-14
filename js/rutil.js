@@ -958,7 +958,7 @@ function getFormSubmitData(record) {
         }
     }
 
-    // return record;
+    return record;
 }
 
 function number_format(number, decimals, dec_point, thousands_sep) {

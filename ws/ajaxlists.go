@@ -13,6 +13,12 @@ import (
 	"github.com/kardianos/osext"
 )
 
+// manage to budget
+var manageToBudget = rlib.Str2Int64Map{
+	"No (GSR amount is not required)": 0,
+	"Yes, (GSR amount is required)":   1,
+}
+
 // EpochInstance is a list of strings that describe a recurring entity.
 // The entity can be either an "epoch", the definition of the recurring
 // series, or an "instance", one of the members of the recurring series.
@@ -38,6 +44,7 @@ var idTextMapList = []struct {
 	valmap *rlib.Str2Int64Map
 }{
 	{"companyOrPerson", &rlib.CompanyOrPersonMap},
+	{"manageToBudgetList", &manageToBudget},
 }
 
 var ssliceToJS = []struct {

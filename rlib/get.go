@@ -1583,7 +1583,7 @@ func GetRentableMarketRates(rt *RentableType) {
 	for rows.Next() {
 		var a RentableMarketRate
 		// Errcheck(rows.Scan(&a.RTID, &a.MarketRate, &a.DtStart, &a.DtStop))
-		ReadRentableMarketRates(rows, &a)
+		Errcheck(ReadRentableMarketRates(rows, &a))
 		if a.DtStart.After(LatestMRDTStart) {
 			LatestMRDTStart = a.DtStart
 			rt.MRCurrent = a.MarketRate
@@ -1591,6 +1591,14 @@ func GetRentableMarketRates(rt *RentableType) {
 		rt.MR = append(rt.MR, a)
 	}
 	Errcheck(rows.Err())
+}
+
+// GetRentableMarketRateInstance returns instance of rentableMarketRate for given RMRID
+func GetRentableMarketRateInstance(rmrid int64) (RentableMarketRate, error) {
+	var rmr RentableMarketRate
+	row := RRdb.Prepstmt.GetRentableMarketRateInstance.QueryRow(rmrid)
+	err := ReadRentableMarketRate(row, &rmr)
+	return rmr, err
 }
 
 // GetRentableMarketRate returns the market-rate rent amount for r during the given time range. If the time range
