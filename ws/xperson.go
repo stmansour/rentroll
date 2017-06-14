@@ -639,6 +639,8 @@ func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// fmt.Printf("del = %#v\n", del)
+
 	// delete Prospect
 	if err := rlib.DeleteProspect(del.TCID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)

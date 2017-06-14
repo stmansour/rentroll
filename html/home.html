@@ -934,7 +934,7 @@ function buildPageElements() {
         fields: [
             { field: "recid", required: false, type: 'int', html: { caption: "recid", page: 0, column: 0 } },
             { field: "LID", required: false, type: 'int', html: { caption: "LID", page: 0, column: 0 } },
-            { field: 'PLID', type: 'list', required: false, html: { caption: 'Parent Acct', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'PLID', type: 'list', required: false, options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
             { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
             { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
@@ -1203,13 +1203,13 @@ function buildPageElements() {
                 EmergencyContactTelephone: "",
                 EmergencyEmail: "",
                 AlternateAddress: "",
-                EligibleFutureUser: "no",
+                EligibleFutureUser: "yes",
                 Industry: "",
                 SourceSLSID: 0,
                 CreditLimit: 0.00,
                 TaxpayorID: "",
                 AccountRep: 0,
-                EligibleFuturePayor: "no",
+                EligibleFuturePayor: "yes",
                 EmployerName: "",
                 EmployerStreetAddress: "",
                 EmployerCity: "",
@@ -1253,63 +1253,63 @@ function buildPageElements() {
         url: '/v1/person',
         formURL: '/html/formtc.html',
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-            { field: 'FirstName', type: 'text', required: false, html: { caption: 'First Name', page: 0, column: 0 } },
-            { field: 'LastName', type: 'text', required: false, html: { caption: 'Last Name', page: 0, column: 0 } },
-            { field: 'MiddleName', type: 'text', required: false, html: { caption: 'Middle Name', page: 0, column: 0 } },
-            { field: 'PreferredName', type: 'text', required: false, html: { caption: 'Preferred Name', page: 0, column: 0 } },
-            { field: 'PrimaryEmail', type: 'email', required: false, html: { caption: 'Primary Email', page: 0, column: 0 } },
-            { field: 'TCID', type: 'int', required: false, html: { caption: 'TCID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
-            { field: 'NLID', type: 'int', required: false, html: { caption: 'NLID', page: 0, column: 0 } },
-            { field: 'CompanyName', type: 'text', required: false, html: { caption: 'Company Name', page: 0, column: 0 } },
-            { field: 'IsCompany', type: 'list', options: {items: app.companyOrPerson}, required: false, html: { caption: 'Person or Company', page: 0, column: 0 } },
-            { field: 'SecondaryEmail', type: 'email', required: false, html: { caption: 'Secondary Email', page: 0, column: 0 } },
-            { field: 'WorkPhone', type: 'phone', required: false, html: { caption: 'Work Phone', page: 0, column: 0 } },
-            { field: 'CellPhone', type: 'phone', required: false, html: { caption: 'Cell Phone', page: 0, column: 0 } },
-            { field: 'Address', type: 'text', required: false, html: { caption: 'Address', page: 0, column: 0 } },
-            { field: 'Address2', type: 'text', required: false, html: { caption: 'Address 2', page: 0, column: 0 } },
-            { field: 'City', type: 'text', required: false, html: { caption: 'City', page: 0, column: 0 } },
-            { field: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false, html: { caption: 'State', page: 0, column: 0 } },
-            { field: 'PostalCode', type: 'text', required: false, html: { caption: 'Postal Code', page: 0, column: 0 } },
-            { field: 'Country', type: 'text', required: false, html: { caption: 'Country', page: 0, column: 0 } },
-            { field: 'Website', type: 'text', required: false, html: { caption: 'Website', page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
-            { field: 'Points', type: 'text', required: false, html: { caption: 'Points', page: 1, column: 0 } },
-            { field: 'DateofBirth', type: 'date', required: false, html: { caption: 'Date of Birth', page: 1, column: 0 } },
-            { field: 'EmergencyContactName', type: 'text', required: false, html: { caption: 'Emerg Cntct Name', page: 1, column: 0 } },
-            { field: 'EmergencyContactAddress', type: 'text', required: false, html: { caption: 'Emerg Cntct Addr', page: 1, column: 0 } },
-            { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { caption: 'Emerg Cntct Tel', page: 1, column: 0 } },
-            { field: 'EmergencyEmail', type: 'text', required: false, html: { caption: 'Emergency Email', page: 1, column: 0 } },
-            { field: 'AlternateAddress', type: 'text', required: false, html: { caption: 'Alternate Address', page: 1, column: 0 } },
-            { field: 'EligibleFutureUser', type: 'list', options: {items: app.yesNoList}, required: false, html: { caption: 'Eligible Future User', page: 1, column: 0 } },
-            { field: 'Industry', type: 'text', required: false, html: { caption: 'Industry', page: 1, column: 0 } },
-            { field: 'SourceSLSID', type: 'w2int', required: false, html: { caption: 'Source SLSID', page: 1, column: 0 } },
-            { field: 'CreditLimit', type: 'money', required: false, html: {caption: 'Credit Limit', page: 2, column: 0 } },
-            { field: 'TaxpayorID', type: 'text', required: false, html: {caption: 'Taxpayor ID', page: 2, column: 0 } },
-            { field: 'AccountRep', type: 'text', required: false, html: {caption: 'Account Rep', page: 2, column: 0 } },
-            { field: 'EligibleFuturePayor', type: 'list', options: {items: app.yesNoList}, required: false, html: {caption: 'Eligible Future Payor', page: 2, column: 0 } },
-            { field: 'EmployerName', type: 'text', required: false, html: {caption: 'Employer Name', page: 3, column: 0 } },
-            { field: 'EmployerStreetAddress', type: 'text', required: false, html: {caption: 'Employer Street Address', page: 3, column: 0 } },
-            { field: 'EmployerCity', type: 'text', required: false, html: {caption: 'Employer City', page: 3, column: 0 } },
-            { field: 'EmployerState', type: 'list', options: {items: app.usStateAbbr}, required: false, html: {caption: 'Employer State', page: 3, column: 0 } },
-            { field: 'EmployerPostalCode', type: 'text', required: false, html: {caption: 'Employer Postal Code', page: 3, column: 0 } },
-            { field: 'EmployerEmail', type: 'text', required: false, html: {caption: 'Employer Email', page: 3, column: 0 } },
-            { field: 'EmployerPhone', type: 'text', required: false, html: {caption: 'Employer Phone', page: 3, column: 0 } },
-            { field: 'Occupation', type: 'text', required: false, html: {caption: 'Occupation', page: 3, column: 0 } },
-            { field: 'ApplicationFee', type: 'text', required: false, html: {caption: 'Application Fee', page: 3, column: 0 } },
-            { field: 'DesiredUsageStartDate', type: 'date', required: false, html: {caption: 'Desired Usage Start Date', page: 3, column: 0 } },
-            { field: 'RentableTypePreference', type: 'text', required: false, html: {caption: 'Rentable Type Preference', page: 3, column: 0 } },
-            { field: 'FLAGS', type: 'text', required: false, html: {caption: 'FLAGS', page: 3, column: 0 } },
-            { field: 'Approver', type: 'text', required: false, html: {caption: 'Approver', page: 3, column: 0 } },
-            { field: 'DeclineReasonSLSID', type: 'w2int', required: false, html: {caption: 'Decline Reason SLSID', page: 3, column: 0 } },
-            { field: 'OtherPreferences', type: 'text', required: false, html: {caption: 'Other Preferences', page: 3, column: 0 } },
-            { field: 'FollowUpDate', type: 'date', required: false, html: {caption: 'FollowU pDate', page: 3, column: 0 } },
-            { field: 'CSAgent', type: 'text', required: false, html: {caption: 'CS Agent', page: 3, column: 0 } },
-            { field: 'OutcomeSLSID', type: 'text', required: false, html: {caption: 'Outcome SLSID', page: 3, column: 0 } },
-            { field: 'FloatingDeposit', type: 'w2float', required: false, html: {caption: 'Floating Deposit', page: 3, column: 0 } },
-            { field: 'RAID', type: 'w2int', required: false, html: {caption: 'RAID', page: 3, column: 0 } },
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'FirstName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'MiddleName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'PreferredName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'PrimaryEmail', type: 'email', required: false, html: { page: 0, column: 0 } },
+            { field: 'TCID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { page: 0, column: 0 } },
+            { field: 'NLID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'IsCompany', type: 'list', options: {items: app.companyOrPerson}, required: true, html: { page: 0, column: 0 } },
+            { field: 'SecondaryEmail', type: 'email', required: false, html: { page: 0, column: 0 } },
+            { field: 'WorkPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
+            { field: 'CellPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
+            { field: 'Address', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Address2', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'City', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false, html: { page: 0, column: 0 } },
+            { field: 'PostalCode', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Country', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Website', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'Points', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'DateofBirth', type: 'date', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyContactName', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyContactAddress', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyEmail', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'AlternateAddress', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EligibleFutureUser', type: 'list', options: {items: app.yesNoList}, required: false, html: { page: 1, column: 0 } },
+            { field: 'Industry', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'SourceSLSID', type: 'w2int', required: false, html: { page: 1, column: 0 } },
+            { field: 'CreditLimit', type: 'money', required: false, html: {page: 2, column: 0 } },
+            { field: 'TaxpayorID', type: 'text', required: false, html: {page: 2, column: 0 } },
+            { field: 'AccountRep', type: 'text', required: false, html: {page: 2, column: 0 } },
+            { field: 'EligibleFuturePayor', type: 'list', options: {items: app.yesNoList}, required: false, html: {page: 2, column: 0 } },
+            { field: 'EmployerName', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerStreetAddress', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerCity', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerState', type: 'list', options: {items: app.usStateAbbr}, required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerPostalCode', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerEmail', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerPhone', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'Occupation', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'ApplicationFee', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'DesiredUsageStartDate', type: 'date', required: false, html: {page: 3, column: 0 } },
+            { field: 'RentableTypePreference', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'FLAGS', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'Approver', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'DeclineReasonSLSID', type: 'w2int', required: false, html: {page: 3, column: 0 } },
+            { field: 'OtherPreferences', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'FollowUpDate', type: 'date', required: false, html: {page: 3, column: 0 } },
+            { field: 'CSAgent', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'OutcomeSLSID', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'FloatingDeposit', type: 'w2float', required: false, html: {page: 3, column: 0 } },
+            { field: 'RAID', type: 'w2int', required: false, html: {page: 3, column: 0 } },
 
         ],
         tabs: [
@@ -1334,6 +1334,26 @@ function buildPageElements() {
                 }
             },
         },
+        onValidate: function (event) {
+            if (this.record.IsCompany.text == 'Person' && this.record.FirstName === '') {
+                event.errors.push({
+                    field: this.get('FirstName'),
+                    error: 'FirstName required when "Person or Company" field is set to Person'
+                });
+            }
+            if (this.record.IsCompany.text == 'Person' && this.record.LastName === '') {
+                event.errors.push({
+                    field: this.get('LastName'),
+                    error: 'LastName required when "Person or Company" field is set to Person'
+                });
+            }
+            if (this.record.IsCompany.text == 'Company' && this.record.CompanyName === '') {
+                event.errors.push({
+                    field: this.get('CompanyName'),
+                    error: 'Company Name required when "Person or Company" field is set to Company'
+                });
+            }
+        },
         actions: {
             save: function () {
                 var tgrid = w2ui.transactantsGrid;
@@ -1350,17 +1370,13 @@ function buildPageElements() {
                 });
             },
             delete: function(target, data) {
-
                 var form = this;
-
                 w2confirm(delete_confirm_options)
                 .yes(function() {
-
                     var tgrid = w2ui.transactantsGrid;
                     var sel = tgrid.getSelection();
                     tgrid.unselect(sel);
-
-                    var params = {cmd: 'delete', formname: form.name, ID: form.record.TCID };
+                    var params = {cmd: 'delete', formname: form.name, TCID: form.record.TCID };
                     var dat = JSON.stringify(params);
 
                     // delete Transactant request
@@ -1537,25 +1553,25 @@ function buildPageElements() {
         url: '/v1/rentable',
         formURL: '/html/formr.html',
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-            { field: 'RID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
-            { field: 'RARID', type: 'int', required: false, html: { caption: 'Rental Agreement Rentable ID', page: 0, column: 0 } },
-            { field: 'RAID', type: 'int', required: false, html: { caption: 'Rental Agreement ID', page: 0, column: 0 } },
-            { field: 'RARDtStart', type: 'date', required: false, html: { caption: 'Rentable Agreement Start', page: 0, column: 0 } },
-            { field: 'RARDtStop', type: 'date', required: false, html: { caption: 'Rentable Agreement Stop', page: 0, column: 0 } },
-            { field: 'RentableName', type: 'text', required: false, html: { caption: 'RentableName', page: 0, column: 0 } },
-            { field: 'RTID', type: 'list', required: false, html: { caption: 'RentableType', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'RID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
+            { field: 'RARID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'RAID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'RARDtStart', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'RARDtStop', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'RentableName', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'RTID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
             // { field: 'RTID', type: 'int', required: false },
-            { field: 'RTRID', type: 'int', required: false, html: { caption: 'RentableTypeRef ID', page: 0, column: 0 } },
-            { field: 'RTRefDtStart', type: 'date', required: false, html: { caption: 'Rentable Type Ref Start', page: 0, column: 0 } },
-            { field: 'RTRefDtStop', type: 'date', required: false, html: { caption: 'Rentable Type Ref Stop', page: 0, column: 0 } },
-            { field: 'RSID', type: 'int', required: false, html: { caption: 'RentableStatus ID', page: 0, column: 0 } },
-            { field: 'RentableStatus', type: 'list', options: {items: app.rentableStatusList}, required: false, html: { caption: 'RentableStatus', page: 0, column: 0 } },
-            { field: 'RSDtStart', type: 'date', required: false, html: { caption: 'Rentable Status Start', page: 0, column: 0 } },
-            { field: 'RSDtStop', type: 'date', required: false, html: { caption: 'Rentable Status Stop', page: 0, column: 0 } },
+            { field: 'RTRID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'RTRefDtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'RTRefDtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'RSID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'RentableStatus', type: 'list', options: {items: app.rentableStatusList}, required: true, html: { page: 0, column: 0 } },
+            { field: 'RSDtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'RSDtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'CurrentDate', type: 'date', required: false },
-            { field: 'AssignmentTime', type: 'list', required: false, html: { caption: 'Assignment Time', page: 0, column: 0 } },
+            { field: 'AssignmentTime', type: 'list', required: false, html: { page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -1823,24 +1839,24 @@ function buildPageElements() {
             },
         },
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-            { field: 'RAID', type: 'int', required: false, html: { caption: 'RAID', page: 0, column: 0 } },
-            { field: 'RATID', type: 'int', required: false, html: { caption: 'RATID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BID', page: 0, column: 0 } },
-            { field: 'NLID', type: 'int', required: false, html: { caption: 'Notes', page: 0, column: 0 } },
-            { field: 'AgreementStart', type: 'date', required: false, html: { caption: 'Agreement Start', page: 0, column: 0 } },
-            { field: 'AgreementStop', type: 'date', required: false, html: { caption: 'Agreement Stop', page: 0, column: 0 } },
-            { field: 'PossessionStart', type: 'date', required: false, html: { caption: 'Possession Start', page: 0, column: 0 } },
-            { field: 'PossessionStop', type: 'date', required: false, html: { caption: 'Possession Stop', page: 0, column: 0 } },
-            { field: 'RentStart', type: 'date', required: false, html: { caption: 'Rent Start', page: 0, column: 0 } },
-            { field: 'RentStop', type: 'date', required: false, html: { caption: 'Rent Stop', page: 0, column: 0 } },
-            { field: 'RentCycleEpoch', type: 'date', required: false, html: { caption: 'Rent Cycle Epoch', page: 0, column: 0 } },
-            { field: 'UnspecifiedAdults', type: 'int', required: false, html: { caption: 'Unspecified Adults', page: 0, column: 0 } },
-            { field: 'UnspecifiedChildren', type: 'int', required: false, html: { caption: 'Unspecified Children', page: 0, column: 0 } },
-            { field: 'Renewal', type: 'list', options: {items: app.renewalMap}, required: false, html: { caption: 'Renewal', page: 0, column: 0 } },
-            { field: 'SpecialProvisions', type: 'text', required: false, html: { caption: 'Special Provisions', page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'text', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            { field: 'recid', type: 'int', required: false, html: {page: 0, column: 0 } },
+            { field: 'RAID', type: 'int', required: false, html: {  page: 0, column: 0 } },
+            { field: 'RATID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
+            { field: 'NLID', type: 'int', required: false, html: {page: 0, column: 0 } },
+            { field: 'AgreementStart', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'AgreementStop', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'PossessionStart', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'PossessionStop', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'RentStart', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'RentStop', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'RentCycleEpoch', type: 'date', required: true, html: {  page: 0, column: 0 } },
+            { field: 'UnspecifiedAdults', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'UnspecifiedChildren', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'Renewal', type: 'list', options: {items: app.renewalMap}, required: true, html: { page: 0, column: 0 } },
+            { field: 'SpecialProvisions', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'LeaseType', type: 'w2int', required: false, html: {page: 1, column: 0}},
             { field: 'ExpenseAdjustmentType', type: 'w2int', required: false, html: {page: 1, column: 0}},
             { field: 'ExpensesStop', type: 'w2float', required: false, html: {page: 1, column: 0}},
@@ -1880,7 +1896,51 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.rentalagrForm;
             f.header = 'Edit ' + app.sRentalAgreement +  ' - ' + ((f.record.RAID === 0) ? '(new)' : 'RA' + f.record.RAID);
-        }
+        },
+        onValidate: function(event) {
+            if (this.record.AgreementStart === '') {
+                event.errors.push({
+                    field: this.get('AgreementStart'),
+                    error: 'Agreement Start date cannot be blank'
+                });
+            }
+            if (this.record.AgreementStop === '') {
+                event.errors.push({
+                    field: this.get('AgreementStop'),
+                    error: 'Agreement Stop date cannot be blank'
+                });
+            }
+            if (this.record.PossessionStart === '') {
+                event.errors.push({
+                    field: this.get('PossessionStart'),
+                    error: 'Possession Start date cannot be blank'
+                });
+            }
+            if (this.record.PossessionStop === '') {
+                event.errors.push({
+                    field: this.get('PossessionStop'),
+                    error: 'Possession Stop date cannot be blank'
+                });
+            }
+            if (this.record.RentStart === '') {
+                event.errors.push({
+                    field: this.get('RentStart'),
+                    error: 'Rent Start date cannot be blank'
+                });
+            }
+            if (this.record.RentStop === '') {
+                event.errors.push({
+                    field: this.get('RentStop'),
+                    error: 'Rent Stop date cannot be blank'
+                });
+            }
+             if (this.record.RentCycleEpoch === '') {
+                event.errors.push({
+                    field: this.get('RentCycleEpoch'),
+                    error: 'Rent Cycle Epoch date cannot be blank'
+                });
+            }
+        },
     });
 
     //------------------------------------------------------------------------
@@ -1919,13 +1979,11 @@ function buildPageElements() {
             var x = getCurrentBusiness();
             popupRidRentablePicker(app.sRentable, x.value);
         },
-        onSave: function() {
-            console.log('save payors');
-        },
         onChange: function(event) {
             var obj = this;
-                event.done(function () {
-                    calcRarGridContractRent(obj);
+            event.done(function () {
+                calcRarGridContractRent(obj);
+                w2ui[event.target].save();
             });
         },
         onRender: function(event) {
@@ -1995,6 +2053,11 @@ function buildPageElements() {
             var x = getCurrentBusiness();
             popupTcidRAPayorPicker(app.sPayor, x.value );
         },
+        onChange: function(event) {
+            event.done(function () {
+                w2ui[event.target].save();
+            });
+        },
         onSave: function() {
             console.log('save payors');
         },
@@ -2046,6 +2109,11 @@ function buildPageElements() {
             var x = getCurrentBusiness();
             console.log('rentalagrForm.record.RAID = ' + w2ui.rentalagrForm.record.RAID);
             popupTcidRUserPicker(app.sUser, x.value, w2ui.rentalagrForm.record.RAID );
+        },
+        onChange: function(event) {
+            event.done(function () {
+                w2ui[event.target].save();
+            });
         },
         onSave: function() {
             console.log('save users');
@@ -2964,9 +3032,9 @@ function buildPageElements() {
         fields: [
             { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 }, hidden: true },
-            { field: 'BUD', type: 'list', options: { items: app.businesses }, required: false, html: { caption: 'BUD', page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: { items: app.businesses }, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
             { field: 'PMTID', type: 'int', required: false, html: { caption: 'PMTID', page: 0, column: 0 }, hidden: true },
-            { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
+            { field: 'Name', type: 'text', required: true, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
             { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0 }, sortable: true },
             { field: 'LastModTime', type: 'date', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
@@ -3209,15 +3277,15 @@ function buildPageElements() {
         url: '/v1/dep',
         formURL: '/html/formdep.html',
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-            { field: 'DEPID', type: 'int', required: false, html: { caption: 'RID', page: 0, column: 0 } },
-            { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 } },
-            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: false, html: { caption: 'BUD', page: 0, column: 0 } },
-            { field: 'LID', type: 'list', options: { items: [], selected: {}, maxDropHeight: 200 }, required: false, html: { caption: 'GL Account', page: 0, column: 0 } },
-            { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
-            { field: 'AccountNo', type: 'text', required: false, html: { caption: 'AccountNo', page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'date', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'DEPID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
+            { field: 'LID', type: 'list', required: true, options: { items: [], selected: {}, maxDropHeight: 200 }, html: { page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'AccountNo', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -3264,7 +3332,7 @@ function buildPageElements() {
                     tgrid.reload();
                 })
                 .fail(function(data){
-                    console.log("Save Depository failed.")
+                    console.log("Save Depository failed.");
                 });
             },
             delete: function(target, data) {
@@ -3292,7 +3360,7 @@ function buildPageElements() {
                         tgrid.reload();
                     })
                     .fail(function(data){
-                        console.log("Delete Depository failed.")
+                        console.log("Delete Depository failed.");
                     });
                 })
                 .no(function() {
@@ -3476,18 +3544,18 @@ function buildPageElements() {
         url: '/v1/ar',
         formURL: '/html/formar.html',
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-            { field: 'ARID', type: 'int', required: false, html: { caption: 'ARID', page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: { items: app.businesses }, required: false, html: { caption: 'BID', page: 0, column: 0 } },
-            { field: 'Name', type: 'text', required: false, html: { caption: 'Name', page: 0, column: 0 } },
-            { field: 'ARType', type: 'list', required: false, html: { caption: 'AR Type', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'DebitLID', type: 'list', required: false, html: { caption: 'DebitLID', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'CreditLID', type: 'list', required: false, html: { caption: 'CreditLID', page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0} },
-            { field: 'DtStart', type: 'date', required: false, html: { caption: 'Start Date', page: 0, column: 0 } },
-            { field: 'DtStop', type: 'date', required: false, html: { caption: 'Stop Date', page: 0, column: 0 } },
-            { field: 'PriorToRAStart', type: 'checkbox', required: false, html: { caption: 'Valid Prior to RAStart', page: 0, column: 0 } },
-            { field: 'PriorToRAStop', type: 'checkbox', required: false, html: { caption: 'Valid After to RAStop', page: 0, column: 0 } },
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'ARID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'list', required: true, options: { items: app.businesses }, html: { page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'ARType', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'DebitLID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'CreditLID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'Description', type: 'text', required: false, html: { page: 0, column: 0} },
+            { field: 'DtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'DtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStart', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStop', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -3503,6 +3571,20 @@ function buildPageElements() {
                     break;
                 }
             },
+        },
+        onValidate: function(event) {
+            if (this.record.DtStart === '') {
+                event.errors.push({
+                    field: this.get('DtStart'),
+                    error: 'Start date cannot be blank'
+                });
+            }
+            if (this.record.DtStop === '') {
+                event.errors.push({
+                    field: this.get('DtStop'),
+                    error: 'Stop date cannot be blank'
+                });
+            }
         },
         actions: {
             delete: function() {
@@ -3529,7 +3611,7 @@ function buildPageElements() {
                         tgrid.reload();
                     })
                     .fail(function(data){
-                        console.log("Delete AR failed.")
+                        console.log("Delete AR failed.");
                     });
                 })
                 .no(function () {

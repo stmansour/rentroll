@@ -143,7 +143,10 @@ function setToForm(sform, url, width) {
     var f = w2ui[sform];
     if (url.length > 0) {
         f.url = url;
-        f.request(function(event) {
+        if (typeof f.tabs.name == "string") {
+            f.tabs.click('tab1');
+        }
+        f.request(function(/*event*/) {
             // only render the toplayout after server has sent down data
             // so that w2ui can bind values with field's html control,
             // otherwise it is unable to find html controls
