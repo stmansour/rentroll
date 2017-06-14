@@ -410,6 +410,7 @@ function buildPageElements() {
             },
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
+                        { id: 'rt',  text: plural(app.sRentableType),  icon: 'fa fa-cube', hint: 'Rentable Types' },
                         { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
                         { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
                         { id: 'rentalagrs',  text: plural(app.sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
@@ -474,6 +475,7 @@ function buildPageElements() {
             console.log('event.target = ' + event.target);
             switch(event.target) {
                 case 'accounts':
+                case 'rt':
                 case 'rentables':
                 case 'transactants':
                 case 'rentalagrs':
@@ -1062,31 +1064,31 @@ function buildPageElements() {
                 }
 
                 $("#accountForm").find('input[name=AllowPost]').w2field('list', {
-                    items: app.account_stuff.allow_posts,
+                    items: app.account_stuff.allowPostList,
                     selected: r.AllowPost,
                 });
 
                 // set RAAssociated
                 $("#accountForm").find('input[name=RAAssociated]').w2field('list',{
-                    items: app.account_stuff.ra_associated,
+                    items: app.account_stuff.RAAssociatedList,
                     selected: r.RAAssociated,
                 });
 
-                // set managetoBudger
+                // set managetoBudget
                 $("#accountForm").find('input[name=ManageToBudget]').w2field('list',{
-                    items: app.account_stuff.manage_to_budget,
+                    items: app.manageToBudgetList,
                     selected: r.ManageToBudget,
                 });
 
                 // set Status
                 $("#accountForm").find('input[name=Status]').w2field('list',{
-                    items: app.account_stuff.status,
+                    items: app.account_stuff.statusList,
                     selected: r.Status,
                 });
 
                 // set Type
                 $("#accountForm").find('input[name=Type]').w2field('list',{
-                    items: app.account_stuff.types,
+                    items: app.account_stuff.typeList,
                     selected: r.Type,
                 });
 
@@ -1430,6 +1432,307 @@ function buildPageElements() {
                       '<button class="w2ui-btn" onclick="w2popup.close()">Cancel</button>'
         });
     }
+
+    //------------------------------------------------------------------------
+    //          rentable types Grid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rtGrid',
+        url: '/v1/rt',
+        show: {
+            header: false,
+            toolbar: true,
+            toolbarAdd: true,
+            searches: true,
+            footer: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            {field: 'recid', caption: 'recid', hidden: true},
+            {field: 'RTID', caption: 'RTID', size: '50px', sortable: true},
+            {field: 'BID', caption: 'BID', hidden: true},
+            {field: 'BUD', caption: 'BUD', hidden: true},
+            {field: 'RentCycle', caption: 'RentCycle', size: '150px', sortable: true,
+                render: function (record, index, col_index) {
+                    var text = '';
+                    if (record) {
+                        app.cycleFreq.forEach(function(itemText, itemIndex) {
+                            if (record.RentCycle == itemIndex) {
+                                text = itemText;
+                                return false;
+                            }
+                        });
+                    }
+                    return text;
+                },
+            },
+            {field: 'Proration', caption: 'Proration', size: '180px', sortable: true,
+                render: function (record, index, col_index) {
+                    var text = '';
+                    if (record) {
+                        app.cycleFreq.forEach(function(itemText, itemIndex) {
+                            if (record.Proration == itemIndex) {
+                                text = itemText;
+                                return false;
+                            }
+                        });
+                    }
+                    return text;
+                },
+            },
+            {field: 'GSRPC', caption: 'GSRPC', size: '130px', sortable: true,
+                render: function (record, index, col_index) {
+                    var text = '';
+                    if (record) {
+                        app.cycleFreq.forEach(function(itemText, itemIndex) {
+                            if (record.GSRPC == itemIndex) {
+                                text = itemText;
+                                return false;
+                            }
+                        });
+                    }
+                    return text;
+                },
+            },
+            {field: 'ManageToBudget', caption: 'ManageToBudget', size: '50px', sortable: true,
+                render: function (record, index, col_index) {
+                    var text = '';
+                    if (record) {
+                        app.manageToBudgetList.forEach(function(item) {
+                            if (record.ManageToBudget == item.id) {
+                                text = item.text;
+                                return false;
+                            }
+                        });
+                    }
+                    return text;
+                },
+            },
+            {field: 'LastModTime', caption: 'LastModTime', hidden: true},
+            {field: 'LastModBy', caption: 'LastModBy', hidden: true},
+            {field: 'RMRID', caption: 'RMRID', hidden: true},
+            {field: 'MarketRate', caption: 'MarketRate', size: '150px', sortable: true, render: 'money'},
+        ],
+        onClick: function(event) {
+            event.onComplete = function () {
+                var sel = this.getSelection(true);
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        var ob = this.get(sel[i]);
+                        var BUD = getBUDfromBID(ob.BID);
+                        console.log('rentableType form url: ' + '/v1/rt/' + ob.BID + '/' + ob.RTID);
+                        setToForm('rentableTypeForm', '/v1/rt/' + ob.BID + '/' + ob.RTID);
+                    }
+                } else {
+                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
+                    this.select(1);
+                }
+            };
+        },
+        onAdd: function(event) {
+            var x = getCurrentBusiness();
+            var BID=parseInt(x.value);
+            var BUD = getBUDfromBID(BID);
+
+            var y = new Date();
+
+            var record = {
+                recid: 0,
+                BID: BID,
+                BUD: BUD,
+                RTID: 0,
+                Style: "",
+                Name: "",
+                RentCycle: 0,
+                Proration: 0,
+                GSRPC: 0,
+                ManageToBudget: 0,
+                RMRID: 0,
+                MarketRate: 0.0,
+                LastModTime: y,
+                LastModBy: 0,
+            };
+
+            w2ui.rentableTypeForm.record = record;
+            w2ui.rentableTypeForm.refresh();
+
+            w2ui.rentableTypeForm.url = '/v1/rt/' + BID + '/0';
+            w2ui.toplayout.content('right', w2ui.rentableTypeForm);
+            w2ui.toplayout.sizeTo('right', 700);
+            w2ui.toplayout.show('right', true);
+        },
+    });
+
+    //------------------------------------------------------------------------
+    //          rentable Type Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'rentableTypeForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: app.sRentableType + ' Detail',
+        url: '/v1/rentabletypes',
+        formURL: '/html/formrt.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+            { field: 'RTID', type: 'int', required: true, html: { caption: 'RID', page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: true, html: { caption: 'BID', page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
+            { field: 'Style', type: 'text', required: true, html: { caption: 'Style', page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: true, html: { caption: 'Style', page: 0, column: 0 } },
+            { field: 'RentCycle', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { caption: 'RentCycle', page: 0, column: 0 } },
+            { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { caption: 'Proration', page: 0, column: 0 } },
+            { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { caption: 'GSRPC', page: 0, column: 0 } },
+            { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { caption: 'ManageToBudget', page: 0, column: 0 } },
+            { field: 'RMRID', type: 'int', required: true, html: { caption: 'RMRID', page: 0, column: 0 } },
+            { field: 'MarketRate', type: 'float', required: true, html: { caption: 'MarketRate', page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'date', required: true, html: { caption: 'LastModTime', page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: true, html: { caption: 'LastModBy', page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    break;
+                }
+            },
+        },
+        actions: {
+            save: function () {
+                //var obj = this;
+                var tgrid = w2ui.rtGrid;
+                var sel = tgrid.getSelection();
+                tgrid.unselect(sel);
+
+                // this.save({}, function (data) {
+                //     if (data.status == 'error') {
+                //         console.log('ERROR: '+ data.message);
+                //         return;
+                //     }
+                //     w2ui.toplayout.hide('right',true);
+                //     tgrid.reload();
+                // });
+                var saveRecord = getFormSubmitData(this.record)
+                var params = {cmd: 'save', formname: this.name, record: saveRecord };
+                var dat = JSON.stringify(params);
+
+                // save Depository request
+                $.post(this.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    tgrid.reload();
+                })
+                .fail(function(data){
+                    console.log("Save RentableType failed.")
+                });
+            },
+            delete: function() {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.rtGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.RTID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Payment failed.")
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onSubmit: function(target, data){
+            // server request form data
+            getFormSubmitData(data.postData.record);
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.rentableTypeForm;
+                var r = f.record;
+                if (r.RTID) {
+                    f.header = 'Edit ' + app.sRentableType + ' (' + r.RTID +')';
+                } else {
+                    f.header = 'Edit ' + app.sRentableType + ' (new)';
+                }
+
+                // assignmentTime selected and items for w2field
+                var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {}, manageToBudgetSel = {};
+
+                // cycleFreqItems, manageToBudgetItems
+                var cycleFreqItems = [];
+
+                // select value for rentcycle, proration, gsrpc
+                app.cycleFreq.forEach(function(itemText, itemIndex) {
+                    if (itemIndex == r.RentCycle) {
+                        rentCycleSel = { id: itemIndex, text: itemText };
+                    }
+                    if (itemIndex == r.Proration) {
+                        prorationSel = { id: itemIndex, text: itemText };
+                    }
+                    if (itemIndex == r.GSRPC) {
+                        gsrpcSel = { id: itemIndex, text: itemText };
+                    }
+
+                    cycleFreqItems.push({ id: itemIndex, text: itemText });
+                });
+
+                // select value for manage to budget
+                app.manageToBudgetList.forEach(function(item) {
+                    if (item.id == r.ManageToBudget) {
+                        manageToBudgetSel = {id: item.id, text: item.text};
+                    }
+                });
+
+                // fill the field with values
+                $("#rentableTypeForm").find('input[name=RentCycle]').w2field('list', {
+                    items: cycleFreqItems,
+                    selected: rentCycleSel,
+                });
+                $("#rentableTypeForm").find('input[name=Proration]').w2field('list', {
+                    items: cycleFreqItems,
+                    selected: prorationSel,
+                });
+                $("#rentableTypeForm").find('input[name=GSRPC]').w2field('list', {
+                    items: cycleFreqItems,
+                    selected: gsrpcSel,
+                });
+                $("#rentableTypeForm").find('input[name=ManageToBudget]').w2field('list', {
+                    items: app.manageToBudgetList,
+                    selected: manageToBudgetSel,
+                });
+            }
+        }
+    });
 
 
     //------------------------------------------------------------------------
@@ -2245,7 +2548,7 @@ function buildPageElements() {
                         .fail( function() {
                             console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
                          });
-                        
+
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');

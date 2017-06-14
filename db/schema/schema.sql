@@ -436,13 +436,15 @@ CREATE TABLE RentableTypes (
 );
 
 CREATE TABLE RentableMarketRate (
+    RMRID BIGINT NOT NULL AUTO_INCREMENT,
     RTID BIGINT NOT NULL DEFAULT 0,                             -- associated Rentable type
     BID BIGINT NOT NULL DEFAULT 0,                              -- associated Business id
     MarketRate DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- market rate for the time range
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',     -- assume it's unbounded. if an updated Market rate is added, set this to the stop date
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (RMRID)
 );
 
 -- RentableType RTID needs to have tax TAXID applied to rental assessments.

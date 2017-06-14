@@ -909,6 +909,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentableTypeRef, err = RRdb.Dbrr.Prepare("DELETE from RentableTypeRef WHERE RTRID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentableTypeRefWithRTID, err = RRdb.Dbrr.Prepare("DELETE from RentableTypeRef WHERE RTID=?")
+	Errcheck(err)
 
 	//===============================
 	//  RentableSpecialtyRef
@@ -975,19 +977,29 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypes WHERE BID=? ORDER BY RTID ASC")
 	Errcheck(err)
 
-	s1, s2, _, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentableType, err = RRdb.Dbrr.Prepare("INSERT INTO RentableTypes (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET " + s3 + " WHERE RTID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("DELETE FROM RentableTypes WHERE RTID=?")
 	Errcheck(err)
 
 	//===============================
 	//  RentableMarketRates
 	//===============================
-	flds = "RTID,BID,MarketRate,DtStart,DtStop,CreateTS,CreateBy"
+	flds = "RMRID,RTID,BID,MarketRate,DtStart,DtStop,CreateTS,CreateBy"
 	RRdb.DBFields["RentableMarketRate"] = flds
 	RRdb.Prepstmt.GetRentableMarketRates, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentableMarketRate WHERE RTID=?")
 	Errcheck(err)
-	_, _, _, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.Dbrr.Prepare("INSERT INTO RentableMarketRate (" + s4 + ") VALUES(" + s5 + ")")
+	RRdb.Prepstmt.GetRentableMarketRateInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentableMarketRate WHERE RMRID=?")
+	Errcheck(err)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertRentableMarketRates, err = RRdb.Dbrr.Prepare("INSERT INTO RentableMarketRate (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentableMarketRateInstance, err = RRdb.Dbrr.Prepare("UPDATE RentableMarketRate SET " + s3 + " WHERE RMRID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentableMarketRateInstance, err = RRdb.Dbrr.Prepare("DELETE from RentableMarketRate WHERE RMRID=?")
 	Errcheck(err)
 
 	//==========================================

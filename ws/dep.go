@@ -123,6 +123,7 @@ func SvcHandlerDepository(w http.ResponseWriter, r *http.Request, d *ServiceData
 		break
 	case "delete":
 		deleteDepository(w, r, d)
+		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err, funcname)

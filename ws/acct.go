@@ -147,21 +147,14 @@ var acctAllowPosts = map[int64]string{
 	0: "Summary Account only, do not allow posts to this ledger", 1: "Allow posts",
 }
 
-// manage to budget
-var acctManageToBudget = map[int64]string{
-	0: "No (GSR amount is not required)",
-	1: "Yes, (GSR amount is required)",
-}
-
 // getAccountThingJSList sending down list related with accounts info
 func getAccountThingJSList() map[string]map[int64]string {
 	accountStuff := make(map[string]map[int64]string)
 
-	accountStuff["manage_to_budget"] = acctManageToBudget
-	accountStuff["allow_posts"] = acctAllowPosts
-	accountStuff["ra_associated"] = acctRAAssociated
-	accountStuff["types"] = acctType
-	accountStuff["status"] = acctStatus
+	accountStuff["allowPostList"] = acctAllowPosts
+	accountStuff["RAAssociatedList"] = acctRAAssociated
+	accountStuff["typeList"] = acctType
+	accountStuff["statusList"] = acctStatus
 
 	return accountStuff
 }

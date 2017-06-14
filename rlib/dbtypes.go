@@ -886,6 +886,7 @@ type RentableType struct {
 
 // RentableMarketRate describes the market rate rent for a Rentable type over a time period
 type RentableMarketRate struct {
+	RMRID      int64
 	RTID       int64
 	BID        int64 // the business unit
 	MarketRate float64
@@ -1140,9 +1141,12 @@ type RRprepSQL struct {
 	DeleteReceipt                        *sql.Stmt
 	DeleteReceiptAllocation              *sql.Stmt
 	DeleteReceiptAllocations             *sql.Stmt
+	DeleteRentableMarketRateInstance     *sql.Stmt
 	DeleteRentableSpecialtyRef           *sql.Stmt
 	DeleteRentableStatus                 *sql.Stmt
+	DeleteRentableType                   *sql.Stmt
 	DeleteRentableTypeRef                *sql.Stmt
+	DeleteRentableTypeRefWithRTID        *sql.Stmt
 	DeleteRentableUser                   *sql.Stmt
 	DeleteRentableUserByRBT              *sql.Stmt
 	DeleteRentalAgreementPayor           *sql.Stmt
@@ -1277,6 +1281,7 @@ type RRprepSQL struct {
 	GetRentableByName                    *sql.Stmt
 	GetRentableLedgerMarkerOnOrBefore    *sql.Stmt
 	GetRentableMarketRates               *sql.Stmt
+	GetRentableMarketRateInstance        *sql.Stmt
 	GetRentableSpecialtyRefs             *sql.Stmt
 	GetRentableSpecialtyRefsByRange      *sql.Stmt
 	GetRentableSpecialtyType             *sql.Stmt
@@ -1401,8 +1406,10 @@ type RRprepSQL struct {
 	UpdateReceipt                        *sql.Stmt
 	UpdateReceiptAllocation              *sql.Stmt
 	UpdateRentable                       *sql.Stmt
+	UpdateRentableMarketRateInstance     *sql.Stmt
 	UpdateRentableSpecialtyRef           *sql.Stmt
 	UpdateRentableStatus                 *sql.Stmt
+	UpdateRentableType                   *sql.Stmt
 	UpdateRentableTypeRef                *sql.Stmt
 	UpdateRentableUser                   *sql.Stmt
 	UpdateRentableUserByRBT              *sql.Stmt
