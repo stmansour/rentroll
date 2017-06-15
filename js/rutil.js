@@ -275,7 +275,12 @@ function ridRentableCompare(item, search) {
 //-----------------------------------------------------------------------------
 function tcidRAPayorPickerRender(item) {
     "use strict";
-    var s = item.FirstName + ' ' + item.LastName;
+    var s="";
+    if (item.IsCompany > 0) {
+        s = item.CompanyName;
+    } else {
+        s = item.FirstName + ' ' + item.LastName;
+    }
     w2ui.tcidRAPayorPicker.record = {
         TCID: item.TCID,
         pickedName: s,
@@ -283,6 +288,8 @@ function tcidRAPayorPickerRender(item) {
         DtStop: w2ui.tcidRAPayorPicker.record.DtStop,
         FirstName: item.FirstName,
         LastName: item.LastName,
+        IsCompany: item.IsCompany,
+        CompanyName: item.CompanyName
     };
     return s;
 }

@@ -2420,6 +2420,18 @@ function buildPageElements() {
             {field: 'FirstName', caption: 'First Name',  size: '10%', sortable: true},
             {field: 'MiddleName', caption: 'MI',  size: '30px', sortable: true},
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
+            {field: 'IsCompany', caption: 'IsCompany', hidden: true, sortable: false },
+            {field: 'CompanyName', caption: 'CompanyName',  size: '10%', sortable: true, style: 'text-align: left',
+                render: function (record, index, col_index) {
+                    var html = '';
+                    if (record.IsCompany) {
+                        html = record.CompanyName
+                    } else {
+                        html = '';
+                    }
+                    return html;
+                },
+            },
             {field: 'DtStart', caption: 'Start', size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
             {field: 'DtStop', caption: 'Stop',  size: '10%', sortable: true, style: 'text-align: right', editable: { type: 'date' }},
         ],
@@ -3134,6 +3146,8 @@ function buildPageElements() {
             { field: 'DtStop', type: 'date', required: true },
             { field: 'FirstName', type: 'text', required: false },
             { field: 'LastName', type: 'text', required: false },
+            { field: 'CompanyName', type: 'text', required: false },
+            { field: 'IsCompany', type: 'int', required: false },
         ],
         onRefresh: function(/*event*/) {
             w2ui.tcidRAPayorPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRAPayorPicker.BID;
@@ -3182,6 +3196,8 @@ function buildPageElements() {
             { field: 'DtStop', type: 'date', required: true },
             { field: 'FirstName', type: 'text', required: false },
             { field: 'LastName', type: 'text', required: false },
+            { field: 'CompanyName', type: 'text', required: false },
+            { field: 'IsCompany', type: 'int', required: false },
         ],
         onRefresh: function(/*event*/) {
             w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
@@ -3975,33 +3991,33 @@ function buildPageElements() {
 
 }  // buildPageElements
 
-function saveNewRentable() {
-    "use strict";
-    var y = new Date();
-    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
-    var rec = {
-        recid: w2ui.rapGrid.records.length,                 // + 1
-        BID: w2ui.rentalagrForm.record.BID,                 // BID of RAID we're editing
-        TCID: w2ui.tcidRAPayorPicker.record.TCID,           // The TCID from the person picked
-        RAID: w2ui.rentalagrForm.record.RAID,               // the RAID we're editing
-        FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
-        MiddleName: "",                                     // ignored
-        LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
-        DtStart: w2uiDateControlString(y),                  // start
-        DtStop: w2uiDateControlString(ny),                  // end
-    };
-    //console.log('rec = ' + rec);
-    w2ui.rapGrid.add(rec,true);
-    var params = {cmd: 'save', formname: 'tcidRAPayorPicker', record: rec };
-    var dat = JSON.stringify(params);
-    // console.log('url = ' + w2ui.rapGrid.url);
-    $.post(w2ui.rapGrid.url, dat, function(data,status) {
-        console.log('data = ' + data);
-        if (status != "success") {
-            console.log('status = ' + status);
-        }
-    });
-}
+// function saveNewRentable() {
+//     "use strict";
+//     var y = new Date();
+//     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+//     var rec = {
+//         recid: w2ui.rapGrid.records.length,                 // + 1
+//         BID: w2ui.rentalagrForm.record.BID,                 // BID of RAID we're editing
+//         TCID: w2ui.tcidRAPayorPicker.record.TCID,           // The TCID from the person picked
+//         RAID: w2ui.rentalagrForm.record.RAID,               // the RAID we're editing
+//         FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
+//         MiddleName: "",                                     // ignored
+//         LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
+//         DtStart: w2uiDateControlString(y),                  // start
+//         DtStop: w2uiDateControlString(ny),                  // end
+//     };
+//     //console.log('rec = ' + rec);
+//     w2ui.rapGrid.add(rec,true);
+//     var params = {cmd: 'save', formname: 'tcidRAPayorPicker', record: rec };
+//     var dat = JSON.stringify(params);
+//     // console.log('url = ' + w2ui.rapGrid.url);
+//     $.post(w2ui.rapGrid.url, dat, function(data,status) {
+//         console.log('data = ' + data);
+//         if (status != "success") {
+//             console.log('status = ' + status);
+//         }
+//     });
+// }
 
 function saveNewRAPayor() {
     "use strict";
@@ -4015,6 +4031,8 @@ function saveNewRAPayor() {
         FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
         MiddleName: "",                                     // ignored
         LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
+        IsCompany: w2ui.tcidRAPayorPicker.record.IsCompany,
+        CompanyName: w2ui.tcidRAPayorPicker.record.CompanyName,   // ignored
         DtStart: w2uiDateControlString(y),                  // start
         DtStop: w2uiDateControlString(ny),                  // end
     };
@@ -4050,6 +4068,8 @@ function popupTcidRAPayorPicker(sTitle,bid) {
     w2ui.tcidRAPayorPicker.record.DtStop = w2uiDateControlString(ny);
     w2ui.tcidRAPayorPicker.record.TCID = -1;
     w2ui.tcidRAPayorPicker.record.pickedName = '';
+    w2ui.tcidRAPayorPicker.record.IsCompany = -1;
+    w2ui.tcidRAPayorPicker.record.CompanyName = '';
     w2ui.tcidRAPayorPicker.refresh();
     var raid = w2ui.rentalagrForm.record.RAID;
     $().w2popup('open', {
@@ -4140,6 +4160,8 @@ function saveNewRUser() {
         FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
         MiddleName: "",                                     // ignored
         LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
+        IsCompany: w2ui.tcidRAPayorPicker.record.IsCompany,
+        CompanyName: w2ui.tcidRAPayorPicker.record.CompanyName,
         DtStart: w2uiDateControlString(y),                  // start
         DtStop: w2uiDateControlString(ny),                  // end
     };
@@ -4214,6 +4236,8 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
     w2ui.tcidRUserPicker.record.DtStop = w2uiDateControlString(ny);
     w2ui.tcidRUserPicker.record.TCID = -1;
     w2ui.tcidRUserPicker.record.pickedName = '';
+    w2ui.tcidRUserPicker.record.IsCompany = -1;
+    w2ui.tcidRUserPicker.record.CompanyName = '';
     w2ui.tcidRUserPicker.refresh();
     var url = '/v1/rar/' + bid + '/' + raid;
     $.get(url,function(data,status) {
