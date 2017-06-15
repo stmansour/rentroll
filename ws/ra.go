@@ -50,8 +50,6 @@ type RentalAgr struct {
 	LastModTime            rlib.JSONTime     // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
 	Payors                 rlib.NullString   // payors list attached with this RA within same time
-	PayorIsCompany         rlib.NullBool     // if payor is company
-	PayorCompanyName       rlib.NullString   // payor's company name if it has
 }
 
 // RentalAgrForm is used to save a Rental Agreement.  It holds those values
@@ -144,9 +142,7 @@ var rentalAgrGridFieldsMap = map[string][]string{
 	"RightOfFirstRefusal":    {"RentalAgreement.RightOfFirstRefusal"},
 	"LastModTime":            {"RentalAgreement.LastModTime"},
 	"LastModBy":              {"RentalAgreement.LastModBy"},
-	"Payors":                 {"Transactant.FirstName", "Transactant.LastName"},
-	"PayorIsCompany":         {"Transactant.IsCompany"},
-	"PayorCompanyName":       {"Transactant.CompanyName"},
+	"Payors":                 {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
 }
 
 // which fields needs to be fetched for SQL query for rental agreements
@@ -183,14 +179,12 @@ var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.RightOfFirstRefusal",
 	"RentalAgreement.LastModTime",
 	"RentalAgreement.LastModBy",
-	"GROUP_CONCAT(DISTINCT CONCAT(Transactant.FirstName, ' ', Transactant.LastName) SEPARATOR ', ') AS Payors",
-	"Transactant.IsCompany",
-	"Transactant.CompanyName",
+	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
 }
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
 func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) (RentalAgr, error) {
-	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors, &q.PayorIsCompany, &q.PayorCompanyName)
+	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors)
 	return q, err
 }
 
@@ -297,11 +291,6 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
-		}
-
-		// if it is company then override/fill Payors value
-		if q.PayorIsCompany.Valid && q.PayorIsCompany.Bool {
-			q.Payors.String = q.PayorCompanyName.String
 		}
 
 		g.Records = append(g.Records, q)
