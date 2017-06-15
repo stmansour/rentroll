@@ -146,7 +146,7 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 
 	// determine the rentable type for time dt
 	if rt.RTID == 0 {
-		err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d during period %s", r.RID, dt.Format(RRDATEINPFMT))
+		err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d on date: %s", r.RID, dt.Format(RRDATEINPFMT))
 		return 0, 0, 0, err // this is bad! No RTID for the supplied time range
 	}
 	if prorationCycle < 0 { // if there was no override..
@@ -169,8 +169,23 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []RentableSpecialty, xbiz *XBusiness) float64 {
 	var total = float64(0) // init total
 
-	// rentCycle, prorateCycle, gsrpc, err := GetProrationCycle(&d1, r, rta, xbiz)
-	rentCycle, _, gsrpc, err := GetProrationCycle(&d1, r, rta, xbiz)
+	// Get the first date that overlaps the rta values
+	dt := d1
+	for dt.Before(d2) {
+		found := false
+		for i := 0; i < len(*rta); i++ {
+			if DateInRange(&dt, &(*rta)[i].DtStart, &(*rta)[i].DtStop) {
+				found = true
+				break
+			}
+		}
+		if found {
+			break
+		}
+		dt = dt.AddDate(0, 0, 1)
+	}
+
+	rentCycle, _, gsrpc, err := GetProrationCycle(&dt, r, rta, xbiz)
 	if err != nil {
 		Ulog("CalculateGSR: GetProrationCycle returned error: %s\n", err.Error())
 		return float64(0)
@@ -179,14 +194,14 @@ func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []R
 		Ulog("CalculateGSR: warning: one or more cycle values is unset\n")
 	}
 	// prorateDur := CycleDuration(prorateCycle, d1) // the proration cycle expressed as a duration
-	inc := CycleDuration(gsrpc, d1)              // increment durations for rent calculation
-	rentCycleDur := CycleDuration(rentCycle, d1) // this is the rentcycle expressed as a duration
-	rtr := SelectRentableTypeRefForDate(rta, &d1)
+	inc := CycleDuration(gsrpc, dt)              // increment durations for rent calculation
+	rentCycleDur := CycleDuration(rentCycle, dt) // this is the rentcycle expressed as a duration
+	rtr := SelectRentableTypeRefForDate(rta, &dt)
 
 	// fmt.Printf("CalculateGSR: rentCycle = %d (%v), gsrpc = %d (%v)\n", rentCycle, rentCycleDur, gsrpc, inc)
 	// fmt.Printf("rtr = (%s - %s) rtid = %d\n", rtr.DtStart.Format("1/2/06"), rtr.DtStop.Format("1/2/06"), rtr.RTID)
 
-	for d := d1; d.Before(d2); d = d.Add(inc) { // spin through the period in the defined increments
+	for d := dt; d.Before(d2); d = d.Add(inc) { // spin through the period in the defined increments
 		rate := FindApplicableMarketRate(d, d1, d2, xbiz.RT[rtr.RTID].MR) // find the rate applicable for this increment
 		rent := float64(inc) * rate / float64(rentCycleDur)               // how much for the period: inc
 		total += rent                                                     // increment the total by this amount
@@ -295,7 +310,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 	var err error
 	gsr := float64(0) // total rent, to update on each pass through the loop below
 
-	// fmt.Printf("%s, r = %#v, d1 = %s, d2 = %s\n", funcname, *r, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+	// fmt.Printf("%s, r.RID = %d, d1 = %s, d2 = %s\n", funcname, r.RID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 
 	rta := GetRentableTypeRefsByRange(r.RID, d1, d2) // get the list
 	if len(rta) == 0 {
@@ -304,19 +319,39 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		Ulog("%s", err.Error())
 		return gsr, m, period, err // this is bad! No RTID for the supplied time range
 	}
+	dtFirst := *d1
+	for dtFirst.Before(*d2) {
+		found := false
+		for i := 0; i < len(rta); i++ {
+			// fmt.Printf("rta[%d] - %s - %s\n", i, rta[i].DtStart.Format(RRDATETIMEINPFMT), rta[i].DtStop.Format(RRDATETIMEINPFMT))
+			if DateInRange(&dtFirst, &rta[i].DtStart, &rta[i].DtStop) {
+				// fmt.Printf("FOUND the match at %d\n", i)
+				found = true
+				break
+			}
+		}
+		if found {
+			break
+		}
+		dtFirst = dtFirst.AddDate(0, 0, 1)
+	}
+
+	// fmt.Printf("%s, dtFirst = %s\n", funcname, dtFirst.Format(RRDATETIMEINPFMT))
 
 	// find the Gross Scheduled Rent Proration Cycle - GSRPC - the intervals over which the GSR is calculated
-	_, _, gsrpc, err := GetProrationCycle(d1, r, &rta, xbiz)
+	_, _, gsrpc, err := GetProrationCycle(&dtFirst, r, &rta, xbiz)
 	if err != nil {
+
 		// fmt.Printf("%s: error from GetProrationCycle: %s\n", funcname, err.Error())
+
 		return gsr, m, period, err
 	}
 
-	// fmt.Printf("%s: gsrpc = %v, d1 = %s\n", funcname, gsrpc, d1.Format(RRDATEFMT4))
+	// fmt.Printf("%s: gsrpc = %v, dtFirst = %s\n", funcname, gsrpc, dtFirst.Format(RRDATEFMT4))
 
-	period = CycleDuration(gsrpc, *d1)           // increment of time we'll use to determine gsr in increments between d1 & d2
-	dtNext := *d1                                // initialize so that the variable is known
-	for dt := *d1; dt.Before(*d2); dt = dtNext { // spin through time period d1 - d2 in increments of gsrpc and add up the GSR
+	period = CycleDuration(gsrpc, dtFirst)           // increment of time we'll use to determine gsr in increments between dtFirst & d2
+	dtNext := dtFirst                                // initialize so that the variable is known
+	for dt := dtFirst; dt.Before(*d2); dt = dtNext { // spin through time period d1 - d2 in increments of gsrpc and add up the GSR
 		dtNext = dt.Add(period) // establish the end of the period.  We'll add up the gsr for period dt to dtNext.
 		//--------------------------------------------------------------------
 		// Get the RentableSpecialties applicable for this increment...
@@ -332,7 +367,9 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		// Finally, calculate the GSR for this increment...
 		//------------------------------------------------------------------
 		rentThisPeriod := CalculateGSR(dt, dtNext, r, &rta, rsa, xbiz)
+
 		// fmt.Printf("rentThisPeriod = %f\n", rentThisPeriod)
+
 		var g = GSRdata{Dt: dt, Amount: rentThisPeriod}
 		m = append(m, g)
 		gsr += rentThisPeriod
