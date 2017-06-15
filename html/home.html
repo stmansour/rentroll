@@ -410,7 +410,7 @@ function buildPageElements() {
             },
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'rt',  text: plural(app.sRentableType),  icon: 'fa fa-cube', hint: 'Rentable Types' },
+                        { id: 'rt',  text: plural(app.sRentableType),  icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                         { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
                         { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
                         { id: 'rentalagrs',  text: plural(app.sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
@@ -826,18 +826,26 @@ function buildPageElements() {
             toolbarReload: false,
         },
         columns: [
-            {field: 'recid',    caption: 'recid', size: '80px', sortable: false, hidden: true},
-            {field: 'LID',      caption: 'LID', size: '50px', sortable: false, hidden: true},
-            {field: 'PLID', caption: 'PLID', size: '50px', sortable: false, hidden: true},
-            {field: 'BID',      caption: 'BID', size: '40px', sortable: false, hidden: true},
+            {field: 'recid',    caption: 'recid',     size: '80px', sortable: false, hidden: true},
+            {field: 'LID',      caption: 'LID',       size: '50px', sortable: false, hidden: true},
+            {field: 'PLID',     caption: 'PLID',      size: '50px', sortable: false, hidden: true},
+            {field: 'BID',      caption: 'BID',       size: '40px', sortable: false, hidden: true},
             {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: false},
-            {field: 'Name',     caption: 'Name', size: '450px', sortable: false},
-            {field: 'Status',   caption: 'Status', size: '90px', sortable: false,
+            {field: 'Name',     caption: 'Name',      size: '450px', sortable: false},
+            {field: 'Status',   caption: 'Status',    size: '90px', sortable: false,
                 render: function (record, index, col_index) {
                     var html = '';
-                    app.account_stuff.status.forEach(function(item) {
-                        if (item.id == w2ui.accountsGrid.getCellValue(index, col_index)) html = item.text;
-                    });
+                    // app.account_stuff.status.forEach(function(item) {
+                    //     if (item.id == w2ui.accountsGrid.getCellValue(index, col_index)) html = item.text;
+                    // });
+                    if (typeof record == "undefined") {
+                        return;
+                    }
+                    for (var i=0; i < app.account_stuff.statusList.length; i++) {
+                        if (record.Status == app.account_stuff.statusList[i].id) {
+                            html = app.account_stuff.statusList[i].text;
+                        }
+                    }
                     return html;
                 },
             },
@@ -1454,7 +1462,7 @@ function buildPageElements() {
             {field: 'RTID', caption: 'RTID', size: '50px', sortable: true},
             {field: 'BID', caption: 'BID', hidden: true},
             {field: 'BUD', caption: 'BUD', hidden: true},
-            {field: 'RentCycle', caption: 'RentCycle', size: '150px', sortable: true,
+            {field: 'RentCycle', caption: 'RentCycle', size: '75px', sortable: true,
                 render: function (record, index, col_index) {
                     var text = '';
                     if (record) {
@@ -1468,7 +1476,7 @@ function buildPageElements() {
                     return text;
                 },
             },
-            {field: 'Proration', caption: 'Proration', size: '180px', sortable: true,
+            {field: 'Proration', caption: 'Proration', size: '90px', sortable: true,
                 render: function (record, index, col_index) {
                     var text = '';
                     if (record) {
@@ -1482,7 +1490,7 @@ function buildPageElements() {
                     return text;
                 },
             },
-            {field: 'GSRPC', caption: 'GSRPC', size: '130px', sortable: true,
+            {field: 'GSRPC', caption: 'GSRPC', size: '65px', sortable: true,
                 render: function (record, index, col_index) {
                     var text = '';
                     if (record) {
@@ -1496,7 +1504,7 @@ function buildPageElements() {
                     return text;
                 },
             },
-            {field: 'ManageToBudget', caption: 'ManageToBudget', size: '50px', sortable: true,
+            {field: 'ManageToBudget', caption: 'ManageToBudget', size: '200px', sortable: true,
                 render: function (record, index, col_index) {
                     var text = '';
                     if (record) {
@@ -1513,7 +1521,7 @@ function buildPageElements() {
             {field: 'LastModTime', caption: 'LastModTime', hidden: true},
             {field: 'LastModBy', caption: 'LastModBy', hidden: true},
             {field: 'RMRID', caption: 'RMRID', hidden: true},
-            {field: 'MarketRate', caption: 'MarketRate', size: '150px', sortable: true, render: 'money'},
+            {field: 'MarketRate', caption: 'MarketRate', size: '100px', sortable: true, render: 'money'},
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -1575,20 +1583,20 @@ function buildPageElements() {
         url: '/v1/rentabletypes',
         formURL: '/html/formrt.html',
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-            { field: 'RTID', type: 'int', required: true, html: { caption: 'RID', page: 0, column: 0 } },
-            { field: 'BID', type: 'int', required: true, html: { caption: 'BID', page: 0, column: 0 } },
-            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
-            { field: 'Style', type: 'text', required: true, html: { caption: 'Style', page: 0, column: 0 } },
-            { field: 'Name', type: 'text', required: true, html: { caption: 'Style', page: 0, column: 0 } },
-            { field: 'RentCycle', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { caption: 'RentCycle', page: 0, column: 0 } },
-            { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { caption: 'Proration', page: 0, column: 0 } },
-            { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { caption: 'GSRPC', page: 0, column: 0 } },
-            { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { caption: 'ManageToBudget', page: 0, column: 0 } },
-            { field: 'RMRID', type: 'int', required: true, html: { caption: 'RMRID', page: 0, column: 0 } },
-            { field: 'MarketRate', type: 'float', required: true, html: { caption: 'MarketRate', page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'date', required: true, html: { caption: 'LastModTime', page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'int', required: true, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'RTID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
+            { field: 'Style', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'RentCycle', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'RMRID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'MarketRate', type: 'float', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: true, html: { page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -1605,12 +1613,40 @@ function buildPageElements() {
                 }
             },
         },
+        onValidate: function(event) {
+            if (this.record.ManageToBudget === 1 && this.record.MarketRate === "") {
+                event.errors.push({
+                    field: this.get('MarketRate'),
+                    error: 'MarketRate cannot be blank when Mange To Budget is Yes'
+                });
+            }
+            if (this.record.Style === "") {
+                event.errors.push({
+                    field: this.get('Style'),
+                    error: 'Style cannot be blank'
+                });
+            }
+            if (this.record.Name === "") {
+                event.errors.push({
+                    field: this.get('Name'),
+                    error: 'Name cannot be blank'
+                });
+            }
+        },
         actions: {
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.rtGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
+                var errors = w2ui.rentableTypeForm.validate(true);
+                if (errors.length > 1) {
+                    return;
+                }
+                // have to ignore issue with LastModTime
+                if (errors.length == 1 && errors[0].field.name != "LastModTime") {
+                    return;
+                }
 
                 // this.save({}, function (data) {
                 //     if (data.status == 'error') {
