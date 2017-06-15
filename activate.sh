@@ -106,7 +106,8 @@ start() {
 	if [ ${IAM} == "root" ]; then
 		chown -R ec2-user *
 		# chmod u+s ${PROGNAME} pbwatchdog
-		if [ $(uname) == "Linux" -a ! -f "/etc/init.d/${PROGNAME}" ]; then
+		# if [ $(uname) == "Linux" -a ! -f "/etc/init.d/${PROGNAME}" ]; then
+		if [ $(uname) == "Linux" ]; then
 			cp ./activate.sh /etc/init.d/${PROGNAME}
 			chkconfig --add ${PROGNAME}
 		fi
@@ -120,6 +121,27 @@ start() {
 		tar xzvf rrjs.tar.gz
 		${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz
 		tar xzvf fa.tar.gz
+	fi
+
+	#---------------------------------------------------
+	# Make sure MySQL is running, if not retry 3 times...
+	#---------------------------------------------------
+	i="0"
+	while [ $i -lt 3 ]
+	do
+		i=$[$i+1]
+		MSUP=$(ps -e | grep "mysqld" | wc -l)
+		if [ "${MSUP}" -lt 2 ]; then
+			echo "MySQL is not running. Waiting 10 sec before retry ${i}"
+			sleep 10
+		else
+			break
+		fi
+	done
+
+	if [ $i -gt 3 ]; then
+		echo "[ERROR] MySQL not available after 3 retries. Aborting..."
+		exit 1
 	fi
 
 	./${PROGNAME} >log.out 2>&1 &
@@ -226,9 +248,11 @@ while getopts ":p:qih:N:Tb" o; do
 done
 shift $((OPTIND-1))
 
-# cd "${RENTROLLHOME}"
-PBPATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
-cd ${PBPATH}
+if [ ${OS} == "Linux" ]; then
+	cd "${RENTROLLHOME}"
+fi
+# PBPATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+# cd ${PBPATH}
 
 for arg do
 	# echo '--> '"\`$arg'"
