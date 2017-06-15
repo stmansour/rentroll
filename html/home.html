@@ -889,18 +889,13 @@ function buildPageElements() {
                     w2ui.toplayout.sizeTo('right', 700);
                     return;
                 } else {
-                    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
-                    var gl_accounts_items = [gl_accounts_pre_selected];
-                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
-                    w2ui.accountForm.get('PLID').options.items = gl_accounts_items;
-                    w2ui.accountForm.get('PLID').options.selected = gl_accounts_pre_selected;
 
                     var y = new Date();
 
                     var record = {
                         recid: 0,
                         LID: 0,
-                        PLID: gl_accounts_pre_selected,
+                        PLID: 0,
                         BID: BID,
                         BUD: BUD,
                         RAID: 0,
@@ -984,25 +979,11 @@ function buildPageElements() {
 
                 // update the BID in record
                 r.BID = BID;
+                r.PLID = 0;
 
                 // change the choice of parent account list
                 getGLAccounts(BID)
                 .done(function(/*data*/) {
-                    // set Parent Account list
-                    var PLIDs = [{id: 0, text: 'No Parent LID'}];
-                    // don't include itself in parent account choice -- drop list
-                    var parent_account_choice = [];
-                    app.gl_accounts[BUD].forEach(function(item) {
-                        if (item.id != r.LID) {
-                            parent_account_choice.push(item);
-                        }
-                    });
-                    PLIDs = PLIDs.concat(parent_account_choice);
-                    $("#accountForm").find('input[name=PLID]').w2field('list',{
-                        items: PLIDs,
-                        selected: {},
-                    });
-
                     w2ui.accountForm.refresh();
                 });
             }
@@ -1101,17 +1082,15 @@ function buildPageElements() {
                 });
 
                 // set Parent Account list
-                var PLIDs = [{id: 0, text: 'No Parent LID'}];
-                // don't include itself in parent account choice -- drop list
-                var parent_account_choice = [];
+                var PLIDList = [{id: 0, text: 'No Parent LID'}];
                 app.gl_accounts[BUD].forEach(function(item) {
-                    if (item.id != r.LID) {
-                        parent_account_choice.push(item);
+                    if (item.id != r.LID) { // don't include itself in parent account choice -- drop list
+                        PLIDList.push(item);
                     }
                 });
-                PLIDs = PLIDs.concat(parent_account_choice);
+
                 $("#accountForm").find('input[name=PLID]').w2field('list',{
-                    items: PLIDs,
+                    items: PLIDList,
                     selected: r.PLID,
                 });
 
