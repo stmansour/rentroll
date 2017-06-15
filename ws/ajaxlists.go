@@ -15,8 +15,8 @@ import (
 
 // manage to budget
 var manageToBudget = rlib.Str2Int64Map{
-	"No (GSR amount is not required)": 0,
-	"Yes, (GSR amount is required)":   1,
+	"No": 0,
+	"Yes (Market Rate required)": 1,
 }
 
 // EpochInstance is a list of strings that describe a recurring entity.

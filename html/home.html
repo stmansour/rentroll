@@ -1656,7 +1656,7 @@ function buildPageElements() {
                 //     w2ui.toplayout.hide('right',true);
                 //     tgrid.reload();
                 // });
-                var saveRecord = getFormSubmitData(this.record)
+                var saveRecord = getFormSubmitData(this.record);
                 var params = {cmd: 'save', formname: this.name, record: saveRecord };
                 var dat = JSON.stringify(params);
 
@@ -1670,8 +1670,8 @@ function buildPageElements() {
                     w2ui.toplayout.render();
                     tgrid.reload();
                 })
-                .fail(function(data){
-                    console.log("Save RentableType failed.")
+                .fail(function(/*data*/){
+                    console.log("Save RentableType failed.");
                 });
             },
             delete: function() {
@@ -1698,8 +1698,8 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
-                        console.log("Delete Payment failed.")
+                    .fail(function(/*data*/){
+                        console.log("Delete Payment failed.");
                     });
                 })
                 .no(function() {
