@@ -89,7 +89,7 @@ pubimages:
 	cd tmp/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
 
 pubjs:
-	cd tmp/rentroll;tar czvf rrjs.tar.gz ./js;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
+	cd tmp/rentroll;mv js/rutil.js .;tar czvf rrjs.tar.gz ./js;mv rutil.js js/;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
 
 pubdb:
 	# testing db
