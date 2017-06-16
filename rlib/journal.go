@@ -108,6 +108,7 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 	var start, stop time.Time
 	r := GetRentable(a.RID)
 	status := GetRentableStateForDate(r.RID, d)
+	fmt.Printf("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), status)
 	switch status {
 	case RENTABLESTATUSONLINE:
 		ra, _ := GetRentalAgreement(a.RAID)
@@ -119,7 +120,7 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 		case CYCLEMONTHLY:
 			pf, num, den, start, stop = CalcProrationInfo(&ra.RentStart, &ra.RentStop, d1, d2, a.RentCycle, a.ProrationCycle)
 		default:
-			fmt.Printf("Accrual rate %d not implemented\n", a.RentCycle)
+			LogAndPrint("Accrual rate %d not implemented\n", a.RentCycle)
 		}
 		// fmt.Printf("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
 
@@ -143,7 +144,7 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 			}
 		}
 	default:
-		Ulog("%s: Rentable %d is in an unknown status: %d\n", funcname, r.RID, status)
+		Ulog("%s: Rentable %d on %s has unknown status: %d\n", funcname, r.RID, d.Format(RRDATEINPFMT), status)
 	}
 
 	return pf, num, den, start, stop
@@ -159,22 +160,19 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 //=================================================================================================
 func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time.Time) error {
 	// funcname := "journalAssessment"
+	// fmt.Printf("Entered %s\n", funcname)
 	pf, num, den, start, stop := ProrateAssessment(xbiz, a, &d, d1, d2)
 
 	// fmt.Printf("ProrateAssessment: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// fmt.Printf("pf = %f, num = %d, den = %d, start = %s, stop = %s\n", pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 
 	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID}
-
-	// fmt.Printf("calling ParseAcctRule:\n  asmt = %d\n  rid = %d, d1 = %s, d2 = %s\n  a.Amount = %f\n", a.ASMID, a.RID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), a.Amount)
-	// fmt.Printf("RRdb.BizTypes[bid].DefaultAccts = %#v\n", RRdb.BizTypes[a.BID].DefaultAccts)
-
 	m := ParseAcctRule(xbiz, a.RID, d1, d2, GetAssessmentAccountRule(a), a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 
 	// fmt.Printf("journalAssessment:  m = %#v\n", m)
-	// for i := 0; i < len(m); i++ {
-	// 	fmt.Printf("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
-	// }
+	for i := 0; i < len(m); i++ {
+		fmt.Printf("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
+	}
 
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)

@@ -1466,12 +1466,9 @@ func SelectRentableTypeRefForDate(rta *[]RentableTypeRef, dt *time.Time) Rentabl
 	return r // nothing matched
 }
 
-// GetRentableTypeRefsByRange loads all the RentableTypeRef records that overlap the supplied time range
-// and returns them in an array
-func GetRentableTypeRefsByRange(RID int64, d1, d2 *time.Time) []RentableTypeRef {
+// GetRTRefs performs the query over the supplied rows and returns a slice of result records
+func GetRTRefs(rows *sql.Rows) []RentableTypeRef {
 	var rs []RentableTypeRef
-	rows, err := RRdb.Prepstmt.GetRentableTypeRefsByRange.Query(RID, d1, d2)
-	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableTypeRef
@@ -1480,6 +1477,21 @@ func GetRentableTypeRefsByRange(RID int64, d1, d2 *time.Time) []RentableTypeRef 
 	}
 	Errcheck(rows.Err())
 	return rs
+}
+
+// GetRentableTypeRefsByRange loads all the RentableTypeRef records that overlap the supplied time range
+// and returns them in an array
+func GetRentableTypeRefsByRange(RID int64, d1, d2 *time.Time) []RentableTypeRef {
+	rows, err := RRdb.Prepstmt.GetRentableTypeRefsByRange.Query(RID, d1, d2)
+	Errcheck(err)
+	return GetRTRefs(rows)
+}
+
+// GetRentableTypeRefs loads all the RentableTypeRef records for a particular
+func GetRentableTypeRefs(RID int64) []RentableTypeRef {
+	rows, err := RRdb.Prepstmt.GetRentableTypeRefs.Query(RID)
+	Errcheck(err)
+	return GetRTRefs(rows)
 }
 
 // GetRTIDForDate returns the RTID in effect on the supplied date

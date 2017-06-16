@@ -75,6 +75,11 @@ func DateTrim(DtStart, DtStop, d1, d2 *time.Time) (time.Time, time.Time) {
 //         	pf:       prorate factor = rentDur/asmtDur
 //=================================================================================================
 func CalcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate int64) (float64, int64, int64, time.Time, time.Time) {
+	// fmt.Printf("CalcProrationInfo\n")
+	// fmt.Printf("DtStart = %s, DtStop = %s\n", DtStart.Format(RRDATEINPFMT), DtStop.Format(RRDATEINPFMT))
+	// fmt.Printf("     d1 = %s,     d2 = %s\n", d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+	// fmt.Printf("\nrentCycle = %d, prorate = %d\n", rentCycle, prorate)
+
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
 	//-------------------------------------------------------------------

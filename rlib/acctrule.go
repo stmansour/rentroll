@@ -96,9 +96,12 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 			ar := strings.Join(ta[base+2:], " ")                   // remaining fields make up the amount formula
 			r.Expr = strings.TrimSpace(ar)                         // prepare the formula for the calculator
 			ctx.r = &r                                             // the AcctRule in the process of being constructed.  Has the Assessment ID which may be needed.
-			x := RpnCalculateEquation(&ctx, r.Expr)                // let the calculator compute the amount
-			r.Amount = x                                           // set the Amount field
-			m = append(m, r)                                       // and we're done
+			// fmt.Printf("ctx = %#v\n", ctx)
+			// fmt.Printf("r.Expr = %s\n", r.Expr)
+			x := RpnCalculateEquation(&ctx, r.Expr) // let the calculator compute the amount
+			// fmt.Printf("\ncalc returned x = %8.2f\n\n", x)
+			r.Amount = x     // set the Amount field
+			m = append(m, r) // and we're done
 		}
 	}
 	return m

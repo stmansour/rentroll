@@ -351,11 +351,14 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	fmt.Printf("\nAfter unmarshal: foo = %#v\n", foo)
 	//----------------------------------------------------------
 	// Parse the standard variables from the return struct...
 	//----------------------------------------------------------
 	var a rlib.Assessment
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
+
+	fmt.Printf("\nAfter MigrateStructVals: a = %#v\n", a)
 
 	//----------------------------------------------------------
 	// Now get the other variables and copy them into a...
@@ -368,6 +371,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
+
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
 	if !ok {
@@ -379,7 +383,10 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
 
 	a.ARID = int64(bar.Record.ARID.ID)
-	fmt.Printf("after conversion: a.ARID = %d\n", a.ARID)
+	fmt.Printf("\nafter conversion: a.ARID = %d\n", a.ARID)
+
+	fmt.Printf("\na = %#v\n\n", a)
+	fmt.Printf("Start = %s, Stop = %s\n\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
@@ -403,6 +410,15 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// 	a.Start = dt // enforce the corrected epoch
 		// }
 		_, err = rlib.InsertAssessment(&a)
+		if err != nil {
+			fmt.Printf("Error inserting assessment = %s\n", err.Error())
+		}
+		fmt.Printf("Saved assessment %d.  will now read it back...\n", a.ASMID)
+		a1, err := rlib.GetAssessment(a.ASMID)
+		if err != nil {
+			fmt.Printf("Error getting assessment = %s\n", err.Error())
+		}
+		fmt.Printf("Assessment just read:  %#v\n", a1)
 
 		d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
 		mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))

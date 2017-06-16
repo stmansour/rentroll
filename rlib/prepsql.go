@@ -901,6 +901,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableTypeRefsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RID=? and DtStop>? and DtStart<? ORDER BY DtStart ASC")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRentableTypeRefs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RID=? ORDER BY DtStart ASC")
+	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentableTypeRef, err = RRdb.Dbrr.Prepare("INSERT INTO RentableTypeRef (" + s1 + ") VALUES(" + s2 + ")")

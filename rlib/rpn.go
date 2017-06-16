@@ -158,6 +158,7 @@ func RpnCalculateEquation(ctx *RpnCtx, s string) float64 {
 					ctx.stack = append(ctx.stack, n)
 				}
 			} else if s[0] == '_' {
+				// fmt.Printf("%s: found '_', pushing ctx.amount = %8.2f\n", funcname, ctx.amount)
 				rpnPush(ctx, ctx.amount)
 			} else if ('0' <= s[0] && s[0] <= '9') || '.' == s[0] { // is it a number?
 				m := rpnNumber.FindStringSubmatchIndex(s)
