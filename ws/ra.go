@@ -107,6 +107,11 @@ type GetRentalAgreementResponse struct {
 	Record RentalAgr `json:"record"`
 }
 
+// DeleteRentalAgreementForm used while deleteRA request
+type DeleteRentalAgreementForm struct {
+	RAID int64
+}
+
 // rentalAgrGridFieldsMap holds the map of field (to be shown on grid)
 // to actual database fields, multiple db fields means combine those
 var rentalAgrGridFieldsMap = map[string][]string{
@@ -343,6 +348,9 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 	case "save":
 		saveRentalAgreement(w, r, d)
 		break
+	case "delete":
+		deleteRentalAgreement(w, r, d)
+		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err, funcname)
@@ -483,4 +491,77 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	}
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
+}
+
+// wsdoc {
+//  @Title  Delete Rental Agreement
+//	@URL /v1/rentalagr/:BUI/:RAID
+//	@Method POST
+//	@Synopsis Delete a Rental Agreement
+//  @Description This service delete the requested Rental Agreement with RAID and deletes associated pets, users, payors, references to rentables.
+//  @Input DeleteRentalAgreementForm
+//  @Response SvcStatusResponse
+// wsdoc }
+func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "deleteRentalAgreement"
+		err      error
+		del      DeleteRentalAgreementForm
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	delRAID := del.RAID
+
+	// first get rentalAgreement
+	ra, err := rlib.GetRentalAgreement(delRAID)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// remove all pets associated with this rental Agreement
+	if err = rlib.DeleteAllRentalAgreementPets(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// remove all payors associated with this rental Agreement
+	if err = rlib.DeleteAllRentalAgreementPayors(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// remove all rentable users associated with this rental Agreement
+	rarList := rlib.GetRentalAgreementRentables(delRAID, &ra.AgreementStart, &ra.AgreementStop)
+	for _, rar := range rarList {
+		rUsers := rlib.GetRentableUsersInRange(rar.RID, &rar.RARDtStart, &rar.RARDtStop)
+		for _, ru := range rUsers {
+			if err := rlib.DeleteRentableUser(ru.RUID); err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+		}
+	}
+
+	// remove all references to rentables associated with this rental Agreement
+	if err = rlib.DeleteAllRentalAgreementRentables(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// finally delete this rental Agreement
+	if err = rlib.DeleteRentalAgreement(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
 }

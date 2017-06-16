@@ -1149,10 +1149,13 @@ type RRprepSQL struct {
 	DeleteRentableTypeRefWithRTID        *sql.Stmt
 	DeleteRentableUser                   *sql.Stmt
 	DeleteRentableUserByRBT              *sql.Stmt
+	DeleteRentalAgreement                *sql.Stmt
 	DeleteRentalAgreementPayor           *sql.Stmt
+	DeleteAllRentalAgreementPayors       *sql.Stmt
 	DeleteRentalAgreementPayorByRBT      *sql.Stmt
 	DeleteRentalAgreementPet             *sql.Stmt
 	DeleteRentalAgreementRentable        *sql.Stmt
+	DeleteAllRentalAgreementRentables    *sql.Stmt
 	DeleteRentalAgreementTax             *sql.Stmt
 	DeleteSLString                       *sql.Stmt
 	DeleteSLStrings                      *sql.Stmt
