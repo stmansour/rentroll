@@ -1680,12 +1680,14 @@ func LoadXRentalAgreement(raid int64, r *RentalAgreement, d1, d2 *time.Time) err
 		r.P = append(r.P, xp)
 	}
 
-	n := GetRentableUsersInRange(raid, d1, d2)
-	r.T = make([]XPerson, 0)
-	for i := 0; i < len(n); i++ {
-		var xp XPerson
-		GetXPerson(n[i].TCID, &xp)
-		r.T = append(r.T, xp)
+	for j := 0; j < len(r.R); j++ {
+		n := GetRentableUsersInRange(r.R[j].R.RID, d1, d2)
+		r.T = make([]XPerson, 0)
+		for i := 0; i < len(n); i++ {
+			var xp XPerson
+			GetXPerson(n[i].TCID, &xp)
+			r.T = append(r.T, xp)
+		}
 	}
 	return err
 }
