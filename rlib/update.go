@@ -113,7 +113,7 @@ func UpdateRentable(a *Rentable) error {
 
 // UpdateRentableStatus updates a RentableStatus record in the database
 func UpdateRentableStatus(a *RentableStatus) error {
-	_, err := RRdb.Prepstmt.UpdateRentableStatus.Exec(a.BID, a.RID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy, a.RSID)
+	_, err := RRdb.Prepstmt.UpdateRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.LastModBy, a.RSID)
 	return updateError(err, "RentableStatus", *a)
 }
 

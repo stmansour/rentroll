@@ -242,7 +242,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// Rentables Query Text Template
 	rentablesQuery := `
-	SELECT
+	SELECT DISTINCT
 		{{.SelectClause}}
 	FROM Rentable
 	INNER JOIN RentableTypeRef ON Rentable.RID=RentableTypeRef.RID
@@ -481,7 +481,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		// if stop date or rentable type has changed then only update and insert new record
-		if !(rlib.DateDiff((time.Time)(rfRecord.RTRefDtStop), rtr.DtStop) == 0 && rfRecord.RTID == rtr.RTID) {
+		if !(rlib.DateDiff((time.Time)(rfRecord.RTRefDtStop), rtr.DtStop) == 0 && rfRecord.RTID == rtr.RTID && rlib.DateDiff((time.Time)(rfRecord.RTRefDtStart), rtr.DtStart) == 0) {
 			fmt.Printf("Updating RentableTypeRef with RTRID: %d, RID: %d, RTID: %d, DtStart: %s, DtStop: %s ...\n", rfRecord.RTRID, rfRecord.RID, rfRecord.RTID, (time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))
 
 			// overwrite stop date as today's date
@@ -497,7 +497,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			// insert new record of Rentable Type Ref with startDate today and new StopDate
 			nrtr := rtr
 			nrtr.RTRID = 0
-			nrtr.DtStart = currentTime
+			nrtr.DtStart = (time.Time)(rfRecord.RTRefDtStart)
 			nrtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
 			// assign new rentable in new record
 			nrtr.RTID = rfRecord.RTID
@@ -527,7 +527,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// get numeric value for given text status value
 		var reqStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
 		// if stop date and status modified then only update existing one and insert new record
-		if !(rlib.DateDiff((time.Time)(rfRecord.RSDtStop), rs.DtStop) == 0 && reqStatus == rs.Status) {
+		if !(rlib.DateDiff((time.Time)(rfRecord.RSDtStop), rs.DtStop) == 0 && reqStatus == rs.Status && rlib.DateDiff((time.Time)(rfRecord.RSDtStart), rs.DtStart) == 0) {
 			fmt.Printf("Updating RentableStatus with RSID: %d, RID: %d, Status: %s, DtStart: %s, DtStop: %s ...\n", rfRecord.RSID, rfRecord.RID, rfRecord.RentableStatus, (time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))
 
 			rs.BID = rt.BID
@@ -543,7 +543,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			nrs := rs
 			nrs.RSID = 0
 			nrs.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
-			nrs.DtStart = currentTime
+			nrs.DtStart = (time.Time)(rfRecord.RSDtStart)
 			nrs.DtStop = (time.Time)(rfRecord.RSDtStop)
 			err = rlib.InsertRentableStatus(&nrs)
 			if err != nil {

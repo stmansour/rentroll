@@ -113,26 +113,6 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//===============================
-	//  RentalAgreementPet
-	//===============================
-	flds = "PETID,BID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
-	RRdb.DBFields["RentalAgreementPets"] = flds
-	RRdb.Prepstmt.GetRentalAgreementPet, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE PETID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetAllRentalAgreementPets, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE RAID=?")
-	Errcheck(err)
-
-	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertRentalAgreementPet, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPets (" + s1 + ") VALUES(" + s2 + ")")
-	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentalAgreementPet, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPets SET " + s3 + " WHERE PETID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentalAgreementPet, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPets WHERE PETID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteAllRentalAgreementPets, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPets WHERE RAID=?")
-	Errcheck(err)
-
-	//===============================
 	//  Assessments
 	//===============================
 	flds = "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
@@ -791,14 +771,15 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentalAgreementsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreement WHERE BID=? AND ?<=AgreementStop AND ?>AgreementStart")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentalAgreements, err = RRdb.Dbrr.Prepare("SELECT RAID from RentalAgreement WHERE BID=?")
+	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentalAgreement, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreement (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateRentalAgreement, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreement SET " + s3 + " WHERE RAID=?")
 	Errcheck(err)
-
-	RRdb.Prepstmt.GetAllRentalAgreements, err = RRdb.Dbrr.Prepare("SELECT RAID from RentalAgreement WHERE BID=?")
+	RRdb.Prepstmt.DeleteRentalAgreement, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreement WHERE RAID=?")
 	Errcheck(err)
 
 	//====================================================
@@ -825,6 +806,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.FindAgreementByRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementRentables WHERE RID=? AND RARDtStop>? AND RARDtStart<=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentalAgreementRentable, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementRentables WHERE RARID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteAllRentalAgreementRentables, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementRentables WHERE RAID=?")
 	Errcheck(err)
 
 	//====================================================
@@ -862,6 +845,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRentalAgreementsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE BID=? AND TCID=? AND DtStart<=? AND ?<DtStop")
+	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentalAgreementPayor, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPayors (" + s1 + ") VALUES(" + s2 + ")")
@@ -874,7 +859,27 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentalAgreementPayor, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPayors WHERE RAPID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE BID=? AND TCID=? AND DtStart<=? AND ?<DtStop")
+	RRdb.Prepstmt.DeleteAllRentalAgreementPayors, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPayors WHERE RAID=?")
+	Errcheck(err)
+
+	//===============================
+	//  Rental Agreement Pets
+	//===============================
+	flds = "PETID,BID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["RentalAgreementPets"] = flds
+	RRdb.Prepstmt.GetRentalAgreementPet, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE PETID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentalAgreementPets, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE RAID=?")
+	Errcheck(err)
+
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertRentalAgreementPet, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPets (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateRentalAgreementPet, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPets SET " + s3 + " WHERE PETID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteRentalAgreementPet, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPets WHERE PETID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteAllRentalAgreementPets, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreementPets WHERE RAID=?")
 	Errcheck(err)
 
 	//===============================
