@@ -50,8 +50,6 @@ type RentalAgr struct {
 	LastModTime            rlib.JSONTime     // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
 	Payors                 rlib.NullString   // payors list attached with this RA within same time
-	PayorIsCompany         rlib.NullBool     // if payor is company
-	PayorCompanyName       rlib.NullString   // payor's company name if it has
 }
 
 // RentalAgrForm is used to save a Rental Agreement.  It holds those values
@@ -109,6 +107,11 @@ type GetRentalAgreementResponse struct {
 	Record RentalAgr `json:"record"`
 }
 
+// DeleteRentalAgreementForm used while deleteRA request
+type DeleteRentalAgreementForm struct {
+	RAID int64
+}
+
 // rentalAgrGridFieldsMap holds the map of field (to be shown on grid)
 // to actual database fields, multiple db fields means combine those
 var rentalAgrGridFieldsMap = map[string][]string{
@@ -144,9 +147,7 @@ var rentalAgrGridFieldsMap = map[string][]string{
 	"RightOfFirstRefusal":    {"RentalAgreement.RightOfFirstRefusal"},
 	"LastModTime":            {"RentalAgreement.LastModTime"},
 	"LastModBy":              {"RentalAgreement.LastModBy"},
-	"Payors":                 {"Transactant.FirstName", "Transactant.LastName"},
-	"PayorIsCompany":         {"Transactant.IsCompany"},
-	"PayorCompanyName":       {"Transactant.CompanyName"},
+	"Payors":                 {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
 }
 
 // which fields needs to be fetched for SQL query for rental agreements
@@ -183,14 +184,12 @@ var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.RightOfFirstRefusal",
 	"RentalAgreement.LastModTime",
 	"RentalAgreement.LastModBy",
-	"GROUP_CONCAT(DISTINCT CONCAT(Transactant.FirstName, ' ', Transactant.LastName) SEPARATOR ', ') AS Payors",
-	"Transactant.IsCompany",
-	"Transactant.CompanyName",
+	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
 }
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
 func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) (RentalAgr, error) {
-	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors, &q.PayorIsCompany, &q.PayorCompanyName)
+	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors)
 	return q, err
 }
 
@@ -299,11 +298,6 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 			return
 		}
 
-		// if it is company then override/fill Payors value
-		if q.PayorIsCompany.Valid && q.PayorIsCompany.Bool {
-			q.Payors.String = q.PayorCompanyName.String
-		}
-
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -353,6 +347,9 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 		break
 	case "save":
 		saveRentalAgreement(w, r, d)
+		break
+	case "delete":
+		deleteRentalAgreement(w, r, d)
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
@@ -494,4 +491,77 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	}
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
+}
+
+// wsdoc {
+//  @Title  Delete Rental Agreement
+//	@URL /v1/rentalagr/:BUI/:RAID
+//	@Method POST
+//	@Synopsis Delete a Rental Agreement
+//  @Description This service delete the requested Rental Agreement with RAID and deletes associated pets, users, payors, references to rentables.
+//  @Input DeleteRentalAgreementForm
+//  @Response SvcStatusResponse
+// wsdoc }
+func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "deleteRentalAgreement"
+		err      error
+		del      DeleteRentalAgreementForm
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	delRAID := del.RAID
+
+	// first get rentalAgreement
+	ra, err := rlib.GetRentalAgreement(delRAID)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// remove all pets associated with this rental Agreement
+	if err = rlib.DeleteAllRentalAgreementPets(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// remove all payors associated with this rental Agreement
+	if err = rlib.DeleteAllRentalAgreementPayors(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// remove all rentable users associated with this rental Agreement
+	rarList := rlib.GetRentalAgreementRentables(delRAID, &ra.AgreementStart, &ra.AgreementStop)
+	for _, rar := range rarList {
+		rUsers := rlib.GetRentableUsersInRange(rar.RID, &rar.RARDtStart, &rar.RARDtStop)
+		for _, ru := range rUsers {
+			if err := rlib.DeleteRentableUser(ru.RUID); err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+		}
+	}
+
+	// remove all references to rentables associated with this rental Agreement
+	if err = rlib.DeleteAllRentalAgreementRentables(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// finally delete this rental Agreement
+	if err = rlib.DeleteRentalAgreement(delRAID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
 }

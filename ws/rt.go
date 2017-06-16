@@ -37,7 +37,7 @@ type RentableTypeGridRecord struct {
 	Proration      int64
 	GSRPC          int64
 	ManageToBudget int64
-	LastModTime    time.Time
+	LastModTime    rlib.JSONTime
 	LastModBy      int64
 	RMRID          int64
 	MarketRate     float64

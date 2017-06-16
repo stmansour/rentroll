@@ -65,6 +65,8 @@ type RAPeople struct {
 	RentableName string        // rentable name
 	DtStart      rlib.JSONTime // start date/time for this Rentable
 	DtStop       rlib.JSONTime // stop date/time
+	IsCompany    int
+	CompanyName  string
 }
 
 // RAPeopleResponse is the struct containing the JSON return values for this web service

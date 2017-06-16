@@ -379,11 +379,38 @@ func DeleteRentalAgreementRentable(id int64) error {
 	return err
 }
 
-// DeleteAllRentalAgreementPets deletes all pets associated with the specified raid
-func DeleteAllRentalAgreementPets(id int64) error {
-	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementPets.Exec(id)
+// DeleteRentalAgreement deletes the rentable with the specified id from the database
+func DeleteRentalAgreement(raid int64) error {
+	_, err := RRdb.Prepstmt.DeleteRentalAgreement.Exec(raid)
 	if err != nil {
-		Ulog("Error deleting pets for rental agreement=%d error: %v\n", id, err)
+		Ulog("Error deleting RentalAgreement with raid=%d error: %v\n", raid, err)
+	}
+	return err
+}
+
+// DeleteAllRentalAgreementRentables deletes all pets associated with the specified raid
+func DeleteAllRentalAgreementRentables(raid int64) error {
+	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementRentables.Exec(raid)
+	if err != nil {
+		Ulog("Error deleting Rentables for rental agreement=%d error: %v\n", raid, err)
+	}
+	return err
+}
+
+// DeleteAllRentalAgreementPayors deletes all pets associated with the specified raid
+func DeleteAllRentalAgreementPayors(raid int64) error {
+	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementPayors.Exec(raid)
+	if err != nil {
+		Ulog("Error deleting Payors for rental agreement=%d error: %v\n", raid, err)
+	}
+	return err
+}
+
+// DeleteAllRentalAgreementPets deletes all pets associated with the specified raid
+func DeleteAllRentalAgreementPets(raid int64) error {
+	_, err := RRdb.Prepstmt.DeleteAllRentalAgreementPets.Exec(raid)
+	if err != nil {
+		Ulog("Error deleting pets for rental agreement=%d error: %v\n", raid, err)
 	}
 	return err
 }
