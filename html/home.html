@@ -3182,7 +3182,7 @@ function buildPageElements() {
                 options: {
                     url:        '/v1/transactantstd/' + app.TcidRUserPicker.BID,
                     max:        1,
-                    renderItem: tcidRAPayorPickerRender,
+                    renderItem: tcidRUserPickerRender,
                     renderDrop: tcidPickerDropRender,
                     compare:    tcidPickerCompare,
                     onNew: function (event) {
@@ -4021,8 +4021,7 @@ function buildPageElements() {
 
 function saveNewRAPayor() {
     "use strict";
-    var y = new Date();
-    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+
     var rec = {
         recid: w2ui.rapGrid.records.length,                 // + 1
         BID: w2ui.rentalagrForm.record.BID,                 // BID of RAID we're editing
@@ -4033,8 +4032,8 @@ function saveNewRAPayor() {
         LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
         IsCompany: w2ui.tcidRAPayorPicker.record.IsCompany,
         CompanyName: w2ui.tcidRAPayorPicker.record.CompanyName,   // ignored
-        DtStart: w2uiDateControlString(y),                  // start
-        DtStop: w2uiDateControlString(ny),                  // end
+        DtStart: w2ui.tcidRAPayorPicker.record.DtStart, // start
+        DtStop: w2ui.tcidRAPayorPicker.record.DtStop,                  // end
     };
     var params = {cmd: 'save', formname: 'tcidRAPayorPicker', record: rec };
     var dat = JSON.stringify(params);
@@ -4136,8 +4135,7 @@ function popupRidRentablePicker(sTitle,bid) {
 
 function saveNewRUser() {
     "use strict";
-    var y = new Date();
-    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+
     var myRID = -1;
     var rname = w2ui.tcidRUserPicker.record.RentableName.text;
     var url = '/v1/ruser/';
@@ -4154,16 +4152,16 @@ function saveNewRUser() {
     var rec = {
         recid: w2ui.rapGrid.records.length,                 // + 1
         BID: w2ui.rentalagrForm.record.BID,                 // BID of RID we're editing
-        TCID: w2ui.tcidRAPayorPicker.record.TCID,           // The TCID from the person picked
+        TCID: w2ui.tcidRUserPicker.record.TCID,           // The TCID from the person picked
         RID: myRID,                                         // the selected RID
         RentableName: rname,                                // the name of the rentable
-        FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
+        FirstName: w2ui.tcidRUserPicker.record.FirstName, // ignored
         MiddleName: "",                                     // ignored
-        LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
-        IsCompany: w2ui.tcidRAPayorPicker.record.IsCompany,
-        CompanyName: w2ui.tcidRAPayorPicker.record.CompanyName,
-        DtStart: w2uiDateControlString(y),                  // start
-        DtStop: w2uiDateControlString(ny),                  // end
+        LastName: w2ui.tcidRUserPicker.record.LastName,   // ignored
+        IsCompany: w2ui.tcidRUserPicker.record.IsCompany,
+        CompanyName: w2ui.tcidRUserPicker.record.CompanyName,
+        DtStart: w2ui.tcidRUserPicker.record.DtStart,                  // start
+        DtStop: w2ui.tcidRUserPicker.record.DtStop,                  // end
     };
     var params = {cmd: 'save', formname: 'tcidRUserPicker', record: rec };
     var dat = JSON.stringify(params);
