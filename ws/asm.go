@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -409,6 +410,23 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// 	dt = time.Date(int(inc)+a.Start.Year(), mon, ra.RentCycleEpoch.Day(), a.Start.Hour(), a.Start.Minute(), a.Start.Second(), a.Start.Nanosecond(), a.Start.Location())
 		// 	a.Start = dt // enforce the corrected epoch
 		// }
+
+		// Biz logic checks:
+		// 1. Ensure that a charge is not being made for a rentable on a date prior to the rentable being tracked in Rentroll
+		fmt.Printf("BizLogic validation...\n")
+		errlist := bizlogic.ValidateAssessment(&a)
+		if len(errlist) > 0 {
+			errmsg := ""
+			for i := 0; i < len(errlist); i++ {
+				errmsg += errlist[i].Message + "\n"
+			}
+			fmt.Printf("BizLogic errors:  %s\n", errmsg)
+			e := fmt.Errorf("%s", errmsg)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		fmt.Printf("BizLogic Passed\n")
+
 		_, err = rlib.InsertAssessment(&a)
 		if err != nil {
 			fmt.Printf("Error inserting assessment = %s\n", err.Error())

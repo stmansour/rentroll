@@ -108,7 +108,7 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 	var start, stop time.Time
 	r := GetRentable(a.RID)
 	status := GetRentableStateForDate(r.RID, d)
-	fmt.Printf("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), status)
+	// fmt.Printf("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), status)
 	switch status {
 	case RENTABLESTATUSONLINE:
 		ra, _ := GetRentalAgreement(a.RAID)
@@ -170,9 +170,9 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 	m := ParseAcctRule(xbiz, a.RID, d1, d2, GetAssessmentAccountRule(a), a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 
 	// fmt.Printf("journalAssessment:  m = %#v\n", m)
-	for i := 0; i < len(m); i++ {
-		fmt.Printf("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
-	}
+	// for i := 0; i < len(m); i++ {
+	// 	fmt.Printf("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
+	// }
 
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)

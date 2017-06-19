@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gotable"
 	"os"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"rentroll/ws"
 	"strings"
@@ -14,6 +15,7 @@ func initRentRoll() {
 	// initJFmt()
 	// initTFmt()
 	rlib.RpnInit()
+	bizlogic.InitBizLogic()
 
 	RRfuncMap = template.FuncMap{
 		"DateToString": rlib.DateToString,

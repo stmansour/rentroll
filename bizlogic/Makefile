@@ -1,6 +1,7 @@
 TOP=..
 THISDIR="bizlogic"
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+BINDIR=${TOP}/tmp/rentroll
 
 bizlogic: *.go
 	@touch fail
@@ -20,4 +21,5 @@ clean:
 	rm -f fail GoAnalyzerError.log
 
 package:
+	cp bizerr.csf ${BINDIR}
 	@echo "*** PACKAGE completed in rlib ***"

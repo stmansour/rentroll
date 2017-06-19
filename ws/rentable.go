@@ -368,6 +368,91 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 }
 
+// AdjustRTRTimeList determines what edits and/or inserts are needed to
+// add the supplied rtr struct to the the existing RentableTypeRef records.
+// Records are added as needed except where there is overlap. Overlaps are
+// handled as illustrated in the following example (Rentable Types RT1 and
+// RT2 are just examples)
+//
+// Example 1: Overlap similar type:
+//
+//            existing RTRs    new rtr         Result
+//  t0 ----                    begin RT1    begin RT1
+//                             |            |
+//  t1 ----   begin RT1        |            |
+//            |                |            |
+//  t2 ----   end RT1          |            |
+//                             |            |
+//  t3 ----                    end RT1      end RT1
+//
+// Example 2: Overlap different types:
+//
+//            existing RTRs    new rtr         Result
+//  t0 ----                    begin RT2    begin RT2    t0-t1 RT2
+//                             |            end RT2
+//  t1 ----   begin RT1        |            begin RT1    t1-t2 RT1
+//            |                |            |
+//  t2 ----   end RT1          |            end RT1
+//                             |            begin RT2    t2-t3 RT2
+//  t3 ----                    end RT2      end RT2
+//
+//  Goals: 1. keep a single RTRef for as long as possible -- that is, until the
+//            type changes
+//
+// @returns
+//	1. existing array of RTRs  (these will need to be deleted)
+//	2. the new set of RTRs     (these will need to be inserted)
+func AdjustRTRTimeList(rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.RentableTypeRef, []rlib.RentableTypeRef) {
+	var m []rlib.RentableTypeRef
+	R := rlib.GetRentableTypeRefs(r.RID)
+	l := len(R)
+	rtrAdded := false // flag to mark whether rtr still needs to be added after loop
+	fmt.Printf("Entered AdjustRTRTimeList. rtr period = %s - %s\n", rtr.DtStart.Format(rlib.RRDATEINPFMT), rtr.DtStop.Format(rlib.RRDATEINPFMT))
+	fmt.Printf("AdjustRTRTimeList - Begin loop (%d times)\n", l)
+	for i := 0; i < l; i++ {
+		if !rtrAdded && rlib.DateRangeOverlap(&rtr.DtStart, &rtr.DtStop, &R[i].DtStart, &R[i].DtStop) {
+			if rtr.RTID == R[i].RTID { // same rentable type?
+				if rtr.DtStart.After(R[i].DtStart) { // adjust start time to the earliest
+					rtr.DtStart = R[i].DtStart
+				}
+				if rtr.DtStop.Before(R[i].DtStop) { // adjust stop time to the latest
+					rtr.DtStop = R[i].DtStop
+				}
+			} else { // different types
+				// if rtr begins prior to R[i] then create a new rtr covering
+				// the time period up to R[i].DtStart
+				if rtr.DtStart.Before(R[i].DtStart) {
+					rt := rtr                // start with a copy of rtr
+					rt.DtStop = R[i].DtStart // stop this new one just as R[i] begins
+					fmt.Printf("AdjustRTRTimeList:  different types append:  i = %d, rt = %#v\n", i, *rt)
+					m = append(m, *rt)
+				}
+				m = append(m, R[i])                // add R[i] as is
+				if rtr.DtStop.After(R[i].DtStop) { // does rtr end after R[i]
+					rtr.DtStart = R[i].DtStop // rtr now starts where R[i] stopped
+				} else if rtr.DtStart.After(R[i].DtStart) { // does rtr start after R[i]
+					rt := R[i]              // if so, create a new entry...
+					rt.DtStop = rtr.DtStart // and set its stop date to rtr's start
+					m = append(m, rt)       // and add it to the list
+					fmt.Printf("AdjustRTRTimeList:  updated R[i] stop date:  i = %d, stop = %s\n", i, rt.DtStop.Format(rlib.RRDATEINPFMT))
+				} else {
+					fmt.Printf("AdjustRTRTimeList:  rtAdded:  i = %d\n", i)
+					rtrAdded = true
+				}
+			}
+		} else { // the timespans do not overlap
+			fmt.Printf("AdjustRTRTimeList:  ELSE append:  i = %d, R[i] = %#v\n", i, R[i])
+			m = append(m, R[i]) // add this just as it is
+		}
+	}
+	fmt.Printf("AdjustRTRTimeList - Done with loop. rtrAdded = %t\n", rtrAdded)
+	if !rtrAdded {
+		fmt.Printf("AdjustRTRTimeList:  after loop append:  rtr = %#v\n", *rtr)
+		m = append(m, *rtr) // add rtr to the list after all adjustments
+	}
+	return R, m
+}
+
 // saveRentable returns the requested rentable
 // wsdoc {
 //  @Title  Save Rentable
@@ -473,42 +558,68 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		// check for valid Stop Date value
-		if (time.Time)(rfRecord.RTRefDtStop).Before(rtr.DtStart) {
-			e := fmt.Errorf("RentableTypeRef's Stop Date can't be before Start Date")
-			SvcGridErrorReturn(w, e, funcname)
-			return
+
+		// Create an updated version of rtr with the info submitted on this call
+		rtr1 := rtr
+		rtr1.DtStart = (time.Time)(rfRecord.RTRefDtStart)
+		rtr1.DtStop = (time.Time)(rfRecord.RTRefDtStop)
+		rtr1.RTID = rfRecord.RTID
+
+		// if anything changed, remake the list of RTRs
+		if !rtr1.DtStart.Equal(rtr.DtStart) || !rtr1.DtStop.Equal(rtr.DtStop) || rtr1.RTID != rtr.RTID {
+			m, n := AdjustRTRTimeList(&rtr1, &rt) // returns current list and new list
+			for i := 0; i < len(m); i++ {         // delete the current list
+				err = rlib.DeleteRentableTypeRef(m[i].RTRID)
+				if err != nil {
+					SvcGridErrorReturn(w, err, funcname)
+					return
+				}
+			}
+			for i := 0; i < len(n); i++ { // insert the new list
+				err = rlib.InsertRentableTypeRef(&n[i])
+				if err != nil {
+					SvcGridErrorReturn(w, err, funcname)
+					return
+				}
+			}
 		}
 
-		// if stop date or rentable type has changed then only update and insert new record
-		if !(rlib.DateDiff((time.Time)(rfRecord.RTRefDtStop), rtr.DtStop) == 0 && rfRecord.RTID == rtr.RTID && rlib.DateDiff((time.Time)(rfRecord.RTRefDtStart), rtr.DtStart) == 0) {
-			fmt.Printf("Updating RentableTypeRef with RTRID: %d, RID: %d, RTID: %d, DtStart: %s, DtStop: %s ...\n", rfRecord.RTRID, rfRecord.RID, rfRecord.RTID, (time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))
+		// // check for valid Stop Date value
+		// if (time.Time)(rfRecord.RTRefDtStop).Before(rtr.DtStart) {
+		// 	e := fmt.Errorf("RentableTypeRef's Stop Date can't be before Start Date")
+		// 	SvcGridErrorReturn(w, e, funcname)
+		// 	return
+		// }
 
-			// overwrite stop date as today's date
-			rtr.BID = rt.BID
-			rtr.DtStop = currentTime
-			err = rlib.UpdateRentableTypeRef(&rtr)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
-			}
-			fmt.Printf("RentableTypeRef record (existing) has been updated, RTRID: %d, Object: %#v\n", rtr.RTRID, rtr)
+		// // if stop date or rentable type has changed then only update and insert new record
+		// if !(rlib.DateDiff((time.Time)(rfRecord.RTRefDtStop), rtr.DtStop) == 0 && rfRecord.RTID == rtr.RTID && rlib.DateDiff((time.Time)(rfRecord.RTRefDtStart), rtr.DtStart) == 0) {
+		// 	fmt.Printf("Updating RentableTypeRef with RTRID: %d, RID: %d, RTID: %d, DtStart: %s, DtStop: %s ...\n", rfRecord.RTRID, rfRecord.RID, rfRecord.RTID, (time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))
 
-			// insert new record of Rentable Type Ref with startDate today and new StopDate
-			nrtr := rtr
-			nrtr.RTRID = 0
-			nrtr.DtStart = (time.Time)(rfRecord.RTRefDtStart)
-			nrtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
-			// assign new rentable in new record
-			nrtr.RTID = rfRecord.RTID
-			fmt.Printf("\n\n\nDEBUG, New RentableTypeRef: %#v\n\n\n\n", nrtr)
-			err = rlib.InsertRentableTypeRef(&nrtr)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
-			}
-			fmt.Printf("RentableTypeRef record (new) has been inserted with RTRID:%d, Object: %#v\n", nrtr.RTRID, nrtr)
-		}
+		// 	// overwrite stop date as today's date
+		// 	rtr.BID = rt.BID
+		// 	rtr.DtStop = currentTime
+		// 	err = rlib.UpdateRentableTypeRef(&rtr)
+		// 	if err != nil {
+		// 		SvcGridErrorReturn(w, err, funcname)
+		// 		return
+		// 	}
+		// 	fmt.Printf("RentableTypeRef record (existing) has been updated, RTRID: %d, Object: %#v\n", rtr.RTRID, rtr)
+
+		// 	// insert new record of Rentable Type Ref with startDate today and new StopDate
+		// 	nrtr := rtr
+		// 	nrtr.RTRID = 0
+		// 	nrtr.DtStart = (time.Time)(rfRecord.RTRefDtStart)
+		// 	nrtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
+		// 	// assign new rentable in new record
+		// 	nrtr.RTID = rfRecord.RTID
+		// 	fmt.Printf("\n\n\nDEBUG, New RentableTypeRef: %#v\n\n\n\n", nrtr)
+		// 	err = rlib.InsertRentableTypeRef(&nrtr)
+		// 	if err != nil {
+		// 		SvcGridErrorReturn(w, err, funcname)
+		// 		return
+		// 	}
+		// 	fmt.Printf("RentableTypeRef record (new) has been inserted with RTRID:%d, Object: %#v\n", nrtr.RTRID, nrtr)
+		// }
 
 		// ---------------- UPDATE RENTABLE STATUS ------------------------
 
