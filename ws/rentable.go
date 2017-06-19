@@ -209,7 +209,8 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	// Show All Renbles no matter in what state they are,
 	srch := fmt.Sprintf(`Rentable.BID=%d`, d.BID)
 	// show active rentable first by RenalAgreement Dates
-	order := "RentalAgreementRentables.RARDtStop DESC, RentalAgreementRentables.RARDtStart DESC, Rentable.RentableName ASC" // default ORDER
+	// order := "RentalAgreementRentables.RARDtStop DESC, RentalAgreementRentables.RARDtStart DESC, Rentable.RentableName ASC" // default ORDER
+	order := "Rentable.RID ASC,RentalAgreementRentables.RARID ASC" // default ORDER
 
 	// check that RentableStatus is there in search fields
 	// if exists then modify it
