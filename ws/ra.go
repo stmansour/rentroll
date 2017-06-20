@@ -187,6 +187,80 @@ var rentalAgrQuerySelectFields = []string{
 	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
 }
 
+// RentalAgreementTypedown is the struct of data needed for typedown when searching for a RentalAgreement
+type RentalAgreementTypedown struct {
+	TCID        int64
+	FirstName   string
+	LastName    string
+	CompanyName string
+	IsCompany   bool
+	RAID        int64
+}
+
+// RentalAgreementTypedownResponse is the data structure for the response to a search for people
+type RentalAgreementTypedownResponse struct {
+	Status  string                    `json:"status"`
+	Total   int64                     `json:"total"`
+	Records []RentalAgreementTypedown `json:"records"`
+}
+
+// // GetRentalAgreementTypeDown returns the values needed for typedown controls:
+// // input:   bid - business
+// //            s - string or substring to search for
+// //        limit - return no more than this many matches
+// // return a slice of TransactantTypeDowns and an error.
+// func GetRentalAgreementTypeDown(bid int64, s string, limit int) ([]TransactantTypeDown, error) {
+// 	var m []TransactantTypeDown
+// 	s = "%" + s + "%"
+// 	rows, err := RRdb.Prepstmt.GetRentalAgreementTypeDown.Query(bid, s, s, s, limit)
+// 	if err != nil {
+// 		return m, err
+// 	}
+// 	defer rows.Close()
+// 	for rows.Next() {
+// 		var t TransactantTypeDown
+// 		Errcheck(rows.Scan(&t.TCID, &t.FirstName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.RAID))
+// 		m = append(m, t)
+// 	}
+// 	return m, nil
+// }
+
+// SvcRentalAgreementTypeDown handles typedown requests for RentalAgreements.  It returns
+// the RAID for the associated payor
+// wsdoc {
+//  @Title  Get Transactants Typedown
+//	@URL /v1/ratd/:BUI?request={"search":"The search string","max":"Maximum number of return items"}
+//	@Method GET
+//	@Synopsis Fast Search for Transactants matching typed characters
+//  @Desc Returns TCID, FirstName, Middlename, and LastName of Transactants that
+//  @Desc match supplied chars at the beginning of FirstName or LastName
+//  @Input WebTypeDownRequest
+//  @Response TransactantsTypedownResponse
+// wsdoc }
+func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "SvcRentalAgreementTypeDown"
+		g        TransactantsTypedownResponse
+		err      error
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	fmt.Printf("handle typedown: GetTransactantsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	g.Records, err = rlib.GetTransactantTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	fmt.Printf("GetTransactantTypeDown returned %d matches\n", len(g.Records))
+	g.Total = int64(len(g.Records))
+	if err != nil {
+		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	for i := 0; i < len(g.Records); i++ {
+		g.Records[i].Recid = int64(i)
+	}
+	g.Status = "success"
+	SvcWriteResponse(&g, w)
+}
+
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
 func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) (RentalAgr, error) {
 	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors)

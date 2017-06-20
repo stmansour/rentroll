@@ -40,14 +40,17 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 		Type = iota
 		Desc = iota
 	)
-
+	yn := "No"
+	if p.RARequired > 0 {
+		yn = "Yes"
+	}
 	tbl.AddRow()
 	tbl.Puts(-1, GLNo, p.GLNumber)
 	tbl.Puts(-1, Name, p.Name)
 	tbl.Puts(-1, PGL, Pldgr)
 	tbl.Puts(-1, QBAT, p.AcctType)
 	tbl.Puts(-1, RAA, sp)
-	tbl.Puti(-1, RAR, p.RARequired)
+	tbl.Puts(-1, RAR, yn)
 	tbl.Puts(-1, Type, s)
 	tbl.Puts(-1, Desc, p.Description)
 }
@@ -88,7 +91,7 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Parent", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Quick Books Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rental Agreement Associated", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Rental Agreement Required", 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Rental Agreement Required", 5, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Type", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 

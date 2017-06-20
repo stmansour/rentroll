@@ -2954,9 +2954,9 @@ function buildPageElements() {
     });
 
 
-    //------------------------------------------------------------------------
-    //          asmEpochForm  -  assessment epoch
-    //------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------
+    //          asmEpochForm  -  assessment epoch - this is for recurring assessments
+    //---------------------------------------------------------------------------------
     $().w2form({
         name: 'asmEpochForm',
         style: 'border: 0px; background-color: transparent;',
@@ -2986,7 +2986,7 @@ function buildPageElements() {
             },
             { field: 'InvoiceNo',     type: 'int',  required: false },
             { field: 'RID',           type: 'int',  required: false },
-            { field: 'ATypeLID',      type: 'int',  required: true },
+            { field: 'ATypeLID',      type: 'int',  required: false },
             { field: 'RAID',          type: 'int',  required: true },
             { field: 'Amount',        type: 'money',  required: true },
             { field: 'Start',         type: 'date',   required: true },
@@ -3029,7 +3029,8 @@ function buildPageElements() {
         actions: {
             save: function () {
                 //var obj = this;
-                w2ui.asmEpochForm.url = '/v1/asm/' + app.ridRentablePicker.BID + '/' + w2ui.asmEpochForm.record.ASMID;
+                var x = getCurrentBusiness();
+                w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
                 var tgrid = w2ui.asmsGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
@@ -3058,9 +3059,9 @@ function buildPageElements() {
         }
     });
 
-    //------------------------------------------------------------------------
-    //          asmInstForm  -  assessment instance
-    //------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
+    //          asmInstForm  -  assessment instance - instances only, not for recurring assessments
+    //----------------------------------------------------------------------------------------------
     $().w2form({
         name: 'asmInstForm',
         style: 'border: 0px; background-color: transparent;',

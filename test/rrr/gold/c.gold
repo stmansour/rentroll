@@ -8,16 +8,16 @@ Austin, TX 78738 USA
                                                                                          Quick Books Account   Agreement     Agreement                                     
 GLNumber  Name                                      Parent                               Type                  Associated     Required  Type      Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  --------  -------------------------
-   10000  Cash                                                                           Bank Account          Unassociated          0  10                                 
-   12000  Accounts Receivable                                                            Current Asset         Unassociated          0  11                                 
-   30000  Security Deposits                                                              Current Liabilities   Unassociated          2  16                                 
-   39000  Owners' Equity                                                                 Equity                Unassociated          0  17                                 
-   41000  Unit Gross Scheduled Rent-Taxable                                              Income                Unassociated          0  12                                 
-   41100  Income Offsets                                                                 Income                Unassociated          0                                     
-   41101  Vacancy                                                                        Income                Unassociated          0  14                                 
-   41102  Loss (Gain) to Lease                                                           Income                Unassociated          2  13                                 
-   41104  Resident Concessions                      Income Offsets                       Income                Unassociated          0                                     
-   41300  Other Income                                                                   Income                Unassociated          0                                     
-   41306  Gas Overage                               Other Income                         Income                Unassociated          2                                     
-   41413  Forfeited Security Deposit                                                     Income                Unassociated          2  15                                 
+   10000  Cash                                                                           Bank Account          Unassociated         No  10                                 
+   12000  Accounts Receivable                                                            Current Asset         Unassociated         No  11                                 
+   30000  Security Deposits                                                              Current Liabilities   Unassociated        Yes  16                                 
+   39000  Owners' Equity                                                                 Equity                Unassociated         No  17                                 
+   41000  Unit Gross Scheduled Rent-Taxable                                              Income                Unassociated         No  12                                 
+   41100  Income Offsets                                                                 Income                Unassociated         No                                     
+   41101  Vacancy                                                                        Income                Unassociated         No  14                                 
+   41102  Loss (Gain) to Lease                                                           Income                Unassociated        Yes  13                                 
+   41104  Resident Concessions                      Income Offsets                       Income                Unassociated         No                                     
+   41300  Other Income                                                                   Income                Unassociated         No                                     
+   41306  Gas Overage                               Other Income                         Income                Unassociated        Yes                                     
+   41413  Forfeited Security Deposit                                                     Income                Unassociated        Yes  15                                 
 

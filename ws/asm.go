@@ -174,7 +174,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 
 	fmt.Printf("Entered %s\n", funcname)
 
-	whr := `Assessments.BID = %d AND Assessments.Stop > %q AND Assessments.Start < %q`
+	whr := `Assessments.BID = %d AND Assessments.Stop >= %q AND Assessments.Start <= %q`
 	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	order := `Start ASC, RAID ASC` // default ORDER
 
@@ -185,14 +185,13 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	}
 
 	asmQuery := `
-	SELECT
-		{{.SelectClause}}
-	FROM Assessments
-	INNER JOIN Rentable ON Assessments.RID=Rentable.RID
-	LEFT JOIN AR ON Assessments.ARID=AR.ARID
-	WHERE {{.WhereClause}}
-	ORDER BY {{.OrderClause}}`
-
+    SELECT DISTINCT
+        {{.SelectClause}}
+    FROM Assessments
+    INNER JOIN Rentable ON Assessments.RID=Rentable.RID
+    LEFT JOIN AR ON Assessments.ARID=AR.ARID
+    WHERE {{.WhereClause}}
+    ORDER BY {{.OrderClause}}`
 	qc := queryClauses{
 		"SelectClause": strings.Join(asmQuerySelectFields, ","),
 		"WhereClause":  whr,

@@ -8,77 +8,77 @@ Austin, TX 78738 USA
                                                                                          Quick Books Account   Agreement     Agreement                                     
 GLNumber  Name                                      Parent                               Type                  Associated     Required  Type      Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  --------  -------------------------
-          Security Deposit Receivable                                                                          unknown               0  15                                 
-   10000  Cash                                                                           Bank Account          Associated            3  10        Main cash account        
-   10001  Cash BofA                                                                      Bank Account          Associated            0                                     
-   10100  Unapplied Funds                                                                Holding Account       Associated            3            Holding account          
-   11000  Credit Card Clearing                                                           Current Asset         Associated            0                                     
-   12000  Accounts Receivable                                                            Current Asset         Associated            0  11                                 
-   30000  Security Deposits                                                              Current Liabilities   Unassociated          3  16                                 
-   30100  Accrued Taxes                                                                  Current Liabilities   Unassociated          0                                     
-   30101  Sales Taxes                               Accrued Taxes                        Current Liabilities   Unassociated          0                                     
-   30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities   Unassociated          0                                     
-   30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities   Unassociated          0                                     
-   39000  Owners' Equity                                                                 Equity                Associated            0  17                                 
-   41000  Gross Scheduled Rent-Taxable                                                   Income                Associated            0  12                                 
-   41001  Gross Scheduled Rent-Not Taxable                                               Income                Associated            0                                     
-   41002  Income Offsets                                                                 Income                Unassociated          0                                     
-   41003  Other Income                                                                   Income                Unassociated          0                                     
-   41100  Unit Income Offsets                       Income Offsets                       Income                Unassociated          0                                     
-   41101  Vacancy                                   Unit Income Offsets                  Income                Associated            0  14                                 
-   41102  Loss (Gain) to Lease                      Unit Income Offsets                  Income                Unassociated          0  13                                 
-   41103  Employee Concessions                      Unit Income Offsets                  Income                Unassociated          0                                     
-   41104  Resident Concessions                      Unit Income Offsets                  Income                Unassociated          0                                     
-   41105  Owner Concession                          Unit Income Offsets                  Income                Associated            0                                     
-   41106  Administrative Concession                 Unit Income Offsets                  Income                Associated            0                                     
-   41107  Off Line Renovations                      Unit Income Offsets                  Income                Associated            0                                     
-   41108  Off Line Maintenance                      Unit Income Offsets                  Income                Associated            0                                     
-   41199  Othe Income Offsets                       Unit Income Offsets                  Income                Unassociated          0                                     
-   41200  Serviced Fees                             Other Income                         Income                Unassociated          0                                     
-   41201  Broadcast and IT Services                 Serviced Fees                        Income                Unassociated          0                                     
-   41202  Food Services                             Serviced Fees                        Income                Unassociated          0                                     
-   41203  Linen Services                            Serviced Fees                        Income                Unassociated          0                                     
-   41204  Wash N Fold Services                      Serviced Fees                        Income                Unassociated          0                                     
-   41299  Other Service Fees                        Serviced Fees                        Income                Unassociated          0                                     
-   41300  Utility Fees                              Other Income                         Income                Unassociated          0                                     
-   41301  Electric Base Fee                         Utility Fees                         Income                Unassociated          0                                     
-   41302  Electric Overage                          Utility Fees                         Income                Unassociated          0                                     
-   41303  Water and Sewer Base Fee                  Utility Fees                         Income                Unassociated          1                                     
-   41304  Water and Sewer Overage                   Utility Fees                         Income                Unassociated          1                                     
-   41305  Gas Base Fee                              Utility Fees                         Income                Unassociated          1                                     
-   41306  Gas Overage                               Utility Fees                         Income                Unassociated          1                                     
-   41307  Trash Collection Base Fee                 Utility Fees                         Income                Unassociated          1                                     
-   41308  Trash Collection Overage                  Utility Fees                         Income                Unassociated          1                                     
-   41399  Other Utility Fee                         Utility Fees                         Income                Unassociated          1                                     
-   41400  Miscellaneous Income                      Other Income                         Income                Unassociated          0                                     
-   41401  Application Fees                          Miscellaneous Income                 Income                Associated            1                                     
-   41402  Late Fees                                 Miscellaneous Income                 Income                Unassociated          1                                     
-   41403  Insufficient Funds Fee                    Miscellaneous Income                 Income                Unassociated          0                                     
-   41404  Month to Month Fee                        Miscellaneous Income                 Income                Unassociated          0                                     
-   41405  Premium Upgrades                          Miscellaneous Income                 Income                Unassociated          0                                     
-   41406  No Show or Termination Fee                Miscellaneous Income                 Income                Unassociated          0                                     
-   41407  Pet Fees                                  Miscellaneous Income                 Income                Unassociated          0                                     
-   41408  Pet Rent                                  Miscellaneous Income                 Income                Unassociated          0                                     
-   41409  Expense Reimbursement                     Miscellaneous Income                 Income                Unassociated          0                                     
-   41410  Special Cleaning Fee                      Miscellaneous Income                 Income                Unassociated          0                                     
-   41411  Eviction Fee Reimbursement                Miscellaneous Income                 Income                Unassociated          1                                     
-   41412  Extra Person Charge                       Miscellaneous Income                 Income                Unassociated          0                                     
-   41413  Forfeited Security Deposit                Miscellaneous Income                 Income                Unassociated          2                                     
-   41414  Damage Fee                                Miscellaneous Income                 Income                Unassociated          1                                     
-   41415  CAM Fees                                                                       Income                Unassociated          1                                     
-   41499  Other Miscellaneous Income                Miscellaneous Income                 Income                Unassociated          1                                     
-   41500  Taxes Collected in Trust                  Other Income                         Income                Unassociated          1                                     
-   41501  Sales Taxes                               Taxes Collected in Trust             Income                Unassociated          1                                     
-   41502  Transient Occupancy Taxes                 Taxes Collected in Trust             Income                Unassociated          1                                     
-   42000  Business Income                           Other Income                         Income                Associated            0                                     
-   42100  Convenience Store                         Business Income                      Income                Associated            0                                     
-   42200  Fitness Center Revenue                    Business Income                      Income                Associated            0                                     
-   42300  Vending Income                            Business Income                      Income                Associated            0                                     
-   42400  Restaurant Sales                          Business Income                      Income                Associated            0                                     
-   42500  Bar Sales                                 Business Income                      Income                Associated            0                                     
-   42600  Spa Sales                                 Business Income                      Income                Associated            0                                     
-   49991  Cash Over/Short                           Business Income                      Income                Associated            0                                     
-   49992  Bad Debt                                  Business Income                      Income                Associated            0                                     
-   49998  Income Suspense                           Business Income                      Income                Associated            0                                     
-   49999  Other Business Income                     Business Income                      Income                Associated            0                                     
+          Security Deposit Receivable                                                                          unknown              No  15                                 
+   10000  Cash                                                                           Bank Account          Associated          Yes  10        Main cash account        
+   10001  Cash BofA                                                                      Bank Account          Associated           No                                     
+   10100  Unapplied Funds                                                                Holding Account       Associated          Yes            Holding account          
+   11000  Credit Card Clearing                                                           Current Asset         Associated           No                                     
+   12000  Accounts Receivable                                                            Current Asset         Associated           No  11                                 
+   30000  Security Deposits                                                              Current Liabilities   Unassociated        Yes  16                                 
+   30100  Accrued Taxes                                                                  Current Liabilities   Unassociated         No                                     
+   30101  Sales Taxes                               Accrued Taxes                        Current Liabilities   Unassociated         No                                     
+   30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities   Unassociated         No                                     
+   30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities   Unassociated         No                                     
+   39000  Owners' Equity                                                                 Equity                Associated           No  17                                 
+   41000  Gross Scheduled Rent-Taxable                                                   Income                Associated           No  12                                 
+   41001  Gross Scheduled Rent-Not Taxable                                               Income                Associated           No                                     
+   41002  Income Offsets                                                                 Income                Unassociated         No                                     
+   41003  Other Income                                                                   Income                Unassociated         No                                     
+   41100  Unit Income Offsets                       Income Offsets                       Income                Unassociated         No                                     
+   41101  Vacancy                                   Unit Income Offsets                  Income                Associated           No  14                                 
+   41102  Loss (Gain) to Lease                      Unit Income Offsets                  Income                Unassociated         No  13                                 
+   41103  Employee Concessions                      Unit Income Offsets                  Income                Unassociated         No                                     
+   41104  Resident Concessions                      Unit Income Offsets                  Income                Unassociated         No                                     
+   41105  Owner Concession                          Unit Income Offsets                  Income                Associated           No                                     
+   41106  Administrative Concession                 Unit Income Offsets                  Income                Associated           No                                     
+   41107  Off Line Renovations                      Unit Income Offsets                  Income                Associated           No                                     
+   41108  Off Line Maintenance                      Unit Income Offsets                  Income                Associated           No                                     
+   41199  Othe Income Offsets                       Unit Income Offsets                  Income                Unassociated         No                                     
+   41200  Serviced Fees                             Other Income                         Income                Unassociated         No                                     
+   41201  Broadcast and IT Services                 Serviced Fees                        Income                Unassociated         No                                     
+   41202  Food Services                             Serviced Fees                        Income                Unassociated         No                                     
+   41203  Linen Services                            Serviced Fees                        Income                Unassociated         No                                     
+   41204  Wash N Fold Services                      Serviced Fees                        Income                Unassociated         No                                     
+   41299  Other Service Fees                        Serviced Fees                        Income                Unassociated         No                                     
+   41300  Utility Fees                              Other Income                         Income                Unassociated         No                                     
+   41301  Electric Base Fee                         Utility Fees                         Income                Unassociated         No                                     
+   41302  Electric Overage                          Utility Fees                         Income                Unassociated         No                                     
+   41303  Water and Sewer Base Fee                  Utility Fees                         Income                Unassociated        Yes                                     
+   41304  Water and Sewer Overage                   Utility Fees                         Income                Unassociated        Yes                                     
+   41305  Gas Base Fee                              Utility Fees                         Income                Unassociated        Yes                                     
+   41306  Gas Overage                               Utility Fees                         Income                Unassociated        Yes                                     
+   41307  Trash Collection Base Fee                 Utility Fees                         Income                Unassociated        Yes                                     
+   41308  Trash Collection Overage                  Utility Fees                         Income                Unassociated        Yes                                     
+   41399  Other Utility Fee                         Utility Fees                         Income                Unassociated        Yes                                     
+   41400  Miscellaneous Income                      Other Income                         Income                Unassociated         No                                     
+   41401  Application Fees                          Miscellaneous Income                 Income                Associated          Yes                                     
+   41402  Late Fees                                 Miscellaneous Income                 Income                Unassociated        Yes                                     
+   41403  Insufficient Funds Fee                    Miscellaneous Income                 Income                Unassociated         No                                     
+   41404  Month to Month Fee                        Miscellaneous Income                 Income                Unassociated         No                                     
+   41405  Premium Upgrades                          Miscellaneous Income                 Income                Unassociated         No                                     
+   41406  No Show or Termination Fee                Miscellaneous Income                 Income                Unassociated         No                                     
+   41407  Pet Fees                                  Miscellaneous Income                 Income                Unassociated         No                                     
+   41408  Pet Rent                                  Miscellaneous Income                 Income                Unassociated         No                                     
+   41409  Expense Reimbursement                     Miscellaneous Income                 Income                Unassociated         No                                     
+   41410  Special Cleaning Fee                      Miscellaneous Income                 Income                Unassociated         No                                     
+   41411  Eviction Fee Reimbursement                Miscellaneous Income                 Income                Unassociated        Yes                                     
+   41412  Extra Person Charge                       Miscellaneous Income                 Income                Unassociated         No                                     
+   41413  Forfeited Security Deposit                Miscellaneous Income                 Income                Unassociated        Yes                                     
+   41414  Damage Fee                                Miscellaneous Income                 Income                Unassociated        Yes                                     
+   41415  CAM Fees                                                                       Income                Unassociated        Yes                                     
+   41499  Other Miscellaneous Income                Miscellaneous Income                 Income                Unassociated        Yes                                     
+   41500  Taxes Collected in Trust                  Other Income                         Income                Unassociated        Yes                                     
+   41501  Sales Taxes                               Taxes Collected in Trust             Income                Unassociated        Yes                                     
+   41502  Transient Occupancy Taxes                 Taxes Collected in Trust             Income                Unassociated        Yes                                     
+   42000  Business Income                           Other Income                         Income                Associated           No                                     
+   42100  Convenience Store                         Business Income                      Income                Associated           No                                     
+   42200  Fitness Center Revenue                    Business Income                      Income                Associated           No                                     
+   42300  Vending Income                            Business Income                      Income                Associated           No                                     
+   42400  Restaurant Sales                          Business Income                      Income                Associated           No                                     
+   42500  Bar Sales                                 Business Income                      Income                Associated           No                                     
+   42600  Spa Sales                                 Business Income                      Income                Associated           No                                     
+   49991  Cash Over/Short                           Business Income                      Income                Associated           No                                     
+   49992  Bad Debt                                  Business Income                      Income                Associated           No                                     
+   49998  Income Suspense                           Business Income                      Income                Associated           No                                     
+   49999  Other Business Income                     Business Income                      Income                Associated           No                                     
 
