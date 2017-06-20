@@ -137,6 +137,10 @@ dojsonGET "http://localhost:8270/v1/gllist/2" "aa" "WebService--GetGLAccountsFor
 doPlainGET "http://localhost:8270/v1/uival/REX/app.Assessments" "a1" "WebService--GetUIValue-app.Assessments"
 doPlainGET "http://localhost:8270/v1/uival/REX/app.Receipts" "b1" "WebService--GetUIValue-app.Receipts"
 
+# rental Agreement typedown...
+dojsonGET "http://localhost:8270/v1/rentalagrtd/CCC?request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D" "c1" "WebService--GetTransactantTypeDown"
+
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
