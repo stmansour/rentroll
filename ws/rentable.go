@@ -369,6 +369,13 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 }
 
+// func dumpRTRList(m []rlib.RentableTypeRef) {
+// 	for i := 0; i < len(m); i++ {
+// 		fmt.Printf("m[%d] range = %s - %s\n", i, m[i].DtStart.Format(rlib.RRDATEINPFMT), m[i].DtStop.Format(rlib.RRDATEINPFMT))
+// 	}
+// 	fmt.Printf("----------------------------\n")
+// }
+
 // AdjustRTRTimeList determines what edits and/or inserts are needed to
 // add the supplied rtr struct to the the existing RentableTypeRef records.
 // Records are added as needed except where there is overlap. Overlaps are
@@ -397,8 +404,6 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 //                             |            begin RT2    t2-t3 RT2
 //  t3 ----                    end RT2      end RT2
 //
-//  Goals: 1. keep a single RTRef for as long as possible -- that is, until the
-//            type changes
 //
 // @returns
 //	1. existing array of RTRs  (these will need to be deleted)
@@ -408,8 +413,6 @@ func AdjustRTRTimeList(rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.Rent
 	R := rlib.GetRentableTypeRefs(r.RID)
 	l := len(R)
 	rtrAdded := false // flag to mark whether rtr still needs to be added after loop
-	fmt.Printf("Entered AdjustRTRTimeList. rtr period = %s - %s\n", rtr.DtStart.Format(rlib.RRDATEINPFMT), rtr.DtStop.Format(rlib.RRDATEINPFMT))
-	fmt.Printf("AdjustRTRTimeList - Begin loop (%d times)\n", l)
 	for i := 0; i < l; i++ {
 		if !rtrAdded && rlib.DateRangeOverlap(&rtr.DtStart, &rtr.DtStop, &R[i].DtStart, &R[i].DtStop) {
 			if rtr.RTID == R[i].RTID { // same rentable type?
@@ -420,36 +423,98 @@ func AdjustRTRTimeList(rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.Rent
 					rtr.DtStop = R[i].DtStop
 				}
 			} else { // different types
-				// if rtr begins prior to R[i] then create a new rtr covering
-				// the time period up to R[i].DtStart
-				if rtr.DtStart.Before(R[i].DtStart) {
-					rt := rtr                // start with a copy of rtr
-					rt.DtStop = R[i].DtStart // stop this new one just as R[i] begins
-					fmt.Printf("AdjustRTRTimeList:  different types append:  i = %d, rt = %#v\n", i, *rt)
-					m = append(m, *rt)
-				}
-				m = append(m, R[i])                // add R[i] as is
-				if rtr.DtStop.After(R[i].DtStop) { // does rtr end after R[i]
-					rtr.DtStart = R[i].DtStop // rtr now starts where R[i] stopped
-				} else if rtr.DtStart.After(R[i].DtStart) { // does rtr start after R[i]
-					rt := R[i]              // if so, create a new entry...
-					rt.DtStop = rtr.DtStart // and set its stop date to rtr's start
-					m = append(m, rt)       // and add it to the list
-					fmt.Printf("AdjustRTRTimeList:  updated R[i] stop date:  i = %d, stop = %s\n", i, rt.DtStop.Format(rlib.RRDATEINPFMT))
+				if rtr.DtStart.Equal(R[i].DtStart) && rtr.DtStop.Equal(R[i].DtStop) { // same date range, just a RentableType change
+					rt := R[i]
+					rt.RTID = rtr.RTID
+					m = append(m, rt)
+					rtrAdded = true
+				} else if rtr.DtStart.Before(R[i].DtStart) { // if R[i] starts before rtr adjust rtr start point...
+					rt := *rtr
+					rt.DtStop = R[i].DtStart           // stop rt just as R[i] begins
+					m = append(m, rt)                  // new version up to the point where R[i] starts
+					m = append(m, R[i])                // R[i] stays as is
+					rtr.DtStart = R[i].DtStop          // adjust rtr's new start point
+					if rtr.DtStart.Equal(rtr.DtStop) { // are we finished?
+						rtrAdded = true // we don't need to add rtr now
+					}
+					// fmt.Printf("AdjustRTRTimeList:  add period rtr start to R[%d] start, rtr.DtStop moved forward:  %s\n", i, rtr.DtStart.Format(rlib.RRDATEINPFMT))
+					// dumpRTRList(m)
+				} else if rtr.DtStart.After(R[i].DtStart) { // if rtr starts after R[i], adjust R[i] end time
+					rt := R[i]              // start with a copy of rtr
+					rt.DtStop = rtr.DtStart // stop this new one just as R[i] begins
+					m = append(m, rt)
+					if R[i].DtStop.After(rtr.DtStop) { // R[i] may last longer than rs.  If so, we need to cover the time after rs stops to when R[i] stops
+						rt := R[i]
+						rt.DtStart = rtr.DtStop
+						m = append(m, rt)
+					}
+					// fmt.Printf("AdjustRTRTimeList:  different types append:  i = %d\n", i)
+					// dumpRTRList(m)
 				} else {
-					fmt.Printf("AdjustRTRTimeList:  rtAdded:  i = %d\n", i)
+					// fmt.Printf("AdjustRTRTimeList: rtr is covered.  rtAdded set to true:  i = %d\n", i)
 					rtrAdded = true
 				}
 			}
 		} else { // the timespans do not overlap
-			fmt.Printf("AdjustRTRTimeList:  ELSE append:  i = %d, R[i] = %#v\n", i, R[i])
 			m = append(m, R[i]) // add this just as it is
 		}
 	}
-	fmt.Printf("AdjustRTRTimeList - Done with loop. rtrAdded = %t\n", rtrAdded)
 	if !rtrAdded {
-		fmt.Printf("AdjustRTRTimeList:  after loop append:  rtr = %#v\n", *rtr)
 		m = append(m, *rtr) // add rtr to the list after all adjustments
+	}
+	return R, m
+}
+
+// AdjustRSTimeList - just like AdjustRTRTimeList except for RentableStatus records.  There's probably a better
+// way to make both these functions into one.
+func AdjustRSTimeList(rs *rlib.RentableStatus, r *rlib.Rentable) ([]rlib.RentableStatus, []rlib.RentableStatus) {
+	var m []rlib.RentableStatus
+	R := rlib.GetAllRentableStatus(r.RID)
+	l := len(R)
+	rsAdded := false // flag to mark whether rs still needs to be added after loop
+	for i := 0; i < l; i++ {
+		if !rsAdded && rlib.DateRangeOverlap(&rs.DtStart, &rs.DtStop, &R[i].DtStart, &R[i].DtStop) {
+			if rs.Status == R[i].Status { // same rentable status?
+				if rs.DtStart.After(R[i].DtStart) { // adjust start time to the earliest
+					rs.DtStart = R[i].DtStart
+				}
+				if rs.DtStop.Before(R[i].DtStop) { // adjust stop time to the latest
+					rs.DtStop = R[i].DtStop
+				}
+			} else { // different types
+				if rs.DtStart.Equal(R[i].DtStart) && rs.DtStop.Equal(R[i].DtStop) { // same date range, just a status change
+					rs1 := R[i]
+					rs1.Status = rs.Status
+					m = append(m, rs1)
+					rsAdded = true
+				} else if rs.DtStart.Before(R[i].DtStart) { // if R[i] starts before rs adjust rs start point...
+					rs1 := *rs
+					rs1.DtStop = R[i].DtStart        // stop rt just as R[i] begins
+					m = append(m, rs1)               // new version up to the point where R[i] starts
+					m = append(m, R[i])              // R[i] stays as is
+					rs.DtStart = R[i].DtStop         // adjust rs's new start point
+					if rs.DtStart.Equal(rs.DtStop) { // are we finished?
+						rsAdded = true // we don't need to add rs now
+					}
+				} else if rs.DtStart.After(R[i].DtStart) { // if rs starts after R[i], adjust R[i] end time
+					rs1 := R[i]             // start with a copy of rs
+					rs1.DtStop = rs.DtStart // stop this new one just as R[i] begins
+					m = append(m, rs1)
+					if R[i].DtStop.After(rs.DtStop) { // R[i] may last longer than rs.  If so, we need to cover the time after rs stops to when R[i] stops
+						rs1 := R[i]
+						rs1.DtStart = rs.DtStop
+						m = append(m, rs1)
+					}
+				} else {
+					rsAdded = true
+				}
+			}
+		} else { // the timespans do not overlap
+			m = append(m, R[i]) // add this just as it is
+		}
+	}
+	if !rsAdded {
+		m = append(m, *rs) // add rs to the list after all adjustments
 	}
 	return R, m
 }
@@ -513,18 +578,18 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	// StopDate should not be before Today's date
-	if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
-		e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date")
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	// StopDate should not be before Today's date
-	if !(rlib.IsDateBefore((time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))) {
-		e := fmt.Errorf("RentableStatus Stop Date should not be before Start Date")
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
+	// // StopDate should not be before Today's date
+	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
+	// 	e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date")
+	// 	SvcGridErrorReturn(w, e, funcname)
+	// 	return
+	// }
+	// // StopDate should not be before Today's date
+	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))) {
+	// 	e := fmt.Errorf("RentableStatus Stop Date should not be before Start Date")
+	// 	SvcGridErrorReturn(w, e, funcname)
+	// 	return
+	// }
 
 	if rfRecord.RID > 0 {
 		fmt.Printf("Updating Rentable with RID: %d ...\n", rfRecord.RID)
@@ -585,86 +650,39 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 
-		// // check for valid Stop Date value
-		// if (time.Time)(rfRecord.RTRefDtStop).Before(rtr.DtStart) {
-		// 	e := fmt.Errorf("RentableTypeRef's Stop Date can't be before Start Date")
-		// 	SvcGridErrorReturn(w, e, funcname)
-		// 	return
-		// }
-
-		// // if stop date or rentable type has changed then only update and insert new record
-		// if !(rlib.DateDiff((time.Time)(rfRecord.RTRefDtStop), rtr.DtStop) == 0 && rfRecord.RTID == rtr.RTID && rlib.DateDiff((time.Time)(rfRecord.RTRefDtStart), rtr.DtStart) == 0) {
-		// 	fmt.Printf("Updating RentableTypeRef with RTRID: %d, RID: %d, RTID: %d, DtStart: %s, DtStop: %s ...\n", rfRecord.RTRID, rfRecord.RID, rfRecord.RTID, (time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))
-
-		// 	// overwrite stop date as today's date
-		// 	rtr.BID = rt.BID
-		// 	rtr.DtStop = currentTime
-		// 	err = rlib.UpdateRentableTypeRef(&rtr)
-		// 	if err != nil {
-		// 		SvcGridErrorReturn(w, err, funcname)
-		// 		return
-		// 	}
-		// 	fmt.Printf("RentableTypeRef record (existing) has been updated, RTRID: %d, Object: %#v\n", rtr.RTRID, rtr)
-
-		// 	// insert new record of Rentable Type Ref with startDate today and new StopDate
-		// 	nrtr := rtr
-		// 	nrtr.RTRID = 0
-		// 	nrtr.DtStart = (time.Time)(rfRecord.RTRefDtStart)
-		// 	nrtr.DtStop = (time.Time)(rfRecord.RTRefDtStop)
-		// 	// assign new rentable in new record
-		// 	nrtr.RTID = rfRecord.RTID
-		// 	fmt.Printf("\n\n\nDEBUG, New RentableTypeRef: %#v\n\n\n\n", nrtr)
-		// 	err = rlib.InsertRentableTypeRef(&nrtr)
-		// 	if err != nil {
-		// 		SvcGridErrorReturn(w, err, funcname)
-		// 		return
-		// 	}
-		// 	fmt.Printf("RentableTypeRef record (new) has been inserted with RTRID:%d, Object: %#v\n", nrtr.RTRID, nrtr)
-		// }
-
 		// ---------------- UPDATE RENTABLE STATUS ------------------------
 
 		// get rental status record associated with this rentable
-		rs, err = rlib.GetRentableStatus(rfRecord.RSID)
+		rs, err := rlib.GetRentableStatus(rfRecord.RSID)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		// check for valid Stop Date value
-		if rlib.IsDateBefore((time.Time)(rfRecord.RSDtStop), rs.DtStart) {
-			e := fmt.Errorf("RentableStatus's Stop Date can't be before Start Date")
-			SvcGridErrorReturn(w, e, funcname)
-			return
-		}
-		// get numeric value for given text status value
-		var reqStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
-		// if stop date and status modified then only update existing one and insert new record
-		if !(rlib.DateDiff((time.Time)(rfRecord.RSDtStop), rs.DtStop) == 0 && reqStatus == rs.Status && rlib.DateDiff((time.Time)(rfRecord.RSDtStart), rs.DtStart) == 0) {
-			fmt.Printf("Updating RentableStatus with RSID: %d, RID: %d, Status: %s, DtStart: %s, DtStop: %s ...\n", rfRecord.RSID, rfRecord.RID, rfRecord.RentableStatus, (time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))
 
-			rs.BID = rt.BID
-			rs.DtStop = currentTime
-			err = rlib.UpdateRentableStatus(&rs)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
+		// Create an updated version of rtr with the info submitted on this call
+		rs1 := rs
+		rs1.DtStart = (time.Time)(rfRecord.RSDtStart)
+		rs1.DtStop = (time.Time)(rfRecord.RSDtStop)
+		rs1.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
+
+		// if anything changed, remake the list of RTRs
+		if !rs1.DtStart.Equal(rs.DtStart) || !rs1.DtStop.Equal(rs.DtStop) || rs1.Status != rs.Status {
+			m, n := AdjustRSTimeList(&rs1, &rt) // returns current list and new list
+			for i := 0; i < len(m); i++ {       // delete the current list
+				err = rlib.DeleteRentableStatus(m[i].RSID)
+				if err != nil {
+					SvcGridErrorReturn(w, err, funcname)
+					return
+				}
 			}
-			fmt.Printf("RentableStatus record (existing) has been updated with RSID:%d, Object: %#v\n", rs.RSID, rs)
-
-			// insert new record of Rentable Status with startDate today and new StopDate
-			nrs := rs
-			nrs.RSID = 0
-			nrs.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
-			nrs.DtStart = (time.Time)(rfRecord.RSDtStart)
-			nrs.DtStop = (time.Time)(rfRecord.RSDtStop)
-			err = rlib.InsertRentableStatus(&nrs)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
+			for i := 0; i < len(n); i++ { // insert the new list
+				err = rlib.InsertRentableStatus(&n[i])
+				if err != nil {
+					SvcGridErrorReturn(w, err, funcname)
+					return
+				}
 			}
-			fmt.Printf("RentableStatus record (new) has been inserted with RSID:%d, Object: %#v\n", nrs.RSID, nrs)
 		}
-
 	} else {
 		fmt.Println("Inserting new Rentable Record...")
 		fmt.Printf("Given RTID is %d\n", rfRecord.RTID)

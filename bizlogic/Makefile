@@ -21,5 +21,7 @@ clean:
 	rm -f fail GoAnalyzerError.log
 
 package:
-	cp bizerr.csf ${BINDIR}
+	@touch fail
+	cp bizerr.csv ${BINDIR}
+	@rm -f fail
 	@echo "*** PACKAGE completed in rlib ***"

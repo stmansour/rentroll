@@ -959,7 +959,9 @@ func buildPreparedStatements() {
 	RRdb.DBFields["RentableStatus"] = flds
 	RRdb.Prepstmt.GetRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? and DtStop>? and DtStart<?")
+	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? and DtStop>? and DtStart<=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetAllRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=?")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)

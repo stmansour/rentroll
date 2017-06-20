@@ -1524,11 +1524,9 @@ func GetRentableStatus(rsid int64) (RentableStatus, error) {
 	return rs, err
 }
 
-// GetRentableStatusByRange loads all the RentableStatus records that overlap the supplied time range
-func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
+// GetRentableStatusRows loads all the RentableStatus records for rows
+func GetRentableStatusRows(rows *sql.Rows) []RentableStatus {
 	var rs []RentableStatus
-	rows, err := RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)
-	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableStatus
@@ -1537,6 +1535,20 @@ func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 	}
 	Errcheck(rows.Err())
 	return rs
+}
+
+// GetRentableStatusByRange loads all the RentableStatus records that overlap the supplied time range
+func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
+	rows, err := RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)
+	Errcheck(err)
+	return GetRentableStatusRows(rows)
+}
+
+// GetAllRentableStatus loads all the RentableStatus records that overlap the supplied time range
+func GetAllRentableStatus(RID int64) []RentableStatus {
+	rows, err := RRdb.Prepstmt.GetAllRentableStatus.Query(RID)
+	Errcheck(err)
+	return GetRentableStatusRows(rows)
 }
 
 //=======================================================
