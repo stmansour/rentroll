@@ -10,12 +10,6 @@ import (
 func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 
 	Pldgr := ""
-	lm := rlib.GetLatestLedgerMarkerByLID(p.BID, p.LID)
-	if lm.LMID == 0 {
-		*totalErrs++
-		fmt.Printf("ReportChartOfAcctsToText: error getting latest LedgerMarker for L%08d\n", p.LID)
-		return
-	}
 
 	s := ""
 	if rlib.GLCASH <= p.Type && p.Type <= rlib.GLLAST {
@@ -37,36 +31,24 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 		Pldgr = rlib.RRdb.BizTypes[p.BID].GLAccounts[p.PLID].Name
 	}
 	const (
-		BID  = 0
-		LID  = iota
-		PLID = iota
-		LMID = iota
-		Type = iota
 		GLNo = iota
 		Name = iota
 		PGL  = iota
 		QBAT = iota
-		Bal  = iota
 		RAA  = iota
 		RAR  = iota
+		Type = iota
 		Desc = iota
 	)
 
 	tbl.AddRow()
-	tbl.Puts(-1, BID, fmt.Sprintf("B%08d", p.BID))
-	tbl.Puts(-1, LID, p.IDtoString())
-	if p.PLID > 0 {
-		tbl.Puts(-1, PLID, fmt.Sprintf("L%08d", p.PLID))
-	}
-	tbl.Puts(-1, LMID, lm.IDtoString())
-	tbl.Puts(-1, Type, s)
 	tbl.Puts(-1, GLNo, p.GLNumber)
 	tbl.Puts(-1, Name, p.Name)
 	tbl.Puts(-1, PGL, Pldgr)
 	tbl.Puts(-1, QBAT, p.AcctType)
-	tbl.Putf(-1, Bal, lm.Balance)
 	tbl.Puts(-1, RAA, sp)
 	tbl.Puti(-1, RAR, p.RARequired)
+	tbl.Puts(-1, Type, s)
 	tbl.Puts(-1, Desc, p.Description)
 }
 
@@ -101,18 +83,13 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 	// table initialization
 	tbl := getRRTable()
 
-	tbl.AddColumn("BID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("PLID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("LMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Type", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Name", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Parent", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Quick Books Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Rental Agreement Associated", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rental Agreement Required", 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Type", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// prepare table's title, sections

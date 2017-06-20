@@ -4,20 +4,20 @@ BH Rexford Group, Inc.
 Suite 301
 Austin, TX 78738 USA
 
-                                                                                                                                                                                    Rental           Rental                           
-                                                                                                                                                Quick Books Account                 Agreement     Agreement                           
-BID        LID        PLID       LMID        Type      GLNumber  Name                                      Parent                               Type                       Balance  Associated     Required  Description              
----------  ---------  ---------  ----------  --------  --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ------------  ---------  -------------------------
-B00000001  L00000001             LM00000001  10           10000  Cash                                                                           Bank Account                  0.00  Unassociated          0                           
-B00000001  L00000002             LM00000002  11           12000  Accounts Receivable                                                            Current Asset                 0.00  Unassociated          0                           
-B00000001  L00000007             LM00000007  16           30000  Security Deposits                                                              Current Liabilities           0.00  Unassociated          2                           
-B00000001  L00000008             LM00000008  17           39000  Owners' Equity                                                                 Equity                        0.00  Unassociated          0                           
-B00000001  L00000003             LM00000003  12           41000  Unit Gross Scheduled Rent-Taxable                                              Income                        0.00  Unassociated          0                           
-B00000001  L00000009             LM00000009               41100  Income Offsets                                                                 Income                        0.00  Unassociated          0                           
-B00000001  L00000005             LM00000005  14           41101  Vacancy                                                                        Income                        0.00  Unassociated          0                           
-B00000001  L00000004             LM00000004  13           41102  Loss (Gain) to Lease                                                           Income                        0.00  Unassociated          2                           
-B00000001  L00000010  L00000009  LM00000010               41104  Resident Concessions                      Income Offsets                       Income                        0.00  Unassociated          0                           
-B00000001  L00000011             LM00000011               41300  Other Income                                                                   Income                        0.00  Unassociated          0                           
-B00000001  L00000012  L00000011  LM00000012               41306  Gas Overage                               Other Income                         Income                        0.00  Unassociated          2                           
-B00000001  L00000006             LM00000006  15           41413  Forfeited Security Deposit                                                     Income                        0.00  Unassociated          2                           
+                                                                                                               Rental           Rental                                     
+                                                                                         Quick Books Account   Agreement     Agreement                                     
+GLNumber  Name                                      Parent                               Type                  Associated     Required  Type      Description              
+--------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  --------  -------------------------
+   10000  Cash                                                                           Bank Account          Unassociated          0  10                                 
+   12000  Accounts Receivable                                                            Current Asset         Unassociated          0  11                                 
+   30000  Security Deposits                                                              Current Liabilities   Unassociated          2  16                                 
+   39000  Owners' Equity                                                                 Equity                Unassociated          0  17                                 
+   41000  Unit Gross Scheduled Rent-Taxable                                              Income                Unassociated          0  12                                 
+   41100  Income Offsets                                                                 Income                Unassociated          0                                     
+   41101  Vacancy                                                                        Income                Unassociated          0  14                                 
+   41102  Loss (Gain) to Lease                                                           Income                Unassociated          2  13                                 
+   41104  Resident Concessions                      Income Offsets                       Income                Unassociated          0                                     
+   41300  Other Income                                                                   Income                Unassociated          0                                     
+   41306  Gas Overage                               Other Income                         Income                Unassociated          2                                     
+   41413  Forfeited Security Deposit                                                     Income                Unassociated          2  15                                 
 
