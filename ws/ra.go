@@ -192,6 +192,7 @@ type RentalAgreementTypedown struct {
 	Recid       int64 `json:"recid"`
 	TCID        int64
 	FirstName   string
+	MiddleName  string
 	LastName    string
 	CompanyName string
 	IsCompany   bool
@@ -220,7 +221,7 @@ func GetRentalAgreementTypeDown(bid int64, s string, limit int) ([]RentalAgreeme
 	defer rows.Close()
 	for rows.Next() {
 		var t RentalAgreementTypedown
-		rlib.Errcheck(rows.Scan(&t.TCID, &t.FirstName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.RAID))
+		rlib.Errcheck(rows.Scan(&t.TCID, &t.FirstName, &t.MiddleName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.RAID))
 		m = append(m, t)
 	}
 	return m, nil

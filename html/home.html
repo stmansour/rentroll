@@ -44,6 +44,7 @@ var app = {
     TmpTCID: 0,  // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
+    RentalAgrFinder: {BID: 0, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
     ARTypes: {0: "Assessment", 1: "Receipt"},
     Assessments: [{id: 0, text: "Set Assessment Rule"},],
@@ -3192,6 +3193,7 @@ function buildPageElements() {
             },
         },
     });
+
     //------------------------------------------------------------------------
     //          tcidRUserPicker
     //------------------------------------------------------------------------
@@ -3292,6 +3294,60 @@ function buildPageElements() {
         },
     });
 
+
+    //------------------------------------------------------------------------
+    //          rentalAgrFinder
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'rentalAgrFinder',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/rentalagrfinder.html',
+        focus  : 0,
+        fields: [
+            { field: 'TCID', type: 'int', required: true },
+            { field: 'PayorName', required: true,
+                type: 'enum',
+                options: {
+                    url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
+                    // max:        1,
+                    renderItem: rentalAgrFinderRender,
+                    renderDrop: rentalAgrFinderDropRender,
+                    compare:    rentalAgrFinderCompare,
+                    onNew: function (event) {
+                        console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        //$.extend(event.item, { FirstName: '', LastName : event.item.text });
+                    }
+                },
+            },
+            //{ field: 'RentableName', type: 'list', required: true, options: { items: [] } },
+            { field: 'RAID', type: 'int', required: true },
+            { field: 'FirstName', type: 'text', required: false},
+            { field: 'LastName', type: 'text', required: false},
+            { field: 'CompanyName', type: 'text', required: false},
+            { field: 'IsCompany', type: 'int', required: false },
+        ],
+        onRefresh: function(/*event*/) {
+            w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
+            // w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
+            // if (app.TcidRUserPicker.RARentablesNames.length == 1) {
+            //     w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
+            // }
+        },
+        onChange: function (event) {
+            console.log(event);
+        },
+        actions: {
+            save: function () {
+                w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
+                w2ui.asmEpochForm.refresh();
+                w2popup.close();
+                // var errs = w2ui.tcidRUserPicker.validate(true);
+                // if (errs.length > 0) { return; }
+                // console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
+                // saveNewRUser();
+            },
+        },
+    });
 
     //------------------------------------------------------------------------
     //          pmtsGrid
@@ -4016,33 +4072,6 @@ function buildPageElements() {
 
 }  // buildPageElements
 
-// function saveNewRentable() {
-//     "use strict";
-//     var y = new Date();
-//     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
-//     var rec = {
-//         recid: w2ui.rapGrid.records.length,                 // + 1
-//         BID: w2ui.rentalagrForm.record.BID,                 // BID of RAID we're editing
-//         TCID: w2ui.tcidRAPayorPicker.record.TCID,           // The TCID from the person picked
-//         RAID: w2ui.rentalagrForm.record.RAID,               // the RAID we're editing
-//         FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
-//         MiddleName: "",                                     // ignored
-//         LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
-//         DtStart: w2uiDateControlString(y),                  // start
-//         DtStop: w2uiDateControlString(ny),                  // end
-//     };
-//     //console.log('rec = ' + rec);
-//     w2ui.rapGrid.add(rec,true);
-//     var params = {cmd: 'save', formname: 'tcidRAPayorPicker', record: rec };
-//     var dat = JSON.stringify(params);
-//     // console.log('url = ' + w2ui.rapGrid.url);
-//     $.post(w2ui.rapGrid.url, dat, function(data,status) {
-//         console.log('data = ' + data);
-//         if (status != "success") {
-//             console.log('status = ' + status);
-//         }
-//     });
-// }
 
 function saveNewRAPayor() {
     "use strict";
@@ -4293,6 +4322,54 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
                 // an onBeforeOpen handler, which would make this code execute too
                 // early and hence not deliver.
                 $('#w2ui-popup #form').w2render('tcidRUserPicker');
+            };
+        }
+    });
+}
+
+function popupRentalAgrPicker() {
+    "use strict";
+    var x = getCurrentBusiness();
+    app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false}
+    w2ui.rentalAgrFinder.record.TCID = -1;
+    w2ui.rentalAgrFinder.record.RAID = -1;
+    w2ui.rentalAgrFinder.record.PayorName = '';
+    w2ui.rentalAgrFinder.record.IsCompany = -1;
+    w2ui.rentalAgrFinder.record.CompanyName = '';
+    w2ui.rentalAgrFinder.record.FirstName = '';
+    w2ui.rentalAgrFinder.record.LastName = '';
+    w2ui.rentalAgrFinder.refresh();
+    // var url = '/v1/rar/' + bid + '/' + raid;
+    // $.get(url,function(data,status) {
+    //     if (status != "success") {
+    //         console.log('>>>>>>>>>>>>>>>  status = ' + status);
+    //         return;
+    //     }
+    //     app.TcidRUserPicker.RAR = JSON.parse(data);
+    //     for (var i = 0; i < app.TcidRUserPicker.RAR.records.length; i++) {
+    //         app.TcidRUserPicker.RARentablesNames.push(app.TcidRUserPicker.RAR.records[i].RentableName);
+    //     }
+    // });
+    $().w2popup('open', {
+        title   : 'Find Rental Agreement',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 400,
+        height  : 250,
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.rentalAgrFinder.box).hide();
+            event.onComplete = function () {
+                $(w2ui.rentalAgrFinder.box).show();
+                w2ui.rentalAgrFinder.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead would be equivalent to specifying
+                // an onBeforeOpen handler, which would make this code execute too
+                // early and hence not deliver.
+                $('#w2ui-popup #form').w2render('rentalAgrFinder');
             };
         }
     });

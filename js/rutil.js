@@ -393,6 +393,87 @@ function tcidRUserPickerRender(item) {
     };
     return s;
 }
+
+// ############################################################################
+
+
+//-----------------------------------------------------------------------------
+// rentalAgrFinderCompare - Compare item to the search string. Verify that the
+//          supplied search string can be found in item
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the search string is found, false otherwise
+//-----------------------------------------------------------------------------
+function rentalAgrFinderCompare(item, search) {
+    "use strict";
+    var s = getTCIDName(item);
+    s = s.toLowerCase();
+    var srch = search.toLowerCase();
+    var match = (s.indexOf(srch) >= 0);
+    return match;
+}
+
+//-----------------------------------------------------------------------------
+// rentalAgrFinderDropRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - the name to render
+//-----------------------------------------------------------------------------
+function rentalAgrFinderDropRender(item) {
+    "use strict";
+    return getTCIDName(item);
+}
+
+//-----------------------------------------------------------------------------
+// rentalAgrFinderRender - renders a name during typedown in the
+//          rentalAgrFinder. It also sets the TCID for the record.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function rentalAgrFinderRender(item) {
+    "use strict";
+    var s = getTCIDName(item);
+    w2ui.rentalAgrFinder.record.TCID = item.TCID;
+    w2ui.rentalAgrFinder.record.Payor = s;
+    w2ui.rentalAgrFinder.record.RAID = item.RAID;
+    return s;
+}
+
+//-----------------------------------------------------------------------------
+// rentalAgrFinderRender - renders a name during typedown.
+// @params
+//   item = an object assumed to have a FirstName and LastName
+// @return - true if the names match, false otherwise
+//-----------------------------------------------------------------------------
+function rentalAgrFinderRender(item) {
+    "use strict";
+    var s;
+    if (item.IsCompany > 0) {
+        s = item.CompanyName;
+    } else {
+        s = item.FirstName + ' ' + item.LastName;
+    }
+
+    w2ui.rentalAgrFinder.record = {
+        TCID: item.TCID,
+        RAID: item.RAID,
+        PayorName: s,
+        FirstName: item.FirstName,
+        MiddleName: item.MiddleName,
+        LastName: item.LastName,
+        IsCompany: item.IsCompany,
+        CompanyName: item.CompanyName
+    };
+    // document.getElementById("rafinderRAID").innerHTML = '' + item.RAID;
+    w2ui.rentalAgrFinder.refresh();
+    
+    return s;
+}
+
+// ############################################################################
+
+
 //-----------------------------------------------------------------------------
 // plural - return the plural of the provided word.  Totally simplistic at
 //          this point, it just adds an 's'.  It will need serious updates
