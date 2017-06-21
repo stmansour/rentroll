@@ -510,15 +510,32 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// This is a new AR
 		fmt.Printf(">>>> NEW GL Account IS BEING ADDED\n")
 		_, err = rlib.InsertLedger(&a)
+		if err != nil {
+			e := fmt.Errorf("Error saving Account %s, Error:= %s", a.Name, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		// err = rlib.InsertLedgerMarker(&a)
+		// if err != nil {
+		// 	e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
+		// 	SvcGridErrorReturn(w, e, funcname)
+		// 	return
+		// }
 	} else {
 		// update existing record
-		fmt.Printf("Updating existing GLAccount: %d\n", a.LID)
+		fmt.Printf("Updating existing GLAccount: %s\n", a.Name)
 		err = rlib.UpdateLedger(&a)
-	}
-	if err != nil {
-		e := fmt.Errorf("Error saving receipt (LID=%d), Error:= %s", d.ID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
+		if err != nil {
+			e := fmt.Errorf("Error updating account %s, Error:= %s", a.Name, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		// err = rlib.UpdateLedgerMarker(&a)
+		// if err != nil {
+		// 	e := fmt.Errorf("Error updating Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
+		// 	SvcGridErrorReturn(w, e, funcname)
+		// 	return
+		// }
 	}
 
 	SvcWriteSuccessResponseWithID(w, a.LID)

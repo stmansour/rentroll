@@ -189,8 +189,10 @@ var rentalAgrQuerySelectFields = []string{
 
 // RentalAgreementTypedown is the struct of data needed for typedown when searching for a RentalAgreement
 type RentalAgreementTypedown struct {
+	Recid       int64 `json:"recid"`
 	TCID        int64
 	FirstName   string
+	MiddleName  string
 	LastName    string
 	CompanyName string
 	IsCompany   bool
@@ -204,26 +206,26 @@ type RentalAgreementTypedownResponse struct {
 	Records []RentalAgreementTypedown `json:"records"`
 }
 
-// // GetRentalAgreementTypeDown returns the values needed for typedown controls:
-// // input:   bid - business
-// //            s - string or substring to search for
-// //        limit - return no more than this many matches
-// // return a slice of TransactantTypeDowns and an error.
-// func GetRentalAgreementTypeDown(bid int64, s string, limit int) ([]TransactantTypeDown, error) {
-// 	var m []TransactantTypeDown
-// 	s = "%" + s + "%"
-// 	rows, err := RRdb.Prepstmt.GetRentalAgreementTypeDown.Query(bid, s, s, s, limit)
-// 	if err != nil {
-// 		return m, err
-// 	}
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var t TransactantTypeDown
-// 		Errcheck(rows.Scan(&t.TCID, &t.FirstName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.RAID))
-// 		m = append(m, t)
-// 	}
-// 	return m, nil
-// }
+// GetRentalAgreementTypeDown returns the values needed for typedown controls:
+// input:   bid - business
+//            s - string or substring to search for
+//        limit - return no more than this many matches
+// return a slice of TransactantTypeDowns and an error.
+func GetRentalAgreementTypeDown(bid int64, s string, limit int) ([]RentalAgreementTypedown, error) {
+	var m []RentalAgreementTypedown
+	s = "%" + s + "%"
+	rows, err := rlib.RRdb.Prepstmt.GetRentalAgreementTypeDown.Query(bid, s, s, s, limit)
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t RentalAgreementTypedown
+		rlib.Errcheck(rows.Scan(&t.TCID, &t.FirstName, &t.MiddleName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.RAID))
+		m = append(m, t)
+	}
+	return m, nil
+}
 
 // SvcRentalAgreementTypeDown handles typedown requests for RentalAgreements.  It returns
 // the RAID for the associated payor
@@ -240,14 +242,14 @@ type RentalAgreementTypedownResponse struct {
 func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "SvcRentalAgreementTypeDown"
-		g        TransactantsTypedownResponse
+		g        RentalAgreementTypedownResponse
 		err      error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
-	fmt.Printf("handle typedown: GetTransactantsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
-	g.Records, err = rlib.GetTransactantTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
-	fmt.Printf("GetTransactantTypeDown returned %d matches\n", len(g.Records))
+	fmt.Printf("handle typedown: GetRentalAgreementTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	g.Records, err = GetRentalAgreementTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	fmt.Printf("GetRentalAgreementTypeDown returned %d matches\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())

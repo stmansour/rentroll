@@ -782,7 +782,7 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteRentalAgreement, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreement WHERE RAID=?")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetRentalAgreementTypeDown, err = RRdb.Dbrr.Prepare("SELECT Transactant.TCID,Transactant.FirstName,Transactant.LastName,Transactant.CompanyName,Transactant.IsCompany,RentalAgreementPayors.RAID FROM Transactant LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.TCID=Transactant.TCID WHERE Transactant.BID=? AND RentalAgreementPayors.RAID>0 AND (Transactant.FirstName LIKE ? OR Transactant.LastName LIKE ? OR Transactant.CompanyName LIKE ?) LIMIT ?")
+	RRdb.Prepstmt.GetRentalAgreementTypeDown, err = RRdb.Dbrr.Prepare("SELECT Transactant.TCID,Transactant.FirstName,Transactant.MiddleName,Transactant.LastName,Transactant.CompanyName,Transactant.IsCompany,RentalAgreementPayors.RAID FROM Transactant LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.TCID=Transactant.TCID WHERE Transactant.BID=? AND RentalAgreementPayors.RAID>0 AND (Transactant.FirstName LIKE ? OR Transactant.LastName LIKE ? OR Transactant.CompanyName LIKE ?) GROUP BY RentalAgreementPayors.RAID LIMIT ?")
 	Errcheck(err)
 
 	//====================================================

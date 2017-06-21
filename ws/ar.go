@@ -520,7 +520,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // deleteAR request delete AR from database
 // wsdoc {
-//  @Title  Get AR
+//  @Title  Delete AR
 //	@URL /v1/ars/:BUI/:ARID
 //  @Method  DELETE
 //	@Synopsis Delete record for a AR
