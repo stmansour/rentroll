@@ -145,6 +145,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateAssessment, err = RRdb.Dbrr.Prepare("UPDATE Assessments SET " + s3 + " WHERE ASMID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeleteAssessment, err = RRdb.Dbrr.Prepare("DELETE from Assessments WHERE ASMID=?")
+	Errcheck(err)
 
 	//===============================
 	//  Building

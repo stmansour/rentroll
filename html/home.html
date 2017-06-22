@@ -3044,6 +3044,37 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
+            delete: function() {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.asmsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Assessment epoch failed.")
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.asmEpochForm;
@@ -3116,6 +3147,37 @@ function buildPageElements() {
                     tgrid.reload();
                 });
 
+            },
+            delete: function() {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.asmsGrid;
+                    var sel = tgrid.getSelection();
+                    tgrid.unselect(sel);
+
+                    var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.toplayout.render();
+                        tgrid.reload();
+                    })
+                    .fail(function(data){
+                        console.log("Delete Assessment instance failed.")
+                    });
+                })
+                .no(function() {
+                    return;
+                });
             },
         },
         onRefresh: function(/*event*/) {

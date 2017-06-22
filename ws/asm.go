@@ -113,6 +113,11 @@ type GetAssessmentResponse struct {
 	Record AssessmentSendForm `json:"record"`
 }
 
+// DeleteAsmForm holds ASMID to delete it
+type DeleteAsmForm struct {
+	ASMID int64
+}
+
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
 func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) (AssessmentGrid, error) {
 	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule)
@@ -186,13 +191,14 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	}
 
 	asmQuery := `
-    SELECT DISTINCT
-        {{.SelectClause}}
-    FROM Assessments
-    INNER JOIN Rentable ON Assessments.RID=Rentable.RID
-    LEFT JOIN AR ON Assessments.ARID=AR.ARID
-    WHERE {{.WhereClause}}
-    ORDER BY {{.OrderClause}}`
+	SELECT DISTINCT
+		{{.SelectClause}}
+	FROM Assessments
+	INNER JOIN Rentable ON Assessments.RID=Rentable.RID
+	LEFT JOIN AR ON Assessments.ARID=AR.ARID
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
+
 	qc := queryClauses{
 		"SelectClause": strings.Join(asmQuerySelectFields, ","),
 		"WhereClause":  whr,
@@ -297,6 +303,9 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 		break
 	case "save":
 		saveAssessment(w, r, d)
+		break
+	case "delete":
+		deleteAssessment(w, r, d)
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
@@ -576,4 +585,36 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// write response
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
+}
+
+// deleteAssessment returns the requested assessment
+// wsdoc {
+//  @Title  Delete Assessment
+//	@URL /v1/asm/:BUI/:ASMID
+//  @Method  POST
+//	@Synopsis Delete an Assessment
+//  @Description  Delete Assessment for requested ASMID
+//	@Input DeleteAsmForm
+//  @Response SvcWriteSuccessResponse
+// wsdoc }
+func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "deleteAssessment"
+		del      DeleteAsmForm
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	if err := rlib.DeleteAssessment(del.ASMID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
 }
