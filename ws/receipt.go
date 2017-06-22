@@ -460,6 +460,10 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	if err := rlib.DeleteReceiptAllocations(del.RCPTID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 	if err := rlib.DeleteReceipt(del.RCPTID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
