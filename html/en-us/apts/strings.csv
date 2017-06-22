@@ -1,4 +1,4 @@
-asmInstanceHeader,"<table><td>Instance of:</td><td width=""10""></td><td>ASM({0})</td></tr><td>Recurs:</td><td width=""10""></td><td>{1}</td></tr><tr><td>Prorates:</td><td width=""10""></td><td>{2}</td></tr></table>"
+asmInstanceHeader,"<p style='margin: 5px 0px;'>This is an Instance of ASMID {0}</p><p>It recurs {1} from {2} to {3}</p>"
 sTransactant,"Person"
 sRentable,"Unit"
 sUser,"User"
