@@ -536,8 +536,8 @@ function dateFmtStr(today) {
 //-----------------------------------------------------------------------------
 function dayBack(dc) {
     "use strict";
-    var x = dateFromDC(dc);
-    // var x = new Date(dc.value);
+    // var x = dateFromDC(dc);
+    var x = new Date(dc.value);
     var y = new Date(x.getTime() - 24 * 60 * 60 * 1000); // one day prior
     return setDateControl(dc, y);
 }
@@ -550,8 +550,8 @@ function dayBack(dc) {
 //-----------------------------------------------------------------------------
 function dayFwd(dc) {
     "use strict";
-    var x = dateFromDC(dc);
-    // var x = new Date(dc.value);
+    // var x = dateFromDC(dc);
+    var x = new Date(dc.value);
     var y = new Date(x.getTime() + 24 * 60 * 60 * 1000); // one day prior
     return setDateControl(dc, y);
 }
