@@ -34,7 +34,7 @@ sidebarL1     - w2ui sidebar
 
 /*globals $:false */
 
-// The rentroll app object. Used to manage app-level data.
+// The rentroll app object, used to manage app-level data.
 var app = {
     D1: "2016-02-01",
     D2: "2016-03-01",
@@ -632,47 +632,6 @@ function buildPageElements() {
             }
         }
     }));
-
-    // bind onchange event for date input control for reports
-    $(document).on("change", "input[name=dateD1]", function() {
-        var xd1 = document.getElementsByName('dateD1')[0].value;
-        var xd2 = document.getElementsByName('dateD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd1))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d1.getFullYear() < 2000) {
-            return;
-        }
-        // check that from date does not have value greater then To date
-        if (d1.getTime() >= d2.getTime()) {
-            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000) //one day back from To date
-        }
-        app.D1 = dateControlString(d1);
-        showReport(app.lastReport);
-    }).on("change", "input[name=dateD2]", function() {
-        var xd1 = document.getElementsByName('dateD1')[0].value;
-        var xd2 = document.getElementsByName('dateD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd2))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d2.getFullYear() < 2000) {
-            return
-        }
-        // check that from date does not have value greater then To date
-        if (d2.getTime() <= d1.getTime()) {
-            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000) //one day forward from From date
-        }
-        app.D2 = dateControlString(d2);
-        showReport(app.lastReport);
-    });
 
     //------------------------------------------------------------------------
     //          allocfundsGrid
@@ -2718,48 +2677,6 @@ function buildPageElements() {
         setDateControlsInToolbar('receipts');
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
     });
-    // bind onchange event for date input control for receipts
-    $(document).on("change", "input[name=receiptsD1]", function() {
-        var xd1 = document.getElementsByName('receiptsD1')[0].value;
-        var xd2 = document.getElementsByName('receiptsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd1))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d1.getFullYear() < 2000) {
-            return;
-        }
-        // check that from date does not have value greater then To date
-        if (d1.getTime() >= d2.getTime()) {
-            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000) //one day back from To date
-        }
-        app.D1 = dateControlString(d1);
-        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
-    }).on("change", "input[name=receiptsD2]", function() {
-        var xd1 = document.getElementsByName('receiptsD1')[0].value;
-        var xd2 = document.getElementsByName('receiptsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd2))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d2.getFullYear() < 2000) {
-            return
-        }
-        // check that from date does not have value greater then To date
-        if (d2.getTime() <= d1.getTime()) {
-            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000) //one day forward from From date
-        }
-        app.D2 = dateControlString(d2);
-        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
-    });
 
     //------------------------------------------------------------------------
     //          receiptForm
@@ -3035,48 +2952,6 @@ function buildPageElements() {
     w2ui.asmsGrid.toolbar.on('refresh', function (/*event*/) {
         setDateControlsInToolbar('asms');
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-    });
-    // bind onchange event for date input control for assessments
-    $(document).on("change", "input[name=asmsD1]", function() {
-        var xd1 = document.getElementsByName('asmsD1')[0].value;
-        var xd2 = document.getElementsByName('asmsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd1))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d1.getFullYear() < 2000) {
-            return;
-        }
-        // check that from date does not have value greater then To date
-        if (d1.getTime() >= d2.getTime()) {
-            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000) //one day back from To date
-        }
-        app.D1 = dateControlString(d1);
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
-    }).on("change", "input[name=asmsD2]", function() {
-        var xd1 = document.getElementsByName('asmsD1')[0].value;
-        var xd2 = document.getElementsByName('asmsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd2))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d2.getFullYear() < 2000) {
-            return
-        }
-        // check that from date does not have value greater then To date
-        if (d2.getTime() <= d1.getTime()) {
-            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000) //one day forward from From date
-        }
-        app.D2 = dateControlString(d2);
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
     });
 
 

@@ -1022,8 +1022,8 @@ CREATE TABLE JournalAllocation (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     --
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
     PRIMARY KEY (JAID)
 );
 
