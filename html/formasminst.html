@@ -1,21 +1,8 @@
-<style>
-.w3-panel:after,.w3-panel:before {content:"";display:table;clear:both}
-.w3-panel {
-	padding: 12px 24px;
-	margin-top:16px!important;
-	margin-bottom:16px!important
-	color: white;
-}
-.w3-card-2 {
-	box-shadow:0 2px 4px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12)!important
-}
-</style>
 <div id="asmInstForm">
     <div class="w2ui-page page-0">	<!-- Assessment -->
-
-		<div class="w3-panel">
-		<p id="AssessmentEpochOrInstance">This is an instance of a recurring assessment.</p>
-		</div>
+	<div id="AssessmentEpochOrInstance" style="background-color: white; padding: 8px 12px; border-radius: 4px; margin: 10px 5px;text-align: left;">
+		This is an instance of a recurring assessment.
+	</div>
 	    <div class="w2ui-field">
 	        <input name="recid" type="hidden" />
 	    </div>
@@ -33,7 +20,7 @@
 	    </div>
 	    <div class="w2ui-field"><input name="RID" type="hidden" /></div>
 	    <div class="w2ui-field">
-	        <label>RAID:</label><div><input name="RAID" type="w2int" /></div>
+	        <label>RAID:</label><div><input name="RAID" type="w2int" disabled /></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <label>Amount:</label><div><input name="Amount" type="w2float" /></div>

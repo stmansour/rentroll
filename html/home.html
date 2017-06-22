@@ -188,7 +188,7 @@ function exportReportPDF(rptname){
     window.open(url);
 }
 
-function showReport(rptname) {
+function showReport(rptname, elToFocus) {
     "use strict";
     if (rptname === '') {
         return;
@@ -212,7 +212,14 @@ function showReport(rptname) {
     // console.log('d2 = ' + d);
     url += '&dtstop=' + d;
     console.log('url = ' + url);
-    w2ui.reportslayout.load('main', url);
+    var callBack;
+
+    if (elToFocus) {
+        callBack = function() {
+            // document.getElementsByName(elToFocus)[0].focus(); // arrr..... does not found element, WHY!!
+        }
+    }
+    w2ui.reportslayout.load('main', url, null, callBack);
 }
 
 
@@ -656,7 +663,7 @@ function buildPageElements() {
             d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000) //one day back from To date
         }
         app.D1 = dateControlString(d1);
-        showReport(app.lastReport);
+        showReport(app.lastReport, "dateD1");
     }).on("keypress", "input[name=dateD2]", function(e) {
         // do not procedd further untill user press the Enter key
         if (e.which != 13) {
@@ -679,7 +686,7 @@ function buildPageElements() {
             d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000) //one day forward from From date
         }
         app.D2 = dateControlString(d2);
-        showReport(app.lastReport);
+        showReport(app.lastReport, "dateD2");
     });
 
     //------------------------------------------------------------------------
@@ -2750,7 +2757,9 @@ function buildPageElements() {
         }
         app.D1 = dateControlString(d1);
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
+        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url, function() {
+            document.getElementsByName('receiptsD1')[0].focus();
+        });
     }).on("keypress", "input[name=receiptsD2]", function(e) {
         // do not procedd further untill user press the Enter key
         if (e.which != 13) {
@@ -2774,7 +2783,9 @@ function buildPageElements() {
         }
         app.D2 = dateControlString(d2);
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
+        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url, function() {
+            document.getElementsByName('receiptsD2')[0].focus();
+        });
     });
 
     //------------------------------------------------------------------------
@@ -2866,6 +2877,59 @@ function buildPageElements() {
              };
         },
         actions: {
+            saveadd: function() {
+                var x = getCurrentBusiness();
+                var BID=x.value;
+                var BUD = getBUDfromBID(BID);
+
+                // first save the record
+                w2ui.receiptForm.url = '/v1/receipt/' + w2ui.receiptForm.record.BID.text + '/0';
+                var grid = w2ui.receiptsGrid;
+                var sel = grid.getSelection();
+                grid.unselect(sel);
+
+                var params = {cmd: 'save', formname: this.name, record: this.record };
+                var dat = JSON.stringify(params);
+
+                // save Depository request
+                $.post(this.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                })
+                .fail(function(data){
+                    console.log("Save Receipt failed.")
+                });
+
+                // clear the form
+                this.clear();
+
+                // add new empty record
+                var y = new Date();
+                var pmt_options = buildPaymentTypeOptions(BUD);
+                var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+                var record = {
+                    recid: 0,
+                    RCPTID: 0,
+                    PRCPTID: 0,
+                    ARID: 0,
+                    BID: BUD,
+                    PMTID: 0,
+                    PmtTypeName: ptInit,
+                    Dt: w2uiDateControlString(y),
+                    DocNo: '',
+                    Payor: '',
+                    TCID: 0,
+                    Amount: 0,
+                    Comment: '',
+                    OtherPayorName: '',
+                };
+                this.fields[0].options.items = pmt_options;
+                this.fields[1].options.items = app.Receipts[BUD];
+                this.record = record;
+                this.refresh();
+            },
             save: function () {
                 //var obj = this;
                 w2ui.receiptForm.url = '/v1/receipt/' + w2ui.receiptForm.record.BID.text + '/0';
@@ -3107,7 +3171,9 @@ function buildPageElements() {
         }
         app.D1 = dateControlString(d1);
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
+        w2ui.asmsGrid.load(w2ui.asmsGrid.url, function() {
+            document.getElementsByName('asmsD1')[0].focus();
+        });
     }).on("keypress", "input[name=asmsD2]", function(e) {
         // do not procedd further untill user press the Enter key
         if (e.which != 13) {
@@ -3131,7 +3197,9 @@ function buildPageElements() {
         }
         app.D2 = dateControlString(d2);
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
+        w2ui.asmsGrid.load(w2ui.asmsGrid.url, function() {
+            document.getElementsByName('asmsD2')[0].focus();
+        });
     });
 
 
@@ -3374,16 +3442,16 @@ function buildPageElements() {
                     });
                 };
             }
-            // var hdr = '';
-            // if (typeof r.RentCycle == "object") { return; }
-            // if (r.RentCycle.text !== 'Norecur' && r.PASMID === 0) {
-            //     // EPOCH
-            //     hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
-            // } else {
-            //     // INSTANCE has 3 variables: ParentASM, RentCycle, Proration
-            //     hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, r.ProrationCycle.text);
-            // }
-            // document.getElementById("AssessmentEpochOrInstance").innerHTML = hdr;
+            var hdr = '';
+            if (typeof r.RentCycle !== "object") { return; }
+            if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
+                // EPOCH
+                hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
+            } else {
+                // INSTANCE has 3 variables: ParentASM, RentCycle, Proration
+                hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, r.Start, r.Stop);
+            }
+            $("#asmInstForm").find("#AssessmentEpochOrInstance").html(hdr);
         }
     });
 
