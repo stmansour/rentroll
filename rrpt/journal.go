@@ -127,7 +127,7 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalReceipt(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
+func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
 	funcname := "textPrintJournalReceipt"
 	// fmt.Printf("Entered: %s,   JID = %d, RCPTID = %d\n", funcname, j.JID, rcpt.RCPTID)
 	// The receipt has the payor TCID.  We get the payor name from the receipt
@@ -177,14 +177,19 @@ func textPrintJournalReceipt(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jpr
 	tbl.Puts(-1, 0, j.IDtoString())
 	tbl.Puts(-1, 1, s)
 
-	// PROCESS EVERY RECEIPT ALLOCATION
+	// PROCESS EVERY RECEIPT ALLOCATION IN OUR DATE RANGE...
 	for i := 0; i < len(rcpt.RA); i++ {
+		// first do a quick reject test -- only show those that happen in the time range of the report
+		rdt := rcpt.RA[i].Dt
+		if !((ri.D1.Equal(rdt) || ri.D1.Before(rdt)) && ri.D2.After(rdt)) {
+			continue
+		}
 		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
 		r := rlib.GetRentable(a.RID)
-		m := rlib.ParseAcctRule(xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
-		// printJournalSubtitle("\t" + rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
+		m := rlib.ParseAcctRule(ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
+		// printJournalSubtitle("\t" + rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		tbl.AddRow()
-		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
+		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		for k := 0; k < len(m); k++ {
 			l := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if 0 == l.LID {
@@ -222,23 +227,23 @@ func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx
 	tbl.AddRow() // separater line
 }
 
-func textPrintJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
+func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
 	case rlib.JNLTYPEUNAS:
-		textPrintJournalUnassociated(tbl, xbiz, jctx, j)
+		textPrintJournalUnassociated(tbl, ri.Xbiz, jctx, j)
 	case rlib.JNLTYPERCPT:
 		rcpt := rlib.GetReceipt(j.ID)
-		textPrintJournalReceipt(tbl, xbiz, jctx, j, &rcpt, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLCASH].GLNumber /*"10001"*/)
+		textPrintJournalReceipt(tbl, ri, jctx, j, &rcpt, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLCASH].GLNumber /*"10001"*/)
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)
-		textPrintJournalAssessment(tbl, jctx, xbiz, j, &a, &r, rentDuration, assessmentDuration)
+		textPrintJournalAssessment(tbl, jctx, ri.Xbiz, j, &a, &r, rentDuration, assessmentDuration)
 	default:
 		fmt.Printf("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}
 }
 
-func textReportJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journal, jctx *jprintctx) {
+func textReportJournalEntry(tbl *gotable.Table, ri *ReporterInfo, j *rlib.Journal, jctx *jprintctx) {
 	//-------------------------------------------------------------------------------------
 	// over what range of time does this rental apply between jctx.ReportStart & jctx.ReportStop?
 	// the rental possession dates may be different than the report range...
@@ -266,7 +271,7 @@ func textReportJournalEntry(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Jo
 	thisAccrualPeriod := int64(stop.Sub(start).Hours() / 24)
 
 	// fmt.Printf("start = %s, stop = %s, fullAccrualPeriod, thisAccrualPeriod =  %d, %d\n", start.Format(rlib.RRDATEINPFMT), stop.Format(rlib.RRDATEINPFMT), fullAccrualPeriod, thisAccrualPeriod)
-	textPrintJournalEntry(tbl, xbiz, jctx, j, thisAccrualPeriod, fullAccrualPeriod)
+	textPrintJournalEntry(tbl, ri, jctx, j, thisAccrualPeriod, fullAccrualPeriod)
 
 }
 
@@ -313,7 +318,7 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 		var j rlib.Journal
 		rlib.ReadJournals(rows, &j)
 		rlib.GetJournalAllocations(&j)
-		textReportJournalEntry(&tbl, ri.Xbiz, &j, &jctx)
+		textReportJournalEntry(&tbl, ri, &j, &jctx)
 	}
 	rlib.Errcheck(rows.Err())
 	return tbl

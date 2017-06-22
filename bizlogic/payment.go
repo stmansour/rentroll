@@ -131,6 +131,9 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	car := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]    // this is the assessment's Account Rule
 	dar := rlib.RRdb.BizTypes[a.BID].AR[rcpt.ARID] // debit -- this is the receipt's Account Rule, credit account
 
+	fmt.Printf("Pay Assessment: Assessment Rule:  Debit %s, Credit %s\n", rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID].Name, rlib.RRdb.BizTypes[a.BID].GLAccounts[car.CreditLID].Name)
+	fmt.Printf("Pay Assessment:    Receipt Rule:  Debit %s, Credit %s\n", rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.DebitLID].Name, rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID].Name)
+
 	dacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID] // we debit what was credited in the Receipt's AcctRuleReceive
 	cacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID]  // we credit what was debited in the Assessments ARID
 
@@ -215,6 +218,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	ja.BID = jnl.BID
 	ja.RAID = a.RAID
 	ja.RID = a.RID
+	ja.ASMID = a.ASMID
 	ja.TCID = rcpt.TCID
 	rlib.InsertJournalAllocationEntry(&ja)
 	jnl.JA = append(jnl.JA, ja)
