@@ -106,6 +106,11 @@ type GetReceiptResponse struct {
 	Record ReceiptSendForm `json:"record"`
 }
 
+// DeleteRcptForm holds RCPTID to delete it
+type DeleteRcptForm struct {
+	RCPTID int64
+}
+
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
 func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
 	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule)
@@ -281,6 +286,9 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	case "save":
 		saveReceipt(w, r, d)
 		break
+	case "delete":
+		deleteReceipt(w, r, d)
+		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err, funcname)
@@ -426,4 +434,36 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
+}
+
+// deleteReceipt deletes the requested receipt
+// wsdoc {
+//  @Title  Delete Receipt
+//	@URL /v1/receipt/:BUI/:RCPTID
+//  @Method  POST
+//	@Synopsis Delete a Receipt
+//  @Description  Delete Receipt for requested RCPTID
+//	@Input DeleteRcptForm
+//  @Response SvcWriteSuccessResponse
+// wsdoc }
+func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "deleteReceipt"
+		del      DeleteRcptForm
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	if err := rlib.DeleteReceipt(del.RCPTID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
 }

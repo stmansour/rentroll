@@ -587,7 +587,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(&g, w)
 }
 
-// deleteAssessment returns the requested assessment
+// deleteAssessment deletes the requested assessment with ASMID
 // wsdoc {
 //  @Title  Delete Assessment
 //	@URL /v1/asm/:BUI/:ASMID
