@@ -1111,6 +1111,7 @@ type RRprepSQL struct {
 	CountBusinessTransactants            *sql.Stmt
 	DeleteAllRentalAgreementPets         *sql.Stmt
 	DeleteAR                             *sql.Stmt
+	DeleteAssessment                     *sql.Stmt
 	DeleteCustomAttribute                *sql.Stmt
 	DeleteCustomAttributeRef             *sql.Stmt
 	DeleteDemandSource                   *sql.Stmt

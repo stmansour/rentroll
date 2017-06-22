@@ -11,6 +11,15 @@ func DeleteAR(id int64) error {
 	return err
 }
 
+// DeleteAssessment deletes Assessment record with the supplied id
+func DeleteAssessment(asmid int64) error {
+	_, err := RRdb.Prepstmt.DeleteAssessment.Exec(asmid)
+	if err != nil {
+		Ulog("Error deleting Assessment for id = %d, error: %v\n", asmid, err)
+	}
+	return err
+}
+
 // DeleteCustomAttribute deletes CustomAttribute records with the supplied id
 func DeleteCustomAttribute(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteCustomAttribute.Exec(id)
