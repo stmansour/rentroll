@@ -515,12 +515,20 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-		// err = rlib.InsertLedgerMarker(&a)
-		// if err != nil {
-		// 	e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
-		// 	SvcGridErrorReturn(w, e, funcname)
-		// 	return
-		// }
+
+		// begin a LedgerMarker for this
+		var lm = rlib.LedgerMarker{
+			BID:   a.BID,
+			LID:   a.LID,
+			Dt:    time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
+			State: rlib.MARKERSTATEORIGIN,
+		}
+		err = rlib.InsertLedgerMarker(&lm)
+		if err != nil {
+			e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing GLAccount: %s\n", a.Name)
