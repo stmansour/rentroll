@@ -2877,6 +2877,59 @@ function buildPageElements() {
              };
         },
         actions: {
+            saveadd: function() {
+                var x = getCurrentBusiness();
+                var BID=x.value;
+                var BUD = getBUDfromBID(BID);
+
+                // first save the record
+                w2ui.receiptForm.url = '/v1/receipt/' + w2ui.receiptForm.record.BID.text + '/0';
+                var grid = w2ui.receiptsGrid;
+                var sel = grid.getSelection();
+                grid.unselect(sel);
+
+                var params = {cmd: 'save', formname: this.name, record: this.record };
+                var dat = JSON.stringify(params);
+
+                // save Depository request
+                $.post(this.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                })
+                .fail(function(data){
+                    console.log("Save Receipt failed.")
+                });
+
+                // clear the form
+                this.clear();
+
+                // add new empty record
+                var y = new Date();
+                var pmt_options = buildPaymentTypeOptions(BUD);
+                var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+                var record = {
+                    recid: 0,
+                    RCPTID: 0,
+                    PRCPTID: 0,
+                    ARID: 0,
+                    BID: BUD,
+                    PMTID: 0,
+                    PmtTypeName: ptInit,
+                    Dt: w2uiDateControlString(y),
+                    DocNo: '',
+                    Payor: '',
+                    TCID: 0,
+                    Amount: 0,
+                    Comment: '',
+                    OtherPayorName: '',
+                };
+                this.fields[0].options.items = pmt_options;
+                this.fields[1].options.items = app.Receipts[BUD];
+                this.record = record;
+                this.refresh();
+            },
             save: function () {
                 //var obj = this;
                 w2ui.receiptForm.url = '/v1/receipt/' + w2ui.receiptForm.record.BID.text + '/0';
