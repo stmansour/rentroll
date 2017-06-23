@@ -3429,6 +3429,33 @@ function buildPageElements() {
                 });
             },
         },
+        onLoad: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.asmInstForm;
+                var r = f.record;
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
+
+                var params = {"cmd":"get","recid":0,"name":"asmInstForm"};
+                var dat = JSON.stringify(params);
+                $.post('/v1/asm/' + x.value + '/' + r.PASMID, dat)
+                .done( function(data) {
+                    if (data.status != 'success') {
+                        f.message(data.message);
+                        f.pasmStart = "";
+                        f.pasmStop = "";
+                    }
+                    data = JSON.parse(data);
+                    // get parent assessment dates and store it in form
+                    f.pasmStart = data.record.Start;
+                    f.pasmStop = data.record.Stop;
+                })
+                .fail( function() {
+                    console.log('Error getting /v1/asm/' + x.value + '/' + r.PASMID);
+                 });
+            }
+        },
         onRefresh: function(/*event*/) {
             var f = w2ui.asmInstForm;
             var r = f.record;
@@ -3448,8 +3475,8 @@ function buildPageElements() {
                 // EPOCH
                 hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
             } else {
-                // INSTANCE has 3 variables: ParentASM, RentCycle, Proration
-                hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, r.Start, r.Stop);
+                // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
+                hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
             }
             $("#asmInstForm").find("#AssessmentEpochOrInstance").html(hdr);
         }
