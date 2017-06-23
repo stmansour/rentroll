@@ -1,13 +1,15 @@
 @charset "ISO-8859-1";
+
 @import url(https://fonts.googleapis.com/css?family=Roboto);
+
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
 table, td {
-    border-collapse:collapse;
+    border-collapse: collapse;
     font-family: "Open Sans","Roboto",sans-serif;
     border: 0px solid #bbb;
     font-size: 9pt;
-    border-spacing:6px;
+    border-spacing: 6px;
     padding: 6px;
 }
 
@@ -16,7 +18,7 @@ th {
     font-weight: bolder;
     border: 0px solid #bbb;
     font-size: 9pt;
-    border-spacing:20px;
+    border-spacing: 20px;
     padding: 6px;
 }
 
@@ -31,3 +33,6 @@ p {
     font-size: 8pt;
 }
 
+.hidden {
+    display: none !important;
+}

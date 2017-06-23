@@ -134,7 +134,7 @@ function getCurrentBusiness() {
 //   url     = request URL for the form
 //   [width] = optional, if specified it is the width of the form
 //-----------------------------------------------------------------------------
-function setToForm(sform, url, width) {
+function setToForm(sform, url, width, doRequest) {
     "use strict";
     if (width === undefined) {
         width = 700;
@@ -146,15 +146,24 @@ function setToForm(sform, url, width) {
         if (typeof f.tabs.name == "string") {
             f.tabs.click('tab1');
         }
-        f.request(function(/*event*/) {
-            // only render the toplayout after server has sent down data
-            // so that w2ui can bind values with field's html control,
-            // otherwise it is unable to find html controls
+
+        if (doRequest) {
+            f.request(function(/*event*/) {
+                // only render the toplayout after server has sent down data
+                // so that w2ui can bind values with field's html control,
+                // otherwise it is unable to find html controls
+                w2ui.toplayout.show('right', true);
+                w2ui.toplayout.content('right', f);
+                w2ui.toplayout.sizeTo('right', width);
+                w2ui.toplayout.render();
+            });
+        }
+        else {
             w2ui.toplayout.show('right', true);
             w2ui.toplayout.content('right', f);
             w2ui.toplayout.sizeTo('right', width);
             w2ui.toplayout.render();
-        });
+        }
     }
 }
 
@@ -467,7 +476,7 @@ function rentalAgrFinderRender(item) {
     };
     // document.getElementById("rafinderRAID").innerHTML = '' + item.RAID;
     w2ui.rentalAgrFinder.refresh();
-    
+
     return s;
 }
 
@@ -497,8 +506,23 @@ function plural(s) {
 //-----------------------------------------------------------------------------
 function dateFromDC(dc) {
     "use strict";
-    var x = new Date(dc.value);
-    return new Date(x.getTime() + 24 * 60 * 60 * 1000); // for some reason we need to add 1 day to get the right value
+    var ds = dc.value; // get date string value from controller
+    ds = ds.replace(/\//g,"-") // first replace `-` with `/` if date string has those
+    var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/ // regex pattern to satisfy date pattern `yyyy/mm/dd`
+
+    var valid = re.test(ds);
+    // if datestring does not satisfy the pattern then simply return null
+    if (!valid) {
+        return null;
+    }
+
+    // now execute regex pattern for the string
+    var match = re.exec(ds);
+
+    // get year, month, date value
+    var y = match[1], m = match[2], d = match[3];
+
+    return new Date(y, m-1, d); // month starts from 0 index so needs to substract by 1
 }
 
 //-----------------------------------------------------------------------------
@@ -536,10 +560,10 @@ function dateFmtStr(today) {
 //-----------------------------------------------------------------------------
 function dayBack(dc) {
     "use strict";
-    // var x = dateFromDC(dc);
-    var x = new Date(dc.value);
-    var y = new Date(x.getTime() - 24 * 60 * 60 * 1000); // one day prior
-    return setDateControl(dc, y);
+    var x = dateFromDC(dc);
+    // set date to previous day
+    x.setDate(x.getDate() - 1);
+    return setDateControl(dc, x);
 }
 
 //-----------------------------------------------------------------------------
@@ -550,10 +574,10 @@ function dayBack(dc) {
 //-----------------------------------------------------------------------------
 function dayFwd(dc) {
     "use strict";
-    // var x = dateFromDC(dc);
-    var x = new Date(dc.value);
-    var y = new Date(x.getTime() + 24 * 60 * 60 * 1000); // one day prior
-    return setDateControl(dc, y);
+    var x = dateFromDC(dc);
+    // set date to next day
+    x.setDate(x.getDate() + 1);
+    return setDateControl(dc, x);
 }
 
 //-----------------------------------------------------------------------------
@@ -1062,6 +1086,23 @@ function getFormSubmitData(record) {
     return record;
 }
 
+//-----------------------------------------------------------------------------
+// formDeleteBtn -  show / hide delete button for requested form
+// if form has delete button
+// @params
+//   sform   = name of the form
+//   action     = show / hide
+//-----------------------------------------------------------------------------
+function formDeleteBtn(sform, action) {
+    "use strict";
+    if (action == "show") {
+        $("#"+sform).find("button[name=delete]").removeClass("hidden");
+    }
+    else if (action == "hide") {
+        $("#"+sform).find("button[name=delete]").addClass("hidden");
+    }
+}
+
 function number_format(number, decimals, dec_point, thousands_sep) {
     // http://kevin.vanzonneveld.net
     // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
@@ -1157,4 +1198,3 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 // test('1.20',     '1.20', 2);
 // test('1.2000',   '1.20', 4);
 // test('1.200',    '1.2000', 3);
-

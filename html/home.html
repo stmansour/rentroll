@@ -5,6 +5,7 @@
     <script src="/js/jquery.min.js"></script>
     <script src="/js/w2ui-1.5.rc1.js"></script>
     <link rel="stylesheet" href="/html/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/html/rentroll.css">
     <script src="/js/rutil.js"></script>
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
@@ -648,8 +649,8 @@ function buildPageElements() {
         }
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
+        var d1 = dateFromDC(xd1);
+        var d2 = dateFromDC(xd2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd1))) {
             return;
@@ -671,8 +672,8 @@ function buildPageElements() {
         }
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
+        var d1 = dateFromDC(xd1);
+        var d2 = dateFromDC(xd2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd2))) {
             return;
@@ -923,7 +924,7 @@ function buildPageElements() {
                         return;
                     }
                     else {
-                        setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID);
+                        setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID, 400, true);
                     }
                 })
                 .fail(function(/*data*/) {
@@ -933,6 +934,7 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
+
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
@@ -971,10 +973,8 @@ function buildPageElements() {
                     };
                     w2ui.accountForm.record = record;
                     w2ui.accountForm.refresh();
-                    w2ui.accountForm.url = '/v1/account/' + BID + '/0';
-                    w2ui.toplayout.content('right', w2ui.accountForm);
-                    w2ui.toplayout.sizeTo('right', 700);
-                    w2ui.toplayout.show('right', true);
+
+                    setToForm('accountForm', '/v1/account/' + BID + '/0', 400);
                 }
             })
             .fail( function() {
@@ -1105,8 +1105,10 @@ function buildPageElements() {
                 var BUD = getBUDfromBID(r.BID);
                 if (r.LID) {
                     f.header = 'Edit Account Detail' + ' (' + r.LID + ')';
+                    formDeleteBtn(f.name, "show");
                 } else {
                     f.header = 'Edit Account Detail (new)';
+                    formDeleteBtn(f.name, "hide");
                 }
 
                 $("#accountForm").find('input[name=AllowPost]').w2field('list', {
@@ -1203,7 +1205,7 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; ++i) {
                         var ob = this.get(sel[i]);
-                        setToForm('transactantForm', '/v1/person/' + ob.BID + '/' + ob.TCID);
+                        setToForm('transactantForm', '/v1/person/' + ob.BID + '/' + ob.TCID, 700, true);
                      }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -1281,11 +1283,7 @@ function buildPageElements() {
             w2ui.transactantForm.record = record;
             w2ui.transactantForm.refresh();
 
-            w2ui.transactantForm.url = '/v1/person/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.transactantForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
-            w2ui.toplayout.render();
+            setToForm('transactantForm', '/v1/person/' + BID + '/0', 700);
         },
     });
 
@@ -1451,8 +1449,10 @@ function buildPageElements() {
             if (r.TCID) {
                 var name = r.FirstName + ' ' + r.LastName;
                 title = 'Edit ' + app.sTransactant + ' - ' + name +' (' + r.TCID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 title = 'Edit '+app.sTransactant+' (new)';
+                formDeleteBtn(f.name, "hide");
             }
             f.header = title;
         }
@@ -1567,7 +1567,7 @@ function buildPageElements() {
                         var ob = this.get(sel[i]);
                         var BUD = getBUDfromBID(ob.BID);
                         console.log('rentableType form url: ' + '/v1/rt/' + ob.BID + '/' + ob.RTID);
-                        setToForm('rentableTypeForm', '/v1/rt/' + ob.BID + '/' + ob.RTID);
+                        setToForm('rentableTypeForm', '/v1/rt/' + ob.BID + '/' + ob.RTID, 400, true);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -1602,10 +1602,7 @@ function buildPageElements() {
             w2ui.rentableTypeForm.record = record;
             w2ui.rentableTypeForm.refresh();
 
-            w2ui.rentableTypeForm.url = '/v1/rt/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.rentableTypeForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
+            setToForm('rentableTypeForm', '/v1/rt/' + BID + '/0', 400);
         },
     });
 
@@ -1753,8 +1750,10 @@ function buildPageElements() {
                 var r = f.record;
                 if (r.RTID) {
                     f.header = 'Edit ' + app.sRentableType + ' (' + r.RTID +')';
+                    formDeleteBtn(f.name, "show");
                 } else {
                     f.header = 'Edit ' + app.sRentableType + ' (new)';
+                    formDeleteBtn(f.name, "hide");
                 }
 
                 // assignmentTime selected and items for w2field
@@ -1854,7 +1853,7 @@ function buildPageElements() {
                             // must call refresh when form field has been set
                             w2ui.rentableForm.refresh();
 
-                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
+                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID, 700, true);
                         })
                         .fail(function(){
                             console.log("Failed to get rentable type list");
@@ -1911,10 +1910,7 @@ function buildPageElements() {
             w2ui.rentableForm.record = record;
             w2ui.rentableForm.refresh();
 
-            w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.rentableForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
+            setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
         },
     });
 
@@ -1994,8 +1990,10 @@ function buildPageElements() {
                 var r = f.record;
                 if (r.RID) {
                     f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
+                    formDeleteBtn(f.name, "show");
                 } else {
                     f.header = 'Edit ' + app.sRentable + ' (new) as of '+ r.CurrentDate;
+                    formDeleteBtn(f.name, "hide");
                 }
 
                 // assignmentTime selected and items for w2field
@@ -2031,7 +2029,7 @@ function buildPageElements() {
             lineNumbers: false,
             selectColumn: false,
             expandColumn: false,
-            toolbarAdd: false,
+            toolbarAdd: true,
             toolbarDelete: false,
             toolbarSave: false,
             toolbarEdit: false,
@@ -2132,8 +2130,8 @@ function buildPageElements() {
                 ExpansionOptionNotice: '1/1/1900',
                 RightOfFirstRefusal: '',
             };
-            var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
 
+            var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
             $.post('/v1/rentalagr/' + BUD + '/0', JSON.stringify(request))
             .done(function(data) {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
@@ -2294,7 +2292,14 @@ function buildPageElements() {
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentalagrForm;
-            f.header = 'Edit ' + app.sRentalAgreement +  ' - ' + ((f.record.RAID === 0) ? '(new)' : 'RA' + f.record.RAID);
+            if (f.record.RAID) {
+                f.header = "Edit" + app.sRentalAgreement + " (RA" + f.record.RAID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else{
+                f.header = "Edit" + app.sRentalAgreement + "(new)"
+                formDeleteBtn(f.name, "hide");
+            }
         },
         onValidate: function(event) {
             if (this.record.AgreementStart === '') {
@@ -2590,7 +2595,7 @@ function buildPageElements() {
             toolbar        : true,
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
@@ -2622,14 +2627,6 @@ function buildPageElements() {
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
             {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
         ],
-        actions: {
-            save: function () {
-                var tgrid = w2ui.receiptsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
-                // console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
-            },
-        },
         onClick: function(event) {
             event.onComplete = function () {
                 var sel = this.getSelection();
@@ -2647,7 +2644,7 @@ function buildPageElements() {
                                 app.Receipts = JSON.parse(data);
                                 w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
                                 w2ui.receiptForm.refresh();
-                                setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400);
+                                setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400, true);
                             }
                             if (data.status != 'success') {
                                 w2ui.receiptForm.message(data.message);
@@ -2704,11 +2701,10 @@ function buildPageElements() {
                     };
                     w2ui.receiptForm.fields[0].options.items = pmt_options;
                     w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
-                    w2ui.receiptForm.refresh();
                     w2ui.receiptForm.record = record;
-                    w2ui.toplayout.content('right', w2ui.receiptForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 400);
+                    w2ui.receiptForm.refresh();
+
+                    setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
                 }
                 if (data.status != 'success') {
                     w2ui.receiptForm.message(data.message);
@@ -2741,8 +2737,8 @@ function buildPageElements() {
         }
         var xd1 = document.getElementsByName('receiptsD1')[0].value;
         var xd2 = document.getElementsByName('receiptsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
+        var d1 = dateFromDC(xd1);
+        var d2 = dateFromDC(xd2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd1))) {
             return;
@@ -2767,8 +2763,8 @@ function buildPageElements() {
         }
         var xd1 = document.getElementsByName('receiptsD1')[0].value;
         var xd2 = document.getElementsByName('receiptsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
+        var d1 = dateFromDC(xd1);
+        var d2 = dateFromDC(xd2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd2))) {
             return;
@@ -2844,7 +2840,16 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.receiptForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sReceipt + ' (' + ((r.RCPTID === 0) ? 'new' : ''+r.RCPTID) + ')';
+
+            if (r.RCPTID) {
+                f.header = "Edit" + app.sReceipt + " (" + r.RCPTID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else {
+                f.header = "Edit" + app.sReceipt + " (new)"
+                formDeleteBtn(f.name, "hide");
+            }
+
             var BUD = (typeof r.BID == "object") ? r.BID.id : r.BID;
             f.fields[0].options.items = buildPaymentTypeOptions( BUD );
             f.fields[1].options.items = app.Receipts[BUD];
@@ -2990,7 +2995,7 @@ function buildPageElements() {
             toolbar        : true,
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
@@ -3028,14 +3033,6 @@ function buildPageElements() {
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
         ],
-        actions: {
-            save: function () {
-                var tgrid = w2ui.asmsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
-                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
-            },
-        },
         onClick: function(event) {
             event.onComplete = function () {
                 var sel = this.getSelection();
@@ -3058,7 +3055,7 @@ function buildPageElements() {
                                 w2ui[form].get('ARID').options.items = app.Assessments[Bud];
                                 w2ui[form].refresh();
 
-                                setToForm(form, myurl);
+                                setToForm(form, myurl, 400, true);
                             }
                             if (data.status != 'success') {
                                 w2ui.asmsGrid.message(data.message);
@@ -3085,7 +3082,7 @@ function buildPageElements() {
                     var BID=x.value;
                     var BUD = getBUDfromBID(BID);
                     app.ridRentablePicker.BID = BID; // needed by typedown
-                    w2ui.asmEpochForm.url = '/v1/asm/' + BID + '/0';
+
                     var y = new Date();
                     var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
                         var record = {
@@ -3112,11 +3109,9 @@ function buildPageElements() {
                     w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
                     w2ui.asmEpochForm.record = record;
-
                     w2ui.asmEpochForm.refresh();
-                    w2ui.toplayout.content('right', w2ui.asmEpochForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 400);
+
+                    setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 400);
                 }
                 if (data.status != 'success') {
                     w2ui.asmEpochForm.message(data.message);
@@ -3155,8 +3150,8 @@ function buildPageElements() {
         }
         var xd1 = document.getElementsByName('asmsD1')[0].value;
         var xd2 = document.getElementsByName('asmsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
+        var d1 = dateFromDC(xd1);
+        var d2 = dateFromDC(xd2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd1))) {
             return;
@@ -3181,8 +3176,8 @@ function buildPageElements() {
         }
         var xd1 = document.getElementsByName('asmsD1')[0].value;
         var xd2 = document.getElementsByName('asmsD2')[0].value;
-        var d1 = new Date(xd1);
-        var d2 = new Date(xd2);
+        var d1 = dateFromDC(xd1);
+        var d2 = dateFromDC(xd2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd2))) {
             return;
@@ -3327,14 +3322,13 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.asmEpochForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sAssessment + ' (' + ((r.ASMID === 0) ? "new" : ''+r.ASMID) + ')';
-            if (!String.prototype.format) {
-                String.prototype.format = function() {
-                    var args = arguments;
-                    return this.replace(/{(\d+)}/g, function(match, number) {
-                        return typeof args[number] != 'undefined'? args[number] : match;
-                    });
-                };
+            if (r.ASMID) {
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else {
+                f.header = "Edit" + app.sAssessment + " (new)"
+                formDeleteBtn(f.name, "hide");
             }
         }
     });
@@ -3429,10 +3423,46 @@ function buildPageElements() {
                 });
             },
         },
+        onLoad: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.asmInstForm;
+                var r = f.record;
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
+
+                var params = {"cmd":"get","recid":0,"name":"asmInstForm"};
+                var dat = JSON.stringify(params);
+                $.post('/v1/asm/' + x.value + '/' + r.PASMID, dat)
+                .done( function(data) {
+                    if (data.status != 'success') {
+                        f.message(data.message);
+                        f.pasmStart = "";
+                        f.pasmStop = "";
+                    }
+                    data = JSON.parse(data);
+                    // get parent assessment dates and store it in form
+                    f.pasmStart = data.record.Start;
+                    f.pasmStop = data.record.Stop;
+                })
+                .fail( function() {
+                    console.log('Error getting /v1/asm/' + x.value + '/' + r.PASMID);
+                 });
+            }
+        },
         onRefresh: function(/*event*/) {
             var f = w2ui.asmInstForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sAssessment + ' (' + r.ASMID + ')';
+
+            if (r.ASMID) {
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else {
+                f.header = "Edit" + app.sAssessment + " (new)"
+                formDeleteBtn(f.name, "hide");
+            }
+
             // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
             if (!String.prototype.format) {
                 String.prototype.format = function() {
@@ -3442,14 +3472,15 @@ function buildPageElements() {
                     });
                 };
             }
+
             var hdr = '';
             if (typeof r.RentCycle !== "object") { return; }
             if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
                 // EPOCH
                 hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
             } else {
-                // INSTANCE has 3 variables: ParentASM, RentCycle, Proration
-                hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, r.Start, r.Stop);
+                // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
+                hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
             }
             $("#asmInstForm").find("#AssessmentEpochOrInstance").html(hdr);
         }
@@ -3719,7 +3750,7 @@ function buildPageElements() {
                 var rec = this.get(recID); // get record from record index
 
                 // popup the dialog form
-                setToForm('pmtForm', '/v1/pmts/' + rec.BID + '/' + rec.PMTID);
+                setToForm('pmtForm', '/v1/pmts/' + rec.BID + '/' + rec.PMTID, 400, true);
             }
         },
         onAdd: function (event) {
@@ -3739,10 +3770,7 @@ function buildPageElements() {
             w2ui.pmtForm.record = record;
             w2ui.pmtForm.refresh();
 
-            w2ui.pmtForm.url = '/v1/pmts/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.pmtForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
+            setToForm('pmtForm', '/v1/pmts/' + BID + '/0', 400);
         },
     });
 
@@ -3864,8 +3892,10 @@ function buildPageElements() {
             var r = f.record;
             if (r.PMTID) {
                 f.header = 'Edit Payment Type' + ' (' + r.PMTID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 f.header = 'Edit Payment Type (new)';
+                formDeleteBtn(f.name, "hide");
             }
         }
     });
@@ -3929,7 +3959,7 @@ function buildPageElements() {
                             w2ui.depForm.refresh();
                         }
 
-                        setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID);
+                        setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID, 400, true);
                     })
                     .fail(function(data){
                         console.log("Failed to get glAccountList")
@@ -3979,10 +4009,7 @@ function buildPageElements() {
                     w2ui.depForm.record = record;
                     w2ui.depForm.refresh();
 
-                    w2ui.depForm.url = '/v1/dep/' + BID + '/0';
-                    w2ui.toplayout.content('right', w2ui.depForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 700);
+                    setToForm('depForm', '/v1/dep/' + BID + '/0', 400);
                 }
             })
             .fail( function() {
@@ -4099,8 +4126,10 @@ function buildPageElements() {
             var r = f.record;
             if (r.DEPID) {
                 f.header = 'Edit Depository' + ' (' + r.DEPID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 f.header = 'Edit Depository (new)';
+                formDeleteBtn(f.name, "hide");
             }
         }
     });
@@ -4182,7 +4211,7 @@ function buildPageElements() {
                         // refresh the form
                         w2ui.arsForm.refresh();
 
-                        setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
+                        setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID, 400, true);
                     })
                     .fail(function(data){
                         console.log("Failed to get glAccountList")
@@ -4246,10 +4275,8 @@ function buildPageElements() {
                     };
                     w2ui.arsForm.record = record;
                     w2ui.arsForm.refresh();
-                    w2ui.arsForm.url = '/v1/ar/' + BID + '/0';
-                    w2ui.toplayout.content('right', w2ui.arsForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 700);
+
+                    setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
                 }
             })
             .fail( function() {
@@ -4374,8 +4401,10 @@ function buildPageElements() {
             var r = f.record;
             if (r.ARID) {
                 f.header = 'Edit Account Rule' + ' (' + r.ARID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 f.header = 'Edit Account Rule (new)';
+                formDeleteBtn(f.name, "hide");
             }
 
         }
