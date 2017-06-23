@@ -1124,7 +1124,7 @@ type RRprepSQL struct {
 	DeleteInvoicePayors                  *sql.Stmt
 	DeleteJournalAllocation              *sql.Stmt
 	DeleteJournalAllocations             *sql.Stmt
-	DeleteJournalEntry                   *sql.Stmt
+	DeleteJournal                        *sql.Stmt
 	DeleteJournalMarker                  *sql.Stmt
 	DeleteLedger                         *sql.Stmt
 	DeleteLedgerEntry                    *sql.Stmt

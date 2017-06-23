@@ -357,7 +357,8 @@ func buildPreparedStatements() {
 	s1, s2, _, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertJournal, err = RRdb.Dbrr.Prepare("INSERT INTO Journal (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteJournalEntry, err = RRdb.Dbrr.Prepare("DELETE FROM Journal WHERE JID=?")
+
+	RRdb.Prepstmt.DeleteJournal, err = RRdb.Dbrr.Prepare("DELETE FROM Journal WHERE JID=?")
 	Errcheck(err)
 
 	//==========================================

@@ -436,13 +436,15 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(&g, w)
 }
 
-// deleteReceipt deletes the requested receipt
+// deleteReceipt deletes the requested receipt and other linked records
 // wsdoc {
 //  @Title  Delete Receipt
 //	@URL /v1/receipt/:BUI/:RCPTID
 //  @Method  POST
 //	@Synopsis Delete a Receipt
-//  @Description  Delete Receipt for requested RCPTID
+//  @Description  Delete Receipt for requested RCPTID. It also deletes associated
+//  @Description  Journal, JournalAllocation, and ReceiptAllocation records.
+//  @Description  Only use this command if you really know what you're doing.
 //	@Input DeleteRcptForm
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
@@ -459,7 +461,9 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-
+	j := rlib.GetJournalByReceiptID(del.RCPTID)
+	rlib.DeleteJournalAllocations(j.JID)
+	rlib.DeleteJournal(j.JID)
 	if err := rlib.DeleteReceiptAllocations(del.RCPTID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
