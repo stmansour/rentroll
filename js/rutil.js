@@ -134,7 +134,7 @@ function getCurrentBusiness() {
 //   url     = request URL for the form
 //   [width] = optional, if specified it is the width of the form
 //-----------------------------------------------------------------------------
-function setToForm(sform, url, width) {
+function setToForm(sform, url, width, doRequest) {
     "use strict";
     if (width === undefined) {
         width = 700;
@@ -146,15 +146,24 @@ function setToForm(sform, url, width) {
         if (typeof f.tabs.name == "string") {
             f.tabs.click('tab1');
         }
-        f.request(function(/*event*/) {
-            // only render the toplayout after server has sent down data
-            // so that w2ui can bind values with field's html control,
-            // otherwise it is unable to find html controls
+
+        if (doRequest) {
+            f.request(function(/*event*/) {
+                // only render the toplayout after server has sent down data
+                // so that w2ui can bind values with field's html control,
+                // otherwise it is unable to find html controls
+                w2ui.toplayout.show('right', true);
+                w2ui.toplayout.content('right', f);
+                w2ui.toplayout.sizeTo('right', width);
+                w2ui.toplayout.render();
+            });
+        }
+        else {
             w2ui.toplayout.show('right', true);
             w2ui.toplayout.content('right', f);
             w2ui.toplayout.sizeTo('right', width);
             w2ui.toplayout.render();
-        });
+        }
     }
 }
 

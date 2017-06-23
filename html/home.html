@@ -924,7 +924,7 @@ function buildPageElements() {
                         return;
                     }
                     else {
-                        setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID);
+                        setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID, 400, true);
                     }
                 })
                 .fail(function(/*data*/) {
@@ -973,10 +973,8 @@ function buildPageElements() {
                     };
                     w2ui.accountForm.record = record;
                     w2ui.accountForm.refresh();
-                    w2ui.accountForm.url = '/v1/account/' + BID + '/0';
-                    w2ui.toplayout.content('right', w2ui.accountForm);
-                    w2ui.toplayout.sizeTo('right', 700);
-                    w2ui.toplayout.show('right', true);
+
+                    setToForm('accountForm', '/v1/account/' + BID + '/0', 400);
                 }
             })
             .fail( function() {
@@ -1207,7 +1205,7 @@ function buildPageElements() {
                 if (sel.length > 0) {
                     for (var i = 0; i < sel.length; ++i) {
                         var ob = this.get(sel[i]);
-                        setToForm('transactantForm', '/v1/person/' + ob.BID + '/' + ob.TCID);
+                        setToForm('transactantForm', '/v1/person/' + ob.BID + '/' + ob.TCID, 700, true);
                      }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -1285,11 +1283,7 @@ function buildPageElements() {
             w2ui.transactantForm.record = record;
             w2ui.transactantForm.refresh();
 
-            w2ui.transactantForm.url = '/v1/person/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.transactantForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
-            w2ui.toplayout.render();
+            setToForm('transactantForm', '/v1/person/' + BID + '/0', 700);
         },
     });
 
@@ -1573,7 +1567,7 @@ function buildPageElements() {
                         var ob = this.get(sel[i]);
                         var BUD = getBUDfromBID(ob.BID);
                         console.log('rentableType form url: ' + '/v1/rt/' + ob.BID + '/' + ob.RTID);
-                        setToForm('rentableTypeForm', '/v1/rt/' + ob.BID + '/' + ob.RTID);
+                        setToForm('rentableTypeForm', '/v1/rt/' + ob.BID + '/' + ob.RTID, 400, true);
                     }
                 } else {
                     console.log('*** NO SELECTION FOUND ***   So, select index 0');
@@ -1608,10 +1602,7 @@ function buildPageElements() {
             w2ui.rentableTypeForm.record = record;
             w2ui.rentableTypeForm.refresh();
 
-            w2ui.rentableTypeForm.url = '/v1/rt/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.rentableTypeForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
+            setToForm('rentableTypeForm', '/v1/rt/' + BID + '/0', 400);
         },
     });
 
@@ -1862,7 +1853,7 @@ function buildPageElements() {
                             // must call refresh when form field has been set
                             w2ui.rentableForm.refresh();
 
-                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID);
+                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID, 700, true);
                         })
                         .fail(function(){
                             console.log("Failed to get rentable type list");
@@ -1919,10 +1910,7 @@ function buildPageElements() {
             w2ui.rentableForm.record = record;
             w2ui.rentableForm.refresh();
 
-            w2ui.rentableForm.url = '/v1/rentable/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.rentableForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
+            setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
         },
     });
 
@@ -2142,8 +2130,8 @@ function buildPageElements() {
                 ExpansionOptionNotice: '1/1/1900',
                 RightOfFirstRefusal: '',
             };
-            var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
 
+            var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
             $.post('/v1/rentalagr/' + BUD + '/0', JSON.stringify(request))
             .done(function(data) {
                 if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
@@ -2656,7 +2644,7 @@ function buildPageElements() {
                                 app.Receipts = JSON.parse(data);
                                 w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
                                 w2ui.receiptForm.refresh();
-                                setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400);
+                                setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400, true);
                             }
                             if (data.status != 'success') {
                                 w2ui.receiptForm.message(data.message);
@@ -2713,11 +2701,10 @@ function buildPageElements() {
                     };
                     w2ui.receiptForm.fields[0].options.items = pmt_options;
                     w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
-                    w2ui.receiptForm.refresh();
                     w2ui.receiptForm.record = record;
-                    w2ui.toplayout.content('right', w2ui.receiptForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 400);
+                    w2ui.receiptForm.refresh();
+
+                    setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
                 }
                 if (data.status != 'success') {
                     w2ui.receiptForm.message(data.message);
@@ -3068,7 +3055,7 @@ function buildPageElements() {
                                 w2ui[form].get('ARID').options.items = app.Assessments[Bud];
                                 w2ui[form].refresh();
 
-                                setToForm(form, myurl);
+                                setToForm(form, myurl, 400, true);
                             }
                             if (data.status != 'success') {
                                 w2ui.asmsGrid.message(data.message);
@@ -3095,7 +3082,7 @@ function buildPageElements() {
                     var BID=x.value;
                     var BUD = getBUDfromBID(BID);
                     app.ridRentablePicker.BID = BID; // needed by typedown
-                    w2ui.asmEpochForm.url = '/v1/asm/' + BID + '/0';
+
                     var y = new Date();
                     var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
                         var record = {
@@ -3122,11 +3109,9 @@ function buildPageElements() {
                     w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
                     w2ui.asmEpochForm.record = record;
-
                     w2ui.asmEpochForm.refresh();
-                    w2ui.toplayout.content('right', w2ui.asmEpochForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 400);
+
+                    setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 400);
                 }
                 if (data.status != 'success') {
                     w2ui.asmEpochForm.message(data.message);
@@ -3765,7 +3750,7 @@ function buildPageElements() {
                 var rec = this.get(recID); // get record from record index
 
                 // popup the dialog form
-                setToForm('pmtForm', '/v1/pmts/' + rec.BID + '/' + rec.PMTID);
+                setToForm('pmtForm', '/v1/pmts/' + rec.BID + '/' + rec.PMTID, 400, true);
             }
         },
         onAdd: function (event) {
@@ -3785,10 +3770,7 @@ function buildPageElements() {
             w2ui.pmtForm.record = record;
             w2ui.pmtForm.refresh();
 
-            w2ui.pmtForm.url = '/v1/pmts/' + BID + '/0';
-            w2ui.toplayout.content('right', w2ui.pmtForm);
-            w2ui.toplayout.sizeTo('right', 700);
-            w2ui.toplayout.show('right', true);
+            setToForm('pmtForm', '/v1/pmts/' + BID + '/0', 400);
         },
     });
 
@@ -3977,7 +3959,7 @@ function buildPageElements() {
                             w2ui.depForm.refresh();
                         }
 
-                        setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID);
+                        setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID, 400, true);
                     })
                     .fail(function(data){
                         console.log("Failed to get glAccountList")
@@ -4027,10 +4009,7 @@ function buildPageElements() {
                     w2ui.depForm.record = record;
                     w2ui.depForm.refresh();
 
-                    w2ui.depForm.url = '/v1/dep/' + BID + '/0';
-                    w2ui.toplayout.content('right', w2ui.depForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 700);
+                    setToForm('depForm', '/v1/dep/' + BID + '/0', 400);
                 }
             })
             .fail( function() {
@@ -4232,7 +4211,7 @@ function buildPageElements() {
                         // refresh the form
                         w2ui.arsForm.refresh();
 
-                        setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID);
+                        setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID, 400, true);
                     })
                     .fail(function(data){
                         console.log("Failed to get glAccountList")
@@ -4296,10 +4275,8 @@ function buildPageElements() {
                     };
                     w2ui.arsForm.record = record;
                     w2ui.arsForm.refresh();
-                    w2ui.arsForm.url = '/v1/ar/' + BID + '/0';
-                    w2ui.toplayout.content('right', w2ui.arsForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 700);
+
+                    setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
                 }
             })
             .fail( function() {
