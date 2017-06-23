@@ -1433,6 +1433,7 @@ type RRprepSQL struct {
 	GetRentableTypeRefs                  *sql.Stmt
 	GetAllRentableStatus                 *sql.Stmt
 	GetRentalAgreementTypeDown           *sql.Stmt
+	GetLedgerEntriesByJAID               *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

@@ -804,6 +804,19 @@ func GetLedgerEntryByJAID(bid, lid, jaid int64) LedgerEntry {
 	return a
 }
 
+// GetLedgerEntriesByJAID returns the GLAccount struct for the supplied LID
+func GetLedgerEntriesByJAID(bid, jaid int64) []LedgerEntry {
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesByJAID.Query(bid, jaid)
+	Errcheck(err)
+	var m []LedgerEntry
+	for rows.Next() {
+		var le LedgerEntry
+		ReadLedgerEntries(rows, &le)
+		m = append(m, le)
+	}
+	return m
+}
+
 // GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
 func GetLedgerByGLNo(bid int64, s string) GLAccount {
 	var a GLAccount

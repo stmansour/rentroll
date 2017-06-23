@@ -592,8 +592,9 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Title  Delete Assessment
 //	@URL /v1/asm/:BUI/:ASMID
 //  @Method  POST
-//	@Synopsis Delete an Assessment
-//  @Description  Delete Assessment for requested ASMID
+//	@Synopsis Delete an Assessment record and associate Journal entries
+//  @Description  Delete Assessment for requested ASMID.  Only use this
+//  @Description  command if you really know what you're doing.
 //	@Input DeleteAsmForm
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
@@ -610,6 +611,14 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+
+	ja := rlib.GetJournalAllocationByASMID(del.ASMID)
+	m := rlib.GetLedgerEntriesByJAID(d.BID, ja.JAID)
+	for i := 0; i < len(m); i++ {
+		rlib.DeleteLedgerEntry(m[i].LEID)
+	}
+	rlib.DeleteJournal(ja.JID)
+	rlib.DeleteJournalAllocation(ja.JAID)
 
 	if err := rlib.DeleteAssessment(del.ASMID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)

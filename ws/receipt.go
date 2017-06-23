@@ -385,6 +385,8 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		ra.Dt = a.Dt
 		rlib.InsertReceiptAllocation(&ra)
 
+		a.RA = append(a.RA, ra)
+
 		//------------------------------------------------
 		// Add it to the Journal
 		//------------------------------------------------
@@ -398,7 +400,11 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-		fmt.Printf("Journal record created: JID = %d\n", jnl.JID)
+
+		rlib.GetJournalAllocations(&jnl)
+		fmt.Printf("Journal record created: JID = %d, len(jnl.JA) = %d\n", jnl.JID, len(jnl.JA))
+		rlib.InitLedgerCache()
+		rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2)
 
 	} else {
 		// update existing record
@@ -442,9 +448,9 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //	@URL /v1/receipt/:BUI/:RCPTID
 //  @Method  POST
 //	@Synopsis Delete a Receipt
-//  @Description  Delete Receipt for requested RCPTID. It also deletes associated
+//  @Description  *** WARNING ***  Only use this command if you really know what you're doing.
+//  @Description  Delete Receipt records for requested RCPTID. It also deletes associated
 //  @Description  Journal, JournalAllocation, and ReceiptAllocation records.
-//  @Description  Only use this command if you really know what you're doing.
 //	@Input DeleteRcptForm
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
@@ -461,13 +467,22 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+
 	j := rlib.GetJournalByReceiptID(del.RCPTID)
+	rlib.GetJournalAllocations(&j)
+	for k := 0; k < len(j.JA); k++ {
+		m := rlib.GetLedgerEntriesByJAID(d.BID, j.JA[k].JAID)
+		for i := 0; i < len(m); i++ {
+			rlib.DeleteLedgerEntry(m[i].LEID)
+		}
+	}
 	rlib.DeleteJournalAllocations(j.JID)
 	rlib.DeleteJournal(j.JID)
 	if err := rlib.DeleteReceiptAllocations(del.RCPTID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+
 	if err := rlib.DeleteReceipt(del.RCPTID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return

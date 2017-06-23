@@ -136,11 +136,11 @@ func DeleteJournalMarker(jmid int64) {
 	}
 }
 
-// DeleteLedgerEntry deletes the LedgerEntry record with the supplied lid
-func DeleteLedgerEntry(lid int64) error {
-	_, err := RRdb.Prepstmt.DeleteLedgerEntry.Exec(lid)
+// DeleteLedgerEntry deletes the LedgerEntry record with the supplied id
+func DeleteLedgerEntry(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteLedgerEntry.Exec(id)
 	if err != nil {
-		Ulog("Error deleting LedgerEntry for LEID = %d, error: %v\n", lid, err)
+		Ulog("Error deleting LedgerEntry for LEID = %d, error: %v\n", id, err)
 	}
 	return err
 }

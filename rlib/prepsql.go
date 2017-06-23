@@ -446,6 +446,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntryByJAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from LedgerEntry WHERE BID=? AND LID=? AND JAID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetLedgerEntriesByJAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from LedgerEntry WHERE BID=? AND JAID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesForRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RAID=? AND LID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesForRentable, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerEntry WHERE ?<=Dt AND Dt<? AND RID=? AND LID=?")
