@@ -497,20 +497,23 @@ function plural(s) {
 //-----------------------------------------------------------------------------
 function dateFromDC(dc) {
     "use strict";
-    var ds = new Date(dc.value);
-    ds = ds.replace(/-/g,"-") // first replace `-` with `/` if date string has those
-    var re = /^[0-9]{4}[\/][0-9]{2}[\/][0-9]{2}$/g // regex pattern to satisfy date pattern `yyyy/mm/dd`
+    var ds = dc.value; // get date string value from controller
+    ds = ds.replace(/\//g,"-") // first replace `-` with `/` if date string has those
+    var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/ // regex pattern to satisfy date pattern `yyyy/mm/dd`
 
+    var valid = re.test(ds);
     // if datestring does not satisfy the pattern then simply return null
-    if (!re.test(ds)) {
+    if (!valid) {
         return null;
     }
 
     // now execute regex pattern for the string
     var match = re.exec(ds);
+
+    // get year, month, date value
     var y = match[1], m = match[2], d = match[3];
 
-    return new Date(y, m - 1, d); // month starts from 0 index so needs to substract by 1
+    return new Date(y, m-1, d); // month starts from 0 index so needs to substract by 1
 }
 
 //-----------------------------------------------------------------------------
@@ -568,37 +571,37 @@ function dayFwd(dc) {
     return setDateControl(dc, x);
 }
 
-// //-----------------------------------------------------------------------------
-// // dateMonthFwd - return a date that is one month from the supplied date. It
-// //                will snap the date to the end of the month if the
-// //                current date is the end of the month.
-// // @params
-// //   y = starting date
-// // @return - a date that is one month from y
-// //-----------------------------------------------------------------------------
-// function dateMonthFwd(y) {
-//     "use strict";
-//     var m = (y.getMonth() + 1) % 12; // set m to the correct next month value
-//     var my = (y.getMonth() + 1) / 12; // number of years to add for next month
-//     var d = y.getDate(); // this is the target date
-//     // console.log('dateMonthFwd: T1 -    d = ' + d);
+//-----------------------------------------------------------------------------
+// dateMonthFwd - return a date that is one month from the supplied date. It
+//                will snap the date to the end of the month if the
+//                current date is the end of the month.
+// @params
+//   y = starting date
+// @return - a date that is one month from y
+//-----------------------------------------------------------------------------
+function dateMonthFwd(y) {
+    "use strict";
+    var m = (y.getMonth() + 1) % 12; // set m to the correct next month value
+    var my = (y.getMonth() + 1) / 12; // number of years to add for next month
+    var d = y.getDate(); // this is the target date
+    // console.log('dateMonthFwd: T1 -    d = ' + d);
 
-//     // If there is a chance that there is no such date next month, then let's make sure we
-//     // do this right. If the date is > than the number of days in month m then snap as follows:
-//     // if d is valid in month m then use d, otherwise snap to the end of the month.
-//     if (d > 28) {
-//         var d0 = new Date(y.getFullYear() + my, m, 0, 0, 0, 0);
-//         var daysInCurrentMonth = d0.getDate();
-//         var m2 = (y.getMonth() + 2) % 12; // used to find # days in month m
-//         var m2y = (y.getMonth() + 2) / 12; // number of years to add for month m
-//         var d3 = new Date(y.getFullYear() + m2y, m2, 0, 0, 0, 0);
-//         var daysInNextMonth = d3.getDate();
-//         if (d >= daysInNextMonth || d == daysInCurrentMonth) { d = daysInNextMonth; }
-//     }
-//     // console.log('dateMonthFwd:  m = ' + m + '   d = ' + d);
-//     var d2 = new Date(y.getFullYear() + my, m, d, 0, 0, 0);
-//     return d2;
-// }
+    // If there is a chance that there is no such date next month, then let's make sure we
+    // do this right. If the date is > than the number of days in month m then snap as follows:
+    // if d is valid in month m then use d, otherwise snap to the end of the month.
+    if (d > 28) {
+        var d0 = new Date(y.getFullYear() + my, m, 0, 0, 0, 0);
+        var daysInCurrentMonth = d0.getDate();
+        var m2 = (y.getMonth() + 2) % 12; // used to find # days in month m
+        var m2y = (y.getMonth() + 2) / 12; // number of years to add for month m
+        var d3 = new Date(y.getFullYear() + m2y, m2, 0, 0, 0, 0);
+        var daysInNextMonth = d3.getDate();
+        if (d >= daysInNextMonth || d == daysInCurrentMonth) { d = daysInNextMonth; }
+    }
+    // console.log('dateMonthFwd:  m = ' + m + '   d = ' + d);
+    var d2 = new Date(y.getFullYear() + my, m, d, 0, 0, 0);
+    return d2;
+}
 
 //-----------------------------------------------------------------------------
 // monthFwd - supply the date control and this function will go to the next
@@ -611,35 +614,34 @@ function dayFwd(dc) {
 function monthFwd(dc) {
     "use strict";
     var y = dateFromDC(dc);
-    // set date to next month
-    y.setMonth(y.getMonth() + 1)
-    return setDateControl(dc, y);
+    var d2 = dateMonthFwd(y);
+    return setDateControl(dc, d2);
 }
 
-// //-----------------------------------------------------------------------------
-// // dateMonthBack - return a date which is a month prior to the supplied date
-// // @params
-// //   y = input date
-// // @return date which is y - 1 month
-// //-----------------------------------------------------------------------------
-// function dateMonthBack(y) {
-//     "use strict";
-//     var yb = 0; // assume same year
-//     var m = y.getMonth() - 1;
-//     if (m < 0) {
-//         m = 11;
-//         yb = 1; // we've gone back one year
-//     }
-//     var d = y.getDate();
-//     if (d >= 28) {
-//         var d0 = new Date(y.getFullYear(), ((y.getMonth() + 1) % 12), 0, 0, 0, 0); // date of last day in prev month
-//         var daysInCurrentMonth = d0.getDate();
-//         var d3 = new Date(y.getFullYear() - yb, y.getMonth(), 0, 0, 0, 0); // date() is number of days in month y.getMonth()
-//         var daysInPrevMonth = d3.getDate();
-//         if (d == daysInCurrentMonth || d >= daysInPrevMonth) { d = daysInPrevMonth; }
-//     }
-//     return new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
-// }
+//-----------------------------------------------------------------------------
+// dateMonthBack - return a date which is a month prior to the supplied date
+// @params
+//   y = input date
+// @return date which is y - 1 month
+//-----------------------------------------------------------------------------
+function dateMonthBack(y) {
+    "use strict";
+    var yb = 0; // assume same year
+    var m = y.getMonth() - 1;
+    if (m < 0) {
+        m = 11;
+        yb = 1; // we've gone back one year
+    }
+    var d = y.getDate();
+    if (d >= 28) {
+        var d0 = new Date(y.getFullYear(), ((y.getMonth() + 1) % 12), 0, 0, 0, 0); // date of last day in prev month
+        var daysInCurrentMonth = d0.getDate();
+        var d3 = new Date(y.getFullYear() - yb, y.getMonth(), 0, 0, 0, 0); // date() is number of days in month y.getMonth()
+        var daysInPrevMonth = d3.getDate();
+        if (d == daysInCurrentMonth || d >= daysInPrevMonth) { d = daysInPrevMonth; }
+    }
+    return new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
+}
 
 //-----------------------------------------------------------------------------
 // monthBack - supply the date control, this function will go to the previous
@@ -652,9 +654,8 @@ function monthFwd(dc) {
 function monthBack(dc) {
     "use strict";
     var y = dateFromDC(dc);
-    // set date to previous month
-    y.setMonth(y.getMonth() - 1)
-    return setDateControl(dc, y);
+    var d2 =  dateMonthBack(y);
+    return setDateControl(dc, d2);
 }
 
 //-----------------------------------------------------------------------------
