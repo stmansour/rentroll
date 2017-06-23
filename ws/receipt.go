@@ -126,7 +126,7 @@ var receiptsFieldsMap = map[string][]string{
 	"Dt":       {"Receipt.Dt"},
 	"DocNo":    {"Receipt.DocNo"},
 	"Amount":   {"Receipt.Amount"},
-	"Payor":    {"Transactant.FirstName", "Transactant.LastName"},
+	"Payor":    {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
 	"ARID":     {"Receipt.ARID"},
 	"AcctRule": {"AR.Name"},
 }
@@ -140,7 +140,7 @@ var receiptsQuerySelectFields = []string{
 	"Receipt.Dt",
 	"Receipt.DocNo",
 	"Receipt.Amount",
-	"CONCAT(Transactant.FirstName, ' ', Transactant.LastName) AS Payor",
+	"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payor",
 	"Receipt.ARID",
 	"AR.Name",
 }
