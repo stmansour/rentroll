@@ -1077,6 +1077,23 @@ function getFormSubmitData(record) {
     return record;
 }
 
+//-----------------------------------------------------------------------------
+// formDeleteBtn -  show / hide delete button for requested form
+// if form has delete button
+// @params
+//   sform   = name of the form
+//   action     = show / hide
+//-----------------------------------------------------------------------------
+function formDeleteBtn(sform, action) {
+    "use strict";
+    if (action == "show") {
+        $("#"+sform).find("button[name=delete]").removeClass("hidden");
+    }
+    else if (action == "hide") {
+        $("#"+sform).find("button[name=delete]").addClass("hidden");
+    }
+}
+
 function number_format(number, decimals, dec_point, thousands_sep) {
     // http://kevin.vanzonneveld.net
     // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)

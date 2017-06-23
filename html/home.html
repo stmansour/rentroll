@@ -5,6 +5,7 @@
     <script src="/js/jquery.min.js"></script>
     <script src="/js/w2ui-1.5.rc1.js"></script>
     <link rel="stylesheet" href="/html/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/html/rentroll.css">
     <script src="/js/rutil.js"></script>
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
@@ -933,6 +934,7 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
+
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
@@ -1105,8 +1107,10 @@ function buildPageElements() {
                 var BUD = getBUDfromBID(r.BID);
                 if (r.LID) {
                     f.header = 'Edit Account Detail' + ' (' + r.LID + ')';
+                    formDeleteBtn(f.name, "show");
                 } else {
                     f.header = 'Edit Account Detail (new)';
+                    formDeleteBtn(f.name, "hide");
                 }
 
                 $("#accountForm").find('input[name=AllowPost]').w2field('list', {
@@ -1451,8 +1455,10 @@ function buildPageElements() {
             if (r.TCID) {
                 var name = r.FirstName + ' ' + r.LastName;
                 title = 'Edit ' + app.sTransactant + ' - ' + name +' (' + r.TCID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 title = 'Edit '+app.sTransactant+' (new)';
+                formDeleteBtn(f.name, "hide");
             }
             f.header = title;
         }
@@ -1753,8 +1759,10 @@ function buildPageElements() {
                 var r = f.record;
                 if (r.RTID) {
                     f.header = 'Edit ' + app.sRentableType + ' (' + r.RTID +')';
+                    formDeleteBtn(f.name, "show");
                 } else {
                     f.header = 'Edit ' + app.sRentableType + ' (new)';
+                    formDeleteBtn(f.name, "hide");
                 }
 
                 // assignmentTime selected and items for w2field
@@ -1994,8 +2002,10 @@ function buildPageElements() {
                 var r = f.record;
                 if (r.RID) {
                     f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
+                    formDeleteBtn(f.name, "show");
                 } else {
                     f.header = 'Edit ' + app.sRentable + ' (new) as of '+ r.CurrentDate;
+                    formDeleteBtn(f.name, "hide");
                 }
 
                 // assignmentTime selected and items for w2field
@@ -2294,7 +2304,14 @@ function buildPageElements() {
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.rentalagrForm;
-            f.header = 'Edit ' + app.sRentalAgreement +  ' - ' + ((f.record.RAID === 0) ? '(new)' : 'RA' + f.record.RAID);
+            if (f.record.RAID) {
+                f.header = "Edit" + app.sRentalAgreement + " (RA" + f.record.RAID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else{
+                f.header = "Edit" + app.sRentalAgreement + "(new)"
+                formDeleteBtn(f.name, "hide");
+            }
         },
         onValidate: function(event) {
             if (this.record.AgreementStart === '') {
@@ -2590,7 +2607,7 @@ function buildPageElements() {
             toolbar        : true,
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
@@ -2622,14 +2639,6 @@ function buildPageElements() {
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
             {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
         ],
-        actions: {
-            save: function () {
-                var tgrid = w2ui.receiptsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
-                // console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
-            },
-        },
         onClick: function(event) {
             event.onComplete = function () {
                 var sel = this.getSelection();
@@ -2844,7 +2853,16 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.receiptForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sReceipt + ' (' + ((r.RCPTID === 0) ? 'new' : ''+r.RCPTID) + ')';
+
+            if (r.RCPTID) {
+                f.header = "Edit" + app.sReceipt + " (" + r.RCPTID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else {
+                f.header = "Edit" + app.sReceipt + " (new)"
+                formDeleteBtn(f.name, "hide");
+            }
+
             var BUD = (typeof r.BID == "object") ? r.BID.id : r.BID;
             f.fields[0].options.items = buildPaymentTypeOptions( BUD );
             f.fields[1].options.items = app.Receipts[BUD];
@@ -2990,7 +3008,7 @@ function buildPageElements() {
             toolbar        : true,
             footer         : true,
             toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : true,   // indicates if toolbar delete button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
@@ -3028,14 +3046,6 @@ function buildPageElements() {
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
         ],
-        actions: {
-            save: function () {
-                var tgrid = w2ui.asmsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
-                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
-            },
-        },
         onClick: function(event) {
             event.onComplete = function () {
                 var sel = this.getSelection();
@@ -3327,14 +3337,13 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.asmEpochForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sAssessment + ' (' + ((r.ASMID === 0) ? "new" : ''+r.ASMID) + ')';
-            if (!String.prototype.format) {
-                String.prototype.format = function() {
-                    var args = arguments;
-                    return this.replace(/{(\d+)}/g, function(match, number) {
-                        return typeof args[number] != 'undefined'? args[number] : match;
-                    });
-                };
+            if (r.ASMID) {
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else {
+                f.header = "Edit" + app.sAssessment + " (new)"
+                formDeleteBtn(f.name, "hide");
             }
         }
     });
@@ -3459,7 +3468,16 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.asmInstForm;
             var r = f.record;
-            f.header = 'Edit ' + app.sAssessment + ' (' + r.ASMID + ')';
+
+            if (r.ASMID) {
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")"
+                formDeleteBtn(f.name, "show");
+            }
+            else {
+                f.header = "Edit" + app.sAssessment + " (new)"
+                formDeleteBtn(f.name, "hide");
+            }
+
             // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
             if (!String.prototype.format) {
                 String.prototype.format = function() {
@@ -3469,6 +3487,7 @@ function buildPageElements() {
                     });
                 };
             }
+
             var hdr = '';
             if (typeof r.RentCycle !== "object") { return; }
             if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
@@ -3891,8 +3910,10 @@ function buildPageElements() {
             var r = f.record;
             if (r.PMTID) {
                 f.header = 'Edit Payment Type' + ' (' + r.PMTID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 f.header = 'Edit Payment Type (new)';
+                formDeleteBtn(f.name, "hide");
             }
         }
     });
@@ -4126,8 +4147,10 @@ function buildPageElements() {
             var r = f.record;
             if (r.DEPID) {
                 f.header = 'Edit Depository' + ' (' + r.DEPID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 f.header = 'Edit Depository (new)';
+                formDeleteBtn(f.name, "hide");
             }
         }
     });
@@ -4401,8 +4424,10 @@ function buildPageElements() {
             var r = f.record;
             if (r.ARID) {
                 f.header = 'Edit Account Rule' + ' (' + r.ARID + ')';
+                formDeleteBtn(f.name, "show");
             } else {
                 f.header = 'Edit Account Rule (new)';
+                formDeleteBtn(f.name, "hide");
             }
 
         }
