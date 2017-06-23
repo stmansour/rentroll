@@ -8,7 +8,7 @@ irex:
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
-	rm -f rentroll.log log ll.g llog [a-z] [a-z][a-z] [a-z][0-9] [a-z][0-9][a-z] fail *.json unalloc.sql
+	rm -f rentroll.log log ll.g llog [a-z] [a-z][a-z] [a-z][0-9] [a-z][0-9][a-z] fail *.json
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 test:

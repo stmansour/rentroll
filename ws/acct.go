@@ -515,12 +515,20 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-		// err = rlib.InsertLedgerMarker(&a)
-		// if err != nil {
-		// 	e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
-		// 	SvcGridErrorReturn(w, e, funcname)
-		// 	return
-		// }
+
+		// begin a LedgerMarker for this
+		var lm = rlib.LedgerMarker{
+			BID:   a.BID,
+			LID:   a.LID,
+			Dt:    time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
+			State: rlib.MARKERSTATEORIGIN,
+		}
+		err = rlib.InsertLedgerMarker(&lm)
+		if err != nil {
+			e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing GLAccount: %s\n", a.Name)
@@ -638,9 +646,11 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //	@URL /v1/account/:BUI/:LID
 //  @Method  DELETE
 //	@Synopsis Delete record for a GL Account
-//  @Description  Delete record from database ars :LID
+//  @Description  Delete the GL Account for a database and delete its
+//  @Description  associated LedgerMarkers.  Use with caution. Only use
+//  @Description  this command if you really understand what you're doing.
 //	@Input WebGridSearchRequest
-//  @Response DeleteARResposne
+//  @Response DeleteARResponse
 // wsdoc }
 func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "deleteGLAccount"
@@ -648,6 +658,18 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 	var del AcctDeleteForm
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// First, remove LedgerMarkers for this LID
+	lm := rlib.GetLatestLedgerMarkerByLID(d.BID, del.LID)
+	if lm.State != rlib.MARKERSTATEORIGIN {
+		e := fmt.Errorf("This account (LID = %d) cannot be deleted because Ledger Markers exist beyond the origin", del.LID)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	if err := rlib.DeleteLedgerMarker(lm.LMID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}

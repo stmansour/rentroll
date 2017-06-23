@@ -276,7 +276,7 @@ func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 		var j Journal
 		ReadJournals(rows, &j)
 		DeleteJournalAllocations(j.JID)
-		DeleteJournalEntry(j.JID)
+		DeleteJournal(j.JID)
 	}
 
 	// only delete the marker if it is in this time range and if it is not the origin marker

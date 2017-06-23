@@ -175,7 +175,11 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		q.Recid = i
 		q.TCID = t.TCID
 		q.BID = t.BID
-		q.Name = t.FirstName + " " + t.LastName
+		if t.IsCompany != 0 {
+			q.Name = t.CompanyName
+		} else {
+			q.Name = t.FirstName + " " + t.LastName
+		}
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record

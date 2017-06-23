@@ -120,9 +120,9 @@ func DeleteJournalAllocations(jid int64) {
 	}
 }
 
-// DeleteJournalEntry deletes the Journal record with the supplied jid
-func DeleteJournalEntry(jid int64) {
-	_, err := RRdb.Prepstmt.DeleteJournalEntry.Exec(jid)
+// DeleteJournal deletes the Journal record with the supplied jid
+func DeleteJournal(jid int64) {
+	_, err := RRdb.Prepstmt.DeleteJournal.Exec(jid)
 	if err != nil {
 		Ulog("Error deleting Journal entry for JID = %d, error: %v\n", jid, err)
 	}
