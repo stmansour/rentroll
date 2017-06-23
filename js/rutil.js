@@ -498,15 +498,14 @@ function plural(s) {
 
 
 //-----------------------------------------------------------------------------
-// dateFromDC - return a java date value equal to the date in the supplied
+// dateFromString - return a java date value equal to the date in the supplied
 //              date control
 // @params
-//   dc = date control
+//   ds = date string value
 // @return - java date value
 //-----------------------------------------------------------------------------
-function dateFromDC(dc) {
+function dateFromString(ds) {
     "use strict";
-    var ds = dc.value; // get date string value from controller
     ds = ds.replace(/\//g,"-") // first replace `-` with `/` if date string has those
     var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/ // regex pattern to satisfy date pattern `yyyy/mm/dd`
 
@@ -560,7 +559,7 @@ function dateFmtStr(today) {
 //-----------------------------------------------------------------------------
 function dayBack(dc) {
     "use strict";
-    var x = dateFromDC(dc);
+    var x = dateFromString(dc.value);
     // set date to previous day
     x.setDate(x.getDate() - 1);
     return setDateControl(dc, x);
@@ -574,7 +573,7 @@ function dayBack(dc) {
 //-----------------------------------------------------------------------------
 function dayFwd(dc) {
     "use strict";
-    var x = dateFromDC(dc);
+    var x = dateFromString(dc.value);
     // set date to next day
     x.setDate(x.getDate() + 1);
     return setDateControl(dc, x);
@@ -622,7 +621,7 @@ function dateMonthFwd(y) {
 //-----------------------------------------------------------------------------
 function monthFwd(dc) {
     "use strict";
-    var y = dateFromDC(dc);
+    var y = dateFromString(dc.value);
     var d2 = dateMonthFwd(y);
     return setDateControl(dc, d2);
 }
@@ -662,7 +661,7 @@ function dateMonthBack(y) {
 //-----------------------------------------------------------------------------
 function monthBack(dc) {
     "use strict";
-    var y = dateFromDC(dc);
+    var y = dateFromString(dc.value);
     var d2 =  dateMonthBack(y);
     return setDateControl(dc, d2);
 }
