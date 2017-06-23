@@ -506,8 +506,8 @@ function plural(s) {
 //-----------------------------------------------------------------------------
 function dateFromString(ds) {
     "use strict";
-    ds = ds.replace(/\//g,"-") // first replace `-` with `/` if date string has those
-    var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/ // regex pattern to satisfy date pattern `yyyy/mm/dd`
+    ds = ds.replace(/\//g,"-"); // first replace `-` with `/` if date string has those
+    var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/; // regex pattern to satisfy date pattern `yyyy/mm/dd`
 
     var valid = re.test(ds);
     // if datestring does not satisfy the pattern then simply return null
@@ -623,6 +623,38 @@ function monthFwd(dc) {
     "use strict";
     var y = dateFromString(dc.value);
     var d2 = dateMonthFwd(y);
+    return setDateControl(dc, d2);
+}
+
+//-----------------------------------------------------------------------------
+// setToCurrentMonth
+//            This routine sets the supplied date control to the 1st of
+//            the current month.
+// @params
+//   dc = date control
+// @return string value that was set in dc
+//-----------------------------------------------------------------------------
+function setToCurrentMonth(dc) {
+    "use strict";
+    var y = new Date();
+    var d2 = new Date(y.getFullYear(), y.getMonth(), 1, 0, 0, 0, 0);
+    return setDateControl(dc, d2);
+}
+
+//-----------------------------------------------------------------------------
+// setToNextMonth
+//            This routine sets the supplied date control to the 1st of
+//            the next month..
+// @params
+//   dc = date control
+// @return string value that was set in dc
+//-----------------------------------------------------------------------------
+function setToNextMonth(dc) {
+    "use strict";
+    var y = new Date();
+    var my = (y.getMonth() + 1) / 12; // number of years to add for next month
+    var m = (y.getMonth() + 1) % 12;  // next month
+    var d2 = new Date(y.getFullYear() + my, m, 1, 0,0,0,0);
     return setDateControl(dc, d2);
 }
 
@@ -790,6 +822,10 @@ function handleDateToolbarAction(event,prefix) {
             app.D1 = monthFwd(xd1);
             app.D2 = monthFwd(xd2);
             break;
+        case 'today':
+            app.D1 = setToCurrentMonth(xd1);
+            app.D2 = setToNextMonth(xd2);
+            break;
         case 'dayback':
             app.D1 = dayBack(xd1);
             app.D2 = dayBack(xd2);
@@ -840,6 +876,7 @@ function genDateRangeNavigator(prefix) {
         { type: 'button', id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
         { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' },
         { type: 'html', id: 'D1', html: function() {return html1; } },
+        { type: 'button', id: 'today', icon: 'fa fa-circle-o', tooltip: 'present month' },
         { type: 'html', id: 'D2', html: function() {return html2; } },
         { type: 'button', id: 'dayfwd', icon: 'fa fa-chevron-circle-right', tooltip: 'day forward' },
         { type: 'button', id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
