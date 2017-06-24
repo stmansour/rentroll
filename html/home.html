@@ -45,7 +45,7 @@ var app = {
     TmpTCID: 0,  // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
-    RentalAgrFinder: {BID: 0, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false},
+    RentalAgrFinder: {BID: 0, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
     ARTypes: {0: "Assessment", 1: "Receipt"},
     Assessments: [{id: 0, text: "Set Assessment Rule"},],
@@ -3106,7 +3106,7 @@ function buildPageElements() {
                         LastModTime: w2uiDateControlString(y),
                         LastModBy: 0,
                     };
-                    w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+                    // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
                     w2ui.asmEpochForm.record = record;
                     w2ui.asmEpochForm.refresh();
@@ -3213,25 +3213,26 @@ function buildPageElements() {
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
             { field: 'PASMID',        type: 'w2int',  required: false },
-            { field: 'Rentable', required: false,  /* INDEX 5 -- if changed, then change URL for Typedown in asmsGrid onAdd handler */
-                type: 'enum',
-                options: {
-                    url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
-                    max:        1,
-                    cacheMax:   50,
-                    renderItem: asmFormRentablePickerRender,
-                    renderDrop: ridRentableDropRender,
-                    compare:    ridRentableCompare,
-                    onNew: function (event) {
-                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
-                        $.extend(event.item, { Rentable : event.item.text });
-                    }
-                },
-            },
-            { field: 'InvoiceNo',     type: 'int',  required: false },
-            { field: 'RID',           type: 'int',  required: false },
-            { field: 'ATypeLID',      type: 'int',  required: false },
-            { field: 'RAID',          type: 'int',  required: true },
+            // { field: 'Rentable', required: false,  /* INDEX 5 -- if changed, then change URL for Typedown in asmsGrid onAdd handler */
+            //     type: 'enum',
+            //     options: {
+            //         url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
+            //         max:        1,
+            //         cacheMax:   50,
+            //         renderItem: asmFormRentablePickerRender,
+            //         renderDrop: ridRentableDropRender,
+            //         compare:    ridRentableCompare,
+            //         onNew: function (event) {
+            //             //console.log('++ New Item: Do not forget to submit it to the server too', event);
+            //             $.extend(event.item, { Rentable : event.item.text });
+            //         }
+            //     },
+            // },
+            { field: 'Rentable',      type: 'text',   required: false },
+            { field: 'InvoiceNo',     type: 'int',    required: false },
+            { field: 'RID',           type: 'int',    required: false },
+            { field: 'ATypeLID',      type: 'int',    required: false },
+            { field: 'RAID',          type: 'int',    required: true },
             { field: 'Amount',        type: 'money',  required: true },
             { field: 'Start',         type: 'date',   required: true },
             { field: 'Stop',          type: 'date',   required: true },
@@ -3347,9 +3348,9 @@ function buildPageElements() {
             { field: 'recid',         type: 'int',    required: false },
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: false },
-            { field: 'PASMID',        type: 'w2int',   required: false },
-            { field: 'RID',           type: 'w2int',   hidden: true },
-            { field: 'Rentable',           type: 'text',   required: false },
+            { field: 'PASMID',        type: 'w2int',  required: false },
+            { field: 'RID',           type: 'w2int',  hidden:   true },
+            { field: 'Rentable',      type: 'text',   required: false },
             { field: 'RAID',          type: 'w2int',  required: false },
             { field: 'Amount',        type: 'money',  required: true },
             { field: 'Start',         type: 'date',   required: true },
@@ -3647,6 +3648,7 @@ function buildPageElements() {
         focus  : 0,
         fields: [
             { field: 'TCID', type: 'int', required: true },
+            // INDEX 1
             { field: 'PayorName', required: true,
                 type: 'enum',
                 options: {
@@ -3661,7 +3663,8 @@ function buildPageElements() {
                     }
                 },
             },
-            //{ field: 'RentableName', type: 'list', required: true, options: { items: [] } },
+            // INDEX 2
+            { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
             { field: 'RAID', type: 'int', required: true },
             { field: 'FirstName', type: 'text', required: false},
             { field: 'LastName', type: 'text', required: false},
@@ -3670,10 +3673,12 @@ function buildPageElements() {
         ],
         onRefresh: function(/*event*/) {
             w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
-            // w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
-            // if (app.TcidRUserPicker.RARentablesNames.length == 1) {
-            //     w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
-            // }
+
+            w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
+            if (app.RentalAgrFinder.RARentablesNames.length == 1) {
+                w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];
+            }
+
         },
         onChange: function (event) {
             console.log(event);
@@ -3681,6 +3686,8 @@ function buildPageElements() {
         actions: {
             save: function () {
                 w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
+                w2ui.asmEpochForm.record.Rentable = w2ui.rentalAgrFinder.record.RentableName.text;
+                w2ui.asmEpochForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
                 w2ui.asmEpochForm.refresh();
                 w2popup.close();
                 // var errs = w2ui.tcidRUserPicker.validate(true);
@@ -4670,7 +4677,7 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
 function popupRentalAgrPicker() {
     "use strict";
     var x = getCurrentBusiness();
-    app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false}
+    app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []}
     w2ui.rentalAgrFinder.record.TCID = -1;
     w2ui.rentalAgrFinder.record.RAID = -1;
     w2ui.rentalAgrFinder.record.PayorName = '';
@@ -4679,17 +4686,8 @@ function popupRentalAgrPicker() {
     w2ui.rentalAgrFinder.record.FirstName = '';
     w2ui.rentalAgrFinder.record.LastName = '';
     w2ui.rentalAgrFinder.refresh();
-    // var url = '/v1/rar/' + bid + '/' + raid;
-    // $.get(url,function(data,status) {
-    //     if (status != "success") {
-    //         console.log('>>>>>>>>>>>>>>>  status = ' + status);
-    //         return;
-    //     }
-    //     app.TcidRUserPicker.RAR = JSON.parse(data);
-    //     for (var i = 0; i < app.TcidRUserPicker.RAR.records.length; i++) {
-    //         app.TcidRUserPicker.RARentablesNames.push(app.TcidRUserPicker.RAR.records[i].RentableName);
-    //     }
-    // });
+
+
     $().w2popup('open', {
         title   : 'Find Rental Agreement',
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',

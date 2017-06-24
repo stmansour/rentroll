@@ -472,10 +472,23 @@ function rentalAgrFinderRender(item) {
         MiddleName: item.MiddleName,
         LastName: item.LastName,
         IsCompany: item.IsCompany,
-        CompanyName: item.CompanyName
+        CompanyName: item.CompanyName,
+        RID: item.RID,
     };
-    // document.getElementById("rafinderRAID").innerHTML = '' + item.RAID;
-    w2ui.rentalAgrFinder.refresh();
+
+    // we need to get the rentables associated with item.RAID
+    var url = '/v1/rar/' + app.RentalAgrFinder.BID + '/' + item.RAID;
+    $.get(url,function(data,status) {
+        app.RentalAgrFinder.RAR = JSON.parse(data);
+        app.RentalAgrFinder.RARentablesNames = [];
+        for (var i = 0; i < app.RentalAgrFinder.RAR.records.length; i++) {
+            app.RentalAgrFinder.RARentablesNames.push(
+                { id: app.RentalAgrFinder.RAR.records[i].RID, text: app.RentalAgrFinder.RAR.records[i].RentableName} );
+        }
+        console.log('calling rentalAgrFinder.refresh(), app.RentalAgrFinder.RARentablesNames.length = ' + app.RentalAgrFinder.RARentablesNames.length );
+        w2ui.rentalAgrFinder.refresh();
+    });
+
 
     return s;
 }
