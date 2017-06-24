@@ -419,12 +419,11 @@ function buildPageElements() {
             },
             { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'rt',  text: plural(app.sRentableType),  icon: 'fa fa-asterisk', hint: 'Rentable Types' },
-                        { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
-                        { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
-                        { id: 'rentalagrs',  text: plural(app.sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
-                        { id: 'asms',  text: plural(app.sAssessment),  icon: 'fa fa-star-o', hint: plural(app.sAssessment) },
                         { id: 'receipts',  text: plural(app.sReceipt),  icon: 'fa fa-star', hint: plural(app.sReceipt) },
+                        { id: 'asms',  text: plural(app.sAssessment),  icon: 'fa fa-star-o', hint: plural(app.sAssessment) },
+                        { id: 'rentalagrs',  text: plural(app.sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
+                        { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
+                        { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
                         // { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
                         // { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
                 ]
@@ -457,10 +456,11 @@ function buildPageElements() {
             },
             { id: 'admin', text: 'Admin', img: 'icon-wrench', expanded: false, group: true,
                 nodes: [
-                    { id: 'accounts', text: 'Chart Of Accounts',   icon: 'fa fa-list' },
-                    { id: 'pmts',     text: 'Payment Types',       icon: 'fa fa-credit-card' },
-                    { id: 'dep',      text: 'Depositories',        icon: 'fa fa-university' },
-                    { id: 'ars',      text: 'Account Rules',       icon: 'fa fa-cogs' },
+                        { id: 'accounts', text: 'Chart Of Accounts',   icon: 'fa fa-list' },
+                        { id: 'pmts',     text: 'Payment Types',       icon: 'fa fa-credit-card' },
+                        { id: 'dep',      text: 'Depositories',        icon: 'fa fa-university' },
+                        { id: 'ars',      text: 'Account Rules',       icon: 'fa fa-cogs' },
+                        { id: 'rt',  text: plural(app.sRentableType),  icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                 ]
             },
         ],
