@@ -3478,7 +3478,7 @@ function buildPageElements() {
             if (typeof r.RentCycle !== "object") { return; }
             if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
                 // EPOCH
-                hdr = 'This is an epoch assessment, it defines a recurring series of assessment instances.';
+                hdr = 'This assessment is not part of any recurring series';
             } else {
                 // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
                 hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
@@ -4678,6 +4678,8 @@ function popupRentalAgrPicker() {
     "use strict";
     var x = getCurrentBusiness();
     app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []}
+    app.RentalAgrFinder.RARentablesNames = [{id: 0, text:" "}];
+    w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
     w2ui.rentalAgrFinder.record.TCID = -1;
     w2ui.rentalAgrFinder.record.RAID = -1;
     w2ui.rentalAgrFinder.record.PayorName = '';
