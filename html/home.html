@@ -888,9 +888,9 @@ function buildPageElements() {
             {field: 'LID',      caption: 'LID',       size: '50px', sortable: false, hidden: true},
             {field: 'PLID',     caption: 'PLID',      size: '50px', sortable: false, hidden: true},
             {field: 'BID',      caption: 'BID',       size: '40px', sortable: false, hidden: true},
-            {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: false},
-            {field: 'Name',     caption: 'Name',      size: '450px', sortable: false},
-            {field: 'Status',   caption: 'Status',    size: '90px', sortable: false,
+            {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: true},
+            {field: 'Name',     caption: 'Name',      size: '450px', sortable: true},
+            {field: 'Status',   caption: 'Status',    size: '90px', sortable: true,
                 render: function (record, index, col_index) {
                     var html = '';
                     // app.account_stuff.status.forEach(function(item) {
@@ -907,7 +907,7 @@ function buildPageElements() {
                     return html;
                 },
             },
-            {field: 'AcctType', caption: 'AcctType', size: '150px', sortable: false},
+            {field: 'AcctType', caption: 'AcctType', size: '150px', sortable: true},
         ],
         onSelect:  function(event) {
             event.onComplete = function() {
