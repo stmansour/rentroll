@@ -188,6 +188,10 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		r := rlib.GetRentable(a.RID)
 		m := rlib.ParseAcctRule(ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		// printJournalSubtitle("\t" + rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
+		fmt.Printf("rcpt.RA[i].ASMID = %d, a.ASMID = %d, a.RID = %d\n", rcpt.RA[i].ASMID, a.ASMID, a.RID)
+		if r.BID == 0 {
+			fmt.Printf("r.BID == 0:  r.RID = %d\n", r.RID)
+		}
 		tbl.AddRow()
 		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		for k := 0; k < len(m); k++ {
