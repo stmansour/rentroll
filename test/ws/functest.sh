@@ -135,7 +135,7 @@ dojsonPOST "http://localhost:8270/v1/pmts/1/1" "request" "y"  "WebService--Payme
 dojsonGET "http://localhost:8270/v1/rtlist/2" "z" "WebService--GetRentableTypesForBusiness"
 
 # get GLAccounts list for a business
-dojsonGET "http://localhost:8270/v1/gllist/2" "aa" "WebService--GetGLAccountsForBusiness"
+dojsonGET "http://localhost:8270/v1/accountlist/2" "aa" "WebService--GetGLAccountsForBusiness"
 
 # get UI Values...
 doPlainGET "http://localhost:8270/v1/uival/REX/app.Assessments" "a1" "WebService--GetUIValue-app.Assessments"
