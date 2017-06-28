@@ -2884,7 +2884,7 @@ function buildPageElements() {
         },
         onLoad: function(event) {
             event.onComplete = function () {
-            var r = w2ui.receiptForm.record;
+                var r = w2ui.receiptForm.record;
                 r.PmtTypeName = getPaymentTypeName(r.BID,r.PMTID); // we have the PMTID, set the name
              };
         },
@@ -2913,6 +2913,20 @@ function buildPageElements() {
                 .fail(function(/*data*/){
                     console.log("Save Receipt failed.");
                 });
+
+                // get length of records from receipt grid and add new records to it
+                // only if receipts date falls in date range selection of grid
+                var recDate = dateFromString(this.record.Dt);
+                var xd1 = document.getElementsByName('receiptsD1')[0].value;
+                var xd2 = document.getElementsByName('receiptsD2')[0].value;
+                var d1 = dateFromString(xd1);
+                var d2 = dateFromString(xd2);
+                if (d1.getTime() <= recDate.getTime() && recDate.getTime() < d2.getTime()) {
+                    var recLen = w2ui.receiptsGrid.records.length;
+                    var newRec = this.record;
+                    w2ui.receiptsGrid.add(newRec);
+                    w2ui.receiptsGrid.render(); // redraw grid
+                }
 
                 // clear the form
                 this.clear();
