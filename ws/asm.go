@@ -185,7 +185,10 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	order := `Start ASC, RAID ASC` // default ORDER
 
 	// get where clause and order clause for sql query
-	_, orderClause := GetSearchAndSortSQL(d, asmFieldsMap)
+	whereClause, orderClause := GetSearchAndSortSQL(d, asmFieldsMap)
+	if len(whereClause) > 0 {
+		whr += " AND (" + whereClause + ")"
+	}
 	if len(orderClause) > 0 {
 		order = orderClause
 	}

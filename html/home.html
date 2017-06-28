@@ -3008,10 +3008,10 @@ function buildPageElements() {
             expandColumn    : false,
             toolbarEdit     : false,
             toolbarSearch   : false,
-            toolbarInput    : false,
+            toolbarInput    : true,
             searchAll       : false,
-            toolbarReload   : false,
-            toolbarColumns  : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
@@ -3039,6 +3039,10 @@ function buildPageElements() {
             // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
+        ],
+        searches : [
+            { field: 'Amount', caption: 'Amount', type: 'string' },
+            // { field: 'Invoice', caption: 'Invoice Number', type: 'string' },
         ],
         onClick: function(event) {
             event.onComplete = function () {
