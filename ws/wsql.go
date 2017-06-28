@@ -138,16 +138,25 @@ func gridBuildQueryWhereClause(q, table, srch, order string, d *ServiceData, p i
 	}
 
 	// Handle any Sorting requests
-	q += " ORDER BY "
+	var qOrder string
 	if len(d.wsSearchReq.Sort) > 0 {
 		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			if i > 0 {
-				q += ","
+			// do not sorting over recid, no such field exists actually on any datatype
+			if d.wsSearchReq.Sort[i].Field == "recid" || len(d.wsSearchReq.Sort[i].Direction) == 0 {
+				continue
 			}
-			q += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
+			if i > 0 {
+				qOrder += ","
+			}
+			qOrder += d.wsSearchReq.Sort[i].Field + " " + d.wsSearchReq.Sort[i].Direction
 		}
 	} else {
-		q += order
+		qOrder += order
+	}
+
+	// if any parameters are there for order by clause then
+	if len(qOrder) > 0 {
+		q += " ORDER BY " + qOrder
 	}
 
 	// now set up the offset and limit
@@ -305,7 +314,6 @@ func GetSearchAndSortSQL(d *ServiceData, fieldMap map[string][]string) (string, 
 		}
 		reqOrderClauseMap[gsrt] = fieldMap[gsrt.Field]
 	}
-
 	reqOrderClause = GetSQLOrderClause(reqOrderClauseMap)
 
 	return reqWhereClause, reqOrderClause

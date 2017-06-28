@@ -878,21 +878,21 @@ function buildPageElements() {
             lineNumbers: false,
             selectColumn: false,
             expandColumn: false,
-            searchAll: false,
-            toolbarSearch: false,
-            toolbarColumns: false,
-            toolbarInput: false,
             toolbarAdd: true,
-            toolbarReload: false,
+            searchAll: true,
+            toolbarSearch: true,
+            toolbarColumns: true,
+            toolbarInput: true,
+            toolbarReload: true,
         },
         columns: [
             {field: 'recid',    caption: 'recid',     size: '80px', sortable: false, hidden: true},
             {field: 'LID',      caption: 'LID',       size: '50px', sortable: false, hidden: true},
             {field: 'PLID',     caption: 'PLID',      size: '50px', sortable: false, hidden: true},
             {field: 'BID',      caption: 'BID',       size: '40px', sortable: false, hidden: true},
-            {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: false},
-            {field: 'Name',     caption: 'Name',      size: '450px', sortable: false},
-            {field: 'Status',   caption: 'Status',    size: '90px', sortable: false,
+            {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: true},
+            {field: 'Name',     caption: 'Name',      size: '450px', sortable: true},
+            {field: 'Status',   caption: 'Status',    size: '90px', sortable: true,
                 render: function (record, index, col_index) {
                     var html = '';
                     // app.account_stuff.status.forEach(function(item) {
@@ -909,14 +909,14 @@ function buildPageElements() {
                     return html;
                 },
             },
-            {field: 'AcctType', caption: 'AcctType', size: '150px', sortable: false},
+            {field: 'AcctType', caption: 'AcctType', size: '150px', sortable: true},
         ],
         onSelect:  function(event) {
             event.onComplete = function() {
                 var rec = this.get(event.recid);
 
                 // get latest gl accounts first
-                getGLAccounts(rec.BID)
+                getAccountsList(rec.BID)
                 .done(function(data) {
                     if (data.status != 'success') {
                         w2ui.accountForm.message(data.message);
@@ -941,7 +941,7 @@ function buildPageElements() {
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
 
-            getGLAccounts(BID)
+            getAccountsList(BID)
            .done(function(data) {
                 if (data.status != 'success') {
                     w2ui.accountForm.message(data.message);
@@ -1041,7 +1041,7 @@ function buildPageElements() {
                 r.PLID = 0;
 
                 // change the choice of parent account list
-                getGLAccounts(BID)
+                getAccountsList(BID)
                 .done(function(/*data*/) {
                     w2ui.accountForm.refresh();
                 });
@@ -2603,10 +2603,10 @@ function buildPageElements() {
             expandColumn    : false,
             toolbarEdit     : false,
             toolbarSearch   : false,
-            toolbarInput    : false,
+            toolbarInput    : true,
             searchAll       : false,
-            toolbarReload   : false,
-            toolbarColumns  : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
@@ -2628,6 +2628,11 @@ function buildPageElements() {
             },
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
             {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
+        ],
+        searches : [
+            { field: 'Amount', caption: 'Amount', type: 'string' },
+            { field: 'DocNo', caption: 'Document Number', type: 'string' },
+            { field: 'Payor', caption: 'Payor', type: 'string' },
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -2879,7 +2884,7 @@ function buildPageElements() {
         },
         onLoad: function(event) {
             event.onComplete = function () {
-            var r = w2ui.receiptForm.record;
+                var r = w2ui.receiptForm.record;
                 r.PmtTypeName = getPaymentTypeName(r.BID,r.PMTID); // we have the PMTID, set the name
              };
         },
@@ -2908,6 +2913,20 @@ function buildPageElements() {
                 .fail(function(/*data*/){
                     console.log("Save Receipt failed.");
                 });
+
+                // get length of records from receipt grid and add new records to it
+                // only if receipts date falls in date range selection of grid
+                var recDate = dateFromString(this.record.Dt);
+                var xd1 = document.getElementsByName('receiptsD1')[0].value;
+                var xd2 = document.getElementsByName('receiptsD2')[0].value;
+                var d1 = dateFromString(xd1);
+                var d2 = dateFromString(xd2);
+                if (d1.getTime() <= recDate.getTime() && recDate.getTime() < d2.getTime()) {
+                    var recLen = w2ui.receiptsGrid.records.length;
+                    var newRec = this.record;
+                    w2ui.receiptsGrid.add(newRec);
+                    w2ui.receiptsGrid.render(); // redraw grid
+                }
 
                 // clear the form
                 this.clear();
@@ -3003,10 +3022,10 @@ function buildPageElements() {
             expandColumn    : false,
             toolbarEdit     : false,
             toolbarSearch   : false,
-            toolbarInput    : false,
+            toolbarInput    : true,
             searchAll       : false,
-            toolbarReload   : false,
-            toolbarColumns  : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
@@ -3034,6 +3053,10 @@ function buildPageElements() {
             // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
+        ],
+        searches : [
+            { field: 'Amount', caption: 'Amount', type: 'string' },
+            // { field: 'Invoice', caption: 'Invoice Number', type: 'string' },
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -3953,7 +3976,7 @@ function buildPageElements() {
                     var BUD = getBUDfromBID(ob.BID);
 
                     // get gl account list
-                    getGLAccounts(ob.BID)
+                    getAccountsList(ob.BID)
                     .done(function(data){
                         if (data.status != 'success') {
                             w2ui.depForm.message(data.message);
@@ -3986,7 +4009,7 @@ function buildPageElements() {
             var BUD = getBUDfromBID(BID);
 
             // get latest gl accounts first
-            getGLAccounts(BID)
+            getAccountsList(BID)
             .done(function(data) {
 
                 if (data.status != 'success') {
@@ -4204,7 +4227,7 @@ function buildPageElements() {
                     });
 
                     // get gl account list
-                    getGLAccounts(ob.BID)
+                    getAccountsList(ob.BID)
                     .done(function(data){
 
                         // set fields
@@ -4239,7 +4262,7 @@ function buildPageElements() {
             var BUD = getBUDfromBID(BID);
 
             // get latest gl accounts first
-            getGLAccounts(BID)
+            getAccountsList(BID)
             .done(function(data) {
                 if (data.status != 'success') {
                     w2ui.arsForm.message(data.message);

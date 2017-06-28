@@ -169,7 +169,10 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	order := "Receipt.Dt ASC" // default ORDER
 
 	// get where clause and order clause for sql query
-	_, orderClause := GetSearchAndSortSQL(d, receiptsFieldsMap)
+	whereClause, orderClause := GetSearchAndSortSQL(d, receiptsFieldsMap)
+	if len(whereClause) > 0 {
+		whr += " AND (" + whereClause + ")"
+	}
 	if len(orderClause) > 0 {
 		order = orderClause
 	}

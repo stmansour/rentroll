@@ -519,22 +519,28 @@ function plural(s) {
 //-----------------------------------------------------------------------------
 function dateFromString(ds) {
     "use strict";
-    ds = ds.replace(/\//g,"-"); // first replace `-` with `/` if date string has those
-    var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/; // regex pattern to satisfy date pattern `yyyy/mm/dd`
 
-    var valid = re.test(ds);
-    // if datestring does not satisfy the pattern then simply return null
-    if (!valid) {
-        return null;
-    }
+    // Strange thing about javascript dates
+    // new Date("2017-06-28") gives a date with offset value with local timezone i.e, Wed Jun 28 2017 05:30:00 GMT+0530 (IST)
+    // new Date("2017/06/28") gives a date without offset value with local timezone i.e, Wed Jun 28 2017 00:00:00 GMT+0530 (IST)
 
-    // now execute regex pattern for the string
-    var match = re.exec(ds);
+    ds = ds.replace(/-/g,"\/").replace(/T.+/, ''); // first replace `/` with `-` and also remove `hh:mm:ss` value we don't need it
+    return new Date(ds);
 
-    // get year, month, date value
-    var y = match[1], m = match[2], d = match[3];
+    // var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/; // regex pattern to satisfy date pattern `yyyy/mm/dd`
 
-    return new Date(y, m-1, d); // month starts from 0 index so needs to substract by 1
+    // var valid = re.test(ds);
+    // // if datestring does not satisfy the pattern then simply return null
+    // if (!valid) {
+    //     return null;
+    // }
+
+    // // now execute regex pattern for the string
+    // var match = re.exec(ds);
+
+    // // get year, month, date value
+    // var y = match[1], m = match[2], d = match[3];
+    // return new Date(y, m-1, d); // month starts from 0 index so needs to substract by 1
 }
 
 //-----------------------------------------------------------------------------
@@ -921,15 +927,15 @@ function getRentableTypes(BID) {
 }
 
 //-----------------------------------------------------------------------------
-// getGLAccounts - return the GLAccounts list with respect of BUD
+// getAccountsList - return the GLAccounts list with respect of BUD
 // @params
-// @return  the GLAccounts
+// @return the list of accounts
 //-----------------------------------------------------------------------------
-function getGLAccounts(BID) {
+function getAccountsList(BID) {
     "use strict";
     return jQuery.ajax({
         type: "GET",
-        url: "/v1/gllist/"+BID,
+        url: "/v1/accountlist/"+BID,
         dataType: "json",
     }).done(function(data) {
         if (data.status == "success") {
