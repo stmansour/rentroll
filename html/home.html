@@ -2603,10 +2603,10 @@ function buildPageElements() {
             expandColumn    : false,
             toolbarEdit     : false,
             toolbarSearch   : false,
-            toolbarInput    : false,
+            toolbarInput    : true,
             searchAll       : false,
-            toolbarReload   : false,
-            toolbarColumns  : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
@@ -2628,6 +2628,11 @@ function buildPageElements() {
             },
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
             {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
+        ],
+        searches : [
+            { field: 'Amount', caption: 'Amount', type: 'string' },
+            { field: 'DocNo', caption: 'Document Number', type: 'string' },
+            { field: 'Payor', caption: 'Payor', type: 'string' },
         ],
         onClick: function(event) {
             event.onComplete = function () {
