@@ -921,15 +921,15 @@ function getRentableTypes(BID) {
 }
 
 //-----------------------------------------------------------------------------
-// getGLAccounts - return the GLAccounts list with respect of BUD
+// getAccountsList - return the GLAccounts list with respect of BUD
 // @params
-// @return  the GLAccounts
+// @return the list of accounts
 //-----------------------------------------------------------------------------
-function getGLAccounts(BID) {
+function getAccountsList(BID) {
     "use strict";
     return jQuery.ajax({
         type: "GET",
-        url: "/v1/gllist/"+BID,
+        url: "/v1/accountlist/"+BID,
         dataType: "json",
     }).done(function(data) {
         if (data.status == "success") {

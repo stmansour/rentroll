@@ -914,7 +914,7 @@ function buildPageElements() {
                 var rec = this.get(event.recid);
 
                 // get latest gl accounts first
-                getGLAccounts(rec.BID)
+                getAccountsList(rec.BID)
                 .done(function(data) {
                     if (data.status != 'success') {
                         w2ui.accountForm.message(data.message);
@@ -939,7 +939,7 @@ function buildPageElements() {
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
 
-            getGLAccounts(BID)
+            getAccountsList(BID)
            .done(function(data) {
                 if (data.status != 'success') {
                     w2ui.accountForm.message(data.message);
@@ -1039,7 +1039,7 @@ function buildPageElements() {
                 r.PLID = 0;
 
                 // change the choice of parent account list
-                getGLAccounts(BID)
+                getAccountsList(BID)
                 .done(function(/*data*/) {
                     w2ui.accountForm.refresh();
                 });
@@ -3951,7 +3951,7 @@ function buildPageElements() {
                     var BUD = getBUDfromBID(ob.BID);
 
                     // get gl account list
-                    getGLAccounts(ob.BID)
+                    getAccountsList(ob.BID)
                     .done(function(data){
                         if (data.status != 'success') {
                             w2ui.depForm.message(data.message);
@@ -3984,7 +3984,7 @@ function buildPageElements() {
             var BUD = getBUDfromBID(BID);
 
             // get latest gl accounts first
-            getGLAccounts(BID)
+            getAccountsList(BID)
             .done(function(data) {
 
                 if (data.status != 'success') {
@@ -4202,7 +4202,7 @@ function buildPageElements() {
                     });
 
                     // get gl account list
-                    getGLAccounts(ob.BID)
+                    getAccountsList(ob.BID)
                     .done(function(data){
 
                         // set fields
@@ -4237,7 +4237,7 @@ function buildPageElements() {
             var BUD = getBUDfromBID(BID);
 
             // get latest gl accounts first
-            getGLAccounts(BID)
+            getAccountsList(BID)
             .done(function(data) {
                 if (data.status != 'success') {
                     w2ui.arsForm.message(data.message);
