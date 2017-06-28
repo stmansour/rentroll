@@ -1,0 +1,22 @@
+{
+    "record": {
+        "AcctType": "Income",
+        "AllowPost": 1,
+        "BID": 2,
+        "BUD": "CCC",
+        "Description": "",
+        "GLNumber": "41203",
+        "LID": 108,
+        "LastModBy": 0,
+        "LastModTime": "6/26/2017",
+        "ManageToBudget": 0,
+        "Name": "Late Fees",
+        "PLID": 105,
+        "RAAssociated": 1,
+        "RAID": 0,
+        "Status": 2,
+        "TCID": 0,
+        "Type": 0
+    },
+    "status": "success"
+}

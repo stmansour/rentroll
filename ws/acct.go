@@ -5,16 +5,29 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	// "sort"
+	"sort"
 	// "strconv"
 	"strings"
 	"time"
 )
 
-// w2uiChild struct used to build subgrid
-type w2uiChild struct {
-	Children []GLAccount `json:"children"`
+// ListedAccount is struct to list down individual ledger Account record
+type ListedAccount struct {
+	LID  int64  `json:"id"`   // Ledger account ID
+	Name string `json:"text"` // Ledger account name
 }
+
+// AccountListResponse is the response to list down all ledger accounts
+type AccountListResponse struct {
+	Status  string          `json:"status"`
+	Total   int64           `json:"total"`
+	Records []ListedAccount `json:"records"`
+}
+
+// // w2uiChild struct used to build subgrid
+// type w2uiChild struct {
+// 	Children []GLAccount `json:"children"`
+// }
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
@@ -36,7 +49,7 @@ type GLAccount struct {
 	Description    string    // description for this account
 	LastModTime    time.Time // auto updated
 	LastModBy      int64     // user making the mod
-	W2UIChild      w2uiChild `json:"w2ui"`
+	// W2UIChild      w2uiChild `json:"w2ui"`
 }
 
 // SearchGLAccountsResponse is the response data to a request for GLAccounts
@@ -46,13 +59,8 @@ type SearchGLAccountsResponse struct {
 	Records []GLAccount `json:"records"`
 }
 
-// AcctDeleteForm is struct used to delete Account
-type AcctDeleteForm struct {
-	LID int64
-}
-
-// AcctSendForm is the response data to request for a GLAccount
-type AcctSendForm struct {
+// AcctDetailsForm is the response data to request for a GLAccount
+type AcctDetailsForm struct {
 	LID            int64
 	PLID           int64
 	BID            int64
@@ -101,10 +109,15 @@ type SaveAcctInput struct {
 	Record   AcctSaveForm `json:"record"`
 }
 
-// GetGLAccountResponse is the response to a Get GLAccount request
-type GetGLAccountResponse struct {
-	Status string       `json:"status"`
-	Record AcctSendForm `json:"record"`
+// GetAccountResponse is the response to get details of an account for the requested Account LID
+type GetAccountResponse struct {
+	Status string          `json:"status"`
+	Record AcctDetailsForm `json:"record"`
+}
+
+// AcctDeleteForm is struct used to delete Account
+type AcctDeleteForm struct {
+	LID int64
 }
 
 // acctStatus map
@@ -159,15 +172,59 @@ func getAccountThingJSList() map[string]map[int64]string {
 	return accountStuff
 }
 
+// SvcAccountsList generates a list of all Accounts with respect of business id specified by d.BID
+// wsdoc {
+//  @Title Get list of accounts
+//  @URL /v1/accountlist/:BUI
+//  @Method  GET
+//  @Synopsis Get account list
+//  @Description Get all General Ledger Account's list for the requested business
+//  @Input WebGridSearchRequest
+//  @Response AccountListResponse
+// wsdoc }
+func SvcAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+
+	var (
+		funcname = "SvcAccountsList"
+		g        AccountListResponse
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	// get rentable types for a business
+	m := rlib.GetGLAccountMap(d.BID)
+	fmt.Printf("GetGLAccountMap returned %d records\n", len(g.Records))
+
+	// sort keys
+	var keys rlib.Int64Range
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Sort(keys)
+
+	// append records in ascending order
+	var glAccountList []ListedAccount
+	for _, lid := range keys {
+		glAccountList = append(glAccountList,
+			ListedAccount{
+				LID:  m[lid].LID,
+				Name: m[lid].GLNumber + " (" + m[lid].Name + ")",
+			})
+	}
+
+	g.Records = glAccountList
+	g.Total = int64(len(g.Records))
+	g.Status = "success"
+	SvcWriteResponse(&g, w)
+}
+
 // SvcSearchHandlerGLAccounts generates a report of all GLAccounts for a the business unit
 // called out in d.BID
 // wsdoc {
 //  @Title  Search General Ledger Accounts
-//	@URL /v1/accounts/:BUI
-//  @Method  GET, POST
-//	@Synopsis Return a list of General Ledger Accounts
+//  @URL /v1/accounts/:BUI
+//  @Method POST
 //  @Description This service returns a list of General Ledger accounts
-//	@Input WebGridSearchRequest
+//  @Input WebGridSearchRequest
 //  @Response SearchGLAccountsResponse
 // wsdoc }
 func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -441,14 +498,14 @@ func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Service
 
 // saveGLAccount returns the requested receipt
 // wsdoc {
-//  @Title  Save GLAccount
-//	@URL /v1/account/:BUI/:LID
-//  @Method  GET
-//	@Synopsis Save a GLAccount
-//  @Desc  This service saves a GLAccount.  If :LID exists, it will
-//  @Desc  be updated with the information supplied. All fields must
-//  @Desc  be supplied. If LID is 0, then a new receipt is created.
-//	@Input SaveAcctInput, SaveAcctOther
+//  @Title Save GLAccount
+//  @URL /v1/account/:BUI/:LID
+//  @Method POST
+//  @Synopsis Saves a GLAccount details
+//  @Description This service saves a GLAccount.  If :LID exists, it will
+//  @Description be updated with the information supplied. All fields must
+//  @Description be supplied. If LID is 0, then a new receipt is created.
+//  @Input SaveAcctInput
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -570,19 +627,19 @@ var getAcctQuerySelectFields = selectQueryFields{
 
 // getGLAccount returns the requested glaccount
 // wsdoc {
-//  @Title  Get GLAccount
-//	@URL /v1/account/:BUI/:LID
-//  @Method  GET
-//	@Synopsis Get information on a AR
-//  @Description  Return all fields for ars :LID
-//	@Input WebGridSearchRequest
-//  @Response AcctSendForm
+//  @Title  Get account details
+//  @URL /v1/account/:BUI/:LID
+//  @Method POST
+//  @Synopsis Get details about an account
+//  @Description  Return all fields for account :LID
+//  @Input WebGridSearchRequest
+//  @Response GetAccountResponse
 // wsdoc }
 func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var (
 		funcname = "getGLAccount"
-		g        GetGLAccountResponse
+		g        GetAccountResponse
 		err      error
 		order    = `GLAccount.LID ASC`
 		whr      = fmt.Sprintf(`GLAccount.BID=%d AND GLAccount.LID=%d`, d.BID, d.ID)
@@ -616,7 +673,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	for rows.Next() {
-		var gg AcctSendForm
+		var gg AcctDetailsForm
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
@@ -643,20 +700,24 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // deleteGLAccount request delete GLAccount from database
 // wsdoc {
 //  @Title  Delete GLAccount
-//	@URL /v1/account/:BUI/:LID
+//  @URL /v1/account/:BUI/:LID
 //  @Method  DELETE
-//	@Synopsis Delete record for a GL Account
+//  @Synopsis Delete record for a GL Account
 //  @Description  Delete the GL Account for a database and delete its
 //  @Description  associated LedgerMarkers.  Use with caution. Only use
 //  @Description  this command if you really understand what you're doing.
-//	@Input WebGridSearchRequest
+//  @Input WebGridSearchRequest
 //  @Response DeleteARResponse
 // wsdoc }
 func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "deleteGLAccount"
+
+	var (
+		funcname = "deleteGLAccount"
+		del      AcctDeleteForm
+	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
-	var del AcctDeleteForm
+
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return

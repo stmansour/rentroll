@@ -27,6 +27,10 @@ startRentRollServer
 # echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
 # dojsonPOST "http://localhost:8270/v1/pmt/1/1" "request" "zz"  "WebService--PaymentTypes"
 
+# Get Account details
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22selected%22%3A%5B0%5D%2C%22searchLogic%22%3A%22%22%2C%22search%22%3A%5B%7B%22field%22%3A%22%22%2C%22type%22%3A%22%22%2C%22value%22%3A%22%22%2C%22operator%22%3A%22%22%7D%5D%2C%22sort%22%3A%5B%7B%22field%22%3A%22%22%2C%22direction%22%3A%22%22%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/2/108" "request" "wa"  "WebService--GetAccountDetails"
+
 # Get Chart of Accounts
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
 dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "a"  "WebService--ChartOfAccounts"
@@ -131,7 +135,7 @@ dojsonPOST "http://localhost:8270/v1/pmts/1/1" "request" "y"  "WebService--Payme
 dojsonGET "http://localhost:8270/v1/rtlist/2" "z" "WebService--GetRentableTypesForBusiness"
 
 # get GLAccounts list for a business
-dojsonGET "http://localhost:8270/v1/gllist/2" "aa" "WebService--GetGLAccountsForBusiness"
+dojsonGET "http://localhost:8270/v1/accountlist/2" "aa" "WebService--GetGLAccountsForBusiness"
 
 # get UI Values...
 doPlainGET "http://localhost:8270/v1/uival/REX/app.Assessments" "a1" "WebService--GetUIValue-app.Assessments"
