@@ -42,6 +42,7 @@ var app = {
     uid: 211,
     lastReport: '',
     WidestFormWidth: 900,
+    sidebarWidth: 215,
     TmpTCID: 0,  // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
@@ -308,7 +309,7 @@ function buildPageElements() {
         padding: 2,
         panels: [
             { type: 'top', size: 55, style: app.pstyle, content: 'top' },
-            { type: 'left', size: 200, hidden: true, style: app.pstyle, content: 'left' },
+            { type: 'left', size: app.sidebarWidth, hidden: true, style: app.pstyle, content: 'left' },
             { type: 'main', style: app.pstyle, content: 'main' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle, content: 'preview' },
             { type: 'right', size: 200, resizable: true, style: app.pstyle, hidden: true, content: 'Details' },
@@ -341,7 +342,7 @@ function buildPageElements() {
         padding: 2,
         panels: [
             { type: 'top',     size: 200, style: app.pstyle2,  hidden: true, resizable: true, content: w2ui.newsLayout},
-            { type: 'left',    size: 200, style: app.pstyle2,                resizable: true, content: 'sidebar' },
+            { type: 'left',    size: app.sidebarWidth, style: app.pstyle2,                resizable: true, content: 'sidebar' },
             { type: 'main',               style: app.pstyle2   },
             { type: 'preview', size: 0,   style: app.bgyellow, hidden: true, resizable: true, content: 'preview' },
             { type: 'right',   size: 200, style: app.pstyle2,  hidden: true, resizable: true },
@@ -461,7 +462,7 @@ function buildPageElements() {
                         { id: 'accounts', text: 'Chart Of Accounts',   icon: 'fa fa-list' },
                         { id: 'pmts',     text: 'Payment Types',       icon: 'fa fa-credit-card' },
                         { id: 'dep',      text: 'Depositories',        icon: 'fa fa-university' },
-                        { id: 'ars',      text: 'Account Rules',       icon: 'fa fa-cogs' },
+                        { id: 'ars',      text: 'Assessment/Receipt Rules',       icon: 'fa fa-cogs' },
                         { id: 'rt',  text: plural(app.sRentableType),  icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                 ]
             },
@@ -480,7 +481,7 @@ function buildPageElements() {
         },
         onFlat: function (event) {
             console.log('event.goFlat = ' + event.goFlat );
-            $('#sidebarL1').css('width', (event.goFlat ? '35px' : '200px'));
+            $('#sidebarL1').css('width', (event.goFlat ? '35px' : ''+app.sidebarWidth+'px'));
         },
         onClick: function (event) {
             console.log('event.target = ' + event.target);
@@ -733,7 +734,7 @@ function buildPageElements() {
 
                     w2ui.toplayout.show('right', true);
                     w2ui.toplayout.content('right', w2ui.allocfundsLayout);
-                    w2ui.toplayout.sizeTo('right', 700);
+                    w2ui.toplayout.sizeTo('right', 800);
                     w2ui.toplayout.render();
                 })
                 .fail(function(/*data*/) {
@@ -801,14 +802,15 @@ function buildPageElements() {
         },
         columns: [
             { field: 'recid', type: 'int', caption: 'recid', size: '40px', hidden: true},
-            { field: 'Date', render: 'date', caption: 'Date', size: '60px' },
+            { field: 'Date', render: 'date', caption: 'Date', style: 'text-align: right', size: '80px' },
             { field: 'Assessment', caption: 'Assessment', size: '10%' },
-            { field: 'Amount', render: 'money', caption: 'Amount', size: '10%' },
-            { field: 'AmountPaid', render: 'money', caption: 'Amount Paid', size: '10%' },
-            { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '10%' },
+            { field: 'Amount', render: 'money', caption: 'Amount', size: '100px' },
+            { field: 'AmountPaid', render: 'money', caption: 'Amount Paid', size: '100px' },
+            { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '100px' },
             { field: 'ARID', hidden: true },
             { field: 'ASMID', hidden: true },
-            { field: 'Allocate', render: 'money', caption: 'Allocate Amount', size: '10%', editable: { type: 'float' } },
+            { field: 'Dt', render: 'date', caption: 'Payment Date', size: '100px', style: 'text-align: right', editable: {type: 'date'}},
+            { field: 'Allocate', render: 'money', caption: 'Allocate Amount', size: '110px', editable: {type: 'float'}},
         ],
         onRefresh: function(/*event*/) {
             unallocAmountRemaining();

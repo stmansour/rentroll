@@ -35,6 +35,7 @@ type UnpaidAsm struct {
 	Amount     float64          `json:"Amount"`
 	AmountPaid float64          `json:"AmountPaid"`
 	AmountOwed float64          `json:"AmountOwed"`
+	Dt         rlib.JSONTime    `json:"Dt"`
 	Allocate   rlib.NullFloat64 `json:"Allocate"`
 }
 
@@ -227,7 +228,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var xbiz rlib.XBusiness
 	rlib.InitBizInternals(foo.BID, &xbiz)
 
-	dt := time.Now()
+	// dt := time.Now()
 
 	// get receipts for payor
 	n := rlib.GetUnallocatedReceiptsByPayor(foo.BID, foo.TCID)
@@ -258,7 +259,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				continue // move on to the next receipt
 			}
 
-			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &dt)
+			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &n[j].Dt)
 			fmt.Printf("amt = %.2f .  Amount still owed: %.2f\n", amt, needed)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
@@ -314,6 +315,7 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 		rec.Name = ar.Name
 		rec.ASMID = asm.ASMID
 		rec.ARID = asm.ARID
+		rec.Dt = rlib.JSONTime(time.Now())
 		res.Records = append(res.Records, rec)
 		res.Total++
 	}
