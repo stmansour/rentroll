@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"sort"
 	// "strconv"
@@ -103,7 +104,7 @@ type AcctSaveForm struct {
 
 // SaveAcctInput is the input data format for a Save command
 type SaveAcctInput struct {
-	Status   string       `json:"status"`
+	Cmd      string       `json:"cmd"` // get, save, delete
 	Recid    int64        `json:"recid"`
 	FormName string       `json:"name"`
 	Record   AcctSaveForm `json:"record"`
@@ -191,25 +192,106 @@ func SvcAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("Entered %s\n", funcname)
 
 	// get rentable types for a business
-	m := rlib.GetGLAccountMap(d.BID)
-	fmt.Printf("GetGLAccountMap returned %d records\n", len(g.Records))
-
-	// sort keys
-	var keys rlib.Int64Range
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Sort(keys)
+	m := rlib.GetLedgerList(d.BID)
+	fmt.Printf("rlib.GetLedgerList returned %d records\n", len(g.Records))
 
 	// append records in ascending order
 	var glAccountList []ListedAccount
-	for _, lid := range keys {
+	for _, acct := range m {
 		glAccountList = append(glAccountList,
-			ListedAccount{
-				LID:  m[lid].LID,
-				Name: m[lid].GLNumber + " (" + m[lid].Name + ")",
-			})
+			ListedAccount{LID: acct.LID, Name: fmt.Sprintf("%s (%s)", acct.GLNumber, acct.Name)},
+		)
 	}
+
+	// sort based on name, needs version 1.8 later of golang
+	sort.Slice(glAccountList, func(i, j int) bool { return glAccountList[i].Name < glAccountList[j].Name })
+
+	g.Records = glAccountList
+	g.Total = int64(len(g.Records))
+	g.Status = "success"
+	SvcWriteResponse(&g, w)
+}
+
+// SvcParentAccountsList generates a list of all possible Parent Accounts with respect of business id specified by d.BID
+// wsdoc {
+//  @Title Get list of parent accounts
+//  @URL /v1/parentaccounts/:BUI
+//  @Method  GET
+//  @Synopsis Get parent account list
+//  @Description Get all Parent Account's list for the requested business
+//  @Input
+//  @Response AccountListResponse
+// wsdoc }
+func SvcParentAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+
+	var (
+		funcname = "SvcParentAccountsList"
+		g        AccountListResponse
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	// Need to init some internals for Business
+	var xbiz rlib.XBusiness
+	rlib.InitBizInternals(d.BID, &xbiz)
+
+	// get rentable types for a business
+	m := bizlogic.PossibleParentAccounts(d.BID)
+	fmt.Printf("bizlogic.PossibleParentAccounts returned %d records\n", len(g.Records))
+
+	// append records in ascending order
+	var glAccountList []ListedAccount
+	for _, acct := range m {
+		glAccountList = append(glAccountList,
+			ListedAccount{LID: acct.LID, Name: fmt.Sprintf("%s (%s)", acct.GLNumber, acct.Name)},
+		)
+	}
+
+	// sort based on name, needs version 1.8 later of golang
+	sort.Slice(glAccountList, func(i, j int) bool { return glAccountList[i].Name < glAccountList[j].Name })
+
+	g.Records = glAccountList
+	g.Total = int64(len(g.Records))
+	g.Status = "success"
+	SvcWriteResponse(&g, w)
+}
+
+// SvcPostAccountsList generates a list of all Accounts
+// that are permissible to use in Assessment/Receipt Rules
+// wsdoc {
+//  @Title Get list of post accounts
+//  @URL /v1/postaccounts/:BUI
+//  @Method  GET
+//  @Synopsis Get post account list
+//  @Description Get all Post Account's list for the requested business
+//  @Input
+//  @Response AccountListResponse
+// wsdoc }
+func SvcPostAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+
+	var (
+		funcname = "SvcPostAccountsList"
+		g        AccountListResponse
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	// Need to init some internals for Business
+	var xbiz rlib.XBusiness
+	rlib.InitBizInternals(d.BID, &xbiz)
+
+	// get rentable types for a business
+	m := bizlogic.PossiblePostAccounts(d.BID)
+	fmt.Printf("bizlogic.PossiblePostAccounts returned %d records\n", len(g.Records))
+
+	// append records in ascending order
+	var glAccountList []ListedAccount
+	for _, acct := range m {
+		glAccountList = append(glAccountList,
+			ListedAccount{LID: acct.LID, Name: fmt.Sprintf("%s (%s)", acct.GLNumber, acct.Name)},
+		)
+	}
+
+	// sort based on name, needs version 1.8 later of golang
+	sort.Slice(glAccountList, func(i, j int) bool { return glAccountList[i].Name < glAccountList[j].Name })
 
 	g.Records = glAccountList
 	g.Total = int64(len(g.Records))
@@ -504,7 +586,7 @@ func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Service
 //  @Synopsis Saves a GLAccount details
 //  @Description This service saves a GLAccount.  If :LID exists, it will
 //  @Description be updated with the information supplied. All fields must
-//  @Description be supplied. If LID is 0, then a new receipt is created.
+//  @Description be supplied. If LID is 0, then a new GLAccount is created.
 //  @Input SaveAcctInput
 //  @Response SvcStatusResponse
 // wsdoc }
@@ -706,8 +788,8 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Description  Delete the GL Account for a database and delete its
 //  @Description  associated LedgerMarkers.  Use with caution. Only use
 //  @Description  this command if you really understand what you're doing.
-//  @Input WebGridSearchRequest
-//  @Response DeleteARResponse
+//  @Input AcctDeleteForm
+//  @Response SvcStatusResponse
 // wsdoc }
 func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
@@ -719,6 +801,14 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// First check, account exists or not
+	gl := rlib.GetLedger(del.LID)
+	if gl.LID == 0 {
+		err := fmt.Errorf("No such account exists with ID: %d", del.LID)
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}

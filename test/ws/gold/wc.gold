@@ -25,20 +25,12 @@
             "text": "30000 (Security Deposits)"
         },
         {
-            "id": 91,
-            "text": "30100 (Accrued Taxes)"
-        },
-        {
             "id": 92,
             "text": "30101 (Sales Taxes)"
         },
         {
             "id": 93,
             "text": "30199 (Other Accrued Taxes)"
-        },
-        {
-            "id": 11,
-            "text": "41000 (Gross Scheduled Receipts)"
         },
         {
             "id": 94,
@@ -51,10 +43,6 @@
         {
             "id": 96,
             "text": "41003 (Gross Scheduled Rents)"
-        },
-        {
-            "id": 97,
-            "text": "41100 (Income Offsets)"
         },
         {
             "id": 13,
@@ -91,10 +79,6 @@
         {
             "id": 104,
             "text": "41199 (Othe Income Offsets)"
-        },
-        {
-            "id": 105,
-            "text": "41200 (Other Income)"
         },
         {
             "id": 106,
@@ -142,5 +126,5 @@
         }
     ],
     "status": "success",
-    "total": 35
+    "total": 31
 }

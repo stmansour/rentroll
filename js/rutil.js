@@ -950,6 +950,52 @@ function getAccountsList(BID) {
 }
 
 //-----------------------------------------------------------------------------
+// getPostAccounts - return the list of post accounts with respect of BUD
+// @params
+// @return the list of post accounts
+//-----------------------------------------------------------------------------
+function getPostAccounts(BID) {
+    "use strict";
+    return jQuery.ajax({
+        type: "GET",
+        url: "/v1/postaccounts/"+BID,
+        dataType: "json",
+    }).done(function(data) {
+        if (data.status == "success") {
+            var BUD = getBUDfromBID(BID);
+            if (data.records) {
+                app.post_accounts[BUD] = data.records;
+            } else{
+                app.post_accounts[BUD] = [];
+            }
+        }
+    });
+}
+
+//-----------------------------------------------------------------------------
+// getParentAccounts - return the list of Parent accounts with respect of BUD
+// @params
+// @return the list of parent accounts
+//-----------------------------------------------------------------------------
+function getParentAccounts(BID) {
+    "use strict";
+    return jQuery.ajax({
+        type: "GET",
+        url: "/v1/parentaccounts/"+BID,
+        dataType: "json",
+    }).done(function(data) {
+        if (data.status == "success") {
+            var BUD = getBUDfromBID(BID);
+            if (data.records) {
+                app.parent_accounts[BUD] = data.records;
+            } else{
+                app.parent_accounts[BUD] = [];
+            }
+        }
+    });
+}
+
+//-----------------------------------------------------------------------------
 // unallocAmountRemaining - based on the amounts allocated to receipts in the
 // unpaid receipts list, compute the amount of funds remaining to be allocated
 // and display it.

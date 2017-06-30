@@ -138,6 +138,8 @@ var Svcs = []ServiceHandler{
 	{"account", SvcFormHandlerGLAccounts, true},
 	{"ar", SvcFormHandlerAR, true},
 	{"accountlist", SvcAccountsList, true},
+	{"parentaccounts", SvcParentAccountsList, true},
+	{"postaccounts", SvcPostAccountsList, true},
 	{"ars", SvcSearchHandlerARs, true},
 	{"asm", SvcFormHandlerAssessment, true},
 	{"asms", SvcSearchHandlerAssessments, true},

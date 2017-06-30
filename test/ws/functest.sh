@@ -27,13 +27,34 @@ startRentRollServer
 # echo "request%3D%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22paymentTypeGrid%22%7D" > request
 # dojsonPOST "http://localhost:8270/v1/pmt/1/1" "request" "zz"  "WebService--PaymentTypes"
 
-# Get Account details
-echo "request=%7B%22cmd%22%3A%22get%22%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22selected%22%3A%5B0%5D%2C%22searchLogic%22%3A%22%22%2C%22search%22%3A%5B%7B%22field%22%3A%22%22%2C%22type%22%3A%22%22%2C%22value%22%3A%22%22%2C%22operator%22%3A%22%22%7D%5D%2C%22sort%22%3A%5B%7B%22field%22%3A%22%22%2C%22direction%22%3A%22%22%7D%5D%7D" > request
-dojsonPOST "http://localhost:8270/v1/account/2/108" "request" "wa"  "WebService--GetAccountDetails"
+# get GLAccounts list for the business
+dojsonGET "http://localhost:8270/v1/accountlist/2" "wa" "WebService--GetAccountsListForBusiness"
+
+# get parent accounts list for the business
+dojsonGET "http://localhost:8270/v1/parentaccounts/2" "wb" "WebService--GetParentAccountsListForBusiness"
+
+# get post accounts list for the business
+dojsonGET "http://localhost:8270/v1/postaccounts/2" "wc" "WebService--GetPostAccountsListForBusiness"
 
 # Get Chart of Accounts
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "a"  "WebService--ChartOfAccounts"
+dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "wd"  "WebService--ChartOfAccounts"
+
+# Get Account details
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22selected%22%3A%5B0%5D%2C%22searchLogic%22%3A%22%22%2C%22search%22%3A%5B%7B%22field%22%3A%22%22%2C%22type%22%3A%22%22%2C%22value%22%3A%22%22%2C%22operator%22%3A%22%22%7D%5D%2C%22sort%22%3A%5B%7B%22field%22%3A%22%22%2C%22direction%22%3A%22%22%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/2/108" "request" "we"  "WebService--GetAccountDetails"
+
+# Create new Account
+echo "request=%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22%22%2C%22record%22%3A%7B%22LID%22%3A0%2C%22BID%22%3A2%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%22123456789%22%2C%22Name%22%3A%22SmokeTest%20GLAccount%22%2C%22AcctType%22%3A%22%22%2C%22Description%22%3A%22%22%2C%22LastModTime%22%3A%221%2F1%2F1900%22%2C%22LastModBy%22%3A0%2C%22BUD%22%3A%22%22%2C%22PLID%22%3A0%2C%22Status%22%3A0%2C%22Type%22%3A0%2C%22RAAssociated%22%3A0%2C%22AllowPost%22%3A0%2C%22ManageToBudget%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/2/0" "request" "wf"  "WebService--CreateGLAccount"
+
+# Update Account details
+echo "request=%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22%22%2C%22record%22%3A%7B%22LID%22%3A108%2C%22BID%22%3A2%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%229876543210%22%2C%22Name%22%3A%22SmokeTest%20GLAccount%22%2C%22AcctType%22%3A%22%22%2C%22Description%22%3A%22Update%20this%20Account%20(Smoke%20Test)%22%2C%22LastModTime%22%3A%221%2F1%2F1900%22%2C%22LastModBy%22%3A0%2C%22BUD%22%3A%22%22%2C%22PLID%22%3A0%2C%22Status%22%3A0%2C%22Type%22%3A0%2C%22RAAssociated%22%3A1%2C%22AllowPost%22%3A1%2C%22ManageToBudget%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/2/108" "request" "wg"  "WebService--UpdateGLAccount"
+
+# Delete Account
+echo "request=%7B%22cmd%22%3A%22delete%22%2C%22LID%22%3A108%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/2/" "request" "wh"  "WebService--DeleteGLAccount"
 
 # Get Transactants
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sort%22%3A%5B%7B%22field%22%3A%22LastName%22%2C%22direction%22%3A%22asc%22%7D%5D%7D" > request
@@ -134,9 +155,6 @@ dojsonPOST "http://localhost:8270/v1/pmts/1/1" "request" "y"  "WebService--Payme
 # get Rentable types list for a business
 dojsonGET "http://localhost:8270/v1/rtlist/2" "z" "WebService--GetRentableTypesForBusiness"
 
-# get GLAccounts list for a business
-dojsonGET "http://localhost:8270/v1/accountlist/2" "aa" "WebService--GetGLAccountsForBusiness"
-
 # get UI Values...
 doPlainGET "http://localhost:8270/v1/uival/REX/app.Assessments" "a1" "WebService--GetUIValue-app.Assessments"
 doPlainGET "http://localhost:8270/v1/uival/REX/app.Receipts" "b1" "WebService--GetUIValue-app.Receipts"
@@ -147,5 +165,8 @@ dojsonGET "http://localhost:8270/v1/rentalagrtd/CCC?request=%7B%22search%22%3A%2
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
+
+echo "Restoring test database..."
+mysql --no-defaults rentroll < restore.sql
 
 logcheck
