@@ -103,7 +103,7 @@ type AcctSaveForm struct {
 
 // SaveAcctInput is the input data format for a Save command
 type SaveAcctInput struct {
-	Status   string       `json:"status"`
+	Cmd      string       `json:"cmd"` // get, save, delete
 	Recid    int64        `json:"recid"`
 	FormName string       `json:"name"`
 	Record   AcctSaveForm `json:"record"`
@@ -504,7 +504,7 @@ func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Service
 //  @Synopsis Saves a GLAccount details
 //  @Description This service saves a GLAccount.  If :LID exists, it will
 //  @Description be updated with the information supplied. All fields must
-//  @Description be supplied. If LID is 0, then a new receipt is created.
+//  @Description be supplied. If LID is 0, then a new GLAccount is created.
 //  @Input SaveAcctInput
 //  @Response SvcStatusResponse
 // wsdoc }
@@ -706,8 +706,8 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Description  Delete the GL Account for a database and delete its
 //  @Description  associated LedgerMarkers.  Use with caution. Only use
 //  @Description  this command if you really understand what you're doing.
-//  @Input WebGridSearchRequest
-//  @Response DeleteARResponse
+//  @Input AcctDeleteForm
+//  @Response SvcStatusResponse
 // wsdoc }
 func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
@@ -719,6 +719,14 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	// First check, account exists or not
+	gl := rlib.GetLedger(del.LID)
+	if gl.LID == 0 {
+		err := fmt.Errorf("No such account exists with ID: %d", del.LID)
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
