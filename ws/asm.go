@@ -457,7 +457,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.GetXBusiness(a.BID, &xbiz)
 
 		//------------------------------------------------
-		// read back the Journal entry that was made...
+		// Make Journal Entries
 		//------------------------------------------------
 		rlib.InitLedgerCache()
 		if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a

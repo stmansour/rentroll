@@ -104,7 +104,7 @@ CREATE TABLE SLString (
 CREATE TABLE NoteType (
     NTID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this note type
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
-    Name VARCHAR(128) NOT NULL DEFAULT '',                  -- General, Payment, Receipt, ...
+    Name VARCHAR(128) NOT NULL DEFAULT '',                  -- General, Payment, Receipt, Contact History ...
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
@@ -209,6 +209,7 @@ CREATE TABLE RentalAgreement (
     ExpenseAdjustment DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- the next date on which an expense adjustment is due
     EstimatedCharges DECIMAL(19,4) NOT NULL DEFAULT 0,                  -- a periodic fee charged to the tenant to reimburse LL for anticipated expenses
     RateChange DECIMAL(19,4) NOT NULL DEFAULT 0,                        -- predetermined amount of rent increase, expressed as a percentage
+    CSAgent BIGINT NOT NULL DEFAULT 0,                                  -- Accord Directory UserID - for the CSAgent
     NextRateChange DATE NOT NULL DEFAULT '1970-01-01 00:00:00',         -- the next date on which a RateChange will occur
     PermittedUses VARCHAR(128) NOT NULL DEFAULT '',                     -- indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
     ExclusiveUses VARCHAR(128) NOT NULL DEFAULT '',                     -- those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
@@ -246,8 +247,8 @@ CREATE TABLE RentalAgreementPayors (
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this Payor was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this Payor was no longer being billed to this agreement
     FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1 << 0 is the bit that indicates this payor is a 'guarantor'
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RAPID)
 );
 
@@ -565,42 +566,42 @@ CREATE TABLE Rentable (
     RentableName VARCHAR(100) NOT NULL DEFAULT '',                 -- must be unique, name for this instance, "101" for a room number, CP744 carport number, etc
     AssignmentTime SMALLINT NOT NULL DEFAULT 0,                    -- Unknown = 0, OK to pre-assign = 1, assign at occupancy commencement = 2
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                         -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                           -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                  -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RID)
     -- RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,            -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
     -- RentCycle SMALLINT NOT NULL DEFAULT 0,                      -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 );
 
 CREATE TABLE RentableTypeRef (
-    RTRID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for Rentable Type Reference
+    RTRID BIGINT NOT NULL AUTO_INCREMENT,                           -- unique id for Rentable Type Reference
     RID BIGINT NOT NULL DEFAULT 0,                                  -- the Rentable this record belongs to
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
     RTID BIGINT NOT NULL DEFAULT 0,                                 -- the Rentable type for this period
     OverrideRentCycle BIGINT NOT NULL DEFAULT 0,                    -- RentCycle override. 0 = unset (use RentableType.RentCycle), > 0 means the override frequency
     OverrideProrationCycle BIGINT NOT NULL DEFAULT 0,               -- Proration override. 0 = unset (use RentableType.Proration), > 0 means the override proration
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
-    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RTRID)
 );
 
 CREATE TABLE RentableStatus (
-    RSID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for Rentable Status
+    RSID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique id for Rentable Status
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
     Status SMALLINT NOT NULL DEFAULT 0,                             -- 0 = UNKNOWN -- 1 = ONLINE, 2 = ADMIN, 3 = EMPLOYEE, 4 = OWNEROCC, 5 = OFFLINE,
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
-    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
+    DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
     DtNoticeToVacate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- user has indicated they will vacate on this date
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RSID)
 );
 
@@ -611,9 +612,9 @@ CREATE TABLE RentableSpecialtyRef (
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',            -- start time for this state
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- stop time for this state
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                          -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                              -- employee UID (from phonebook) that created this record
 );
 
 
@@ -772,7 +773,7 @@ CREATE TABLE Prospect (
     Occupation VARCHAR(100) NOT NULL DEFAULT '',
     ApplicationFee DECIMAL(19,4) NOT NULL DEFAULT 0.0,      -- if non-zero this Prospect is an applicant
     DesiredUsageStartDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- User's initial indication of move in date, actual move in date is in Rental Agreement
-    RentableTypePreference BIGINT NOT NULL DEFAULT 0,          -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
+    RentableTypePreference BIGINT NOT NULL DEFAULT 0,       -- This would be "model" preference  (Rentable Type name) for room or residence, but could apply to all rentables
     FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 did they fill out an appl.  1<<1 - approved/not approved
     Approver BIGINT NOT NULL DEFAULT 0,                     -- who approved or declined
     DeclineReasonSLSID BIGINT NOT NULL DEFAULT 0,           -- ID to string in list of choices, Melissa will provide the list.
@@ -782,10 +783,10 @@ CREATE TABLE Prospect (
     OutcomeSLSID BIGINT NOT NULL DEFAULT 0,                 -- id of string from a list of outcomes.
     FloatingDeposit DECIMAL (19,4) NOT NULL DEFAULT 0.0,    --  d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
     RAID BIGINT NOT NULL DEFAULT 0,                         -- created to hold On Account amount of Floating Deposit  -- Make this 0 after Prospect becomes Transactant
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
     PRIMARY KEY (TCID)
 );
 
@@ -813,9 +814,9 @@ CREATE TABLE User (
     Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
     SourceSLSID BIGINT NOT NULL DEFAULT 0,                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                       -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that created this record
     PRIMARY KEY (TCID)
 );
 
@@ -835,8 +836,8 @@ CREATE TABLE Vehicle (
     DtStop DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                       -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (VID)
 );
 

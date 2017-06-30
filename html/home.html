@@ -42,6 +42,7 @@ var app = {
     uid: 211,
     lastReport: '',
     WidestFormWidth: 900,
+    sidebarWidth: 215,
     TmpTCID: 0,  // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
@@ -308,7 +309,7 @@ function buildPageElements() {
         padding: 2,
         panels: [
             { type: 'top', size: 55, style: app.pstyle, content: 'top' },
-            { type: 'left', size: 200, hidden: true, style: app.pstyle, content: 'left' },
+            { type: 'left', size: app.sidebarWidth, hidden: true, style: app.pstyle, content: 'left' },
             { type: 'main', style: app.pstyle, content: 'main' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle, content: 'preview' },
             { type: 'right', size: 200, resizable: true, style: app.pstyle, hidden: true, content: 'Details' },
@@ -341,7 +342,7 @@ function buildPageElements() {
         padding: 2,
         panels: [
             { type: 'top',     size: 200, style: app.pstyle2,  hidden: true, resizable: true, content: w2ui.newsLayout},
-            { type: 'left',    size: 200, style: app.pstyle2,                resizable: true, content: 'sidebar' },
+            { type: 'left',    size: app.sidebarWidth, style: app.pstyle2,                resizable: true, content: 'sidebar' },
             { type: 'main',               style: app.pstyle2   },
             { type: 'preview', size: 0,   style: app.bgyellow, hidden: true, resizable: true, content: 'preview' },
             { type: 'right',   size: 200, style: app.pstyle2,  hidden: true, resizable: true },
@@ -377,13 +378,13 @@ function buildPageElements() {
             { type: 'break', id: 'break2' },
             { type: 'button', id: 'msgButton', caption: 'News Flash', /*icon: 'fa fa-newspaper-o'*/ icon: 'fa fa-spinner fa-pulse fa-3x fa-fw'},
             { type: 'menu',    id: 'menuButton', caption: 'Developer',    icon: 'fa fa-user-circle', items: [
-                { text: 'Webdocs', icon: 'fa fa-book' },
+                { text: 'Webdocs',       icon: 'fa fa-book' },
                 { text: 'Template-Dflt', icon: 'fa fa-language' },
                 { text: 'Template-Apts', icon: 'fa fa-language' },
-                { text: 'Messages', icon: 'fa fa-folder-o' },
+                { text: 'Messages',      icon: 'fa fa-folder-o' },
             ]},
-                { id: 'bt3', type: 'spacer' },
-                { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
+            { id: 'bt3', type: 'spacer' },
+            { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
         ],
         onClick: function (event) {
             console.log('target = ' + event.target);
@@ -414,45 +415,46 @@ function buildPageElements() {
             { id: 'workflows', text: 'Workflows', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
                         { id: 'allocfunds', text: 'Apply Payments', icon: 'fa fa-check-circle-o' },
+                        { id: 'receipts',  text: plural(app.sReceipt),  icon: 'fa fa-star', hint: plural(app.sReceipt) },
+                        { id: 'asms',  text: plural(app.sAssessment),  icon: 'fa fa-star-o', hint: plural(app.sAssessment) },
+                        { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
+                        { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
+                        { id: 'changeRT', text: 'Change ' + app.sRentable +' Type', icon: 'fa fa-cube' },
                         // { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
                         // { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
                         // { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
                 ]
             },
-            { id: 'main', text: 'Main', img: 'icon-folder', expanded: true, group: true,
+            { id: 'main', text: 'Main', img: 'icon-folder', expanded: false, group: true,
                 nodes: [
-                        { id: 'receipts',  text: plural(app.sReceipt),  icon: 'fa fa-star', hint: plural(app.sReceipt) },
-                        { id: 'asms',  text: plural(app.sAssessment),  icon: 'fa fa-star-o', hint: plural(app.sAssessment) },
                         { id: 'rentalagrs',  text: plural(app.sRentalAgreement),  icon: 'fa fa-certificate', hint: 'Rental Agreements' },
-                        { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
-                        { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
                         // { id: 'goRatePlan',  text: 'Rate Plan',  icon: 'fa fa-money', hint: 'RatePlan' },
                         // { id: 'goServiceMenu',  text: 'Service',  icon: 'fa fa-user', hint: 'Service' },
                 ]
             },
             { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                 nodes: [
-                       { id: 'RPTasmrpt', text: 'Assessments', icon: 'fa fa-file-text-o' },
-                       { id: 'RPTb', text: 'Business Units', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTasmrpt', text: 'Assessments', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTb', text: 'Business Units', icon: 'fa fa-file-text-o' },
                        { id: 'RPTcoa', text: 'Chart Of Accounts', icon: 'fa fa-file-text-o' },
-                       { id: 'RPTdpm', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
-                       { id: 'RPTdep', text: 'Depositories', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTdpm', text: 'Deposit Methods', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTdep', text: 'Depositories', icon: 'fa fa-file-text-o' },
                        { id: 'RPTdelinq', text: 'Delinquency', icon: 'fa fa-file-text-o' },
                        { id: 'RPTgsr', text: 'GSR', icon: 'fa fa-file-text-o' },
                        { id: 'RPTj', text: 'Journal', icon: 'fa fa-file-text-o' },
                        { id: 'RPTl', text: 'Ledger', icon: 'fa fa-file-text-o' },
                        { id: 'RPTla', text: 'Ledger Activity', icon: 'fa fa-file-text-o' },
                        { id: 'RPTpeople', text: 'People', icon: 'fa fa-file-text-o' },
-                       { id: 'RPTpmt', text: 'Payment Types', icon: 'fa fa-file-text-o' },
-                       { id: 'RPTrcpt', text: 'Receipts', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTpmt', text: 'Payment Types', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTrcpt', text: 'Receipts', icon: 'fa fa-file-text-o' },
                        { id: 'RPTrcbt', text: 'Rentable Type Counts', icon: 'fa fa-file-text-o' },
                        { id: 'RPTr', text: plural(app.sRentable), icon: 'fa fa-file-text-o' },
                        { id: 'RPTra', text: 'Rental Agreements', icon: 'fa fa-file-text-o' },
                        { id: 'RPTrat', text: 'Rental Agreement Templates', icon: 'fa fa-file-text-o' },
                        { id: 'RPTrt', text: 'Rentable Types', icon: 'fa fa-file-text-o' },
                        { id: 'RPTrr', text: 'RentRoll', icon: 'fa fa-file-text-o' },
-                       { id: 'RPTstatements', text: 'Statements', icon: 'fa fa-file-text-o' },
-                       { id: 'RPTsl', text: 'String Lists', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTstatements', text: 'Statements', icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTsl', text: 'String Lists', icon: 'fa fa-file-text-o' },
                        { id: 'RPTtb', text: 'Trial Balance', icon: 'fa fa-file-text-o' },
                 ]
             },
@@ -461,7 +463,7 @@ function buildPageElements() {
                         { id: 'accounts', text: 'Chart Of Accounts',   icon: 'fa fa-list' },
                         { id: 'pmts',     text: 'Payment Types',       icon: 'fa fa-credit-card' },
                         { id: 'dep',      text: 'Depositories',        icon: 'fa fa-university' },
-                        { id: 'ars',      text: 'Account Rules',       icon: 'fa fa-cogs' },
+                        { id: 'ars',      text: 'Assessment/Receipt Rules',       icon: 'fa fa-cogs' },
                         { id: 'rt',  text: plural(app.sRentableType),  icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                 ]
             },
@@ -480,7 +482,7 @@ function buildPageElements() {
         },
         onFlat: function (event) {
             console.log('event.goFlat = ' + event.goFlat );
-            $('#sidebarL1').css('width', (event.goFlat ? '35px' : '200px'));
+            $('#sidebarL1').css('width', (event.goFlat ? '35px' : ''+app.sidebarWidth+'px'));
         },
         onClick: function (event) {
             console.log('event.target = ' + event.target);
@@ -565,9 +567,10 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     var tmp = genDateRangeNavigator('date');
     tmp.push.apply(tmp, [
-        { type: 'break',  id: 'break2' },
+        { type: 'spacer',},
         { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
         { type: 'button', id: 'printreport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+        { type: 'break', id: 'break2' },
         { type: 'menu-radio', id: 'page_size', icon: 'fa fa-print',
             tooltip: 'exported PDF page size',
             text: function (item) {
@@ -733,7 +736,7 @@ function buildPageElements() {
 
                     w2ui.toplayout.show('right', true);
                     w2ui.toplayout.content('right', w2ui.allocfundsLayout);
-                    w2ui.toplayout.sizeTo('right', 700);
+                    w2ui.toplayout.sizeTo('right', 800);
                     w2ui.toplayout.render();
                 })
                 .fail(function(/*data*/) {
@@ -801,14 +804,15 @@ function buildPageElements() {
         },
         columns: [
             { field: 'recid', type: 'int', caption: 'recid', size: '40px', hidden: true},
-            { field: 'Date', render: 'date', caption: 'Date', size: '60px' },
+            { field: 'Date', render: 'date', caption: 'Assessment<br>Date', style: 'text-align: right', size: '80px' },
             { field: 'Assessment', caption: 'Assessment', size: '10%' },
-            { field: 'Amount', render: 'money', caption: 'Amount', size: '10%' },
-            { field: 'AmountPaid', render: 'money', caption: 'Amount Paid', size: '10%' },
-            { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '10%' },
+            { field: 'Amount', render: 'money', caption: 'Assessment<br>Amount', size: '100px' },
+            { field: 'AmountPaid', render: 'money', caption: 'Amount Paid', size: '100px' },
+            { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '100px' },
             { field: 'ARID', hidden: true },
             { field: 'ASMID', hidden: true },
-            { field: 'Allocate', render: 'money', caption: 'Allocate Amount', size: '10%', editable: { type: 'float' } },
+            { field: 'Dt', render: 'date', caption: 'Payment Date', size: '100px', style: 'text-align: right', editable: {type: 'date'}},
+            { field: 'Allocate', render: 'money', caption: 'Allocate Amount', size: '110px', editable: {type: 'float'}},
         ],
         onRefresh: function(/*event*/) {
             unallocAmountRemaining();
@@ -1003,7 +1007,7 @@ function buildPageElements() {
             { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
             { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
             { field: "TCID", required: false, type: 'int', html: { caption: "TCID", page: 0, column: 0 } },
-            { field: "GLNumber", required: false, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
+            { field: "GLNumber", required: true, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
             { field: "Status", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
             { field: "Type", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
@@ -1190,7 +1194,7 @@ function buildPageElements() {
                 render: function (record) {
                     var s = '';
                     if (record.IsCompany > 0) {
-                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-building-o" aria-hidden="true"></i></span>';
+                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
                     }
                     return s + ' ' + record.CompanyName;
                 }
@@ -2057,7 +2061,7 @@ function buildPageElements() {
                 //     if (record) {
                 //         var icon;
                 //         if (record.PayorIsCompany) {
-                //             icon = 'fa-building-o'
+                //             icon = 'fa-handshake-o'
                 //         } else {
                 //             icon = 'fa-user-o'
                 //         }
@@ -3040,10 +3044,10 @@ function buildPageElements() {
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
-            {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
-            {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
+            {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
@@ -4176,7 +4180,7 @@ function buildPageElements() {
         show: {
             toolbar        : true,
             footer         : true,
-            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarAdd     : true,    // indicates if toolbar add new button is visible
             toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn   : false,
@@ -4189,25 +4193,24 @@ function buildPageElements() {
             toolbarColumns : false,
         },
         columns: [
-            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             sortable: true, style: 'text-align: center'},
-            {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             sortable: true, style: 'text-align: center'},
-            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
-            {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', sortable: true, style: 'text-align: left',
+            {field: 'recid',  hidden: true,  caption: 'recid', size: '40px',  sortable: true},
+            {field: 'ARID',   hidden: true,  caption: 'COPID', size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'BID',    hidden: true,  caption: 'BID',   size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'Name',   hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
+            {field: 'ARType', hidden: false, caption: 'ARType',size: '80px',  sortable: true, style: 'text-align: left',
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
                 }
             },
-            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', sortable: true},
-            {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', sortable: true, style: 'text-align: left'},
-            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', sortable: true},
-            {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', sortable: true, style: 'text-align: left'},
-            {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', sortable: true, style: 'text-align: left'},
+            {field: 'DebitLID',        hidden: true,  caption: 'DebitLID',   size: '50px', sortable: true},
+            {field: 'DebitLedgerName', hidden: false, caption: 'Debit',      size: '200px',sortable: true, style: 'text-align: left'},
+            {field: 'CreditLID',       hidden: true,  caption: 'CreditLID',  size: '50px', sortable: true},
+            {field: 'CreditLedgerName',hidden: false, caption: 'CreditLID',  size: '200px',sortable: true, style: 'text-align: left'},
+            {field: 'DtStart',                        caption: 'Start',      size: '70px', sortable: true, style: 'text-align: right'},
+            {field: 'DtStop',                         caption: 'Stop',       size: '70px', sortable: true, style: 'text-align: right'},
+            {field: 'Description',     hidden: false, caption: 'Description',size: '20%',  sortable: true, style: 'text-align: left'},
         ],
         onClick: function(event) {
-
             event.onComplete = function () {
                 var sel = this.getSelection();
                 if (sel.length > 0) {
@@ -4304,6 +4307,8 @@ function buildPageElements() {
                         Description: '',
                         DtStart: w2uiDateControlString(y),
                         DtStop: w2uiDateControlString(ny),
+                        PriorToRAStart: true,
+                        PriorToRAStop: true,
                     };
                     w2ui.arsForm.record = record;
                     w2ui.arsForm.refresh();
