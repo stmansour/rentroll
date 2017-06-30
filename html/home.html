@@ -378,10 +378,10 @@ function buildPageElements() {
             { type: 'break', id: 'break2' },
             { type: 'button', id: 'msgButton', caption: 'News Flash', /*icon: 'fa fa-newspaper-o'*/ icon: 'fa fa-spinner fa-pulse fa-3x fa-fw'},
             { type: 'menu',    id: 'menuButton', caption: 'Developer',    icon: 'fa fa-user-circle', items: [
-                { text: 'Webdocs', icon: 'fa fa-book' },
+                { text: 'Webdocs',       icon: 'fa fa-book' },
                 { text: 'Template-Dflt', icon: 'fa fa-language' },
                 { text: 'Template-Apts', icon: 'fa fa-language' },
-                { text: 'Messages', icon: 'fa fa-folder-o' },
+                { text: 'Messages',      icon: 'fa fa-folder-o' },
             ]},
             { id: 'bt3', type: 'spacer' },
             { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
@@ -419,6 +419,7 @@ function buildPageElements() {
                         { id: 'asms',  text: plural(app.sAssessment),  icon: 'fa fa-star-o', hint: plural(app.sAssessment) },
                         { id: 'transactants', text: plural(app.sTransactant), icon: 'fa fa-users' },
                         { id: 'rentables', text: plural(app.sRentable), icon: 'fa fa-cube' },
+                        { id: 'changeRT', text: 'Change ' + app.sRentable +' Type', icon: 'fa fa-cube' },
                         // { id: 'updatera', text: 'Extend a Lease', icon: 'fa fa-pencil' },
                         // { id: 'movein', text: 'Move In', icon: 'fa fa-sign-in' },
                         // { id: 'moveout', text: 'Move Out', icon: 'fa fa-sign-out' },
@@ -566,9 +567,10 @@ function buildPageElements() {
     //------------------------------------------------------------------------
     var tmp = genDateRangeNavigator('date');
     tmp.push.apply(tmp, [
-        { type: 'break',  id: 'break2' },
+        { type: 'spacer',},
         { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
         { type: 'button', id: 'printreport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+        { type: 'break', id: 'break2' },
         { type: 'menu-radio', id: 'page_size', icon: 'fa fa-print',
             tooltip: 'exported PDF page size',
             text: function (item) {
@@ -802,9 +804,9 @@ function buildPageElements() {
         },
         columns: [
             { field: 'recid', type: 'int', caption: 'recid', size: '40px', hidden: true},
-            { field: 'Date', render: 'date', caption: 'Date', style: 'text-align: right', size: '80px' },
+            { field: 'Date', render: 'date', caption: 'Assessment<br>Date', style: 'text-align: right', size: '80px' },
             { field: 'Assessment', caption: 'Assessment', size: '10%' },
-            { field: 'Amount', render: 'money', caption: 'Amount', size: '100px' },
+            { field: 'Amount', render: 'money', caption: 'Assessment<br>Amount', size: '100px' },
             { field: 'AmountPaid', render: 'money', caption: 'Amount Paid', size: '100px' },
             { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '100px' },
             { field: 'ARID', hidden: true },
@@ -1005,7 +1007,7 @@ function buildPageElements() {
             { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
             { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
             { field: "TCID", required: false, type: 'int', html: { caption: "TCID", page: 0, column: 0 } },
-            { field: "GLNumber", required: false, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
+            { field: "GLNumber", required: true, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
             { field: "Status", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
             { field: "Type", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
@@ -1192,7 +1194,7 @@ function buildPageElements() {
                 render: function (record) {
                     var s = '';
                     if (record.IsCompany > 0) {
-                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-building-o" aria-hidden="true"></i></span>';
+                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
                     }
                     return s + ' ' + record.CompanyName;
                 }
@@ -2059,7 +2061,7 @@ function buildPageElements() {
                 //     if (record) {
                 //         var icon;
                 //         if (record.PayorIsCompany) {
-                //             icon = 'fa-building-o'
+                //             icon = 'fa-handshake-o'
                 //         } else {
                 //             icon = 'fa-user-o'
                 //         }
@@ -3042,10 +3044,10 @@ function buildPageElements() {
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
-            {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
-            {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
+            {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
@@ -4178,7 +4180,7 @@ function buildPageElements() {
         show: {
             toolbar        : true,
             footer         : true,
-            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarAdd     : true,    // indicates if toolbar add new button is visible
             toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn   : false,
@@ -4191,25 +4193,24 @@ function buildPageElements() {
             toolbarColumns : false,
         },
         columns: [
-            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'ARID',         hidden: true,  caption: 'COPID', size: '150px',                             sortable: true, style: 'text-align: center'},
-            {field: 'BID',         hidden: true,  caption: 'BID',   size: '150px',                             sortable: true, style: 'text-align: center'},
-            {field: 'Name',        hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
-            {field: 'ARType',    hidden: false, caption: 'ARType',         size: '80px', sortable: true, style: 'text-align: left',
+            {field: 'recid',  hidden: true,  caption: 'recid', size: '40px',  sortable: true},
+            {field: 'ARID',   hidden: true,  caption: 'COPID', size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'BID',    hidden: true,  caption: 'BID',   size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'Name',   hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
+            {field: 'ARType', hidden: false, caption: 'ARType',size: '80px',  sortable: true, style: 'text-align: left',
                 render: function (record, index, col_index) {
                     return app.ARTypes[this.getCellValue(index, col_index)];
                 }
             },
-            {field: 'DebitLID',    hidden: true, caption: 'DebitLID',         size: '50px', sortable: true},
-            {field: 'DebitLedgerName',    hidden: false, caption: 'Debit',         size: '200px', sortable: true, style: 'text-align: left'},
-            {field: 'CreditLID',   hidden: true, caption: 'CreditLID',        size: '50px', sortable: true},
-            {field: 'CreditLedgerName',   hidden: false, caption: 'CreditLID',        size: '200px', sortable: true, style: 'text-align: left'},
-            {field: 'DtStart', caption: 'Start', size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'DtStop', caption: 'Stop',  size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'Description', hidden: false, caption: 'Description',   size: '20%', sortable: true, style: 'text-align: left'},
+            {field: 'DebitLID',        hidden: true,  caption: 'DebitLID',   size: '50px', sortable: true},
+            {field: 'DebitLedgerName', hidden: false, caption: 'Debit',      size: '200px',sortable: true, style: 'text-align: left'},
+            {field: 'CreditLID',       hidden: true,  caption: 'CreditLID',  size: '50px', sortable: true},
+            {field: 'CreditLedgerName',hidden: false, caption: 'CreditLID',  size: '200px',sortable: true, style: 'text-align: left'},
+            {field: 'DtStart',                        caption: 'Start',      size: '70px', sortable: true, style: 'text-align: right'},
+            {field: 'DtStop',                         caption: 'Stop',       size: '70px', sortable: true, style: 'text-align: right'},
+            {field: 'Description',     hidden: false, caption: 'Description',size: '20%',  sortable: true, style: 'text-align: left'},
         ],
         onClick: function(event) {
-
             event.onComplete = function () {
                 var sel = this.getSelection();
                 if (sel.length > 0) {
@@ -4306,6 +4307,8 @@ function buildPageElements() {
                         Description: '',
                         DtStart: w2uiDateControlString(y),
                         DtStop: w2uiDateControlString(ny),
+                        PriorToRAStart: true,
+                        PriorToRAStop: true,
                     };
                     w2ui.arsForm.record = record;
                     w2ui.arsForm.refresh();
