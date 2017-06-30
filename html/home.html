@@ -67,6 +67,8 @@ var app = {
     arList: [{id: 0, text:"Assessment"}, {id:1, text:"Receipt"}],
     rt_list: {},
     gl_accounts: {}, // this holds the list of GLAccount per business
+    parent_accounts: {}, // possible parent accounts
+    post_accounts: {}, // possible post accounts
     rof: {"csv": 4, "pdf": 3}, // report export/output format
     pdfPageWidth: 8.5, // defaults to USLetter Portrait width
     pdfPageHeight: 11, // defaults to USLetter Portrait height
@@ -920,7 +922,7 @@ function buildPageElements() {
                 var rec = this.get(event.recid);
 
                 // get latest gl accounts first
-                getAccountsList(rec.BID)
+                getParentAccounts(rec.BID)
                 .done(function(data) {
                     if (data.status != 'success') {
                         w2ui.accountForm.message(data.message);
@@ -945,7 +947,7 @@ function buildPageElements() {
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
 
-            getAccountsList(BID)
+            getParentAccounts(BID)
            .done(function(data) {
                 if (data.status != 'success') {
                     w2ui.accountForm.message(data.message);
@@ -1045,7 +1047,7 @@ function buildPageElements() {
                 r.PLID = 0;
 
                 // change the choice of parent account list
-                getAccountsList(BID)
+                getParentAccounts(BID)
                 .done(function(/*data*/) {
                     w2ui.accountForm.refresh();
                 });
@@ -1148,7 +1150,7 @@ function buildPageElements() {
 
                 // set Parent Account list
                 var PLIDList = [{id: 0, text: 'No Parent LID'}];
-                app.gl_accounts[BUD].forEach(function(item) {
+                app.parent_accounts[BUD].forEach(function(item) {
                     if (item.id != r.LID) { // don't include itself in parent account choice -- drop list
                         PLIDList.push(item);
                     }
@@ -4230,17 +4232,17 @@ function buildPageElements() {
                     });
 
                     // get gl account list
-                    getAccountsList(ob.BID)
+                    getPostAccounts(ob.BID)
                     .done(function(data){
 
                         // set fields
                         w2ui.arsForm.get('ARType').options.items=artype_items;
                         w2ui.arsForm.get('ARType').options.selected=artype_selected;
 
-                        w2ui.arsForm.get('DebitLID').options.items=app.gl_accounts[BUD];
+                        w2ui.arsForm.get('DebitLID').options.items=app.post_accounts[BUD];
                         w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
 
-                        w2ui.arsForm.get('CreditLID').options.items=app.gl_accounts[BUD];
+                        w2ui.arsForm.get('CreditLID').options.items=app.post_accounts[BUD];
                         w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
 
                         // refresh the form
@@ -4265,7 +4267,7 @@ function buildPageElements() {
             var BUD = getBUDfromBID(BID);
 
             // get latest gl accounts first
-            getAccountsList(BID)
+            getPostAccounts(BID)
             .done(function(data) {
                 if (data.status != 'success') {
                     w2ui.arsForm.message(data.message);
@@ -4281,16 +4283,16 @@ function buildPageElements() {
                         artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
                     });
 
-                    var gl_accounts_pre_selected = {id: 0, text: "Select GL Account"};
-                    var gl_accounts_items = [gl_accounts_pre_selected];
-                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
+                    var post_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var post_accounts_items = [post_accounts_pre_selected];
+                    post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
 
                     w2ui.arsForm.get('ARType').options.items = artype_items;
                     w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
-                    w2ui.arsForm.get('DebitLID').options.items = gl_accounts_items;
-                    w2ui.arsForm.get('DebitLID').options.selected = gl_accounts_pre_selected;
-                    w2ui.arsForm.get('CreditLID').options.items = gl_accounts_items;
-                    w2ui.arsForm.get('CreditLID').options.selected = gl_accounts_pre_selected;
+                    w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
+                    w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
+                    w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
+                    w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
                     // w2ui.arsForm.refresh();
 
                     var y = new Date();
@@ -4301,8 +4303,8 @@ function buildPageElements() {
                         BID: BUD,
                         ARID: 0,
                         ARType: artype_pre_selected,
-                        DebitLID: gl_accounts_pre_selected,
-                        CreditLID: gl_accounts_pre_selected,
+                        DebitLID: post_accounts_pre_selected,
+                        CreditLID: post_accounts_pre_selected,
                         Name: '',
                         Description: '',
                         DtStart: w2uiDateControlString(y),

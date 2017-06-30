@@ -1,40 +1,28 @@
 {
     "records": [
         {
-            "id": 9,
-            "text": "10000 (Cash)"
-        },
-        {
-            "id": 10,
-            "text": "12000 (Accounts Receivable)"
-        },
-        {
-            "id": 11,
-            "text": "41000 (Gross Scheduled Receipts)"
-        },
-        {
-            "id": 12,
-            "text": "41102 (Loss (Gain) to Lease)"
-        },
-        {
-            "id": 13,
-            "text": "41101 (Vacancy)"
+            "id": 16,
+            "text": " (Owner Equity)"
         },
         {
             "id": 14,
             "text": " (Security Deposit Receivable)"
         },
         {
-            "id": 15,
-            "text": "30000 (Security Deposits)"
-        },
-        {
-            "id": 16,
-            "text": " (Owner Equity)"
+            "id": 9,
+            "text": "10000 (Cash)"
         },
         {
             "id": 90,
             "text": "11000 (Credit Card Clearing)"
+        },
+        {
+            "id": 10,
+            "text": "12000 (Accounts Receivable)"
+        },
+        {
+            "id": 15,
+            "text": "30000 (Security Deposits)"
         },
         {
             "id": 91,
@@ -47,6 +35,10 @@
         {
             "id": 93,
             "text": "30199 (Other Accrued Taxes)"
+        },
+        {
+            "id": 11,
+            "text": "41000 (Gross Scheduled Receipts)"
         },
         {
             "id": 94,
@@ -63,6 +55,14 @@
         {
             "id": 97,
             "text": "41100 (Income Offsets)"
+        },
+        {
+            "id": 13,
+            "text": "41101 (Vacancy)"
+        },
+        {
+            "id": 12,
+            "text": "41102 (Loss (Gain) to Lease)"
         },
         {
             "id": 98,
