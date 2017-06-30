@@ -5,7 +5,7 @@
             "BUD": "REX",
             "Description": "Cash",
             "LastModBy": 0,
-            "LastModTime": "2017-05-19T09:41:42Z",
+            "LastModTime": "2017-06-29T12:32:22Z",
             "Name": "Cash",
             "PMTID": 1,
             "recid": 0
@@ -15,7 +15,7 @@
             "BUD": "REX",
             "Description": "Personal check from payor",
             "LastModBy": 0,
-            "LastModTime": "2017-05-19T09:41:42Z",
+            "LastModTime": "2017-06-29T12:32:22Z",
             "Name": "Check",
             "PMTID": 2,
             "recid": 1
@@ -25,7 +25,7 @@
             "BUD": "REX",
             "Description": "Credit card charge",
             "LastModBy": 0,
-            "LastModTime": "2017-05-19T09:41:42Z",
+            "LastModTime": "2017-06-29T12:32:22Z",
             "Name": "VISA",
             "PMTID": 3,
             "recid": 2
@@ -35,7 +35,7 @@
             "BUD": "REX",
             "Description": "American Express credit card",
             "LastModBy": 0,
-            "LastModTime": "2017-05-19T09:41:42Z",
+            "LastModTime": "2017-06-29T12:32:22Z",
             "Name": "AMEX",
             "PMTID": 4,
             "recid": 3
