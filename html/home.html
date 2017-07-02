@@ -35,6 +35,8 @@ sidebarL1     - w2ui sidebar
 
 /*globals $:false */
 
+var gridSelID = null, activeGrid = "";
+
 // The rentroll app object, used to manage app-level data.
 var app = {
     D1: "2016-02-01",
@@ -248,6 +250,8 @@ function ChangeBusiness() {
 
 function switchToGrid(svc) {
     "use strict";
+    activeGrid = svc;
+    gridSelID = null;
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
     var url = '/v1/' + svc + '/' + x.value;
@@ -720,9 +724,18 @@ function buildPageElements() {
             {field: 'BID', type: 'int', caption: 'BID', hidden: true},
             {field: 'TCID', type: 'int', caption: 'TCID', hidden: true},
         ],
-        onSelect:  function(event) {
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "allocfunds" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+            }
+        },
+        onClick:  function(event) {
             event.onComplete = function() {
                 var rec = this.get(event.recid);
+                gridSelID = rec.recid;
+
                 app.TmpTCID = rec.TCID; // store here in case it is deselected by the time the Save function needs it
                 getPayorFund(rec.BID, rec.TCID)
                 .done(function(data) {
@@ -917,9 +930,17 @@ function buildPageElements() {
             },
             {field: 'AcctType', caption: 'AcctType', size: '150px', sortable: true},
         ],
-        onSelect:  function(event) {
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "accounts" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                };
+            }
+        },
+        onClick: function(event) {
             event.onComplete = function() {
                 var rec = this.get(event.recid);
+                gridSelID = rec.recid;
 
                 // get latest gl accounts first
                 getParentAccounts(rec.BID)
@@ -1178,6 +1199,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'transactantsGrid',
         url: '/v1/transactants',
+        multiSelect: false,
         show: {
             header: false,
             toolbar: true,
@@ -1205,21 +1227,19 @@ function buildPageElements() {
             {field: 'CellPhone',    caption: "Cell Phone",    size: '100px', sortable: true, hidden: false},
             {field: 'WorkPhone',    caption: "Work Phone",    size: '100px', sortable: true, hidden: false},
         ],
-        onClick: function(event) {
-            // var sel = this.getSelection(true);
-            event.onComplete = function () {
-                // var x = this.get; Object.getOwnPropertyNames(x).forEach(function(val, idx, array) { console.log(val + ' -> ' + x[val]); });
-                var sel = this.getSelection();
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; ++i) {
-                        var ob = this.get(sel[i]);
-                        setToForm('transactantForm', '/v1/person/' + ob.BID + '/' + ob.TCID, 700, true);
-                     }
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "transactants" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
                 }
-            };
+            }
+        },
+        onClick: function(event) {
+            event.onComplete = function () {
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
+                setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
+             }
         },
         onAdd: function(event) {
             // insert an empty record....
@@ -1491,6 +1511,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'rtGrid',
         url: '/v1/rt',
+        multiSelect: false,
         show: {
             header: false,
             toolbar: true,
@@ -1567,21 +1588,21 @@ function buildPageElements() {
             {field: 'RMRID', caption: 'RMRID', hidden: true},
             {field: 'MarketRate', caption: 'MarketRate', size: '100px', sortable: true, render: 'money'},
         ],
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "rt" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+            }
+        },
         onClick: function(event) {
             event.onComplete = function () {
-                var sel = this.getSelection(true);
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var ob = this.get(sel[i]);
-                        var BUD = getBUDfromBID(ob.BID);
-                        console.log('rentableType form url: ' + '/v1/rt/' + ob.BID + '/' + ob.RTID);
-                        setToForm('rentableTypeForm', '/v1/rt/' + ob.BID + '/' + ob.RTID, 400, true);
-                    }
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
-                }
-            };
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
+                var BUD = getBUDfromBID(rec.BID);
+                console.log('rentableType form url: ' + '/v1/rt/' + rec.BID + '/' + rec.RTID);
+                setToForm('rentableTypeForm', '/v1/rt/' + rec.BID + '/' + rec.RTID, 400, true);
+            }
         },
         onAdd: function(event) {
             var x = getCurrentBusiness();
@@ -1820,6 +1841,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'rentablesGrid',
         url: '/v1/rentable',
+        multiSelect: false,
         show: {
             header: false,
             toolbar: true,
@@ -1843,36 +1865,36 @@ function buildPageElements() {
             {field: 'RentalAgreementStart', caption: 'Rental Agreement Start', size: '150px', sortable: true},
             {field: 'RentalAgreementStop', caption: 'Rental Agreement Stop', size: '150px', sortable: true},
         ],
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "rentables" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+            }
+        },
         onClick: function(event) {
             event.onComplete = function () {
-                var sel = this.getSelection(true);
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var ob = this.get(sel[i]);
-                        var BUD = getBUDfromBID(ob.BID);
-                        console.log('rentable form url: ' + '/v1/rentable/' + ob.BID + '/' + ob.RID);
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
 
-                        getRentableTypes(ob.BID)
-                        .done(function(data){
-                            // set typedown list in rentableform - RentableType field
-                            w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
-                            w2ui.rentableForm.get("RTID").options.selected = {id: ob.RTID, text: ob.Name};
+                var BUD = getBUDfromBID(rec.BID);
+                console.log('rentable form url: ' + '/v1/rentable/' + rec.BID + '/' + rec.RID);
 
-                            // must call refresh when form field has been set
-                            w2ui.rentableForm.refresh();
+                getRentableTypes(rec.BID)
+                .done(function(data){
+                    // set typedown list in rentableform - RentableType field
+                    w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
+                    w2ui.rentableForm.get("RTID").options.selected = {id: rec.RTID, text: rec.Name};
 
-                            setToForm('rentableForm', '/v1/rentable/' + ob.BID + '/' + ob.RID, 700, true);
-                        })
-                        .fail(function(){
-                            console.log("Failed to get rentable type list");
-                        });
+                    // must call refresh when form field has been set
+                    w2ui.rentableForm.refresh();
 
-                    }
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
-                }
-            };
+                    setToForm('rentableForm', '/v1/rentable/' + rec.BID + '/' + rec.RID, 700, true);
+                })
+                .fail(function(){
+                    console.log("Failed to get rentable type list");
+                });
+            }
         },
         onAdd: function(event) {
             var x = getCurrentBusiness();
@@ -2027,10 +2049,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'rentalagrsGrid',
         url: '/v1/rentalagrs',
-        // show: {
-        //     toolbar: true,
-        //     footer: true,
-        // },
+        multiSelect: false,
         show: {
             toolbar: true,
             footer: true,
@@ -2075,22 +2094,22 @@ function buildPageElements() {
             {field: 'AgreementStop', caption: 'Agreement<br>Stop',  render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'PayorIsCompany', hidden: true, caption: 'IsCompany',  size: '40px', sortable: false},
         ],
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "rentalagrs" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+            }
+        },
         onClick: function(event) {
             //var sel = this.getSelection(true);
             event.onComplete = function () {
-                var sel = this.getSelection();
-                console.log('Get Selection: Rental Agreement');
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var ob = this.get(sel[i]);
-                        console.log( 'BID = ' + ob.BID + ',   RAID = ' + ob.RAID);
-                        var d = new Date();  // we'll use today for time-sensitive data
-                        setToRAForm(ob.BID,ob.RAID,d);
-                    }
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
-                }
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
+
+                console.log( 'BID = ' + rec.BID + ',   RAID = ' + rec.RAID);
+                var d = new Date();  // we'll use today for time-sensitive data
+                setToRAForm(rec.BID, rec.RAID, d);
             };
         },
         onAdd: function (/*event*/) {
@@ -2598,6 +2617,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'receiptsGrid',
         url: '/v1/receipts',
+        multiSelect: false,
         postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
             toolbar        : true,
@@ -2642,45 +2662,42 @@ function buildPageElements() {
         ],
         onClick: function(event) {
             event.onComplete = function () {
-                var sel = this.getSelection();
-                console.log('Get Selection: Receipt');
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var ob = this.get(sel[i]);
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
 
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.Receipts' )
-                        .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.Receipts = JSON.parse(data);
-                                w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
-                                w2ui.receiptForm.refresh();
-                                setToForm('receiptForm', '/v1/receipt/' + ob.BID + '/' + ob.RCPTID, 400, true);
-                            }
-                            if (data.status != 'success') {
-                                w2ui.receiptForm.message(data.message);
-                            }
-                        })
-                        .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
-                         });
-
+                var x = getCurrentBusiness();
+                var Bid = x.value;
+                var Bud = getBUDfromBID(Bid);
+                $.get('/v1/uival/' + x.value + '/app.Receipts' )
+                .done( function(data) {
+                    if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                        app.Receipts = JSON.parse(data);
+                        w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
+                        w2ui.receiptForm.refresh();
+                        setToForm('receiptForm', '/v1/receipt/' + rec.BID + '/' + rec.RCPTID, 400, true);
                     }
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
-                }
-            };
+                    if (data.status != 'success') {
+                        w2ui.receiptForm.message(data.message);
+                    }
+                })
+                .fail( function() {
+                    console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
+                 });
+            }
         },
         onRequest: function(/*event*/) {
             w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
         onRefresh: function(event) {
-            if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
-                setDateControlsInToolbar('receipts');
-                w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+            event.onComplete = function() {
+                if (activeGrid == "receipts" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+
+                if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
+                    setDateControlsInToolbar('receipts');
+                    w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+                }
             }
         },
         onAdd: function (/*event*/) {
@@ -3018,6 +3035,7 @@ function buildPageElements() {
     $().w2grid({
         name: 'asmsGrid',
         url: '/v1/asms',
+        multiSelect: false,
         show: {
             toolbar        : true,
             footer         : true,
@@ -3066,40 +3084,33 @@ function buildPageElements() {
         ],
         onClick: function(event) {
             event.onComplete = function () {
-                var sel = this.getSelection();
-                console.log('Get Selection: Assessment');
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var ob = this.get(sel[i]);
-                        var form = (ob.RentCycle !== 0 && ob.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
-                        var myurl = '/v1/asm/' + ob.BID + '/' + ob.ASMID;
-                        console.log( 'calling setToForm( '+form+', ' + myurl + ')');
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
 
-                        // before setting to the form, get the list of AcctRules...
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.Assessments' )
-                        .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.Assessments = JSON.parse(data);
-                                w2ui[form].get('ARID').options.items = app.Assessments[Bud];
-                                w2ui[form].refresh();
+                var form = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
+                var myurl = '/v1/asm/' + rec.BID + '/' + rec.ASMID;
+                console.log( 'calling setToForm( '+form+', ' + myurl + ')');
 
-                                setToForm(form, myurl, 400, true);
-                            }
-                            if (data.status != 'success') {
-                                w2ui.asmsGrid.message(data.message);
-                            }
-                        })
-                        .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.Assessments');
-                         });
+                // before setting to the form, get the list of AcctRules...
+                var x = getCurrentBusiness();
+                var Bid = x.value;
+                var Bud = getBUDfromBID(Bid);
+                $.get('/v1/uival/' + x.value + '/app.Assessments' )
+                .done( function(data) {
+                    if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                        app.Assessments = JSON.parse(data);
+                        w2ui[form].get('ARID').options.items = app.Assessments[Bud];
+                        w2ui[form].refresh();
+
+                        setToForm(form, myurl, 400, true);
                     }
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
-                }
+                    if (data.status != 'success') {
+                        w2ui.asmsGrid.message(data.message);
+                    }
+                })
+                .fail( function() {
+                    console.log('Error getting /v1/uival/' + x.value + '/app.Assessments');
+                 });
             };
         },
         onAdd: function (/*event*/) {
@@ -3156,11 +3167,17 @@ function buildPageElements() {
             w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
         onRefresh: function(event) {
-            if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
-                setDateControlsInToolbar('asms');
-                w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+            event.onComplete = function() {
+                if (activeGrid == "asms" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+
+                if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
+                    setDateControlsInToolbar('asms');
+                    w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+                }
             }
-        },
+        }
     });
 
     w2ui.asmsGrid.toolbar.add( genDateRangeNavigator('asms') );
@@ -3777,15 +3794,17 @@ function buildPageElements() {
                 app.pmtTypes[BUD] = temp_list;
             }
         },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "pmts" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+            }
+        },
         onClick: function(event) {
             event.onComplete = function() {
-                var recs = this.getSelection(); // get selected records array
-                if (recs.length < 1) {
-                    console.log("*** NO SELECTION FOUND, in pmtForm ***");
-                    return;
-                }
-                var recID = recs[0]; // as multiSelect false, list has only one record
-                var rec = this.get(recID); // get record from record index
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;  // integer value (event.recid holds value in string)
 
                 // popup the dialog form
                 setToForm('pmtForm', '/v1/pmts/' + rec.BID + '/' + rec.PMTID, 400, true);
@@ -3971,41 +3990,42 @@ function buildPageElements() {
             {field: 'LdgrName', hidden: false, caption: 'GL Acct Name', size: '20%', sortable: true, style: 'text-align: left'},
             {field: 'GLNumber', hidden: false, caption: 'GL Number', size: '150px', sortable: true, style: 'text-align: right'},
         ],
-        onClick: function(event) {
-
-            event.onComplete = function () {
-                var sel = this.getSelection();
-                if (sel.length > 0) {
-
-                    // get selected element as multiSelect is false
-                    var ob = this.get(sel[0]);
-                    var BUD = getBUDfromBID(ob.BID);
-
-                    // get gl account list
-                    getAccountsList(ob.BID)
-                    .done(function(data){
-                        if (data.status != 'success') {
-                            w2ui.depForm.message(data.message);
-                        } else {
-
-                            var gl_selected = {id: ob.LID, text: ob.GLNumber+" "+"(" + ob.LdgrName + ")"};
-                            // get gl accounts for BUD
-                            w2ui.depForm.get('LID').options.items = app.gl_accounts[BUD];
-                            w2ui.depForm.get('LID').options.selected = gl_selected;
-
-                            // refresh the form
-                            w2ui.depForm.refresh();
-                        }
-
-                        setToForm('depForm', '/v1/dep/' + ob.BID + '/' + ob.DEPID, 400, true);
-                    })
-                    .fail(function(data){
-                        console.log("Failed to get glAccountList")
-                    });
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "dep" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
                 }
+            }
+        },
+        onClick: function(event) {
+            event.onComplete = function () {
+                // get selected element as multiSelect is false
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
+
+                var BUD = getBUDfromBID(rec.BID);
+
+                // get gl account list
+                getAccountsList(rec.BID)
+                .done(function(data){
+                    if (data.status != 'success') {
+                        w2ui.depForm.message(data.message);
+                    } else {
+
+                        var gl_selected = {id: rec.LID, text: rec.GLNumber+" "+"(" + rec.LdgrName + ")"};
+                        // get gl accounts for BUD
+                        w2ui.depForm.get('LID').options.items = app.gl_accounts[BUD];
+                        w2ui.depForm.get('LID').options.selected = gl_selected;
+
+                        // refresh the form
+                        w2ui.depForm.refresh();
+                    }
+
+                    setToForm('depForm', '/v1/dep/' + rec.BID + '/' + rec.DEPID, 400, true);
+                })
+                .fail(function(data){
+                    console.log("Failed to get glAccountList")
+                });
             };
         },
         onAdd: function (event) {
@@ -4212,51 +4232,53 @@ function buildPageElements() {
             {field: 'DtStop',                         caption: 'Stop',       size: '70px', sortable: true, style: 'text-align: right'},
             {field: 'Description',     hidden: false, caption: 'Description',size: '20%',  sortable: true, style: 'text-align: left'},
         ],
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if (activeGrid == "ars" && typeof gridSelID == "number") {
+                    this.select(gridSelID);
+                }
+            }
+        },
         onClick: function(event) {
             event.onComplete = function () {
-                var sel = this.getSelection();
-                if (sel.length > 0) {
+                // multi select is false
+                var rec = this.get(event.recid);
+                gridSelID = rec.recid;
 
-                    // multi select is false
-                    var ob = this.get(sel[0]);
-                    var BUD = getBUDfromBID(ob.BID);
+                var BUD = getBUDfromBID(rec.BID);
 
-                    // set ARType DropDown list
-                    var artype_selected;
-                    var artype_items = [];
-                    Object.keys(app.ARTypes).forEach(function(artype_id){
-                        if (ob.ARType == artype_id) {
-                            artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
-                        }
-                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
-                    });
+                // set ARType DropDown list
+                var artype_selected;
+                var artype_items = [];
+                Object.keys(app.ARTypes).forEach(function(artype_id){
+                    if (rec.ARType == artype_id) {
+                        artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
+                    }
+                    artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                });
 
-                    // get gl account list
-                    getPostAccounts(ob.BID)
-                    .done(function(data){
+                // get gl account list
+                getPostAccounts(rec.BID)
+                .done(function(data){
 
-                        // set fields
-                        w2ui.arsForm.get('ARType').options.items=artype_items;
-                        w2ui.arsForm.get('ARType').options.selected=artype_selected;
+                    // set fields
+                    w2ui.arsForm.get('ARType').options.items=artype_items;
+                    w2ui.arsForm.get('ARType').options.selected=artype_selected;
 
-                        w2ui.arsForm.get('DebitLID').options.items=app.post_accounts[BUD];
-                        w2ui.arsForm.get('DebitLID').options.selected={id: ob.DebitLID, text: ob.DebitLedgerName};
+                    w2ui.arsForm.get('DebitLID').options.items=app.post_accounts[BUD];
+                    w2ui.arsForm.get('DebitLID').options.selected={id: rec.DebitLID, text: rec.DebitLedgerName};
 
-                        w2ui.arsForm.get('CreditLID').options.items=app.post_accounts[BUD];
-                        w2ui.arsForm.get('CreditLID').options.selected={id: ob.CreditLID, text: ob.CreditLedgerName};
+                    w2ui.arsForm.get('CreditLID').options.items=app.post_accounts[BUD];
+                    w2ui.arsForm.get('CreditLID').options.selected={id: rec.CreditLID, text: rec.CreditLedgerName};
 
-                        // refresh the form
-                        w2ui.arsForm.refresh();
+                    // refresh the form
+                    w2ui.arsForm.refresh();
 
-                        setToForm('arsForm', '/v1/ar/' + ob.BID + '/' + ob.ARID, 400, true);
-                    })
-                    .fail(function(data){
-                        console.log("Failed to get glAccountList")
-                    });
-                } else {
-                    console.log('*** NO SELECTION FOUND ***   So, select index 0');
-                    this.select(1);
-                }
+                    setToForm('arsForm', '/v1/ar/' + rec.BID + '/' + rec.ARID, 400, true);
+                })
+                .fail(function(data){
+                    console.log("Failed to get glAccountList")
+                });
             };
         },
         onAdd: function (event) {
