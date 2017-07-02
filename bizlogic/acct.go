@@ -16,7 +16,9 @@ import "rentroll/rlib"
 // determine what accounts show up in the list of possible Parent accounts,
 // our newly created account will not appear in that list so no account can
 // ever add it as a parent.
+//
 // @return - a list of accounts that can be parent accounts
+//-----------------------------------------------------------------------------
 func PossibleParentAccounts(bid int64) []rlib.GLAccount {
 	var m = map[int64]int{}
 
@@ -50,6 +52,7 @@ func PossibleParentAccounts(bid int64) []rlib.GLAccount {
 //        it will be much faster
 //
 // @return - a list of GLAccounts that can be used for posting
+//-----------------------------------------------------------------------------
 func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 	var m = map[int64]int{}
 
@@ -78,6 +81,10 @@ func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 	return n
 }
 
+// xxx - It is possible that at time0 account X is not a parent, so it
+// was used in an AccountRule.  Then, at a later time, a user updates
+// the Chart of Accounts and attempts to use account X as a parent
+
 // SaveGLAccount saves or updates the supplied ledger.
 // It loads the existing ledger prior to the saving, if it exists.
 // If the new parent ledger is different than the old parent, it scans
@@ -86,7 +93,7 @@ func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 // lists in the Assessment/Receipt Rules form so that only accounts
 // that are NOT Summary Accounts are available. We only post to
 // accounts that are called out in Assessment/Receipt rules.
-//
+//-----------------------------------------------------------------------------
 func SaveGLAccount(l *rlib.GLAccount) {
 	//	p1 := int64(0)
 
