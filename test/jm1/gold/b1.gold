@@ -6,10 +6,13 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                        Proration                                                                                                        
-ASMID        PASMID  RAID        RID        Rent Cycle  Cycle          Amount  AsmType                       Account Rule                                                
------------  ------  ----------  ---------  ----------  ---------  ----------  ----------------------------  ------------------------------------------------------------
-ASM00000004  0       RA00000001  R00000001  monthly     daily        3,500.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000006  0       RA00000002  R00000002  monthly     daily        3,550.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000008  0       RA00000003  R00000003  monthly     daily        4,400.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+                                                 Proration                                                                                                        
+ASMID        RAID        Rentable    Rent Cycle  Cycle          Amount  AsmType                       AR Name                                                     
+-----------  ----------  ----------  ----------  ---------  ----------  ----------------------------  ------------------------------------------------------------
+ASM00000004  RA00000001  309         monthly     daily        3,500.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+                         Rexford                                                                                                                                  
+ASM00000006  RA00000002  309 1/2     monthly     daily        3,550.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+                         Rexford                                                                                                                                  
+ASM00000008  RA00000003  311         monthly     daily        4,400.00  Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+                         Rexford                                                                                                                                  
 

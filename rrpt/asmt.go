@@ -26,14 +26,13 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 	tbl := getRRTable()
 
 	tbl.AddColumn("ASMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("PASMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("RID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Rentable", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Proration Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("AsmType", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Account Rule", 80, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("AR Name", 80, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// prepare table's title, section1, section2, section3 if there are any error
 	err := TableReportHeaderBlock(&tbl, "Assessments", funcname, ri)
@@ -56,16 +55,17 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 	for rows.Next() {
 		var a rlib.Assessment
 		rlib.ReadAssessments(rows, &a)
+		r := rlib.GetRentable(a.RID)
+
 		tbl.AddRow()
 		tbl.Puts(-1, 0, a.IDtoString())
-		tbl.Puts(-1, 1, rlib.IDtoString("ASM", a.PASMID))
-		tbl.Puts(-1, 2, rlib.IDtoString("RA", a.RAID))
-		tbl.Puts(-1, 3, rlib.IDtoString("R", a.RID))
-		tbl.Puts(-1, 4, rlib.RentalPeriodToString(a.RentCycle))
-		tbl.Puts(-1, 5, rlib.RentalPeriodToString(a.ProrationCycle))
-		tbl.Putf(-1, 6, a.Amount)
-		tbl.Puts(-1, 7, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
-		tbl.Puts(-1, 8, rlib.GetAssessmentAccountRuleText(&a))
+		tbl.Puts(-1, 1, rlib.IDtoString("RA", a.RAID))
+		tbl.Puts(-1, 2, r.RentableName)
+		tbl.Puts(-1, 3, rlib.RentalPeriodToString(a.RentCycle))
+		tbl.Puts(-1, 4, rlib.RentalPeriodToString(a.ProrationCycle))
+		tbl.Putf(-1, 5, a.Amount)
+		tbl.Puts(-1, 6, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
+		tbl.Puts(-1, 7, rlib.GetAssessmentAccountRuleText(&a))
 	}
 	rlib.Errcheck(rows.Err())
 	tbl.TightenColumns()
