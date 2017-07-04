@@ -57,16 +57,16 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 	defer rows.Close()
 
 	const (
-		RID     = 0
-		RType   = iota
-		RAgr    = iota
-		RPayors = iota
-		RUsers  = iota
-		D0      = iota
-		D30     = iota
-		D60     = iota
-		D90     = iota
-		CNotes  = iota
+		RentableName = 0
+		RType        = iota
+		RAgr         = iota
+		RPayors      = iota
+		RUsers       = iota
+		D0           = iota
+		D30          = iota
+		D60          = iota
+		D90          = iota
+		CNotes       = iota
 	)
 
 	lid := rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID
@@ -100,7 +100,7 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 			d90Bal := rlib.GetRentableAccountBalance(ri.Xbiz.P.BID, lid, r.RID, &d90)
 
 			tbl.AddRow()
-			tbl.Puts(-1, RID, r.IDtoString())
+			tbl.Puts(-1, RentableName, r.RentableName)
 			tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)
 			tbl.Puts(-1, RAgr, ra.IDtoString())
 			tbl.Puts(-1, RPayors, payornames)

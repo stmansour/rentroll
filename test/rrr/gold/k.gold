@@ -6,18 +6,18 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                           Proration                                                                                                                 
-ASMID        PASMID  RAID        RID        Rent Cycle     Cycle              Amount  AsmType                            Account Rule                                                
------------  ------  ----------  ---------  -------------  -------------  ----------  ---------------------------------  ------------------------------------------------------------
-ASM00000001  0       RA00000001  R00000001  daily          daily               76.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000005  0       RA00000001  R00000001  daily          daily               24.00  Income Offsets                     c ${GLGENRCV} _, d 41104 _                                  
-ASM00000009  0       RA00000001  R00000001  non-recurring  non-recurring       12.35  Gas Overage                        d ${GLGENRCV} _, c 41306 _                                  
-ASM00000010  0       RA00000002  R00000001  daily          daily               92.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000013  0       RA00000003  R00000001  daily          daily               56.87  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000035  0       RA00000004  R00000002  monthly        daily              730.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000037  0       RA00000005  R00000005  daily          daily              125.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000070  0       RA00000002  R00000001  daily          daily               11.00  Income Offsets                     c ${GLGENRCV} _, d 41104 _                                  
-ASM00000073  0       RA00000002  R00000001  non-recurring  non-recurring      230.00  Gas Overage                        d ${GLGENRCV} _, c 41306 _                                  
-ASM00000074  0       RA00000006  R00000003  monthly        daily            2,750.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
-ASM00000076  0       RA00000006  R00000003  monthly        daily              250.00  Resident Concessions               c ${GLGENRCV} _, d 41104 _                                  
+                                                  Proration                                                                                                                 
+ASMID        RAID        Rentable  Rent Cycle     Cycle              Amount  AsmType                            AR Name                                                     
+-----------  ----------  --------  -------------  -------------  ----------  ---------------------------------  ------------------------------------------------------------
+ASM00000001  RA00000001  6303-231  daily          daily               76.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000005  RA00000001  6303-231  daily          daily               24.00  Income Offsets                     c ${GLGENRCV} _, d 41104 _                                  
+ASM00000009  RA00000001  6303-231  non-recurring  non-recurring       12.35  Gas Overage                        d ${GLGENRCV} _, c 41306 _                                  
+ASM00000010  RA00000002  6303-231  daily          daily               92.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000013  RA00000003  6303-231  daily          daily               56.87  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000035  RA00000004  6323-301  monthly        daily              730.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000037  RA00000005  6392-930  daily          daily              125.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000070  RA00000002  6303-231  daily          daily               11.00  Income Offsets                     c ${GLGENRCV} _, d 41104 _                                  
+ASM00000073  RA00000002  6303-231  non-recurring  non-recurring      230.00  Gas Overage                        d ${GLGENRCV} _, c 41306 _                                  
+ASM00000074  RA00000006  6323-302  monthly        daily            2,750.00  Unit Gross Scheduled Rent-Taxable  d ${GLGENRCV} _, c ${GLGSRENT} ${GSR}, d ${GLLTL} ${GSR} _ -
+ASM00000076  RA00000006  6323-302  monthly        daily              250.00  Resident Concessions               c ${GLGENRCV} _, d 41104 _                                  
 
