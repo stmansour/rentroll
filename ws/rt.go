@@ -211,7 +211,10 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	fmt.Printf("Entered %s\n", funcname)
 
 	// get where clause and order clause for sql query
-	_, orderClause := GetSearchAndSortSQL(d, depSearchFieldMap)
+	whereClause, orderClause := GetSearchAndSortSQL(d, rtSearchFieldMap)
+	if len(whereClause) > 0 {
+		whr += " AND (" + whereClause + ")"
+	}
 	if len(orderClause) > 0 {
 		order = orderClause
 	}
