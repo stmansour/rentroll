@@ -1,43 +1,43 @@
 CCC Chart of Accounts
 California Commerce Centr
 
-                                                                                                               Rental           Rental                                     
-                                                                                         Quick Books Account   Agreement     Agreement                                     
-GLNumber  Name                                      Parent                               Type                  Associated     Required  Type      Description              
---------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  --------  -------------------------
-          Security Deposit Receivable                                                                          unknown              No  15                                 
-          Owner Equity                                                                                         unknown              No  17                                 
-   10000  Cash                                                                           Bank Account          Associated          Yes  10        Main cash account        
-   11000  Credit Card Clearing                                                           Current Asset         Associated           No                                     
-   12000  Accounts Receivable                                                            Current Asset         Associated           No  11                                 
-   30000  Security Deposits                                                              Current Liabilities   Unassociated        Yes  16                                 
-   30100  Accrued Taxes                                                                  Current Liabilities   Unassociated         No                                     
-   30101  Sales Taxes                               Accrued Taxes                        Current Liabilities   Unassociated         No                                     
-   30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities   Unassociated         No                                     
-   41000  Gross Scheduled Receipts                                                       Income                Associated           No  12                                 
-   41001  Gross Scheduled Regular Dues              Gross Scheduled Receipts             Income                Associated           No                                     
-   41002  Gross Scheduled Special Assessments       Gross Scheduled Receipts             Income                Associated           No                                     
-   41003  Gross Scheduled Rents                     Gross Scheduled Receipts             Income                Associated           No                                     
-   41100  Income Offsets                                                                 Income                Associated           No                                     
-   41101  Vacancy                                   Income Offsets                       Income                Associated           No  14                                 
-   41102  Loss (Gain) to Lease                      Income Offsets                       Income                Unassociated         No  13                                 
-   41103  Employee Concessions                      Income Offsets                       Income                Unassociated         No                                     
-   41104  Tenant Concessions                        Income Offsets                       Income                Unassociated         No                                     
-   41105  Owner Concession                          Income Offsets                       Income                Associated           No                                     
-   41106  Administrative Concession                 Income Offsets                       Income                Associated           No                                     
-   41107  Off Line Renovations                      Income Offsets                       Income                Associated           No                                     
-   41108  Off Line Maintenance                      Income Offsets                       Income                Associated           No                                     
-   41199  Othe Income Offsets                       Income Offsets                       Income                Unassociated         No                                     
-   41200  Other Income                                                                   Income                Unassociated         No                                     
-   41201  Utility Fees                              Other Income                         Income                Unassociated         No                                     
-   41202  Application Fees                          Other Income                         Income                Associated          Yes                                     
-   41203  Late Fees                                 Other Income                         Income                Unassociated        Yes                                     
-   41204  Insufficient Funds Fee                    Other Income                         Income                Unassociated         No                                     
-   41205  Expense Reimbursement                     Other Income                         Income                Unassociated         No                                     
-   41206  Forfeited Security Deposit                Other Income                         Income                Unassociated        Yes                                     
-   41207  Damage Fee                                Other Income                         Income                Unassociated        Yes                                     
-   41299  Other Miscellaneous Income                Other Income                         Income                Unassociated        Yes                                     
-   49992  Bad Debt                                                                       Income                Unassociated         No                                     
-   49998  Income Suspense                                                                Income                Associated           No                                     
-   49999  Other Business Income                                                          Income                Associated           No                                     
+                                                                                                               Rental           Rental                           
+                                                                                                               Agreement     Agreement                           
+GLNumber  Name                                      Parent                               Account Type          Associated     Required  Description              
+--------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  -------------------------
+          Security Deposit Receivable                                                                          unknown              No                           
+          Owner Equity                                                                                         unknown              No                           
+   10000  Cash                                                                           Bank Account          Associated          Yes  Main cash account        
+   11000  Credit Card Clearing                                                           Current Asset         Associated           No                           
+   12000  Accounts Receivable                                                            Current Asset         Associated           No                           
+   30000  Security Deposits                                                              Current Liabilities   Unassociated        Yes                           
+   30100  Accrued Taxes                                                                  Current Liabilities   Unassociated         No                           
+   30101  Sales Taxes                               Accrued Taxes                        Current Liabilities   Unassociated         No                           
+   30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities   Unassociated         No                           
+   41000  Gross Scheduled Receipts                                                       Income                Associated           No                           
+   41001  Gross Scheduled Regular Dues              Gross Scheduled Receipts             Income                Associated           No                           
+   41002  Gross Scheduled Special Assessments       Gross Scheduled Receipts             Income                Associated           No                           
+   41003  Gross Scheduled Rents                     Gross Scheduled Receipts             Income                Associated           No                           
+   41100  Income Offsets                                                                 Income                Associated           No                           
+   41101  Vacancy                                   Income Offsets                       Income                Associated           No                           
+   41102  Loss (Gain) to Lease                      Income Offsets                       Income                Unassociated         No                           
+   41103  Employee Concessions                      Income Offsets                       Income                Unassociated         No                           
+   41104  Tenant Concessions                        Income Offsets                       Income                Unassociated         No                           
+   41105  Owner Concession                          Income Offsets                       Income                Associated           No                           
+   41106  Administrative Concession                 Income Offsets                       Income                Associated           No                           
+   41107  Off Line Renovations                      Income Offsets                       Income                Associated           No                           
+   41108  Off Line Maintenance                      Income Offsets                       Income                Associated           No                           
+   41199  Othe Income Offsets                       Income Offsets                       Income                Unassociated         No                           
+   41200  Other Income                                                                   Income                Unassociated         No                           
+   41201  Utility Fees                              Other Income                         Income                Unassociated         No                           
+   41202  Application Fees                          Other Income                         Income                Associated          Yes                           
+   41203  Late Fees                                 Other Income                         Income                Unassociated        Yes                           
+   41204  Insufficient Funds Fee                    Other Income                         Income                Unassociated         No                           
+   41205  Expense Reimbursement                     Other Income                         Income                Unassociated         No                           
+   41206  Forfeited Security Deposit                Other Income                         Income                Unassociated        Yes                           
+   41207  Damage Fee                                Other Income                         Income                Unassociated        Yes                           
+   41299  Other Miscellaneous Income                Other Income                         Income                Unassociated        Yes                           
+   49992  Bad Debt                                                                       Income                Unassociated         No                           
+   49998  Income Suspense                                                                Income                Associated           No                           
+   49999  Other Business Income                                                          Income                Associated           No                           
 
