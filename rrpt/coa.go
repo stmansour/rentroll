@@ -11,11 +11,6 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 
 	Pldgr := ""
 
-	s := ""
-	if rlib.GLCASH <= p.Type && p.Type <= rlib.GLLAST {
-		s = fmt.Sprintf("%d", p.Type)
-	}
-
 	var sp string
 	switch p.RAAssociated {
 	case 0:
@@ -34,10 +29,9 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 		GLNo = iota
 		Name = iota
 		PGL  = iota
-		QBAT = iota
+		AT   = iota
 		RAA  = iota
 		RAR  = iota
-		Type = iota
 		Desc = iota
 	)
 	yn := "No"
@@ -48,10 +42,9 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 	tbl.Puts(-1, GLNo, p.GLNumber)
 	tbl.Puts(-1, Name, p.Name)
 	tbl.Puts(-1, PGL, Pldgr)
-	tbl.Puts(-1, QBAT, p.AcctType)
+	tbl.Puts(-1, AT, p.AcctType)
 	tbl.Puts(-1, RAA, sp)
 	tbl.Puts(-1, RAR, yn)
-	tbl.Puts(-1, Type, s)
 	tbl.Puts(-1, Desc, p.Description)
 }
 
@@ -89,10 +82,9 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Name", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Parent", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Quick Books Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rental Agreement Associated", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rental Agreement Required", 5, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
-	tbl.AddColumn("Type", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// prepare table's title, sections
