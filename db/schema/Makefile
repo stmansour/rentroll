@@ -15,6 +15,7 @@ tws.sql:
 	cp ${TOPDIR}/../tws/db/schema/tws.sql .
 
 clean:
+	rm -f tws.sql
 	@echo "*** CLEAN completed in db/schema ***"
 
 test:
