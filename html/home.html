@@ -35,8 +35,6 @@ sidebarL1     - w2ui sidebar
 
 /*globals $:false */
 
-var gridSelID = null, activeGrid = "";
-
 // The rentroll app object, used to manage app-level data.
 var app = {
     D1: "2016-02-01",
@@ -79,6 +77,8 @@ var app = {
         "Legal": { "w": 8.5, "h": 14 },
         "Ledger": { "w": 11, "h": 17 },
     },
+    activeGrid: "", // which one is active now
+    new_form_rec: false,
 };
 
 // delete confirmation dialog box options
@@ -223,7 +223,7 @@ function showReport(rptname, elToFocus) {
     if (elToFocus) {
         callBack = function() {
             // document.getElementsByName(elToFocus)[0].focus(); // arrr..... does not found element, WHY!!
-        }
+        };
     }
     w2ui.reportslayout.load('main', url, null, callBack);
 }
@@ -250,13 +250,12 @@ function ChangeBusiness() {
 
 function switchToGrid(svc) {
     "use strict";
-    activeGrid = svc;
-    gridSelID = null;
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
     var url = '/v1/' + svc + '/' + x.value;
     w2ui[grid].url = url;
-    // console.log('url = ' + url);
+    w2ui[grid].last.sel_recid = null; // whenever switch grid, erase last selected record
+    app.activeGrid = grid; // mark active grid in app.activeGrid
 
     // Special Handling
     switch(svc) {
@@ -787,7 +786,7 @@ function buildPageElements() {
         }
         // check that from date does not have value greater then To date
         if (d1.getTime() >= d2.getTime()) {
-            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000) //one day back from To date
+            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
         }
         app.D1 = dateControlString(d1);
         showReport(app.lastReport, "dateD1");
@@ -806,11 +805,11 @@ function buildPageElements() {
         }
         // check that year is not behind 2000
         if (d2.getFullYear() < 2000) {
-            return
+            return;
         }
         // check that from date does not have value greater then To date
         if (d2.getTime() <= d1.getTime()) {
-            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000) //one day forward from From date
+            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
         }
         app.D2 = dateControlString(d2);
         showReport(app.lastReport, "dateD2");
@@ -841,15 +840,21 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "allocfunds" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
-            }
+            };
         },
         onClick:  function(event) {
             event.onComplete = function() {
+                app.new_form_rec = false;
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 app.TmpTCID = rec.TCID; // store here in case it is deselected by the time the Save function needs it
                 getPayorFund(rec.BID, rec.TCID)
@@ -857,7 +862,7 @@ function buildPageElements() {
                     app.payor_fund = data.record.fund;  // store fund in app variable
                     w2ui.unpaidASMsGrid.load('/v1/unpaidasms/'+rec.BID+'/'+rec.TCID);   // load grid data
 
-                    var top = _unAllocRcpts.layoutPanels.top(app.payor_fund, rec.Name, rec.TCID),
+                    var top = _unAllocRcpts.layoutPanels.top(app.payor_fund, rec.Name/*, rec.TCID*/),
                         bottom = _unAllocRcpts.layoutPanels.bottom();
 
                     w2ui.allocfundsLayout.content('top', top);
@@ -1027,7 +1032,7 @@ function buildPageElements() {
             {field: 'GLNumber', caption: 'GL Number', size: '100px', sortable: true},
             {field: 'Name',     caption: 'Name',      size: '450px', sortable: true},
             {field: 'Status',   caption: 'Status',    size: '90px', sortable: true,
-                render: function (record, index, col_index) {
+                render: function (record/*, index, col_index*/) {
                     var html = '';
                     // app.account_stuff.status.forEach(function(item) {
                     //     if (item.id == w2ui.accountsGrid.getCellValue(index, col_index)) html = item.text;
@@ -1047,15 +1052,22 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "accounts" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
-                };
-            }
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
+                }
+            };
         },
         onClick: function(event) {
             event.onComplete = function() {
+                app.new_form_rec = false;
+
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 // get latest gl accounts first
                 getParentAccounts(rec.BID)
@@ -1078,6 +1090,7 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
+            app.new_form_rec = true;
 
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
@@ -1233,8 +1246,8 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
-                        console.log("Delete Payment failed.")
+                    .fail(function(/*data*/){
+                        console.log("Delete Payment failed.");
                     });
                 })
                 .no(function() {
@@ -1249,10 +1262,10 @@ function buildPageElements() {
                 var BUD = getBUDfromBID(r.BID);
                 if (r.LID) {
                     f.header = 'Edit Account Detail' + ' (' + r.LID + ')';
-                    formDeleteBtn(f.name, "show");
+                    isNewFormRecord(f.name, false);
                 } else {
                     f.header = 'Edit Account Detail (new)';
-                    formDeleteBtn(f.name, "hide");
+                    isNewFormRecord(f.name, true);
                 }
 
                 $("#accountForm").find('input[name=AllowPost]').w2field('list', {
@@ -1285,7 +1298,7 @@ function buildPageElements() {
                 });
 
                 // set Parent Account list
-                var PLIDList = [{id: 0, text: 'No Parent LID'}];
+                var PLIDList = [{id: 0, text: ' -- No Parent LID -- '}];
                 app.parent_accounts[BUD].forEach(function(item) {
                     if (item.id != r.LID) { // don't include itself in parent account choice -- drop list
                         PLIDList.push(item);
@@ -1304,7 +1317,7 @@ function buildPageElements() {
                 });
 
                 // Reference: http://jsfiddle.net/vtoah4t5/7/
-            }
+            };
         }
     });
 
@@ -1328,7 +1341,15 @@ function buildPageElements() {
             {field: 'TCID',         caption: "TCID",          size: '50px',  sortable: true, style: 'text-align: right', hidden: false},
             {field: 'FirstName',    caption: "First Name",    size: '125px', sortable: true, hidden: false},
             {field: 'MiddleName',   caption: "Middle Name",   size: '20px',  sortable: true, hidden: true},
-            {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false},
+            {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false,
+                render: function (record) {
+                    var s = '';
+                    if (record.IsCompany === 0) {
+                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
+                    }
+                    return s + ' ' + record.LastName;
+                }
+            },
             {field: 'CompanyName',  caption: "Company Name",  size: '125px', sortable: true, hidden: false,
                 render: function (record) {
                     var s = '';
@@ -1344,19 +1365,27 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "transactants" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
-            }
+            };
         },
         onClick: function(event) {
             event.onComplete = function () {
+                app.new_form_rec = false;
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
                 setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
-             }
+             };
         },
-        onAdd: function(event) {
+        onAdd: function(/*event*/) {
+            app.new_form_rec = true;
+
             // insert an empty record....
             var x = getCurrentBusiness();
             var BID=x.value;
@@ -1421,7 +1450,7 @@ function buildPageElements() {
                 OutcomeSLSID: 0,
                 FloatingDeposit: 0.00,
                 RAID: 0,
-            }
+            };
 
             w2ui.transactantForm.record = record;
             w2ui.transactantForm.refresh();
@@ -1556,7 +1585,7 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
-            delete: function(target, data) {
+            delete: function(/*target, data*/) {
                 var form = this;
                 w2confirm(delete_confirm_options)
                 .yes(function() {
@@ -1592,10 +1621,10 @@ function buildPageElements() {
             if (r.TCID) {
                 var name = r.FirstName + ' ' + r.LastName;
                 title = 'Edit ' + app.sTransactant + ' - ' + name +' (' + r.TCID + ')';
-                formDeleteBtn(f.name, "show");
+                isNewFormRecord(f.name, false);
             } else {
                 title = 'Edit '+app.sTransactant+' (new)';
-                formDeleteBtn(f.name, "hide");
+                isNewFormRecord(f.name, true);
             }
             f.header = title;
         }
@@ -1630,8 +1659,14 @@ function buildPageElements() {
         show: {
             header: false,
             toolbar: true,
+            toolbarReload: false,
+            toolbarColumns: false,
+            toolbarSearch: true,
             toolbarAdd: true,
-            searches: true,
+            toolbarDelete: false,
+            toolbarSave: false,
+            toolbarSearch   : true,
+            searchAll       : true,
             footer: true,
             lineNumbers: false,
             selectColumn: false,
@@ -1640,10 +1675,12 @@ function buildPageElements() {
         columns: [
             {field: 'recid', caption: 'recid', hidden: true},
             {field: 'RTID', caption: 'RTID', size: '50px', sortable: true},
+            {field: 'Name', caption: 'Name', size: '150px', sortable: true},
+            {field: 'Style', caption: 'Style', size: '100px', sortable: true},
             {field: 'BID', caption: 'BID', hidden: true},
             {field: 'BUD', caption: 'BUD', hidden: true},
             {field: 'RentCycle', caption: 'RentCycle', size: '75px', sortable: true,
-                render: function (record, index, col_index) {
+                render: function (record/*, index, col_index*/) {
                     var text = '';
                     if (record) {
                         app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -1657,7 +1694,7 @@ function buildPageElements() {
                 },
             },
             {field: 'Proration', caption: 'Proration', size: '90px', sortable: true,
-                render: function (record, index, col_index) {
+                render: function (record/*, index, col_index*/) {
                     var text = '';
                     if (record) {
                         app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -1671,7 +1708,7 @@ function buildPageElements() {
                 },
             },
             {field: 'GSRPC', caption: 'GSRPC', size: '65px', sortable: true,
-                render: function (record, index, col_index) {
+                render: function (record/*, index, col_index*/) {
                     var text = '';
                     if (record) {
                         app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -1685,7 +1722,7 @@ function buildPageElements() {
                 },
             },
             {field: 'ManageToBudget', caption: 'ManageToBudget', size: '200px', sortable: true,
-                render: function (record, index, col_index) {
+                render: function (record/*, index, col_index*/) {
                     var text = '';
                     if (record) {
                         app.manageToBudgetList.forEach(function(item) {
@@ -1705,21 +1742,28 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "rt" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
-            }
+            };
         },
         onClick: function(event) {
             event.onComplete = function () {
+                app.new_form_rec = false;
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
-                var BUD = getBUDfromBID(rec.BID);
                 console.log('rentableType form url: ' + '/v1/rt/' + rec.BID + '/' + rec.RTID);
                 setToForm('rentableTypeForm', '/v1/rt/' + rec.BID + '/' + rec.RTID, 400, true);
-            }
+            };
         },
-        onAdd: function(event) {
+        onAdd: function(/*event*/) {
+            app.new_form_rec = true;
+
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
@@ -1771,7 +1815,7 @@ function buildPageElements() {
             { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'RMRID', type: 'int', required: true, html: { page: 0, column: 0 } },
-            { field: 'MarketRate', type: 'float', required: false, html: { page: 0, column: 0 } },
+            { field: 'MarketRate', type: 'money', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModTime', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: true, html: { page: 0, column: 0 } },
         ],
@@ -1894,10 +1938,10 @@ function buildPageElements() {
                 var r = f.record;
                 if (r.RTID) {
                     f.header = 'Edit ' + app.sRentableType + ' (' + r.RTID +')';
-                    formDeleteBtn(f.name, "show");
+                    isNewFormRecord(f.name, false);
                 } else {
                     f.header = 'Edit ' + app.sRentableType + ' (new)';
-                    formDeleteBtn(f.name, "hide");
+                    isNewFormRecord(f.name, true);
                 }
 
                 // assignmentTime selected and items for w2field
@@ -1945,7 +1989,7 @@ function buildPageElements() {
                     items: app.manageToBudgetList,
                     selected: manageToBudgetSel,
                 });
-            }
+            };
         }
     });
 
@@ -1973,30 +2017,37 @@ function buildPageElements() {
             {field: 'RentableName', caption: 'Rentable Name', size: '150px', sortable: true},
             // {field: 'AssignmentTime', caption: 'Assignment Time', size: '120px', sortable: true},
             {field: 'RTID', caption: 'Rentable Type ID', hidden: true, sortable: true},
-            {field: 'RentableType', caption: 'Rentable Type', size: '180px', sortable: true},
-            {field: 'RentableStatus', caption: 'Rentable Status', size: '130px', sortable: true},
-            {field: 'RARID', caption: 'RARID', size: '50px', hidden: true, sortable: true},
-            {field: 'RAID', caption: 'RAID', size: '50px', sortable: true},
-            {field: 'RentalAgreementStart', caption: 'Rental Agreement Start', size: '150px', sortable: true},
-            {field: 'RentalAgreementStop', caption: 'Rental Agreement Stop', size: '150px', sortable: true},
+            {field: 'RentableType', caption: 'Rentable Type', size: '200px', sortable: true},
+            {field: 'RentableStatus', caption: 'Rentable <br>Status', size: '100px', sortable: true},
+            {field: 'RARID', caption: 'RARID', hidden: true, sortable: true},
+            {field: 'RAID', caption: 'RAID', size: '70px', sortable: true},
+            {field: 'RentalAgreementStart', caption: 'Rental Agreement <br>Start', size: '120px', sortable: true},
+            {field: 'RentalAgreementStop', caption: 'Rental Agreement <br>Stop', size: '120px', sortable: true},
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "rentables" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
-            }
+            };
         },
         onClick: function(event) {
             event.onComplete = function () {
+                app.new_form_rec = false;
+
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 var BUD = getBUDfromBID(rec.BID);
                 console.log('rentable form url: ' + '/v1/rentable/' + rec.BID + '/' + rec.RID);
 
                 getRentableTypes(rec.BID)
-                .done(function(data){
+                .done(function(/*data*/){
                     // set typedown list in rentableform - RentableType field
                     w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
                     w2ui.rentableForm.get("RTID").options.selected = {id: rec.RTID, text: rec.Name};
@@ -2009,9 +2060,11 @@ function buildPageElements() {
                 .fail(function(){
                     console.log("Failed to get rentable type list");
                 });
-            }
+            };
         },
-        onAdd: function(event) {
+        onAdd: function(/*event*/) {
+            app.new_form_rec = true;
+
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
@@ -2040,7 +2093,7 @@ function buildPageElements() {
             };
 
             getRentableTypes(BID)
-            .done(function(data){
+            .done(function(/*data*/){
 
                 // set typedown list in rentableform - RentableType field
                 w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
@@ -2135,10 +2188,10 @@ function buildPageElements() {
                 var r = f.record;
                 if (r.RID) {
                     f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
-                    formDeleteBtn(f.name, "show");
+                    isNewFormRecord(f.name, false);
                 } else {
                     f.header = 'Edit ' + app.sRentable + ' (new) as of '+ r.CurrentDate;
-                    formDeleteBtn(f.name, "hide");
+                    isNewFormRecord(f.name, true);
                 }
 
                 // assignmentTime selected and items for w2field
@@ -2147,14 +2200,14 @@ function buildPageElements() {
                     if (index == r.AssignmentTime) {
                         assignSelected = { id: index, text: item };
                     }
-                    assignmentItems.push({ id: index, text: item })
+                    assignmentItems.push({ id: index, text: item });
                 });
                 // fill the field with values
                 $("#rentableForm").find('input[name=AssignmentTime]').w2field('list', {
                     items: assignmentItems,
                     selected: assignSelected,
                 });
-            }
+            };
         }
     });
 
@@ -2211,16 +2264,26 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "rentalagrs" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    this.select(sel_recid);
+                    // This one is special case, you need to set last sel_recid when you're adding
+                    // new record with help of onAdd event handler, so new record automatically
+                    // will be selected
+
+                    // if (app.new_form_rec) {
+                    //     this.unselect(sel_recid);
+                    // }
+                    // else{
+                    //     this.select(sel_recid);
+                    // }
                 }
-            }
+            };
         },
         onClick: function(event) {
-            //var sel = this.getSelection(true);
             event.onComplete = function () {
+                app.new_form_rec = false;
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 console.log( 'BID = ' + rec.BID + ',   RAID = ' + rec.RAID);
                 var d = new Date();  // we'll use today for time-sensitive data
@@ -2228,6 +2291,13 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
+            app.new_form_rec = true;
+
+            // this record will be added in grid, so set last sel_recid to this record
+            // so it will be automatically highlighted
+            var newRecId = this.records.length; // get length and assign recid to new record
+            this.last.sel_recid = String(newRecId);
+
             // Insert an empty record...
             var x = getCurrentBusiness();
             var BID=x.value;
@@ -2237,7 +2307,7 @@ function buildPageElements() {
             var y2 = new Date();
             y2.setDate(1); // set it to the first of the month
             var rec = {
-                recid: 0,
+                recid: newRecId,
                 RAID: 0,
                 RATID: 0,
                 BID: {id: BID, text: BUD},
@@ -2399,7 +2469,7 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
-            delete: function(target, data) {
+            delete: function(/*target, data*/) {
 
                 var form = this;
 
@@ -2423,7 +2493,7 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
+                    .fail(function(/*data*/){
                         console.log("Delete RentalAgreement failed.");
                     });
                 })
@@ -2435,12 +2505,12 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             var f = w2ui.rentalagrForm;
             if (f.record.RAID) {
-                f.header = "Edit" + app.sRentalAgreement + " (RA" + f.record.RAID + ")"
-                formDeleteBtn(f.name, "show");
+                f.header = "Edit" + app.sRentalAgreement + " (RA" + f.record.RAID + ")";
+                isNewFormRecord(f.name, false);
             }
             else{
-                f.header = "Edit" + app.sRentalAgreement + "(new)"
-                formDeleteBtn(f.name, "hide");
+                f.header = "Edit" + app.sRentalAgreement + "(new)";
+                isNewFormRecord(f.name, true);
             }
         },
         onValidate: function(event) {
@@ -2582,10 +2652,10 @@ function buildPageElements() {
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
             {field: 'IsCompany', caption: 'IsCompany', hidden: true, sortable: false },
             {field: 'CompanyName', caption: 'CompanyName',  size: '10%', sortable: true, style: 'text-align: left',
-                render: function (record, index, col_index) {
+                render: function (record/*, index, col_index*/) {
                     var html = '';
                     if (record.IsCompany) {
-                        html = record.CompanyName
+                        html = record.CompanyName;
                     } else {
                         html = '';
                     }
@@ -2650,10 +2720,10 @@ function buildPageElements() {
             {field: 'LastName', caption: 'Last Name',  size: '10%', sortable: true},
             {field: 'IsCompany', caption: 'IsCompany', hidden: true, sortable: false },
             {field: 'CompanyName', caption: 'CompanyName',  size: '10%', sortable: true, style: 'text-align: left',
-                render: function (record, index, col_index) {
+                render: function (record/*, index, col_index*/) {
                     var html = '';
                     if (record.IsCompany) {
-                        html = record.CompanyName
+                        html = record.CompanyName;
                     } else {
                         html = '';
                     }
@@ -2745,7 +2815,7 @@ function buildPageElements() {
             toolbarEdit     : false,
             toolbarSearch   : false,
             toolbarInput    : true,
-            searchAll       : false,
+            searchAll       : true,
             toolbarReload   : true,
             toolbarColumns  : true,
         },
@@ -2755,7 +2825,7 @@ function buildPageElements() {
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
             {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false}, // 3
             {field: 'AcctRule', caption: 'Account Rule',  size: '150px', sortable: true}, // 4
-            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 5
+            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right', searchable: true},   // 5
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 6
             {field: 'TCID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},                                     // 7
             {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true, editable: {type: 'select', items: []},     // 8 - if this changes, update switchToGrid()
@@ -2767,18 +2837,18 @@ function buildPageElements() {
                         return html;
                     },
             },
-            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
-            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
+            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true, searchable: true},
+            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true, searchable: true},                                                  // 3
         ],
-        searches : [
-            { field: 'Amount', caption: 'Amount', type: 'string' },
-            { field: 'DocNo', caption: 'Document Number', type: 'string' },
-            { field: 'Payor', caption: 'Payor', type: 'string' },
-        ],
+        // searches : [
+        //     { field: 'Amount', caption: 'Amount', type: 'string' },
+        //     { field: 'DocNo', caption: 'Document Number', type: 'string' },
+        //     { field: 'Payor', caption: 'Payor', type: 'string' },
+        // ],
         onClick: function(event) {
             event.onComplete = function () {
+                app.new_form_rec = false;
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 var x = getCurrentBusiness();
                 var Bid = x.value;
@@ -2798,24 +2868,32 @@ function buildPageElements() {
                 .fail( function() {
                     console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
                  });
-            }
+            };
         },
         onRequest: function(/*event*/) {
             w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "receipts" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
 
                 if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
                     setDateControlsInToolbar('receipts');
                     w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
                 }
-            }
+            };
         },
         onAdd: function (/*event*/) {
+            app.new_form_rec = true;
+
             // Insert an empty record...
             var x = getCurrentBusiness();
             var BID=x.value;
@@ -2894,7 +2972,7 @@ function buildPageElements() {
         }
         // check that from date does not have value greater then To date
         if (d1.getTime() >= d2.getTime()) {
-            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000) //one day back from To date
+            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
         }
         app.D1 = dateControlString(d1);
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
@@ -2916,11 +2994,11 @@ function buildPageElements() {
         }
         // check that year is not behind 2000
         if (d2.getFullYear() < 2000) {
-            return
+            return;
         }
         // check that from date does not have value greater then To date
         if (d2.getTime() <= d1.getTime()) {
-            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000) //one day forward from From date
+            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
         }
         app.D2 = dateControlString(d2);
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
@@ -2987,12 +3065,12 @@ function buildPageElements() {
             var r = f.record;
 
             if (r.RCPTID) {
-                f.header = "Edit" + app.sReceipt + " (" + r.RCPTID + ")"
-                formDeleteBtn(f.name, "show");
+                f.header = "Edit" + app.sReceipt + " (" + r.RCPTID + ")";
+                isNewFormRecord(f.name, false);
             }
             else {
-                f.header = "Edit" + app.sReceipt + " (new)"
-                formDeleteBtn(f.name, "hide");
+                f.header = "Edit" + app.sReceipt + " (new)";
+                isNewFormRecord(f.name, true);
             }
 
             var BUD = (typeof r.BID == "object") ? r.BID.id : r.BID;
@@ -3060,7 +3138,7 @@ function buildPageElements() {
                 var d1 = dateFromString(xd1);
                 var d2 = dateFromString(xd2);
                 if (d1.getTime() <= recDate.getTime() && recDate.getTime() < d2.getTime()) {
-                    var recLen = w2ui.receiptsGrid.records.length;
+                    // var recLen = w2ui.receiptsGrid.records.length;
                     var newRec = this.record;
                     w2ui.receiptsGrid.add(newRec);
                     w2ui.receiptsGrid.render(); // redraw grid
@@ -3132,8 +3210,8 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
-                        console.log("Delete Receipt failed.")
+                    .fail(function(/*data*/){
+                        console.log("Delete Receipt failed.");
                     });
                 })
                 .no(function() {
@@ -3199,8 +3277,8 @@ function buildPageElements() {
         ],
         onClick: function(event) {
             event.onComplete = function () {
+                app.new_form_rec = false;
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 var form = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
                 var myurl = '/v1/asm/' + rec.BID + '/' + rec.ASMID;
@@ -3229,6 +3307,8 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
+            app.new_form_rec = true;
+
             var x = getCurrentBusiness();
             $.get('/v1/uival/' + x.value + '/app.Assessments' )
             .done( function(data) {
@@ -3283,15 +3363,21 @@ function buildPageElements() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "asms" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
 
                 if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
                     setDateControlsInToolbar('asms');
                     w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
                 }
-            }
+            };
         }
     });
 
@@ -3325,7 +3411,7 @@ function buildPageElements() {
         }
         // check that from date does not have value greater then To date
         if (d1.getTime() >= d2.getTime()) {
-            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000) //one day back from To date
+            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
         }
         app.D1 = dateControlString(d1);
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
@@ -3347,11 +3433,11 @@ function buildPageElements() {
         }
         // check that year is not behind 2000
         if (d2.getFullYear() < 2000) {
-            return
+            return;
         }
         // check that from date does not have value greater then To date
         if (d2.getTime() <= d1.getTime()) {
-            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000) //one day forward from From date
+            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
         }
         app.D2 = dateControlString(d2);
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
@@ -3421,7 +3507,7 @@ function buildPageElements() {
             },
         },
         onValidate: function (event) {
-            if (this.record.ARID.id == 0) {
+            if (this.record.ARID.id === 0) {
                 event.errors.push({
                     field: this.get('ARID'),
                     error: 'The Account Rule needs to be set'
@@ -3474,8 +3560,8 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
-                        console.log("Delete Assessment epoch failed.")
+                    .fail(function(/*data*/){
+                        console.log("Delete Assessment epoch failed.");
                     });
                 })
                 .no(function() {
@@ -3487,12 +3573,12 @@ function buildPageElements() {
             var f = w2ui.asmEpochForm;
             var r = f.record;
             if (r.ASMID) {
-                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")"
-                formDeleteBtn(f.name, "show");
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")";
+                isNewFormRecord(f.name, false);
             }
             else {
-                f.header = "Edit" + app.sAssessment + " (new)"
-                formDeleteBtn(f.name, "hide");
+                f.header = "Edit" + app.sAssessment + " (new)";
+                isNewFormRecord(f.name, true);
             }
         }
     });
@@ -3578,8 +3664,8 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
-                        console.log("Delete Assessment instance failed.")
+                    .fail(function(/*data*/){
+                        console.log("Delete Assessment instance failed.");
                     });
                 })
                 .no(function() {
@@ -3591,9 +3677,9 @@ function buildPageElements() {
             event.onComplete = function() {
                 var f = w2ui.asmInstForm;
                 var r = f.record;
-                var x = getCurrentBusiness();
-                var BID=parseInt(x.value);
-                var BUD = getBUDfromBID(BID);
+                // var x = getCurrentBusiness();
+                // var BID=parseInt(x.value);
+                // var BUD = getBUDfromBID(BID);
 
                 var params = {"cmd":"get","recid":0,"name":"asmInstForm"};
                 var dat = JSON.stringify(params);
@@ -3612,19 +3698,19 @@ function buildPageElements() {
                 .fail( function() {
                     console.log('Error getting /v1/asm/' + x.value + '/' + r.PASMID);
                  });
-            }
+            };
         },
         onRefresh: function(/*event*/) {
             var f = w2ui.asmInstForm;
             var r = f.record;
 
             if (r.ASMID) {
-                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")"
-                formDeleteBtn(f.name, "show");
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")";
+                isNewFormRecord(f.name, false);
             }
             else {
-                f.header = "Edit" + app.sAssessment + " (new)"
-                formDeleteBtn(f.name, "hide");
+                f.header = "Edit" + app.sAssessment + " (new)";
+                isNewFormRecord(f.name, true);
             }
 
             // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
@@ -3911,21 +3997,29 @@ function buildPageElements() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "pmts" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
-            }
+            };
         },
         onClick: function(event) {
             event.onComplete = function() {
-                var rec = this.get(event.recid);
-                gridSelID = rec.recid;  // integer value (event.recid holds value in string)
+                app.new_form_rec = false;
+                var rec = this.get(event.recid);  // integer value (event.recid holds value in string)
 
                 // popup the dialog form
                 setToForm('pmtForm', '/v1/pmts/' + rec.BID + '/' + rec.PMTID, 400, true);
-            }
+            };
         },
-        onAdd: function (event) {
+        onAdd: function (/*event*/) {
+            app.new_form_rec = true;
+
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
@@ -4007,8 +4101,8 @@ function buildPageElements() {
                     w2ui.toplayout.render();
                     tgrid.reload();
                 })
-                .fail(function(data){
-                    console.log("Save Payment Type failed.")
+                .fail(function(/*data*/){
+                    console.log("Save Payment Type failed.");
                 });
             },
             delete: function() {
@@ -4050,8 +4144,8 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
-                        console.log("Delete Payment failed.")
+                    .fail(function(/*data*/){
+                        console.log("Delete Payment failed.");
                     });
                 })
                 .no(function() {
@@ -4059,15 +4153,15 @@ function buildPageElements() {
                 });
             },
         },
-        onRefresh: function(event) {
+        onRefresh: function(/*event*/) {
             var f = w2ui.pmtForm;
             var r = f.record;
             if (r.PMTID) {
                 f.header = 'Edit Payment Type' + ' (' + r.PMTID + ')';
-                formDeleteBtn(f.name, "show");
+                isNewFormRecord(f.name, false);
             } else {
                 f.header = 'Edit Payment Type (new)';
-                formDeleteBtn(f.name, "hide");
+                isNewFormRecord(f.name, true);
             }
         }
     });
@@ -4107,16 +4201,23 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "dep" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
-            }
+            };
         },
         onClick: function(event) {
             event.onComplete = function () {
+                app.new_form_rec = false;
+
                 // get selected element as multiSelect is false
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 var BUD = getBUDfromBID(rec.BID);
 
@@ -4138,12 +4239,14 @@ function buildPageElements() {
 
                     setToForm('depForm', '/v1/dep/' + rec.BID + '/' + rec.DEPID, 400, true);
                 })
-                .fail(function(data){
-                    console.log("Failed to get glAccountList")
+                .fail(function(/*data*/){
+                    console.log("Failed to get glAccountList");
                 });
             };
         },
-        onAdd: function (event) {
+        onAdd: function (/*event*/) {
+            app.new_form_rec = true;
+
             // Insert an empty record...
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
@@ -4229,7 +4332,7 @@ function buildPageElements() {
             },
         },
         actions: {
-            save: function (target, data) {
+            save: function (/*target, data*/) {
                 var tgrid = w2ui.depGrid;
                 var sel = tgrid.getSelection();
                 tgrid.unselect(sel);
@@ -4257,11 +4360,11 @@ function buildPageElements() {
                     w2ui.toplayout.render();
                     tgrid.reload();
                 })
-                .fail(function(data){
+                .fail(function(/*data*/){
                     console.log("Save Depository failed.");
                 });
             },
-            delete: function(target, data) {
+            delete: function(/*target, data*/) {
 
                 var form = this;
 
@@ -4285,7 +4388,7 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
+                    .fail(function(/*data*/){
                         console.log("Delete Depository failed.");
                     });
                 })
@@ -4294,15 +4397,15 @@ function buildPageElements() {
                 });
             },
         },
-        onRefresh: function(event) {
+        onRefresh: function(/*event*/) {
             var f = w2ui.depForm;
             var r = f.record;
             if (r.DEPID) {
                 f.header = 'Edit Depository' + ' (' + r.DEPID + ')';
-                formDeleteBtn(f.name, "show");
+                isNewFormRecord(f.name, false);
             } else {
                 f.header = 'Edit Depository (new)';
-                formDeleteBtn(f.name, "hide");
+                isNewFormRecord(f.name, true);
             }
         }
     });
@@ -4349,16 +4452,23 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                if (activeGrid == "ars" && typeof gridSelID == "number") {
-                    this.select(gridSelID);
+                var sel_recid = this.last.sel_recid;
+                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                    if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }
                 }
-            }
+            };
         },
         onClick: function(event) {
             event.onComplete = function () {
+                app.new_form_rec = false;
+
                 // multi select is false
                 var rec = this.get(event.recid);
-                gridSelID = rec.recid;
 
                 var BUD = getBUDfromBID(rec.BID);
 
@@ -4374,7 +4484,7 @@ function buildPageElements() {
 
                 // get gl account list
                 getPostAccounts(rec.BID)
-                .done(function(data){
+                .done(function(/*data*/){
 
                     // set fields
                     w2ui.arsForm.get('ARType').options.items=artype_items;
@@ -4391,12 +4501,13 @@ function buildPageElements() {
 
                     setToForm('arsForm', '/v1/ar/' + rec.BID + '/' + rec.ARID, 400, true);
                 })
-                .fail(function(data){
-                    console.log("Failed to get glAccountList")
+                .fail(function(/*data*/){
+                    console.log("Failed to get glAccountList");
                 });
             };
         },
-        onAdd: function (event) {
+        onAdd: function (/*event*/) {
+            app.new_form_rec = true;
 
             // Insert an empty record...
             var x = getCurrentBusiness();
@@ -4414,13 +4525,13 @@ function buildPageElements() {
                     return;
                 }
                 else {
-                    var artype_pre_selected = {id: 0, text: "Select AR type"};
+                    var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
                     var artype_items = [artype_pre_selected];
                     Object.keys(app.ARTypes).forEach(function(artype_id){
                         artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
                     });
 
-                    var post_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var post_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
                     var post_accounts_items = [post_accounts_pre_selected];
                     post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
 
@@ -4539,7 +4650,7 @@ function buildPageElements() {
                         w2ui.toplayout.render();
                         tgrid.reload();
                     })
-                    .fail(function(data){
+                    .fail(function(/*data*/){
                         console.log("Delete AR failed.");
                     });
                 })
@@ -4577,10 +4688,10 @@ function buildPageElements() {
             var r = f.record;
             if (r.ARID) {
                 f.header = 'Edit Account Rule' + ' (' + r.ARID + ')';
-                formDeleteBtn(f.name, "show");
+                isNewFormRecord(f.name, false);
             } else {
                 f.header = 'Edit Account Rule (new)';
-                formDeleteBtn(f.name, "hide");
+                isNewFormRecord(f.name, true);
             }
 
         }
@@ -4846,7 +4957,7 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
 function popupRentalAgrPicker() {
     "use strict";
     var x = getCurrentBusiness();
-    app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []}
+    app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []};
     app.RentalAgrFinder.RARentablesNames = [{id: 0, text:" "}];
     w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
     w2ui.rentalAgrFinder.record.TCID = -1;

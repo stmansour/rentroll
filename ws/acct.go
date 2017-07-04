@@ -620,14 +620,23 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+	if a.GLNumber == "" {
+		err := fmt.Errorf("Provide value of GLNumber")
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	// save or update
 	if a.LID == 0 && d.ID == 0 {
 
-		// check that given name is already exists for business
+		// check that given name is already exists for business, or GLNumber
+		// both name and GLNumber should be unique
 		// VALIDATION 2
 		existQuery := `SELECT LID FROM GLAccount WHERE {{.WhereClause}};`
-		qc := queryClauses{"WhereClause": fmt.Sprintf("Name=\"%s\"", strings.ToLower(a.Name))}
+		qc := queryClauses{
+			"WhereClause": fmt.Sprintf("Name=\"%s\" OR GLNumber=\"%s\"",
+				strings.ToLower(a.Name), strings.ToLower(a.GLNumber)),
+		}
 
 		q := renderSQLQuery(existQuery, qc)
 		fmt.Printf("db query = %s\n", q)
@@ -641,7 +650,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		for rows.Next() {
-			err := fmt.Errorf("GLAccount is already exists with given name")
+			err := fmt.Errorf("GLAccount is already exists for given name or GLNumber")
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
