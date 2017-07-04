@@ -136,10 +136,7 @@ function getCurrentBusiness() {
 //-----------------------------------------------------------------------------
 function setToForm(sform, url, width, doRequest) {
     "use strict";
-    if (width === undefined) {
-        width = 700;
-    }
-    //console.log('sform = ' + sform + '  url = ' + url + '   <<<<   WIDTH = ' + width);
+
     var f = w2ui[sform];
     if (url.length > 0) {
         f.url = url;
@@ -329,7 +326,7 @@ function getFullName(item) {
 function getTCIDName(item) {
     "use strict";
     var s = (item.IsCompany > 0) ? item.CompanyName : getFullName(item);
-    if (item.TCID > 0) { s += ' (TCID: '+ String(item.TCID) +')'}
+    if (item.TCID > 0) { s += ' (TCID: '+ String(item.TCID) +')'; }
     return s;
 }
 
@@ -1024,7 +1021,7 @@ function unallocAmountRemaining() {
 //-----------------------------------------------------------------------------
 function refreshUnallocAmtSummaries() {
     "use strict";
-    if (w2ui.unpaidASMsGrid.records.length == 0 ) { return; }
+    if (w2ui.unpaidASMsGrid.records.length === 0 ) { return; }
     var amt = 0;
     var amtPaid = 0;
     var amtOwed = 0;
@@ -1052,7 +1049,7 @@ function int_to_bool(i){
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
-        top: function(unallocFund, person, tcid) {
+        top: function(unallocFund, person/*, tcid*/) {
             "use strict";
             return `<html>
                 <head>
@@ -1097,7 +1094,7 @@ function getPayorFund(BID, TCID) {
 }
 
 // Auto Allocate amount for each unpaid assessment
-jQuery(document).on('click', '#auto_allocate_btn', function(event) {
+jQuery(document).on('click', '#auto_allocate_btn', function(/*event*/) {
     "use strict";
     var fund = app.payor_fund;
     var grid = w2ui.unpaidASMsGrid;
@@ -1129,7 +1126,7 @@ jQuery(document).on('click', '#auto_allocate_btn', function(event) {
     return false;
 });
 
-jQuery(document).on('click', '#alloc_fund_save_btn', function(event) {
+jQuery(document).on('click', '#alloc_fund_save_btn', function(/*event*/) {
     "use strict";
     var tgrid = w2ui.allocfundsGrid;
     var rec = tgrid.getSelection();
@@ -1172,14 +1169,14 @@ function getFormSubmitData(record) {
     "use strict";
 
     // check that it is typeof object or not
-    if (! typeof record === "object") {
+    if (typeof record !== "object") {
         return;
     }
 
     // iterate over each record
     for(var key in record) {
         var item = record[key];
-        if (typeof item === "object" && item != null) {
+        if (typeof item === "object" && item !== null) {
             record[key] = item.id;
         }
     }
@@ -1188,19 +1185,19 @@ function getFormSubmitData(record) {
 }
 
 //-----------------------------------------------------------------------------
-// formDeleteBtn -  show / hide delete button for requested form
-// if form has delete button
+// isNewFormRecord -  based on condition perform some actions
+// 1. show / hide delete button for requested form if form has delete button
 // @params
 //   sform   = name of the form
-//   action     = show / hide
+//   is_new     = true / false
 //-----------------------------------------------------------------------------
-function formDeleteBtn(sform, action) {
+function isNewFormRecord(sform, is_new) {
     "use strict";
-    if (action == "show") {
-        $("#"+sform).find("button[name=delete]").removeClass("hidden");
-    }
-    else if (action == "hide") {
+    if (is_new) {
         $("#"+sform).find("button[name=delete]").addClass("hidden");
+    }
+    else {
+        $("#"+sform).find("button[name=delete]").removeClass("hidden");
     }
 }
 
