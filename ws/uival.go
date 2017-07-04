@@ -21,7 +21,7 @@ func bidToBud(businessID int64) (string, error) {
 func GetAssessmentList(bid int64) (map[string][]IDTextMap, error) {
 
 	// initialize list with 0-id value
-	list := []IDTextMap{{ID: 0, Text: "Select Assessment Rule"}}
+	list := []IDTextMap{{ID: 0, Text: " -- Select Assessment Rule -- "}}
 
 	// json response data
 	appData := make(map[string][]IDTextMap)
@@ -45,7 +45,7 @@ func GetAssessmentList(bid int64) (map[string][]IDTextMap, error) {
 func GetReceiptList(bid int64) (map[string][]IDTextMap, error) {
 
 	// initialize list with 0-id value
-	list := []IDTextMap{{ID: 0, Text: "Select Receipt Rule"}}
+	list := []IDTextMap{{ID: 0, Text: " -- Select Receipt Rule -- "}}
 
 	// json response data
 	appData := make(map[string][]IDTextMap)

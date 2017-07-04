@@ -1183,7 +1183,7 @@ function buildPageElements() {
                 });
 
                 // set Parent Account list
-                var PLIDList = [{id: 0, text: 'No Parent LID'}];
+                var PLIDList = [{id: 0, text: ' -- No Parent LID -- '}];
                 app.parent_accounts[BUD].forEach(function(item) {
                     if (item.id != r.LID) { // don't include itself in parent account choice -- drop list
                         PLIDList.push(item);
@@ -4394,13 +4394,13 @@ function buildPageElements() {
                     return;
                 }
                 else {
-                    var artype_pre_selected = {id: 0, text: "Select AR type"};
+                    var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
                     var artype_items = [artype_pre_selected];
                     Object.keys(app.ARTypes).forEach(function(artype_id){
                         artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
                     });
 
-                    var post_accounts_pre_selected = {id: 0, text: "Select GL Account"};
+                    var post_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
                     var post_accounts_items = [post_accounts_pre_selected];
                     post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
 
