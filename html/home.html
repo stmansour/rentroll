@@ -1226,7 +1226,15 @@ function buildPageElements() {
             {field: 'TCID',         caption: "TCID",          size: '50px',  sortable: true, style: 'text-align: right', hidden: false},
             {field: 'FirstName',    caption: "First Name",    size: '125px', sortable: true, hidden: false},
             {field: 'MiddleName',   caption: "Middle Name",   size: '20px',  sortable: true, hidden: true},
-            {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false},
+            {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false,
+                render: function (record) {
+                    var s = '';
+                    if (record.IsCompany === 0) {
+                        s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
+                    }
+                    return s + ' ' + record.LastName;
+                }
+            },
             {field: 'CompanyName',  caption: "Company Name",  size: '125px', sortable: true, hidden: false,
                 render: function (record) {
                     var s = '';
