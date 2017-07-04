@@ -2692,7 +2692,7 @@ function buildPageElements() {
             toolbarEdit     : false,
             toolbarSearch   : false,
             toolbarInput    : true,
-            searchAll       : false,
+            searchAll       : true,
             toolbarReload   : true,
             toolbarColumns  : true,
         },
@@ -2702,7 +2702,7 @@ function buildPageElements() {
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
             {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false}, // 3
             {field: 'AcctRule', caption: 'Account Rule',  size: '150px', sortable: true}, // 4
-            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 5
+            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right', searchable: true},   // 5
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 6
             {field: 'TCID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},                                     // 7
             {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true, editable: {type: 'select', items: []},     // 8 - if this changes, update switchToGrid()
@@ -2714,14 +2714,14 @@ function buildPageElements() {
                         return html;
                     },
             },
-            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
-            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
+            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true, searchable: true},
+            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true, searchable: true},                                                  // 3
         ],
-        searches : [
-            { field: 'Amount', caption: 'Amount', type: 'string' },
-            { field: 'DocNo', caption: 'Document Number', type: 'string' },
-            { field: 'Payor', caption: 'Payor', type: 'string' },
-        ],
+        // searches : [
+        //     { field: 'Amount', caption: 'Amount', type: 'string' },
+        //     { field: 'DocNo', caption: 'Document Number', type: 'string' },
+        //     { field: 'Payor', caption: 'Payor', type: 'string' },
+        // ],
         onClick: function(event) {
             event.onComplete = function () {
                 app.new_form_rec = false;
