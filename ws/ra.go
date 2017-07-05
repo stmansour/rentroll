@@ -294,8 +294,9 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		limitClause int = 100
 	)
 
-	srch := fmt.Sprintf("RentalAgreement.BID=%d AND RentalAgreement.AgreementStop>%q", d.BID, t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
-	order := "RentalAgreement.RAID ASC"                                                                                    // default ORDER
+	srch := fmt.Sprintf("RentalAgreement.BID=%d AND (RentalAgreement.AgreementStop>%q OR RentalAgreement.PossessionStop>%q OR RentalAgreement.RentStop>%q)",
+		d.BID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
+	order := "RentalAgreement.RAID ASC" // default ORDER
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rentalAgrGridFieldsMap)
