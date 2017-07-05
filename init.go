@@ -9,6 +9,7 @@ import (
 	"rentroll/ws"
 	"strings"
 	"text/template"
+	"tws"
 )
 
 func initRentRoll() {
@@ -24,7 +25,7 @@ func initRentRoll() {
 		"RRCommaf":     rlib.RRCommaf,
 		"LMSum":        LMSum,
 	}
-
+	tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir)
 }
 
 func createStartupCtx() DispatchCtx {
