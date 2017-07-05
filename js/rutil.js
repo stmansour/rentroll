@@ -144,22 +144,31 @@ function setToForm(sform, url, width, doRequest) {
             f.tabs.click('tab1');
         }
 
+        var right_panel_content = w2ui.toplayout.get("right").content;
+
         if (doRequest) {
             f.request(function(/*event*/) {
                 // only render the toplayout after server has sent down data
                 // so that w2ui can bind values with field's html control,
                 // otherwise it is unable to find html controls
+
+                // if the same content is there, then no need to render toplayout again
+                if (f !== right_panel_content) {
+                    w2ui.toplayout.content('right', f);
+                    w2ui.toplayout.sizeTo('right', width);
+                    w2ui.toplayout.render();
+                }
                 w2ui.toplayout.show('right', true);
-                w2ui.toplayout.content('right', f);
-                w2ui.toplayout.sizeTo('right', width);
-                w2ui.toplayout.render();
             });
         }
         else {
+            // if the same content is there, then no need to render toplayout again
+            if (f !== right_panel_content) {
+                w2ui.toplayout.content('right', f);
+                w2ui.toplayout.sizeTo('right', width);
+                w2ui.toplayout.render();
+            }
             w2ui.toplayout.show('right', true);
-            w2ui.toplayout.content('right', f);
-            w2ui.toplayout.sizeTo('right', width);
-            w2ui.toplayout.render();
         }
     }
 }
