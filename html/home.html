@@ -3668,9 +3668,9 @@ function buildPageElements() {
             event.onComplete = function() {
                 var f = w2ui.asmInstForm;
                 var r = f.record;
-                // var x = getCurrentBusiness();
-                // var BID=parseInt(x.value);
-                // var BUD = getBUDfromBID(BID);
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
 
                 var params = {"cmd":"get","recid":0,"name":"asmInstForm"};
                 var dat = JSON.stringify(params);
