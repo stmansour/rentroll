@@ -4430,9 +4430,9 @@ function buildPageElements() {
             {field: 'DebitLID',        hidden: true,  caption: 'DebitLID',   size: '50px', sortable: true},
             {field: 'DebitLedgerName', hidden: false, caption: 'Debit',      size: '200px',sortable: true, style: 'text-align: left'},
             {field: 'CreditLID',       hidden: true,  caption: 'CreditLID',  size: '50px', sortable: true},
-            {field: 'CreditLedgerName',hidden: false, caption: 'CreditLID',  size: '200px',sortable: true, style: 'text-align: left'},
-            {field: 'DtStart',                        caption: 'Start',      size: '70px', sortable: true, style: 'text-align: right'},
-            {field: 'DtStop',                         caption: 'Stop',       size: '70px', sortable: true, style: 'text-align: right'},
+            {field: 'CreditLedgerName',hidden: false, caption: 'Credit',     size: '200px',sortable: true, style: 'text-align: left'},
+            {field: 'DtStart',                        caption: 'Start',      size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'DtStop',                         caption: 'Stop',       size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'Description',     hidden: false, caption: 'Description',size: '20%',  sortable: true, style: 'text-align: left'},
         ],
         onRefresh: function(event) {
@@ -4528,8 +4528,9 @@ function buildPageElements() {
                     w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
                     // w2ui.arsForm.refresh();
 
-                    var y = new Date();
-                    var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
+                    var y1 = new Date();
+                    var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
+                    var ny = new Date(9999, 11, 31, 0, 0, 0);
 
                     var record = {
                         recid: 0,

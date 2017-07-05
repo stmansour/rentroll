@@ -42,11 +42,8 @@ func readCommandLineArgs() {
 
 func main() {
 	var err error
-	fmt.Printf("main\n")
 	readCommandLineArgs()
-	fmt.Printf("A\n")
 	rlib.RRReadConfig()
-	fmt.Printf("B\n")
 
 	//----------------------------
 	// Open database
