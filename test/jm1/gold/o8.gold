@@ -6,81 +6,81 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                            Summary              
-LID        GLNumber  Name                                   Balance       Balance
----------  --------  --------------------------------  ------------  ------------
-L00000006            Security Deposit Receivable               0.00              
-L00000001  10000     Cash                                               93,017.72
-L00000088  10001     Cash BofA                                               0.00
-L00000089  10100     Unapplied Funds                                         0.00
-L00000025  11000     Credit Card Clearing                                    0.00
-L00000002  12000     Accounts Receivable                                     0.00
-L00000007  30000     Security Deposits                                 -18,300.00
-L00000026  30100     Accrued Taxes                             0.00              
-L00000027  30101     Sales Taxes                                             0.00
-L00000028  30102     Transient Occupancy Taxes                               0.00
-L00000029  30199     Other Accrued Taxes                                     0.00
-L00000008  39000     Owners' Equity                                          0.00
-L00000003  41000     Gross Scheduled Rent-Taxable                     -112,850.00
-L00000030  41001     Gross Scheduled Rent-Not Taxable                        0.00
-L00000031  41002     Income Offsets                       40,678.25              
-L00000040  41003     Other Income                         -2,545.97              
-L00000032  41100     Unit Income Offsets                  40,678.25              
-L00000005  41101     Vacancy                                            40,678.25
-L00000004  41102     Loss (Gain) to Lease                                    0.00
-L00000033  41103     Employee Concessions                                    0.00
-L00000034  41104     Resident Concessions                                    0.00
-L00000035  41105     Owner Concession                                        0.00
-L00000036  41106     Administrative Concession                               0.00
-L00000037  41107     Off Line Renovations                                    0.00
-L00000038  41108     Off Line Maintenance                                    0.00
-L00000039  41199     Othe Income Offsets                                     0.00
-L00000041  41200     Serviced Fees                          -111.26              
-L00000042  41201     Broadcast and IT Services                               0.00
-L00000043  41202     Food Services                                        -111.26
-L00000044  41203     Linen Services                                          0.00
-L00000045  41204     Wash N Fold Services                                    0.00
-L00000046  41299     Other Service Fees                                      0.00
-L00000047  41300     Utility Fees                              0.00              
-L00000048  41301     Electric Base Fee                                       0.00
-L00000049  41302     Electric Overage                                        0.00
-L00000050  41303     Water and Sewer Base Fee                                0.00
-L00000051  41304     Water and Sewer Overage                                 0.00
-L00000052  41305     Gas Base Fee                                            0.00
-L00000053  41306     Gas Overage                                             0.00
-L00000054  41307     Trash Collection Base Fee                               0.00
-L00000055  41308     Trash Collection Overage                                0.00
-L00000056  41399     Other Utility Fee                                       0.00
-L00000057  41400     Miscellaneous Income                 -2,434.71              
-L00000058  41401     Application Fees                                        0.00
-L00000059  41402     Late Fees                                               0.00
-L00000060  41403     Insufficient Funds Fee                                  0.00
-L00000061  41404     Month to Month Fee                                      0.00
-L00000062  41405     Premium Upgrades                                        0.00
-L00000063  41406     No Show or Termination Fee                              0.00
-L00000064  41407     Pet Fees                                                0.00
-L00000065  41408     Pet Rent                                                0.00
-L00000066  41409     Expense Reimbursement                                   0.00
-L00000067  41410     Special Cleaning Fee                                    0.00
-L00000068  41411     Eviction Fee Reimbursement                              0.00
-L00000069  41412     Extra Person Charge                                     0.00
-L00000070  41413     Forfeited Security Deposit                         -2,434.71
-L00000071  41414     Damage Fee                                              0.00
-L00000072  41415     CAM Fees                                                0.00
-L00000073  41499     Other Miscellaneous Income                              0.00
-L00000074  41500     Taxes Collected in Trust                                0.00
-L00000075  41501     Sales Taxes                                             0.00
-L00000076  41502     Transient Occupancy Taxes                               0.00
-L00000077  42000     Business Income                           0.00              
-L00000078  42100     Convenience Store                                       0.00
-L00000079  42200     Fitness Center Revenue                                  0.00
-L00000080  42300     Vending Income                                          0.00
-L00000081  42400     Restaurant Sales                                        0.00
-L00000082  42500     Bar Sales                                               0.00
-L00000083  42600     Spa Sales                                               0.00
-L00000084  49991     Cash Over/Short                                         0.00
-L00000085  49992     Bad Debt                                                0.00
-L00000086  49998     Income Suspense                                         0.00
-L00000087  49999     Other Business Income                                   0.00
----------  --------  --------------------------------  ------------  ------------
-                                                                             0.00
+                                                  Parent              
+GLNumber  Name                                   Balance       Balance
+--------  --------------------------------  ------------  ------------
+          Security Deposit Receivable               0.00              
+10000     Cash                                               93,017.72
+10001     Cash BofA                                               0.00
+10100     Unapplied Funds                                         0.00
+11000     Credit Card Clearing                                    0.00
+12000     Accounts Receivable                                     0.00
+30000     Security Deposits                                 -18,300.00
+30100     Accrued Taxes                             0.00              
+30101     Sales Taxes                                             0.00
+30102     Transient Occupancy Taxes                               0.00
+30199     Other Accrued Taxes                                     0.00
+39000     Owners' Equity                                          0.00
+41000     Gross Scheduled Rent-Taxable                     -112,850.00
+41001     Gross Scheduled Rent-Not Taxable                        0.00
+41002     Income Offsets                       40,678.25              
+41003     Other Income                         -2,545.97              
+41100     Unit Income Offsets                  40,678.25              
+41101     Vacancy                                            40,678.25
+41102     Loss (Gain) to Lease                                    0.00
+41103     Employee Concessions                                    0.00
+41104     Resident Concessions                                    0.00
+41105     Owner Concession                                        0.00
+41106     Administrative Concession                               0.00
+41107     Off Line Renovations                                    0.00
+41108     Off Line Maintenance                                    0.00
+41199     Othe Income Offsets                                     0.00
+41200     Serviced Fees                          -111.26              
+41201     Broadcast and IT Services                               0.00
+41202     Food Services                                        -111.26
+41203     Linen Services                                          0.00
+41204     Wash N Fold Services                                    0.00
+41299     Other Service Fees                                      0.00
+41300     Utility Fees                              0.00              
+41301     Electric Base Fee                                       0.00
+41302     Electric Overage                                        0.00
+41303     Water and Sewer Base Fee                                0.00
+41304     Water and Sewer Overage                                 0.00
+41305     Gas Base Fee                                            0.00
+41306     Gas Overage                                             0.00
+41307     Trash Collection Base Fee                               0.00
+41308     Trash Collection Overage                                0.00
+41399     Other Utility Fee                                       0.00
+41400     Miscellaneous Income                 -2,434.71              
+41401     Application Fees                                        0.00
+41402     Late Fees                                               0.00
+41403     Insufficient Funds Fee                                  0.00
+41404     Month to Month Fee                                      0.00
+41405     Premium Upgrades                                        0.00
+41406     No Show or Termination Fee                              0.00
+41407     Pet Fees                                                0.00
+41408     Pet Rent                                                0.00
+41409     Expense Reimbursement                                   0.00
+41410     Special Cleaning Fee                                    0.00
+41411     Eviction Fee Reimbursement                              0.00
+41412     Extra Person Charge                                     0.00
+41413     Forfeited Security Deposit                         -2,434.71
+41414     Damage Fee                                              0.00
+41415     CAM Fees                                                0.00
+41499     Other Miscellaneous Income                              0.00
+41500     Taxes Collected in Trust                                0.00
+41501     Sales Taxes                                             0.00
+41502     Transient Occupancy Taxes                               0.00
+42000     Business Income                           0.00              
+42100     Convenience Store                                       0.00
+42200     Fitness Center Revenue                                  0.00
+42300     Vending Income                                          0.00
+42400     Restaurant Sales                                        0.00
+42500     Bar Sales                                               0.00
+42600     Spa Sales                                               0.00
+49991     Cash Over/Short                                         0.00
+49992     Bad Debt                                                0.00
+49998     Income Suspense                                         0.00
+49999     Other Business Income                                   0.00
+--------  --------------------------------  ------------  ------------
+                                                                  0.00

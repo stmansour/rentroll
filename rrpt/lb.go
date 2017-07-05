@@ -18,10 +18,9 @@ func LedgerBalanceReportTable(ri *ReporterInfo) gotable.Table {
 	// table init
 	tbl := getRRTable()
 
-	tbl.AddColumn("LID", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Summary Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Parent Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
 	// set table title, sections
@@ -33,18 +32,17 @@ func LedgerBalanceReportTable(ri *ReporterInfo) gotable.Table {
 
 	for _, acct := range rlib.RRdb.BizTypes[bid].GLAccounts {
 		tbl.AddRow()
-		tbl.Puts(-1, 0, acct.IDtoString())
-		tbl.Puts(-1, 1, acct.GLNumber)
-		tbl.Puts(-1, 2, acct.Name)
+		tbl.Puts(-1, 0, acct.GLNumber)
+		tbl.Puts(-1, 1, acct.Name)
 		if acct.AllowPost != 0 {
-			tbl.Putf(-1, 4, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
-		} else {
 			tbl.Putf(-1, 3, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
+		} else {
+			tbl.Putf(-1, 2, rlib.GetAccountBalance(bid, acct.LID, &ri.D2))
 		}
 	}
-	tbl.Sort(0, len(tbl.Row)-1, 1)
+	tbl.Sort(0, len(tbl.Row)-1, 0)
 	tbl.AddLineAfter(len(tbl.Row) - 1)                          // a line after the last row in the table
-	tbl.InsertSumRow(len(tbl.Row), 0, len(tbl.Row)-1, []int{4}) // insert @ len essentially adds a row.  Only want to sum column 4
+	tbl.InsertSumRow(len(tbl.Row), 0, len(tbl.Row)-1, []int{3}) // insert @ len essentially adds a row.  Only want to sum column 3
 	return tbl
 }
 

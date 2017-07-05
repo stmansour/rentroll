@@ -3462,21 +3462,6 @@ function buildPageElements() {
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
             { field: 'PASMID',        type: 'w2int',  required: false },
-            // { field: 'Rentable', required: false,  /* INDEX 5 -- if changed, then change URL for Typedown in asmsGrid onAdd handler */
-            //     type: 'enum',
-            //     options: {
-            //         url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
-            //         max:        1,
-            //         cacheMax:   50,
-            //         renderItem: asmFormRentablePickerRender,
-            //         renderDrop: ridRentableDropRender,
-            //         compare:    ridRentableCompare,
-            //         onNew: function (event) {
-            //             //console.log('++ New Item: Do not forget to submit it to the server too', event);
-            //             $.extend(event.item, { Rentable : event.item.text });
-            //         }
-            //     },
-            // },
             { field: 'Rentable',      type: 'text',   required: false },
             { field: 'InvoiceNo',     type: 'int',    required: false },
             { field: 'RID',           type: 'int',    required: false },
@@ -3970,9 +3955,9 @@ function buildPageElements() {
             toolbarColumns  : false,
         },
         columns: [
-            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
-            {field: 'PMTID',       hidden: true, caption: 'PMTID',        size: '150px',                             sortable: true, style: 'text-align: center'},
-            {field: 'BID',         hidden: true, caption: 'BID',          size: '150px',                             sortable: true, style: 'text-align: center'},
+            {field: 'recid',       hidden: true,  caption: 'recid',       size: '40px',  sortable: true},
+            {field: 'PMTID',       hidden: true,  caption: 'PMTID',       size: '150px', sortable: true, style: 'text-align: center'},
+            {field: 'BID',         hidden: true,  caption: 'BID',         size: '150px', sortable: true, style: 'text-align: center'},
             {field: 'Name',        hidden: false, caption: 'Name',        size: '150px', sortable: true, style: 'text-align: left'},
             {field: 'Description', hidden: false, caption: 'Description', size: '60%',   sortable: true, style: 'text-align: left'},
         ],
