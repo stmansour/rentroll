@@ -105,13 +105,23 @@ func GenerateLedgerEntriesFromJournal(xbiz *XBusiness, j *Journal, d1, d2 *time.
 //-----------------------------------------------------------------------------
 func UpdateSubLedgerMarkers(bid int64, d2 *time.Time) {
 	funcname := "UpdateSubLedgerMarkers"
-
-	// find the nearest previous ledger marker for any account (GenRcv)
+	var lmacct LedgerMarker
+	// find the nearest previous ledger marker for any account
 	// Its date will be d1, the start time. We'll need to compute all
 	// activity that has taken place since that time in order to produce
 	// the balance for each ledger marker
-	d := GetDateOfLedgerMarkerOnOrBefore(bid, d2)
-	d1 := &d
+	for k := range RRdb.BizTypes[bid].GLAccounts {
+		lm := GetLedgerMarkerOnOrBefore(bid, k, d2)
+		if lm.LID == 0 {
+			continue
+		}
+		lmacct = lm
+		break
+	}
+
+	// d := GetDateOfLedgerMarkerOnOrBefore(bid, d2)
+	lm := GetLedgerMarkerOnOrBefore(bid, lmacct.LID, d2)
+	d1 := &lm.Dt
 
 	// GenRcvLID := RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
 	// lm := GetLedgerMarkerOnOrBefore(bid, GenRcvLID, d2)

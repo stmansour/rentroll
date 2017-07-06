@@ -2057,14 +2057,14 @@ func GetXPerson(tcid int64, x *XPerson) {
 }
 
 // GetDateOfLedgerMarkerOnOrBefore returns the Dt value of the last LedgerMarker set generated on or before d1
-func GetDateOfLedgerMarkerOnOrBefore(bid int64, d1 *time.Time) time.Time {
-	GenRcvLID := RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
-	lm := GetLedgerMarkerOnOrBefore(bid, GenRcvLID, d1)
-	if lm.LMID == 0 {
-		Ulog("%s - SEVERE ERROR - unable to locate a LedgerMarker on or before %s\n", d1.Format(RRDATEFMT4))
-	}
-	return lm.Dt
-}
+// func GetDateOfLedgerMarkerOnOrBefore(bid int64, d1 *time.Time) time.Time {
+// 	GenRcvLID := RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
+// 	lm := GetLedgerMarkerOnOrBefore(bid, GenRcvLID, d1)
+// 	if lm.LMID == 0 {
+// 		Ulog("%s - SEVERE ERROR - unable to locate a LedgerMarker on or before %s\n", d1.Format(RRDATEFMT4))
+// 	}
+// 	return lm.Dt
+// }
 
 // GetCountBusinessCustomAttrRefs get total count for CustomAttrRefs
 // with particular associated business
