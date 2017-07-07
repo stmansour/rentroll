@@ -127,7 +127,7 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
+func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt) {
 	funcname := "textPrintJournalReceipt"
 	// fmt.Printf("Entered: %s,   JID = %d, RCPTID = %d\n", funcname, j.JID, rcpt.RCPTID)
 	// The receipt has the payor TCID.  We get the payor name from the receipt
@@ -186,12 +186,16 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		}
 		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
 		r := rlib.GetRentable(a.RID)
+		if r.RID == 0 {
+			fmt.Printf("%s: rcpt.RA[%d].RCPAID = %d, r.RID = 0, rcpt.RA[i].ASMID = %d, a.RID = %d\n", funcname, i, rcpt.RA[i].RCPAID, rcpt.RA[i].ASMID, a.RID)
+			continue
+		}
 		m := rlib.ParseAcctRule(ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		// printJournalSubtitle("\t" + rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		// fmt.Printf("rcpt.RA[i].ASMID = %d, a.ASMID = %d, a.RID = %d\n", rcpt.RA[i].ASMID, a.ASMID, a.RID)
-		if r.BID == 0 {
-			fmt.Printf("r.BID == 0:  r.RID = %d\n", r.RID)
-		}
+		// if r.BID == 0 {
+		// 	fmt.Printf("r.BID == 0:  r.RID = %d\n", r.RID)
+		// }
 		tbl.AddRow()
 		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		for k := 0; k < len(m); k++ {
@@ -237,7 +241,11 @@ func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx
 		textPrintJournalUnassociated(tbl, ri.Xbiz, jctx, j)
 	case rlib.JNLTYPERCPT:
 		rcpt := rlib.GetReceipt(j.ID)
-		textPrintJournalReceipt(tbl, ri, jctx, j, &rcpt, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLCASH].GLNumber /*"10001"*/)
+		if rcpt.RCPTID == 0 {
+			rlib.LogAndPrint("Failed to get receipt for j.ID = %d,  j.JID = %d\n", j.ID, j.JID)
+			return
+		}
+		textPrintJournalReceipt(tbl, ri, jctx, j, &rcpt)
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)

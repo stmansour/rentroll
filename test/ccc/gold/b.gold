@@ -5,7 +5,7 @@ California Commerce Centr
                                                                                                                Agreement     Agreement                           
 GLNumber  Name                                      Parent                               Account Type          Associated     Required  Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  -------------------------
-          Security Deposit Receivable                                                                          unknown              No                           
+          Purge Me                                                                                             unknown              No                           
           Owner Equity                                                                                         unknown              No                           
    10000  Cash                                                                           Bank Account          Associated          Yes  Main cash account        
    11000  Credit Card Clearing                                                           Current Asset         Associated           No                           
@@ -34,7 +34,7 @@ GLNumber  Name                                      Parent                      
    41203  Late Fees                                 Other Income                         Income                Unassociated        Yes                           
    41204  Insufficient Funds Fee                    Other Income                         Income                Unassociated         No                           
    41205  Expense Reimbursement                     Other Income                         Income                Unassociated         No                           
-   41206  Forfeited Security Deposit                Other Income                         Income                Unassociated        Yes                           
+   41206  Forfeited SecDep                          Other Income                         Income                Unassociated        Yes                           
    41207  Damage Fee                                Other Income                         Income                Unassociated        Yes                           
    41299  Other Miscellaneous Income                Other Income                         Income                Unassociated        Yes                           
    49992  Bad Debt                                                                       Income                Unassociated         No                           

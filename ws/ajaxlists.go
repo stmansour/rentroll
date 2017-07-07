@@ -55,6 +55,7 @@ var ssliceToJS = []struct {
 	{"yesNoList", &yesno},
 	{"usStateAbbr", &USStateAbbr},
 	{"rentableStatusList", &rlib.RentableStatusString},
+	{"qbAcctType", &rlib.QBAcctType},
 }
 
 // bizMap struct, used in app.BizMap on front-end side

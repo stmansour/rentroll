@@ -18,7 +18,7 @@
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
    -------------------------------------------------------------------------------------------------------------------------------------
    Opening Balance                                          11/01/15                                                                0.00
-                  Assessment - Security Deposit Receivable  11/08/15         12           1              101       -750.00       -750.00
+                  Assessment - Purge Me Acct  11/08/15         12           1              101       -750.00       -750.00
                       Payment #2232 - Gross Scheduled Rent  11/21/15         22           1              101        266.67       -483.33
                                  Payment #2232 - Lake View  11/21/15         22           1              101         13.33       -470.00
                                    Payment #2232 - Carport  11/21/15         22           1            CP001          9.33       -460.67
@@ -91,7 +91,7 @@
 
    =====================================================================================================================================
    Business:  Springfield Retirement Castle
-   11002 - Security Deposit Receivable                    
+   11002 - Purge Me Acct                    
    11/01/15 - 11/30/15
    -------------------------------------------------------------------------------------------------------------------------------------
    Description                                                  Date  JournalID      RntAgr         Rentable        Amount       Balance
@@ -123,7 +123,7 @@
    Opening Balance                                          11/01/15                                                            -1000.00
                   Assessment - General Accounts Receivable  11/21/15          7           8              101      -1500.00      -2500.00
                   Assessment - Security Deposit Forfeiture  11/08/15         11           1              101        250.00      -2250.00
-                  Assessment - Security Deposit Receivable  11/08/15         12           1              101        750.00      -1500.00
+                  Assessment - Purge Me Acct  11/08/15         12           1              101        750.00      -1500.00
    -------------------------------------------------------------------------------------------------------------------------------------
    Closing Balance                                          11/30/15                                                            -1500.00
 

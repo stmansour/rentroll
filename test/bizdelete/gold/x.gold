@@ -4,6 +4,6 @@ LID	PLID	BID	RAID	GLNumber	Status	Type	Name	AcctType	RAAssociated	AllowPost	Last
 11	0	2	0		2	12	Gross Scheduled Rent		0	0	0
 12	0	2	0		2	13	Loss to Lease		0	0	0
 13	0	2	0		2	14	Vacancy		0	0	0
-14	0	2	0		2	15	Security Deposit Receivable		0	0	0
+14	0	2	0		2	15	Purge Me		0	0	0
 15	0	2	0		2	16	Security Deposit Assessment		0	0	0
 16	0	2	0		2	17	Owner Equity		0	0	0

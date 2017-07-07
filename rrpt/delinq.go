@@ -69,7 +69,12 @@ func DelinquencyReportTable(ri *ReporterInfo) gotable.Table {
 		CNotes       = iota
 	)
 
-	lid := rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID
+	// lid := rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID  // this was the old way to do it, when we had default accounts
+	m := rlib.GetReceivableAccounts(ri.Xbiz.P.BID)
+	if len(m) < 1 {
+		return tbl
+	}
+	lid := m[0] // for now, just take the first one, we'll need to pass in which one as we start to support multiple
 
 	for rows.Next() {
 		var r rlib.Rentable

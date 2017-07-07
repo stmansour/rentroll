@@ -8,12 +8,12 @@ Austin, TX 78738 USA
                                                                                                                Agreement     Agreement                           
 GLNumber  Name                                      Parent                               Account Type          Associated     Required  Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  -------------------------
-   10000  Cash                                                                           Bank Account          Unassociated         No                           
-   12000  Accounts Receivable                                                            Current Asset         Unassociated         No                           
-   30000  Security Deposits                                                              Current Liabilities   Unassociated        Yes                           
+   10000  Cash                                                                           Cash                  Unassociated         No                           
+   12000  Accounts Receivable                                                            Accounts Receivable   Unassociated         No                           
+   30000  Security Deposits                                                              Security Deposit      Unassociated        Yes                           
    39000  Owners' Equity                                                                 Equity                Unassociated         No                           
    41000  Unit Gross Scheduled Rent-Taxable                                              Income                Unassociated         No                           
-   41101  Vacancy                                                                        Income                Unassociated         No                           
-   41102  Loss (Gain) to Lease                                                           Income                Unassociated        Yes                           
-   41413  Forfeited Security Deposit                                                     Income                Unassociated        Yes                           
+   41101  Vacancy                                                                        Income Offsets        Unassociated         No                           
+   41102  Loss (Gain) to Lease                                                           Income Offsets        Unassociated        Yes                           
+   41413  Forfeited SecDep                                                               Other Income          Unassociated        Yes                           
 

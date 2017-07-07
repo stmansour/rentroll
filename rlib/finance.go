@@ -14,6 +14,19 @@ var RDateFmt = []string{
 	RRDATEINPFMT,
 }
 
+// QBAcctType - this was previously a text field. But because we dropped the
+// notion of "default accounts", it was important to formalize the list of account
+// types.
+var QBAcctType = []string{
+	"Cash",
+	"Accounts Receivable",
+	"Current Liabilities",
+	"Income",
+	"Income Offsets",
+	"Other Income",
+	"Security Deposits",
+}
+
 // RentalPeriodToString takes an accrual recurrence value and returns its name as a string
 func RentalPeriodToString(a int64) string {
 	s := ""
@@ -236,6 +249,43 @@ func GetRentableAccountActivity(bid, lid, rid int64, d1, d2 *time.Time) (float64
 	return bal, err
 }
 
+// GetAccountTypeBalance totals the leaf node accounts for the supplied account type
+//   a = AccountType for which to retrieve balance
+// bid = which business
+//  dt = balance on this date
+//
+// RETURNS:
+//   float64 balance
+//   error or nil
+func GetAccountTypeBalance(a string, bid int64, dt *time.Time) (float64, error) {
+	bal := float64(0)
+	found := false
+	for i := 0; i < len(QBAcctType); i++ { // make sure we have a valid
+		found := QBAcctType[i] == a
+		if found {
+			break
+		}
+	}
+	if !found {
+		return bal, fmt.Errorf("Account Type %s is unknown", a)
+	}
+	_, ok := RRdb.BizTypes[bid]
+	if !ok {
+		return bal, fmt.Errorf("No business found for BID = %d", bid)
+	}
+	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var r GLAccount
+		ReadGLAccounts(rows, &r)
+		if r.AcctType == a && r.AllowPost == 1 {
+			bal += GetAccountBalance(bid, r.LID, dt)
+		}
+	}
+	return bal, nil
+}
+
 // GetRAAccountBalance returns the balance of the account with LID lid on date dt. If raid is 0 then all
 // transactions are considered. Otherwise, only transactions involving this RAID are considered.
 func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
@@ -262,7 +312,7 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 		// fmt.Printf("LedgerMarker( bid=%d, lid=%d, raid=%d ) --> LM%08d,  dt = %10s, lm.Balance = %8.2f ==>  bal = %8.2f\n", bid, lid, raid, lm.LMID, lm.Dt.Format(RRDATEFMT4), lm.Balance, bal)
 	}
 
-	// Get the sum of the activeity between requested date and LedgerMarker
+	// Get the sum of the activity between requested date and LedgerMarker
 	var activity float64
 	if raid != 0 {
 		activity, _ = GetRAAccountActivity(bid, lid, raid, &lm.Dt, dt)

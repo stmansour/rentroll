@@ -4,7 +4,7 @@ LID	PLID	BID	RAID	GLNumber	Status	Type	Name	AcctType	RAAssociated	AllowPost	Last
 3	0	1	0	40001	2	12	Gross Schedule Rent	Income	2	1	0
 4	0	1	0	41004	2	13	Loss to Lease	Income	1	1	0
 5	0	1	0	41001	2	14	Vacancy	Income	2	1	0
-6	0	1	0	11002	2	15	Security Deposit Receivable	Accounts Receivable	1	1	0
+6	0	1	0	11002	2	15	Forfeited SecDep	Accounts Receivable	1	1	0
 7	0	1	0	23000	2	16	Security Deposit Assessment	liability	1	1	0
 8	0	1	0		2	17	Owner Equity		0	0	0
 9	0	2	0		2	10	Bank Account		0	0	0
@@ -12,7 +12,7 @@ LID	PLID	BID	RAID	GLNumber	Status	Type	Name	AcctType	RAAssociated	AllowPost	Last
 11	0	2	0		2	12	Gross Scheduled Rent		0	0	0
 12	0	2	0		2	13	Loss to Lease		0	0	0
 13	0	2	0		2	14	Vacancy		0	0	0
-14	0	2	0		2	15	Security Deposit Receivable		0	0	0
+14	0	2	0		2	15	Purge Me		0	0	0
 15	0	2	0		2	16	Security Deposit Assessment		0	0	0
 16	0	2	0		2	17	Owner Equity		0	0	0
 17	0	1	0	11003	2	0	Alternate Receivables System	Accounts Receivable	1	1	0

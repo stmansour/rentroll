@@ -158,7 +158,8 @@ var acctRAAssociated = map[int64]string{
 
 // account allow posts
 var acctAllowPosts = map[int64]string{
-	0: "Summary Account only, do not allow posts to this ledger", 1: "Allow posts",
+	0: "Summary Account only, do not allow posts to this ledger",
+	1: "Allow posts",
 }
 
 // getAccountThingJSList sending down list related with accounts info
@@ -686,12 +687,6 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-		// err = rlib.UpdateLedgerMarker(&a)
-		// if err != nil {
-		// 	e := fmt.Errorf("Error updating Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
-		// 	SvcGridErrorReturn(w, e, funcname)
-		// 	return
-		// }
 	}
 
 	SvcWriteSuccessResponseWithID(w, a.LID)

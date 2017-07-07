@@ -9,7 +9,7 @@ var NewBizDefaultAccts = []GLAccount{
 	{Status: 2, Type: GLGSRENT, Name: "Gross Scheduled Rent"},
 	{Status: 2, Type: GLLTL, Name: "Loss to Lease"},
 	{Status: 2, Type: GLVAC, Name: "Vacancy"},
-	{Status: 2, Type: 15, Name: "Security Deposit Receivable"},
+	{Status: 2, Type: 15, Name: "Purge Me"},
 	{Status: 2, Type: GLSECDEP, Name: "Security Deposit Assessment"},
 	{Status: 2, Type: GLOWNREQUITY, Name: "Owner Equity"},
 }

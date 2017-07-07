@@ -30,7 +30,8 @@ sidebarL1     - w2ui sidebar
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
     getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining
+    tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining, dateFromString,
+    addDateNavToToolbar
 */
 
 /*globals $:false */
@@ -498,7 +499,8 @@ function buildPageElements() {
             },
             { id: 'admin', text: 'Administrator', img: 'icon-wrench', expanded: true, group: true,
                 nodes: [
-                        { id: 'tws',    text: 'Timed Work Schedule',    icon: 'fa fa-calendar' },
+                        { id: 'tws',    text: 'Timed Work Schedule', icon: 'fa fa-calendar' },
+                        { id: 'ledgers',text: 'Ledgers',             icon: 'fa fa-book' },
                 ]
             },
         ],
@@ -532,6 +534,7 @@ function buildPageElements() {
                 case 'dep':
                 case 'ars':
                 case 'tws':
+                case 'ledgers':
                     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
                     break;
@@ -1168,7 +1171,7 @@ function buildPageElements() {
             { field: "Status", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
             { field: "Type", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
-            { field: "AcctType", required: false, type: 'text', html: { caption: "QB Accountt Type", page: 0, column: 0 } },
+            { field: "AcctType", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "QB Accountt Type", page: 0, column: 0 } },
             { field: "RAAssociated", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
             { field: "AllowPost", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
             { field: "ManageToBudget", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
@@ -1301,6 +1304,12 @@ function buildPageElements() {
                 $("#accountForm").find('input[name=Type]').w2field('list',{
                     items: app.account_stuff.typeList,
                     selected: r.Type,
+                });
+
+                // set qbAcctType
+                $("#accountForm").find('input[name=AcctType]').w2field('list',{
+                    items: app.qbAcctType,
+                    selected: r.AcctType,
                 });
 
                 // set Parent Account list
@@ -2945,19 +2954,8 @@ function buildPageElements() {
         },
     });
 
-    //---------------------------------------------------------------------------------------
-    //  Add a date range navigator to this view...
-    //---------------------------------------------------------------------------------------
-    w2ui.receiptsGrid.toolbar.add( genDateRangeNavigator('receipts') );
-    w2ui.receiptsGrid.toolbar.on('click', function(event) {
-        handleDateToolbarAction(event,'receipts'); // adjusts dates and loads into date controls
-        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
-    });
-    w2ui.receiptsGrid.toolbar.on('refresh', function (/*event*/) {
-        setDateControlsInToolbar('receipts');
-        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-    });
+    addDateNavToToolbar('receipts');
+
     // bind onchange event for date input control for receipts
     $(document).on("keypress", "input[name=receiptsD1]", function(e) {
         // do not procedd further untill user press the Enter key
@@ -3263,8 +3261,8 @@ function buildPageElements() {
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
-            {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
-            {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Start', caption: 'Start Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Stop', caption: 'Stop Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
             {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
@@ -3387,16 +3385,8 @@ function buildPageElements() {
         }
     });
 
-    w2ui.asmsGrid.toolbar.add( genDateRangeNavigator('asms') );
-    w2ui.asmsGrid.toolbar.on('click', function(event) {
-        handleDateToolbarAction(event,'asms'); // adjusts dates and loads into date controls
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
-    });
-    w2ui.asmsGrid.toolbar.on('refresh', function (/*event*/) {
-        setDateControlsInToolbar('asms');
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-    });
+    addDateNavToToolbar('asms');
+
     // bind onchange event for date input control for assessments
     $(document).on("keypress", "input[name=asmsD1]", function(e) {
         // do not procedd further untill user press the Enter key
@@ -3879,7 +3869,7 @@ function buildPageElements() {
 
 
     //------------------------------------------------------------------------
-    //          rentalAgrFinder
+    //          rental Agreement Finder
     //------------------------------------------------------------------------
     $().w2form({
         name: 'rentalAgrFinder',
@@ -3939,7 +3929,7 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          pmtsGrid
+    //          payment types Grid
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'pmtsGrid',
@@ -4158,7 +4148,7 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          depGrid
+    //          depository Grid
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'depGrid',
@@ -4738,6 +4728,57 @@ function buildPageElements() {
         //      };
         // },
     });
+
+    //------------------------------------------------------------------------
+    //          ledger grid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'ledgersGrid',
+        url: '/v1/ledgers',
+        multiSelect: false,
+        show: {
+            header: false,
+            toolbar: true,
+            footer: true,
+            toolbarReload   : true,
+            toolbarColumns  : false,
+            toolbarSearch   : false,
+            toolbarAdd      : false,
+            toolbarDelete   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarSave     : false,
+            toolbarEdit     : false,
+            searches        : false,
+            lineNumbers     : false,
+            selectColumn    : false,
+            expandColumn    : false,
+        },
+        columns: [
+            {field: 'recid',     caption: "recid",         size: '35px',  sortable: true, hidden: true},
+            {field: 'LID',       caption: "LID",           size: '55px',  sortable: true, hidden: false},
+            {field: 'GLNumber',  caption: "GLNumber",      size: '85px',  sortable: true, hidden: false},
+            {field: 'Name',      caption: "Name",          size: '225px', sortable: true, hidden: false},
+            {field: 'Active',    caption: "Active",        size: '50px',  sortable: true, hidden: false},
+            {field: 'AllowPost', caption: "Allow<br>Post", size: '50px',  sortable: true, hidden: false},
+            {field: 'Balance',   caption: "Balance",       size: '100px', sortable: true, hidden: false, render: 'money'},
+            {field: 'LMDate',    caption: "LM Date",       size: '170px', sortable: true, hidden: false},
+            {field: 'LMState',   caption: "LM<br>State",   size: '50px',  sortable: true, hidden: false},
+            {field: 'LMAmount',  caption: "LM Amount",     size: '100px', sortable: true, hidden: false, render: 'money'},
+        ],
+        onRequest: function(/*event*/) {
+            w2ui.ledgersGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        },
+        // onClick: function(event) {
+        //     event.onComplete = function () {
+        //         app.new_form_rec = false;
+        //         var rec = this.get(event.recid);
+        //         setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
+        //      };
+        // },
+    });
+    addDateNavToToolbar('ledgers');
+
 }  // buildPageElements
 
 
