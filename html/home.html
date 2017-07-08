@@ -3730,11 +3730,12 @@ function buildPageElements() {
             { field: 'pickedName', required: true,
                 type: 'enum',
                 options: {
-                    url:        '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
-                    max:        1,
-                    renderItem: tcidRAPayorPickerRender,
-                    renderDrop: tcidPickerDropRender,
-                    compare:    tcidPickerCompare,
+                    url:           '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRAPayorPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
@@ -3780,11 +3781,12 @@ function buildPageElements() {
             { field: 'pickedName', required: true,
                 type: 'enum',
                 options: {
-                    url:        '/v1/transactantstd/' + app.TcidRUserPicker.BID,
-                    max:        1,
-                    renderItem: tcidRUserPickerRender,
-                    renderDrop: tcidPickerDropRender,
-                    compare:    tcidPickerCompare,
+                    url:           '/v1/transactantstd/' + app.TcidRUserPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRUserPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
@@ -3830,16 +3832,17 @@ function buildPageElements() {
         focus  : 0,
         openOnFocus: true,
         fields: [
-            { field: 'RentableName', required: true,
+            { field: 'RentableName', required: true,  
                 type: 'enum',
                 options: {
-                    url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
-                    max:        1,
-                    cacheMax:   50,
-                    renderItem: ridRentablePickerRender,
-                    renderDrop: ridRentableDropRender,
-                    compare:    ridRentableCompare,
-                    onNew: function (event) {
+                    url:           '/v1/rentablestd/' + app.ridRentablePicker.BID,
+                    max:           1,
+                    cacheMax:      50,
+                    maxDropHeight: 350,
+                    renderItem:    ridRentablePickerRender,
+                    renderDrop:    ridRentableDropRender,
+                    compare:       ridRentableCompare,
+                    onNew:         function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { RentableName : event.item.text });
                     }
@@ -3883,7 +3886,8 @@ function buildPageElements() {
                 type: 'enum',
                 options: {
                     url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
-                    // max:        1,
+                    // max:     1,
+                    maxDropHeight: 350,
                     renderItem: rentalAgrFinderRender,
                     renderDrop: rentalAgrFinderDropRender,
                     compare:    rentalAgrFinderCompare,
@@ -3895,15 +3899,14 @@ function buildPageElements() {
             },
             // INDEX 2
             { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
-            { field: 'RAID', type: 'int', required: true },
-            { field: 'FirstName', type: 'text', required: false},
-            { field: 'LastName', type: 'text', required: false},
-            { field: 'CompanyName', type: 'text', required: false},
-            { field: 'IsCompany', type: 'int', required: false },
+            { field: 'RAID',         type: 'int',  required: true  },
+            { field: 'FirstName',    type: 'text', required: false },
+            { field: 'LastName',     type: 'text', required: false },
+            { field: 'CompanyName',  type: 'text', required: false },
+            { field: 'IsCompany',    type: 'int',  required: false },
         ],
         onRefresh: function(/*event*/) {
             w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
-
             w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
             if (app.RentalAgrFinder.RARentablesNames.length == 1) {
                 w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];
