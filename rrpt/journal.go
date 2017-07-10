@@ -135,7 +135,7 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 	var ps string
 	if err := rlib.GetTransactant(rcpt.TCID, &t); err != nil {
 		// fmt.Printf("<< rcpt.TCID = %d   db err = %s>>\n", rcpt.TCID, err.Error())
-		// No transactant ID.  See if ther is an OtherPayor. If so use it, if not, get the payors associated with this journal entry...
+		// No transactant ID.  See if there is an OtherPayor. If so use it, if not, get the payors associated with this journal entry...
 		if len(rcpt.OtherPayorName) > 0 {
 			ps = rcpt.OtherPayorName
 		} else {

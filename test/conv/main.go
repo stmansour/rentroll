@@ -84,6 +84,7 @@ func TestConversion2() {
 	fmt.Printf("SUCCESS!\n")
 }
 
+// RPersonOther stands for other person struct
 type RPersonOther struct {
 	IsCompany     rlib.W2uiHTMLSelect // 1 => the entity is a company, 0 = not a company
 	BID           rlib.W2uiHTMLSelect
