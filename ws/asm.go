@@ -32,6 +32,7 @@ type AssessmentSendForm struct {
 	Comment        string
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
+	ExpandPastInst bool // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 }
 
 // AssessmentSaveForm is a structure specifically for the return value from w2ui.
@@ -42,18 +43,19 @@ type AssessmentSendForm struct {
 // the data that has changed, which is in the xxxSaveOther struct.  All this data
 // is merged into the appropriate database structure using MigrateStructData.
 type AssessmentSaveForm struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	ASMID       int64
-	PASMID      int64
-	RID         int64
-	RAID        int64
-	Amount      float64
-	Start       rlib.JSONTime
-	Stop        rlib.JSONTime
-	InvoiceNo   int64
-	Comment     string
-	LastModTime rlib.JSONTime
-	LastModBy   int64
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	ASMID          int64
+	PASMID         int64
+	RID            int64
+	RAID           int64
+	Amount         float64
+	Start          rlib.JSONTime
+	Stop           rlib.JSONTime
+	InvoiceNo      int64
+	Comment        string
+	LastModTime    rlib.JSONTime
+	LastModBy      int64
+	ExpandPastInst bool // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 }
 
 // AssessmentSaveOther is a struct to handle the UI list box selections
@@ -566,6 +568,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
+		gg.ExpandPastInst = false // assume we don't expand unless told otherwise
 
 		for freqStr, freqNo := range rlib.CycleFreqMap {
 			if rentCycle == freqNo {

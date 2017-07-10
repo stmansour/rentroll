@@ -31,7 +31,7 @@ sidebarL1     - w2ui sidebar
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
     getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
     tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining, dateFromString,
-    addDateNavToToolbar
+    addDateNavToToolbar,dateFromString
 */
 
 /*globals $:false */
@@ -3353,6 +3353,7 @@ function buildPageElements() {
                         Comment: '',
                         LastModTime: w2uiDateControlString(y),
                         LastModBy: 0,
+                        ExpandPastInst: true,
                     };
                     // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                     w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
@@ -3478,6 +3479,7 @@ function buildPageElements() {
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
+            { field: 'ExpandPastInst',type: 'hidden', required: false },
         ],
         toolbar: {
             items: [
@@ -3494,6 +3496,18 @@ function buildPageElements() {
                 }
             },
         },
+        onRefresh: function(/*event*/) {
+            var f = w2ui.asmEpochForm;
+            var r = f.record;
+            if (r.ASMID) {
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")";
+                isNewFormRecord(f.name, false);
+            }
+            else {
+                f.header = "Edit" + app.sAssessment + " (new)";
+                isNewFormRecord(f.name, true);
+            }
+        },
         onValidate: function (event) {
             if (this.record.ARID.id === 0) {
                 event.errors.push({
@@ -3508,9 +3522,36 @@ function buildPageElements() {
                 });
             }
         },
+        onChange: function(event){
+            if (event.target == "Start") {
+                var x = document.getElementsByName('ExpandPastInst')[0];
+                if (this.record.RentCycle.text != "norecur") {
+                    var DtStart = dateFromString(event.value_new);
+                    var y = new Date();
+                    x.checked = (DtStart <  y);
+                } else {
+                    x.checked = false;
+                }
+            }
+            if (event.target == "RentCycle") {
+                if (event.value_new.text == "Norecur") {
+                    w2ui.asmEpochForm.record.RentCycle = event.value_new;
+                    w2ui.asmEpochForm.record.ProrationCycle = {id: "Norecur", text: "Norecur"};
+                    w2ui.asmEpochForm.render();
+                }
+            }
+        },
         actions: {
             save: function () {
-                //var obj = this;
+                if (this.record.RentCycle.text != "Norecur") {
+                    var s1 = dateFromString(this.record.Start);
+                    var DtStart = Date.parse(y);
+                    var y = new Date();
+                    if (DtStart <  y) {
+                        // enable the checkbox. 
+                    }
+                }
+
                 var x = getCurrentBusiness();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
                 var tgrid = w2ui.asmsGrid;
@@ -3557,18 +3598,6 @@ function buildPageElements() {
                 });
             },
         },
-        onRefresh: function(/*event*/) {
-            var f = w2ui.asmEpochForm;
-            var r = f.record;
-            if (r.ASMID) {
-                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")";
-                isNewFormRecord(f.name, false);
-            }
-            else {
-                f.header = "Edit" + app.sAssessment + " (new)";
-                isNewFormRecord(f.name, true);
-            }
-        }
     });
 
     //----------------------------------------------------------------------------------------------
