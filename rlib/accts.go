@@ -18,13 +18,13 @@ func getAccounts(bid int64, s string) []int64 {
 	return m
 }
 
-// GetReceivableAccounts goes throught the GLAccounts and returns
+// GetReceivableAccounts goes throughout the GLAccounts and returns
 // an array of LIDs which are of type Receivables
 func GetReceivableAccounts(bid int64) []int64 {
 	return getAccounts(bid, acctsRcv)
 }
 
-// GetSecurityDepositsAccounts goes throught the GLAccounts and returns
+// GetSecurityDepositsAccounts goes throughout the GLAccounts and returns
 // an array of LIDs which are of type SecurityDeposits
 func GetSecurityDepositsAccounts(bid int64) []int64 {
 	return getAccounts(bid, secDep)

@@ -83,7 +83,7 @@ func JSONchangeParseUtil(s string, F func(string, *ServiceData) error, d *Servic
 		}
 
 		t := 1
-		j := 0
+		var j int
 		for j = i + 1; j < len(b); j++ { // find matching closing brace...
 			switch b[j] {
 			case '{':
