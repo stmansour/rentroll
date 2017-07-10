@@ -406,25 +406,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
 		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
-		// THIS WAS COMMENTED OUT BECAUSE IT IS BUSINESS LOGIC.  IT WILL BE ADDED IN A BIZ-LOGIC FUNCTION
-		// var ra rlib.RentalAgreement
-		// if a.RentCycle == rlib.RECURMONTHLY {
-		// 	ra, err = rlib.GetRentalAgreement(a.RAID) // first get the rental agreement and make sure the start date is on the Epoch DOM
-		// 	if err != nil {
-		// 		e := fmt.Errorf("Error getting rental agreement (RAID=%d\n: %s", a.RAID, err.Error())
-		// 		SvcGridErrorReturn(w, e, funcname)
-		// 		return
-		// 	}
-		// 	dt := time.Date(a.Start.Year(), a.Start.Month(), ra.RentCycleEpoch.Day(), a.Start.Hour(), a.Start.Minute(), a.Start.Second(), a.Start.Nanosecond(), a.Start.Location())
-		// 	inc := int64(0)
-		// 	mon := a.Start.Month()
-		// 	if a.Start.After(dt) {
-		// 		mon, inc = rlib.IncMonths(mon, int64(1))
-		// 	}
-		// 	dt = time.Date(int(inc)+a.Start.Year(), mon, ra.RentCycleEpoch.Day(), a.Start.Hour(), a.Start.Minute(), a.Start.Second(), a.Start.Nanosecond(), a.Start.Location())
-		// 	a.Start = dt // enforce the corrected epoch
-		// }
-
 		// Biz logic checks:
 		// 1. Ensure that a charge is not being made for a rentable on a date prior to the rentable being tracked in Rentroll
 		fmt.Printf("BizLogic validation...\n")
@@ -444,13 +425,17 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		_, err = rlib.InsertAssessment(&a)
 		if err != nil {
 			fmt.Printf("Error inserting assessment = %s\n", err.Error())
+			SvcGridErrorReturn(w, err, funcname)
+			return
 		}
-		fmt.Printf("Saved assessment %d.  will now read it back...\n", a.ASMID)
-		a1, err := rlib.GetAssessment(a.ASMID)
-		if err != nil {
-			fmt.Printf("Error getting assessment = %s\n", err.Error())
-		}
-		fmt.Printf("Assessment just read:  %#v\n", a1)
+		/*
+			fmt.Printf("Saved assessment %d.  will now read it back...\n", a.ASMID)
+			a1, err := rlib.GetAssessment(a.ASMID)
+			if err != nil {
+				fmt.Printf("Error getting assessment = %s\n", err.Error())
+			}
+			fmt.Printf("Assessment just read:  %#v\n", a1)
+		*/
 
 		d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
 		mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))
@@ -466,11 +451,17 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			fmt.Printf("Process Journal Entry: ASMID = %d\n", a.ASMID)
 			rlib.ProcessJournalEntry(&a, &xbiz, &d1, &d2)
 			fmt.Printf("Process non recurring assessment\n")
-			bErr, jnl := getJournal(&a, w)
-			if bErr {
-				return
+			ok, jnl := getJournal(&a, w)
+			if !ok {
+				return // error was returned to client by getJournal()
 			}
 			rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2) // add to ledgers
+		} else {
+			if foo.Record.ExpandPastInst {
+				now := time.Now()
+				dt := a.Start
+
+			}
 		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
@@ -485,6 +476,11 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	SvcWriteSuccessResponse(w)
+}
+
+func timezero(d time.Time) time.Time {
+	d1 := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+	return d1
 }
 
 var asmFormSelectFields = []string{

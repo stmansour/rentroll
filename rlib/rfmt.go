@@ -207,6 +207,12 @@ func StringToDate(s string) (time.Time, error) {
 	return Dt, err
 }
 
+// DateAtTimeZero returns the supplied date at time 0 UTC of its day,month,year
+func DateAtTimeZero(d time.Time) time.Time {
+	d1 := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+	return d1
+}
+
 // IncMonths enables arithmetic operations on months. Returns
 // two values =  years & months.
 // @params
