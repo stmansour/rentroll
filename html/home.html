@@ -535,6 +535,7 @@ function buildPageElements() {
                 case 'ars':
                 case 'tws':
                 case 'ledgers':
+                case 'allocfunds':
                     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     switchToGrid(event.target);
                     break;
@@ -663,10 +664,6 @@ function buildPageElements() {
                 case 'RPTtb':
                     showReport(event.target);
                     app.lastReport = event.target;
-                    break;
-                case 'allocfunds':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    switchToGrid(event.target);
                     break;
                 default:
                     console.log('unhandled event: ' + event.target);
@@ -955,6 +952,7 @@ function buildPageElements() {
             { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '100px' },
             { field: 'ARID', hidden: true },
             { field: 'ASMID', hidden: true },
+            // INDEX 8 is Dt. If this changes, then the id reference to it must change in the onChange handler below
             { field: 'Dt', render: 'date', caption: 'Payment Date', size: '100px', style: 'text-align: right', editable: {type: 'date'}},
             { field: 'Allocate', render: 'money', caption: 'Allocate Amount', size: '110px', editable: {type: 'float'}},
         ],
@@ -977,6 +975,15 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.onComplete = function() {
+                if (event.input_id == "grid_unpaidASMsGrid_edit_0_8") {  // if the date changes, don't mess up anything else...
+                    for (var i = 0; i < w2ui.unpaidASMsGrid.records.length; i++) {
+                        if ( event.recid == w2ui.unpaidASMsGrid.records[i].recid ) {
+                            w2ui.unpaidASMsGrid.records[i].Dt = event.value_new;
+                            return;
+                        }
+                    }
+                    return;
+                } 
                 var tgrid = w2ui.unpaidASMsGrid;
                 var c = w2ui[event.target].getChanges();
                 var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
@@ -3730,11 +3737,12 @@ function buildPageElements() {
             { field: 'pickedName', required: true,
                 type: 'enum',
                 options: {
-                    url:        '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
-                    max:        1,
-                    renderItem: tcidRAPayorPickerRender,
-                    renderDrop: tcidPickerDropRender,
-                    compare:    tcidPickerCompare,
+                    url:           '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRAPayorPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
@@ -3780,11 +3788,12 @@ function buildPageElements() {
             { field: 'pickedName', required: true,
                 type: 'enum',
                 options: {
-                    url:        '/v1/transactantstd/' + app.TcidRUserPicker.BID,
-                    max:        1,
-                    renderItem: tcidRUserPickerRender,
-                    renderDrop: tcidPickerDropRender,
-                    compare:    tcidPickerCompare,
+                    url:           '/v1/transactantstd/' + app.TcidRUserPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRUserPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
@@ -3830,16 +3839,17 @@ function buildPageElements() {
         focus  : 0,
         openOnFocus: true,
         fields: [
-            { field: 'RentableName', required: true,
+            { field: 'RentableName', required: true,  
                 type: 'enum',
                 options: {
-                    url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
-                    max:        1,
-                    cacheMax:   50,
-                    renderItem: ridRentablePickerRender,
-                    renderDrop: ridRentableDropRender,
-                    compare:    ridRentableCompare,
-                    onNew: function (event) {
+                    url:           '/v1/rentablestd/' + app.ridRentablePicker.BID,
+                    max:           1,
+                    cacheMax:      50,
+                    maxDropHeight: 350,
+                    renderItem:    ridRentablePickerRender,
+                    renderDrop:    ridRentableDropRender,
+                    compare:       ridRentableCompare,
+                    onNew:         function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { RentableName : event.item.text });
                     }
@@ -3883,7 +3893,8 @@ function buildPageElements() {
                 type: 'enum',
                 options: {
                     url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
-                    // max:        1,
+                    // max:     1,
+                    maxDropHeight: 350,
                     renderItem: rentalAgrFinderRender,
                     renderDrop: rentalAgrFinderDropRender,
                     compare:    rentalAgrFinderCompare,
@@ -3895,15 +3906,14 @@ function buildPageElements() {
             },
             // INDEX 2
             { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
-            { field: 'RAID', type: 'int', required: true },
-            { field: 'FirstName', type: 'text', required: false},
-            { field: 'LastName', type: 'text', required: false},
-            { field: 'CompanyName', type: 'text', required: false},
-            { field: 'IsCompany', type: 'int', required: false },
+            { field: 'RAID',         type: 'int',  required: true  },
+            { field: 'FirstName',    type: 'text', required: false },
+            { field: 'LastName',     type: 'text', required: false },
+            { field: 'CompanyName',  type: 'text', required: false },
+            { field: 'IsCompany',    type: 'int',  required: false },
         ],
         onRefresh: function(/*event*/) {
             w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
-
             w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
             if (app.RentalAgrFinder.RARentablesNames.length == 1) {
                 w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];

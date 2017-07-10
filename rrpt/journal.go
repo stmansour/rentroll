@@ -179,6 +179,16 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 
 	// PROCESS EVERY RECEIPT ALLOCATION IN OUR DATE RANGE...
 	for i := 0; i < len(rcpt.RA); i++ {
+		processThis := false // assume this Journal entry applies to this receipt allocation
+		for k := 0; k < len(j.JA); k++ {
+			if rcpt.RA[i].AcctRule == j.JA[k].AcctRule { // find the account rule that matches...
+				processThis = true
+				break
+			}
+		}
+		if !processThis { // this account rule is described by a different
+			continue
+		}
 		// first do a quick reject test -- only show those that happen in the time range of the report
 		rdt := rcpt.RA[i].Dt
 		if !((ri.D1.Equal(rdt) || ri.D1.Before(rdt)) && ri.D2.After(rdt)) {
@@ -186,10 +196,10 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		}
 		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
 		r := rlib.GetRentable(a.RID)
-		if r.RID == 0 {
-			fmt.Printf("%s: rcpt.RA[%d].RCPAID = %d, r.RID = 0, rcpt.RA[i].ASMID = %d, a.RID = %d\n", funcname, i, rcpt.RA[i].RCPAID, rcpt.RA[i].ASMID, a.RID)
-			continue
-		}
+		// if r.RID == 0 {
+		// 	rlib.LogAndPrint("%s: rcpt.RA[%d].RCPAID = %d, r.RID = 0, rcpt.RA[i].ASMID = %d, a.RID = %d\n", funcname, i, rcpt.RA[i].RCPAID, rcpt.RA[i].ASMID, a.RID)
+		// 	continue
+		// }
 		m := rlib.ParseAcctRule(ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		// printJournalSubtitle("\t" + rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		// fmt.Printf("rcpt.RA[i].ASMID = %d, a.ASMID = %d, a.RID = %d\n", rcpt.RA[i].ASMID, a.ASMID, a.RID)
@@ -211,10 +221,14 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 			}
 			// s := fmt.Sprintf("%d", a.RAID)
 			// printDatedJournalEntryRJ(l.Name, rcpt.Dt, s, r.RentableName, m[k].Account, amt)
+			rs := ""
+			if a.RAID > 0 {
+				rs = rlib.IDtoString("RA", a.RAID)
+			}
 			tbl.AddRow()
 			tbl.Puts(-1, 1, l.Name)
 			tbl.Putd(-1, 2, rcpt.Dt)
-			tbl.Puts(-1, 3, rlib.IDtoString("RA", a.RAID))
+			tbl.Puts(-1, 3, rs)
 			tbl.Puts(-1, 4, r.RentableName)
 			tbl.Puts(-1, 5, m[k].Account)
 			tbl.Putf(-1, 6, amt)
@@ -251,7 +265,7 @@ func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx
 		r := rlib.GetRentable(a.RID)
 		textPrintJournalAssessment(tbl, jctx, ri.Xbiz, j, &a, &r, rentDuration, assessmentDuration)
 	default:
-		fmt.Printf("printJournalEntry: unrecognized type: %d\n", j.Type)
+		rlib.LogAndPrint("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}
 }
 
