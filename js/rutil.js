@@ -39,23 +39,27 @@ function getBIDfromBUD(BUD) {
 }
 
 //-----------------------------------------------------------------------------
-// getPaymentTypeName - searches BUD's Payment Types for PMTID.  If found the
-//                  Name is returned, else an empty string is returned.
+// getPaymentType - searches BUD's Payment Types for PMTID.  If found the
+//                  then payment type object is returned, else an empty object is returned.
 // @params  BUD   - the BUD for the business of interest
 //          PMTID - the payment type id for which we want the name
-// @return  the Payment Type Name (or empty string if not found)
+// @return  the Payment Type (or empty object if not found)
 //-----------------------------------------------------------------------------
-function getPaymentTypeName(BUD,PMTID) {
+function getPaymentType(BUD, reqPMTID) {
     "use strict";
-    if (typeof BUD == "undefined") {
-        return '';
+
+    var pmt = {};
+    if (typeof BUD === "undefined") {
+        return pmt;
     }
-    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
-        if (app.pmtTypes[BUD][i].PMTID == PMTID) {
-            return app.pmtTypes[BUD][i].Name;
+
+    app.pmtTypes[BUD].forEach(function(item) {
+        if (item.PMTID == reqPMTID) {
+            pmt = { id: item.PMTID, text: item.Name };
+            return pmt;
         }
-    }
-    return '';
+    });
+    return pmt;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,24 +80,6 @@ function getPaymentTypeID(BUD,Name) {
         }
     }
     return -1;
-}
-
-//-----------------------------------------------------------------------------
-// buildPaymentTypeOptions - creates a list suitable for a dropdown menu
-//                  with the payment types for the supplied BUD
-// @params  BUD   - the BUD for the business of interest
-// @return  the list of Payment Type Names (or empty list if BUD not found)
-//-----------------------------------------------------------------------------
-function buildPaymentTypeOptions(BUD) {
-    "use strict";
-    var options = [];
-    if (typeof BUD == "undefined") {
-        return options;
-    }
-    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
-        options[i] = app.pmtTypes[BUD][i].Name;
-    }
-    return options;
 }
 
 //-----------------------------------------------------------------------------
@@ -137,39 +123,76 @@ function getCurrentBusiness() {
 function setToForm(sform, url, width, doRequest) {
     "use strict";
 
+    // if not url defined then return
+    if (!(url.length > 0)) {
+        return false;
+    }
+
+    // if form not found then return
     var f = w2ui[sform];
-    if (url.length > 0) {
-        f.url = url;
-        if (typeof f.tabs.name == "string") {
-            f.tabs.click('tab1');
+    if (!f) {
+        return false;
+    }
+
+    // if current grid not found then return
+    var g = w2ui[app.active_grid];
+    if (!g) {
+        return false;
+    }
+
+    // if doRequest is defined then take false as default one
+    if (!doRequest) {
+        doRequest = false;
+    }
+
+    f.url = url;
+    if (typeof f.tabs.name == "string") {
+        f.tabs.click('tab1');
+    }
+
+    // mark this flag as is this new record
+    app.new_form_rec = !doRequest;
+
+    var right_panel_content = w2ui.toplayout.get("right").content;
+
+    // internal function
+    var showForm = function() {
+        // if the same content is there, then no need to render toplayout again
+        if (f !== right_panel_content) {
+            w2ui.toplayout.content('right', f);
+            w2ui.toplayout.sizeTo('right', width);
+            w2ui.toplayout.render();
         }
+        else{ // if same form is there then just refresh the form
+            f.refresh();
+        }
+        w2ui.toplayout.show('right', true);
+    }
 
-        var right_panel_content = w2ui.toplayout.get("right").content;
-
-        if (doRequest) {
-            f.request(function(/*event*/) {
+    if (doRequest) {
+        f.request(function(event) {
+            if (event.status === "success") {
                 // only render the toplayout after server has sent down data
                 // so that w2ui can bind values with field's html control,
                 // otherwise it is unable to find html controls
-
-                // if the same content is there, then no need to render toplayout again
-                if (f !== right_panel_content) {
-                    w2ui.toplayout.content('right', f);
-                    w2ui.toplayout.sizeTo('right', width);
-                    w2ui.toplayout.render();
-                }
-                w2ui.toplayout.show('right', true);
-            });
-        }
-        else {
-            // if the same content is there, then no need to render toplayout again
-            if (f !== right_panel_content) {
-                w2ui.toplayout.content('right', f);
-                w2ui.toplayout.sizeTo('right', width);
-                w2ui.toplayout.render();
+                showForm();
+                return true;
             }
-            w2ui.toplayout.show('right', true);
+            else {
+                showForm();
+                f.message("Could not get form data from server...!!");
+                return false;
+            }
+        });
+    }
+    else{
+        var sel_recid = parseInt(g.last.sel_recid);
+        if (sel_recid > -1) {
+            // if new record is being added then unselect {{the selected record}} from the grid
+            g.unselect(g.last.sel_recid);
         }
+        showForm();
+        return true;
     }
 }
 
@@ -912,17 +935,17 @@ function genDateRangeNavigator(prefix) {
 //-----------------------------------------------------------------------------
 // getRentableTypes - return the RentableTypes list with respect of BUD
 // @params
+//      - BUD: current business designation
 // @return  the Rentable Types List
 //-----------------------------------------------------------------------------
-function getRentableTypes(BID) {
+function getRentableTypes(BUD) {
     "use strict";
     return jQuery.ajax({
         type: "GET",
-        url: "/v1/rtlist/"+BID,
+        url: "/v1/rtlist/"+BUD,
         dataType: "json",
     }).done(function(data) {
         if (data.status == "success") {
-            var BUD = getBUDfromBID(BID);
             if (data.records) {
                 app.rt_list[BUD] = data.records;
             } else {
@@ -981,9 +1004,11 @@ function getPostAccounts(BID) {
 //-----------------------------------------------------------------------------
 // getParentAccounts - return the list of Parent accounts with respect of BUD
 // @params
-// @return the list of parent accounts
+//      - BID: current Business ID
+//      - delLID: account id which needs to be substracted from the return list
+// @return the list of parent accounts excluding delLID (current account ID from accountForm)
 //-----------------------------------------------------------------------------
-function getParentAccounts(BID) {
+function getParentAccounts(BID, delLID) {
     "use strict";
     return jQuery.ajax({
         type: "GET",
@@ -993,7 +1018,16 @@ function getParentAccounts(BID) {
         if (data.status == "success") {
             var BUD = getBUDfromBID(BID);
             if (data.records) {
-                app.parent_accounts[BUD] = data.records;
+                var dft = {id: 0, text: ' -- No Parent LID -- '};
+                var temp = [];
+                data.records.forEach(function(item) {
+                    if (item.id != delLID) {
+                        temp.push(item);
+                    }
+                });
+                // we don't need to exclude the default one from the list
+                temp.unshift(dft);
+                app.parent_accounts[BUD] = temp;
             } else{
                 app.parent_accounts[BUD] = [];
             }
@@ -1202,12 +1236,61 @@ function getFormSubmitData(record) {
 //-----------------------------------------------------------------------------
 function isNewFormRecord(sform, is_new) {
     "use strict";
+    app.active_form = sform;
     if (is_new) {
         $("#"+sform).find("button[name=delete]").addClass("hidden");
     }
     else {
         $("#"+sform).find("button[name=delete]").removeClass("hidden");
     }
+}
+
+//-----------------------------------------------------------------------------
+// formRecDiffer -  tells that form record has been changed
+// **[copied from w2ui form's getChanges internal function]**
+// @params
+//   record = form's current record
+//   original = form's initial record
+//   result = returned object
+// @return
+//      Object with difference from `record` to `original`
+//-----------------------------------------------------------------------------
+var formRecDiffer = function(record, original, result) {
+    "use strict";
+    for (var i in record) {
+        if (typeof record[i] == "object") {
+            result[i] = formRecDiffer(record[i], original[i] || {}, {});
+            if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
+        } else if ( record[i] !== null && record[i] != original[i] ) {
+            /*** ================================================================
+            || BY DEFAULT, W2UI SETS VALUE OF FIELD TO NULL IF NOTHING IS IN THERE
+            || NOTE: be careful, for form record, <null> and <""> (blank string) both are same
+            || it should not alert user that content has been changed !!!
+            || so, for this, <undefined>, <NaN>, <null>, <""> all are same
+            || NEED TO DO SOMETHING ABOUT THIS
+            || HECK: it only makes sense when record[i] is not NULL (undefined, null, "", NaN)
+            ================================================================ ***/
+            result[i] = record[i];
+        }
+    }
+    return result;
+};
+
+//-----------------------------------------------------------------------------
+// getPersonDetailsByTCID -  returns the person details for given TCID
+// @params
+//   TCID = Transactant ID
+// @return
+//      Object with Transactant record
+//-----------------------------------------------------------------------------
+function getPersonDetailsByTCID(BID, TCID) {
+    "use strict";
+
+    // we need to use this structure to get person details from given TCID
+    var params = {"cmd":"get","recid":0,"name":"transactantForm"},
+        dat = JSON.stringify(params);
+
+    return $.post("/v1/person/"+BID+"/"+TCID, dat);
 }
 
 function number_format(number, decimals, dec_point, thousands_sep) {

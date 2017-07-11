@@ -28,9 +28,10 @@ sidebarL1     - w2ui sidebar
     w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
     tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare, dateMonthBack,
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
-    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
-    getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining
+    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
+    getBUDfromBID, getPaymentTypeID, buildPaymentTypeSelectList,
+    tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining,
+    formRecDiffer, getFormSubmitData
 */
 
 /*globals $:false */
@@ -63,7 +64,6 @@ var app = {
     stdfmt: 'font-family: "Open Sans","Roboto",sans-serif; font-size: 8pt; border: 1px solid #dfdfdf; border-spacing:0px; padding: 3px; color: #777777;',
     refreshInhibit: false,
     receiptsToolbarOnClickAdded: false,
-    paymentTypeList: [{id: 10, text: "check"}, {id: 11, text:"VISA"}],  // just an example, will be set when the grid is shown based on current Business
     arList: [{id: 0, text:"Assessment"}, {id:1, text:"Receipt"}],
     rt_list: {},
     gl_accounts: {}, // this holds the list of GLAccount per business
@@ -77,8 +77,11 @@ var app = {
         "Legal": { "w": 8.5, "h": 14 },
         "Ledger": { "w": 11, "h": 17 },
     },
-    activeGrid: "", // which one is active now
+    active_grid: "", // which one is active now
     new_form_rec: false,
+    active_form: "", // which form is active now
+    form_is_dirty: false,
+    active_form_original: {},
 };
 
 // delete confirmation dialog box options
@@ -245,7 +248,6 @@ function ChangeBusiness() {
     w2ui.reportslayout.load('main','/html/blank.html');
     app.lastReport = '';
     s.collapse('reports');
-    s.collapse('admin');
 }
 
 function switchToGrid(svc) {
@@ -255,17 +257,7 @@ function switchToGrid(svc) {
     var url = '/v1/' + svc + '/' + x.value;
     w2ui[grid].url = url;
     w2ui[grid].last.sel_recid = null; // whenever switch grid, erase last selected record
-    app.activeGrid = grid; // mark active grid in app.activeGrid
-
-    // Special Handling
-    switch(svc) {
-    case 'receipts':
-        // need to set up Payment Type list -- varies by business
-        var BUD = getBUDfromBID(x.value);
-        app.paymentTypeList = buildPaymentTypeSelectList( BUD );
-        w2ui.receiptsGrid.columns[8].editable.items = app.paymentTypeList;
-        break;
-    }
+    app.active_grid = grid; // mark active grid in app.active_grid
     w2ui.toplayout.content('main', w2ui[grid]);
     w2ui.toplayout.hide('right',true);
 }
@@ -352,7 +344,20 @@ function buildPageElements() {
             { type: 'preview', size: 0,   style: app.bgyellow, hidden: true, resizable: true, content: 'preview' },
             { type: 'right',   size: 200, style: app.pstyle2,  hidden: true, resizable: true },
             { type: 'bottom',  size: 0,   style: app.pstyle2,  hidden: true, resizable: true, content: 'toplayout - bottom' }
-        ]
+        ],
+        onHide: function(event) {
+            event.onComplete = function() {
+                if (event.target === "right" && event.type === "hide") {
+                    // get the form from active_form value
+                    var f = w2ui[app.active_form];
+                    // if right panel is being hidden, then make blank everything related with active form
+                    if (f === this.get("right").content) {
+                        app.active_form = "";
+                        app.active_form_original = {};
+                    }
+                }
+            }
+        }
     }));
 
     //------------------------------------------------------------------------
@@ -840,8 +845,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -853,7 +858,6 @@ function buildPageElements() {
         },
         onClick:  function(event) {
             event.onComplete = function() {
-                app.new_form_rec = false;
                 var rec = this.get(event.recid);
 
                 app.TmpTCID = rec.TCID; // store here in case it is deselected by the time the Save function needs it
@@ -899,7 +903,7 @@ function buildPageElements() {
                         switch(event.target) {
                             case 'btnClose':
                                 w2ui.toplayout.hide('right',true);
-                                w2ui.toplayout.render();
+                                w2ui.allocfundsGrid.render();
                                 break;
                         }
                     }
@@ -1033,13 +1037,11 @@ function buildPageElements() {
             {field: 'Name',     caption: 'Name',      size: '450px', sortable: true},
             {field: 'Status',   caption: 'Status',    size: '90px', sortable: true,
                 render: function (record/*, index, col_index*/) {
-                    var html = '';
-                    // app.account_stuff.status.forEach(function(item) {
-                    //     if (item.id == w2ui.accountsGrid.getCellValue(index, col_index)) html = item.text;
-                    // });
-                    if (typeof record == "undefined") {
+                    if (typeof record === "undefined") {
                         return;
                     }
+
+                    var html = '';
                     for (var i=0; i < app.account_stuff.statusList.length; i++) {
                         if (record.Status == app.account_stuff.statusList[i].id) {
                             html = app.account_stuff.statusList[i].text;
@@ -1052,8 +1054,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -1065,12 +1067,13 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function() {
-                app.new_form_rec = false;
-
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
                 var rec = this.get(event.recid);
 
                 // get latest gl accounts first
-                getParentAccounts(rec.BID)
+                getParentAccounts(rec.BID, rec.LID)
                 .done(function(data) {
                     if (data.status != 'success') {
                         w2ui.accountForm.message(data.message);
@@ -1080,6 +1083,7 @@ function buildPageElements() {
                         return;
                     }
                     else {
+                        w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
                         setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID, 400, true);
                     }
                 })
@@ -1090,13 +1094,12 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            app.new_form_rec = true;
 
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
             var BUD = getBUDfromBID(BID);
 
-            getParentAccounts(BID)
+            getParentAccounts(BID, 0)
            .done(function(data) {
                 if (data.status != 'success') {
                     w2ui.accountForm.message(data.message);
@@ -1105,39 +1108,39 @@ function buildPageElements() {
                     w2ui.toplayout.sizeTo('right', 700);
                     return;
                 } else {
+                    var y = new Date(),
+                        record = {
+                            recid: 0,
+                            LID: 0,
+                            PLID: 0,
+                            BID: BID,
+                            BUD: BUD,
+                            RAID: 0,
+                            TCID: 0,
+                            GLNumber: '',
+                            Status: 2,
+                            Type: 0,
+                            Name: '',
+                            AcctType: '',
+                            RAAssociated: 0,
+                            AllowPost: 1,
+                            ManageToBudget: 0,
+                            Description: '',
+                            LastModTime: w2uiDateControlString(y),
+                            LastModBy: 0,
+                        };
 
-                    var y = new Date();
-
-                    var record = {
-                        recid: 0,
-                        LID: 0,
-                        PLID: 0,
-                        BID: BID,
-                        BUD: BUD,
-                        RAID: 0,
-                        TCID: 0,
-                        GLNumber: '',
-                        Status: 2,
-                        Type: 0,
-                        Name: '',
-                        AcctType: '',
-                        RAAssociated: 0,
-                        AllowPost: 1,
-                        ManageToBudget: 0,
-                        Description: '',
-                        LastModTime: w2uiDateControlString(y),
-                        LastModBy: 0,
-                    };
+                    w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
                     w2ui.accountForm.record = record;
-                    w2ui.accountForm.refresh();
 
+                    // now show the form
                     setToForm('accountForm', '/v1/account/' + BID + '/0', 400);
                 }
             })
             .fail( function() {
                 console.log('unable to get GLAccounts');
                 return;
-             });
+            });
         },
     });
 
@@ -1159,13 +1162,13 @@ function buildPageElements() {
             { field: "RAID", required: false, type: 'int', html: { caption: "RAID", page: 0, column: 0 } },
             { field: "TCID", required: false, type: 'int', html: { caption: "TCID", page: 0, column: 0 } },
             { field: "GLNumber", required: true, type: 'text', html: { caption: "GLNumber", page: 0, column: 0 } },
-            { field: "Status", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
-            { field: "Type", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
+            { field: "Status", required: true, type: 'list', options: { items: app.account_stuff.statusList, selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
+            { field: "Type", required: true, type: 'list', options: { items: app.account_stuff.typeList, selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
             { field: "AcctType", required: false, type: 'text', html: { caption: "QB Accountt Type", page: 0, column: 0 } },
-            { field: "RAAssociated", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
-            { field: "AllowPost", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
-            { field: "ManageToBudget", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
+            { field: "RAAssociated", required: true, type: 'list', options: { items: app.account_stuff.RAAssociatedList, selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
+            { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
+            { field: "ManageToBudget", required: true, type: 'list', options: { items: app.manageToBudgetList, selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
@@ -1180,27 +1183,22 @@ function buildPageElements() {
                 switch(event.target) {
                     case 'btnClose':
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
+                        w2ui.accountsGrid.render();
                         break;
                 }
             }
         },
         onChange: function(event) {
-            if (event.target === "BUD" && event.type === "change") {
-                var BUD = event.value_new.id;
-                var BID = getBIDfromBUD(BUD);
-                var r = w2ui.accountForm.record;
-
-                // update the BID in record
-                r.BID = BID;
-                r.PLID = 0;
-
-                // change the choice of parent account list
-                getParentAccounts(BID)
-                .done(function(/*data*/) {
-                    w2ui.accountForm.refresh();
-                });
-            }
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         },
         onSubmit: function(target, data) {
             // modify form data for server request
@@ -1260,6 +1258,7 @@ function buildPageElements() {
                 var f = w2ui.accountForm;
                 var r = f.record;
                 var BUD = getBUDfromBID(r.BID);
+
                 if (r.LID) {
                     f.header = 'Edit Account Detail' + ' (' + r.LID + ')';
                     isNewFormRecord(f.name, false);
@@ -1268,55 +1267,29 @@ function buildPageElements() {
                     isNewFormRecord(f.name, true);
                 }
 
-                $("#accountForm").find('input[name=AllowPost]').w2field('list', {
-                    items: app.account_stuff.allowPostList,
-                    selected: r.AllowPost,
-                });
-
-                // set RAAssociated
-                $("#accountForm").find('input[name=RAAssociated]').w2field('list',{
-                    items: app.account_stuff.RAAssociatedList,
-                    selected: r.RAAssociated,
-                });
-
-                // set managetoBudget
-                $("#accountForm").find('input[name=ManageToBudget]').w2field('list',{
-                    items: app.manageToBudgetList,
-                    selected: r.ManageToBudget,
-                });
-
-                // set Status
-                $("#accountForm").find('input[name=Status]').w2field('list',{
-                    items: app.account_stuff.statusList,
-                    selected: r.Status,
-                });
-
-                // set Type
-                $("#accountForm").find('input[name=Type]').w2field('list',{
-                    items: app.account_stuff.typeList,
-                    selected: r.Type,
-                });
-
-                // set Parent Account list
-                var PLIDList = [{id: 0, text: ' -- No Parent LID -- '}];
+                var PLIDSel = {};
                 app.parent_accounts[BUD].forEach(function(item) {
-                    if (item.id != r.LID) { // don't include itself in parent account choice -- drop list
-                        PLIDList.push(item);
+                    if (r.PLID == item.id) {
+                        $.extend(PLIDSel, item);
                     }
                 });
 
-                $("#accountForm").find('input[name=PLID]').w2field('list',{
-                    items: PLIDList,
-                    selected: r.PLID,
-                });
-
-                // set business
-                $("#accountForm").find('input[name=BUD]').w2field('list',{
-                    items: app.businesses,
-                    selected: r.BUD,
-                });
-
+                // $("#accountForm").find('input[name=PLID]').data("selected", PLIDSel).change();
                 // Reference: http://jsfiddle.net/vtoah4t5/7/
+                // $("#accountForm").find('input[name=PLID]').w2field('list',{
+                //     items: PLIDList,
+                //     selected: PLIDSel,
+                // }).data("selected", PLIDSel).change();
+
+                f.get("AllowPost").options.selected = r.AllowPost; // items are pre-defined, just give the value
+                f.get("RAAssociated").options.selected = r.RAAssociated; // items are pre-defined, just give the value
+                f.get("ManageToBudget").options.selected = r.ManageToBudget; // items are pre-defined, just give the value
+                f.get("Status").options.selected = r.Status; // items are pre-defined, just give the value
+                f.get("Type").options.selected = r.Type; // items are pre-defined, just give the value
+                f.get("PLID").options.selected = PLIDSel; // items are NOT pre-defined, so give the object
+
+                // keep active form original record
+                app.active_form_original = $.extend(true, {}, this.record);
             };
         }
     });
@@ -1365,8 +1338,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -1378,13 +1351,11 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
                 var rec = this.get(event.recid);
                 setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
              };
         },
         onAdd: function(/*event*/) {
-            app.new_form_rec = true;
 
             // insert an empty record....
             var x = getCurrentBusiness();
@@ -1526,7 +1497,6 @@ function buildPageElements() {
             { field: 'OutcomeSLSID', type: 'text', required: false, html: {page: 3, column: 0 } },
             { field: 'FloatingDeposit', type: 'w2float', required: false, html: {page: 3, column: 0 } },
             { field: 'RAID', type: 'w2int', required: false, html: {page: 3, column: 0 } },
-
         ],
         tabs: [
             { id: 'tab1', caption: app.sTransactant },
@@ -1543,7 +1513,7 @@ function buildPageElements() {
             onClick: function (event) {
                 if (event.target == 'btnClose') {
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.transactantsGrid.render();
                 }
                 if (event.target == 'btnNotes')  {
                     notesPopUp();
@@ -1614,19 +1584,36 @@ function buildPageElements() {
                 });
             },
         },
-        onRefresh: function() {
-            var f = w2ui.transactantForm;
-            var r = f.record;
-            var title;
-            if (r.TCID) {
-                var name = r.FirstName + ' ' + r.LastName;
-                title = 'Edit ' + app.sTransactant + ' - ' + name +' (' + r.TCID + ')';
-                isNewFormRecord(f.name, false);
-            } else {
-                title = 'Edit '+app.sTransactant+' (new)';
-                isNewFormRecord(f.name, true);
-            }
-            f.header = title;
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.transactantForm;
+                var r = f.record;
+                var title;
+                if (r.TCID) {
+                    var name = r.FirstName + ' ' + r.LastName;
+                    title = 'Edit ' + app.sTransactant + ' - ' + name +' (' + r.TCID + ')';
+                    isNewFormRecord(f.name, false);
+                } else {
+                    title = 'Edit '+app.sTransactant+' (new)';
+                    isNewFormRecord(f.name, true);
+                }
+                f.header = title;
+
+                // keep original record in active form original
+                app.active_form_original = $.extend(true, {}, f.record);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         }
     });
 
@@ -1742,8 +1729,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -1755,14 +1742,12 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
                 var rec = this.get(event.recid);
                 console.log('rentableType form url: ' + '/v1/rt/' + rec.BID + '/' + rec.RTID);
                 setToForm('rentableTypeForm', '/v1/rt/' + rec.BID + '/' + rec.RTID, 400, true);
             };
         },
         onAdd: function(/*event*/) {
-            app.new_form_rec = true;
 
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
@@ -1829,7 +1814,7 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.rtGrid.render();
                     break;
                 }
             },
@@ -1944,11 +1929,9 @@ function buildPageElements() {
                     isNewFormRecord(f.name, true);
                 }
 
-                // assignmentTime selected and items for w2field
-                var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {}, manageToBudgetSel = {};
-
-                // cycleFreqItems, manageToBudgetItems
-                var cycleFreqItems = [];
+                // dropdown list items and selected variables
+                var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
+                    manageToBudgetSel = {}, cycleFreqItems = [];
 
                 // select value for rentcycle, proration, gsrpc
                 app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -1961,7 +1944,6 @@ function buildPageElements() {
                     if (itemIndex == r.GSRPC) {
                         gsrpcSel = { id: itemIndex, text: itemText };
                     }
-
                     cycleFreqItems.push({ id: itemIndex, text: itemText });
                 });
 
@@ -1973,22 +1955,29 @@ function buildPageElements() {
                 });
 
                 // fill the field with values
-                $("#rentableTypeForm").find('input[name=RentCycle]').w2field('list', {
-                    items: cycleFreqItems,
-                    selected: rentCycleSel,
-                });
-                $("#rentableTypeForm").find('input[name=Proration]').w2field('list', {
-                    items: cycleFreqItems,
-                    selected: prorationSel,
-                });
-                $("#rentableTypeForm").find('input[name=GSRPC]').w2field('list', {
-                    items: cycleFreqItems,
-                    selected: gsrpcSel,
-                });
-                $("#rentableTypeForm").find('input[name=ManageToBudget]').w2field('list', {
-                    items: app.manageToBudgetList,
-                    selected: manageToBudgetSel,
-                });
+                f.get("RentCycle").options.items = cycleFreqItems;
+                f.get("RentCycle").options.selected = rentCycleSel;
+                f.get("Proration").options.items = cycleFreqItems;
+                f.get("Proration").options.selected = prorationSel;
+                f.get("GSRPC").options.items = cycleFreqItems;
+                f.get("GSRPC").options.selected = gsrpcSel;
+                f.get("ManageToBudget").options.items = app.manageToBudgetList;
+                f.get("ManageToBudget").options.selected = manageToBudgetSel;
+
+                // keep active form's original
+                app.active_form_original = $.extend(true, {}, this.record);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
             };
         }
     });
@@ -2026,8 +2015,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -2039,23 +2028,16 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
+                var rec = this.get(event.recid),
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
 
-                var rec = this.get(event.recid);
+                console.log('rentable form url: ' + '/v1/rentable/' + BID + '/' + rec.RID);
 
-                var BUD = getBUDfromBID(rec.BID);
-                console.log('rentable form url: ' + '/v1/rentable/' + rec.BID + '/' + rec.RID);
-
-                getRentableTypes(rec.BID)
+                getRentableTypes(BUD)
                 .done(function(/*data*/){
-                    // set typedown list in rentableform - RentableType field
-                    w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
-                    w2ui.rentableForm.get("RTID").options.selected = {id: rec.RTID, text: rec.Name};
-
-                    // must call refresh when form field has been set
-                    w2ui.rentableForm.refresh();
-
-                    setToForm('rentableForm', '/v1/rentable/' + rec.BID + '/' + rec.RID, 700, true);
+                    setToForm('rentableForm', '/v1/rentable/' + BID + '/' + rec.RID, 700, true);
                 })
                 .fail(function(){
                     console.log("Failed to get rentable type list");
@@ -2063,52 +2045,40 @@ function buildPageElements() {
             };
         },
         onAdd: function(/*event*/) {
-            app.new_form_rec = true;
+            var x = getCurrentBusiness(),
+                BID=parseInt(x.value),
+                BUD = getBUDfromBID(BID),
+                y = new Date(),
+                record = {
+                    recid: 0,
+                    BID: BUD,
+                    RID: 0,
+                    RentableName: "",
+                    RARID: 0,
+                    RAID: 0,
+                    RARDtStart: w2uiDateControlString(y),
+                    RARDtStop: "1/1/9999",
+                    RTID: {id: 0, text: ''},
+                    RTRID: 0,
+                    RTRefDtStart: w2uiDateControlString(y),
+                    RTRefDtStop: "1/1/9999",
+                    RSID: 0,
+                    RentableStatus: "unknown",
+                    RSDtStart: w2uiDateControlString(y),
+                    RSDtStop: "1/1/9999",
+                    CurrentDate: y,
+                    AssignmentTime: 0,
+                };
 
-            var x = getCurrentBusiness();
-            var BID=parseInt(x.value);
-            var BUD = getBUDfromBID(BID);
-
-            var y = new Date();
-
-            var record = {
-                recid: 0,
-                BID: BUD,
-                RID: 0,
-                RentableName: "",
-                RARID: 0,
-                RAID: 0,
-                RARDtStart: w2uiDateControlString(y),
-                RARDtStop: "1/1/9999",
-                RTID: {id: 0, text: ''},
-                RTRID: 0,
-                RTRefDtStart: w2uiDateControlString(y),
-                RTRefDtStop: "1/1/9999",
-                RSID: 0,
-                RentableStatus: "unknown",
-                RSDtStart: w2uiDateControlString(y),
-                RSDtStop: "1/1/9999",
-                CurrentDate: y,
-                AssignmentTime: 0,
-            };
-
-            getRentableTypes(BID)
+            getRentableTypes(BUD)
             .done(function(/*data*/){
-
-                // set typedown list in rentableform - RentableType field
-                w2ui.rentableForm.get("RTID").options.items = app.rt_list[BUD];
-                w2ui.rentableForm.get("RTID").options.selected = {};
-                // must call refresh when form field has been set
+                w2ui.rentableForm.record = record;
                 w2ui.rentableForm.refresh();
+                setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
             })
             .fail(function(){
                 console.log("Failed to get rentable type list");
             });
-
-            w2ui.rentableForm.record = record;
-            w2ui.rentableForm.refresh();
-
-            setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
         },
     });
 
@@ -2152,7 +2122,7 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.rentablesGrid.render();
                     break;
                 }
             },
@@ -2184,10 +2154,14 @@ function buildPageElements() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var f = w2ui.rentableForm;
-                var r = f.record;
+                var f = w2ui.rentableForm,
+                    r = f.record,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+
                 if (r.RID) {
-                    f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+r.CurrentDate;
+                    f.header = 'Edit ' + app.sRentable + ' - ' + r.RentableName + ' (' + r.RID + ') as of '+ r.CurrentDate;
                     isNewFormRecord(f.name, false);
                 } else {
                     f.header = 'Edit ' + app.sRentable + ' (new) as of '+ r.CurrentDate;
@@ -2202,11 +2176,26 @@ function buildPageElements() {
                     }
                     assignmentItems.push({ id: index, text: item });
                 });
-                // fill the field with values
-                $("#rentableForm").find('input[name=AssignmentTime]').w2field('list', {
-                    items: assignmentItems,
-                    selected: assignSelected,
-                });
+
+                f.get("AssignmentTime").options.items = assignmentItems;
+                f.get("AssignmentTime").options.selected = assignSelected;
+                f.get("RTID").options.items = app.rt_list[BUD];
+                f.get("RTID").options.selected = {id: r.RTID, text: r.Name};
+
+                // keep active form original record
+                app.active_form_original = $.extend(true, {}, this.record);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
             };
         }
     });
@@ -2264,8 +2253,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     this.select(sel_recid);
                     // This one is special case, you need to set last sel_recid when you're adding
                     // new record with help of onAdd event handler, so new record automatically
@@ -2282,7 +2271,6 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
                 var rec = this.get(event.recid);
 
                 console.log( 'BID = ' + rec.BID + ',   RAID = ' + rec.RAID);
@@ -2291,7 +2279,6 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            app.new_form_rec = true;
 
             // this record will be added in grid, so set last sel_recid to this record
             // so it will be automatically highlighted
@@ -2410,7 +2397,7 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.rentalagrsGrid.render();
                     break;
                 }
             },
@@ -2502,16 +2489,21 @@ function buildPageElements() {
                 });
             },
         },
-        onRefresh: function(/*event*/) {
-            var f = w2ui.rentalagrForm;
-            if (f.record.RAID) {
-                f.header = "Edit" + app.sRentalAgreement + " (RA" + f.record.RAID + ")";
-                isNewFormRecord(f.name, false);
-            }
-            else{
-                f.header = "Edit" + app.sRentalAgreement + "(new)";
-                isNewFormRecord(f.name, true);
-            }
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = w2ui.rentalagrForm;
+                if (f.record.RAID) {
+                    f.header = "Edit" + app.sRentalAgreement + " (RA" + f.record.RAID + ")";
+                    isNewFormRecord(f.name, false);
+                }
+                else{
+                    f.header = "Edit" + app.sRentalAgreement + "(new)";
+                    isNewFormRecord(f.name, true);
+                }
+
+                // keep original record active_form_original
+                app.active_form_original = $.extend(true, {}, f.record);
+            };
         },
         onValidate: function(event) {
             if (this.record.AgreementStart === '') {
@@ -2557,6 +2549,18 @@ function buildPageElements() {
                 });
             }
         },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
+        }
     });
 
     //------------------------------------------------------------------------
@@ -2828,12 +2832,22 @@ function buildPageElements() {
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right', searchable: true},   // 5
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 6
             {field: 'TCID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},                                     // 7
-            {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true, editable: {type: 'select', items: []},     // 8 - if this changes, update switchToGrid()
-                    render: function (record, index, col_index) {
-                        var html = '';
-                        for (var p in app.paymentTypeList) {
-                            if (app.paymentTypeList[p].id == this.getCellValue(index, col_index)) html = app.paymentTypeList[p].text;
+            {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true,     // 8 - if this changes, update switchToGrid()
+                    render: function (record/*, index, col_index*/) {
+                        if (typeof record === "undefined") {
+                            return;
                         }
+
+                        var x = getCurrentBusiness(),
+                            BID = x.value,
+                            BUD = getBUDfromBID(BID),
+                            html = '',
+                            pmt_options = buildPaymentTypeSelectList(BUD);
+
+                        pmt_options.forEach(function(item) {
+                            if (item.id == record.PMTID)
+                                html = item.text;
+                        });
                         return html;
                     },
             },
@@ -2847,9 +2861,7 @@ function buildPageElements() {
         // ],
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
                 var rec = this.get(event.recid);
-
                 var x = getCurrentBusiness();
                 var Bid = x.value;
                 var Bud = getBUDfromBID(Bid);
@@ -2875,8 +2887,8 @@ function buildPageElements() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -2892,7 +2904,6 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            app.new_form_rec = true;
 
             // Insert an empty record...
             var x = getCurrentBusiness();
@@ -2904,7 +2915,7 @@ function buildPageElements() {
                     app.Receipts = JSON.parse(data);
 
                     var y = new Date();
-                    var pmt_options = buildPaymentTypeOptions(BUD);
+                    var pmt_options = buildPaymentTypeSelectList(BUD);
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                     var record = {
                         recid: 0,
@@ -3037,6 +3048,13 @@ function buildPageElements() {
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                    },
+                    onRemove: function(event) {
+                        event.onComplete = function() {
+                            // reset payor field related data when removed
+                            w2ui.receiptForm.record.TCID = 0;
+                            w2ui.receiptForm.record.Payor = "";
+                        }
                     }
                 },
             },
@@ -3055,29 +3073,103 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.receiptsGrid.render();
                     break;
                 }
             },
         },
-        onRefresh: function(/*event*/) {
-            var f = w2ui.receiptForm;
-            var r = f.record;
+        onRender: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    r = f.record,
+                    x = getCurrentBusiness(),
+                    BID=x.value;
 
-            if (r.RCPTID) {
-                f.header = "Edit" + app.sReceipt + " (" + r.RCPTID + ")";
-                isNewFormRecord(f.name, false);
-            }
-            else {
-                f.header = "Edit" + app.sReceipt + " (new)";
-                isNewFormRecord(f.name, true);
-            }
+                if (r.TCID < 1) { // if TCID is not greater than 0 then return
+                    return;
+                }
 
-            var BUD = (typeof r.BID == "object") ? r.BID.id : r.BID;
-            f.fields[0].options.items = buildPaymentTypeOptions( BUD );
-            f.fields[1].options.items = app.Receipts[BUD];
-            f.fields[9].options.url = '/v1/transactantstd/'+ BUD;
-            r.PmtTypeName = getPaymentTypeName(BUD,r.PMTID);
+                var record = {};
+                getPersonDetailsByTCID(BID, r.TCID)
+                .done(function(data) {
+                    record = JSON.parse(data).record;
+                    var item = {
+                        CompanyName: record.CompanyName,
+                        IsCompany: record.IsCompany,
+                        FirstName: record.FirstName,
+                        LastName: record.LastName,
+                        MiddleName: record.MiddleName,
+                        TCID: record.TCID,
+                        recid: 0,
+                    };
+                    $("#receiptForm").find("input[name=Payor]").w2field().set(item);
+                })
+                .fail(function() {
+                    f.message("Couldn't get person details for TCID: ", r.TCID);
+                    console.log("couldn't get person details for TCID: ", r.TCID);
+                });
+            };
+        },
+        onLoad: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    r = f.record,
+                    x = getCurrentBusiness(),
+                    BID=x.value;
+
+                if (r.TCID < 1) { // if TCID is not greater than 0 then return
+                    return;
+                }
+
+                var record = {};
+                getPersonDetailsByTCID(BID, r.TCID)
+                .done(function(data) {
+                    record = JSON.parse(data).record;
+                    var item = {
+                        CompanyName: record.CompanyName,
+                        IsCompany: record.IsCompany,
+                        FirstName: record.FirstName,
+                        LastName: record.LastName,
+                        MiddleName: record.MiddleName,
+                        TCID: record.TCID,
+                        recid: 0,
+                    };
+                    var w2fld = $("#receiptForm").find("input[name=Payor]").w2field();
+                    if (w2fld !== undefined) { // if not undefined then only set
+                        $("#receiptForm").find("input[name=Payor]").w2field().set(item);
+                    }
+                })
+                .fail(function() {
+                    f.message("Couldn't get person details for TCID: ", r.TCID);
+                    console.log("couldn't get person details for TCID: ", r.TCID);
+                });
+            };
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    r = f.record,
+                    x = getCurrentBusiness(),
+                    BID=x.value,
+                    BUD = getBUDfromBID(BID);
+
+                if (r.RCPTID) {
+                    f.header = "Edit" + app.sReceipt + " (" + r.RCPTID + ")";
+                    isNewFormRecord(f.name, false);
+                }
+                else {
+                    f.header = "Edit" + app.sReceipt + " (new)";
+                    isNewFormRecord(f.name, true);
+                }
+
+                f.get("PmtTypeName").options.items = buildPaymentTypeSelectList( BUD );
+                f.get("PmtTypeName").options.selected = getPaymentType(BUD, r.PMTID);
+                f.get("ARID").options.items = app.Receipts[BUD];
+                f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
+
+                // keep active form's original record
+                app.active_form_original = $.extend(true, {}, f.record);
+            };
         },
         onValidate: function (event) {
             if (this.record.Amount == 0.0) {
@@ -3088,21 +3180,27 @@ function buildPageElements() {
             }
         },
         onChange: function(event) {
-            console.log('Form Value changed:  event = ', event);
-            var r = w2ui.receiptForm.record;
-            if (event.target == "PmtTypeName") {
-                var PMTID = getPaymentTypeID(r.BID.id,event.value_new.id);
-                if (PMTID >= 0) {
-                    r.PMTID = PMTID;
-                    console.log('record.PMTID set to ' + r.PMTID);
+            event.onComplete = function() {
+                var f = this,
+                    r = this.record;
+
+                if (event.target == "PmtTypeName") {
+                    var PMTID = getPaymentTypeID(r.BID.id, event.value_new.id);
+                    if (PMTID >= 0) {
+                        r.PMTID = PMTID;
+                        console.log('record.PMTID set to ' + r.PMTID);
+                    }
                 }
-            }
-        },
-        onLoad: function(event) {
-            event.onComplete = function () {
-                var r = w2ui.receiptForm.record;
-                r.PmtTypeName = getPaymentTypeName(r.BID,r.PMTID); // we have the PMTID, set the name
-             };
+
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         },
         actions: {
             saveadd: function() {
@@ -3149,7 +3247,7 @@ function buildPageElements() {
 
                 // add new empty record
                 var y = new Date();
-                var pmt_options = buildPaymentTypeOptions(BUD);
+                var pmt_options = buildPaymentTypeSelectList(BUD);
                 var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                 var record = {
                     recid: 0,
@@ -3277,7 +3375,6 @@ function buildPageElements() {
         ],
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
                 var rec = this.get(event.recid);
 
                 var form = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
@@ -3307,7 +3404,6 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            app.new_form_rec = true;
 
             var x = getCurrentBusiness();
             $.get('/v1/uival/' + x.value + '/app.Assessments' )
@@ -3363,8 +3459,8 @@ function buildPageElements() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -3486,7 +3582,7 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.asmsGrid.render();
                     break;
                 }
             },
@@ -3565,6 +3661,21 @@ function buildPageElements() {
                 f.header = "Edit" + app.sAssessment + " (new)";
                 isNewFormRecord(f.name, true);
             }
+
+            // keep active form's original record
+            app.active_form_original = $.extend(true, {}, this.record);
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         }
     });
 
@@ -3605,7 +3716,7 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.asmsGrid.render();
                     break;
                 }
             },
@@ -3662,9 +3773,9 @@ function buildPageElements() {
             event.onComplete = function() {
                 var f = w2ui.asmInstForm;
                 var r = f.record;
-                // var x = getCurrentBusiness();
-                // var BID=parseInt(x.value);
-                // var BUD = getBUDfromBID(BID);
+                var x = getCurrentBusiness();
+                var BID=parseInt(x.value);
+                var BUD = getBUDfromBID(BID);
 
                 var params = {"cmd":"get","recid":0,"name":"asmInstForm"};
                 var dat = JSON.stringify(params);
@@ -3712,12 +3823,27 @@ function buildPageElements() {
             if (typeof r.RentCycle !== "object") { return; }
             if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
                 // EPOCH
-                hdr = 'This assessment is not part of any recurring series';
+                hdr = "<p style='margin-bottom: 0px;'>This assessment is not part of any recurring series</p>";
             } else {
                 // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
                 hdr = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
             }
             $("#asmInstForm").find("#AssessmentEpochOrInstance").html(hdr);
+
+            // keep active form's original record
+            app.active_form_original = $.extend(true, {}, this.record);
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         }
     });
 
@@ -3755,9 +3881,6 @@ function buildPageElements() {
         onRefresh: function(/*event*/) {
             w2ui.tcidRAPayorPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRAPayorPicker.BID;
             console.log('SAVE tcidRAPayorPicker: TCID = ' + w2ui.tcidRAPayorPicker.record.TCID + '  DtStart = ' + w2ui.tcidRAPayorPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRAPayorPicker.record.DtStop);
-        },
-        onChange: function (event) {
-            console.log(event);
         },
         actions: {
             save: function () {
@@ -3810,9 +3933,6 @@ function buildPageElements() {
                 w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
             }
         },
-        onChange: function (event) {
-            console.log(event);
-        },
         actions: {
             save: function () {
                 var errs = w2ui.tcidRUserPicker.validate(true);
@@ -3856,9 +3976,6 @@ function buildPageElements() {
         ],
         onRefresh: function(/*event*/) {
             w2ui.ridRentablePicker.fields[0].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-        },
-        onChange: function (event) {
-            console.log(event);
         },
         actions: {
             save: function () {
@@ -3914,9 +4031,6 @@ function buildPageElements() {
             }
 
         },
-        onChange: function (event) {
-            console.log(event);
-        },
         actions: {
             save: function () {
                 w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
@@ -3966,24 +4080,25 @@ function buildPageElements() {
                 if (typeof data == "undefined") {
                     return;
                 }
-                var temp_list = [];
-                var data = JSON.parse(event.xhr.responseText);
-                data.records.forEach(function(pmtRec){
-                    temp_list.push({id: pmtRec.PMTID, text: pmtRec.Name});
-                });
-                app.paymentTypeList = temp_list;
 
                 // update payments list for a business
-                var x = getCurrentBusiness();
-                var BID=parseInt(x.value);
-                var BUD = getBUDfromBID(BID);
-                app.pmtTypes[BUD] = temp_list;
+                var x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID),
+                    pmtTypesList = [],
+                    data = JSON.parse(event.xhr.responseText);
+
+                // prepare list of payment and push it to app.pmtTypes[BUD]
+                data.records.forEach(function(pmtRec){
+                    pmtTypesList.push({PMTID: pmtRec.PMTID, Name: pmtRec.Name});
+                });
+                app.pmtTypes[BUD] = pmtTypesList;
             }
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -3995,7 +4110,6 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function() {
-                app.new_form_rec = false;
                 var rec = this.get(event.recid);  // integer value (event.recid holds value in string)
 
                 // popup the dialog form
@@ -4003,7 +4117,6 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            app.new_form_rec = true;
 
             var x = getCurrentBusiness();
             var BID=parseInt(x.value);
@@ -4054,7 +4167,7 @@ function buildPageElements() {
                 switch(event.target) {
                     case 'btnClose':
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
+                        w2ui.pmtsGrid.render();
                         break;
                 }
             }
@@ -4110,19 +4223,18 @@ function buildPageElements() {
                             return;
                         }
 
-                        // remove this from app.paymentTypeList if successfully removed
-                        var temp_list = [];
-                        app.paymentTypeList.forEach(function(pmtRec){
-                            if (pmtRec.ID != form.record.PMTID) {
-                                temp_list.push({id: pmtRec.PMTID, text: pmtRec.Name});
-                            }
-                        });
-                        app.paymentTypeList = temp_list;
-
                         // update payments list for a business
                         var x = getCurrentBusiness();
                         var BID=parseInt(x.value);
                         var BUD = getBUDfromBID(BID);
+
+                        // remove this from app.pmtTypes[BUD] if successfully removed
+                        var temp_list = [];
+                        app.pmtTypes[BUD].forEach(function(item){
+                            if (item.PMTID != form.record.PMTID) {
+                                temp_list.push({PMTID: item.PMTID, Name: item.Name});
+                            }
+                        });
                         app.pmtTypes[BUD] = temp_list;
 
                         w2ui.toplayout.hide('right',true);
@@ -4148,6 +4260,21 @@ function buildPageElements() {
                 f.header = 'Edit Payment Type (new)';
                 isNewFormRecord(f.name, true);
             }
+
+            // keep active form original record
+            app.active_form_original = $.extend(true, {}, this.record);
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         }
     });
 
@@ -4186,8 +4313,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -4199,7 +4326,6 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
 
                 // get selected element as multiSelect is false
                 var rec = this.get(event.recid);
@@ -4230,7 +4356,6 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            app.new_form_rec = true;
 
             // Insert an empty record...
             var x = getCurrentBusiness();
@@ -4311,7 +4436,7 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.depGrid.render();
                     break;
                 }
             },
@@ -4392,6 +4517,21 @@ function buildPageElements() {
                 f.header = 'Edit Depository (new)';
                 isNewFormRecord(f.name, true);
             }
+
+            // keep active form original record
+            app.active_form_original = $.extend(true, {}, this.record);
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         }
     });
 
@@ -4437,8 +4577,8 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = this.last.sel_recid;
-                if (app.activeGrid == this.name && sel_recid !== undefined && sel_recid !== null) {
+                var sel_recid = parseInt(this.last.sel_recid);
+                if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.unselect(sel_recid);
                     }
@@ -4450,7 +4590,6 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                app.new_form_rec = false;
 
                 // multi select is false
                 var rec = this.get(event.recid);
@@ -4492,7 +4631,6 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            app.new_form_rec = true;
 
             // Insert an empty record...
             var x = getCurrentBusiness();
@@ -4593,7 +4731,7 @@ function buildPageElements() {
                 switch(event.target) {
                 case 'btnClose':
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
+                    w2ui.arsGrid.render();
                     break;
                 }
             },
@@ -4680,6 +4818,20 @@ function buildPageElements() {
                 isNewFormRecord(f.name, true);
             }
 
+            // keep active form's original record here
+            app.active_form_original = $.extend(true, {}, this.record);
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
         }
     });
 
