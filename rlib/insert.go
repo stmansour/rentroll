@@ -23,12 +23,13 @@ func InsertAR(a *AR) (int64, error) {
 func InsertAssessment(a *Assessment) (int64, error) {
 	var rid = int64(0)
 
-	// //
-	// // DEBUG...
-	// //
-	// if a.FLAGS != 0 {
-	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH FLAGS = 0x%0x\n", a.FLAGS)
+	//
+	// DEBUG...
+	//
+	// if a.PASMID > 1 {
+	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH PASMID = %d\n", a.PASMID)
 	// 	debug.PrintStack()
+	// 	os.Exit(1)
 	// }
 
 	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)

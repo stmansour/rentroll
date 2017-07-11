@@ -319,24 +319,28 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 	}
 }
 
-func getJournal(a *rlib.Assessment, w http.ResponseWriter) (bool, rlib.Journal) {
-	funcname := "getJournal"
-	var jnl0 rlib.Journal
-	ja := rlib.GetJournalAllocationByASMID(a.ASMID)
-	if ja.JAID == 0 {
-		e := fmt.Errorf("Could not find JournalAllocation for ASMID = %d", a.ASMID)
-		SvcGridErrorReturn(w, e, funcname)
-		return true, jnl0
-	}
-	jnl := rlib.GetJournal(ja.JID)
-	if jnl.JID == 0 {
-		e := fmt.Errorf("Could not find Journal for ASMID = %d", a.ASMID)
-		SvcGridErrorReturn(w, e, funcname)
-		return true, jnl0
-	}
-	jnl.JA = append(jnl.JA, ja)
-	return false, jnl
-}
+// // getJournal looks for the journal associated with the supplied assessment.
+// // RETURNS
+// //          bool - true = no errors, false = error was sent to w
+// //  rlib.Journal - the journal entry associated with the supplied assessment
+// func getJournal(a *rlib.Assessment, w http.ResponseWriter) (bool, rlib.Journal) {
+// 	funcname := "getJournal"
+// 	var jnl0 rlib.Journal
+// 	ja := rlib.GetJournalAllocationByASMID(a.ASMID)
+// 	if ja.JAID == 0 {
+// 		e := fmt.Errorf("Could not find JournalAllocation for ASMID = %d", a.ASMID)
+// 		SvcGridErrorReturn(w, e, funcname)
+// 		return false, jnl0
+// 	}
+// 	jnl := rlib.GetJournal(ja.JID)
+// 	if jnl.JID == 0 {
+// 		e := fmt.Errorf("Could not find Journal for ASMID = %d", a.ASMID)
+// 		SvcGridErrorReturn(w, e, funcname)
+// 		return false, jnl0
+// 	}
+// 	jnl.JA = append(jnl.JA, ja)
+// 	return true, jnl
+// }
 
 // GetAssessment returns the requested assessment
 // wsdoc {
@@ -428,39 +432,35 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		/*
-			fmt.Printf("Saved assessment %d.  will now read it back...\n", a.ASMID)
-			a1, err := rlib.GetAssessment(a.ASMID)
-			if err != nil {
-				fmt.Printf("Error getting assessment = %s\n", err.Error())
-			}
-			fmt.Printf("Assessment just read:  %#v\n", a1)
-		*/
 
-		d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-		mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))
-		d2 := time.Date(int(inc)+a.Start.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+		// fmt.Printf("Saved assessment %d.  will now read it back...\n", a.ASMID)
+		// a1, err := rlib.GetAssessment(a.ASMID)
+		// if err != nil {
+		// 	fmt.Printf("Error getting assessment = %s\n", err.Error())
+		// }
+		// fmt.Printf("Assessment just read:  %#v\n", a1)
+
 		var xbiz rlib.XBusiness
 		rlib.GetXBusiness(a.BID, &xbiz)
 
 		//------------------------------------------------
 		// Make Journal Entries
 		//------------------------------------------------
+		d1, d2 := getPeriodDates(&a)
 		rlib.InitLedgerCache()
 		if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
 			fmt.Printf("Process Journal Entry: ASMID = %d\n", a.ASMID)
-			rlib.ProcessJournalEntry(&a, &xbiz, &d1, &d2)
-			fmt.Printf("Process non recurring assessment\n")
-			ok, jnl := getJournal(&a, w)
-			if !ok {
-				return // error was returned to client by getJournal()
-			}
-			rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2) // add to ledgers
+			rlib.ProcessJournalEntry(&a, &xbiz, &d1, &d2, true)
 		} else {
 			if foo.Record.ExpandPastInst {
-				now := time.Now()
-				dt := a.Start
-
+				//-----------------------------------------
+				// Create MULTIPLE instances in the past
+				//-----------------------------------------
+				now := rlib.DateAtTimeZero(time.Now())
+				dt := rlib.DateAtTimeZero(a.Start)
+				if !dt.After(now) {
+					createInstancesToDate(w, &a, &xbiz)
+				}
 			}
 		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
@@ -470,17 +470,39 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}
 	if err != nil {
-		e := fmt.Errorf("Error saving assessment (ASMID=%d\n: %s", d.ASMID, err.Error())
+		e := fmt.Errorf("Error saving assessment (ASMID=%d: %s", d.ASMID, err.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-
 	SvcWriteSuccessResponse(w)
 }
 
-func timezero(d time.Time) time.Time {
-	d1 := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
-	return d1
+// createInstancesToDate creates all instances of a recurring Assessments up to the supplied date
+func createInstancesToDate(w http.ResponseWriter, a *rlib.Assessment /* start, stop *time.Time,*/, xbiz *rlib.XBusiness) {
+	// funcname := "createInstancesToDate"
+	now := time.Now()
+	as := time.Date(a.Start.Year(), a.Start.Month(), a.Start.Day(), 0, 0, 0, 0, time.UTC)
+	// fmt.Printf("GetRecurrences:  d1,d2 = %s - %s\n", a.Start.Format(rlib.RRDATEREPORTFMT), a.Stop.Format(rlib.RRDATEREPORTFMT))
+	// fmt.Printf("                 d3,d4 = %s - %s\n", as.Format(rlib.RRDATEREPORTFMT), now.Format(rlib.RRDATEREPORTFMT))
+	m := rlib.GetRecurrences(&a.Start, &a.Stop, &as, &now, a.RentCycle) // get all from the begining up to now
+	for i := 0; i < len(m); i++ {
+		// fmt.Printf("m[%d] = %s\n", i, m[i].Format(rlib.RRDATEREPORTFMT))
+		dt1, dt2 := getPeriod(&m[i])
+		rlib.ProcessJournalEntry(a, xbiz, &dt1, &dt2, true) // this generates the assessment instances
+	}
+}
+
+func getPeriodDates(a *rlib.Assessment) (time.Time, time.Time) {
+	d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+	mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))
+	d2 := time.Date(int(inc)+a.Start.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+	return d1, d2
+}
+func getPeriod(a *time.Time) (time.Time, time.Time) {
+	d1 := time.Date(a.Year(), a.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+	mon, inc := rlib.IncMonths(a.Month(), int64(1))
+	d2 := time.Date(int(inc)+a.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+	return d1, d2
 }
 
 var asmFormSelectFields = []string{

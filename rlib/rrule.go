@@ -116,12 +116,21 @@ func genMonthlyRecurSeq(a1, a2, R1, R2 *time.Time, nMonths int64) []time.Time {
 		//-------------------------------------------------------------------------------------
 		d := time.Date(d1.Year(), d1.Month(), a1.Day(), d1.Hour(), d1.Minute(), d1.Second(), 0, time.UTC)
 
+		// for the date comparison, we are only interested whether the dates fall in line, to the times...
+		dt1 := time.Date(d1.Year(), d1.Month(), d1.Day(), 0, 0, 0, 0, time.UTC)
+		dt2 := time.Date(d2.Year(), d2.Month(), d2.Day(), 0, 0, 0, 0, time.UTC)
+		at1 := time.Date(a1.Year(), a1.Month(), a1.Day(), 0, 0, 0, 0, time.UTC)
+		at2 := time.Date(a2.Year(), a2.Month(), a2.Day(), 0, 0, 0, 0, time.UTC)
+
 		//-------------------------------------------------------------------------------------
 		// make sure it's in the interval range AND in its active timeframe, and if it is
 		// then add it to the list
 		//-------------------------------------------------------------------------------------
-		if DateInRange(&d, &d1, &d2) && DateInRange(&d, a1, a2) {
-			m = append(m, d)
+		// fmt.Printf("genMonthlyRecurSeq: d = %s, d1,d2 = %s , %s    a1,a2 = %s , %s\n", d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT), a1.Format(RRDATEREPORTFMT), a2.Format(RRDATEREPORTFMT))
+		if DateInRange(&d, &dt1, &dt2) {
+			if a1.Equal(d) || DateInRange(&d, &at1, &at2) {
+				m = append(m, d)
+			}
 		}
 		d1 = d2 // on to the next interval
 	}
@@ -142,7 +151,14 @@ func genYearlyRecurSeq(d, start, stop *time.Time, n int64) []time.Time {
 // GetRecurrences returns a list of instance dates where an event time (aStart - aStop)
 // overlaps with an interval time (start - stop).  The recurrence frequency
 // maps to those that can happen for an assessment.
-func GetRecurrences(start, stop, aStart, aStop *time.Time, aAccrual int64) []time.Time {
+// INPUTS
+//     start, stop = time range for the recurrences to be generated
+//   aStart, aStop = imposed bounds, for example the start/stop time of an Assessment
+//       cycleFreq = recurrence frequency
+//
+// RETURNS
+//   an array of instances
+func GetRecurrences(start, stop, aStart, aStop *time.Time, cycleFreq int64) []time.Time {
 	var m []time.Time
 	// fmt.Printf("GetRecurrences: A\n")
 	//-------------------------------------------
@@ -156,7 +172,7 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, aAccrual int64) []tim
 	//-------------------------------------------
 	// next, ensure that the assessment falls in the time range...
 	//-------------------------------------------
-	if aAccrual > RECURNONE &&
+	if cycleFreq > RECURNONE &&
 		(aStop.Equal(*start) || aStop.Before(*start) ||
 			aStart.After(*stop) || aStart.Equal(*stop)) {
 		return m
@@ -167,7 +183,7 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, aAccrual int64) []tim
 	// first insure that the data is not bad...
 	//-------------------------------------------
 
-	switch aAccrual {
+	switch cycleFreq {
 	case RECURNONE: // no recurrence
 		// fmt.Printf("GetRecurrences: D\n")
 		// if dateRangeOverlap(aStart, aStop, start, stop) {
