@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // ReceiptSendForm is a structure specifically for the UI. It will be
@@ -367,51 +367,16 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.RCPTID == 0 && d.RCPTID == 0 {
 		// This is a new Receipt
 		fmt.Printf(">>>> NEW RECEIPT IS BEING ADDED\n")
-		_, err = rlib.InsertReceipt(&a)
-
-		var xbiz rlib.XBusiness
-		rlib.InitBizInternals(a.BID, &xbiz)
-
-		// get the AR for this receipt...
-		ar := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]
-
-		// get GL Account Info for
-		ard := rlib.RRdb.BizTypes[a.BID].GLAccounts[ar.DebitLID]
-		arc := rlib.RRdb.BizTypes[a.BID].GLAccounts[ar.CreditLID]
-
-		// create the receipt allocation
-		var ra rlib.ReceiptAllocation
-		ra.RCPTID = a.RCPTID
-		ra.Amount = a.Amount
-		ra.AcctRule = fmt.Sprintf("d %s _, c %s _", ard.GLNumber, arc.GLNumber)
-		ra.BID = a.BID
-		ra.Dt = a.Dt
-		rlib.InsertReceiptAllocation(&ra)
-
-		a.RA = append(a.RA, ra)
-
-		//------------------------------------------------
-		// Add it to the Journal
-		//------------------------------------------------
-		d1 := time.Date(a.Dt.Year(), a.Dt.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-		mon, year := rlib.IncMonths(a.Dt.Month(), int64(a.Dt.Year()))
-		d2 := time.Date(int(year), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-		jnl, err := rlib.ProcessNewReceipt(&xbiz, &d1, &d2, &a)
+		err = bizlogic.InsertReceipt(&a)
 		if err != nil {
 			e := fmt.Errorf("%s:  Error in rlib.ProcessNewReceipt: %s", funcname, err.Error())
 			rlib.Ulog("%s", e.Error())
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-
-		rlib.GetJournalAllocations(&jnl)
-		fmt.Printf("Journal record created: JID = %d, len(jnl.JA) = %d\n", jnl.JID, len(jnl.JA))
-		rlib.InitLedgerCache()
-		rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2)
-
 	} else {
 		// update existing record
-		err = rlib.UpdateReceipt(&a)
+		err = bizlogic.UpdateReceipt(&a)
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d\n: %s", funcname, d.RCPTID, err.Error())

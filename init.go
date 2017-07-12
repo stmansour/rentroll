@@ -6,6 +6,7 @@ import (
 	"os"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"rentroll/worker"
 	"rentroll/ws"
 	"strings"
 	"text/template"
@@ -26,6 +27,7 @@ func initRentRoll() {
 		"LMSum":        LMSum,
 	}
 	tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir)
+	worker.Init()
 }
 
 func createStartupCtx() DispatchCtx {

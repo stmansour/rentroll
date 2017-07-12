@@ -25,6 +25,7 @@ var QBAcctType = []string{
 	"Income Offsets",
 	"Other Income",
 	"Security Deposits",
+	"Expense Account",
 }
 
 // RentalPeriodToString takes an accrual recurrence value and returns its name as a string

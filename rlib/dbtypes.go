@@ -743,7 +743,7 @@ type Receipt struct {
 	AcctRuleReceive string    // Account rule to apply on the receipt of this payment -- essentially - bank account and unapplied funds
 	ARID            int64     // User selected rule
 	AcctRuleApply   string    // how the funds are applied to assessments
-	FLAGS           uint64    // bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated
+	FLAGS           uint64    // bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated, bit 2 = VOID this receipt
 	Comment         string    // any notes on this receipt
 	OtherPayorName  string    // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime     time.Time

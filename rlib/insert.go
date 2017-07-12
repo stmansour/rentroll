@@ -242,6 +242,7 @@ func InsertJournal(j *Journal) (int64, error) {
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its
 // newly assigned id.
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
+	// debug.PrintStack()
 	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.Amount, ja.ASMID, ja.AcctRule, ja.CreateBy)
 	if nil == err {
 		id, err := res.LastInsertId()

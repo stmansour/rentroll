@@ -24,17 +24,19 @@ sidebarL1     - w2ui sidebar
 
 <script>
 /*global
-    w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
-    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
-    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare, dateMonthBack,
+    w2ui, console, plural,setToRAForm, setToForm,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, 
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare, 
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentTypeName,
     getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining, dateFromString,
-    addDateNavToToolbar,dateFromString
+    tcidReceiptPayorPickerRender, unallocAmountRemaining, dateFromString,
+    addDateNavToToolbar,dateFromString, getBIDfromBUD, getPayorFund, refreshUnallocAmtSummaries,
+    getParentAccounts, isNewFormRecord. getFormSubmitData
 */
 
 /*globals $:false */
+"use strict";
 
 // The rentroll app object, used to manage app-level data.
 var app = {
@@ -104,7 +106,6 @@ var delete_confirm_options = {
 };
 
 function exportReportCSV(rptname){
-    "use strict";
     if (rptname === '') {
         return;
     }
@@ -132,7 +133,6 @@ function exportReportCSV(rptname){
 }
 
 function popupPDFCustomDimensions() {
-    "use strict";
     w2popup.open({
         title     : 'PDF custom width and height',
         body      : '<div class="w2ui-centered">' +
@@ -153,7 +153,6 @@ function popupPDFCustomDimensions() {
 }
 
 function saveCustomDims() {
-    "use strict";
     var width = parseFloat($("input[name='custom_pdf_width']").val());
     if (!isNaN(width)) {
         app.pdfPageWidth = width;
@@ -166,7 +165,6 @@ function saveCustomDims() {
 }
 
 function exportReportPDF(rptname){
-    "use strict";
     if (rptname === '') {
         return;
     }
@@ -196,7 +194,6 @@ function exportReportPDF(rptname){
 }
 
 function showReport(rptname, elToFocus) {
-    "use strict";
     if (rptname === '') {
         return;
     }
@@ -235,7 +232,6 @@ function showReport(rptname, elToFocus) {
 // is embedded in a string defining the OnClick handler for a button
 // in the main toolbar.
 function ChangeBusiness() {
-    "use strict";
     w2ui.toplayout.content('main', ' ');
     w2ui.toplayout.hide('right',true);
     var s = w2ui.sidebarL1;
@@ -250,7 +246,6 @@ function ChangeBusiness() {
 }
 
 function switchToGrid(svc) {
-    "use strict";
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
     var url = '/v1/' + svc + '/' + x.value;
@@ -272,7 +267,6 @@ function switchToGrid(svc) {
 }
 
 function defineDateFmts() {
-    "use strict";
     var month = (new Date()).getMonth() + 1;
     var year  = (new Date()).getFullYear();
     // // US Format
@@ -295,7 +289,6 @@ function defineDateFmts() {
 }
 
 function openInNewTab(url) {
-    "use strict";
     var win = window.open(url, '_blank');
     win.focus();
 }
@@ -306,7 +299,6 @@ function openInNewTab(url) {
 // the dropdown lists prior to downloading their values. By doing it this way, we download
 // the lists first so that their values will be set by the server before we build the UI.
 function buildPageElements() {
-    "use strict";
     //------------------------------------------------------------------------
     //          mainlayout
     //------------------------------------------------------------------------
@@ -3089,9 +3081,11 @@ function buildPageElements() {
             f.fields[1].options.items = app.Receipts[BUD];
             f.fields[9].options.url = '/v1/transactantstd/'+ BUD;
             r.PmtTypeName = getPaymentTypeName(BUD,r.PMTID);
+
+            // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
         },
         onValidate: function (event) {
-            if (this.record.Amount == 0.0) {
+            if (this.record.Amount === 0.0) {
                 event.errors.push({
                     field: this.get('Amount'),
                     error: 'Amount must be something other than $0.00'
@@ -3113,7 +3107,8 @@ function buildPageElements() {
             event.onComplete = function () {
                 var r = w2ui.receiptForm.record;
                 r.PmtTypeName = getPaymentTypeName(r.BID,r.PMTID); // we have the PMTID, set the name
-             };
+            };
+           
         },
         actions: {
             saveadd: function() {
@@ -3538,19 +3533,20 @@ function buildPageElements() {
                     w2ui.asmEpochForm.record.RentCycle = event.value_new;
                     w2ui.asmEpochForm.record.ProrationCycle = {id: "Norecur", text: "Norecur"};
                     w2ui.asmEpochForm.render();
+
                 }
             }
         },
         actions: {
             save: function () {
-                if (this.record.RentCycle.text != "Norecur") {
-                    var s1 = dateFromString(this.record.Start);
-                    var DtStart = Date.parse(y);
-                    var y = new Date();
-                    if (DtStart <  y) {
-                        // enable the checkbox. 
-                    }
-                }
+                // if (this.record.RentCycle.text != "Norecur") {
+                //     var s1 = dateFromString(this.record.Start);
+                //     var DtStart = Date.parse(y);
+                //     var y = new Date();
+                //     if (DtStart <  y) {
+                //         // enable the checkbox. 
+                //     }
+                // }
 
                 var x = getCurrentBusiness();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
@@ -4822,7 +4818,6 @@ function buildPageElements() {
 
 
 function saveNewRAPayor() {
-    "use strict";
 
     var rec = {
         recid: w2ui.rapGrid.records.length,                 // + 1
@@ -4861,7 +4856,6 @@ function saveNewRAPayor() {
 }
 
 function popupTcidRAPayorPicker(sTitle,bid) {
-    "use strict";
     app.TcidRAPayorPicker = {BID: bid, Title: sTitle};  // used by tcidRAPayorPicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -4899,7 +4893,6 @@ function popupTcidRAPayorPicker(sTitle,bid) {
 }
 
 function popupRidRentablePicker(sTitle,bid) {
-    "use strict";
     app.ridRentablePicker = {BID: bid, Title: sTitle};  // used by RidRentablePicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -4936,7 +4929,6 @@ function popupRidRentablePicker(sTitle,bid) {
 }
 
 function saveNewRUser() {
-    "use strict";
 
     var myRID = -1;
     var rname = w2ui.tcidRUserPicker.record.RentableName.text;
@@ -4989,7 +4981,6 @@ function saveNewRUser() {
 }
 
 function saveNewRARentable() {
-    "use strict";
     var rec = {
         recid: 0,                                                   // new
         BUI: w2ui.rentalagrForm.record.BID.text,                         // BID of RID we're editing
@@ -5028,7 +5019,6 @@ function saveNewRARentable() {
 }
 
 function popupTcidRUserPicker(sTitle,bid,raid) {
-    "use strict";
     app.TcidRUserPicker = {BID: bid, Title: sTitle, RAID: raid, RARentablesNames: [], RAR: []};  // used by tcidRUserPicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -5076,7 +5066,6 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
 }
 
 function popupRentalAgrPicker() {
-    "use strict";
     var x = getCurrentBusiness();
     app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []};
     app.RentalAgrFinder.RARentablesNames = [{id: 0, text:" "}];
@@ -5117,7 +5106,6 @@ function popupRentalAgrPicker() {
 }
 
 function createRentalAgreementForm() {
-    "use strict";
     w2ui.raLayout.content('left', w2ui.rentalagrForm);
     w2ui.raLayout.content('main', w2ui.raLayoutSub1);
 
@@ -5135,7 +5123,6 @@ function createRentalAgreementForm() {
 
 
 function finishInitialization() {
-    "use strict";
     defineDateFmts();
     buildPageElements();
     createRentalAgreementForm();
@@ -5147,7 +5134,6 @@ function finishInitialization() {
 }
 
 $(function () {
-    "use strict";
     $.get('/v1/uilists/' + app.language + '/' + app.template)
     .done(function(data, textStatus, jqXHR) {
 

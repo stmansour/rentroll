@@ -332,6 +332,7 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) (Journal,
 	if jid > 0 {
 		// now add the Journal allocation records...
 		for i := 0; i < len(r.RA); i++ {
+			// fmt.Printf("r.RA[%d] id = %d\n", i, r.RA[i].RCPAID)
 			// rntagr, _ := GetRentalAgreement(r.RA[i].RAID) // what Rental Agreements did this payment affect and the amounts for each
 			var ja JournalAllocation
 			ja.JID = jid

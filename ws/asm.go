@@ -487,22 +487,17 @@ func createInstancesToDate(w http.ResponseWriter, a *rlib.Assessment /* start, s
 	m := rlib.GetRecurrences(&a.Start, &a.Stop, &as, &now, a.RentCycle) // get all from the begining up to now
 	for i := 0; i < len(m); i++ {
 		// fmt.Printf("m[%d] = %s\n", i, m[i].Format(rlib.RRDATEREPORTFMT))
-		dt1, dt2 := getPeriod(&m[i])
+		dt1, dt2 := rlib.GetMonthPeriodForDate(&m[i])
 		rlib.ProcessJournalEntry(a, xbiz, &dt1, &dt2, true) // this generates the assessment instances
 	}
 }
 
 func getPeriodDates(a *rlib.Assessment) (time.Time, time.Time) {
-	d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-	mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))
-	d2 := time.Date(int(inc)+a.Start.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-	return d1, d2
-}
-func getPeriod(a *time.Time) (time.Time, time.Time) {
-	d1 := time.Date(a.Year(), a.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-	mon, inc := rlib.IncMonths(a.Month(), int64(1))
-	d2 := time.Date(int(inc)+a.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-	return d1, d2
+	return rlib.GetMonthPeriodForDate(&a.Start)
+	// d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+	// mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))
+	// d2 := time.Date(int(inc)+a.Start.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
+	// return d1, d2
 }
 
 var asmFormSelectFields = []string{
