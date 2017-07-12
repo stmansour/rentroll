@@ -41,7 +41,6 @@ var app = {
     D1: "2016-02-01",
     D2: "2016-03-01",
     uid: 211,
-    lastReport: '',
     WidestFormWidth: 900,
     sidebarWidth: 215,
     TmpTCID: 0,  // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
@@ -82,6 +81,11 @@ var app = {
     active_form: "", // which form is active now
     form_is_dirty: false,
     active_form_original: {},
+    last: {
+        report: "",
+        BUD: "",
+        BID: null,
+    }
 };
 
 // delete confirmation dialog box options
@@ -238,16 +242,37 @@ function showReport(rptname, elToFocus) {
 // in the main toolbar.
 function ChangeBusiness() {
     "use strict";
-    w2ui.toplayout.content('main', ' ');
-    w2ui.toplayout.hide('right',true);
-    var s = w2ui.sidebarL1;
-    var sel = s.selected;
-    if (sel !== null) {
-        s.unselect(sel);
+    var bizName = $("select[name=BusinessSelect]").find(":selected").attr("name"),
+        bizVal = $("select[name=BusinessSelect]").val();
+
+    // if same business value then nothing to do
+    if (bizName === app.last.BUD) {
+        return;
     }
-    w2ui.reportslayout.load('main','/html/blank.html');
-    app.lastReport = '';
-    s.collapse('reports');
+
+    var no_callBack = function() {
+        // revert back to last one
+        $("select[name=BusinessSelect] option[value="+app.last.BID+"]").prop("selected", true);
+        return false;
+    },
+    yes_callBack = function() {
+        w2ui.toplayout.content('main', ' ');
+        w2ui.toplayout.hide('right',true);
+        var s = w2ui.sidebarL1;
+        var sel = s.selected;
+        if (sel !== null) {
+            s.unselect(sel);
+        }
+        w2ui.reportslayout.load('main','/html/blank.html');
+        app.last.report = '';
+        app.last.BUD = bizName;
+        app.last.BID = bizVal;
+        s.collapse('reports');
+        return true;
+    };
+
+    // warn user if active form has been changed
+    form_dirty_alert(yes_callBack, no_callBack);
 }
 
 function switchToGrid(svc) {
@@ -354,6 +379,7 @@ function buildPageElements() {
                     if (f === this.get("right").content) {
                         app.active_form = "";
                         app.active_form_original = {};
+                        app.form_is_dirty = false;
                     }
                 }
             }
@@ -381,7 +407,7 @@ function buildPageElements() {
              { type: 'html',  id: 'BUD',
                 html: //'<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">'+
                     '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-building-o"></i> &nbsp;' + app.sBusinessUnit +
-                    ': <select name="BusinessSelect" onchange="ChangeBusiness()">'+
+                    ': <select name="BusinessSelect" onchange="ChangeBusiness();">'+
                     '{{range .BL}}<option value="{{.BID}}" name="{{.Designation}}">{{.Designation}}</option>{{end}}'+
                     '</select>&nbsp;&nbsp;&nbsp;' //+ '</div>'
             },
@@ -396,6 +422,13 @@ function buildPageElements() {
             { id: 'bt3', type: 'spacer' },
             { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
         ],
+        onRender: function(event) {
+            event.onComplete = function() {
+                // when this render complete then store default selected business in app.last
+                app.last.BUD = $("select[name=BusinessSelect]").find(":selected").attr("name");
+                app.last.BID = $("select[name=BusinessSelect]").val();
+            }
+        },
         onClick: function (event) {
             console.log('target = ' + event.target);
             switch(event.target) {
@@ -520,153 +553,169 @@ function buildPageElements() {
         },
         onClick: function (event) {
             console.log('event.target = ' + event.target);
-            switch(event.target) {
-                case 'accounts':
-                case 'rt':
-                case 'rentables':
-                case 'transactants':
-                case 'rentalagrs':
-                case 'receipts':
-                case 'asms':
-                case 'pmts':
-                case 'dep':
-                case 'ars':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    switchToGrid(event.target);
-                    break;
-                case 'goRatePlan':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Rate Plan...  Not Available</h2><h3>But coming soon!</h3>');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'goServiceMenu':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Service Menu...  Not Available</h2><h3>But coming soon!</h3>');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'mkdep':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formmkdep.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'reversepmt':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formrevrcpt.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'gdssvcs':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formgas.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'assignrnt':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formaar.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'movein':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formmvin.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'moveout':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formmvout.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'updatera':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formraextend.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'dlnq':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formdlnq.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'prepnotice':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formprepnotice.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'close':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formclose.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'adjust':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formadjust.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'svcreq':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formcsr.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'svcreqcmp':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formcmplsr.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'housekpg':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formhskp.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'prvmaint':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formprvm.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'invntory':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/forminv.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'changeRT':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formchgrt.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
-                case 'permissions':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formperm.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
+            var target = event.target;
 
-                case 'RPTasmrpt':
-                case 'RPTb':
-                case 'RPTcoa':
-                case 'RPTdelinq':
-                case 'RPTdep':
-                case 'RPTdpm':
-                case 'RPTgsr':
-                case 'RPTj':
-                case 'RPTl':
-                case 'RPTla':
-                case 'RPTpeople':
-                case 'RPTpmt':
-                case 'RPTr':
-                case 'RPTra':
-                case 'RPTrat':
-                case 'RPTrcbt':  // rentable count by type
-                case 'RPTrcpt':
-                case 'RPTrr':
-                case 'RPTrt':
-                case 'RPTsl':
-                case 'RPTstatements':
-                case 'RPTtb':
-                    showReport(event.target);
-                    app.lastReport = event.target;
-                    break;
-                case 'allocfunds':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    switchToGrid(event.target);
-                    break;
-                default:
-                    console.log('unhandled event: ' + event.target);
-            }
+            var no_callBack = function(target) {
+                console.log("sidebar active form dirty - no callBack", target);
+                return false;
+            },
+            yes_callBack = function(target) {
+                console.log("sidebar active form dirty - yes callBack", target);
+                switch(target) {
+                    case 'accounts':
+                    case 'rt':
+                    case 'rentables':
+                    case 'transactants':
+                    case 'rentalagrs':
+                    case 'receipts':
+                    case 'asms':
+                    case 'pmts':
+                    case 'dep':
+                    case 'ars':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        switchToGrid(target);
+                        break;
+                    case 'goRatePlan':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Rate Plan...  Not Available</h2><h3>But coming soon!</h3>');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'goServiceMenu':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Service Menu...  Not Available</h2><h3>But coming soon!</h3>');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'mkdep':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formmkdep.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'reversepmt':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formrevrcpt.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'gdssvcs':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formgas.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'assignrnt':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formaar.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'movein':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formmvin.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'moveout':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formmvout.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'updatera':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formraextend.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'dlnq':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formdlnq.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'prepnotice':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formprepnotice.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'close':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formclose.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'adjust':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formadjust.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'svcreq':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formcsr.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'svcreqcmp':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formcmplsr.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'housekpg':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formhskp.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'prvmaint':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formprvm.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'invntory':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/forminv.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'changeRT':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formchgrt.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+                    case 'permissions':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/html/formperm.html');
+                        w2ui.toplayout.hide('right',true);
+                        break;
+
+                    case 'RPTasmrpt':
+                    case 'RPTb':
+                    case 'RPTcoa':
+                    case 'RPTdelinq':
+                    case 'RPTdep':
+                    case 'RPTdpm':
+                    case 'RPTgsr':
+                    case 'RPTj':
+                    case 'RPTl':
+                    case 'RPTla':
+                    case 'RPTpeople':
+                    case 'RPTpmt':
+                    case 'RPTr':
+                    case 'RPTra':
+                    case 'RPTrat':
+                    case 'RPTrcbt':  // rentable count by type
+                    case 'RPTrcpt':
+                    case 'RPTrr':
+                    case 'RPTrt':
+                    case 'RPTsl':
+                    case 'RPTstatements':
+                    case 'RPTtb':
+                        showReport(target);
+                        app.last.report = target;
+                        break;
+                    case 'allocfunds':
+                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        switchToGrid(target);
+                        break;
+                    default:
+                        console.log('unhandled event target: ' + target);
+                }
+            };
+
+            // warn user if form has been changed
+            // also here we need to bind current event to both function for
+            // use of event inside those function
+            var yes_cb_args = [target],
+                nb_cb_args = [target];
+            form_dirty_alert(yes_callBack, no_callBack, yes_cb_args, nb_cb_args);
         }
     }));
 
@@ -749,14 +798,14 @@ function buildPageElements() {
                 console.log("orientation selected");
             }
             else if (event.target == "csvexport") {
-                exportReportCSV(app.lastReport);
+                exportReportCSV(app.last.report);
             }
             else if (event.target == "printreport") {
-                exportReportPDF(app.lastReport);
+                exportReportPDF(app.last.report);
             }
             else{
                 handleDateToolbarAction(event,'date');
-                showReport(app.lastReport);
+                showReport(app.last.report);
             }
             // TODO: prevent refresh, why toolbar needs to be refreshed when user just selects
             // paper size, orientation? That refresh must be prevented.
@@ -794,7 +843,7 @@ function buildPageElements() {
             d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
         }
         app.D1 = dateControlString(d1);
-        showReport(app.lastReport, "dateD1");
+        showReport(app.last.report, "dateD1");
     }).on("keypress", "input[name=dateD2]", function(e) {
         // do not procedd further untill user press the Enter key
         if (e.which != 13) {
@@ -817,7 +866,7 @@ function buildPageElements() {
             d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
         }
         app.D2 = dateControlString(d2);
-        showReport(app.lastReport, "dateD2");
+        showReport(app.last.report, "dateD2");
     });
 
     //------------------------------------------------------------------------
@@ -1182,8 +1231,12 @@ function buildPageElements() {
             onClick: function(event) {
                 switch(event.target) {
                     case 'btnClose':
-                        w2ui.toplayout.hide('right',true);
-                        w2ui.accountsGrid.render();
+                        var no_callBack = function() { return false; },
+                            yes_callBack = function() {
+                                w2ui.toplayout.hide('right',true);
+                                w2ui.accountsGrid.render();
+                            };
+                        form_dirty_alert(yes_callBack, no_callBack);
                         break;
                 }
             }
@@ -1512,10 +1565,14 @@ function buildPageElements() {
             ],
             onClick: function (event) {
                 if (event.target == 'btnClose') {
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.transactantsGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.transactantsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                 }
-                if (event.target == 'btnNotes')  {
+                if (event.target == 'btnNotes') {
                     notesPopUp();
                 }
             },
@@ -1813,8 +1870,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.rtGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.rtGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -2121,8 +2182,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.rentablesGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.rentablesGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -2396,8 +2461,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.rentalagrsGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.rentalagrsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -3072,8 +3141,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.receiptsGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.receiptsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -3194,6 +3267,7 @@ function buildPageElements() {
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
+                console.log(diff);
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
@@ -3581,8 +3655,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.asmsGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.asmsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -3715,8 +3793,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.asmsGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.asmsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -4166,8 +4248,20 @@ function buildPageElements() {
             onClick: function(event) {
                 switch(event.target) {
                     case 'btnClose':
+                        var confirmed = confirm("Are you sure about leaving your changes in the form?");
+                        if(!confirmed) {
+                            return false;
+                        }
+
                         w2ui.toplayout.hide('right',true);
                         w2ui.pmtsGrid.render();
+
+                        // var no_callBack = function() { return false; },
+                        //     yes_callBack = function() {
+                        //         w2ui.toplayout.hide('right',true);
+                        //         w2ui.pmtsGrid.render();
+                        //     };
+                        // form_dirty_alert(yes_callBack, no_callBack);
                         break;
                 }
             }
@@ -4435,8 +4529,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.depGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.depGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -4730,8 +4828,12 @@ function buildPageElements() {
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.arsGrid.render();
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.arsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
                     break;
                 }
             },
@@ -4752,9 +4854,7 @@ function buildPageElements() {
         },
         actions: {
             delete: function() {
-
                 var form = this;
-
                 w2confirm(delete_confirm_options)
                 .yes(function () {
                     var tgrid = w2ui.arsGrid;
@@ -5190,8 +5290,31 @@ $(function () {
     .fail( function() {
         console.log('Error getting /v1/uilists');
     });
-
 });
+
+// =================================================
+// WINDOW BEFORE UNLOAD EVENT
+// =================================================
+// warn user if active form content has been changed
+// for security reason you can't just popup your custom dialog
+// see the thread: https://stackoverflow.com/questions/30712377/jquery-beforeunload-custom-pop-up-window-for-leaving-a-page
+function form_dirty_alert_window_unload(e) {
+    if (app.form_is_dirty){
+        if(!e) e = window.event;
+
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        return "Changes in the form that you made may not be saved."
+    }
+}
+window.onbeforeunload=form_dirty_alert_window_unload;
+// =================================================
 
 </script>
 

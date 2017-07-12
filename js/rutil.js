@@ -1293,6 +1293,78 @@ function getPersonDetailsByTCID(BID, TCID) {
     return $.post("/v1/person/"+BID+"/"+TCID, dat);
 }
 
+// form dirty alert confirmation dialog box options
+var form_dirty_alert_options = {
+    msg          : 'Changes in the form that you made may not be saved',
+    title        : 'Are you sure about leaving your changes in the form?',
+    width        : 480,     // width of the dialog
+    height       : 180,     // height of the dialog
+    btn_yes      : {
+        text     : 'Yes',   // text for yes button (or yes_text)
+        class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
+        style    : '',      // style for yes button (or yes_style)
+        callBack : null     // callBack for yes button (or yes_callBack)
+    },
+    btn_no       : {
+        text     : 'No',    // text for no button (or no_text)
+        class    : 'w2ui-btn',      // class for no button (or no_class)
+        style    : '',      // style for no button (or no_style)
+        callBack : null     // callBack for no button (or no_callBack)
+    },
+    callBack     : function(answer) {
+        console.log("common callBack (Yes/No): ", answer);
+    }     // common callBack
+};
+
+//-----------------------------------------------------------------------------
+// form_dirty_alert - alert the user if form content has been changed and he leaves the form at five times as follows
+// 1. When user change the business
+// 2. When he clicks on the sidebar that load something else
+// 3. When closing the form
+// 4. When click on other record
+// 5. When user closing the whole window
+// NOTE: if form is dirty then only alert the user, otherwise always return true;
+// @params
+//   yes callback = what to do if user agree (Yes)
+//   no callback = what to do if user disagree (No)
+//   yes_args = yes callback arguments
+//   no_args = no callback arguments
+// @return: true or false
+//-----------------------------------------------------------------------------
+function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
+    if (app.form_is_dirty) {
+        w2confirm(form_dirty_alert_options)
+        .yes(function() {
+            if (typeof yes_callBack === "function") {
+                if (Array.isArray(yes_args) && yes_args.length > 0) {
+                    yes_callBack.apply(null, yes_args);
+                } else{
+                    yes_callBack();
+                }
+            }
+        })
+        .no(function() {
+            if (typeof no_callBack === "function") {
+                if (Array.isArray(no_args) && no_args.length > 0) {
+                    no_callBack.apply(null, no_args);
+                } else{
+                    no_callBack();
+                }
+            }
+        });
+    } else {
+        // if form is not dirty then simply execute yes callback which is default action
+        if (typeof yes_callBack === "function") {
+            // Reference: http://odetocode.com/blogs/scott/archive/2007/07/04/function-apply-and-function-call-in-javascript.aspx
+            if (Array.isArray(yes_args) && yes_args.length > 0) {
+                yes_callBack.apply(null, yes_args);
+            } else{
+                yes_callBack();
+            }
+        }
+    }
+}
+
 function number_format(number, decimals, dec_point, thousands_sep) {
     // http://kevin.vanzonneveld.net
     // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
