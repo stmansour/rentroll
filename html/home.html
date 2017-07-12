@@ -4151,6 +4151,9 @@ function buildPageElements() {
                     yes_callBack = function(grid, recid) {
                         app.last.grid_sel_recid = parseInt(recid);
 
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+
                         // get record
                         var rec = grid.get(recid);
 
@@ -4163,8 +4166,13 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            var no_callBack = function() { return false },
-                yes_callBack = function() {
+            var yes_args = [this],
+                no_callBack = function() { return false },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
+
                     var x = getCurrentBusiness(),
                         BID=parseInt(x.value),
                         BUD = getBUDfromBID(BID),
@@ -4183,7 +4191,7 @@ function buildPageElements() {
                 };
 
             // warn user if form content has been changed
-            form_dirty_alert(yes_callBack, no_callBack);
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -4363,10 +4371,10 @@ function buildPageElements() {
                 var sel_recid = parseInt(this.last.sel_recid);
                 if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
             };
@@ -4374,9 +4382,17 @@ function buildPageElements() {
         onClick: function(event) {
             event.onComplete = function () {
                 var yes_args = [this, event.recid],
-                    no_args = [this, event.recid],
-                    no_callBack = function(grid, recid) { grid.select(recid); return false; },
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
                     yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
+
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+
                         // get selected element as multiSelect is false
                         var rec = grid.get(recid),
                             x = getCurrentBusiness(),
@@ -4406,20 +4422,26 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
-            var no_callBack = function() { return false; },
-                yes_callBack = function() {
+            var yes_args = [this],
+                no_callBack = function() { return false; },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
+
                     // Insert an empty record...
                     var x = getCurrentBusiness(),
                         BID=parseInt(x.value),
-                        BUD = getBUDfromBID(BID);
+                        BUD = getBUDfromBID(BID),
+                        f = w2ui.depForm;
 
                     // get latest gl accounts first
                     getAccountsList(BID)
                     .done(function(data) {
 
                         if (data.status != 'success') {
-                            w2ui.depForm.message(data.message);
-                            w2ui.toplayout.content('right', w2ui.depForm);
+                            f.message(data.message);
+                            w2ui.toplayout.content('right', f);
                             w2ui.toplayout.show('right', true);
                             w2ui.toplayout.sizeTo('right', 700);
                             return;
@@ -4439,10 +4461,10 @@ function buildPageElements() {
                             // get gl account list for BUD from `gl_accounts` key of `app`
                             gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
 
-                            w2ui.depForm.get('LID').options.items = gl_accounts_items;
-                            w2ui.depForm.get('LID').options.selected = gl_accounts_pre_selected;
-                            w2ui.depForm.record = record;
-                            w2ui.depForm.refresh();
+                            f.get('LID').options.items = gl_accounts_items;
+                            f.get('LID').options.selected = gl_accounts_pre_selected;
+                            f.record = record;
+                            f.refresh();
                             setToForm('depForm', '/v1/dep/' + BID + '/0', 400);
                         }
                     })
@@ -4453,7 +4475,7 @@ function buildPageElements() {
                 };  // yes callback
 
             // warn user if form content has been changed
-            form_dirty_alert(yes_callBack, no_callBack);
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
