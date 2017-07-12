@@ -2,6 +2,19 @@
     w2ui, app, console
 */
 
+// ---------------------------------------------------------------------------------
+// String format: https://gist.github.com/tbranyen/1049426, if want to format object, array as well
+// Reference: https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
+// ---------------------------------------------------------------------------------
+// "{0} is awesome {1}".format("javascript", "!?")
+// ---------------------------------------------------------------------------------
+String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+        return typeof args[number] != 'undefined'? args[number] : match;
+    });
+};
+// ---------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 // getBUDfromBID  - given the BID return the associated BUD. Returns
@@ -146,12 +159,17 @@ function setToForm(sform, url, width, doRequest) {
     }
 
     f.url = url;
+    console.log(f.tabs)
     if (typeof f.tabs.name == "string") {
         f.tabs.click('tab1');
     }
 
     // mark this flag as is this new record
     app.new_form_rec = !doRequest;
+
+    // as new content will be loaded for this form
+    // mark form dirty flag as false
+    app.form_is_dirty = false;
 
     var right_panel_content = w2ui.toplayout.get("right").content;
 
@@ -163,8 +181,15 @@ function setToForm(sform, url, width, doRequest) {
             w2ui.toplayout.sizeTo('right', width);
             w2ui.toplayout.render();
         }
-        else{ // if same form is there then just refresh the form
+        else{
+            // if same form is there then just refresh the form
             f.refresh();
+
+            /*// HACK: set the height of right panel of toplayout box div and form's box div
+            // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+            var h = w2ui.toplayout.get("right").height;
+            $(w2ui.toplayout.get("right").content.box).height(h);
+            $(f.box).find("div.w2ui-form-box").height(h);*/
         }
         w2ui.toplayout.show('right', true);
     }
@@ -1228,21 +1253,51 @@ function getFormSubmitData(record) {
 }
 
 //-----------------------------------------------------------------------------
-// isNewFormRecord -  based on condition perform some actions
-// 1. show / hide delete button for requested form if form has delete button
+// formRefreshCallBack -  callBack for form refresh event
+// need to take several actions on refresh complete event
 // @params
-//   sform   = name of the form
+//   w2form   = w2form object
 //   is_new     = true / false
+//   id_name  = form's primary Id
+//   form_header = header (title) of form
 //-----------------------------------------------------------------------------
-function isNewFormRecord(sform, is_new) {
+function formRefreshCallBack(w2frm, id_name, form_header) {
     "use strict";
-    app.active_form = sform;
-    if (is_new) {
-        $("#"+sform).find("button[name=delete]").addClass("hidden");
+    var fname = w2frm.name,
+        record = w2frm.record,
+        id = record[id_name],
+        header = form_header;
+
+    if (id === undefined) {
+        console.log("given id_name does not exist in form's record")
+        return false;
+    }
+
+    // mark active things of form
+    app.active_form = fname;
+    // keep active form original record
+    app.active_form_original = $.extend(true, {}, record);
+    // if new record then disable delete button
+    // and format the equivalent header
+    if (id === 0) {
+        w2frm.header = header.format("new");
+        $("#"+fname).find("button[name=delete]").addClass("hidden");
     }
     else {
-        $("#"+sform).find("button[name=delete]").removeClass("hidden");
+        w2frm.header = header.format(id);
+        $("#"+fname).find("button[name=delete]").removeClass("hidden");
     }
+
+    // ============================
+    // HACK: set the height of right panel of toplayout box div and form's box div
+    // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+    // ============================
+    // ALREADY HANDLED IN "setToForm"
+    // ============================
+    var h = w2ui.toplayout.get("right").height;
+    $(w2ui.toplayout.get("right").content.box).height(h);
+    $(w2frm.box).find("div.w2ui-form-box").height(h);
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1295,18 +1350,18 @@ function getPersonDetailsByTCID(BID, TCID) {
 
 // form dirty alert confirmation dialog box options
 var form_dirty_alert_options = {
-    msg          : 'Changes in the form that you made may not be saved',
-    title        : 'Are you sure about leaving your changes in the form?',
+    msg          : '<p>There are unsaved changes.</p><p>Select OK to exit without saving your changes or Cancel to continue editing.</p>',
+    title        : 'Do you want to leave your changes unsaved?',
     width        : 480,     // width of the dialog
     height       : 180,     // height of the dialog
     btn_yes      : {
-        text     : 'Yes',   // text for yes button (or yes_text)
+        text     : 'OK',   // text for yes button (or yes_text)
         class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
         style    : '',      // style for yes button (or yes_style)
         callBack : null     // callBack for yes button (or yes_callBack)
     },
     btn_no       : {
-        text     : 'No',    // text for no button (or no_text)
+        text     : 'Cancel',    // text for no button (or no_text)
         class    : 'w2ui-btn',      // class for no button (or no_class)
         style    : '',      // style for no button (or no_style)
         callBack : null     // callBack for no button (or no_callBack)
