@@ -15,10 +15,12 @@ J00000001   Cash (3/31 days)  6323-303 [A3, monthly]
 J00000002   Cash (4/31 days)  6323-303 [A3, monthly]                                                                                                
             Accounts Receivable                                                     07/05/2016  RA00000002  6323-303         12000            516.13
             Unit Gross Scheduled Rent-Taxable                                       07/05/2016  RA00000002  6323-303         41000           -400.00
+            Loss (Gain) to Lease                                                    07/05/2016  RA00000002  6323-303         41102           -116.13
                                                                                                                                                     
 J00000003   Cash (21/31 days)  6323-303 [A3, monthly]                                                                                               
             Accounts Receivable                                                     07/11/2016  RA00000003  6323-303         12000          2,167.74
             Unit Gross Scheduled Rent-Taxable                                       07/11/2016  RA00000003  6323-303         41000         -2,100.00
+            Loss (Gain) to Lease                                                    07/11/2016  RA00000003  6323-303         41102            -67.74
                                                                                                                                                     
 J00000004   Payment - Betty Diddit   #3383  735.35                                                                                                  
             Cash                                                                                                                                    
