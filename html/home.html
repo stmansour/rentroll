@@ -105,6 +105,27 @@ var delete_confirm_options = {
     callBack     : null     // common callBack
 };
 
+// reverse confirmation dialog box options
+var reverse_confirm_options = {
+    msg          : 'Are you sure you want to reverse this entry?',
+    title        : '',
+    width        : 340,     // width of the dialog
+    height       : 160,     // height of the dialog
+    btn_yes      : {
+        text     : 'Yes',   // text for yes button (or yes_text)
+        class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
+        style    : '',      // style for yes button (or yes_style)
+        callBack : null     // callBack for yes button (or yes_callBack)
+    },
+    btn_no       : {
+        text     : 'No',    // text for no button (or no_text)
+        class    : 'w2ui-btn',      // class for no button (or no_class)
+        style    : '',      // style for no button (or no_style)
+        callBack : null     // callBack for no button (or no_callBack)
+    },
+    callBack     : null     // common callBack
+};
+
 function exportReportCSV(rptname){
     if (rptname === '') {
         return;
@@ -3193,20 +3214,16 @@ function buildPageElements() {
                     grid.reload();
                 });
             },
-            delete: function() {
-
+            reverse: function() {
                 var form = this;
-
-                w2confirm(delete_confirm_options)
+                w2confirm(reverse_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.receiptsGrid;
                     var sel = tgrid.getSelection();
                     tgrid.unselect(sel);
-
                     var params = {cmd: 'delete', formname: form.name, RCPTID: form.record.RCPTID };
                     var dat = JSON.stringify(params);
-
-                    // delete Depository request
+                    // Reverse receipt request
                     $.post(form.url, dat)
                     .done(function(data) {
                         if (data.status != "success") {
@@ -3217,7 +3234,7 @@ function buildPageElements() {
                         tgrid.reload();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Receipt failed.");
+                        console.log("Reverse Receipt failed.");
                     });
                 })
                 .no(function() {

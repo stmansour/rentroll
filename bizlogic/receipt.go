@@ -46,26 +46,92 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 	//---------------------------------------------------------------------------------
 	reverse := (!rold.Dt.Equal(rnew.Dt)) || rold.Amount != rnew.Amount || rold.ARID != rnew.ARID
 	if reverse {
-		//------------------------------------------------------
-		// reverse the receipt itself
-		//------------------------------------------------------
-		rrev, err := ReverseReceipt(&rold, dt)
+		err := ReverseReceipt(&rold, dt) // reverse the receipt itself
 		if err != nil {
 			return err
 		}
-		//------------------------------------------------------
-		// reverse any payments allocated from this receipt...
-		//------------------------------------------------------
-		if (rold.FLAGS & 0x3) > 0 {
-			ReverseAllocation(&rold, rrev.RCPTID, dt)
-		}
-		//------------------------------------------------------
-		// Finally, insert the new receipt...
-		//------------------------------------------------------
-		return InsertReceipt(rnew)
+		return InsertReceipt(rnew) // Finally, insert the new receipt...
 	}
 
 	return rlib.UpdateReceipt(rnew) // reversal not needed, just update the receipt
+}
+
+// ReverseReceipt reverses the supplied receipt. It links the
+// reversal back to the supplied receipt
+// RETURNS
+//    any error that occurred, or nil if no error
+//-------------------------------------------------------------------------------
+func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
+	//------------------------------------------------------
+	// Build the new receipt
+	//------------------------------------------------------
+	rr := *r
+	rr.RCPTID = int64(0)
+	rr.Amount = -rr.Amount
+	rr.Comment = fmt.Sprintf("Reversal of receipt %s", r.IDtoString())
+	rr.PRCPTID = r.RCPTID     // link to parent
+	rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
+	rr.RA = []rlib.ReceiptAllocation{}
+	if err := InsertReceipt(&rr); err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------------------
+	// The old receipt may have been allocated. Load its ReceiptAllocations
+	// and reverse any allocation that was applied towards an Assessment
+	//----------------------------------------------------------------------
+	if len(r.RA) == 0 { // if RA slice is empty, it could be because they were not loaded
+		rlib.GetReceiptAllocations(r.RCPTID, r) // try to load them just to make sure
+	}
+
+	for i := 0; i < len(r.RA); i++ {
+		if r.RA[i].ASMID == 0 {
+			continue // skip entries that are not allocations to an assessment
+		}
+		ra := r.RA[i]          // copy it and make the reversal changes
+		ra.RCPTID = rr.RCPTID  // the reversal receipt id
+		ra.Amount = -ra.Amount // reverse the allocation
+		ra.Dt = *dt            // date of reversal
+
+		// build a new AcctRule
+		var xbiz1 rlib.XBusiness // not actually used, but needed for the call to ParseAcctRule
+		n := rlib.ParseAcctRule(&xbiz1, 0, dt, dt, ra.AcctRule, 0, 1.0)
+		acctrule := ""
+		for k := 0; k < len(n); k++ {
+			acctrule += fmt.Sprintf("ASM(%d) %s %s %.2f", ra.ASMID, n[k].Action, n[k].Account, ra.Amount)
+			if k+1 < len(n) {
+				acctrule += ","
+			}
+		}
+		ra.AcctRule = acctrule
+		_, err := rlib.InsertReceiptAllocation(&ra)
+		if err != nil {
+			return err
+		}
+		rr.RA = append(rr.RA, ra)
+	}
+
+	//------------------------------------------------------
+	// mark the old receipt as voided
+	//------------------------------------------------------
+	r.FLAGS |= rlib.RCPTvoid // mark that it is voided
+	if len(r.Comment) > 0 {
+		r.Comment += ", "
+	}
+	r.Comment += fmt.Sprintf("Reversed by receipt %s", rr.IDtoString())
+	err := rlib.UpdateReceipt(r)
+	if err != nil {
+		return err
+	}
+
+	//------------------------------------------------------
+	// reverse any payments allocated from this receipt...
+	//------------------------------------------------------
+	if (r.FLAGS & 0x3) > 0 {
+		ReverseAllocation(r, rr.RCPTID, dt)
+	}
+
+	return err
 }
 
 // ReverseAllocation reverses any payments funded by this receipt.
@@ -185,81 +251,13 @@ func ReverseAllocation(r *rlib.Receipt, revRCPTID int64, dt *time.Time) error {
 	}
 
 	//------------------------------------------------------
-	// mark the old receipt as voided
+	// void the old receipt
 	//------------------------------------------------------
 	b := uint64(0x3)
 	b = ^b
 	r.FLAGS &= b   // remove any payment related flags that might confuse anyone
 	r.FLAGS |= 0x4 // set bit 2 to indicate that it has been voided
 	return rlib.UpdateReceipt(r)
-}
-
-// ReverseReceipt reverses the supplied receipt. It links the
-// reversal back to the supplied receipt
-// RETURNS
-//    newly created reversal Receipt
-//    any error that occurred, or nil if no error
-//-------------------------------------------------------------------------------
-func ReverseReceipt(r *rlib.Receipt, dt *time.Time) (rlib.Receipt, error) {
-	//------------------------------------------------------
-	// Build the new receipt
-	//------------------------------------------------------
-	rr := *r
-	rr.RCPTID = int64(0)
-	rr.Amount = -rr.Amount
-	rr.Comment = fmt.Sprintf("Reversal of receipt %s", r.IDtoString())
-	rr.PRCPTID = r.RCPTID     // link to parent
-	rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
-	rr.RA = []rlib.ReceiptAllocation{}
-	if err := InsertReceipt(&rr); err != nil {
-		return rr, err
-	}
-
-	//----------------------------------------------------------------------
-	// The old receipt may have been allocated. Load its ReceiptAllocations
-	// and reverse any allocation that was applied towards an Assessment
-	//----------------------------------------------------------------------
-	if len(r.RA) == 0 { // if RA slice is empty, it could be because they were not loaded
-		rlib.GetReceiptAllocations(r.RCPTID, r) // try to load them just to make sure
-	}
-
-	for i := 0; i < len(r.RA); i++ {
-		if r.RA[i].ASMID == 0 {
-			continue // skip entries that are not allocations to an assessment
-		}
-		ra := r.RA[i]          // copy it and make the reversal changes
-		ra.RCPTID = rr.RCPTID  // the reversal receipt id
-		ra.Amount = -ra.Amount // reverse the allocation
-		ra.Dt = *dt            // date of reversal
-
-		// build a new AcctRule
-		var xbiz1 rlib.XBusiness // not actually used, but needed for the call to ParseAcctRule
-		n := rlib.ParseAcctRule(&xbiz1, 0, dt, dt, ra.AcctRule, 0, 1.0)
-		acctrule := ""
-		for k := 0; k < len(n); k++ {
-			acctrule += fmt.Sprintf("ASM(%d) %s %s %.2f", ra.ASMID, n[k].Action, n[k].Account, ra.Amount)
-			if k+1 < len(n) {
-				acctrule += ","
-			}
-		}
-		ra.AcctRule = acctrule
-		_, err := rlib.InsertReceiptAllocation(&ra)
-		if err != nil {
-			return rr, err
-		}
-		rr.RA = append(rr.RA, ra)
-	}
-
-	//------------------------------------------------------
-	// mark the old receipt as voided
-	//------------------------------------------------------
-	r.FLAGS |= rlib.RCPTvoid // mark that it is voided
-	if len(r.Comment) > 0 {
-		r.Comment += ", "
-	}
-	r.Comment += fmt.Sprintf("Reversed by receipt %s", rr.IDtoString())
-	err := rlib.UpdateReceipt(r)
-	return rr, err
 }
 
 // InsertReceipt adds a new receipt and updates the journal and ledgers

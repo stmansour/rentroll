@@ -438,25 +438,33 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	j := rlib.GetJournalByReceiptID(del.RCPTID)
-	rlib.GetJournalAllocations(&j)
-	for k := 0; k < len(j.JA); k++ {
-		m := rlib.GetLedgerEntriesByJAID(d.BID, j.JA[k].JAID)
-		for i := 0; i < len(m); i++ {
-			rlib.DeleteLedgerEntry(m[i].LEID)
-		}
-	}
-	rlib.DeleteJournalAllocations(j.JID)
-	rlib.DeleteJournal(j.JID)
-	if err := rlib.DeleteReceiptAllocations(del.RCPTID); err != nil {
+	rcpt := rlib.GetReceiptNoAllocations(del.RCPTID)
+	dt := time.Now()
+	err := bizlogic.ReverseReceipt(&rcpt, &dt)
+	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
-	if err := rlib.DeleteReceipt(del.RCPTID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
+	// j := rlib.GetJournalByReceiptID(del.RCPTID)
+	// rlib.GetJournalAllocations(&j)
+	// for k := 0; k < len(j.JA); k++ {
+	// 	m := rlib.GetLedgerEntriesByJAID(d.BID, j.JA[k].JAID)
+	// 	for i := 0; i < len(m); i++ {
+	// 		rlib.DeleteLedgerEntry(m[i].LEID)
+	// 	}
+	// }
+	// rlib.DeleteJournalAllocations(j.JID)
+	// rlib.DeleteJournal(j.JID)
+	// if err := rlib.DeleteReceiptAllocations(del.RCPTID); err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
+
+	// if err := rlib.DeleteReceipt(del.RCPTID); err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
 
 	SvcWriteSuccessResponse(w)
 }
