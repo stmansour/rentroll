@@ -588,21 +588,6 @@ function dateFromString(ds) {
 
     ds = ds.replace(/-/g,"\/").replace(/T.+/, ''); // first replace `/` with `-` and also remove `hh:mm:ss` value we don't need it
     return new Date(ds);
-
-    // var re = /^([0-9]{4})[-]([0-9]{2})[-]([0-9]{2})$/; // regex pattern to satisfy date pattern `yyyy/mm/dd`
-
-    // var valid = re.test(ds);
-    // // if datestring does not satisfy the pattern then simply return null
-    // if (!valid) {
-    //     return null;
-    // }
-
-    // // now execute regex pattern for the string
-    // var match = re.exec(ds);
-
-    // // get year, month, date value
-    // var y = match[1], m = match[2], d = match[3];
-    // return new Date(y, m-1, d); // month starts from 0 index so needs to substract by 1
 }
 
 //-----------------------------------------------------------------------------
@@ -619,8 +604,8 @@ function dateTodayStr() {
 
 //-----------------------------------------------------------------------------
 // dateFmtStr - return a string with the supplied date in the form d/m/yyyy
-// @params - date
-//
+// @params
+//    date
 // @return - formatted date string
 //-----------------------------------------------------------------------------
 function dateFmtStr(today) {
@@ -963,6 +948,29 @@ function genDateRangeNavigator(prefix) {
         { type: 'button', id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
     ];
     return tmp;
+}
+
+//-----------------------------------------------------------------------------
+// addDateNavToToolbar
+//          - Utility routine create add a date navigator to a toolbar
+// @params
+//   prefix = the w2ui grid control prefix name that follows the naming 
+//            convention:  prefix + 'Grid'
+// @return  <no return value>
+//-----------------------------------------------------------------------------
+function addDateNavToToolbar(prefix) {
+    "use strict";
+    var grid = w2ui[prefix+'Grid'];
+    grid.toolbar.add( genDateRangeNavigator(prefix) );
+    grid.toolbar.on('click', function(event) {
+        handleDateToolbarAction(event,prefix); // adjusts dates and loads into date controls
+        grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        grid.load(grid.url);
+    });
+    grid.toolbar.on('refresh', function (/*event*/) {
+        setDateControlsInToolbar(prefix);
+        grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+    });
 }
 
 //-----------------------------------------------------------------------------

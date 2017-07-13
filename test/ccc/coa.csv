@@ -26,7 +26,7 @@ CCC,Application Fees,41202,41200,Other Income,Income,0,active,Unassociated,,12/1
 CCC,Late Fees,41203,41200,Other Income,Income,0,active,Associated,,12/1/2015,yes,1,0,
 CCC,Insufficient Funds Fee,41204,41200,Other Income,Income,0,active,Associated,,12/1/2015,yes,0,0,
 CCC,Expense Reimbursement,41205,41200,Other Income,Income,0,active,Associated,,12/1/2015,yes,0,0,
-CCC,Forfeited Security Deposit,41206,41200,Other Income,Income,0,active,Associated,,12/1/2015,yes,2,0,
+CCC,Forfeited SecDep,41206,41200,Other Income,Income,0,active,Associated,,12/1/2015,yes,2,0,
 CCC,Damage Fee,41207,41200,Other Income,Income,0,active,Associated,,12/1/2015,yes,1,0,
 CCC,Other Miscellaneous Income,41299,41200,Other Income,Income,0,active,Associated,,12/1/2015,yes,1,0,
 CCC,Bad Debt,49992,,Other Income,Income,0,active,Associated,,12/1/2015,yes,0,0,

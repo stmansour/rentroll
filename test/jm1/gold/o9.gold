@@ -9,7 +9,7 @@ Austin, TX 78738 USA
                                                   Parent              
 GLNumber  Name                                   Balance       Balance
 --------  --------------------------------  ------------  ------------
-          Security Deposit Receivable               0.00              
+          Purge Me                                  0.00              
 10000     Cash                                               93,017.72
 10001     Cash BofA                                               0.00
 10100     Unapplied Funds                                         0.00
@@ -64,7 +64,7 @@ GLNumber  Name                                   Balance       Balance
 41410     Special Cleaning Fee                                    0.00
 41411     Eviction Fee Reimbursement                              0.00
 41412     Extra Person Charge                                     0.00
-41413     Forfeited Security Deposit                         -2,434.71
+41413     Forfeited SecDep                                   -2,434.71
 41414     Damage Fee                                              0.00
 41415     CAM Fees                                                0.00
 41499     Other Miscellaneous Income                              0.00

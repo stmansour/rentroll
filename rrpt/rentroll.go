@@ -136,11 +136,17 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 
 	totalsRSet := tbl.CreateRowset() // a rowset to sum for totals
 
+	// fmt.Printf("ON WITH THE LOOPS...\n")
 	for rows.Next() {
+		// fmt.Printf("LOOP 1\n")
 		var p rlib.Rentable
 		rlib.Errcheck(rlib.ReadRentables(rows, &p))
 		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2) // its RentableType is time sensitive
-
+		if len(p.RT) < 1 {
+			totalErrs++
+			rlib.Ulog("%s Error:  rentable %s (%d) type could not be found during range %s - %s\n", funcname, p.RentableName, p.RID, d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
+			continue
+		}
 		rtid := p.RT[0].RTID  // select its value at the beginning of this period
 		sqft := int64(0)      // assume no custom attribute
 		var usernames string  // this will be the list of renters
@@ -162,6 +168,7 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 		//------------------------------------------------------------------------------
 		rra := rlib.GetAgreementsForRentable(p.RID, d1, d2) // get all rental agreements for this period
 		for i := 0; i < len(rra); i++ {                     // for each rental agreement id
+			// fmt.Printf("LOOP 2\n")
 			ra, err := rlib.GetRentalAgreement(rra[i].RAID) // load the agreement
 			if err != nil {
 				totalErrs++
@@ -225,7 +232,7 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 			}
 
 			//-------------------------------------------------------------------------------------------------------
-			// Determine the LID of "Income Offsets" and "Other Income" accounts...
+			// Determine the LID of "Income Offsets" and "Other Income" accounts and their totals...
 			//-------------------------------------------------------------------------------------------------------
 			icos := float64(0)
 			incOffsetAcct := rlib.GetLIDFromGLAccountName(ri.Xbiz.P.BID, IncomeOffsetGLAccountName)
@@ -270,10 +277,22 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 			//-------------------------------------------------------------------------------------------------------
 			// Compute account balances...   begin, delta, and end for  RAbalance and Security Deposit
 			//-------------------------------------------------------------------------------------------------------
-			raStartBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d1)
-			raEndBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, ra.RAID, d2)
-			secdepStartBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d1)
-			secdepEndBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLSECDEP].LID, ra.RAID, d2)
+			rcvble := rlib.GetReceivableAccounts(ri.Xbiz.P.BID)
+			if len(rcvble) < 1 {
+				rlib.LogAndPrint("Could not find Receivables account for business %d\n", ri.Xbiz.P.BID)
+				return tbl
+			}
+			secdep := rlib.GetSecurityDepositsAccounts(ri.Xbiz.P.BID)
+			if len(secdep) < 1 {
+				rlib.LogAndPrint("Could not find Security Deposits account for business %d\n", ri.Xbiz.P.BID)
+				return tbl
+			}
+			// fmt.Printf("Found Receivables: %d\n", rcvble[0])
+			// fmt.Printf("Found Security Deposis: %d\n", secdep[0])
+			raStartBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rcvble[0], ra.RAID, d1)
+			raEndBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, rcvble[0], ra.RAID, d2)
+			secdepStartBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, secdep[0], ra.RAID, d1)
+			secdepEndBal := rlib.GetRAAccountBalance(ri.Xbiz.P.BID, secdep[0], ra.RAID, d2)
 
 			tbl.AddRow()
 			tbl.Puts(-1, RName, p.RentableName)

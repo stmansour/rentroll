@@ -127,7 +127,7 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt, cashAcctNo string) {
+func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt) {
 	funcname := "textPrintJournalReceipt"
 	// fmt.Printf("Entered: %s,   JID = %d, RCPTID = %d\n", funcname, j.JID, rcpt.RCPTID)
 	// The receipt has the payor TCID.  We get the payor name from the receipt
@@ -135,7 +135,7 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 	var ps string
 	if err := rlib.GetTransactant(rcpt.TCID, &t); err != nil {
 		// fmt.Printf("<< rcpt.TCID = %d   db err = %s>>\n", rcpt.TCID, err.Error())
-		// No transactant ID.  See if ther is an OtherPayor. If so use it, if not, get the payors associated with this journal entry...
+		// No transactant ID.  See if there is an OtherPayor. If so use it, if not, get the payors associated with this journal entry...
 		if len(rcpt.OtherPayorName) > 0 {
 			ps = rcpt.OtherPayorName
 		} else {
@@ -179,6 +179,16 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 
 	// PROCESS EVERY RECEIPT ALLOCATION IN OUR DATE RANGE...
 	for i := 0; i < len(rcpt.RA); i++ {
+		processThis := false // assume this Journal entry applies to this receipt allocation
+		for k := 0; k < len(j.JA); k++ {
+			if rcpt.RA[i].AcctRule == j.JA[k].AcctRule { // find the account rule that matches...
+				processThis = true
+				break
+			}
+		}
+		if !processThis { // this account rule is described by a different
+			continue
+		}
 		// first do a quick reject test -- only show those that happen in the time range of the report
 		rdt := rcpt.RA[i].Dt
 		if !((ri.D1.Equal(rdt) || ri.D1.Before(rdt)) && ri.D2.After(rdt)) {
@@ -186,12 +196,16 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		}
 		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
 		r := rlib.GetRentable(a.RID)
+		// if r.RID == 0 {
+		// 	rlib.LogAndPrint("%s: rcpt.RA[%d].RCPAID = %d, r.RID = 0, rcpt.RA[i].ASMID = %d, a.RID = %d\n", funcname, i, rcpt.RA[i].RCPAID, rcpt.RA[i].ASMID, a.RID)
+		// 	continue
+		// }
 		m := rlib.ParseAcctRule(ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
 		// printJournalSubtitle("\t" + rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		// fmt.Printf("rcpt.RA[i].ASMID = %d, a.ASMID = %d, a.RID = %d\n", rcpt.RA[i].ASMID, a.ASMID, a.RID)
-		if r.BID == 0 {
-			fmt.Printf("r.BID == 0:  r.RID = %d\n", r.RID)
-		}
+		// if r.BID == 0 {
+		// 	fmt.Printf("r.BID == 0:  r.RID = %d\n", r.RID)
+		// }
 		tbl.AddRow()
 		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		for k := 0; k < len(m); k++ {
@@ -207,10 +221,14 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 			}
 			// s := fmt.Sprintf("%d", a.RAID)
 			// printDatedJournalEntryRJ(l.Name, rcpt.Dt, s, r.RentableName, m[k].Account, amt)
+			rs := ""
+			if a.RAID > 0 {
+				rs = rlib.IDtoString("RA", a.RAID)
+			}
 			tbl.AddRow()
 			tbl.Puts(-1, 1, l.Name)
 			tbl.Putd(-1, 2, rcpt.Dt)
-			tbl.Puts(-1, 3, rlib.IDtoString("RA", a.RAID))
+			tbl.Puts(-1, 3, rs)
 			tbl.Puts(-1, 4, r.RentableName)
 			tbl.Puts(-1, 5, m[k].Account)
 			tbl.Putf(-1, 6, amt)
@@ -237,13 +255,17 @@ func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx
 		textPrintJournalUnassociated(tbl, ri.Xbiz, jctx, j)
 	case rlib.JNLTYPERCPT:
 		rcpt := rlib.GetReceipt(j.ID)
-		textPrintJournalReceipt(tbl, ri, jctx, j, &rcpt, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].DefaultAccts[rlib.GLCASH].GLNumber /*"10001"*/)
+		if rcpt.RCPTID == 0 {
+			rlib.LogAndPrint("Failed to get receipt for j.ID = %d,  j.JID = %d\n", j.ID, j.JID)
+			return
+		}
+		textPrintJournalReceipt(tbl, ri, jctx, j, &rcpt)
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)
 		textPrintJournalAssessment(tbl, jctx, ri.Xbiz, j, &a, &r, rentDuration, assessmentDuration)
 	default:
-		fmt.Printf("printJournalEntry: unrecognized type: %d\n", j.Type)
+		rlib.LogAndPrint("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}
 }
 

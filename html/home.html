@@ -24,17 +24,19 @@ sidebarL1     - w2ui sidebar
 
 <script>
 /*global
-    w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
-    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
-    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare, dateMonthBack,
+    w2ui, console, plural,setToRAForm, setToForm,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString,
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
-    getBUDfromBID, getPaymentTypeID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, asmFormRentablePickerRender, unallocAmountRemaining,
-    formRecDiffer, getFormSubmitData
+    getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
+    tcidReceiptPayorPickerRender, unallocAmountRemaining, asmFormRentablePickerRender,
+    addDateNavToToolbar,dateFromString, getBIDfromBUD, getPayorFund, refreshUnallocAmtSummaries,
+    getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer
 */
 
 /*globals $:false */
+"use strict";
 
 // The rentroll app object, used to manage app-level data.
 var app = {
@@ -111,7 +113,6 @@ var delete_confirm_options = {
 };
 
 function exportReportCSV(rptname){
-    "use strict";
     if (rptname === '') {
         return;
     }
@@ -139,7 +140,6 @@ function exportReportCSV(rptname){
 }
 
 function popupPDFCustomDimensions() {
-    "use strict";
     w2popup.open({
         title     : 'PDF custom width and height',
         body      : '<div class="w2ui-centered">' +
@@ -160,7 +160,6 @@ function popupPDFCustomDimensions() {
 }
 
 function saveCustomDims() {
-    "use strict";
     var width = parseFloat($("input[name='custom_pdf_width']").val());
     if (!isNaN(width)) {
         app.pdfPageWidth = width;
@@ -173,7 +172,6 @@ function saveCustomDims() {
 }
 
 function exportReportPDF(rptname){
-    "use strict";
     if (rptname === '') {
         return;
     }
@@ -203,7 +201,6 @@ function exportReportPDF(rptname){
 }
 
 function showReport(rptname, elToFocus) {
-    "use strict";
     if (rptname === '') {
         return;
     }
@@ -249,6 +246,13 @@ function ChangeBusiness() {
     // if same business value then nothing to do
     if (bizName === app.last.BUD) {
         return;
+
+    w2ui.toplayout.content('main', ' ');
+    w2ui.toplayout.hide('right',true);
+    var s = w2ui.sidebarL1;
+    var sel = s.selected;
+    if (sel !== null) {
+        s.unselect(sel);
     }
 
     var no_callBack = function() {
@@ -277,7 +281,6 @@ function ChangeBusiness() {
 }
 
 function switchToGrid(svc) {
-    "use strict";
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
     var url = '/v1/' + svc + '/' + x.value;
@@ -289,7 +292,6 @@ function switchToGrid(svc) {
 }
 
 function defineDateFmts() {
-    "use strict";
     var month = (new Date()).getMonth() + 1;
     var year  = (new Date()).getFullYear();
     // // US Format
@@ -312,7 +314,6 @@ function defineDateFmts() {
 }
 
 function openInNewTab(url) {
-    "use strict";
     var win = window.open(url, '_blank');
     win.focus();
 }
@@ -323,7 +324,6 @@ function openInNewTab(url) {
 // the dropdown lists prior to downloading their values. By doing it this way, we download
 // the lists first so that their values will be set by the server before we build the UI.
 function buildPageElements() {
-    "use strict";
     //------------------------------------------------------------------------
     //          mainlayout
     //------------------------------------------------------------------------
@@ -533,6 +533,12 @@ function buildPageElements() {
                         { id: 'rt',          text: plural(app.sRentableType),             icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                         { id: 'rentables',   text: 'Add/Modify ' + plural(app.sRentable), icon: 'fa fa-cube' },
                         { id: 'permissions', text: 'Permissions',                         icon: 'fa fa-thumbs-o-up' },
+                ]
+            },
+            { id: 'admin', text: 'Administrator', img: 'icon-wrench', expanded: true, group: true,
+                nodes: [
+                        { id: 'tws',    text: 'Timed Work Schedule', icon: 'fa fa-calendar' },
+                        { id: 'ledgers',text: 'Ledgers',             icon: 'fa fa-book' },
                 ]
             },
         ],
@@ -976,6 +982,7 @@ function buildPageElements() {
         show: {
             toolbar: false,
             header: true,
+            footer: false,
             toolbarReload   : false,
             toolbarColumns  : false,
             toolbarSearch   : false,
@@ -985,7 +992,6 @@ function buildPageElements() {
             searchAll: false,
             toolbarSave: false,
             toolbarEdit: false,
-            footer: false,
             searches: false,
             lineNumbers: false,
             selectColumn: false,
@@ -1000,6 +1006,7 @@ function buildPageElements() {
             { field: 'AmountOwed', render: 'money', caption: 'Amount Owed', size: '100px' },
             { field: 'ARID', hidden: true },
             { field: 'ASMID', hidden: true },
+            // INDEX 8 is Dt. If this changes, then the id reference to it must change in the onChange handler below
             { field: 'Dt', render: 'date', caption: 'Payment Date', size: '100px', style: 'text-align: right', editable: {type: 'date'}},
             { field: 'Allocate', render: 'money', caption: 'Allocate Amount', size: '110px', editable: {type: 'float'}},
         ],
@@ -1022,6 +1029,15 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.onComplete = function() {
+                if (event.input_id == "grid_unpaidASMsGrid_edit_0_8") {  // if the date changes, don't mess up anything else...
+                    for (var i = 0; i < w2ui.unpaidASMsGrid.records.length; i++) {
+                        if ( event.recid == w2ui.unpaidASMsGrid.records[i].recid ) {
+                            w2ui.unpaidASMsGrid.records[i].Dt = event.value_new;
+                            return;
+                        }
+                    }
+                    return;
+                }
                 var tgrid = w2ui.unpaidASMsGrid;
                 var c = w2ui[event.target].getChanges();
                 var total_fund = parseFloat($("#total_fund_amount").attr("data-fund")).toFixed(2);
@@ -1244,10 +1260,10 @@ function buildPageElements() {
             { field: "Status", required: true, type: 'list', options: { items: app.account_stuff.statusList, selected: {}, maxDropHeight: 350 }, html: { caption: "Status", page: 0, column: 0 } },
             { field: "Type", required: true, type: 'list', options: { items: app.account_stuff.typeList, selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
-            { field: "AcctType", required: false, type: 'text', html: { caption: "QB Accountt Type", page: 0, column: 0 } },
-            { field: "RAAssociated", required: true, type: 'list', options: { items: app.account_stuff.RAAssociatedList, selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
-            { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
-            { field: "ManageToBudget", required: true, type: 'list', options: { items: app.manageToBudgetList, selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
+            { field: "AcctType", required: true, type: 'list', options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "QB Account Type", page: 0, column: 0 } },
+            { field: "RAAssociated", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
+            { field: "AllowPost", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
+            { field: "ManageToBudget", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
@@ -1363,6 +1379,7 @@ function buildPageElements() {
                 f.get("Status").options.selected = r.Status; // items are pre-defined, just give the value
                 f.get("Type").options.selected = r.Type; // items are pre-defined, just give the value
                 f.get("PLID").options.selected = PLIDSel; // items are NOT pre-defined, so give the object
+                f.get("AcctType").options.selected = r.AcctType; // items are pre-defined, just give the value
 
                 formRefreshCallBack(f, "LID", header);
             };
@@ -3159,19 +3176,8 @@ function buildPageElements() {
         },
     });
 
-    //---------------------------------------------------------------------------------------
-    //  Add a date range navigator to this view...
-    //---------------------------------------------------------------------------------------
-    w2ui.receiptsGrid.toolbar.add( genDateRangeNavigator('receipts') );
-    w2ui.receiptsGrid.toolbar.on('click', function(event) {
-        handleDateToolbarAction(event,'receipts'); // adjusts dates and loads into date controls
-        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.receiptsGrid.load(w2ui.receiptsGrid.url);
-    });
-    w2ui.receiptsGrid.toolbar.on('refresh', function (/*event*/) {
-        setDateControlsInToolbar('receipts');
-        w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-    });
+    addDateNavToToolbar('receipts');
+
     // bind onchange event for date input control for receipts
     $(document).on("keypress", "input[name=receiptsD1]", function(e) {
         // do not procedd further untill user press the Enter key
@@ -3371,12 +3377,13 @@ function buildPageElements() {
                 f.get("PmtTypeName").options.selected = getPaymentType(BUD, r.PMTID);
                 f.get("ARID").options.items = app.Receipts[BUD];
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
+                // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
                 formRefreshCallBack(f, "RCPTID", header);
             };
         },
         onValidate: function (event) {
-            if (this.record.Amount == 0.0) {
+            if (this.record.Amount === 0.0) {
                 event.errors.push({
                     field: this.get('Amount'),
                     error: 'Amount must be something other than $0.00'
@@ -3563,8 +3570,8 @@ function buildPageElements() {
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'ARID', caption: 'ARID',  hidden: true, sortable: false},
-            {field: 'Start', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
-            {field: 'Stop', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Start', caption: 'Start Date', size: '80px', sortable: true, style: 'text-align: right'},
+            {field: 'Stop', caption: 'Stop Date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'RentCycle', caption: 'RentCycle',  hidden: true, sortable: false},
             {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
@@ -3709,16 +3716,8 @@ function buildPageElements() {
         }
     });
 
-    w2ui.asmsGrid.toolbar.add( genDateRangeNavigator('asms') );
-    w2ui.asmsGrid.toolbar.on('click', function(event) {
-        handleDateToolbarAction(event,'asms'); // adjusts dates and loads into date controls
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url);
-    });
-    w2ui.asmsGrid.toolbar.on('refresh', function (/*event*/) {
-        setDateControlsInToolbar('asms');
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-    });
+    addDateNavToToolbar('asms');
+
     // bind onchange event for date input control for assessments
     $(document).on("keypress", "input[name=asmsD1]", function(e) {
         // do not procedd further untill user press the Enter key
@@ -3803,6 +3802,7 @@ function buildPageElements() {
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
+            { field: 'ExpandPastInst',type: 'hidden', required: false },
         ],
         toolbar: {
             items: [
@@ -3823,6 +3823,18 @@ function buildPageElements() {
                 }
             },
         },
+        onRefresh: function(/*event*/) {
+            var f = w2ui.asmEpochForm;
+            var r = f.record;
+            if (r.ASMID) {
+                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")";
+                isNewFormRecord(f.name, false);
+            }
+            else {
+                f.header = "Edit" + app.sAssessment + " (new)";
+                isNewFormRecord(f.name, true);
+            }
+        },
         onValidate: function (event) {
             if (this.record.ARID.id === 0) {
                 event.errors.push({
@@ -3839,7 +3851,15 @@ function buildPageElements() {
         },
         actions: {
             save: function () {
-                //var obj = this;
+                // if (this.record.RentCycle.text != "Norecur") {
+                //     var s1 = dateFromString(this.record.Start);
+                //     var DtStart = Date.parse(y);
+                //     var y = new Date();
+                //     if (DtStart <  y) {
+                //         // enable the checkbox.
+                //     }
+                // }
+
                 var x = getCurrentBusiness();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
                 var tgrid = w2ui.asmsGrid;
@@ -3897,6 +3917,24 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.onComplete = function() {
+                if (event.target == "Start") {
+                    var x = document.getElementsByName('ExpandPastInst')[0];
+                    if (this.record.RentCycle.text != "norecur") {
+                        var DtStart = dateFromString(event.value_new);
+                        var y = new Date();
+                        x.checked = (DtStart <  y);
+                    } else {
+                        x.checked = false;
+                    }
+                }
+                if (event.target == "RentCycle") {
+                    if (event.value_new.text == "Norecur") {
+                        w2ui.asmEpochForm.record.RentCycle = event.value_new;
+                        w2ui.asmEpochForm.record.ProrationCycle = {id: "Norecur", text: "Norecur"};
+                        w2ui.asmEpochForm.render();
+                    }
+                }
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
@@ -4078,11 +4116,12 @@ function buildPageElements() {
             { field: 'pickedName', required: true,
                 type: 'enum',
                 options: {
-                    url:        '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
-                    max:        1,
-                    renderItem: tcidRAPayorPickerRender,
-                    renderDrop: tcidPickerDropRender,
-                    compare:    tcidPickerCompare,
+                    url:           '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRAPayorPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
@@ -4125,11 +4164,12 @@ function buildPageElements() {
             { field: 'pickedName', required: true,
                 type: 'enum',
                 options: {
-                    url:        '/v1/transactantstd/' + app.TcidRUserPicker.BID,
-                    max:        1,
-                    renderItem: tcidRUserPickerRender,
-                    renderDrop: tcidPickerDropRender,
-                    compare:    tcidPickerCompare,
+                    url:           '/v1/transactantstd/' + app.TcidRUserPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRUserPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
                     onNew: function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { FirstName: '', LastName : event.item.text });
@@ -4175,13 +4215,14 @@ function buildPageElements() {
             { field: 'RentableName', required: true,
                 type: 'enum',
                 options: {
-                    url:        '/v1/rentablestd/' + app.ridRentablePicker.BID,
-                    max:        1,
-                    cacheMax:   50,
-                    renderItem: ridRentablePickerRender,
-                    renderDrop: ridRentableDropRender,
-                    compare:    ridRentableCompare,
-                    onNew: function (event) {
+                    url:           '/v1/rentablestd/' + app.ridRentablePicker.BID,
+                    max:           1,
+                    cacheMax:      50,
+                    maxDropHeight: 350,
+                    renderItem:    ridRentablePickerRender,
+                    renderDrop:    ridRentableDropRender,
+                    compare:       ridRentableCompare,
+                    onNew:         function (event) {
                         //console.log('++ New Item: Do not forget to submit it to the server too', event);
                         $.extend(event.item, { RentableName : event.item.text });
                     }
@@ -4208,7 +4249,7 @@ function buildPageElements() {
 
 
     //------------------------------------------------------------------------
-    //          rentalAgrFinder
+    //          rental Agreement Finder
     //------------------------------------------------------------------------
     $().w2form({
         name: 'rentalAgrFinder',
@@ -4222,7 +4263,8 @@ function buildPageElements() {
                 type: 'enum',
                 options: {
                     url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
-                    // max:        1,
+                    // max:     1,
+                    maxDropHeight: 350,
                     renderItem: rentalAgrFinderRender,
                     renderDrop: rentalAgrFinderDropRender,
                     compare:    rentalAgrFinderCompare,
@@ -4234,15 +4276,14 @@ function buildPageElements() {
             },
             // INDEX 2
             { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
-            { field: 'RAID', type: 'int', required: true },
-            { field: 'FirstName', type: 'text', required: false},
-            { field: 'LastName', type: 'text', required: false},
-            { field: 'CompanyName', type: 'text', required: false},
-            { field: 'IsCompany', type: 'int', required: false },
+            { field: 'RAID',         type: 'int',  required: true  },
+            { field: 'FirstName',    type: 'text', required: false },
+            { field: 'LastName',     type: 'text', required: false },
+            { field: 'CompanyName',  type: 'text', required: false },
+            { field: 'IsCompany',    type: 'int',  required: false },
         ],
         onRefresh: function(/*event*/) {
             w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
-
             w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
             if (app.RentalAgrFinder.RARentablesNames.length == 1) {
                 w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];
@@ -4265,7 +4306,7 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          pmtsGrid
+    //          payment types Grid
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'pmtsGrid',
@@ -4521,7 +4562,7 @@ function buildPageElements() {
     });
 
     //------------------------------------------------------------------------
-    //          depGrid
+    //          depository Grid
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'depGrid',
@@ -5104,11 +5145,110 @@ function buildPageElements() {
         }
     });
 
+
+    //------------------------------------------------------------------------
+    //          twsGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'twsGrid',
+        url: '/v1/tws',
+        multiSelect: false,
+        show: {
+            header: false,
+            toolbar: true,
+            footer: true,
+            toolbarReload   : true,
+            toolbarColumns  : false,
+            toolbarSearch   : false,
+            toolbarAdd      : false,
+            toolbarDelete   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarSave     : false,
+            toolbarEdit     : false,
+            searches        : false,
+            lineNumbers     : false,
+            selectColumn    : false,
+            expandColumn    : false,
+        },
+        columns: [
+            {field: 'recid',        caption: "recid",            size: '35px',  sortable: true, hidden: true},
+            {field: 'TWSID',        caption: "TWSID",            size: '55px',  sortable: true, hidden: false},
+            {field: 'Owner',        caption: "Owner",            size: '125px', sortable: true, hidden: false},
+            {field: 'OwnerData',    caption: "Owner Data",       size: '20px',  sortable: true, hidden: true},
+            {field: 'WorkerName',   caption: "WorkerName",       size: '125px', sortable: true, hidden: false},
+            {field: 'ActivateTime', caption: "Activate Time",    size: '158px', sortable: true, hidden: false},
+            {field: 'RemainingTime', caption: "Activates in...", size: '158px', sortable: true, hidden: false},
+            {field: 'Node',         caption: "Node",             size: '100px', sortable: true, hidden: false},
+            {field: 'FLAGS',        caption: "FLAGS",            size: '50px',  sortable: true, hidden: false},
+            {field: 'DtActivated',  caption: "DtActivated",      size: '158px', sortable: true, hidden: false},
+            {field: 'DtCompleted',  caption: "DtCompleted",      size: '158px', sortable: true, hidden: false},
+            {field: 'DtCreate',     caption: "DtCreate",         size: '158px', sortable: true, hidden: false},
+            {field: 'DtLastUpdate', caption: "DtLastUpdate",     size: '158px', sortable: true, hidden: false},
+        ],
+        // onClick: function(event) {
+        //     event.onComplete = function () {
+        //         app.new_form_rec = false;
+        //         var rec = this.get(event.recid);
+        //         setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
+        //      };
+        // },
+    });
+
+    //------------------------------------------------------------------------
+    //          ledger grid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'ledgersGrid',
+        url: '/v1/ledgers',
+        multiSelect: false,
+        show: {
+            header: false,
+            toolbar: true,
+            footer: true,
+            toolbarReload   : true,
+            toolbarColumns  : false,
+            toolbarSearch   : false,
+            toolbarAdd      : false,
+            toolbarDelete   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarSave     : false,
+            toolbarEdit     : false,
+            searches        : false,
+            lineNumbers     : false,
+            selectColumn    : false,
+            expandColumn    : false,
+        },
+        columns: [
+            {field: 'recid',     caption: "recid",         size: '35px',  sortable: true, hidden: true},
+            {field: 'LID',       caption: "LID",           size: '55px',  sortable: true, hidden: false},
+            {field: 'GLNumber',  caption: "GLNumber",      size: '85px',  sortable: true, hidden: false},
+            {field: 'Name',      caption: "Name",          size: '225px', sortable: true, hidden: false},
+            {field: 'Active',    caption: "Active",        size: '50px',  sortable: true, hidden: false},
+            {field: 'AllowPost', caption: "Allow<br>Post", size: '50px',  sortable: true, hidden: false},
+            {field: 'Balance',   caption: "Balance",       size: '100px', sortable: true, hidden: false, render: 'money'},
+            {field: 'LMDate',    caption: "LM Date",       size: '170px', sortable: true, hidden: false},
+            {field: 'LMState',   caption: "LM<br>State",   size: '50px',  sortable: true, hidden: false},
+            {field: 'LMAmount',  caption: "LM Amount",     size: '100px', sortable: true, hidden: false, render: 'money'},
+        ],
+        onRequest: function(/*event*/) {
+            w2ui.ledgersGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        },
+        // onClick: function(event) {
+        //     event.onComplete = function () {
+        //         app.new_form_rec = false;
+        //         var rec = this.get(event.recid);
+        //         setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
+        //      };
+        // },
+    });
+    addDateNavToToolbar('ledgers');
+
 }  // buildPageElements
 
 
 function saveNewRAPayor() {
-    "use strict";
 
     var rec = {
         recid: w2ui.rapGrid.records.length,                 // + 1
@@ -5147,7 +5287,6 @@ function saveNewRAPayor() {
 }
 
 function popupTcidRAPayorPicker(sTitle,bid) {
-    "use strict";
     app.TcidRAPayorPicker = {BID: bid, Title: sTitle};  // used by tcidRAPayorPicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -5185,7 +5324,6 @@ function popupTcidRAPayorPicker(sTitle,bid) {
 }
 
 function popupRidRentablePicker(sTitle,bid) {
-    "use strict";
     app.ridRentablePicker = {BID: bid, Title: sTitle};  // used by RidRentablePicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -5222,7 +5360,6 @@ function popupRidRentablePicker(sTitle,bid) {
 }
 
 function saveNewRUser() {
-    "use strict";
 
     var myRID = -1;
     var rname = w2ui.tcidRUserPicker.record.RentableName.text;
@@ -5275,7 +5412,6 @@ function saveNewRUser() {
 }
 
 function saveNewRARentable() {
-    "use strict";
     var rec = {
         recid: 0,                                                   // new
         BUI: w2ui.rentalagrForm.record.BID.text,                         // BID of RID we're editing
@@ -5314,7 +5450,6 @@ function saveNewRARentable() {
 }
 
 function popupTcidRUserPicker(sTitle,bid,raid) {
-    "use strict";
     app.TcidRUserPicker = {BID: bid, Title: sTitle, RAID: raid, RARentablesNames: [], RAR: []};  // used by tcidRUserPicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -5362,7 +5497,6 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
 }
 
 function popupRentalAgrPicker() {
-    "use strict";
     var x = getCurrentBusiness();
     app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []};
     app.RentalAgrFinder.RARentablesNames = [{id: 0, text:" "}];
@@ -5403,7 +5537,6 @@ function popupRentalAgrPicker() {
 }
 
 function createRentalAgreementForm() {
-    "use strict";
     w2ui.raLayout.content('left', w2ui.rentalagrForm);
     w2ui.raLayout.content('main', w2ui.raLayoutSub1);
 
@@ -5421,7 +5554,6 @@ function createRentalAgreementForm() {
 
 
 function finishInitialization() {
-    "use strict";
     defineDateFmts();
     buildPageElements();
     createRentalAgreementForm();
@@ -5433,7 +5565,6 @@ function finishInitialization() {
 }
 
 $(function () {
-    "use strict";
     $.get('/v1/uilists/' + app.language + '/' + app.template)
     .done(function(data, textStatus, jqXHR) {
 

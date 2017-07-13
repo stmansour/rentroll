@@ -422,7 +422,7 @@ UPDATE GLAccount SET GLNumber="11001" WHERE Name = "General Accounts Receivable"
 UPDATE GLAccount SET GLNumber="40001" WHERE Name = "Gross Scheduled Rent";
 UPDATE GLAccount SET GLNumber="41004" WHERE Name = "Loss to Lease";
 UPDATE GLAccount SET GLNumber="41001" WHERE Name = "Vacancy";
-UPDATE GLAccount SET GLNumber="11002" WHERE Name = "Security Deposit Receivable";
+UPDATE GLAccount SET GLNumber="11002" WHERE Name = "Purge Me Acct";
 UPDATE GLAccount SET GLNumber="23000" WHERE Name = "Security Deposit Assessment";
 UPDATE GLAccount SET GLNumber="20001" WHERE Name = "Owner Equity";
 

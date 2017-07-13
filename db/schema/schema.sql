@@ -880,7 +880,7 @@ CREATE TABLE Receipt (
     AcctRuleReceive VARCHAR(215) NOT NULL DEFAULT '',           --
     ARID BIGINT NOT NULL DEFAULT 0,                             -- identifies the account rule used on Receipt
     AcctRuleApply VARCHAR(2048) NOT NULL DEFAULT '',            -- How the funds will be applied
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated, bit 2 = VOID THIS RECEIPT
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
@@ -1141,33 +1141,3 @@ CREATE TABLE LedgerMarkerAudit (
     ModTime TIMESTAMP                           -- timestamp of change
 );
 
-
--- **************************************
--- ****                              ****
--- ****        INITIALIZATION        ****
--- ****                              ****
--- **************************************
--- ----------------------------------------------------------------------------------------
---    LEDGERs  - These define the required ledgers
--- ----------------------------------------------------------------------------------------
--- INSERT INTO GLAccount (BID,RAID,GLNumber,Status,Type,Name) VALUES
---     (1,0,"",2,10,"Bank Account"),                   -- 1
---     (1,0,"",2,11,"General Accounts Receivable"),    -- 2
---     (1,0,"",2,12,"Gross Scheduled Rent"),           -- 3
---     (1,0,"",2,13,"Loss to Lease"),                  -- 4
---     (1,0,"",2,14,"Vacancy"),                        -- 5
---     (1,0,"",2,15,"Security Deposit Receivable"),    -- 6
---     (1,0,"",2,16,"Security Deposit Assessment"),    -- 7
---     (1,0,"",2,17,"Owner Equity");                   -- 8
--- -- ----------------------------------------------------------------------------------------
--- --    LEDGERs MARKERS - These define the required ledgers
--- -- ----------------------------------------------------------------------------------------
--- INSERT INTO LedgerMarker (BID,LID,State,Dt,Balance) VALUES
---     (1,1,3,"2015-10-31",0.0),
---     (1,2,3,"2015-10-31",0.0),
---     (1,3,3,"2015-10-31",0.0),
---     (1,4,3,"2015-10-31",0.0),
---     (1,5,3,"2015-10-31",0.0),
---     (1,6,3,"2015-10-31",0.0),
---     (1,7,3,"2015-10-31",0.0),
---     (1,8,3,"2015-10-31",0.0);

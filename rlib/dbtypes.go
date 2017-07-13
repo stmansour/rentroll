@@ -743,7 +743,7 @@ type Receipt struct {
 	AcctRuleReceive string    // Account rule to apply on the receipt of this payment -- essentially - bank account and unapplied funds
 	ARID            int64     // User selected rule
 	AcctRuleApply   string    // how the funds are applied to assessments
-	FLAGS           uint64    // bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated
+	FLAGS           uint64    // bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated, bit 2 = VOID this receipt
 	Comment         string    // any notes on this receipt
 	OtherPayorName  string    // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime     time.Time
@@ -1070,7 +1070,7 @@ type LedgerMarker struct {
 	TCID        int64     // if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
 	Dt          time.Time // Balance is valid as of this time
 	Balance     float64   // GLAccount balance at the end of the period
-	State       int64     // 0 = unknown, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
+	State       int64     // 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod
 	CreateTS    time.Time // when was this record created
@@ -1434,6 +1434,7 @@ type RRprepSQL struct {
 	GetAllRentableStatus                 *sql.Stmt
 	GetRentalAgreementTypeDown           *sql.Stmt
 	GetLedgerEntriesByJAID               *sql.Stmt
+	GetLedgersForGrid                    *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

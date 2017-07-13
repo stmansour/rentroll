@@ -52,7 +52,7 @@ REX,Expense Reimbursement,41409,41400,Other Income,Income,0,active,Associated,,1
 REX,Special Cleaning Fee,41410,41400,Other Income,Income,0,active,Associated,,12/1/16,yes,0,0,
 REX,Eviction Fee Reimbursement,41411,41400,Other Income,Income,0,active,Associated,,12/1/16,yes,1,0,
 REX,Extra Person Charge,41412,41400,Other Income,Income,0,active,Associated,,12/1/16,yes,0,0,
-REX,Forfeited Security Deposit,41413,41400,Other Income,Income,0,active,Associated,,12/1/16,yes,2,0,
+REX,Forfeited SecDep,41413,41400,Other Income,Income,0,active,Associated,,12/1/16,yes,2,0,
 REX,Damage Fee,41414,41400,Other Income,Income,0,active,Associated,,12/1/16,yes,1,0,
 REX,CAM Fees,41415,,Other Income,Income,,active,Associated,,12/1/16,yes,1,0,
 REX,Other Miscellaneous Income,41499,41400,Other Income,Income,0,active,Associated,,12/1/16,yes,1,0,

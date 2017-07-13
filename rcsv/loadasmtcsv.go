@@ -245,7 +245,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	}
 
 	// process this new assessment over the requested time range...
-	rlib.ProcessJournalEntry(&a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop)
+	rlib.ProcessJournalEntry(&a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, false)
 
 	return 0, nil
 }

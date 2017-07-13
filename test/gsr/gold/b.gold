@@ -8,7 +8,7 @@ Austin, TX 78738 USA
                                                                                                                Agreement     Agreement                           
 GLNumber  Name                                      Parent                               Account Type          Associated     Required  Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  -------------------------
-          Security Deposit Receivable                                                                          unknown              No                           
+          Purge Me                                                                                             unknown              No                           
    10000  Cash                                                                           Bank Account          Associated          Yes  Main cash account        
    10001  Cash BofA                                                                      Bank Account          Associated           No                           
    10100  Unapplied Funds                                                                Holding Account       Associated          Yes  Holding account          
@@ -63,7 +63,7 @@ GLNumber  Name                                      Parent                      
    41410  Special Cleaning Fee                      Miscellaneous Income                 Income                Unassociated         No                           
    41411  Eviction Fee Reimbursement                Miscellaneous Income                 Income                Unassociated        Yes                           
    41412  Extra Person Charge                       Miscellaneous Income                 Income                Unassociated         No                           
-   41413  Forfeited Security Deposit                Miscellaneous Income                 Income                Unassociated        Yes                           
+   41413  Forfeited SecDep                          Miscellaneous Income                 Income                Unassociated        Yes                           
    41414  Damage Fee                                Miscellaneous Income                 Income                Unassociated        Yes                           
    41415  CAM Fees                                                                       Income                Unassociated        Yes                           
    41499  Other Miscellaneous Income                Miscellaneous Income                 Income                Unassociated        Yes                           

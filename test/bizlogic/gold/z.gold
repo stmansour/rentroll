@@ -1,5 +1,5 @@
 PARENT ACCOUNT LIST
-0.  (Security Deposit Receivable)
+0.  (Purge Me Acct)
 1. 10000 (Cash Accounts)
 2. 10100 (Petty Cash)
 3. 10105 (FRB Tenant Deposits )
@@ -25,7 +25,7 @@ PARENT ACCOUNT LIST
 23. 73000 (Rental Expense)
 
 POST ACCOUNT LIST
-0.  (Security Deposit Receivable)
+0.  (Purge Me Acct)
 1. 10100 (Petty Cash)
 2. 10104 (FRB Operating)
 3. 10105 (FRB Tenant Deposits )

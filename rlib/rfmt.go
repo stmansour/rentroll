@@ -207,6 +207,12 @@ func StringToDate(s string) (time.Time, error) {
 	return Dt, err
 }
 
+// DateAtTimeZero returns the supplied date at time 0 UTC of its day,month,year
+func DateAtTimeZero(d time.Time) time.Time {
+	d1 := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+	return d1
+}
+
 // IncMonths enables arithmetic operations on months. Returns
 // two values =  years & months.
 // @params
@@ -219,6 +225,19 @@ func IncMonths(m time.Month, n int64) (time.Month, int64) {
 	mo = mo % int64(12)
 	m = time.Month(mo + 1)
 	return m, y
+}
+
+// GetMonthPeriodForDate is used to get the containing month start and end dates for the
+// supplied date.  That is, if a = Jul 13, 2017, the return values will be 2017-JUL-01 and
+// 2017-AUG-01.
+// INPUTS  -  a = any datetime
+// RETURNS    d1 = first day 00:00:00 of the month of a
+//            d2 = first day 00:00:00 of the month after a
+func GetMonthPeriodForDate(a *time.Time) (time.Time, time.Time) {
+	d1 := time.Date(a.Year(), a.Month(), 1, 0, 0, 0, 0, RRdb.Zone)
+	mon, inc := IncMonths(a.Month(), int64(1))
+	d2 := time.Date(int(inc)+a.Year(), mon, 1, 0, 0, 0, 0, RRdb.Zone)
+	return d1, d2
 }
 
 // StringToInt simply converts string to int and returns it with ok flag

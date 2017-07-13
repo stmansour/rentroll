@@ -7,7 +7,7 @@ L00000001                            Bank Account FRB 2332352       10001       
 L00000010                 MasterCard/VISA 38992355 in Process       10004          0.00
 L00000011                       Discover 883523553 In Process       10005          0.00
 L00000002                         General Accounts Receivable       11001          0.00
-L00000006                         Security Deposit Receivable       11002          0.00
+L00000006                         Purge Me Acct       11002          0.00
 L00000009                American Express 93892335 In Process       11003          0.00
 L00000008                                        Owner Equity       20001          0.00
 L00000007                         Security Deposit Assessment       23000      1,000.00

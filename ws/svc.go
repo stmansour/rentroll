@@ -11,6 +11,7 @@ import (
 	"rentroll/rlib"
 	"strings"
 	"time"
+	"tws"
 )
 
 // SvcGridError is the generalized error structure to return errors to the grid widget
@@ -131,40 +132,42 @@ type ServiceData struct {
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
-	{"allocfunds", SvcSearchHandlerAllocFunds, true},
-	{"unpaidasms", SvcHandlerGetUnpaidAsms, true},
-	{"payorfund", SvcHandlerTotalUnallocFund, true},
-	{"accounts", SvcSearchHandlerGLAccounts, true},
 	{"account", SvcFormHandlerGLAccounts, true},
-	{"ar", SvcFormHandlerAR, true},
 	{"accountlist", SvcAccountsList, true},
-	{"parentaccounts", SvcParentAccountsList, true},
-	{"postaccounts", SvcPostAccountsList, true},
+	{"accounts", SvcSearchHandlerGLAccounts, true},
+	{"allocfunds", SvcSearchHandlerAllocFunds, true},
+	{"ar", SvcFormHandlerAR, true},
 	{"ars", SvcSearchHandlerARs, true},
 	{"asm", SvcFormHandlerAssessment, true},
 	{"asms", SvcSearchHandlerAssessments, true},
 	{"dep", SvcHandlerDepository, true},
-	{"pmts", SvcHandlerPaymentType, true},
+	{"ledgers", getLedgerGrid, true},
+	{"parentaccounts", SvcParentAccountsList, true},
+	{"payorfund", SvcHandlerTotalUnallocFund, true},
 	{"person", SvcFormHandlerXPerson, true},
 	{"ping", SvcHandlerPing, true},
+	{"pmts", SvcHandlerPaymentType, true},
+	{"postaccounts", SvcPostAccountsList, true},
 	{"rapayor", SvcRAPayor, true},
 	{"rapets", SvcRAPets, true},
 	{"rar", SvcRARentables, true},
-	{"rtlist", SvcRentableTypesTD, true},
-	{"rt", SvcHandlerRentableType, true},
 	{"receipt", SvcFormHandlerReceipt, true},
 	{"receipts", SvcSearchHandlerReceipts, true},
 	{"rentable", SvcFormHandlerRentable, true},
 	{"rentables", SvcSearchHandlerRentables, true},
 	{"rentablestd", SvcRentableTypeDown, true},
 	{"rentalagr", SvcFormHandlerRentalAgreement, true},
-	{"rentalagrtd", SvcRentalAgreementTypeDown, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
+	{"rentalagrtd", SvcRentalAgreementTypeDown, true},
+	{"rt", SvcHandlerRentableType, true},
+	{"rtlist", SvcRentableTypesTD, true},
 	{"ruser", SvcRUser, true},
 	{"transactants", SvcSearchHandlerTransactants, true},
 	{"transactantstd", SvcTransactantTypeDown, true},
+	{"tws", SvcTWS, true},
 	{"uilists", SvcUILists, false},
 	{"uival", SvcUIVal, false},
+	{"unpaidasms", SvcHandlerGetUnpaidAsms, true},
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -266,6 +269,26 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 // see if it is alive and taking requests. It will return its version number.
 func SvcHandlerPing(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Fprintf(w, "Accord Rentroll - Version %s\n", GetVersionNo())
+}
+
+// SvcTWS returns a grid representation of the TWS table
+// wsdoc {
+//  @Title Timed Work Schedule
+//  @URL /v1/tws
+//  @Method  POST
+//  @Synopsis Get the contents of the TWS table
+//  @Description The TWS table shows all timed work currently scheduled
+//  @Input WebGridSearchRequest
+//  @Response tws.GridTable
+// wsdoc }
+func SvcTWS(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	funcname := "SvcTWS"
+	g, err := tws.WSGridData(d.wsSearchReq.Limit, d.wsSearchReq.Offset)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	SvcWriteResponse(&g, w)
 }
 
 func getBIDfromBUI(s string) (int64, error) {

@@ -19,5 +19,5 @@ GLNumber  Name                                      Parent                      
    41104  Resident Concessions                      Income Offsets                       Income                Unassociated         No                           
    41300  Other Income                                                                   Income                Unassociated         No                           
    41306  Gas Overage                               Other Income                         Income                Unassociated        Yes                           
-   41413  Forfeited Security Deposit                                                     Income                Unassociated        Yes                           
+   41413  Forfeited SecDep                                                               Income                Unassociated        Yes                           
 

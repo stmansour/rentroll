@@ -1,7 +1,7 @@
 BUD,Name,GLNumber,Parent GLNumber,Collective,Account Type,Balance,Account Status,Associated,Type,Date,Allow Posting,RARequired,Manage To Budget,Description
 REX,Bank Account FRB 2332352,10001,,,bank,0,active,Associated,10,4/1/16,yes,0,0,
 REX,General Accounts Receivable,11001,,,Accounts Receivable,0,active,Associated,11,4/1/16,yes,0,0,
-REX,Security Deposit Receivable,11002,,,Accounts Receivable,0,active,Associated,15,4/1/16,yes,2,0,
+REX,Forfeited SecDep,11002,,,Accounts Receivable,0,active,Associated,15,4/1/16,yes,2,0,
 REX,Alternate Receivables System,11003,,,Accounts Receivable,0,active,Associated,,4/1/16,yes,0,0,
 REX,American Express 93892335 In Process,11004,,,Accounts Receivable,0,active,Associated,,4/1/16,yes,0,0,
 REX,MasterCard/VISA 38992355 in Process,11005,,,Accounts Receivable,0,active,Associated,,4/1/16,yes,0,0,
