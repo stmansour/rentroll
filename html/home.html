@@ -25,14 +25,17 @@ sidebarL1     - w2ui sidebar
 <script>
 /*global
     w2ui, console, plural,setToRAForm, setToForm,
-    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString,dateMonthFwd,
     tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
-    getBUDfromBID, buildPaymentTypeOptions, getPaymentTypeID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, unallocAmountRemaining, asmFormRentablePickerRender,
-    addDateNavToToolbar,dateFromString, getBIDfromBUD, getPayorFund, refreshUnallocAmtSummaries,
-    getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer
+    getBUDfromBID, getPaymentTypeID, buildPaymentTypeSelectList,
+    tcidReceiptPayorPickerRender, unallocAmountRemaining,
+    addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
+    getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
+    form_dirty_alert, _unAllocRcpts, w2confirm,getRentableTypes,getPersonDetailsByTCID,
+    tcidRUserPickerRender,rentalAgrFinderRender,rentalAgrFinderDropRender,rentalAgrFinderCompare,
+    getAccountsList,getPostAccounts,int_to_bool,
 */
 
 /*globals $:false */
@@ -239,13 +242,13 @@ function showReport(rptname, elToFocus) {
 // is embedded in a string defining the OnClick handler for a button
 // in the main toolbar.
 function ChangeBusiness() {
-    "use strict";
     var bizName = $("select[name=BusinessSelect]").find(":selected").attr("name"),
         bizVal = $("select[name=BusinessSelect]").val();
 
     // if same business value then nothing to do
     if (bizName === app.last.BUD) {
         return;
+    }
 
     w2ui.toplayout.content('main', ' ');
     w2ui.toplayout.hide('right',true);
@@ -383,7 +386,7 @@ function buildPageElements() {
                         app.form_is_dirty = false;
                     }
                 }
-            }
+            };
         },
     }));
 
@@ -428,7 +431,7 @@ function buildPageElements() {
                 // when this render complete then store default selected business in app.last
                 app.last.BUD = $("select[name=BusinessSelect]").find(":selected").attr("name");
                 app.last.BID = $("select[name=BusinessSelect]").val();
-            }
+            };
         },
         onClick: function (event) {
             console.log('target = ' + event.target);
@@ -1776,7 +1779,6 @@ function buildPageElements() {
             toolbarAdd: true,
             toolbarDelete: false,
             toolbarSave: false,
-            toolbarSearch   : true,
             searchAll       : true,
             footer: true,
             lineNumbers: false,
@@ -2205,7 +2207,7 @@ function buildPageElements() {
         },
         onAdd: function(/*event*/) {
             var yes_args = [this],
-                no_callBack = function() { return false },
+                no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
                     // reset it
                     app.last.grid_sel_recid = -1;
@@ -2693,7 +2695,6 @@ function buildPageElements() {
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = f.record,
                     header = "Edit Rental Agreement ({0})";
 
                 formRefreshCallBack(f, "RAID", header);
@@ -2809,7 +2810,7 @@ function buildPageElements() {
         onRefresh: function(event) {
             event.onComplete = function(){
                 calcRarGridContractRent(this);
-            }
+            };
         },
         onLoad: function(event) {
                 event.done(function () {
@@ -3269,7 +3270,7 @@ function buildPageElements() {
                             // reset payor field related data when removed
                             w2ui.receiptForm.record.TCID = 0;
                             w2ui.receiptForm.record.Payor = "";
-                        }
+                        };
                     }
                 },
             },
@@ -3393,7 +3394,7 @@ function buildPageElements() {
         onChange: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = this.record;
+                    r = f.record;
 
                 if (event.target == "PmtTypeName") {
                     var PMTID = getPaymentTypeID(r.BID.id, event.value_new.id);
@@ -3635,7 +3636,7 @@ function buildPageElements() {
         },
         onAdd: function (/*event*/) {
             var yes_args = [this],
-                no_callBack = function() { return false },
+                no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
                     // reset it
                     app.last.grid_sel_recid = -1;
@@ -3823,18 +3824,6 @@ function buildPageElements() {
                 }
             },
         },
-        onRefresh: function(/*event*/) {
-            var f = w2ui.asmEpochForm;
-            var r = f.record;
-            if (r.ASMID) {
-                f.header = "Edit" + app.sAssessment + " (" + r.ASMID + ")";
-                isNewFormRecord(f.name, false);
-            }
-            else {
-                f.header = "Edit" + app.sAssessment + " (new)";
-                isNewFormRecord(f.name, true);
-            }
-        },
         onValidate: function (event) {
             if (this.record.ARID.id === 0) {
                 event.errors.push({
@@ -3909,7 +3898,6 @@ function buildPageElements() {
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = f.record,
                     header = "Edit Assessment ({0})";
 
                 formRefreshCallBack(f, "ASMID", header);
@@ -4043,11 +4031,9 @@ function buildPageElements() {
         },
         onLoad: function(event) {
             event.onComplete = function() {
-                var f = w2ui.asmInstForm;
+                var f = this;
                 var r = f.record;
                 var x = getCurrentBusiness();
-                var BID=parseInt(x.value);
-                var BUD = getBUDfromBID(BID);
 
                 var params = {"cmd":"get","recid":0,"name":"asmInstForm"};
                 var dat = JSON.stringify(params);
@@ -4395,7 +4381,7 @@ function buildPageElements() {
         },
         onAdd: function (/*event*/) {
             var yes_args = [this],
-                no_callBack = function() { return false },
+                no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
                     // reset it
                     app.last.grid_sel_recid = -1;
@@ -5610,7 +5596,7 @@ function form_dirty_alert_window_unload(e) {
             e.stopPropagation();
             e.preventDefault();
         }
-        return "Changes in the form that you made may not be saved."
+        return "Changes in the form that you made may not be saved.";
     }
 }
 window.onbeforeunload=form_dirty_alert_window_unload;
