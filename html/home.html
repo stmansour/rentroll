@@ -1090,7 +1090,6 @@ function buildPageElements() {
                     if (typeof record === "undefined") {
                         return;
                     }
-
                     var html = '';
                     for (var i=0; i < app.account_stuff.statusList.length; i++) {
                         if (record.Status == app.account_stuff.statusList[i].id) {
@@ -1104,95 +1103,123 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-                if (app.active_grid == this.name && sel_recid > -1) {
+                if (app.active_grid == this.name) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
             };
         },
         onClick: function(event) {
             event.onComplete = function() {
-                var x = getCurrentBusiness();
-                var BID=parseInt(x.value);
-                var BUD = getBUDfromBID(BID);
-                var rec = this.get(event.recid);
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
 
-                // get latest gl accounts first
-                getParentAccounts(rec.BID, rec.LID)
-                .done(function(data) {
-                    if (data.status != 'success') {
-                        w2ui.accountForm.message(data.message);
-                        w2ui.toplayout.content('right', w2ui.accountForm);
-                        w2ui.toplayout.show('right', true);
-                        w2ui.toplayout.sizeTo('right', 700);
-                        return;
-                    }
-                    else {
-                        w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
-                        setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID, 400, true);
-                    }
-                })
-                .fail(function(/*data*/) {
-                    console.log("unable to get gl accounts list");
-                    return;
-                });
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+
+                        var x = getCurrentBusiness();
+                        var BID=parseInt(x.value);
+                        var BUD = getBUDfromBID(BID);
+                        var rec = grid.get(recid);
+
+                        // get latest gl accounts first
+                        getParentAccounts(rec.BID, rec.LID)
+                        .done(function(data) {
+                            if (data.status != 'success') {
+                                w2ui.accountForm.message(data.message);
+                                w2ui.toplayout.content('right', w2ui.accountForm);
+                                w2ui.toplayout.show('right', true);
+                                w2ui.toplayout.sizeTo('right', 700);
+                                return;
+                            }
+                            else {
+                                w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
+                                setToForm('accountForm', '/v1/account/' + rec.BID + '/' + rec.LID, 400, true);
+                            }
+                        })
+                        .fail(function(/*data*/) {
+                            console.log("unable to get gl accounts list");
+                            return;
+                        });
+                    };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onAdd: function (/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() {
+                    return false;
+                },
+                yes_callBack = function(grid) {
+                    // reset grid sel recid
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
 
-            var x = getCurrentBusiness();
-            var BID=parseInt(x.value);
-            var BUD = getBUDfromBID(BID);
 
-            getParentAccounts(BID, 0)
-           .done(function(data) {
-                if (data.status != 'success') {
-                    w2ui.accountForm.message(data.message);
-                    w2ui.toplayout.content('right', w2ui.accountForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 700);
-                    return;
-                } else {
-                    var y = new Date(),
-                        record = {
-                            recid: 0,
-                            LID: 0,
-                            PLID: 0,
-                            BID: BID,
-                            BUD: BUD,
-                            RAID: 0,
-                            TCID: 0,
-                            GLNumber: '',
-                            Status: 2,
-                            Type: 0,
-                            Name: '',
-                            AcctType: '',
-                            RAAssociated: 0,
-                            AllowPost: 1,
-                            ManageToBudget: 0,
-                            Description: '',
-                            LastModTime: w2uiDateControlString(y),
-                            LastModBy: 0,
-                        };
+                    var x = getCurrentBusiness();
+                    var BID=parseInt(x.value);
+                    var BUD = getBUDfromBID(BID);
 
-                    w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
-                    w2ui.accountForm.record = record;
-                    // NOTE: even inside "setToForm", form is refreshing but header isn't updating,
-                    // so need to call here once before
-                    w2ui.accountForm.refresh();
-                    // now show the form
-                    setToForm('accountForm', '/v1/account/' + BID + '/0', 400);
-                }
-            })
-            .fail( function() {
-                console.log('unable to get GLAccounts');
-                return;
-            });
+                    getParentAccounts(BID, 0)
+                   .done(function(data) {
+                        if (data.status != 'success') {
+                            w2ui.accountForm.message(data.message);
+                            w2ui.toplayout.content('right', w2ui.accountForm);
+                            w2ui.toplayout.show('right', true);
+                            w2ui.toplayout.sizeTo('right', 700);
+                            return;
+                        } else {
+                            var y = new Date(),
+                                record = {
+                                    recid: 0,
+                                    LID: 0,
+                                    PLID: 0,
+                                    BID: BID,
+                                    BUD: BUD,
+                                    RAID: 0,
+                                    TCID: 0,
+                                    GLNumber: '',
+                                    Status: 2,
+                                    Type: 0,
+                                    Name: '',
+                                    AcctType: '',
+                                    RAAssociated: 0,
+                                    AllowPost: 1,
+                                    ManageToBudget: 0,
+                                    Description: '',
+                                    LastModTime: w2uiDateControlString(y),
+                                    LastModBy: 0,
+                                };
+
+                            w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
+                            w2ui.accountForm.record = record;
+                            // NOTE: even inside "setToForm", form is refreshing but header isn't updating,
+                            // so need to call here once before
+                            w2ui.accountForm.refresh();
+                            // now show the form
+                            setToForm('accountForm', '/v1/account/' + BID + '/0', 400);
+                        }
+                    })
+                    .fail( function() {
+                        console.log('unable to get GLAccounts');
+                        return;
+                    });
+                };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -1365,6 +1392,9 @@ function buildPageElements() {
             {field: 'LastName',     caption: "Last Name",     size: '125px', sortable: true, hidden: false,
                 render: function (record) {
                     var s = '';
+                    if (typeof record === "undefined") {
+                        return;
+                    }
                     if (record.IsCompany === 0) {
                         s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
                     }
@@ -1374,6 +1404,9 @@ function buildPageElements() {
             {field: 'CompanyName',  caption: "Company Name",  size: '125px', sortable: true, hidden: false,
                 render: function (record) {
                     var s = '';
+                    if (typeof record === "undefined") {
+                        return;
+                    }
                     if (record.IsCompany > 0) {
                         s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
                     }
@@ -1386,93 +1419,116 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-                if (app.active_grid == this.name && sel_recid > -1) {
+                if (app.active_grid == this.name) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
             };
         },
         onClick: function(event) {
             event.onComplete = function () {
-                var rec = this.get(event.recid);
-                setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+                        var rec = grid.get(recid);
+                        setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
+                    };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
              };
         },
         onAdd: function(/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() { return false; },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
 
-            // insert an empty record....
-            var x = getCurrentBusiness();
-            var BID=x.value;
-            var BUD = getBUDfromBID(BID);
-            var y = new Date();
+                    // insert an empty record....
+                    var x = getCurrentBusiness();
+                    var BID=x.value;
+                    var BUD = getBUDfromBID(BID);
+                    var y = new Date();
 
-            var record = {
-                recid: 0,
-                FirstName: "",
-                LastName: "",
-                MiddleName: "",
-                PreferredName: "",
-                PrimaryEmail: "",
-                TCID: 0,
-                BID: BUD,
-                NLID: 0,
-                CompanyName: "",
-                IsCompany: 0,
-                SecondaryEmail: "",
-                WorkPhone: "",
-                CellPhone: "",
-                Address: "",
-                Address2: "",
-                City: "",
-                State: "",
-                PostalCode: "",
-                Country: "",
-                Website: "",
-                LastModTime: w2uiDateControlString(y),
-                LastModBy: 0,
-                Points: 0,
-                DateofBirth: "1/1/1900",
-                EmergencyContactName: "",
-                EmergencyContactAddress: "",
-                EmergencyContactTelephone: "",
-                EmergencyEmail: "",
-                AlternateAddress: "",
-                EligibleFutureUser: "yes",
-                Industry: "",
-                SourceSLSID: 0,
-                CreditLimit: 0.00,
-                TaxpayorID: "",
-                AccountRep: 0,
-                EligibleFuturePayor: "yes",
-                EmployerName: "",
-                EmployerStreetAddress: "",
-                EmployerCity: "",
-                EmployerState: "",
-                EmployerPostalCode: "",
-                EmployerEmail: "",
-                EmployerPhone: "",
-                Occupation: "",
-                ApplicationFee: 0.00,
-                DesiredUsageStartDate: "1/1/1900",
-                RentableTypePreference: 0,
-                FLAGS: 0,
-                Approver: 0,
-                DeclineReasonSLSID: 0,
-                OtherPreferences: "",
-                FollowUpDate: "1/1/1900",
-                CSAgent: 0,
-                OutcomeSLSID: 0,
-                FloatingDeposit: 0.00,
-                RAID: 0,
-            };
-            w2ui.transactantForm.record = record;
-            w2ui.transactantForm.refresh();
-            setToForm('transactantForm', '/v1/person/' + BID + '/0', 700);
+                    var record = {
+                        recid: 0,
+                        FirstName: "",
+                        LastName: "",
+                        MiddleName: "",
+                        PreferredName: "",
+                        PrimaryEmail: "",
+                        TCID: 0,
+                        BID: BUD,
+                        NLID: 0,
+                        CompanyName: "",
+                        IsCompany: 0,
+                        SecondaryEmail: "",
+                        WorkPhone: "",
+                        CellPhone: "",
+                        Address: "",
+                        Address2: "",
+                        City: "",
+                        State: "",
+                        PostalCode: "",
+                        Country: "",
+                        Website: "",
+                        LastModTime: w2uiDateControlString(y),
+                        LastModBy: 0,
+                        Points: 0,
+                        DateofBirth: "1/1/1900",
+                        EmergencyContactName: "",
+                        EmergencyContactAddress: "",
+                        EmergencyContactTelephone: "",
+                        EmergencyEmail: "",
+                        AlternateAddress: "",
+                        EligibleFutureUser: "yes",
+                        Industry: "",
+                        SourceSLSID: 0,
+                        CreditLimit: 0.00,
+                        TaxpayorID: "",
+                        AccountRep: 0,
+                        EligibleFuturePayor: "yes",
+                        EmployerName: "",
+                        EmployerStreetAddress: "",
+                        EmployerCity: "",
+                        EmployerState: "",
+                        EmployerPostalCode: "",
+                        EmployerEmail: "",
+                        EmployerPhone: "",
+                        Occupation: "",
+                        ApplicationFee: 0.00,
+                        DesiredUsageStartDate: "1/1/1900",
+                        RentableTypePreference: 0,
+                        FLAGS: 0,
+                        Approver: 0,
+                        DeclineReasonSLSID: 0,
+                        OtherPreferences: "",
+                        FollowUpDate: "1/1/1900",
+                        CSAgent: 0,
+                        OutcomeSLSID: 0,
+                        FloatingDeposit: 0.00,
+                        RAID: 0,
+                    };
+                    w2ui.transactantForm.record = record;
+                    w2ui.transactantForm.refresh();
+                    setToForm('transactantForm', '/v1/person/' + BID + '/0', 700);
+                };
+
+            // warn user if form content has been changed
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -1780,53 +1836,75 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-                if (app.active_grid == this.name && sel_recid > -1) {
+                if (app.active_grid == this.name) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
             };
         },
         onClick: function(event) {
             event.onComplete = function () {
-                var rec = this.get(event.recid);
-                console.log('rentableType form url: ' + '/v1/rt/' + rec.BID + '/' + rec.RTID);
-                setToForm('rentableTypeForm', '/v1/rt/' + rec.BID + '/' + rec.RTID, 400, true);
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
+
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+
+                        var rec = grid.get(recid);
+                        console.log('rentableType form url: ' + '/v1/rt/' + rec.BID + '/' + rec.RTID);
+                        setToForm('rentableTypeForm', '/v1/rt/' + rec.BID + '/' + rec.RTID, 400, true);
+                    };
+
+                // warn user if content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onAdd: function(/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() { return false; },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
 
-            var x = getCurrentBusiness();
-            var BID=parseInt(x.value);
-            var BUD = getBUDfromBID(BID);
+                    var x = getCurrentBusiness(),
+                        BID=parseInt(x.value),
+                        BUD = getBUDfromBID(BID),
+                        y = new Date();
 
-            var y = new Date();
+                    var record = {
+                        recid: 0,
+                        BID: BID,
+                        BUD: BUD,
+                        RTID: 0,
+                        Style: "",
+                        Name: "",
+                        RentCycle: 0,
+                        Proration: 0,
+                        GSRPC: 0,
+                        ManageToBudget: 0,
+                        RMRID: 0,
+                        MarketRate: 0.0,
+                        LastModTime: y,
+                        LastModBy: 0,
+                    };
+                    w2ui.rentableTypeForm.record = record;
+                    w2ui.rentableTypeForm.refresh();
+                    setToForm('rentableTypeForm', '/v1/rt/' + BID + '/0', 400);
+                };
 
-            var record = {
-                recid: 0,
-                BID: BID,
-                BUD: BUD,
-                RTID: 0,
-                Style: "",
-                Name: "",
-                RentCycle: 0,
-                Proration: 0,
-                GSRPC: 0,
-                ManageToBudget: 0,
-                RMRID: 0,
-                MarketRate: 0.0,
-                LastModTime: y,
-                LastModBy: 0,
-            };
-
-            w2ui.rentableTypeForm.record = record;
-            w2ui.rentableTypeForm.refresh();
-
-            setToForm('rentableTypeForm', '/v1/rt/' + BID + '/0', 400);
+            // warn user if content has been changed of form
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -2076,57 +2154,84 @@ function buildPageElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                var rec = this.get(event.recid),
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD = getBUDfromBID(BID);
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
 
-                console.log('rentable form url: ' + '/v1/rentable/' + BID + '/' + rec.RID);
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
 
-                getRentableTypes(BUD)
-                .done(function(/*data*/){
-                    setToForm('rentableForm', '/v1/rentable/' + BID + '/' + rec.RID, 700, true);
-                })
-                .fail(function(){
-                    console.log("Failed to get rentable type list");
-                });
+                        var rec = grid.get(recid),
+                            x = getCurrentBusiness(),
+                            BID=parseInt(x.value),
+                            BUD = getBUDfromBID(BID);
+
+                        console.log('rentable form url: ' + '/v1/rentable/' + BID + '/' + rec.RID);
+
+                        getRentableTypes(BUD)
+                        .done(function(/*data*/){
+                            setToForm('rentableForm', '/v1/rentable/' + BID + '/' + rec.RID, 700, true);
+                        })
+                        .fail(function(){
+                            console.log("Failed to get rentable type list");
+                        });
+                    };
+
+                // warn user if form content has been chagned
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onAdd: function(/*event*/) {
-            var x = getCurrentBusiness(),
-                BID=parseInt(x.value),
-                BUD = getBUDfromBID(BID),
-                y = new Date(),
-                record = {
-                    recid: 0,
-                    BID: BUD,
-                    RID: 0,
-                    RentableName: "",
-                    RARID: 0,
-                    RAID: 0,
-                    RARDtStart: w2uiDateControlString(y),
-                    RARDtStop: "1/1/9999",
-                    RTID: {id: 0, text: ''},
-                    RTRID: 0,
-                    RTRefDtStart: w2uiDateControlString(y),
-                    RTRefDtStop: "1/1/9999",
-                    RSID: 0,
-                    RentableStatus: "unknown",
-                    RSDtStart: w2uiDateControlString(y),
-                    RSDtStop: "1/1/9999",
-                    CurrentDate: y,
-                    AssignmentTime: 0,
+            var yes_args = [this],
+                no_callBack = function() { return false },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
+
+                    var x = getCurrentBusiness(),
+                        BID=parseInt(x.value),
+                        BUD = getBUDfromBID(BID),
+                        y = new Date(),
+                        record = {
+                            recid: 0,
+                            BID: BUD,
+                            RID: 0,
+                            RentableName: "",
+                            RARID: 0,
+                            RAID: 0,
+                            RARDtStart: w2uiDateControlString(y),
+                            RARDtStop: "1/1/9999",
+                            RTID: {id: 0, text: ''},
+                            RTRID: 0,
+                            RTRefDtStart: w2uiDateControlString(y),
+                            RTRefDtStop: "1/1/9999",
+                            RSID: 0,
+                            RentableStatus: "unknown",
+                            RSDtStart: w2uiDateControlString(y),
+                            RSDtStop: "1/1/9999",
+                            CurrentDate: y,
+                            AssignmentTime: 0,
+                        };
+
+                    getRentableTypes(BUD)
+                    .done(function(/*data*/){
+                        w2ui.rentableForm.record = record;
+                        w2ui.rentableForm.refresh();
+                        setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
+                    })
+                    .fail(function(){
+                        console.log("Failed to get rentable type list");
+                    });
                 };
 
-            getRentableTypes(BUD)
-            .done(function(/*data*/){
-                w2ui.rentableForm.record = record;
-                w2ui.rentableForm.refresh();
-                setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
-            })
-            .fail(function(){
-                console.log("Failed to get rentable type list");
-            });
+            // warn user if form content has been chagned
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -2304,99 +2409,123 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-                if (app.active_grid == this.name && sel_recid > -1) {
-                    this.select(sel_recid);
+                if (app.active_grid == this.name) {
+                    this.select(app.last.grid_sel_recid);
                     // This one is special case, you need to set last sel_recid when you're adding
                     // new record with help of onAdd event handler, so new record automatically
                     // will be selected
 
-                    // if (app.new_form_rec) {
-                    //     this.unselect(sel_recid);
-                    // }
-                    // else{
-                    //     this.select(sel_recid);
-                    // }
+                    /*if (app.new_form_rec) {
+                        this.unselect(sel_recid);
+                    }
+                    else{
+                        this.select(sel_recid);
+                    }*/
                 }
             };
         },
         onClick: function(event) {
             event.onComplete = function () {
-                var rec = this.get(event.recid);
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
 
-                console.log( 'BID = ' + rec.BID + ',   RAID = ' + rec.RAID);
-                var d = new Date();  // we'll use today for time-sensitive data
-                setToRAForm(rec.BID, rec.RAID, d);
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+
+                        var rec = grid.get(recid);
+                        console.log( 'BID = ' + rec.BID + ',   RAID = ' + rec.RAID);
+                        var d = new Date();  // we'll use today for time-sensitive data
+                        setToRAForm(rec.BID, rec.RAID, d);
+                    };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onAdd: function (/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() { return false; },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
 
-            // this record will be added in grid, so set last sel_recid to this record
-            // so it will be automatically highlighted
-            var newRecId = this.records.length; // get length and assign recid to new record
-            this.last.sel_recid = String(newRecId);
+                    // this record will be added in grid, so set last sel_recid to this record
+                    // so it will be automatically highlighted
+                    var newRecId = grid.records.length; // get length and assign recid to new record
+                    grid.last.sel_recid = String(newRecId);
 
-            // Insert an empty record...
-            var x = getCurrentBusiness();
-            var BID=x.value;
-            var BUD = getBUDfromBID(BID);
-            var y = new Date();
-            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-            var y2 = new Date();
-            y2.setDate(1); // set it to the first of the month
-            var rec = {
-                recid: newRecId,
-                RAID: 0,
-                RATID: 0,
-                BID: {id: BID, text: BUD},
-                NLID: 0,
-                AgreementStart: w2uiDateControlString(y),
-                AgreementStop: w2uiDateControlString(y1),
-                PossessionStart: w2uiDateControlString(y),
-                PossessionStop: w2uiDateControlString(y1),
-                RentStart: w2uiDateControlString(y),
-                RentStop: w2uiDateControlString(y1),
-                RentCycleEpoch: w2uiDateControlString(y2),
-                UnspecifiedAdults: 0,
-                UnspecifiedChildren: 0,
-                Renewal: {id:"month to month automatic renewal",text:"month to month automatic renewal"},
-                SpecialProvisions: '',
-                LastModTime: w2uiDateControlString(y),
-                LastModBy: 0,
-                LeaseType: 0,
-                ExpenseAdjustmentType: 0,
-                ExpensesStop: 0,
-                ExpenseStopCalculation: '',
-                BaseYearEnd: '1/1/1900',
-                ExpenseAdjustment: '1/1/1900',
-                EstimatedCharges: 0,
-                RateChange: 0,
-                NextRateChange: '1/1/1900',
-                PermittedUses: '',
-                ExclusiveUses: '',
-                ExtensionOption: '',
-                ExtensionOptionNotice: '1/1/1900',
-                ExpansionOption: '',
-                ExpansionOptionNotice: '1/1/1900',
-                RightOfFirstRefusal: '',
-            };
+                    // Insert an empty record...
+                    var x = getCurrentBusiness();
+                    var BID=x.value;
+                    var BUD = getBUDfromBID(BID);
+                    var y = new Date();
+                    var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                    var y2 = new Date();
+                    y2.setDate(1); // set it to the first of the month
+                    var rec = {
+                        recid: newRecId,
+                        RAID: 0,
+                        RATID: 0,
+                        BID: {id: BID, text: BUD},
+                        NLID: 0,
+                        AgreementStart: w2uiDateControlString(y),
+                        AgreementStop: w2uiDateControlString(y1),
+                        PossessionStart: w2uiDateControlString(y),
+                        PossessionStop: w2uiDateControlString(y1),
+                        RentStart: w2uiDateControlString(y),
+                        RentStop: w2uiDateControlString(y1),
+                        RentCycleEpoch: w2uiDateControlString(y2),
+                        UnspecifiedAdults: 0,
+                        UnspecifiedChildren: 0,
+                        Renewal: {id:"month to month automatic renewal",text:"month to month automatic renewal"},
+                        SpecialProvisions: '',
+                        LastModTime: w2uiDateControlString(y),
+                        LastModBy: 0,
+                        LeaseType: 0,
+                        ExpenseAdjustmentType: 0,
+                        ExpensesStop: 0,
+                        ExpenseStopCalculation: '',
+                        BaseYearEnd: '1/1/1900',
+                        ExpenseAdjustment: '1/1/1900',
+                        EstimatedCharges: 0,
+                        RateChange: 0,
+                        NextRateChange: '1/1/1900',
+                        PermittedUses: '',
+                        ExclusiveUses: '',
+                        ExtensionOption: '',
+                        ExtensionOptionNotice: '1/1/1900',
+                        ExpansionOption: '',
+                        ExpansionOptionNotice: '1/1/1900',
+                        RightOfFirstRefusal: '',
+                    };
 
-            var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
-            $.post('/v1/rentalagr/' + BUD + '/0', JSON.stringify(request))
-            .done(function(data) {
-                if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                    var msg = JSON.parse(data);
-                    w2ui.rentalagrsGrid.message(msg.message);
-                    return;
-                }
-                if (data.status == 'success') {
-                    rec.recid = data.recid; // success reply returns RAPID of record just added
-                    rec.RAID = data.recid;
-                    setToRAForm(BID, rec.RAID, y);
-                } else {
-                    w2ui.rentalagrsGrid.message(data.message);
-                }
-            });
+                    var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
+                    $.post('/v1/rentalagr/' + BUD + '/0', JSON.stringify(request))
+                    .done(function(data) {
+                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                            var msg = JSON.parse(data);
+                            w2ui.rentalagrsGrid.message(msg.message);
+                            return;
+                        }
+                        if (data.status == 'success') {
+                            rec.recid = data.recid; // success reply returns RAPID of record just added
+                            rec.RAID = data.recid;
+                            setToRAForm(BID, rec.RAID, y);
+                        } else {
+                            w2ui.rentalagrsGrid.message(data.message);
+                        }
+                    });
+                };
+
+            // warn user if form content has been changed
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -2708,6 +2837,9 @@ function buildPageElements() {
             {field: 'CompanyName', caption: 'CompanyName',  size: '10%', sortable: true, style: 'text-align: left',
                 render: function (record/*, index, col_index*/) {
                     var html = '';
+                    if (typeof record === "undefined") {
+                        return;
+                    }
                     if (record.IsCompany) {
                         html = record.CompanyName;
                     } else {
@@ -2776,6 +2908,9 @@ function buildPageElements() {
             {field: 'CompanyName', caption: 'CompanyName',  size: '10%', sortable: true, style: 'text-align: left',
                 render: function (record/*, index, col_index*/) {
                     var html = '';
+                    if (typeof record === "undefined") {
+                        return;
+                    }
                     if (record.IsCompany) {
                         html = record.CompanyName;
                     } else {
@@ -2911,25 +3046,41 @@ function buildPageElements() {
         // ],
         onClick: function(event) {
             event.onComplete = function () {
-                var rec = this.get(event.recid);
-                var x = getCurrentBusiness();
-                var Bid = x.value;
-                var Bud = getBUDfromBID(Bid);
-                $.get('/v1/uival/' + x.value + '/app.Receipts' )
-                .done( function(data) {
-                    if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                        app.Receipts = JSON.parse(data);
-                        w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
-                        w2ui.receiptForm.refresh();
-                        setToForm('receiptForm', '/v1/receipt/' + rec.BID + '/' + rec.RCPTID, 400, true);
-                    }
-                    if (data.status != 'success') {
-                        w2ui.receiptForm.message(data.message);
-                    }
-                })
-                .fail( function() {
-                    console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
-                 });
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
+
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+
+                        var rec = grid.get(recid);
+                        var x = getCurrentBusiness();
+                        var Bid = x.value;
+                        var Bud = getBUDfromBID(Bid);
+                        $.get('/v1/uival/' + x.value + '/app.Receipts' )
+                        .done( function(data) {
+                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                                app.Receipts = JSON.parse(data);
+                                w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
+                                w2ui.receiptForm.refresh();
+                                setToForm('receiptForm', '/v1/receipt/' + rec.BID + '/' + rec.RCPTID, 400, true);
+                            }
+                            if (data.status != 'success') {
+                                w2ui.receiptForm.message(data.message);
+                            }
+                        })
+                        .fail( function() {
+                            console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
+                         });
+                    };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onRequest: function(/*event*/) {
@@ -2937,13 +3088,12 @@ function buildPageElements() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-                if (app.active_grid == this.name && sel_recid > -1) {
+                if (app.active_grid == this.name) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
 
@@ -2954,48 +3104,58 @@ function buildPageElements() {
             };
         },
         onAdd: function (/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() { return false; },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
 
-            // Insert an empty record...
-            var x = getCurrentBusiness();
-            var BID=x.value;
-            var BUD = getBUDfromBID(BID);
-            $.get('/v1/uival/' + x.value + '/app.Receipts' )
-            .done( function(data) {
-                if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                    app.Receipts = JSON.parse(data);
+                    // Insert an empty record...
+                    var x = getCurrentBusiness();
+                    var BID=x.value;
+                    var BUD = getBUDfromBID(BID);
+                    $.get('/v1/uival/' + x.value + '/app.Receipts' )
+                    .done( function(data) {
+                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                            app.Receipts = JSON.parse(data);
 
-                    var y = new Date();
-                    var pmt_options = buildPaymentTypeSelectList(BUD);
-                    var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    var record = {
-                        recid: 0,
-                        RCPTID: 0,
-                        PRCPTID: 0,
-                        ARID: 0,
-                        BID: BUD,
-                        PMTID: 0,
-                        PmtTypeName: ptInit,
-                        Dt: w2uiDateControlString(y),
-                        DocNo: '',
-                        Payor: '',
-                        TCID: 0,
-                        Amount: 0,
-                        Comment: '',
-                        OtherPayorName: '',
-                    };
-                    w2ui.receiptForm.fields[0].options.items = pmt_options;
-                    w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
-                    w2ui.receiptForm.record = record;
-                    w2ui.receiptForm.refresh();
-                    setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
-                }
-                if (data.status != 'success') {
-                    w2ui.receiptForm.message(data.message);
-                }
-            })
-            .fail( function() {
-                console.log('Error getting /v1/uival/'+BUD+'/app.Receipts');
-             });
+                            var y = new Date();
+                            var pmt_options = buildPaymentTypeSelectList(BUD);
+                            var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+                            var record = {
+                                recid: 0,
+                                RCPTID: 0,
+                                PRCPTID: 0,
+                                ARID: 0,
+                                BID: BUD,
+                                PMTID: 0,
+                                PmtTypeName: ptInit,
+                                Dt: w2uiDateControlString(y),
+                                DocNo: '',
+                                Payor: '',
+                                TCID: 0,
+                                Amount: 0,
+                                Comment: '',
+                                OtherPayorName: '',
+                            };
+                            w2ui.receiptForm.fields[0].options.items = pmt_options;
+                            w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
+                            w2ui.receiptForm.record = record;
+                            w2ui.receiptForm.refresh();
+                            setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
+                        }
+                        if (data.status != 'success') {
+                            w2ui.receiptForm.message(data.message);
+                        }
+                    })
+                    .fail( function() {
+                        console.log('Error getting /v1/uival/'+BUD+'/app.Receipts');
+                    });
+                };
+
+            // warn user if form content has been changed
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -3391,6 +3551,9 @@ function buildPageElements() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'epoch', size: '10px', style: 'text-align: center', sortable: true,
                     render: function (record /*, index, col_index*/) {
+                        if (typeof record === "undefined") {
+                            return;
+                        }
                         if (record.RentCycle !== 0 && record.PASMID === 0) {
                             return '<i class="fa fa-refresh" aria-hidden="true"></i>';
                         }
@@ -3420,97 +3583,121 @@ function buildPageElements() {
         ],
         onClick: function(event) {
             event.onComplete = function () {
-                var rec = this.get(event.recid);
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
 
-                var form = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
-                var myurl = '/v1/asm/' + rec.BID + '/' + rec.ASMID;
-                console.log( 'calling setToForm( '+form+', ' + myurl + ')');
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
 
-                // before setting to the form, get the list of AcctRules...
-                var x = getCurrentBusiness();
-                var Bid = x.value;
-                var Bud = getBUDfromBID(Bid);
-                $.get('/v1/uival/' + x.value + '/app.Assessments' )
-                .done( function(data) {
-                    if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                        app.Assessments = JSON.parse(data);
-                        w2ui[form].get('ARID').options.items = app.Assessments[Bud];
-                        w2ui[form].refresh();
+                        var rec = grid.get(recid);
+                        var form = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
+                        var myurl = '/v1/asm/' + rec.BID + '/' + rec.ASMID;
+                        console.log( 'calling setToForm( '+form+', ' + myurl + ')');
 
-                        setToForm(form, myurl, 400, true);
-                    }
-                    if (data.status != 'success') {
-                        w2ui.asmsGrid.message(data.message);
-                    }
-                })
-                .fail( function() {
-                    console.log('Error getting /v1/uival/' + x.value + '/app.Assessments');
-                 });
+                        // before setting to the form, get the list of AcctRules...
+                        var x = getCurrentBusiness();
+                        var Bid = x.value;
+                        var Bud = getBUDfromBID(Bid);
+                        $.get('/v1/uival/' + x.value + '/app.Assessments' )
+                        .done( function(data) {
+                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                                app.Assessments = JSON.parse(data);
+                                w2ui[form].get('ARID').options.items = app.Assessments[Bud];
+                                w2ui[form].refresh();
+
+                                setToForm(form, myurl, 400, true);
+                            }
+                            if (data.status != 'success') {
+                                w2ui.asmsGrid.message(data.message);
+                            }
+                        })
+                        .fail( function() {
+                            console.log('Error getting /v1/uival/' + x.value + '/app.Assessments');
+                         });
+                    };
+
+                    // warn user if form content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onAdd: function (/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() { return false },
+                yes_callBack = function(grid) {
+                    // reset it
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
 
-            var x = getCurrentBusiness();
-            $.get('/v1/uival/' + x.value + '/app.Assessments' )
-            .done( function(data) {
-                if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                    app.Assessments = JSON.parse(data);
+                    var x = getCurrentBusiness();
+                    $.get('/v1/uival/' + x.value + '/app.Assessments' )
+                    .done( function(data) {
+                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                            app.Assessments = JSON.parse(data);
 
-                    // Insert an empty record...
-                    var BID=x.value;
-                    var BUD = getBUDfromBID(BID);
-                    app.ridRentablePicker.BID = BID; // needed by typedown
+                            // Insert an empty record...
+                            var BID=x.value;
+                            var BUD = getBUDfromBID(BID);
+                            app.ridRentablePicker.BID = BID; // needed by typedown
 
-                    var y = new Date();
-                    var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                        var record = {
-                        ARID: 0,
-                        recid: 0,
-                        RID: 0,
-                        ASMID: 0,
-                        PASMID: 0,
-                        ATypeLID: 0,
-                        InvoiceNo: 0,
-                        RAID: 0,
-                        BID: BUD,
-                        Start: w2uiDateControlString(y),
-                        Stop: w2uiDateControlString(y1),
-                        RentCycle: 'Monthly',
-                        ProrationCycle: 'Daily',
-                        TCID: 0,
-                        Amount: 0,
-                        AcctRule: '',
-                        Comment: '',
-                        LastModTime: w2uiDateControlString(y),
-                        LastModBy: 0,
-                    };
-                    // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                    w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
-                    w2ui.asmEpochForm.record = record;
-                    w2ui.asmEpochForm.refresh();
+                            var y = new Date();
+                            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                                var record = {
+                                ARID: 0,
+                                recid: 0,
+                                RID: 0,
+                                ASMID: 0,
+                                PASMID: 0,
+                                ATypeLID: 0,
+                                InvoiceNo: 0,
+                                RAID: 0,
+                                BID: BUD,
+                                Start: w2uiDateControlString(y),
+                                Stop: w2uiDateControlString(y1),
+                                RentCycle: 'Monthly',
+                                ProrationCycle: 'Daily',
+                                TCID: 0,
+                                Amount: 0,
+                                AcctRule: '',
+                                Comment: '',
+                                LastModTime: w2uiDateControlString(y),
+                                LastModBy: 0,
+                            };
+                            // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+                            w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
+                            w2ui.asmEpochForm.record = record;
+                            w2ui.asmEpochForm.refresh();
 
-                    setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 400);
-                }
-                if (data.status != 'success') {
-                    w2ui.asmEpochForm.message(data.message);
-                }
-            })
-            .fail( function() {
-                console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
-             });
+                            setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 400);
+                        }
+                        if (data.status != 'success') {
+                            w2ui.asmEpochForm.message(data.message);
+                        }
+                    })
+                    .fail( function() {
+                        console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
+                     });
+                };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
         onRequest: function(/*event*/) {
             w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-                if (app.active_grid == this.name && sel_recid > -1) {
+                if (app.active_grid == this.name) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
 
@@ -4648,123 +4835,139 @@ function buildPageElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-                if (app.active_grid == this.name && sel_recid > -1) {
+                if (app.active_grid == this.name) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
             };
         },
         onClick: function(event) {
             event.onComplete = function () {
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        app.last.grid_sel_recid = parseInt(recid);
 
-                // multi select is false
-                var rec = this.get(event.recid);
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
 
-                var BUD = getBUDfromBID(rec.BID);
+                        // multi select is false
+                        var rec = grid.get(recid),
+                            BUD = getBUDfromBID(rec.BID);
 
-                // set ARType DropDown list
-                var artype_selected;
-                var artype_items = [];
-                Object.keys(app.ARTypes).forEach(function(artype_id){
-                    if (rec.ARType == artype_id) {
-                        artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
-                    }
-                    artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
-                });
+                        // set ARType DropDown list
+                        var artype_selected,
+                            artype_items = [];
 
-                // get gl account list
-                getPostAccounts(rec.BID)
-                .done(function(/*data*/){
+                        Object.keys(app.ARTypes).forEach(function(artype_id){
+                            if (rec.ARType == artype_id) {
+                                artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
+                            }
+                            artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                        });
 
-                    // set fields
-                    w2ui.arsForm.get('ARType').options.items=artype_items;
-                    w2ui.arsForm.get('ARType').options.selected=artype_selected;
+                        // get gl account list
+                        getPostAccounts(rec.BID)
+                        .done(function(/*data*/){
+                            // set fields
+                            w2ui.arsForm.get('ARType').options.items=artype_items;
+                            w2ui.arsForm.get('ARType').options.selected=artype_selected;
+                            w2ui.arsForm.get('DebitLID').options.items=app.post_accounts[BUD];
+                            w2ui.arsForm.get('DebitLID').options.selected={id: rec.DebitLID, text: rec.DebitLedgerName};
+                            w2ui.arsForm.get('CreditLID').options.items=app.post_accounts[BUD];
+                            w2ui.arsForm.get('CreditLID').options.selected={id: rec.CreditLID, text: rec.CreditLedgerName};
+                            setToForm('arsForm', '/v1/ar/' + rec.BID + '/' + rec.ARID, 400, true);
+                        })
+                        .fail(function(/*data*/){
+                            console.log("Failed to get glAccountList");
+                        });
+                    };
 
-                    w2ui.arsForm.get('DebitLID').options.items=app.post_accounts[BUD];
-                    w2ui.arsForm.get('DebitLID').options.selected={id: rec.DebitLID, text: rec.DebitLedgerName};
-
-                    w2ui.arsForm.get('CreditLID').options.items=app.post_accounts[BUD];
-                    w2ui.arsForm.get('CreditLID').options.selected={id: rec.CreditLID, text: rec.CreditLedgerName};
-
-                    // refresh the form
-                    w2ui.arsForm.refresh();
-
-                    setToForm('arsForm', '/v1/ar/' + rec.BID + '/' + rec.ARID, 400, true);
-                })
-                .fail(function(/*data*/){
-                    console.log("Failed to get glAccountList");
-                });
+                // alert user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
         onAdd: function (/*event*/) {
+            var yes_args = [this],
+                no_callBack = function() { return false; },
+                yes_callBack = function(grid) {
+                    // first reset grid sel recid
+                    app.last.grid_sel_recid = -1;
+                    grid.selectNone();
 
-            // Insert an empty record...
-            var x = getCurrentBusiness();
-            var BID=x.value;
-            var BUD = getBUDfromBID(BID);
+                    // Insert an empty record...
+                    var x = getCurrentBusiness(),
+                        BID=x.value,
+                        BUD = getBUDfromBID(BID);
 
-            // get latest gl accounts first
-            getPostAccounts(BID)
-            .done(function(data) {
-                if (data.status != 'success') {
-                    w2ui.arsForm.message(data.message);
-                    w2ui.toplayout.content('right', w2ui.arsForm);
-                    w2ui.toplayout.show('right', true);
-                    w2ui.toplayout.sizeTo('right', 700);
-                    return;
-                }
-                else {
-                    var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
-                    var artype_items = [artype_pre_selected];
-                    Object.keys(app.ARTypes).forEach(function(artype_id){
-                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
-                    });
+                    // get latest gl accounts first
+                    getPostAccounts(BID)
+                    .done(function(data) {
+                        if (data.status != 'success') {
+                            w2ui.arsForm.message(data.message);
+                            w2ui.toplayout.content('right', w2ui.arsForm);
+                            w2ui.toplayout.show('right', true);
+                            w2ui.toplayout.sizeTo('right', 700);
+                            return;
+                        }
+                        else {
+                            var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
+                            var artype_items = [artype_pre_selected];
+                            Object.keys(app.ARTypes).forEach(function(artype_id){
+                                artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                            });
 
-                    var post_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
-                    var post_accounts_items = [post_accounts_pre_selected];
-                    post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
+                            var post_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
+                            var post_accounts_items = [post_accounts_pre_selected];
+                            post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
 
-                    w2ui.arsForm.get('ARType').options.items = artype_items;
-                    w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
-                    w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
-                    w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
-                    w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
-                    w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
-                    // w2ui.arsForm.refresh();
+                            w2ui.arsForm.get('ARType').options.items = artype_items;
+                            w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
+                            w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
+                            w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
+                            w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
+                            w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
+                            // w2ui.arsForm.refresh();
 
-                    var y1 = new Date();
-                    var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
-                    var ny = new Date(9999, 11, 31, 0, 0, 0);
+                            var y1 = new Date();
+                            var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
+                            var ny = new Date(9999, 11, 31, 0, 0, 0);
 
-                    var record = {
-                        recid: 0,
-                        BID: BUD,
-                        ARID: 0,
-                        ARType: artype_pre_selected,
-                        DebitLID: post_accounts_pre_selected,
-                        CreditLID: post_accounts_pre_selected,
-                        Name: '',
-                        Description: '',
-                        DtStart: w2uiDateControlString(y),
-                        DtStop: w2uiDateControlString(ny),
-                        PriorToRAStart: true,
-                        PriorToRAStop: true,
-                    };
-                    w2ui.arsForm.record = record;
-                    w2ui.arsForm.refresh();
-                    setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
-                }
-            })
-            .fail( function() {
-                console.log('unable to get GLAccounts');
-                return;
-             });
+                            var record = {
+                                recid: 0,
+                                BID: BUD,
+                                ARID: 0,
+                                ARType: artype_pre_selected,
+                                DebitLID: post_accounts_pre_selected,
+                                CreditLID: post_accounts_pre_selected,
+                                Name: '',
+                                Description: '',
+                                DtStart: w2uiDateControlString(y),
+                                DtStop: w2uiDateControlString(ny),
+                                PriorToRAStart: true,
+                                PriorToRAStop: true,
+                            };
+                            w2ui.arsForm.record = record;
+                            w2ui.arsForm.refresh();
+                            setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
+                        }
+                    })
+                    .fail( function() {
+                        console.log('unable to get GLAccounts');
+                        return;
+                     });
+                };
 
+            // alert user if form content has been changed
+            form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 

@@ -3,10 +3,11 @@
 */
 
 // ---------------------------------------------------------------------------------
-// String format: https://gist.github.com/tbranyen/1049426, if want to format object, array as well
+// String format: https://gist.github.com/tbranyen/1049426 (if want to format object, array as well)
 // Reference: https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
 // ---------------------------------------------------------------------------------
-// "{0} is awesome {1}".format("javascript", "!?")
+// > "{0} is awesome {1}".format("javascript", "!?")
+// > "javascript is awesome !?"
 // ---------------------------------------------------------------------------------
 String.prototype.format = function() {
     var args = arguments;
@@ -159,7 +160,6 @@ function setToForm(sform, url, width, doRequest) {
     }
 
     f.url = url;
-    console.log(f.tabs)
     if (typeof f.tabs.name == "string") {
         f.tabs.click('tab1');
     }
@@ -238,6 +238,14 @@ function setToRAForm(bid, raid, d) {
         w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
         w2ui.rentalagrForm.request();
         w2ui.toplayout.render();
+
+        // mark this flag as is this new record
+        // record created already
+        app.new_form_rec = false;
+
+        // as new content will be loaded for this form
+        // mark form dirty flag as false
+        app.form_is_dirty = false;
     }
 
     //----------------------------------------------------------------
