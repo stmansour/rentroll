@@ -954,7 +954,7 @@ function genDateRangeNavigator(prefix) {
 // addDateNavToToolbar
 //          - Utility routine create add a date navigator to a toolbar
 // @params
-//   prefix = the w2ui grid control prefix name that follows the naming 
+//   prefix = the w2ui grid control prefix name that follows the naming
 //            convention:  prefix + 'Grid'
 // @return  <no return value>
 //-----------------------------------------------------------------------------
@@ -1367,7 +1367,7 @@ function getPersonDetailsByTCID(BID, TCID) {
 // form dirty alert confirmation dialog box options
 var form_dirty_alert_options = {
     msg          : '<p>There are unsaved changes.</p><p>Select OK to exit without saving your changes or Cancel to continue editing.</p>',
-    title        : 'Do you want to leave your changes unsaved?',
+    title        : '',
     width        : 480,     // width of the dialog
     height       : 180,     // height of the dialog
     btn_yes      : {
