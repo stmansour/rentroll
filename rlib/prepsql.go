@@ -364,7 +364,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Journal Allocation
 	//==========================================
-	flds = "JAID,BID,JID,RID,RAID,TCID,Amount,ASMID,AcctRule,CreateTS,CreateBy"
+	flds = "JAID,BID,JID,RID,RAID,TCID,RCPTID,Amount,ASMID,AcctRule,CreateTS,CreateBy"
 	RRdb.DBFields["JournalAllocation"] = flds
 	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE JAID=?")
 	Errcheck(err)
@@ -703,12 +703,12 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetReceiptsInDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND Dt >= ? AND Dt < ?")
 	Errcheck(err)
 
-	//  FLAGS bits 0-1:  0 unallocated, 1 = partially allocated, 2 = fully allocated
+	//  FLAGS bits 0-1:  0 unallocated, 1 = partially allocated, 2 = fully allocated,  bit 2: voided entry
 	RRdb.Prepstmt.GetUnallocatedReceipts, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND (FLAGS & 3)<2 ORDER BY Dt ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetUnallocatedReceiptsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND TCID=? AND (FLAGS & 3)<2 ORDER BY Dt ASC")
+	RRdb.Prepstmt.GetUnallocatedReceiptsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND TCID=? AND (FLAGS & 3)<2 AND 0=(FLAGS & 4) ORDER BY Dt ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM Receipt WHERE BID=? AND TCID=? AND (FLAGS & 3)<2")
+	RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM Receipt WHERE BID=? AND TCID=? AND (FLAGS & 3)<2 AND 0=(FLAGS & 4)")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)

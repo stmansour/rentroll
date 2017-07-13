@@ -64,6 +64,16 @@ func DoAcctSubstitution(bid int64, s string) string {
 
 // ParseAcctRule expands the supplied rule string into an array of AcctRule structs and replaces any variables/formulas
 // with the final amounts.
+// INPUTS:
+//     xbiz - XBusiness struct for this business
+//      rid - the associated Rentable ID (if needed)
+//    d1,d2 - time period being examined
+//     rule - the actual account rule to parse
+//   amount - total amount of this transaction
+//       pf - the proration factor.  1.0 if we're applying the amount for the entire period, otherwise (days applicable)/(days in period)
+//
+// RETURNS:
+//     a slice of AcctRule structs that make up the account rule
 func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []AcctRule {
 	funcname := "ParseAcctRule"
 	var m []AcctRule
@@ -73,7 +83,8 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 	if len(rule) > 0 {
 		sa := strings.Split(rule, ",")
 		for k := 0; k < len(sa); k++ {
-			// fmt.Printf("k = %d\n", k)
+			// fmt.Printf("%s:  k = %d\n", funcname, k)
+			// fmt.Printf("\tsa[k] = %s\n", sa[k])
 			var r AcctRule
 			t := strings.Join(strings.Fields(sa[k]), " ") // this puts 1 space between every field in sa[k]
 			ta := strings.Split(t, " ")                   // an array of fields
@@ -91,11 +102,10 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 			}
 			r.Action = strings.ToLower(strings.TrimSpace(ta[base])) // action is at index base
 			r.AcctExpr = strings.TrimSpace(ta[base+1])              // account is at base+1, this is the source
-
-			r.Account = DoAcctSubstitution(xbiz.P.BID, r.AcctExpr) // the is the substituted acct name
-			ar := strings.Join(ta[base+2:], " ")                   // remaining fields make up the amount formula
-			r.Expr = strings.TrimSpace(ar)                         // prepare the formula for the calculator
-			ctx.r = &r                                             // the AcctRule in the process of being constructed.  Has the Assessment ID which may be needed.
+			r.Account = DoAcctSubstitution(xbiz.P.BID, r.AcctExpr)  // the is the substituted acct name
+			ar := strings.Join(ta[base+2:], " ")                    // remaining fields make up the amount formula
+			r.Expr = strings.TrimSpace(ar)                          // prepare the formula for the calculator
+			ctx.r = &r                                              // the AcctRule in the process of being constructed.  Has the Assessment ID which may be needed.
 			// fmt.Printf("ctx = %#v\n", ctx)
 			// fmt.Printf("r.Expr = %s\n", r.Expr)
 			x := RpnCalculateEquation(&ctx, r.Expr) // let the calculator compute the amount

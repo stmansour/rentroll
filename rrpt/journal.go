@@ -42,8 +42,8 @@ func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, 
 
 		l := rlib.GetLedgerByGLNo(r.BID, m[i].Account)
 		if 0 == l.LID {
-			fmt.Printf("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
-			fmt.Printf("%s: rule = \"%s\"\n", funcname, rule)
+			rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
+			rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rule)
 			continue
 		}
 
@@ -201,6 +201,10 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		// 	continue
 		// }
 		m := rlib.ParseAcctRule(ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
+		// fmt.Printf("%s: acctrule = %s     Amount = %.2f\n", funcname, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount)
+		// for k := 0; k < len(m); k++ {
+		// 	fmt.Printf("%d. .Account = %s, .Amount = %.2f   .ASMID = %d\n", k, m[k].Account, m[k].Amount, m[k].ASMID)
+		// }
 		// printJournalSubtitle("\t" + rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 		// fmt.Printf("rcpt.RA[i].ASMID = %d, a.ASMID = %d, a.RID = %d\n", rcpt.RA[i].ASMID, a.ASMID, a.RID)
 		// if r.BID == 0 {
@@ -211,8 +215,8 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		for k := 0; k < len(m); k++ {
 			l := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if 0 == l.LID {
-				fmt.Printf("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
-				fmt.Printf("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
+				rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
+				rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
 				continue
 			}
 			amt := m[k].Amount

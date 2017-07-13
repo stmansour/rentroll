@@ -9,6 +9,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // ReceiptSendForm is a structure specifically for the UI. It will be
@@ -376,7 +377,8 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		// update existing record
-		err = bizlogic.UpdateReceipt(&a)
+		now := time.Now() // this is the time we're making the change if a reversal needs to be done
+		err = bizlogic.UpdateReceipt(&a, &now)
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d\n: %s", funcname, d.RCPTID, err.Error())
