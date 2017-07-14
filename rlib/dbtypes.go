@@ -647,6 +647,7 @@ type XPerson struct {
 type Assessment struct {
 	ASMID          int64     // unique id for this assessment
 	PASMID         int64     // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
+	RPASMID        int64     // reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
 	BID            int64     // what Business
 	RID            int64     // the Rentable
 	ATypeLID       int64     // what type of assessment

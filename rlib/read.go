@@ -17,14 +17,14 @@ func ReadARs(rows *sql.Rows, a *AR) error {
 
 // ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessment(row *sql.Row, a *Assessment) {
-	Errcheck(row.Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
+	Errcheck(row.Scan(&a.ASMID, &a.PASMID, &a.RPASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
 		&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadAssessments reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessments(rows *sql.Rows, a *Assessment) {
-	Errcheck(rows.Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
+	Errcheck(rows.Scan(&a.ASMID, &a.PASMID, &a.RPASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
 		&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }

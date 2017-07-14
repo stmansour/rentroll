@@ -3579,11 +3579,11 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
-            delete: function() {
+            reverse: function() {
 
                 var form = this;
 
-                w2confirm(delete_confirm_options)
+                w2confirm(reverse_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.asmsGrid;
                     var sel = tgrid.getSelection();
@@ -3592,7 +3592,7 @@ function buildPageElements() {
                     var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
                     var dat = JSON.stringify(params);
 
-                    // delete Depository request
+                    // reverse Depository request
                     $.post(form.url, dat)
                     .done(function(data) {
                         if (data.status != "success") {
@@ -3671,11 +3671,11 @@ function buildPageElements() {
                 });
 
             },
-            delete: function() {
+            reverse: function() {
 
                 var form = this;
 
-                w2confirm(delete_confirm_options)
+                w2confirm(reverse_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.asmsGrid;
                     var sel = tgrid.getSelection();
@@ -3695,7 +3695,7 @@ function buildPageElements() {
                         tgrid.reload();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Assessment instance failed.");
+                        console.log("Reverse Assessment instance failed.");
                     });
                 })
                 .no(function() {

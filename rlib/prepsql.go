@@ -115,7 +115,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	flds = "ASMID,PASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "ASMID,PASMID,RPASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Assessments"] = flds
 	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)

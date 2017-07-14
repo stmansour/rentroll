@@ -628,6 +628,7 @@ CREATE TABLE Assessments (
     ASMID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for assessment
     PASMID BIGINT NOT NULL DEFAULT 0,                       -- parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID.
                                                             --     When non-zero DO NOT process as a recurring assessment, it is an instance
+    RPASMID BIGINT NOT NULL DEFAULT 0,                      -- reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     RID BIGINT NOT NULL DEFAULT 0,                          -- rentable id
     ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
@@ -640,12 +641,12 @@ CREATE TABLE Assessments (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- DELETE THIS -- DON'T KEEP THE INVOICE REFERENCE IN THE ASSESSMENT... !!!! <<<<TODO
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
     ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid.  Bit 2: 1 = this assmt has been reversed.
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
     PRIMARY KEY (ASMID)
 );
 

@@ -9,7 +9,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
@@ -409,11 +408,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
-		fmt.Printf(">>>> NEW ASSESSMENT IS BEING ADDED\n")
-		// Biz logic checks:
-		// 1. Ensure that a charge is not being made for a rentable on a date prior to the rentable being tracked in Rentroll
-		fmt.Printf("BizLogic validation...\n")
-		errlist := bizlogic.ValidateAssessment(&a)
+		errlist := bizlogic.InsertAssessment(&a, foo.Record.ExpandPastInst)
 		if len(errlist) > 0 {
 			errmsg := ""
 			for i := 0; i < len(errlist); i++ {
@@ -423,45 +418,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			e := fmt.Errorf("%s", errmsg)
 			SvcGridErrorReturn(w, e, funcname)
 			return
-		}
-		fmt.Printf("BizLogic Passed\n")
-
-		_, err = rlib.InsertAssessment(&a)
-		if err != nil {
-			fmt.Printf("Error inserting assessment = %s\n", err.Error())
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
-
-		// fmt.Printf("Saved assessment %d.  will now read it back...\n", a.ASMID)
-		// a1, err := rlib.GetAssessment(a.ASMID)
-		// if err != nil {
-		// 	fmt.Printf("Error getting assessment = %s\n", err.Error())
-		// }
-		// fmt.Printf("Assessment just read:  %#v\n", a1)
-
-		var xbiz rlib.XBusiness
-		rlib.GetXBusiness(a.BID, &xbiz)
-
-		//------------------------------------------------
-		// Make Journal Entries
-		//------------------------------------------------
-		d1, d2 := getPeriodDates(&a)
-		rlib.InitLedgerCache()
-		if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
-			fmt.Printf("Process Journal Entry: ASMID = %d\n", a.ASMID)
-			rlib.ProcessJournalEntry(&a, &xbiz, &d1, &d2, true)
-		} else {
-			if foo.Record.ExpandPastInst {
-				//-----------------------------------------
-				// Create MULTIPLE instances in the past
-				//-----------------------------------------
-				now := rlib.DateAtTimeZero(time.Now())
-				dt := rlib.DateAtTimeZero(a.Start)
-				if !dt.After(now) {
-					createInstancesToDate(w, &a, &xbiz)
-				}
-			}
 		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
@@ -475,29 +431,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	SvcWriteSuccessResponse(w)
-}
-
-// createInstancesToDate creates all instances of a recurring Assessments up to the supplied date
-func createInstancesToDate(w http.ResponseWriter, a *rlib.Assessment /* start, stop *time.Time,*/, xbiz *rlib.XBusiness) {
-	// funcname := "createInstancesToDate"
-	now := time.Now()
-	as := time.Date(a.Start.Year(), a.Start.Month(), a.Start.Day(), 0, 0, 0, 0, time.UTC)
-	// fmt.Printf("GetRecurrences:  d1,d2 = %s - %s\n", a.Start.Format(rlib.RRDATEREPORTFMT), a.Stop.Format(rlib.RRDATEREPORTFMT))
-	// fmt.Printf("                 d3,d4 = %s - %s\n", as.Format(rlib.RRDATEREPORTFMT), now.Format(rlib.RRDATEREPORTFMT))
-	m := rlib.GetRecurrences(&a.Start, &a.Stop, &as, &now, a.RentCycle) // get all from the begining up to now
-	for i := 0; i < len(m); i++ {
-		// fmt.Printf("m[%d] = %s\n", i, m[i].Format(rlib.RRDATEREPORTFMT))
-		dt1, dt2 := rlib.GetMonthPeriodForDate(&m[i])
-		rlib.ProcessJournalEntry(a, xbiz, &dt1, &dt2, true) // this generates the assessment instances
-	}
-}
-
-func getPeriodDates(a *rlib.Assessment) (time.Time, time.Time) {
-	return rlib.GetMonthPeriodForDate(&a.Start)
-	// d1 := time.Date(a.Start.Year(), a.Start.Month(), 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-	// mon, inc := rlib.IncMonths(a.Start.Month(), int64(1))
-	// d2 := time.Date(int(inc)+a.Start.Year(), mon, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
-	// return d1, d2
 }
 
 var asmFormSelectFields = []string{
@@ -631,18 +564,35 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	ja := rlib.GetJournalAllocationByASMID(del.ASMID)
-	m := rlib.GetLedgerEntriesByJAID(d.BID, ja.JAID)
-	for i := 0; i < len(m); i++ {
-		rlib.DeleteLedgerEntry(m[i].LEID)
-	}
-	rlib.DeleteJournal(ja.JID)
-	rlib.DeleteJournalAllocation(ja.JAID)
-
-	if err := rlib.DeleteAssessment(del.ASMID); err != nil {
+	a, err := rlib.GetAssessment(del.ASMID)
+	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+
+	errlist := bizlogic.ReverseAssessment(&a)
+	if len(errlist) > 0 {
+		s := ""
+		for i := 0; i < len(errlist); i++ {
+			s += errlist[i].Message + "\n"
+		}
+		e := fmt.Errorf("Error reversing assessment %s: %s", a.IDtoString(), s)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	// ja := rlib.GetJournalAllocationByASMID(del.ASMID)
+	// m := rlib.GetLedgerEntriesByJAID(d.BID, ja.JAID)
+	// for i := 0; i < len(m); i++ {
+	// 	rlib.DeleteLedgerEntry(m[i].LEID)
+	// }
+	// rlib.DeleteJournal(ja.JID)
+	// rlib.DeleteJournalAllocation(ja.JAID)
+
+	// if err := rlib.DeleteAssessment(del.ASMID); err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
 
 	SvcWriteSuccessResponse(w)
 }
