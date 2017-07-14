@@ -1,17 +1,16 @@
 <div id="receiptForm">
     <div class="w2ui-page page-0">	<!-- Receipt -->
+	    <div class="w2ui-field"><input name="recid" type="hidden" /></div>
+	    <div class="w2ui-field"><input name="BID" type="hidden" /></div>
 	    <div class="w2ui-field">
-	        <input name="recid" type="hidden" />
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Business Unit:</label><div><input name="BID" type="list" disabled/></div>
+	        <label>Business Unit:</label><div><input name="BUD" type="list" disabled/></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <label>Date:</label>
 	        <div><input name="Dt" id="rcptFormDt" type="us-date1" size="11"></div>
 	    </div>
 	    <div class="w2ui-field">
-	        <label>Account Rule:</label><div><input name="ARID" type="list" style="width:100%"/></div>
+	        <label>Account Rule:</label><div><input name="ARID" type="list" style="width:100%;"/></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <label>Payment Type:</label><div><input name="PmtTypeName" type="enum" /></div>
