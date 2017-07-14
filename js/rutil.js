@@ -2,6 +2,20 @@
     w2ui, app, console
 */
 
+// ---------------------------------------------------------------------------------
+// String format: https://gist.github.com/tbranyen/1049426 (if want to format object, array as well)
+// Reference: https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
+// ---------------------------------------------------------------------------------
+// > "{0} is awesome {1}".format("javascript", "!?")
+// > "javascript is awesome !?"
+// ---------------------------------------------------------------------------------
+String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+        return typeof args[number] != 'undefined'? args[number] : match;
+    });
+};
+// ---------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 // getBUDfromBID  - given the BID return the associated BUD. Returns
@@ -39,23 +53,27 @@ function getBIDfromBUD(BUD) {
 }
 
 //-----------------------------------------------------------------------------
-// getPaymentTypeName - searches BUD's Payment Types for PMTID.  If found the
-//                  Name is returned, else an empty string is returned.
+// getPaymentType - searches BUD's Payment Types for PMTID.  If found the
+//                  then payment type object is returned, else an empty object is returned.
 // @params  BUD   - the BUD for the business of interest
 //          PMTID - the payment type id for which we want the name
-// @return  the Payment Type Name (or empty string if not found)
+// @return  the Payment Type (or empty object if not found)
 //-----------------------------------------------------------------------------
-function getPaymentTypeName(BUD,PMTID) {
+function getPaymentType(BUD, reqPMTID) {
     "use strict";
-    if (typeof BUD == "undefined") {
-        return '';
+
+    var pmt = {};
+    if (typeof BUD === "undefined") {
+        return pmt;
     }
-    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
-        if (app.pmtTypes[BUD][i].PMTID == PMTID) {
-            return app.pmtTypes[BUD][i].Name;
+
+    app.pmtTypes[BUD].forEach(function(item) {
+        if (item.PMTID == reqPMTID) {
+            pmt = { id: item.PMTID, text: item.Name };
+            return pmt;
         }
-    }
-    return '';
+    });
+    return pmt;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,24 +94,6 @@ function getPaymentTypeID(BUD,Name) {
         }
     }
     return -1;
-}
-
-//-----------------------------------------------------------------------------
-// buildPaymentTypeOptions - creates a list suitable for a dropdown menu
-//                  with the payment types for the supplied BUD
-// @params  BUD   - the BUD for the business of interest
-// @return  the list of Payment Type Names (or empty list if BUD not found)
-//-----------------------------------------------------------------------------
-function buildPaymentTypeOptions(BUD) {
-    "use strict";
-    var options = [];
-    if (typeof BUD == "undefined") {
-        return options;
-    }
-    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
-        options[i] = app.pmtTypes[BUD][i].Name;
-    }
-    return options;
 }
 
 //-----------------------------------------------------------------------------
@@ -137,30 +137,87 @@ function getCurrentBusiness() {
 function setToForm(sform, url, width, doRequest) {
     "use strict";
 
-    var f = w2ui[sform];
-    if (url.length > 0) {
-        f.url = url;
-        if (typeof f.tabs.name == "string") {
-            f.tabs.click('tab1');
-        }
+    // if not url defined then return
+    if (!(url.length > 0)) {
+        return false;
+    }
 
-        if (doRequest) {
-            f.request(function(/*event*/) {
-                // only render the toplayout after server has sent down data
-                // so that w2ui can bind values with field's html control,
-                // otherwise it is unable to find html controls
-                w2ui.toplayout.show('right', true);
-                w2ui.toplayout.content('right', f);
-                w2ui.toplayout.sizeTo('right', width);
-                w2ui.toplayout.render();
-            });
-        }
-        else {
-            w2ui.toplayout.show('right', true);
+    // if form not found then return
+    var f = w2ui[sform];
+    if (!f) {
+        return false;
+    }
+
+    // if current grid not found then return
+    var g = w2ui[app.active_grid];
+    if (!g) {
+        return false;
+    }
+
+    // if doRequest is defined then take false as default one
+    if (!doRequest) {
+        doRequest = false;
+    }
+
+    f.url = url;
+    if (typeof f.tabs.name == "string") {
+        f.tabs.click('tab1');
+    }
+
+    // mark this flag as is this new record
+    app.new_form_rec = !doRequest;
+
+    // as new content will be loaded for this form
+    // mark form dirty flag as false
+    app.form_is_dirty = false;
+
+    var right_panel_content = w2ui.toplayout.get("right").content;
+
+    // internal function
+    var showForm = function() {
+        // if the same content is there, then no need to render toplayout again
+        if (f !== right_panel_content) {
             w2ui.toplayout.content('right', f);
             w2ui.toplayout.sizeTo('right', width);
             w2ui.toplayout.render();
         }
+        else{
+            // if same form is there then just refresh the form
+            f.refresh();
+
+            /*// HACK: set the height of right panel of toplayout box div and form's box div
+            // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+            var h = w2ui.toplayout.get("right").height;
+            $(w2ui.toplayout.get("right").content.box).height(h);
+            $(f.box).find("div.w2ui-form-box").height(h);*/
+        }
+        w2ui.toplayout.show('right', true);
+    }
+
+    if (doRequest) {
+        f.request(function(event) {
+            if (event.status === "success") {
+                // only render the toplayout after server has sent down data
+                // so that w2ui can bind values with field's html control,
+                // otherwise it is unable to find html controls
+                showForm();
+                return true;
+            }
+            else {
+                showForm();
+                f.message("Could not get form data from server...!!");
+                return false;
+            }
+        });
+    }
+    else{
+        var sel_recid = parseInt(g.last.sel_recid);
+        if (sel_recid > -1) {
+            // if new record is being added then unselect {{the selected record}} from the grid
+            g.unselect(g.last.sel_recid);
+        }
+        showForm();
+        return true;
     }
 }
 
@@ -175,12 +232,26 @@ function setToForm(sform, url, width, doRequest) {
 function setToRAForm(bid, raid, d) {
     "use strict";
     if (raid > 0) {
+        var f = w2ui.rentalagrForm;
         w2ui.toplayout.content('right', w2ui.raLayout);
         w2ui.toplayout.show('right', true);
         w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
-        w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
-        w2ui.rentalagrForm.request();
+        f.url = '/v1/rentalagr/' + bid + '/' + raid;
+        f.request();
         w2ui.toplayout.render();
+
+        // mark this flag as is this new record
+        // record created already
+        app.new_form_rec = false;
+
+        // as new content will be loaded for this form
+        // mark form dirty flag as false
+        app.form_is_dirty = false;
+
+        // click on first tab
+        if (typeof f.tabs.name == "string") {
+            f.tabs.click('tab1');
+        }
     }
 
     //----------------------------------------------------------------
@@ -889,7 +960,7 @@ function genDateRangeNavigator(prefix) {
 // addDateNavToToolbar
 //          - Utility routine create add a date navigator to a toolbar
 // @params
-//   prefix = the w2ui grid control prefix name that follows the naming 
+//   prefix = the w2ui grid control prefix name that follows the naming
 //            convention:  prefix + 'Grid'
 // @return  <no return value>
 //-----------------------------------------------------------------------------
@@ -911,17 +982,17 @@ function addDateNavToToolbar(prefix) {
 //-----------------------------------------------------------------------------
 // getRentableTypes - return the RentableTypes list with respect of BUD
 // @params
+//      - BUD: current business designation
 // @return  the Rentable Types List
 //-----------------------------------------------------------------------------
-function getRentableTypes(BID) {
+function getRentableTypes(BUD) {
     "use strict";
     return jQuery.ajax({
         type: "GET",
-        url: "/v1/rtlist/"+BID,
+        url: "/v1/rtlist/"+BUD,
         dataType: "json",
     }).done(function(data) {
         if (data.status == "success") {
-            var BUD = getBUDfromBID(BID);
             if (data.records) {
                 app.rt_list[BUD] = data.records;
             } else {
@@ -980,9 +1051,11 @@ function getPostAccounts(BID) {
 //-----------------------------------------------------------------------------
 // getParentAccounts - return the list of Parent accounts with respect of BUD
 // @params
-// @return the list of parent accounts
+//      - BID: current Business ID
+//      - delLID: account id which needs to be substracted from the return list
+// @return the list of parent accounts excluding delLID (current account ID from accountForm)
 //-----------------------------------------------------------------------------
-function getParentAccounts(BID) {
+function getParentAccounts(BID, delLID) {
     "use strict";
     return jQuery.ajax({
         type: "GET",
@@ -992,7 +1065,16 @@ function getParentAccounts(BID) {
         if (data.status == "success") {
             var BUD = getBUDfromBID(BID);
             if (data.records) {
-                app.parent_accounts[BUD] = data.records;
+                var dft = {id: 0, text: ' -- No Parent LID -- '};
+                var temp = [];
+                data.records.forEach(function(item) {
+                    if (item.id != delLID) {
+                        temp.push(item);
+                    }
+                });
+                // we don't need to exclude the default one from the list
+                temp.unshift(dft);
+                app.parent_accounts[BUD] = temp;
             } else{
                 app.parent_accounts[BUD] = [];
             }
@@ -1193,19 +1275,170 @@ function getFormSubmitData(record) {
 }
 
 //-----------------------------------------------------------------------------
-// isNewFormRecord -  based on condition perform some actions
-// 1. show / hide delete button for requested form if form has delete button
+// formRefreshCallBack -  callBack for form refresh event
+// need to take several actions on refresh complete event
 // @params
-//   sform   = name of the form
+//   w2form   = w2form object
 //   is_new     = true / false
+//   id_name  = form's primary Id
+//   form_header = header (title) of form
 //-----------------------------------------------------------------------------
-function isNewFormRecord(sform, is_new) {
+function formRefreshCallBack(w2frm, id_name, form_header) {
     "use strict";
-    if (is_new) {
-        $("#"+sform).find("button[name=delete]").addClass("hidden");
+    var fname = w2frm.name,
+        record = w2frm.record,
+        id = record[id_name],
+        header = form_header;
+
+    if (id === undefined) {
+        console.log("given id_name does not exist in form's record")
+        return false;
+    }
+
+    // mark active things of form
+    app.active_form = fname;
+    // keep active form original record
+    app.active_form_original = $.extend(true, {}, record);
+    // if new record then disable delete button
+    // and format the equivalent header
+    if (id === 0) {
+        w2frm.header = header.format("new");
+        $("#"+fname).find("button[name=delete]").addClass("hidden");
     }
     else {
-        $("#"+sform).find("button[name=delete]").removeClass("hidden");
+        w2frm.header = header.format(id);
+        $("#"+fname).find("button[name=delete]").removeClass("hidden");
+    }
+
+    // ============================
+    // HACK: set the height of right panel of toplayout box div and form's box div
+    // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+    // ============================
+    // ALREADY HANDLED IN "setToForm"
+    // ============================
+    var h = w2ui.toplayout.get("right").height;
+    $(w2ui.toplayout.get("right").content.box).height(h);
+    $(w2frm.box).find("div.w2ui-form-box").height(h);
+
+}
+
+//-----------------------------------------------------------------------------
+// formRecDiffer -  tells that form record has been changed
+// **[copied from w2ui form's getChanges internal function]**
+// @params
+//   record = form's current record
+//   original = form's initial record
+//   result = returned object
+// @return
+//      Object with difference from `record` to `original`
+//-----------------------------------------------------------------------------
+var formRecDiffer = function(record, original, result) {
+    "use strict";
+    for (var i in record) {
+        if (typeof record[i] == "object") {
+            result[i] = formRecDiffer(record[i], original[i] || {}, {});
+            if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
+        } else if ( record[i] !== null && record[i] != original[i] ) {
+            /*** ================================================================
+            || BY DEFAULT, W2UI SETS VALUE OF FIELD TO NULL IF NOTHING IS IN THERE
+            || NOTE: be careful, for form record, <null> and <""> (blank string) both are same
+            || it should not alert user that content has been changed !!!
+            || so, for this, <undefined>, <NaN>, <null>, <""> all are same
+            || NEED TO DO SOMETHING ABOUT THIS
+            || HECK: it only makes sense when record[i] is not NULL (undefined, null, "", NaN)
+            ================================================================ ***/
+            result[i] = record[i];
+        }
+    }
+    return result;
+};
+
+//-----------------------------------------------------------------------------
+// getPersonDetailsByTCID -  returns the person details for given TCID
+// @params
+//   TCID = Transactant ID
+// @return
+//      Object with Transactant record
+//-----------------------------------------------------------------------------
+function getPersonDetailsByTCID(BID, TCID) {
+    "use strict";
+
+    // we need to use this structure to get person details from given TCID
+    var params = {"cmd":"get","recid":0,"name":"transactantForm"},
+        dat = JSON.stringify(params);
+
+    return $.post("/v1/person/"+BID+"/"+TCID, dat);
+}
+
+// form dirty alert confirmation dialog box options
+var form_dirty_alert_options = {
+    msg          : '<p>There are unsaved changes.</p><p>Select OK to exit without saving your changes or Cancel to continue editing.</p>',
+    title        : '',
+    width        : 480,     // width of the dialog
+    height       : 180,     // height of the dialog
+    btn_yes      : {
+        text     : 'OK',   // text for yes button (or yes_text)
+        class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
+        style    : '',      // style for yes button (or yes_style)
+        callBack : null     // callBack for yes button (or yes_callBack)
+    },
+    btn_no       : {
+        text     : 'Cancel',    // text for no button (or no_text)
+        class    : 'w2ui-btn',      // class for no button (or no_class)
+        style    : '',      // style for no button (or no_style)
+        callBack : null     // callBack for no button (or no_callBack)
+    },
+    callBack     : function(answer) {
+        console.log("common callBack (Yes/No): ", answer);
+    }     // common callBack
+};
+
+//-----------------------------------------------------------------------------
+// form_dirty_alert - alert the user if form content has been changed and he leaves the form at five times as follows
+// 1. When user change the business
+// 2. When he clicks on the sidebar that load something else
+// 3. When closing the form
+// 4. When click on other record
+// 5. When user closing the whole window
+// NOTE: if form is dirty then only alert the user, otherwise always return true;
+// @params
+//   yes callback = what to do if user agree (Yes)
+//   no callback = what to do if user disagree (No)
+//   yes_args = yes callback arguments
+//   no_args = no callback arguments
+// @return: true or false
+//-----------------------------------------------------------------------------
+function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
+    if (app.form_is_dirty) {
+        w2confirm(form_dirty_alert_options)
+        .yes(function() {
+            if (typeof yes_callBack === "function") {
+                if (Array.isArray(yes_args) && yes_args.length > 0) {
+                    yes_callBack.apply(null, yes_args);
+                } else{
+                    yes_callBack();
+                }
+            }
+        })
+        .no(function() {
+            if (typeof no_callBack === "function") {
+                if (Array.isArray(no_args) && no_args.length > 0) {
+                    no_callBack.apply(null, no_args);
+                } else{
+                    no_callBack();
+                }
+            }
+        });
+    } else {
+        // if form is not dirty then simply execute yes callback which is default action
+        if (typeof yes_callBack === "function") {
+            // Reference: http://odetocode.com/blogs/scott/archive/2007/07/04/function-apply-and-function-call-in-javascript.aspx
+            if (Array.isArray(yes_args) && yes_args.length > 0) {
+                yes_callBack.apply(null, yes_args);
+            } else{
+                yes_callBack();
+            }
+        }
     }
 }
 
