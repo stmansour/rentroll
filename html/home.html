@@ -437,7 +437,7 @@ function buildPageElements() {
                         { id: 'receipts',     text: 'Receive '+plural(app.sReceipt), icon: 'fa fa-star',        hint: plural(app.sReceipt) },
                         { id: 'mkdep',        text: 'Make A Deposit',                icon: 'fa fa-plus-circle', hint: 'Make Deposit' },
                         { id: 'allocfunds',   text: 'Apply '+plural(app.sReceipt),   icon: 'fa fa-check-circle-o' },
-                        { id: 'reversepmt',   text: 'Reverse '+plural(app.sReceipt), icon: 'fa fa-window-close' },
+                        //{ id: 'reversepmt',   text: 'Reverse '+plural(app.sReceipt), icon: 'fa fa-window-close' },
                         { id: 'gdssvcs',      text: 'Goods & Services',              icon: 'fa fa-coffee' },
                ]
             },
@@ -567,11 +567,11 @@ function buildPageElements() {
                     w2ui.toplayout.load('main', '/html/formmkdep.html');
                     w2ui.toplayout.hide('right',true);
                     break;
-                case 'reversepmt':
-                    w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                    w2ui.toplayout.load('main', '/html/formrevrcpt.html');
-                    w2ui.toplayout.hide('right',true);
-                    break;
+                // case 'reversepmt':
+                //     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                //     w2ui.toplayout.load('main', '/html/formrevrcpt.html');
+                //     w2ui.toplayout.hide('right',true);
+                //     break;
                 case 'gdssvcs':
                     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                     w2ui.toplayout.load('main', '/html/formgas.html');
