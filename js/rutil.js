@@ -165,11 +165,11 @@ function setToForm(sform, url, width, doRequest) {
             // if same form is there then just refresh the form
             f.refresh();
 
-            /*// HACK: set the height of right panel of toplayout box div and form's box div
+            // HACK: set the height of right panel of toplayout box div and form's box div
             // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
             var h = w2ui.toplayout.get("right").height;
             $(w2ui.toplayout.get("right").content.box).height(h);
-            $(f.box).find("div.w2ui-form-box").height(h);*/
+            $(f.box).find("div.w2ui-form-box").height(h);
         }
         w2ui.toplayout.show('right', true);
     }
@@ -1299,7 +1299,6 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
     var h = w2ui.toplayout.get("right").height;
     $(w2ui.toplayout.get("right").content.box).height(h);
     $(w2frm.box).find("div.w2ui-form-box").height(h);
-
 }
 
 //-----------------------------------------------------------------------------
