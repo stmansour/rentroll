@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// https://play.golang.org/p/p842UZpQaK
+
 // RpnCtx defines the context structure needed by all the Rpn routines
 type RpnCtx struct {
 	xbiz   *XBusiness  // the biz associated with this assessment/payment
@@ -42,7 +44,7 @@ func rpnPrintStack(ctx *RpnCtx) {
 func RpnInit() {
 	rpnVariable = regexp.MustCompile("{(.*)}")
 	rpnOperator = regexp.MustCompile(`[\-+*/%]`)
-	rpnNumber = regexp.MustCompile(`^\d+\.?[0-9]+`)
+	rpnNumber = regexp.MustCompile(`^-?\d+\.?[0-9]+`)
 	rpnFunction = regexp.MustCompile(`([a-zA-Z]+)\(([^\)]+)\)`)
 	rpnASM = regexp.MustCompile(`^ASM\(([^)]+)\)`)
 }
@@ -139,7 +141,8 @@ func varResolve(ctx *RpnCtx, s string) float64 {
 	return float64(0)
 }
 
-// RpnCalculateEquation takes a formula, parses and executes the formula and returns the number it calculates
+// RpnCalculateEquation takes a formula, parses and executes the formula and returns the number it calculates.
+// This may be helpful: https://play.golang.org/p/p842UZpQaK
 func RpnCalculateEquation(ctx *RpnCtx, s string) float64 {
 	// funcname := "RpnCalculateEquation"
 	// fmt.Printf("%s: entered\n", funcname)
@@ -161,6 +164,11 @@ func RpnCalculateEquation(ctx *RpnCtx, s string) float64 {
 				// fmt.Printf("%s: found '_', pushing ctx.amount = %8.2f\n", funcname, ctx.amount)
 				rpnPush(ctx, ctx.amount)
 			} else if ('0' <= s[0] && s[0] <= '9') || '.' == s[0] { // is it a number?
+				m := rpnNumber.FindStringSubmatchIndex(s)
+				match := s[m[0]:m[1]]
+				n, _ := strconv.ParseFloat(match, 64)
+				ctx.stack = append(ctx.stack, n*ctx.pf)
+			} else if len(s) > 1 && s[0] == '-' && (('0' <= s[1] && s[1] <= '9') || '.' == s[1]) {
 				m := rpnNumber.FindStringSubmatchIndex(s)
 				match := s[m[0]:m[1]]
 				n, _ := strconv.ParseFloat(match, 64)

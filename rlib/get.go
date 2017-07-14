@@ -554,13 +554,27 @@ func GetJournalByReceiptID(id int64) Journal {
 	return r
 }
 
+// GetJournalsByReceiptID returns a slice of Journal structs where it references the supplied
+// receiptID
+func GetJournalsByReceiptID(id int64) []Journal {
+	rows, err := RRdb.Prepstmt.GetJournalByReceiptID.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+	var t = []Journal{}
+	for rows.Next() {
+		var r Journal
+		ReadJournals(rows, &r)
+		t = append(t, r)
+	}
+	return t
+}
+
 // GetJournalMarkers loads the last n Journal markers
 func GetJournalMarkers(n int64) []JournalMarker {
 	rows, err := RRdb.Prepstmt.GetJournalMarkers.Query(n)
 	Errcheck(err)
 	defer rows.Close()
-	var t []JournalMarker
-	t = make([]JournalMarker, 0)
+	var t = []JournalMarker{}
 	for rows.Next() {
 		var r JournalMarker
 		Errcheck(rows.Scan(&r.JMID, &r.BID, &r.State, &r.DtStart, &r.DtStop, &r.CreateTS, &r.CreateBy))

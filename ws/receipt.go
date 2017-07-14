@@ -9,6 +9,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // ReceiptSendForm is a structure specifically for the UI. It will be
@@ -376,7 +377,8 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		// update existing record
-		err = bizlogic.UpdateReceipt(&a)
+		now := time.Now() // this is the time we're making the change if a reversal needs to be done
+		err = bizlogic.UpdateReceipt(&a, &now)
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d\n: %s", funcname, d.RCPTID, err.Error())
@@ -452,25 +454,33 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	j := rlib.GetJournalByReceiptID(del.RCPTID)
-	rlib.GetJournalAllocations(&j)
-	for k := 0; k < len(j.JA); k++ {
-		m := rlib.GetLedgerEntriesByJAID(d.BID, j.JA[k].JAID)
-		for i := 0; i < len(m); i++ {
-			rlib.DeleteLedgerEntry(m[i].LEID)
-		}
-	}
-	rlib.DeleteJournalAllocations(j.JID)
-	rlib.DeleteJournal(j.JID)
-	if err := rlib.DeleteReceiptAllocations(del.RCPTID); err != nil {
+	rcpt := rlib.GetReceiptNoAllocations(del.RCPTID)
+	dt := time.Now()
+	err := bizlogic.ReverseReceipt(&rcpt, &dt)
+	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
-	if err := rlib.DeleteReceipt(del.RCPTID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
+	// j := rlib.GetJournalByReceiptID(del.RCPTID)
+	// rlib.GetJournalAllocations(&j)
+	// for k := 0; k < len(j.JA); k++ {
+	// 	m := rlib.GetLedgerEntriesByJAID(d.BID, j.JA[k].JAID)
+	// 	for i := 0; i < len(m); i++ {
+	// 		rlib.DeleteLedgerEntry(m[i].LEID)
+	// 	}
+	// }
+	// rlib.DeleteJournalAllocations(j.JID)
+	// rlib.DeleteJournal(j.JID)
+	// if err := rlib.DeleteReceiptAllocations(del.RCPTID); err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
+
+	// if err := rlib.DeleteReceipt(del.RCPTID); err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
 
 	SvcWriteSuccessResponse(w)
 }

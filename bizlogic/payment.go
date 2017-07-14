@@ -149,7 +149,9 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	//--------------------------------------------------------
 	// mark the assessment as either fully or partially paid
 	//--------------------------------------------------------
-	a.FLAGS &= 0x7ffffffc // zero-out bits 0-1
+	d := uint64(0x3)
+	d = ^d
+	a.FLAGS &= d // zero-out bits 0-1
 	if *needed-amtToUse < ROUNDINGERR {
 		a.FLAGS |= 2 // 2 = paid in full
 		fmt.Printf("Fully paid assessment %d\n", a.ASMID)
@@ -198,44 +200,48 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	// jnl := rlib.GetJournalByReceiptID(rcpt.RCPTID)
 
 	// New
-	var jnl rlib.Journal
-	jnl.BID = a.BID
-	jnl.Amount = amtToUse
-	jnl.Dt = *dt
-	jnl.Type = rlib.JNLTYPERCPT
-	jnl.ID = rcpt.RCPTID
+	var jnl = rlib.Journal{
+		BID:    a.BID,
+		Amount: amtToUse,
+		Dt:     *dt,
+		Type:   rlib.JNLTYPERCPT,
+		ID:     rcpt.RCPTID,
+	}
 	_, err = rlib.InsertJournal(&jnl)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
 	}
 
-	rlib.GetJournalAllocations(&jnl)
-	var ja rlib.JournalAllocation
-	ja.JID = jnl.JID
-	ja.AcctRule = ra.AcctRule
-	ja.Amount = amtToUse
-	ja.BID = jnl.BID
-	ja.RAID = a.RAID
-	ja.RID = a.RID
-	ja.ASMID = a.ASMID
-	ja.TCID = rcpt.TCID
+	// rlib.GetJournalAllocations(&jnl)  // I DON'T THINK WE NEED THIS STATEMENT
+	var ja = rlib.JournalAllocation{
+		JID:      jnl.JID,
+		AcctRule: ra.AcctRule,
+		Amount:   amtToUse,
+		BID:      jnl.BID,
+		RAID:     a.RAID,
+		RID:      a.RID,
+		ASMID:    a.ASMID,
+		TCID:     rcpt.TCID,
+		RCPTID:   rcpt.RCPTID,
+	}
 	rlib.InsertJournalAllocationEntry(&ja)
 	jnl.JA = append(jnl.JA, ja)
 
 	//-------------------------------------------------------------------------
 	// Update ledgers based on journal entry
 	//-------------------------------------------------------------------------
-	var l rlib.LedgerEntry
-	l.BID = jnl.BID
-	l.JID = jnl.JID
-	l.RID = ja.RID
-	l.JAID = ja.JAID
-	l.RAID = ja.RAID
-	l.TCID = ja.TCID
-	l.Dt = jnl.Dt
-	l.LID = dacct.LID
-	l.Amount = amtToUse
+	var l = rlib.LedgerEntry{
+		BID:    jnl.BID,
+		JID:    jnl.JID,
+		RID:    ja.RID,
+		JAID:   ja.JAID,
+		RAID:   ja.RAID,
+		TCID:   ja.TCID,
+		Dt:     jnl.Dt,
+		LID:    dacct.LID,
+		Amount: amtToUse,
+	}
 	_, err = rlib.InsertLedgerEntry(&l)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)

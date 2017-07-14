@@ -1020,7 +1020,8 @@ CREATE TABLE JournalAllocation (
     RID BIGINT NOT NULL DEFAULT 0,                                 -- associated Rentable
     RAID BIGINT NOT NULL DEFAULT 0,                                -- associated Rental Agreement
     TCID BIGINT NOT NULL DEFAULT 0,                                -- if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means it's unallocated funds
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     --
+    RCPTID BIGINT NOT NULL DEFAULT 0,                              -- associated receipt if TCID > 0
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- Amount transacted
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created

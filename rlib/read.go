@@ -145,12 +145,12 @@ func ReadJournals(rows *sql.Rows, a *Journal) {
 
 // ReadJournalAllocation reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocation(row *sql.Row, a *JournalAllocation) {
-	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
 }
 
 // ReadJournalAllocations reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocations(rows *sql.Rows, a *JournalAllocation) {
-	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
 }
 
 // ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.
