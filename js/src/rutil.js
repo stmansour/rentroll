@@ -1116,38 +1116,6 @@ function int_to_bool(i){
     }
 }
 
-// unallocated receipts utility literal object
-var _unAllocRcpts = {
-    layoutPanels: {
-        top: function(unallocFund, person/*, tcid*/) {
-            "use strict";
-            return `<html>
-                <head>
-                <link rel="stylesheet" href="/html/rentroll.css">
-                </head>
-                <body>
-                <div style="display: table; width: 100%; height: 40%;">
-                    <div style="display: table-cell; vertical-align: middle;text-align: left;width: 100%;">
-                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;" name="unallocForm">`+person+`<br>Remaining unallocated funds:
-                        <span id="total_fund_amount" data-fund="`+unallocFund+`"
-                        style="padding: 10px; color: #00AA00; font-size: 1.5rem; font-weight: bold; margin: 10px auto; width: 30%;">`+
-                        unallocFund+
-                        `</span>&nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto-Allocate</button></p>
-                    </div>
-                </div>
-                </body>
-                </html>`;
-        },
-        bottom: function() {
-            "use strict";
-            return `<div style="display: table; width: 100%; height: 100%;">
-                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
-                        <button class="w2ui-btn" id="alloc_fund_save_btn">Save</button>
-                    </div>
-                </div>`;
-        }
-    }
-};
 
 //-----------------------------------------------------------------------------
 // getPayorFund - get payor fund
@@ -1518,3 +1486,112 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 // test('1.20',     '1.20', 2);
 // test('1.2000',   '1.20', 4);
 // test('1.200',    '1.2000', 3);
+window.formRecDiffer=formRecDiffer;
+window.getBUDfromBID=getBUDfromBID;
+window.getBIDfromBUD=getBIDfromBUD;
+window.getPaymentType=getPaymentType;
+window.buildPaymentTypeSelectList=buildPaymentTypeSelectList;
+window.getCurrentBusiness=getCurrentBusiness;
+window.setToForm=setToForm;
+window.setToRAForm=setToRAForm;
+window.ridRentablePickerRender=ridRentablePickerRender;
+window.asmFormRentablePickerRender=asmFormRentablePickerRender;
+window.ridRentableDropRender=ridRentableDropRender;
+window.ridRentableCompare=ridRentableCompare;
+window.tcidRAPayorPickerRender=tcidRAPayorPickerRender;
+window.getFullName=getFullName;
+window.getTCIDName=getTCIDName;
+window.tcidPickerCompare=tcidPickerCompare;
+window.tcidPickerDropRender=tcidPickerDropRender;
+window.tcidReceiptPayorPickerRender=tcidReceiptPayorPickerRender;
+window.tcidRUserPickerRender=tcidRUserPickerRender;
+window.rentalAgrFinderCompare=rentalAgrFinderCompare;
+window.rentalAgrFinderDropRender=rentalAgrFinderDropRender;
+window.rentalAgrFinderRender=rentalAgrFinderRender;
+window.plural=plural;
+window.dateFromString=dateFromString;
+window.dateTodayStr=dateTodayStr;
+window.dateFmtStr=dateFmtStr;
+window.dayBack=dayBack;
+window.dayFwd=dayFwd;
+window.dateMonthFwd=dateMonthFwd;
+window.monthFwd=monthFwd;
+window.setToCurrentMonth=setToCurrentMonth;
+window.setToNextMonth=setToNextMonth;
+window.dateMonthBack=dateMonthBack;
+window.monthBack=monthBack;
+window.dateControlString=dateControlString;
+window.w2uiDateControlString=w2uiDateControlString;
+window.setDateControl=setDateControl;
+window.calcRarGridContractRent=calcRarGridContractRent;
+window.handleDateToolbarAction=handleDateToolbarAction;
+window.setDateControlsInToolbar=setDateControlsInToolbar;
+window.genDateRangeNavigator=genDateRangeNavigator;
+window.addDateNavToToolbar=addDateNavToToolbar;
+window.getRentableTypes=getRentableTypes;
+window.getAccountsList=getAccountsList;
+window.getPostAccounts=getPostAccounts;
+window.getParentAccounts=getParentAccounts;
+window.unallocAmountRemaining=unallocAmountRemaining;
+window.refreshUnallocAmtSummaries=refreshUnallocAmtSummaries;
+window.int_to_bool=int_to_bool;
+window.getPayorFund=getPayorFund;
+window.getFormSubmitData=getFormSubmitData;
+window.formRefreshCallBack=formRefreshCallBack;
+window.getPersonDetailsByTCID=getPersonDetailsByTCID;
+window.form_dirty_alert=form_dirty_alert;
+window.number_format=number_format;
+exports.getBUDfromBID=getBUDfromBID;
+exports.getBIDfromBUD=getBIDfromBUD;
+exports.getPaymentType=getPaymentType;
+exports.buildPaymentTypeSelectList=buildPaymentTypeSelectList;
+exports.getCurrentBusiness=getCurrentBusiness;
+exports.setToForm=setToForm;
+exports.setToRAForm=setToRAForm;
+exports.ridRentablePickerRender=ridRentablePickerRender;
+exports.asmFormRentablePickerRender=asmFormRentablePickerRender;
+exports.ridRentableDropRender=ridRentableDropRender;
+exports.ridRentableCompare=ridRentableCompare;
+exports.tcidRAPayorPickerRender=tcidRAPayorPickerRender;
+exports.getFullName=getFullName;
+exports.getTCIDName=getTCIDName;
+exports.tcidPickerCompare=tcidPickerCompare;
+exports.tcidPickerDropRender=tcidPickerDropRender;
+exports.tcidReceiptPayorPickerRender=tcidReceiptPayorPickerRender;
+exports.tcidRUserPickerRender=tcidRUserPickerRender;
+exports.rentalAgrFinderCompare=rentalAgrFinderCompare;
+exports.rentalAgrFinderDropRender=rentalAgrFinderDropRender;
+exports.rentalAgrFinderRender=rentalAgrFinderRender;
+exports.plural=plural;
+exports.dateFromString=dateFromString;
+exports.dateTodayStr=dateTodayStr;
+exports.dateFmtStr=dateFmtStr;
+exports.dayBack=dayBack;
+exports.dayFwd=dayFwd;
+exports.dateMonthFwd=dateMonthFwd;
+exports.monthFwd=monthFwd;
+exports.setToCurrentMonth=setToCurrentMonth;
+exports.setToNextMonth=setToNextMonth;
+exports.dateMonthBack=dateMonthBack;
+exports.monthBack=monthBack;
+exports.dateControlString=dateControlString;
+exports.w2uiDateControlString=w2uiDateControlString;
+exports.setDateControl=setDateControl;
+exports.calcRarGridContractRent=calcRarGridContractRent;
+exports.handleDateToolbarAction=handleDateToolbarAction;
+exports.setDateControlsInToolbar=setDateControlsInToolbar;
+exports.genDateRangeNavigator=genDateRangeNavigator;
+exports.addDateNavToToolbar=addDateNavToToolbar;
+exports.getRentableTypes=getRentableTypes;
+exports.getAccountsList=getAccountsList;
+exports.getPostAccounts=getPostAccounts;
+exports.getParentAccounts=getParentAccounts;
+exports.unallocAmountRemaining=unallocAmountRemaining;
+exports.refreshUnallocAmtSummaries=refreshUnallocAmtSummaries;
+exports.int_to_bool=int_to_bool;
+exports.getPayorFund=getPayorFund;
+exports.getFormSubmitData=getFormSubmitData;
+exports.formRefreshCallBack=formRefreshCallBack;
+exports.getPersonDetailsByTCID=getPersonDetailsByTCID;
+exports.form_dirty_alert=form_dirty_alert;
+exports.number_format=number_format;
