@@ -602,6 +602,9 @@ function buildPageElements() {
                     case 'pmts':
                     case 'dep':
                     case 'ars':
+                    case 'tws':
+                    case 'ledgers':
+                    case 'allocfunds':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);
                         break;
@@ -620,11 +623,11 @@ function buildPageElements() {
                         w2ui.toplayout.load('main', '/html/formmkdep.html');
                         w2ui.toplayout.hide('right',true);
                         break;
-                    case 'reversepmt':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                        w2ui.toplayout.load('main', '/html/formrevrcpt.html');
-                        w2ui.toplayout.hide('right',true);
-                        break;
+                     // case 'reversepmt':
+                     //     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                     //     w2ui.toplayout.load('main', '/html/formrevrcpt.html');
+                     //     w2ui.toplayout.hide('right',true);
+                     //     break;
                     case 'gdssvcs':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/html/formgas.html');
@@ -705,7 +708,6 @@ function buildPageElements() {
                         w2ui.toplayout.load('main', '/html/formperm.html');
                         w2ui.toplayout.hide('right',true);
                         break;
-
                     case 'RPTasmrpt':
                     case 'RPTb':
                     case 'RPTcoa':
@@ -730,10 +732,6 @@ function buildPageElements() {
                     case 'RPTtb':
                         showReport(target);
                         app.last.report = target;
-                        break;
-                    case 'allocfunds':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                        switchToGrid(target);
                         break;
                     default:
                         console.log('unhandled event target: ' + target);
