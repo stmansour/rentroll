@@ -310,6 +310,7 @@ function switchToGrid(svc) {
     var url = '/v1/' + svc + '/' + x.value;
     w2ui[grid].url = url;
     w2ui[grid].last.sel_recid = null; // whenever switch grid, erase last selected record
+    app.last.grid_sel_recid = -1;
     app.active_grid = grid; // mark active grid in app.active_grid
     w2ui.toplayout.content('main', w2ui[grid]);
     w2ui.toplayout.hide('right',true);
