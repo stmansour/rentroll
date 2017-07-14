@@ -406,6 +406,22 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.RCPTID > 0 {
 		var gg ReceiptSendForm
 		rlib.MigrateStructVals(&a, &gg)
+		if a.TCID > 0 {
+			var t rlib.Transactant
+			rlib.GetTransactant(a.TCID, &t)
+			if t.TCID > 0 {
+				tcid := strconv.FormatInt(t.TCID, 10)
+				// feed Payor pattern, it may change depend on the pattern
+				// front-end form payor field and this pattern need to be same
+				// pattern: "{{name}} (TCID: {{tcid}})"
+				if t.IsCompany > 0 {
+					gg.Payor = t.CompanyName + " (TCID: " + tcid + ")"
+				} else {
+					gg.Payor = t.FirstName + " " + t.LastName + " (TCID: " + tcid + ")"
+				}
+			}
+
+		}
 		g.Record = gg
 	}
 	g.Status = "success"

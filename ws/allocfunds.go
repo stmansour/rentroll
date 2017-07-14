@@ -191,6 +191,7 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 	}
 
 	g.Status = "success"
+	g.Total = int64(len(g.Records))
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }
