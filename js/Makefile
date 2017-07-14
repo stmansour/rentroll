@@ -17,7 +17,6 @@ test:
 
 package:
 	@touch fail
-	@NODE_ENV=test /usr/local/lib/node_modules/mocha/bin/mocha -b tests
 	mkdir -p ${BINDIR}/js
 	cp bundle.js ${BINDIR}
 	cp bundle.dev.js ${BINDIR}
