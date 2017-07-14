@@ -2798,7 +2798,7 @@ function buildPageElements() {
             toolbarReload: false,
             toolbarColumns: false,
         },
-         url: '/v1/rar/',
+        url: '/v1/rar/',
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'RAID', hidden: true, caption: 'RAID',  size: '40px', sortable: true},
@@ -2813,28 +2813,17 @@ function buildPageElements() {
             popupRidRentablePicker(app.sRentable, x.value);
         },
         onChange: function(event) {
-            var obj = this;
             event.done(function () {
                 calcRarGridContractRent(obj);
-                w2ui[event.target].save();
+                w2ui[this].save();
             });
-        },
-        onRender: function(event) {
-            var obj = this;
-            event.done(function() {
-                calcRarGridContractRent(obj);
-            });
-        },
-        onRefresh: function(event) {
-            event.onComplete = function(){
-                calcRarGridContractRent(this);
-            };
         },
         onLoad: function(event) {
-                event.done(function () {
-                    if (w2ui.rarGrid.summary.length === 0) {
-                        w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
-                    }
+            event.done(function () {
+                if (w2ui.rarGrid.summary.length === 0) {
+                    w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
+                }
+                calcRarGridContractRent(this);
             });
         },
      });
