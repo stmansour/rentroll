@@ -232,11 +232,12 @@ function setToForm(sform, url, width, doRequest) {
 function setToRAForm(bid, raid, d) {
     "use strict";
     if (raid > 0) {
+        var f = w2ui.rentalagrForm;
         w2ui.toplayout.content('right', w2ui.raLayout);
         w2ui.toplayout.show('right', true);
         w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
-        w2ui.rentalagrForm.url = '/v1/rentalagr/' + bid + '/' + raid;
-        w2ui.rentalagrForm.request();
+        f.url = '/v1/rentalagr/' + bid + '/' + raid;
+        f.request();
         w2ui.toplayout.render();
 
         // mark this flag as is this new record
@@ -246,6 +247,11 @@ function setToRAForm(bid, raid, d) {
         // as new content will be loaded for this form
         // mark form dirty flag as false
         app.form_is_dirty = false;
+
+        // click on first tab
+        if (typeof f.tabs.name == "string") {
+            f.tabs.click('tab1');
+        }
     }
 
     //----------------------------------------------------------------
