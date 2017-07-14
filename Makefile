@@ -1,4 +1,4 @@
-DIRS = db rlib rrpt rcsv worker ws bizlogic admin importers tools test
+DIRS = db rlib rrpt rcsv worker ws bizlogic admin importers tools test js
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
@@ -101,5 +101,3 @@ pubfa:
 
 # publish all the non-os-dependent files to the repo
 pub: pubjs pubimages pubdb pubfa
-
-
