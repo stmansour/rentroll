@@ -1284,10 +1284,12 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
     if (id === 0) {
         w2frm.header = header.format("new");
         $("#"+fname).find("button[name=delete]").addClass("hidden");
+        $("#"+fname).find("button[name=reverse]").addClass("hidden");
     }
     else {
         w2frm.header = header.format(id);
         $("#"+fname).find("button[name=delete]").removeClass("hidden");
+        $("#"+fname).find("button[name=reverse]").removeClass("hidden");
     }
 
     /*// ============================
