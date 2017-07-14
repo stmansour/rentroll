@@ -1,7 +1,7 @@
-this.jsdom = require('/usr/local/lib/node_modules/jsdom-global')()
+this.jsdom = require('./../../node_modules/jsdom-global')()
 global.$ = global.jQuery = require('./../jquery.min.js');
 
-var chai = require('/usr/local/lib/node_modules/chai');
+var chai = require('./../../node_modules/chai');
 var expect = chai.expect;
 var assert = chai.assert;
 var rutils = require('./../src/rutil.js');

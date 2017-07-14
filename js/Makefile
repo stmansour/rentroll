@@ -11,7 +11,7 @@ clean:
 
 test:
 	@touch fail
-	@NODE_ENV=test /usr/local/lib/node_modules/mocha/bin/mocha -b tests
+	@NODE_ENV=test ./../node_modules/mocha/bin/mocha -b tests
 	@echo "*** TESTS COMPLETE -- ALL TESTS PASS ***"
 	@rm -f fail
 
