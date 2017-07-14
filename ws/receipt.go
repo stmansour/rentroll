@@ -18,7 +18,8 @@ type ReceiptSendForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RCPTID         int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
-	BID            rlib.XJSONBud
+	BID            int64
+	BUD            rlib.XJSONBud
 	PMTID          int64
 	Payor          string // name of the payor
 	TCID           int64  // TCID of payor
@@ -43,6 +44,9 @@ type ReceiptSendForm struct {
 type ReceiptSaveForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RCPTID         int64
+	BID            int64
+	BUD            rlib.XJSONBud
+	ARID           int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
 	PMTID          int64
 	Dt             rlib.JSONTime
@@ -55,12 +59,6 @@ type ReceiptSaveForm struct {
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
 	// AcctRule       string
-}
-
-// ReceiptSaveOther is a struct to handle the UI list box selections
-type ReceiptSaveOther struct {
-	BID  rlib.W2uiHTMLSelect
-	ARID rlib.W2uiHTMLSelect
 }
 
 // PrReceiptGrid is a structure specifically for the UI Grid.
@@ -84,14 +82,6 @@ type SaveReceiptInput struct {
 	Recid    int64           `json:"recid"`
 	FormName string          `json:"name"`
 	Record   ReceiptSaveForm `json:"record"`
-}
-
-// SaveReceiptOther is the input data format for the "other" data on the Save command
-type SaveReceiptOther struct {
-	Status string           `json:"status"`
-	Recid  int64            `json:"recid"`
-	Name   string           `json:"name"`
-	Record ReceiptSaveOther `json:"record"`
 }
 
 // SearchReceiptsResponse is a response string to the search request for receipts
@@ -316,6 +306,8 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveReceipt"
 		err      error
+		foo      SaveReceiptInput
+		a        rlib.Receipt
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
@@ -323,44 +315,15 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//-------------------------------------------------
 	//  First, parse out the main form data into a...
 	//-------------------------------------------------
-	var foo SaveReceiptInput
-	var a rlib.Receipt
 	data := []byte(d.data)
 	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
+
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveReceipt - first migrate: a = %#v\n", a)
-
-	//----------------------------------------------
-	//  Next, parse out the other form data and
-	//  update the fields in a...
-	//----------------------------------------------
-	var bar SaveReceiptOther
-	if err := json.Unmarshal(data, &bar); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	fmt.Printf("bar.Record = %#v\n", bar.Record)
-	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
-	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	a.ARID, err = rlib.IntFromString(bar.Record.ARID.ID, "Invalid ARID")
-	if err != nil {
-		e := fmt.Errorf("%s: Bad ARID value: %s", funcname, bar.Record.ARID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	fmt.Printf("saveReceipt - second migrate: a = %#v\n", a)
 
 	//------------------------------------------
 	//  Update or Insert as appropriate...
@@ -405,7 +368,12 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	a := rlib.GetReceiptNoAllocations(d.RCPTID)
 	if a.RCPTID > 0 {
 		var gg ReceiptSendForm
+		gg.BID = d.BID
+		gg.BUD = getBUDFromBIDList(d.BID)
+
+		// migrate receipt values in resp struct
 		rlib.MigrateStructVals(&a, &gg)
+
 		if a.TCID > 0 {
 			var t rlib.Transactant
 			rlib.GetTransactant(a.TCID, &t)
