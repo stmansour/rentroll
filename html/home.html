@@ -29,7 +29,7 @@ sidebarL1     - w2ui sidebar
     tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
     ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
     handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
-    getBUDfromBID, getPaymentTypeID, buildPaymentTypeSelectList,
+    getBUDfromBID, buildPaymentTypeSelectList,
     tcidReceiptPayorPickerRender, unallocAmountRemaining,
     addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
     getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
@@ -117,7 +117,7 @@ var delete_confirm_options = {
 
 // reverse confirmation dialog box options
 var reverse_confirm_options = {
-    msg          : 'Are you sure you want to reverse this entry?',
+    msg          : '<p>Are you sure you want to reverse this entry?</p>',
     title        : '',
     width        : 340,     // width of the dialog
     height       : 160,     // height of the dialog
@@ -1283,9 +1283,9 @@ function buildPageElements() {
             { field: "Type", required: true, type: 'list', options: { items: app.account_stuff.typeList, selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
             { field: "AcctType", required: true, type: 'list', options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "QB Account Type", page: 0, column: 0 } },
-            { field: "RAAssociated", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
-            { field: "AllowPost", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
-            { field: "ManageToBudget", required: true, type: 'list', options: { items: [], selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
+            { field: "RAAssociated", required: true, type: 'list', options: { items: app.account_stuff.RAAssociatedList, selected: {}, maxDropHeight: 350 }, html: { caption: "RAAssociated", page: 0, column: 0 } },
+            { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
+            { field: "ManageToBudget", required: true, type: 'list', options: { items: app.manageToBudgetList, selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
@@ -1373,6 +1373,15 @@ function buildPageElements() {
                     return;
                 });
             },
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
         },
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -1760,6 +1769,15 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
         }
     });
 
@@ -2143,6 +2161,15 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
         }
     });
 
@@ -2390,6 +2417,15 @@ function buildPageElements() {
                 } else {
                     app.form_is_dirty = true;
                 }
+            };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
             };
         }
     });
@@ -2774,6 +2810,15 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
         }
     });
 
@@ -3139,7 +3184,7 @@ function buildPageElements() {
 
                     // Insert an empty record...
                     var x = getCurrentBusiness();
-                    var BID=x.value;
+                    var BID=parseInt(x.value);
                     var BUD = getBUDfromBID(BID);
                     $.get('/v1/uival/' + x.value + '/app.Receipts' )
                     .done( function(data) {
@@ -3154,7 +3199,8 @@ function buildPageElements() {
                                 RCPTID: 0,
                                 PRCPTID: 0,
                                 ARID: 0,
-                                BID: BUD,
+                                BID: BID,
+                                BUD: BUD,
                                 PMTID: 0,
                                 PmtTypeName: ptInit,
                                 Dt: w2uiDateControlString(y),
@@ -3252,10 +3298,11 @@ function buildPageElements() {
         url: '/v1/receipt',
         formURL: '/html/formrcpt.html',
         fields: [
-            { field: 'PmtTypeName',    type: 'list', required: true, options: {items: []},}, // keep this at position 0 as the list changes and we need to update it
+            { field: 'PmtTypeName',    type: 'list', required: true, options: { items: [], selected: {} }, html: { caption: "BUD", page: 0 } }, // keep this at position 0 as the list changes and we need to update it
             { field: 'ARID',           type: 'list',  required: true, options:  {items: app.Receipts} },  // 1
             { field: 'recid',          type: 'int',   required: false },                                     // 2
-            { field: 'BID',            type: 'list',  required: true, options: {items: app.businesses}},     // 3
+            { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
+            { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
             { field: 'RCPTID',         type: 'int',   required: true },     // 4
             { field: 'PRCPTID',        type: 'int',   required: false },    // 5
             { field: 'PMTID',          type: 'int',   required: false },    // 6
@@ -3378,7 +3425,7 @@ function buildPageElements() {
                 var f = this,
                     r = f.record,
                     x = getCurrentBusiness(),
-                    BID=x.value,
+                    BID=parseInt(x.value),
                     BUD = getBUDfromBID(BID),
                     header = "Edit Receipt ({0})";
 
@@ -3398,18 +3445,28 @@ function buildPageElements() {
                     error: 'Amount must be something other than $0.00'
                 });
             }
+            if (this.record.PMTID === 0) {
+                event.errors.push({
+                    field: this.get('PmtTypeName'),
+                    error: 'Please select the payment type'
+                });
+            }
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
         },
         onChange: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = f.record;
+                    r = f.record,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
 
                 if (event.target == "PmtTypeName") {
-                    var PMTID = getPaymentTypeID(r.BID.id, event.value_new.id);
-                    if (PMTID >= 0) {
-                        r.PMTID = PMTID;
-                        console.log('record.PMTID set to ' + r.PMTID);
-                    }
+                    r.PMTID = event.value_new.id;
+                    console.log('record.PMTID set to ' + r.PMTID);
                 }
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
@@ -3430,12 +3487,29 @@ function buildPageElements() {
                 var BUD = getBUDfromBID(BID);
 
                 // first save the record
-                w2ui.receiptForm.url = '/v1/receipt/' + w2ui.receiptForm.record.BID.text + '/0';
+                w2ui.receiptForm.url = '/v1/receipt/' + BID + '/0';
                 var grid = w2ui.receiptsGrid;
                 var sel = grid.getSelection();
                 grid.unselect(sel);
+                var errors = w2ui.rentableTypeForm.validate(true);
+                if (errors.length > 1) {
+                    return;
+                }
+                // have to ignore issue with LastModTime
+                if (errors.length == 1 && errors[0].field.name != "LastModTime") {
+                    return;
+                }
 
-                var params = {cmd: 'save', formname: this.name, record: this.record };
+                // this.save({}, function (data) {
+                //     if (data.status == 'error') {
+                //         console.log('ERROR: '+ data.message);
+                //         return;
+                //     }
+                //     w2ui.toplayout.hide('right',true);
+                //     tgrid.reload();
+                // });
+                var saveRecord = getFormSubmitData(this.record);
+                var params = {cmd: 'save', formname: this.name, record: saveRecord };
                 var dat = JSON.stringify(params);
 
                 // save Depository request
@@ -3492,11 +3566,16 @@ function buildPageElements() {
                 this.refresh();
             },
             save: function () {
+                var x = getCurrentBusiness();
+                var BID=x.value;
+                var BUD = getBUDfromBID(BID);
+
                 //var obj = this;
-                w2ui.receiptForm.url = '/v1/receipt/' + w2ui.receiptForm.record.BID.text + '/0';
+                w2ui.receiptForm.url = '/v1/receipt/' + BID + '/0';
                 var grid = w2ui.receiptsGrid;
                 var sel = grid.getSelection();
                 grid.unselect(sel);
+
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
@@ -3533,6 +3612,15 @@ function buildPageElements() {
                     return;
                 });
             },
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
         },
    });
 
@@ -3936,7 +4024,16 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
-        }
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
     });
 
     //----------------------------------------------------------------------------------------------
@@ -4090,7 +4187,16 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
-        }
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
     });
 
     //------------------------------------------------------------------------
@@ -4548,7 +4654,16 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
-        }
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
     });
 
     //------------------------------------------------------------------------
@@ -4821,7 +4936,16 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
-        }
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
     });
 
     //------------------------------------------------------------------------
@@ -5132,7 +5256,16 @@ function buildPageElements() {
                     app.form_is_dirty = true;
                 }
             };
-        }
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
     });
 
 

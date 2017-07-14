@@ -77,26 +77,6 @@ function getPaymentType(BUD, reqPMTID) {
 }
 
 //-----------------------------------------------------------------------------
-// getPaymentTypeID - searches BUD's Payment Types for Name.  If found the
-//                  PMTID is returned. Otherwise it returns -1
-// @params  BUD   - the BUD for the business of interest
-//          Name  - the Name of the payment type
-// @return  PMTID (or -1 if not found)
-//-----------------------------------------------------------------------------
-function getPaymentTypeID(BUD,Name) {
-    "use strict";
-    if (typeof BUD == "undefined") {
-        return -1;
-    }
-    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
-        if (app.pmtTypes[BUD][i].Name == Name) {
-            return app.pmtTypes[BUD][i].PMTID;
-        }
-    }
-    return -1;
-}
-
-//-----------------------------------------------------------------------------
 // buildPaymentTypeSelectList - creates a list suitable for a dropdown menu
 //                  with the payment types for the supplied BUD
 // @params  BUD   - the BUD for the business of interest
@@ -104,13 +84,13 @@ function getPaymentTypeID(BUD,Name) {
 //-----------------------------------------------------------------------------
 function buildPaymentTypeSelectList(BUD) {
     "use strict";
-    var options = [];
+    var options = [{id:0, text: " -- Select Payment Type -- "}];
     if (typeof BUD == "undefined") {
         return options;
     }
-    for (var i = 0; i < app.pmtTypes[BUD].length; i++ ) {
-        options[i] = {id: app.pmtTypes[BUD][i].PMTID, text: app.pmtTypes[BUD][i].Name};
-    }
+    app.pmtTypes[BUD].forEach(function(pt) {
+        options.push({ id: pt.PMTID, text: pt.Name });
+    });
     return options;
 }
 
@@ -1310,7 +1290,7 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
         $("#"+fname).find("button[name=delete]").removeClass("hidden");
     }
 
-    // ============================
+    /*// ============================
     // HACK: set the height of right panel of toplayout box div and form's box div
     // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
     // ============================
@@ -1318,8 +1298,7 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
     // ============================
     var h = w2ui.toplayout.get("right").height;
     $(w2ui.toplayout.get("right").content.box).height(h);
-    $(w2frm.box).find("div.w2ui-form-box").height(h);
-
+    $(w2frm.box).find("div.w2ui-form-box").height(h);*/
 }
 
 //-----------------------------------------------------------------------------
