@@ -96,7 +96,7 @@ var app = {
 
 // delete confirmation dialog box options
 var delete_confirm_options = {
-    msg          : 'Are you sure you want to delete this record?',
+    msg          : '<p>Are you sure you want to delete this record?</p>',
     title        : '',
     width        : 340,     // width of the dialog
     height       : 160,     // height of the dialog
@@ -2489,14 +2489,14 @@ function buildPageElements() {
             var yes_args = [this],
                 no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
-                    // reset it
-                    app.last.grid_sel_recid = -1;
-                    grid.selectNone();
 
                     // this record will be added in grid, so set last sel_recid to this record
                     // so it will be automatically highlighted
                     var newRecId = grid.records.length; // get length and assign recid to new record
                     grid.last.sel_recid = String(newRecId);
+
+                    // NOTE: this one is special case, we're adding record which is not new one so select it anyways
+                    app.last.grid_sel_recid = newRecId;
 
                     // Insert an empty record...
                     var x = getCurrentBusiness();
