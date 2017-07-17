@@ -35,15 +35,88 @@ func UpdateAssessment(a *rlib.Assessment) []BizError {
 // ReverseAssessment reverses an existing assessment
 //
 // INPUTS
-//    a = the assessment to insert
+//    aold = the assessment to reverse
+//    mode = how to handle recurring assessments:
+//           0: just reverse this instance
+//           1: reverse this and future instances
+//           2: reverse all instances
 //
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func ReverseAssessment(aold *rlib.Assessment) []BizError {
+func ReverseAssessment(aold *rlib.Assessment, mode int) []BizError {
+	var errlist []BizError
+	switch mode {
+	case 0:
+		errlist = ReverseAssessmentInstance(aold)
+	case 1:
+		errlist = ReverseAssessmentsGoingForward(aold, &aold.Start)
+	case 2:
+		var a rlib.Assessment
+		var err error
+		if aold.PASMID > 0 {
+			a, err = rlib.GetAssessment(aold.PASMID)
+			if err != nil {
+				return bizErrSys(err)
+			}
+		}
+		if a.RentCycle == rlib.RECURNONE {
+			return ReverseAssessmentInstance(a)
+		}
+
+		errlist = ReverseAssessmentsGoingForward(a, &a.Start) // reverse from start of recurring instances forward
+		if len(errlist) > 0 {
+			return errlist
+		}
+		a.FLAGS |= 0x4 // mark this assessment as void
+		err = rlib.UpdateAssessment(&a)
+		if err != nil {
+			return bizErrSys(&err)
+		}
+
+	default:
+		err := fmt.Errorf("ReverseAssessment:  unsupported mode: %d", mode)
+		return bizErrSys(&err)
+	}
+	return errlist
+}
+
+// ReverseAssessmentsGoingForward reverses an existing assessment
+//
+// INPUTS
+//    aold = the first in a series of assessments to reverse
+//
+// RETURNS
+//    a slice of BizErrors
+//-------------------------------------------------------------------------------------
+func ReverseAssessmentsGoingForward(aold *rlib.Assessment, dt *time.Time) []BizError {
+	var errlist []BizError
+
+	d2 := time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC)
+	m := rlib.GetAssessmentInstancesByParent(aold.PASMID, dt, &d2)
+	for i := 0; i < len(m); i++ {
+		errlist = ReverseAssessmentInstance(&m[i])
+		if len(errlist) > 0 {
+			return errlist
+		}
+	}
+	return nil
+}
+
+// ReverseAssessmentInstance reverses a single instance of an assessment
+//
+// INPUTS
+//    aold = the assessment to reverse
+//
+// RETURNS
+//    a slice of BizErrors
+//-------------------------------------------------------------------------------------
+func ReverseAssessmentInstance(aold *rlib.Assessment) []BizError {
 	anew := *aold
+	anew.ASMID = 0
 	anew.Amount = -anew.Amount
 	anew.RPASMID = aold.ASMID
+	anew.FLAGS |= 1 << 2 // set bit 2 to mark that this assessment is void
 	anew.Comment = fmt.Sprintf("Reversal of %s", aold.IDtoString())
 
 	errlist := InsertAssessment(&anew, true)
@@ -52,11 +125,11 @@ func ReverseAssessment(aold *rlib.Assessment) []BizError {
 	}
 
 	aold.Comment = fmt.Sprintf("Reversed by %s", anew.IDtoString())
+	aold.FLAGS |= 1 << 2 // set bit 2 to mark that this assessment is void
 	err := rlib.UpdateAssessment(aold)
 	if err != nil {
 		return bizErrSys(&err)
 	}
-
 	return nil
 }
 
@@ -91,7 +164,7 @@ func InsertAssessment(a *rlib.Assessment, exp bool) []BizError {
 	rlib.InitLedgerCache()
 	if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
 		rlib.ProcessJournalEntry(a, &xbiz, &d1, &d2, true)
-	} else if exp {
+	} else if exp && a.PASMID == 0 { // only expand if we're asked and if we're not an instance
 		now := rlib.DateAtTimeZero(time.Now())
 		dt := rlib.DateAtTimeZero(a.Start)
 		if !dt.After(now) {
@@ -164,23 +237,4 @@ func createInstancesToDate(a *rlib.Assessment, xbiz *rlib.XBusiness) {
 		dt1, dt2 := rlib.GetMonthPeriodForDate(&m[i])
 		rlib.ProcessJournalEntry(a, xbiz, &dt1, &dt2, true) // this generates the assessment instances
 	}
-}
-
-// bizErrSys just encapsulates returning an error in a []BizError.  The Errno
-// is set to 0.
-//
-// INPUTS
-//  err = pointer to an error
-//
-// RETURNS
-//  a slize of BizError containing the error message
-//-------------------------------------------------------------------------------------
-func bizErrSys(err *error) []BizError {
-	var errlist []BizError
-	berr := BizError{
-		Errno:   0, // system error
-		Message: "Error inserting assessment = " + (*err).Error(),
-	}
-	errlist = append(errlist, berr)
-	return errlist
 }

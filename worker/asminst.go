@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"fmt"
 	"rentroll/rlib"
 	"time"
 	"tws"
@@ -16,20 +15,20 @@ func CreateAssessmentInstances(item *tws.Item) {
 	tws.ItemWorking(item)
 
 	// add any new recurring instances for this day...
-	m, err := rlib.GetAllBusinesses()
-	if err != nil {
-		rlib.Ulog("Error with rlib.GetAllBusinesses: %s\n", err.Error())
-	} else {
-		now := time.Now()
-		d1, d2 := rlib.GetMonthPeriodForDate(&now)
-		for i := 0; i < len(m); i++ {
-			fmt.Printf("PROCESS JOURNAL ENTRIES FOR BIZ: %s - %s\n", m[i].Designation, m[i].Name)
-			fmt.Printf("call rlib.GenerateRecurInstances(xbiz, %s, %s)\n", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
-			var xbiz rlib.XBusiness
-			rlib.GetXBusiness(m[i].BID, &xbiz)
-			rlib.GenerateRecurInstances(&xbiz, &d1, &d2)
-		}
-	}
+	// m, err := rlib.GetAllBusinesses()
+	// if err != nil {
+	// 	rlib.Ulog("Error with rlib.GetAllBusinesses: %s\n", err.Error())
+	// } else {
+	// 	now := time.Now()
+	// 	d1, d2 := rlib.GetMonthPeriodForDate(&now)
+	// 	for i := 0; i < len(m); i++ {
+	// 		fmt.Printf("PROCESS JOURNAL ENTRIES FOR BIZ: %s - %s\n", m[i].Designation, m[i].Name)
+	// 		fmt.Printf("call rlib.GenerateRecurInstances(xbiz, %s, %s)\n", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
+	// 		var xbiz rlib.XBusiness
+	// 		rlib.GetXBusiness(m[i].BID, &xbiz)
+	// 		rlib.GenerateRecurInstances(&xbiz, &d1, &d2)
+	// 	}
+	// }
 
 	// reschedule for midnight tomorrow...
 	now := time.Now().In(rlib.RRdb.Zone)

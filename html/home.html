@@ -87,6 +87,11 @@ var app = {
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     RentalAgrFinder: {BID: 0, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
+    asmsRevMode: [
+        {id: 0, text: "this instance only"},
+        {id: 1, text: "this and future instances"},
+        {id: 2, text: "all instances"}
+    ],
     ARTypes: {0: "Assessment", 1: "Receipt"},
     Assessments: [{id: 0, text: "Set Assessment Rule"},],
     Receipts: [{id: 1, text: "Set Payment Rule"},],
@@ -4134,35 +4139,35 @@ function buildPageElements() {
 
             },
             reverse: function() {
+                //var form = this;
+                popupAsmRevMode(0);
 
-                var form = this;
+                // w2confirm(reverse_confirm_options)
+                // .yes(function() {
+                //     var tgrid = w2ui.asmsGrid;
+                //     var sel = tgrid.getSelection();
+                //     tgrid.unselect(sel);
 
-                w2confirm(reverse_confirm_options)
-                .yes(function() {
-                    var tgrid = w2ui.asmsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                //     var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
+                //     var dat = JSON.stringify(params);
 
-                    var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
-                    var dat = JSON.stringify(params);
-
-                    // delete Depository request
-                    $.post(form.url, dat)
-                    .done(function(data) {
-                        if (data.status != "success") {
-                            return;
-                        }
-                        w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
-                    })
-                    .fail(function(/*data*/){
-                        console.log("Reverse Assessment instance failed.");
-                    });
-                })
-                .no(function() {
-                    return;
-                });
+                //     // delete Depository request
+                //     $.post(form.url, dat)
+                //     .done(function(data) {
+                //         if (data.status != "success") {
+                //             return;
+                //         }
+                //         w2ui.toplayout.hide('right',true);
+                //         w2ui.toplayout.render();
+                //         tgrid.reload();
+                //     })
+                //     .fail(function(/*data*/){
+                //         console.log("Reverse Assessment instance failed.");
+                //     });
+                // })
+                // .no(function() {
+                //     return;
+                // });
             },
         },
         onLoad: function(event) {
@@ -4233,6 +4238,36 @@ function buildPageElements() {
             };
         },
     });
+
+
+    //------------------------------------------------------------------------
+    //          asmsReverseMode
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'reverseMode',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/formasmrev.html',
+        focus  : 0,
+        fields: [
+            { field: 'ReverseMode', type: 'list',
+              options: { items: app.asmsRevMode},
+             required: true },
+        ],
+        actions: {
+            save: function () {
+                console.log('SAVE asmsReverseMode: Mode = ' + w2ui.asmsReverseMode.record.Mode);
+                w2popup.close();
+                w2ui.toplayout.hide('right',true);
+                w2ui.asmsGrid.reload();
+            },
+            cancel: function() {
+                console.log('CANCEL reversal');
+                w2popup.close();
+            },
+        },
+    });
+
+
 
     //------------------------------------------------------------------------
     //          tcidRAPayorPicker
@@ -5444,6 +5479,33 @@ function saveNewRAPayor() {
 
 }
 
+function popupAsmRevMode(mode) {
+    w2ui.reverseMode.record.ReverseMode = mode;
+    $().w2popup('open', {
+        title   : 'Reverse Repeating Assessment',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 400,
+        height  : 225,
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.reverseMode.box).hide();
+            event.onComplete = function () {
+                $(w2ui.reverseMode.box).show();
+                w2ui.reverseMode.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead would be equivalent to specifying
+                // an onBeforeOpen handler, which would make this code execute too
+                // early and hence not deliver.
+                $('#w2ui-popup #form').w2render('reverseMode');
+            };
+        }
+    });
+}
+
 function popupTcidRAPayorPicker(sTitle,bid) {
     app.TcidRAPayorPicker = {BID: bid, Title: sTitle};  // used by tcidRAPayorPicker form
     var y = new Date();
@@ -5518,7 +5580,6 @@ function popupRidRentablePicker(sTitle,bid) {
 }
 
 function saveNewRUser() {
-
     var myRID = -1;
     var rname = w2ui.tcidRUserPicker.record.RentableName.text;
     var url = '/v1/ruser/';
@@ -5533,18 +5594,18 @@ function saveNewRUser() {
         return;
     }
     var rec = {
-        recid: w2ui.rapGrid.records.length,                 // + 1
-        BID: w2ui.rentalagrForm.record.BID,                 // BID of RID we're editing
+        recid: w2ui.rapGrid.records.length,               // + 1
+        BID: w2ui.rentalagrForm.record.BID,               // BID of RID we're editing
         TCID: w2ui.tcidRUserPicker.record.TCID,           // The TCID from the person picked
-        RID: myRID,                                         // the selected RID
-        RentableName: rname,                                // the name of the rentable
+        RID: myRID,                                       // the selected RID
+        RentableName: rname,                              // the name of the rentable
         FirstName: w2ui.tcidRUserPicker.record.FirstName, // ignored
-        MiddleName: "",                                     // ignored
+        MiddleName: "",                                   // ignored
         LastName: w2ui.tcidRUserPicker.record.LastName,   // ignored
         IsCompany: w2ui.tcidRUserPicker.record.IsCompany,
         CompanyName: w2ui.tcidRUserPicker.record.CompanyName,
-        DtStart: w2ui.tcidRUserPicker.record.DtStart,                  // start
-        DtStop: w2ui.tcidRUserPicker.record.DtStop,                  // end
+        DtStart: w2ui.tcidRUserPicker.record.DtStart,     // start
+        DtStop: w2ui.tcidRUserPicker.record.DtStop,       // end
     };
     var params = {cmd: 'save', formname: 'tcidRUserPicker', record: rec };
     var dat = JSON.stringify(params);

@@ -26,10 +26,10 @@ func InsertAssessment(a *Assessment) (int64, error) {
 	//
 	// DEBUG...
 	//
-	// if a.PASMID > 1 {
+	// if a.PASMID > 0 {
 	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH PASMID = %d\n", a.PASMID)
 	// 	debug.PrintStack()
-	// 	os.Exit(1)
+	// 	// os.Exit(1)
 	// }
 
 	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.RPASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)

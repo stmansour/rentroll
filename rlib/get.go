@@ -129,6 +129,12 @@ func GetUnpaidAssessmentsByRAID(RAID int64) []Assessment {
 }
 
 // GetAssessmentInstancesByParent for the supplied RAID
+// INPUTS
+//    id - id of Parent Assessment
+// d1-d2 - date range for search
+//
+// RETURNS
+//    array of matching assessments
 func GetAssessmentInstancesByParent(id int64, d1, d2 *time.Time) []Assessment {
 	rows, err := RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(id, d1, d2)
 	Errcheck(err)
