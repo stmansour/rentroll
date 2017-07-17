@@ -3322,9 +3322,16 @@ function buildPageElements() {
                     },
                     onRemove: function(event) {
                         event.onComplete = function() {
+                            var f = w2ui.receiptForm;
                             // reset payor field related data when removed
-                            w2ui.receiptForm.record.TCID = 0;
-                            w2ui.receiptForm.record.Payor = "";
+                            f.record.TCID = 0;
+                            f.record.Payor = "";
+
+                            // NOTE: have to trigger manually, b'coz we manually change the record,
+                            // otherwise it triggers the change event but it won't get change (Object: {})
+                            var event = f.trigger({ phase: 'before', target: f.name, type: 'change', recid: recid, event: event }); // event before
+                            if (event.cancelled === true) return false;
+                            f.trigger($.extend(event, { phase: 'after' })); // event after
                         };
                     }
                 },
@@ -3377,7 +3384,9 @@ function buildPageElements() {
                         TCID: record.TCID,
                         recid: 0,
                     };
-                    $("#receiptForm").find("input[name=Payor]").w2field().set(item);
+                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
+                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                    };
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3409,10 +3418,9 @@ function buildPageElements() {
                         TCID: record.TCID,
                         recid: 0,
                     };
-                    var w2fld = $("#receiptForm").find("input[name=Payor]").w2field();
-                    if (w2fld !== undefined) { // if not undefined then only set
-                        $("#receiptForm").find("input[name=Payor]").w2field().set(item);
-                    }
+                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
+                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                    };
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3471,7 +3479,6 @@ function buildPageElements() {
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
-                console.log(diff);
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
