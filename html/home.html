@@ -6,7 +6,8 @@
     <script src="/js/w2ui-1.5.rc1.js"></script>
     <link rel="stylesheet" href="/html/fa/css/font-awesome.min.css">
     <link rel="stylesheet" href="/html/rentroll.css">
-    <script src="/js/rutil.js"></script>
+    <!-- <script src="/js/rutil.js"></script> -->
+    <script src="/js/bundle.js"></script>
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
 <body>
@@ -40,6 +41,39 @@ sidebarL1     - w2ui sidebar
 
 /*globals $:false */
 "use strict";
+
+// unallocated receipts utility literal object
+var _unAllocRcpts = {
+    layoutPanels: {
+        top: function(unallocFund, person/*, tcid*/) {
+            "use strict";
+            return `<html>
+                <head>
+                <link rel="stylesheet" href="/html/rentroll.css">
+                </head>
+                <body>
+                <div style="display: table; width: 100%; height: 40%;">
+                    <div style="display: table-cell; vertical-align: middle;text-align: left;width: 100%;">
+                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;" name="unallocForm">`+person+`<br>Remaining unallocated funds:
+                        <span id="total_fund_amount" data-fund="`+unallocFund+`"
+                        style="padding: 10px; color: #00AA00; font-size: 1.5rem; font-weight: bold; margin: 10px auto; width: 30%;">`+
+                        unallocFund+
+                        `</span>&nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto-Allocate</button></p>
+                    </div>
+                </div>
+                </body>
+                </html>`;
+        },
+        bottom: function() {
+            "use strict";
+            return `<div style="display: table; width: 100%; height: 100%;">
+                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
+                        <button class="w2ui-btn" id="alloc_fund_save_btn">Save</button>
+                    </div>
+                </div>`;
+        }
+    }
+};
 
 // The rentroll app object, used to manage app-level data.
 var app = {
