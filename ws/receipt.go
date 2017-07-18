@@ -32,6 +32,7 @@ type ReceiptSendForm struct {
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
 	//AcctRule       string
+	FLAGS uint64
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.

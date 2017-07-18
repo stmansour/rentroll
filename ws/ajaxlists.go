@@ -131,6 +131,12 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	appData["BizMap"] = businessList
 
+	// --------------- LIST DOWN Assessment FLAGS ----------------------
+	appData["asmFLAGS"] = rlib.AsmFLAGS
+
+	// --------------- LIST DOWN Receipt FLAGS ----------------------
+	appData["rcptFLAGS"] = rlib.RcptFLAGS
+
 	// --------------- MAPPING - smapToJS ----------------------
 	for i := 0; i < len(smapToJS); i++ {
 		list := []string{}
