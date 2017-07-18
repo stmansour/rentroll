@@ -19,3 +19,4 @@ js/jquery*
 test/testdb/rex.sql
 html/fa/
 bizerr.csv
+node_modules
