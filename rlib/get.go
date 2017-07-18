@@ -169,6 +169,15 @@ func GetAssessmentInstance(start *time.Time, pasmid int64) (Assessment, error) {
 	return a, nil
 }
 
+// GetAssessmentFirstInstance returns the Assessment struct for the first instance of the
+// recurring series with PASMID = pasmid
+func GetAssessmentFirstInstance(pasmid int64) (Assessment, error) {
+	var a Assessment
+	row := RRdb.Prepstmt.GetAssessmentFirstInstance.QueryRow(pasmid)
+	ReadAssessment(row, &a)
+	return a, nil
+}
+
 // GetAssessmentDuplicate returns the Assessment struct for the account with the supplied asmid
 func GetAssessmentDuplicate(start *time.Time, amt float64, pasmid, rid, raid, atypelid int64) Assessment {
 	var a Assessment
@@ -621,13 +630,19 @@ func GetJournalAllocations(j *Journal) {
 	}
 }
 
-// GetJournalAllocationByASMID gets the journal allocation record that references
+// GetJournalAllocationByASMID returns an array of JournalAllocation records that reference
 // the supplied ASMID.
-func GetJournalAllocationByASMID(id int64) JournalAllocation {
-	var a JournalAllocation
-	row := RRdb.Prepstmt.GetJournalAllocationByASMID.QueryRow(id)
-	ReadJournalAllocation(row, &a)
-	return a
+func GetJournalAllocationByASMID(id int64) []JournalAllocation {
+	var ja []JournalAllocation
+	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a JournalAllocation
+		ReadJournalAllocations(rows, &a)
+		ja = append(ja, a)
+	}
+	return ja
 }
 
 //=======================================================

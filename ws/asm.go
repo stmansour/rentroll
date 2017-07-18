@@ -9,6 +9,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // AssessmentSendForm is the outbound structure specifically for the UI. It will be
@@ -117,7 +118,8 @@ type GetAssessmentResponse struct {
 
 // DeleteAsmForm holds ASMID to delete it
 type DeleteAsmForm struct {
-	ASMID int64
+	ASMID       int64 // which assessment
+	ReverseMode int   // 0 = this instance only, 1 = this and future instances, 2 = all instances
 }
 
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
@@ -318,29 +320,6 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 		return
 	}
 }
-
-// // getJournal looks for the journal associated with the supplied assessment.
-// // RETURNS
-// //          bool - true = no errors, false = error was sent to w
-// //  rlib.Journal - the journal entry associated with the supplied assessment
-// func getJournal(a *rlib.Assessment, w http.ResponseWriter) (bool, rlib.Journal) {
-// 	funcname := "getJournal"
-// 	var jnl0 rlib.Journal
-// 	ja := rlib.GetJournalAllocationByASMID(a.ASMID)
-// 	if ja.JAID == 0 {
-// 		e := fmt.Errorf("Could not find JournalAllocation for ASMID = %d", a.ASMID)
-// 		SvcGridErrorReturn(w, e, funcname)
-// 		return false, jnl0
-// 	}
-// 	jnl := rlib.GetJournal(ja.JID)
-// 	if jnl.JID == 0 {
-// 		e := fmt.Errorf("Could not find Journal for ASMID = %d", a.ASMID)
-// 		SvcGridErrorReturn(w, e, funcname)
-// 		return false, jnl0
-// 	}
-// 	jnl.JA = append(jnl.JA, ja)
-// 	return true, jnl
-// }
 
 // GetAssessment returns the requested assessment
 // wsdoc {
@@ -571,9 +550,10 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	fmt.Printf("Reversal Mode = %d\n")
+	fmt.Printf("Reversal Mode = %d\n", del.ReverseMode)
 
-	errlist := bizlogic.ReverseAssessment(&a)
+	now := time.Now() // mark Assessment reversed at this time
+	errlist := bizlogic.ReverseAssessment(&a, del.ReverseMode, &now)
 	if len(errlist) > 0 {
 		s := ""
 		for i := 0; i < len(errlist); i++ {
@@ -583,19 +563,6 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-
-	// ja := rlib.GetJournalAllocationByASMID(del.ASMID)
-	// m := rlib.GetLedgerEntriesByJAID(d.BID, ja.JAID)
-	// for i := 0; i < len(m); i++ {
-	// 	rlib.DeleteLedgerEntry(m[i].LEID)
-	// }
-	// rlib.DeleteJournal(ja.JID)
-	// rlib.DeleteJournalAllocation(ja.JAID)
-
-	// if err := rlib.DeleteAssessment(del.ASMID); err != nil {
-	// 	SvcGridErrorReturn(w, err, funcname)
-	// 	return
-	// }
 
 	SvcWriteSuccessResponse(w)
 }

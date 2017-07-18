@@ -287,12 +287,12 @@ func ReadReceipts(rows *sql.Rows, a *Receipt) {
 
 // ReadReceiptAllocation reads a full ReceiptAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadReceiptAllocation(row *sql.Row, a *ReceiptAllocation) {
-	Errcheck(row.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(row.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.FLAGS, &a.AcctRule, &a.CreateTS, &a.CreateBy))
 }
 
 // ReadReceiptAllocations reads a full ReceiptAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadReceiptAllocations(rows *sql.Rows, a *ReceiptAllocation) {
-	Errcheck(rows.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(rows.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.FLAGS, &a.AcctRule, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadRentableTypeDown reads a full RentableTypeDown structure of data from the database based on the supplied Row pointer.

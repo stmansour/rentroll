@@ -95,6 +95,7 @@ var app = {
     ARTypes: {0: "Assessment", 1: "Receipt"},
     Assessments: [{id: 0, text: "Set Assessment Rule"},],
     Receipts: [{id: 1, text: "Set Payment Rule"},],
+    AsmtModeCallerForm: null,
     language: "{{.Language}}",
     template: "{{.Template}}",
     pstyle: 'border: 1px solid #dfdfdf; padding: 0px;',
@@ -3979,15 +3980,6 @@ function buildPageElements() {
         },
         actions: {
             save: function () {
-                // if (this.record.RentCycle.text != "Norecur") {
-                //     var s1 = dateFromString(this.record.Start);
-                //     var DtStart = Date.parse(y);
-                //     var y = new Date();
-                //     if (DtStart <  y) {
-                //         // enable the checkbox.
-                //     }
-                // }
-
                 var x = getCurrentBusiness();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
                 var tgrid = w2ui.asmsGrid;
@@ -4003,42 +3995,40 @@ function buildPageElements() {
                 });
             },
             reverse: function() {
+                popupAsmRevMode(2, w2ui.asmEpochForm);
 
-                var form = this;
+                // w2confirm(reverse_confirm_options)
+                // .yes(function() {
+                //     var tgrid = w2ui.asmsGrid;
+                //     var sel = tgrid.getSelection();
+                //     tgrid.unselect(sel);
 
-                w2confirm(reverse_confirm_options)
-                .yes(function() {
-                    var tgrid = w2ui.asmsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                //     var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
+                //     var dat = JSON.stringify(params);
 
-                    var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
-                    var dat = JSON.stringify(params);
-
-                    // reverse Depository request
-                    $.post(form.url, dat)
-                    .done(function(data) {
-                        if (data.status != "success") {
-                            return;
-                        }
-                        w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
-                    })
-                    .fail(function(/*data*/){
-                        console.log("Delete Assessment epoch failed.");
-                    });
-                })
-                .no(function() {
-                    return;
-                });
+                //     // reverse Depository request
+                //     $.post(form.url, dat)
+                //     .done(function(data) {
+                //         if (data.status != "success") {
+                //             return;
+                //         }
+                //         w2ui.toplayout.hide('right',true);
+                //         w2ui.toplayout.render();
+                //         tgrid.reload();
+                //     })
+                //     .fail(function(/*data*/){
+                //         console.log("Delete Assessment epoch failed.");
+                //     });
+                // })
+                // .no(function() {
+                //     return;
+                // });
             },
         },
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
                     header = "Edit Assessment ({0})";
-
                 formRefreshCallBack(f, "ASMID", header);
             };
         },
@@ -4146,35 +4136,7 @@ function buildPageElements() {
 
             },
             reverse: function() {
-                //var form = this;
-                popupAsmRevMode(0);
-
-                // w2confirm(reverse_confirm_options)
-                // .yes(function() {
-                //     var tgrid = w2ui.asmsGrid;
-                //     var sel = tgrid.getSelection();
-                //     tgrid.unselect(sel);
-
-                //     var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
-                //     var dat = JSON.stringify(params);
-
-                //     // delete Depository request
-                //     $.post(form.url, dat)
-                //     .done(function(data) {
-                //         if (data.status != "success") {
-                //             return;
-                //         }
-                //         w2ui.toplayout.hide('right',true);
-                //         w2ui.toplayout.render();
-                //         tgrid.reload();
-                //     })
-                //     .fail(function(/*data*/){
-                //         console.log("Reverse Assessment instance failed.");
-                //     });
-                // })
-                // .no(function() {
-                //     return;
-                // });
+                popupAsmRevMode(0,w2ui.asmInstForm);
             },
         },
         onLoad: function(event) {
@@ -4262,13 +4224,36 @@ function buildPageElements() {
         ],
         actions: {
             save: function () {
-                console.log('SAVE asmsReverseMode: Mode = ' + w2ui.asmsReverseMode.record.Mode);
+                console.log('SAVE asmsReverseMode: Mode = ' + w2ui.reverseMode.record.ReverseMode.id);
                 w2popup.close();
                 w2ui.toplayout.hide('right',true);
                 w2ui.asmsGrid.reload();
+
+                // var form = w2ui.asmInstForm;
+                var form = app.AsmtModeCallerForm;
+                var params = {  
+                    cmd:         'delete', 
+                    formname:    form.name, 
+                    ASMID:       form.record.ASMID, 
+                    ReverseMode: w2ui.reverseMode.record.ReverseMode.id,
+                };
+                var dat = JSON.stringify(params);
+
+                // delete Depository request
+                $.post(form.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    //tgrid.reload();
+                })
+                .fail(function(/*data*/){
+                    //console.log("Reverse Assessment instance failed.");
+                });
             },
             cancel: function() {
-                console.log('CANCEL reversal');
                 w2popup.close();
             },
         },
@@ -5486,8 +5471,9 @@ function saveNewRAPayor() {
 
 }
 
-function popupAsmRevMode(mode) {
+function popupAsmRevMode(mode,form) {
     w2ui.reverseMode.record.ReverseMode = mode;
+    app.AsmtModeCallerForm = form;
     $().w2popup('open', {
         title   : 'Reverse Repeating Assessment',
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
@@ -5504,9 +5490,6 @@ function popupAsmRevMode(mode) {
         },
         onOpen: function (event) {
             event.onComplete = function () {
-                // specifying an onOpen handler instead would be equivalent to specifying
-                // an onBeforeOpen handler, which would make this code execute too
-                // early and hence not deliver.
                 $('#w2ui-popup #form').w2render('reverseMode');
             };
         }

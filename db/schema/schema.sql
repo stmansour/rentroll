@@ -880,14 +880,14 @@ CREATE TABLE Receipt (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AcctRuleReceive VARCHAR(215) NOT NULL DEFAULT '',           --
     ARID BIGINT NOT NULL DEFAULT 0,                             -- identifies the account rule used on Receipt
-    AcctRuleApply VARCHAR(2048) NOT NULL DEFAULT '',            -- How the funds will be applied
+    AcctRuleApply VARCHAR(4096) NOT NULL DEFAULT '',            -- How the funds will be applied
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated, bit 2 = VOID THIS RECEIPT
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RCPTID)
 );
 
@@ -899,9 +899,12 @@ CREATE TABLE ReceiptAllocation (
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ASMID BIGINT NOT NULL DEFAULT 0,                            -- the id of the assessment that caused this payment
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bit 2:  VOID THIS RECEIPT-ALLOCATION
     AcctRule VARCHAR(150),
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,     -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RCPAID)
 );
 

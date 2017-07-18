@@ -26,8 +26,8 @@ func InsertAssessment(a *Assessment) (int64, error) {
 	//
 	// DEBUG...
 	//
-	// if a.PASMID > 0 {
-	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH PASMID = %d\n", a.PASMID)
+	// if a.FLAGS&0x4 == 0 {
+	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH FLAGS bit 2 not set.  FLAGS = %x\n", a.FLAGS)
 	// 	debug.PrintStack()
 	// 	// os.Exit(1)
 	// }
@@ -519,7 +519,7 @@ func InsertReceipt(r *Receipt) (int64, error) {
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
 func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.AcctRule, a.CreateBy)
+	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

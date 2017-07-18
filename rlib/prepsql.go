@@ -135,10 +135,12 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentInstancesByParent, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? AND Stop >= ? AND Start < ?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAssessmentFirstInstance, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE PASMID=? ORDER BY Start LIMIT 1")
+	Errcheck(err)
 	// FLAGS bits 0-1 mean: 0 = unpaid, 1 = partially paid, 2 = fully paid.
 	// So, FLAGS & 3 gives us the values of bits 0-1.  if the value is 0 or 1 then the assessment is not yet paid.
 	// So (FLAGS & 3) < 2 means that the assessment is not yet paid
-	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 3)<2 AND (PASMID!=0 OR RentCycle=0) ORDER BY Start ASC")
+	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 3)<2 AND (FLAGS & 4)=0 AND (PASMID!=0 OR RentCycle=0) ORDER BY Start ASC")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertAssessment, err = RRdb.Dbrr.Prepare("INSERT INTO Assessments (" + s1 + ") VALUES(" + s2 + ")")
@@ -370,7 +372,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE JID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetJournalAllocationByASMID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE ASMID=?")
+	RRdb.Prepstmt.GetJournalAllocationsByASMID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE ASMID=?")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
@@ -722,7 +724,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT ALLOCATION
 	//==========================================
-	flds = "RCPAID,RCPTID,BID,RAID,Dt,Amount,ASMID,AcctRule,CreateTS,CreateBy"
+	flds = "RCPAID,RCPTID,BID,RAID,Dt,Amount,ASMID,FLAGS,AcctRule,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["ReceiptAllocation"] = flds
 	RRdb.Prepstmt.GetReceiptAllocation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPAID=?")
 	Errcheck(err)

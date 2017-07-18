@@ -761,16 +761,19 @@ type Receipt struct {
 
 // ReceiptAllocation defines an allocation of a Receipt amount.
 type ReceiptAllocation struct {
-	RCPAID   int64 // Receipt Allocation ID
-	RCPTID   int64
-	BID      int64
-	RAID     int64     // which RAID is this portion of the payment associated
-	Dt       time.Time // date of this payment (may not be the same as the Receipt's)
-	Amount   float64
-	ASMID    int64
-	AcctRule string
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RCPAID      int64 // Receipt Allocation ID
+	RCPTID      int64
+	BID         int64
+	RAID        int64     // which RAID is this portion of the payment associated
+	Dt          time.Time // date of this payment (may not be the same as the Receipt's)
+	Amount      float64
+	ASMID       int64
+	AcctRule    string
+	FLAGS       uint64 // bit 2:  VOID THIS RECEIPT-ALLOCATION
+	LastModTime time.Time
+	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Depository is a bank account or other account where deposits are made
@@ -1436,12 +1439,13 @@ type RRprepSQL struct {
 	UpdateUser                           *sql.Stmt
 	UpdateVehicle                        *sql.Stmt
 	GetAssessmentInstancesByParent       *sql.Stmt
-	GetJournalAllocationByASMID          *sql.Stmt
+	GetJournalAllocationsByASMID         *sql.Stmt
 	GetRentableTypeRefs                  *sql.Stmt
 	GetAllRentableStatus                 *sql.Stmt
 	GetRentalAgreementTypeDown           *sql.Stmt
 	GetLedgerEntriesByJAID               *sql.Stmt
 	GetLedgersForGrid                    *sql.Stmt
+	GetAssessmentFirstInstance           *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
