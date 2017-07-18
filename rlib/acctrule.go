@@ -54,7 +54,7 @@ func DoAcctSubstitution(bid int64, s string) string {
 	// fmt.Printf("Entering DoAcctSubstitution. bid=%d, s=%s\n", bid, s)
 	if s[0] == '$' {
 		m := rpnVariable.FindStringSubmatchIndex(s)
-		if m != nil {
+		if m != nil && len(m) > 3 {
 			match := s[m[2]:m[3]]
 			return VarAcctResolve(bid, match)
 		}
@@ -99,6 +99,9 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 					r.ASMID, err = IntFromString(a[1], "Invalid Assessment ID")
 					CheckLogAndPrintError(funcname, err)
 				}
+			}
+			if base+2 >= len(ta) {
+				continue
 			}
 			r.Action = strings.ToLower(strings.TrimSpace(ta[base])) // action is at index base
 			r.AcctExpr = strings.TrimSpace(ta[base+1])              // account is at base+1, this is the source

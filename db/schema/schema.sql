@@ -628,6 +628,7 @@ CREATE TABLE Assessments (
     ASMID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for assessment
     PASMID BIGINT NOT NULL DEFAULT 0,                       -- parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID.
                                                             --     When non-zero DO NOT process as a recurring assessment, it is an instance
+    RPASMID BIGINT NOT NULL DEFAULT 0,                      -- reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     RID BIGINT NOT NULL DEFAULT 0,                          -- rentable id
     ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
@@ -640,12 +641,12 @@ CREATE TABLE Assessments (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- DELETE THIS -- DON'T KEEP THE INVOICE REFERENCE IN THE ASSESSMENT... !!!! <<<<TODO
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
     ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid.  Bit 2: 1 = this assmt has been reversed.
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
     PRIMARY KEY (ASMID)
 );
 
@@ -879,14 +880,14 @@ CREATE TABLE Receipt (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AcctRuleReceive VARCHAR(215) NOT NULL DEFAULT '',           --
     ARID BIGINT NOT NULL DEFAULT 0,                             -- identifies the account rule used on Receipt
-    AcctRuleApply VARCHAR(2048) NOT NULL DEFAULT '',            -- How the funds will be applied
+    AcctRuleApply VARCHAR(4096) NOT NULL DEFAULT '',            -- How the funds will be applied
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bits 0-1 : 0 unallocated, 1 = partially allocated, 2 = fully allocated, bit 2 = VOID THIS RECEIPT
     Comment VARCHAR(256) NOT NULL DEFAULT '',                   -- for comments like "Prior Period Adjustment"
     OtherPayorName VARCHAR(128) NOT NULL DEFAULT '',            -- If not '' then Payment was made by a payor who is not on the RA, and may not be in our system at all
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RCPTID)
 );
 
@@ -898,9 +899,12 @@ CREATE TABLE ReceiptAllocation (
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ASMID BIGINT NOT NULL DEFAULT 0,                            -- the id of the assessment that caused this payment
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bit 2:  VOID THIS RECEIPT-ALLOCATION
     AcctRule VARCHAR(150),
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,     -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RCPAID)
 );
 

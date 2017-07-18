@@ -17,14 +17,14 @@ func ReadARs(rows *sql.Rows, a *AR) error {
 
 // ReadAssessment reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessment(row *sql.Row, a *Assessment) {
-	Errcheck(row.Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
+	Errcheck(row.Scan(&a.ASMID, &a.PASMID, &a.RPASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
 		&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadAssessments reads a full Assessment structure of data from the database based on the supplied Rows pointer.
 func ReadAssessments(rows *sql.Rows, a *Assessment) {
-	Errcheck(rows.Scan(&a.ASMID, &a.PASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
+	Errcheck(rows.Scan(&a.ASMID, &a.PASMID, &a.RPASMID, &a.BID, &a.RID, &a.ATypeLID, &a.RAID, &a.Amount,
 		&a.Start, &a.Stop, &a.RentCycle, &a.ProrationCycle, &a.InvoiceNo, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
@@ -287,12 +287,12 @@ func ReadReceipts(rows *sql.Rows, a *Receipt) {
 
 // ReadReceiptAllocation reads a full ReceiptAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadReceiptAllocation(row *sql.Row, a *ReceiptAllocation) {
-	Errcheck(row.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(row.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.FLAGS, &a.AcctRule, &a.CreateTS, &a.CreateBy))
 }
 
 // ReadReceiptAllocations reads a full ReceiptAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadReceiptAllocations(rows *sql.Rows, a *ReceiptAllocation) {
-	Errcheck(rows.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(rows.Scan(&a.RCPAID, &a.RCPTID, &a.BID, &a.RAID, &a.Dt, &a.Amount, &a.ASMID, &a.FLAGS, &a.AcctRule, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadRentableTypeDown reads a full RentableTypeDown structure of data from the database based on the supplied Row pointer.

@@ -62,6 +62,10 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 //    any error that occurred, or nil if no error
 //-------------------------------------------------------------------------------
 func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
+	if r.FLAGS&0x04 != 0 {
+		return nil // it's already reversed
+	}
+
 	//------------------------------------------------------
 	// Build the new receipt
 	//------------------------------------------------------
@@ -183,7 +187,7 @@ func ReverseAllocation(r *rlib.Receipt, revRCPTID int64, dt *time.Time) error {
 			}
 
 			//-------------------------------------------------------------------------
-			// Next, add the JournalAllocation
+			// Next, add the JournalAllocation reversal
 			//-------------------------------------------------------------------------
 			var xbiz1 rlib.XBusiness // not actually used
 			n := rlib.ParseAcctRule(&xbiz1, 0, dt, dt, m[i].JA[j].AcctRule, 0, 1.0)

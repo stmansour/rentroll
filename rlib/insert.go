@@ -26,13 +26,13 @@ func InsertAssessment(a *Assessment) (int64, error) {
 	//
 	// DEBUG...
 	//
-	// if a.PASMID > 1 {
-	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH PASMID = %d\n", a.PASMID)
+	// if a.FLAGS&0x4 == 0 {
+	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH FLAGS bit 2 not set.  FLAGS = %x\n", a.FLAGS)
 	// 	debug.PrintStack()
-	// 	os.Exit(1)
+	// 	// os.Exit(1)
 	// }
 
-	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.RPASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -519,7 +519,7 @@ func InsertReceipt(r *Receipt) (int64, error) {
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
 func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
 	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.AcctRule, a.CreateBy)
+	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

@@ -16,7 +16,7 @@ func UpdateAR(a *AR) error {
 
 // UpdateAssessment updates an Assessment record
 func UpdateAssessment(a *Assessment) error {
-	_, err := RRdb.Prepstmt.UpdateAssessment.Exec(a.PASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID)
+	_, err := RRdb.Prepstmt.UpdateAssessment.Exec(a.PASMID, a.RPASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID)
 	return updateError(err, "Assessment", *a)
 }
 
@@ -144,8 +144,8 @@ func UpdateReceipt(a *Receipt) error {
 }
 
 // UpdateReceiptAllocation updates a ReceiptAllocation record in the database
-func UpdateReceiptAllocation(a *Receipt) error {
-	_, err := RRdb.Prepstmt.UpdateReceiptAllocation.Exec(a.RCPTID, a.PRCPTID, a.BID, a.PMTID, a.DID, a.Dt, a.DocNo, a.Amount, a.AcctRuleReceive, a.ARID, a.Comment, a.OtherPayorName, a.LastModTime, a.LastModBy)
+func UpdateReceiptAllocation(a *ReceiptAllocation) error {
+	_, err := RRdb.Prepstmt.UpdateReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.LastModBy, a.RCPAID)
 	return updateError(err, "ReceiptAllocation", *a)
 }
 

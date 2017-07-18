@@ -87,9 +87,15 @@ var app = {
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     RentalAgrFinder: {BID: 0, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []},
     ridRentablePicker: {BID: 0, Title: '', RAID: 0},
+    asmsRevMode: [
+        {id: 0, text: "this instance only"},
+        {id: 1, text: "this and future instances"},
+        {id: 2, text: "all instances"}
+    ],
     ARTypes: {0: "Assessment", 1: "Receipt"},
     Assessments: [{id: 0, text: "Set Assessment Rule"},],
     Receipts: [{id: 1, text: "Set Payment Rule"},],
+    AsmtModeCallerForm: null,
     language: "{{.Language}}",
     template: "{{.Template}}",
     pstyle: 'border: 1px solid #dfdfdf; padding: 0px;',
@@ -3356,9 +3362,16 @@ function buildPageElements() {
                     },
                     onRemove: function(event) {
                         event.onComplete = function() {
+                            var f = w2ui.receiptForm;
                             // reset payor field related data when removed
-                            w2ui.receiptForm.record.TCID = 0;
-                            w2ui.receiptForm.record.Payor = "";
+                            f.record.TCID = 0;
+                            f.record.Payor = "";
+
+                            // NOTE: have to trigger manually, b'coz we manually change the record,
+                            // otherwise it triggers the change event but it won't get change (Object: {})
+                            var event = f.trigger({ phase: 'before', target: f.name, type: 'change', recid: recid, event: event }); // event before
+                            if (event.cancelled === true) return false;
+                            f.trigger($.extend(event, { phase: 'after' })); // event after
                         };
                     }
                 },
@@ -3411,7 +3424,9 @@ function buildPageElements() {
                         TCID: record.TCID,
                         recid: 0,
                     };
-                    $("#receiptForm").find("input[name=Payor]").w2field().set(item);
+                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
+                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                    };
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3443,10 +3458,9 @@ function buildPageElements() {
                         TCID: record.TCID,
                         recid: 0,
                     };
-                    var w2fld = $("#receiptForm").find("input[name=Payor]").w2field();
-                    if (w2fld !== undefined) { // if not undefined then only set
-                        $("#receiptForm").find("input[name=Payor]").w2field().set(item);
-                    }
+                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
+                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                    };
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3505,7 +3519,6 @@ function buildPageElements() {
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
-                console.log(diff);
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
@@ -3801,6 +3814,7 @@ function buildPageElements() {
                                 Comment: '',
                                 LastModTime: w2uiDateControlString(y),
                                 LastModBy: 0,
+                                ExpandPastInst: true,
                             };
                             // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
@@ -3966,15 +3980,6 @@ function buildPageElements() {
         },
         actions: {
             save: function () {
-                // if (this.record.RentCycle.text != "Norecur") {
-                //     var s1 = dateFromString(this.record.Start);
-                //     var DtStart = Date.parse(y);
-                //     var y = new Date();
-                //     if (DtStart <  y) {
-                //         // enable the checkbox.
-                //     }
-                // }
-
                 var x = getCurrentBusiness();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
                 var tgrid = w2ui.asmsGrid;
@@ -3989,43 +3994,41 @@ function buildPageElements() {
                     tgrid.reload();
                 });
             },
-            delete: function() {
+            reverse: function() {
+                popupAsmRevMode(2, w2ui.asmEpochForm);
 
-                var form = this;
+                // w2confirm(reverse_confirm_options)
+                // .yes(function() {
+                //     var tgrid = w2ui.asmsGrid;
+                //     var sel = tgrid.getSelection();
+                //     tgrid.unselect(sel);
 
-                w2confirm(delete_confirm_options)
-                .yes(function() {
-                    var tgrid = w2ui.asmsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                //     var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
+                //     var dat = JSON.stringify(params);
 
-                    var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
-                    var dat = JSON.stringify(params);
-
-                    // delete Depository request
-                    $.post(form.url, dat)
-                    .done(function(data) {
-                        if (data.status != "success") {
-                            return;
-                        }
-                        w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
-                    })
-                    .fail(function(/*data*/){
-                        console.log("Delete Assessment epoch failed.");
-                    });
-                })
-                .no(function() {
-                    return;
-                });
+                //     // reverse Depository request
+                //     $.post(form.url, dat)
+                //     .done(function(data) {
+                //         if (data.status != "success") {
+                //             return;
+                //         }
+                //         w2ui.toplayout.hide('right',true);
+                //         w2ui.toplayout.render();
+                //         tgrid.reload();
+                //     })
+                //     .fail(function(/*data*/){
+                //         console.log("Delete Assessment epoch failed.");
+                //     });
+                // })
+                // .no(function() {
+                //     return;
+                // });
             },
         },
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
                     header = "Edit Assessment ({0})";
-
                 formRefreshCallBack(f, "ASMID", header);
             };
         },
@@ -4132,36 +4135,8 @@ function buildPageElements() {
                 });
 
             },
-            delete: function() {
-
-                var form = this;
-
-                w2confirm(delete_confirm_options)
-                .yes(function() {
-                    var tgrid = w2ui.asmsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
-
-                    var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
-                    var dat = JSON.stringify(params);
-
-                    // delete Depository request
-                    $.post(form.url, dat)
-                    .done(function(data) {
-                        if (data.status != "success") {
-                            return;
-                        }
-                        w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
-                    })
-                    .fail(function(/*data*/){
-                        console.log("Delete Assessment instance failed.");
-                    });
-                })
-                .no(function() {
-                    return;
-                });
+            reverse: function() {
+                popupAsmRevMode(0,w2ui.asmInstForm);
             },
         },
         onLoad: function(event) {
@@ -4232,6 +4207,59 @@ function buildPageElements() {
             };
         },
     });
+
+
+    //------------------------------------------------------------------------
+    //          asmsReverseMode
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'reverseMode',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/formasmrev.html',
+        focus  : 0,
+        fields: [
+            { field: 'ReverseMode', type: 'list',
+              options: { items: app.asmsRevMode},
+             required: true },
+        ],
+        actions: {
+            save: function () {
+                console.log('SAVE asmsReverseMode: Mode = ' + w2ui.reverseMode.record.ReverseMode.id);
+                w2popup.close();
+                w2ui.toplayout.hide('right',true);
+                w2ui.asmsGrid.reload();
+
+                // var form = w2ui.asmInstForm;
+                var form = app.AsmtModeCallerForm;
+                var params = {  
+                    cmd:         'delete', 
+                    formname:    form.name, 
+                    ASMID:       form.record.ASMID, 
+                    ReverseMode: w2ui.reverseMode.record.ReverseMode.id,
+                };
+                var dat = JSON.stringify(params);
+
+                // delete Depository request
+                $.post(form.url, dat)
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.toplayout.render();
+                    //tgrid.reload();
+                })
+                .fail(function(/*data*/){
+                    //console.log("Reverse Assessment instance failed.");
+                });
+            },
+            cancel: function() {
+                w2popup.close();
+            },
+        },
+    });
+
+
 
     //------------------------------------------------------------------------
     //          tcidRAPayorPicker
@@ -5443,6 +5471,31 @@ function saveNewRAPayor() {
 
 }
 
+function popupAsmRevMode(mode,form) {
+    w2ui.reverseMode.record.ReverseMode = mode;
+    app.AsmtModeCallerForm = form;
+    $().w2popup('open', {
+        title   : 'Reverse Repeating Assessment',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 400,
+        height  : 225,
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.reverseMode.box).hide();
+            event.onComplete = function () {
+                $(w2ui.reverseMode.box).show();
+                w2ui.reverseMode.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                $('#w2ui-popup #form').w2render('reverseMode');
+            };
+        }
+    });
+}
+
 function popupTcidRAPayorPicker(sTitle,bid) {
     app.TcidRAPayorPicker = {BID: bid, Title: sTitle};  // used by tcidRAPayorPicker form
     var y = new Date();
@@ -5517,7 +5570,6 @@ function popupRidRentablePicker(sTitle,bid) {
 }
 
 function saveNewRUser() {
-
     var myRID = -1;
     var rname = w2ui.tcidRUserPicker.record.RentableName.text;
     var url = '/v1/ruser/';
@@ -5532,18 +5584,18 @@ function saveNewRUser() {
         return;
     }
     var rec = {
-        recid: w2ui.rapGrid.records.length,                 // + 1
-        BID: w2ui.rentalagrForm.record.BID,                 // BID of RID we're editing
+        recid: w2ui.rapGrid.records.length,               // + 1
+        BID: w2ui.rentalagrForm.record.BID,               // BID of RID we're editing
         TCID: w2ui.tcidRUserPicker.record.TCID,           // The TCID from the person picked
-        RID: myRID,                                         // the selected RID
-        RentableName: rname,                                // the name of the rentable
+        RID: myRID,                                       // the selected RID
+        RentableName: rname,                              // the name of the rentable
         FirstName: w2ui.tcidRUserPicker.record.FirstName, // ignored
-        MiddleName: "",                                     // ignored
+        MiddleName: "",                                   // ignored
         LastName: w2ui.tcidRUserPicker.record.LastName,   // ignored
         IsCompany: w2ui.tcidRUserPicker.record.IsCompany,
         CompanyName: w2ui.tcidRUserPicker.record.CompanyName,
-        DtStart: w2ui.tcidRUserPicker.record.DtStart,                  // start
-        DtStop: w2ui.tcidRUserPicker.record.DtStop,                  // end
+        DtStart: w2ui.tcidRUserPicker.record.DtStart,     // start
+        DtStop: w2ui.tcidRUserPicker.record.DtStop,       // end
     };
     var params = {cmd: 'save', formname: 'tcidRUserPicker', record: rec };
     var dat = JSON.stringify(params);

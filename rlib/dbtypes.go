@@ -647,6 +647,7 @@ type XPerson struct {
 type Assessment struct {
 	ASMID          int64     // unique id for this assessment
 	PASMID         int64     // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
+	RPASMID        int64     // reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
 	BID            int64     // what Business
 	RID            int64     // the Rentable
 	ATypeLID       int64     // what type of assessment
@@ -760,16 +761,19 @@ type Receipt struct {
 
 // ReceiptAllocation defines an allocation of a Receipt amount.
 type ReceiptAllocation struct {
-	RCPAID   int64 // Receipt Allocation ID
-	RCPTID   int64
-	BID      int64
-	RAID     int64     // which RAID is this portion of the payment associated
-	Dt       time.Time // date of this payment (may not be the same as the Receipt's)
-	Amount   float64
-	ASMID    int64
-	AcctRule string
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RCPAID      int64 // Receipt Allocation ID
+	RCPTID      int64
+	BID         int64
+	RAID        int64     // which RAID is this portion of the payment associated
+	Dt          time.Time // date of this payment (may not be the same as the Receipt's)
+	Amount      float64
+	ASMID       int64
+	AcctRule    string
+	FLAGS       uint64 // bit 2:  VOID THIS RECEIPT-ALLOCATION
+	LastModTime time.Time
+	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Depository is a bank account or other account where deposits are made
@@ -1435,12 +1439,13 @@ type RRprepSQL struct {
 	UpdateUser                           *sql.Stmt
 	UpdateVehicle                        *sql.Stmt
 	GetAssessmentInstancesByParent       *sql.Stmt
-	GetJournalAllocationByASMID          *sql.Stmt
+	GetJournalAllocationsByASMID         *sql.Stmt
 	GetRentableTypeRefs                  *sql.Stmt
 	GetAllRentableStatus                 *sql.Stmt
 	GetRentalAgreementTypeDown           *sql.Stmt
 	GetLedgerEntriesByJAID               *sql.Stmt
 	GetLedgersForGrid                    *sql.Stmt
+	GetAssessmentFirstInstance           *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

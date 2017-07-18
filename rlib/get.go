@@ -129,6 +129,12 @@ func GetUnpaidAssessmentsByRAID(RAID int64) []Assessment {
 }
 
 // GetAssessmentInstancesByParent for the supplied RAID
+// INPUTS
+//    id - id of Parent Assessment
+// d1-d2 - date range for search
+//
+// RETURNS
+//    array of matching assessments
 func GetAssessmentInstancesByParent(id int64, d1, d2 *time.Time) []Assessment {
 	rows, err := RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(id, d1, d2)
 	Errcheck(err)
@@ -159,6 +165,15 @@ func GetAssessment(asmid int64) (Assessment, error) {
 func GetAssessmentInstance(start *time.Time, pasmid int64) (Assessment, error) {
 	var a Assessment
 	row := RRdb.Prepstmt.GetAssessmentInstance.QueryRow(start, pasmid)
+	ReadAssessment(row, &a)
+	return a, nil
+}
+
+// GetAssessmentFirstInstance returns the Assessment struct for the first instance of the
+// recurring series with PASMID = pasmid
+func GetAssessmentFirstInstance(pasmid int64) (Assessment, error) {
+	var a Assessment
+	row := RRdb.Prepstmt.GetAssessmentFirstInstance.QueryRow(pasmid)
 	ReadAssessment(row, &a)
 	return a, nil
 }
@@ -615,13 +630,19 @@ func GetJournalAllocations(j *Journal) {
 	}
 }
 
-// GetJournalAllocationByASMID gets the journal allocation record that references
+// GetJournalAllocationByASMID returns an array of JournalAllocation records that reference
 // the supplied ASMID.
-func GetJournalAllocationByASMID(id int64) JournalAllocation {
-	var a JournalAllocation
-	row := RRdb.Prepstmt.GetJournalAllocationByASMID.QueryRow(id)
-	ReadJournalAllocation(row, &a)
-	return a
+func GetJournalAllocationByASMID(id int64) []JournalAllocation {
+	var ja []JournalAllocation
+	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a JournalAllocation
+		ReadJournalAllocations(rows, &a)
+		ja = append(ja, a)
+	}
+	return ja
 }
 
 //=======================================================
