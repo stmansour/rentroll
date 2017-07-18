@@ -42,6 +42,8 @@ sidebarL1     - w2ui sidebar
 /*globals $:false */
 "use strict";
 
+var FormFLAGReportCSS = "background-color: #d0e9c6; padding: 8px 12px; border-radius: 4px; margin: 10px 0px;text-align: left; bottom: 0; position: absolute; width: 94%;";
+
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
@@ -3380,6 +3382,7 @@ function buildPageElements() {
             { field: 'Amount',         type: 'money', required: true },
             { field: 'Comment',        type: 'text',  required: false },
             { field: 'OtherPayorName', type: 'text',  required: false },
+            { field: 'FLAGS',     type: 'w2int', required: false },
         ],
         toolbar: {
             items: [
@@ -3483,7 +3486,42 @@ function buildPageElements() {
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
+                // FLAG reports
+                var flag = r.FLAGS,
+                    flagHTML = "",
+                    reverseHide = false;
+
+                // unpaid, partial paid or fully paid
+                if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
+                }
+                else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
+                }
+                else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
+                }
+
+                // check if it is reversed or not
+                if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    reverseHide = true;
+                }
+
+                // finally append
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+
                 formRefreshCallBack(f, "RCPTID", header);
+
+                // this one is a special case, where also have to take care of reverse button
+                if (reverseHide) { // if reversed then
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                }
+                else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                }
             };
         },
         onValidate: function (event) {
@@ -3947,6 +3985,7 @@ function buildPageElements() {
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
             { field: 'ExpandPastInst',type: 'hidden', required: false },
+            { field: 'FLAGS',     type: 'w2int', required: false },
         ],
         toolbar: {
             items: [
@@ -4031,8 +4070,46 @@ function buildPageElements() {
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
+                    r = f.record,
                     header = "Edit Assessment ({0})";
+
+                // FLAG reports
+                var flag = r.FLAGS,
+                    flagHTML = "",
+                    reverseHide = false;
+
+                // unpaid, partial paid or fully paid
+                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                }
+
+                // check if it is reversed or not
+                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    reverseHide = true;
+                }
+
+                // finally append
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+
+                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+
                 formRefreshCallBack(f, "ASMID", header);
+
+                // this one is a special case, where also have to take care of reverse button
+                if (reverseHide) { // if reversed then
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                }
+                else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                }
             };
         },
         onChange: function(event) {
@@ -4102,6 +4179,7 @@ function buildPageElements() {
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
+            { field: 'FLAGS',     type: 'w2int', required: false },
         ],
         toolbar: {
             items: [
@@ -4183,9 +4261,45 @@ function buildPageElements() {
                     // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
                     info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
                 }
-                $("#asmInstForm").find("#AssessmentEpochOrInstance").html(info);
+                $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
+
+                // FLAG reports
+                var flag = r.FLAGS,
+                    flagHTML = "",
+                    reverseHide = false;
+
+                // unpaid, partial paid or fully paid
+                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                }
+
+                // check if it is reversed or not
+                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    reverseHide = true;
+                }
+
+                // finally append
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+
+                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                $("#"+f.name).find("#FLAGReport").html(flagHTML);
 
                 formRefreshCallBack(f, "ASMID", header);
+
+                // this one is a special case, where also have to take care of reverse button
+                if (reverseHide) { // if reversed then
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                }
+                else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                }
             };
         },
         onChange: function(event) {

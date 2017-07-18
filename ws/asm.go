@@ -33,6 +33,7 @@ type AssessmentSendForm struct {
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
 	ExpandPastInst bool // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	FLAGS          uint64
 }
 
 // AssessmentSaveForm is a structure specifically for the return value from w2ui.
@@ -428,6 +429,7 @@ var asmFormSelectFields = []string{
 	"Assessments.Comment",
 	"Assessments.LastModTime",
 	"Assessments.LastModBy",
+	"Assessments.FLAGS",
 }
 
 // GetAssessment returns the requested assessment
@@ -489,7 +491,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		var rentCycle, prorationCycle int64
 
-		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy)
+		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.FLAGS)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return

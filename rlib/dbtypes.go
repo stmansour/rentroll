@@ -29,6 +29,18 @@ const (
 	ARASSESSMENT = 0
 	ARRECEIPT    = 1
 
+	// ASMUNPAID et all are flags for assessment
+	ASMUNPAID      = 0
+	ASMPARTIALPAID = 1
+	ASMFULLPAID    = 2
+	ASMREVERSED    = 4
+
+	// RCPTUNALLOCATED et all are flags for receipt
+	RCPTUNALLOCATED      = 0
+	RCPTPARTIALALLOCATED = 1
+	RCPTFULLALLOCATED    = 2
+	RCPTREVERSED         = 4
+
 	// CUSTSTRING et al are Custom Attribute types
 	CUSTSTRING = 0
 	CUSTINT    = 1
