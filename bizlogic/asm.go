@@ -142,6 +142,7 @@ func ReverseAssessmentInstance(aold *rlib.Assessment, dt *time.Time) []BizError 
 	if aold.FLAGS&0x4 != 0 {
 		return nil // it's already reversed
 	}
+
 	anew := *aold
 	anew.ASMID = 0
 	anew.Amount = -anew.Amount
@@ -156,8 +157,12 @@ func ReverseAssessmentInstance(aold *rlib.Assessment, dt *time.Time) []BizError 
 
 	aold.Comment = fmt.Sprintf("Reversed by %s", anew.IDtoString())
 	aold.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
-	// err := rlib.UpdateAssessment(aold) DeallocateAppliedFunds updates aold
-	err := DeallocateAppliedFunds(aold, anew.ASMID, dt)
+	err := rlib.UpdateAssessment(aold)
+	if err != nil {
+		return bizErrSys(&err)
+	}
+
+	err = DeallocateAppliedFunds(aold, anew.ASMID, dt)
 	if err != nil {
 		return bizErrSys(&err)
 	}
