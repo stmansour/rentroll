@@ -9,6 +9,9 @@ js:
 	@echo "*** Webpack done ***"
 
 clean:
+	@touch fail
+	grunt clean
+	@rm -f fail
 	@echo "*** Clean js ***"
 
 test:
