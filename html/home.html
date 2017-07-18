@@ -3529,16 +3529,20 @@ function buildPageElements() {
         },
         actions: {
             saveadd: function() {
-                var x = getCurrentBusiness();
-                var BID=x.value;
-                var BUD = getBUDfromBID(BID);
+                var f = this,
+                    grid = w2ui.receiptsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
 
                 // first save the record
-                w2ui.receiptForm.url = '/v1/receipt/' + BID + '/0';
-                var grid = w2ui.receiptsGrid;
-                var sel = grid.getSelection();
-                grid.unselect(sel);
-                var errors = w2ui.rentableTypeForm.validate(true);
+                f.url = '/v1/receipt/' + BID + '/0';
+                var errors = f.validate(true);
                 if (errors.length > 1) {
                     return;
                 }
@@ -3555,12 +3559,12 @@ function buildPageElements() {
                 //     w2ui.toplayout.hide('right',true);
                 //     tgrid.reload();
                 // });
-                var saveRecord = getFormSubmitData(this.record);
-                var params = {cmd: 'save', formname: this.name, record: saveRecord };
+                var saveRecord = getFormSubmitData(f.record);
+                var params = {cmd: 'save', formname: f.name, record: saveRecord };
                 var dat = JSON.stringify(params);
 
                 // save Depository request
-                $.post(this.url, dat)
+                $.post(f.url, dat)
                 .done(function(data) {
                     if (data.status != "success") {
                         return;
@@ -3572,22 +3576,19 @@ function buildPageElements() {
 
                 // get length of records from receipt grid and add new records to it
                 // only if receipts date falls in date range selection of grid
-                var recDate = dateFromString(this.record.Dt);
+                var recDate = dateFromString(f.record.Dt);
                 var xd1 = document.getElementsByName('receiptsD1')[0].value;
                 var xd2 = document.getElementsByName('receiptsD2')[0].value;
                 var d1 = dateFromString(xd1);
                 var d2 = dateFromString(xd2);
                 if (d1.getTime() <= recDate.getTime() && recDate.getTime() < d2.getTime()) {
                     // var recLen = w2ui.receiptsGrid.records.length;
-                    var newRec = this.record;
-                    w2ui.receiptsGrid.add(newRec);
-                    w2ui.receiptsGrid.render(); // redraw grid
+                    var newRec = f.record;
+                    grid.add(newRec);
+                    grid.render(); // redraw grid
                 }
 
-                // clear the form
-                this.clear();
-
-                // add new empty record
+                // add new empty record and just refresh the form, don't need to do CLEAR form
                 var y = new Date();
                 var pmt_options = buildPaymentTypeSelectList(BUD);
                 var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
@@ -3596,7 +3597,8 @@ function buildPageElements() {
                     RCPTID: 0,
                     PRCPTID: 0,
                     ARID: 0,
-                    BID: BUD,
+                    BID: BID,
+                    BUD: BUD,
                     PMTID: 0,
                     PmtTypeName: ptInit,
                     Dt: w2uiDateControlString(y),
@@ -3607,10 +3609,11 @@ function buildPageElements() {
                     Comment: '',
                     OtherPayorName: '',
                 };
-                this.fields[0].options.items = pmt_options;
-                this.fields[1].options.items = app.Receipts[BUD];
-                this.record = record;
-                this.refresh();
+                f.fields[0].options.items = pmt_options;
+                f.fields[1].options.items = app.Receipts[BUD];
+                f.record = record;
+                f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                f.refresh();
             },
             save: function () {
                 var x = getCurrentBusiness();
@@ -4231,10 +4234,10 @@ function buildPageElements() {
 
                 // var form = w2ui.asmInstForm;
                 var form = app.AsmtModeCallerForm;
-                var params = {  
-                    cmd:         'delete', 
-                    formname:    form.name, 
-                    ASMID:       form.record.ASMID, 
+                var params = {
+                    cmd:         'delete',
+                    formname:    form.name,
+                    ASMID:       form.record.ASMID,
                     ReverseMode: w2ui.reverseMode.record.ReverseMode.id,
                 };
                 var dat = JSON.stringify(params);
