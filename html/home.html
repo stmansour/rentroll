@@ -4143,26 +4143,40 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = this,
+                    r = f.record;
+
                 if (event.target == "Start") {
                     var x = document.getElementsByName('ExpandPastInst')[0];
-                    if (this.record.RentCycle.text != "norecur") {
+                    if (r.RentCycle.text != "Norecur") {
                         var DtStart = dateFromString(event.value_new);
                         var y = new Date();
                         x.checked = (DtStart <  y);
                     } else {
+                        // if Start date has been changed, in rentcycle with norecur mode
+                        // then we need to set stop date same value of start date
+                        r.Stop = r.Start;
                         x.checked = false;
                     }
                 }
                 if (event.target == "RentCycle") {
                     if (event.value_new.text == "Norecur") {
-                        w2ui.asmEpochForm.record.RentCycle = event.value_new;
-                        w2ui.asmEpochForm.record.ProrationCycle = {id: "Norecur", text: "Norecur"};
-                        w2ui.asmEpochForm.render();
+                        r.RentCycle = event.value_new;
+                        r.ProrationCycle = "Norecur";
+                        r.Stop = r.Start;
+                        // disable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", true);
+                    } else {
+                        // enable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
                     }
                 }
 
+                // finally refresh the form
+                f.refresh();
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                var diff = formRecDiffer(r, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
@@ -4349,8 +4363,34 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = this,
+                    r = f.record;
+
+                if (event.target == "Start") {
+                    if (r.RentCycle.text == "Norecur") {
+                        // if Start date has been changed, in rentcycle with norecur mode
+                        // then we need to set stop date same value of start date
+                        r.Stop = r.Start;
+                    }
+                }
+                if (event.target == "RentCycle") {
+                    if (event.value_new.text == "Norecur") {
+                        r.RentCycle = event.value_new;
+                        r.ProrationCycle = "Norecur";
+                        r.Stop = r.Start;
+                        // disable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", true);
+                    } else {
+                        // enable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
+                    }
+                }
+
+                // finally refresh the form
+                f.refresh();
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                var diff = formRecDiffer(r, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
