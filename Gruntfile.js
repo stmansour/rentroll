@@ -9,16 +9,10 @@ module.exports = function(grunt) {
     distConcatOutput: 'js/bundle.js',
     distMinifiedOutput: 'js/bundle.min.js',
     javascriptTestCase: 'js/src/index.html',
-    // banner: "/*! <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today(\"yyyy-mm-dd\") %> */",
     banner: "/*! '<%= grunt.template.today(\"yyyy-mm-dd\") %> */",
 
     // set the varibale for input javascript directory
     distInput: 'js/src/*.js',
-
-    // get the configuration info from package.json ----------------------------
-    // this way we can use things like name and version (pkg.name)
-    // pkg: grunt.file.readJSON('package.json'),
-
 
     //configure concat plugins
     concat: {
@@ -46,12 +40,23 @@ module.exports = function(grunt) {
     },
 
     qunit: {
+        options: {
+			"--web-security": "no",
+			coverage: {
+				src: [ "<%= distInput %>" ],
+				instrumentedFiles: "temp/",
+				htmlReport: "js/coverage/html",
+				lcovReport: "js/coverage/lcov",
+                coberturaReport: "js/coverage/cobertura",
+				linesThresholdPct: 0
+			}
+        },
         all: ["js/tests/*.html"]
     },
 
     // clean the bundle file
     clean: {
-        js: ['<%= distConcatOutput %>', '<%= distMinifiedOutput %>']
+        js: ['<%= distConcatOutput %>', '<%= distMinifiedOutput %>', './js/coverage/']
     },
 
     // configure uglify to minify js files -------------------------------------
@@ -84,9 +89,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-qunit-junit');
+  grunt.loadNpmTasks("grunt-qunit-istanbul");
 
 
   // ===========================================================================
@@ -95,5 +100,4 @@ module.exports = function(grunt) {
   grunt.registerTask('testqunit', ['qunit_junit', 'qunit']);
   grunt.registerTask('default', ['uglify', 'concat']);
   grunt.registerTask('dev', ['watch']);
-
 };

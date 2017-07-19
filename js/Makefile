@@ -16,6 +16,7 @@ clean:
 
 test:
 	@touch fail
+	mkdir -p ./../temp
 	grunt qunit
 	@echo "*** TESTS COMPLETE -- ALL TESTS PASS ***"
 	@rm -f fail
