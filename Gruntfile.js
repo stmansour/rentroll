@@ -25,18 +25,13 @@ module.exports = function(grunt) {
             dest: '<%= distConcatOutput %>'
         },
     },
+    
     // configure jshint to validate js files -----------------------------------
     jshint: {
       options: {
         reporter: require('jshint-stylish')
       },
       all: ['Grunfile.js', '<%= distInput %>']
-    },
-
-    qunit_junit : {
-        options: {
-            dest: 'report/',
-        }
     },
 
     qunit: {
@@ -90,14 +85,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-qunit-junit');
   grunt.loadNpmTasks("grunt-qunit-istanbul");
 
 
   // ===========================================================================
   // CREATE TASKS ==============================================================
   // ===========================================================================
-  grunt.registerTask('testqunit', ['qunit_junit', 'qunit']);
   grunt.registerTask('default', ['uglify', 'concat']);
   grunt.registerTask('dev', ['watch']);
 };
