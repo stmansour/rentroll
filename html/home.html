@@ -34,7 +34,7 @@ sidebarL1     - w2ui sidebar
     tcidReceiptPayorPickerRender, unallocAmountRemaining,
     addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
     getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
-    form_dirty_alert, _unAllocRcpts, w2confirm,getRentableTypes,getPersonDetailsByTCID,
+    form_dirty_alert, w2confirm,getRentableTypes,getPersonDetailsByTCID,
     tcidRUserPickerRender,rentalAgrFinderRender,rentalAgrFinderDropRender,rentalAgrFinderCompare,
     getAccountsList,getPostAccounts,int_to_bool,
 */
@@ -46,7 +46,6 @@ sidebarL1     - w2ui sidebar
 var _unAllocRcpts = {
     layoutPanels: {
         top: function(unallocFund, person/*, tcid*/) {
-            "use strict";
             return `<html>
                 <head>
                 <link rel="stylesheet" href="/html/rentroll.css">
@@ -65,7 +64,6 @@ var _unAllocRcpts = {
                 </html>`;
         },
         bottom: function() {
-            "use strict";
             return `<div style="display: table; width: 100%; height: 100%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
                         <button class="w2ui-btn" id="alloc_fund_save_btn">Save</button>
@@ -1455,10 +1453,6 @@ function buildPageElements() {
 
                 formRefreshCallBack(f, "LID", header);
             };
-        },
-        onSubmit: function(target, data) {
-            // modify form data for server request
-            getFormSubmitData(data.postData.record);
         },
     });
 
@@ -2905,7 +2899,7 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.done(function () {
-                calcRarGridContractRent(obj);
+                calcRarGridContractRent(this);
                 w2ui[this].save();
             });
         },
@@ -3386,7 +3380,7 @@ function buildPageElements() {
 
                             // NOTE: have to trigger manually, b'coz we manually change the record,
                             // otherwise it triggers the change event but it won't get change (Object: {})
-                            var event = f.trigger({ phase: 'before', target: f.name, type: 'change', recid: recid, event: event }); // event before
+                            var event = f.trigger({ phase: 'before', target: f.name, type: 'change', event: event }); // event before
                             if (event.cancelled === true) return false;
                             f.trigger($.extend(event, { phase: 'after' })); // event after
                         };
@@ -3444,7 +3438,7 @@ function buildPageElements() {
                     };
                     if ($("#receiptForm").find("input[name=Payor]").length > 0) {
                         $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    };
+                    }
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3478,7 +3472,7 @@ function buildPageElements() {
                     };
                     if ($("#receiptForm").find("input[name=Payor]").length > 0) {
                         $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    };
+                    }
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3576,10 +3570,7 @@ function buildPageElements() {
         onChange: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = f.record,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD = getBUDfromBID(BID);
+                    r = f.record;
 
                 if (event.target == "PmtTypeName") {
                     r.PMTID = event.value_new.id;
@@ -3685,9 +3676,8 @@ function buildPageElements() {
                 f.refresh();
             },
             save: function () {
-                var x = getCurrentBusiness();
-                var BID=x.value;
-                var BUD = getBUDfromBID(BID);
+                var x = getCurrentBusiness(),
+                    BID=x.value;
 
                 //var obj = this;
                 w2ui.receiptForm.url = '/v1/receipt/' + BID + '/0';
