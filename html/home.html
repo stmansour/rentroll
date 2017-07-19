@@ -1330,7 +1330,7 @@ function buildPageElements() {
             { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
             { field: "ManageToBudget", required: true, type: 'list', options: { items: app.manageToBudgetList, selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
-            { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
         ],
         toolbar: {
@@ -1370,18 +1370,16 @@ function buildPageElements() {
         },
         actions: {
             save: function() {
-                var tgrid = w2ui.accountsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                var f = this,
+                    tgrid = w2ui.accountsGrid;
 
-                this.save({}, function (data) {
+                f.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                    tgrid.render();
                 });
             },
             delete: function() {
@@ -1457,7 +1455,11 @@ function buildPageElements() {
 
                 formRefreshCallBack(f, "LID", header);
             };
-        }
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
+        },
     });
 
     //------------------------------------------------------------------------

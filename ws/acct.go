@@ -91,8 +91,6 @@ type AcctSaveForm struct {
 	Name           string
 	AcctType       string
 	Description    string
-	LastModTime    rlib.JSONDateTime
-	LastModBy      int64
 	BUD            rlib.XJSONBud
 	PLID           int64
 	Status         int64
