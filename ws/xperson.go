@@ -43,19 +43,19 @@ type RPerson struct {
 	Website                   string
 	Occupation                string
 	ApplicationFee            float64       // if non-zero this Prospect is an applicant
-	DesiredUsageStartDate     rlib.JSONTime // predicted rent start date
+	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
 	RentableTypePreference    int64         // RentableType
 	FLAGS                     uint64        // 0 = Approved/NotApproved,
 	Approver                  int64         // UID from Directory
 	DeclineReasonSLSID        int64         // SLSid of reason
 	OtherPreferences          string        // arbitrary text
-	FollowUpDate              rlib.JSONTime // automatically fill out this date to sysdate + 24hrs
+	FollowUpDate              rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
 	CSAgent                   int64         // Accord Directory UserID - for the CSAgent
 	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
 	FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
 	RAID                      int64         // created to hold On Account amount of Floating Deposit
 	Points                    int64
-	DateofBirth               rlib.JSONTime
+	DateofBirth               rlib.JSONDate
 	EmergencyContactName      string
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
@@ -68,7 +68,7 @@ type RPerson struct {
 	TaxpayorID                string
 	AccountRep                int64
 	EligibleFuturePayor       rlib.XJSONYesNo
-	LastModTime               rlib.JSONTime
+	LastModTime               rlib.JSONDate
 	LastModBy                 int64
 }
 
@@ -102,19 +102,19 @@ type RPersonForm struct {
 	Website                   string
 	Occupation                string
 	ApplicationFee            float64       // if non-zero this Prospect is an applicant
-	DesiredUsageStartDate     rlib.JSONTime // predicted rent start date
+	DesiredUsageStartDate     rlib.JSONDate // predicted rent start date
 	RentableTypePreference    int64         // RentableType
 	FLAGS                     uint64        // 0 = Approved/NotApproved,
 	Approver                  int64         // UID from Directory
 	DeclineReasonSLSID        int64         // SLSid of reason
 	OtherPreferences          string        // arbitrary text
-	FollowUpDate              rlib.JSONTime // automatically fill out this date to sysdate + 24hrs
+	FollowUpDate              rlib.JSONDate // automatically fill out this date to sysdate + 24hrs
 	CSAgent                   int64         // Accord Directory UserID - for the CSAgent
 	OutcomeSLSID              int64         // id of string from a list of outcomes. Melissa to provide reasons
 	FloatingDeposit           float64       // d $(GLCASH) _, c $(GLGENRCV) _; assign to a shell of a Rental Agreement
 	RAID                      int64         // created to hold On Account amount of Floating Deposit
 	Points                    int64
-	DateofBirth               rlib.JSONTime
+	DateofBirth               rlib.JSONDate
 	EmergencyContactName      string
 	EmergencyContactAddress   string
 	EmergencyContactTelephone string
@@ -125,7 +125,7 @@ type RPersonForm struct {
 	CreditLimit               float64
 	TaxpayorID                string
 	AccountRep                int64
-	LastModTime               rlib.JSONTime
+	LastModTime               rlib.JSONDate
 	LastModBy                 int64
 }
 

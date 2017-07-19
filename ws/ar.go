@@ -23,12 +23,12 @@ type ARSendForm struct {
 	CreditLID        int64
 	CreditLedgerName string
 	Description      string
-	DtStart          rlib.JSONTime
-	DtStop           rlib.JSONTime
+	DtStart          rlib.JSONDate
+	DtStop           rlib.JSONDate
 	raRequired       int
 	PriorToRAStart   bool // is it ok to charge prior to RA start
 	PriorToRAStop    bool // is it ok to charge after RA stop
-	LastModTime      rlib.JSONTime
+	LastModTime      rlib.JSONDate
 	LastModBy        int64
 }
 
@@ -44,11 +44,11 @@ type ARSaveForm struct {
 	ARID           int64
 	Name           string
 	Description    string
-	DtStart        rlib.JSONTime
-	DtStop         rlib.JSONTime
+	DtStart        rlib.JSONDate
+	DtStop         rlib.JSONDate
 	PriorToRAStart bool // is it ok to charge prior to RA start
 	PriorToRAStop  bool // is it ok to charge after RA stop
-	LastModTime    rlib.JSONTime
+	LastModTime    rlib.JSONDate
 	LastModBy      int64
 }
 
@@ -72,8 +72,8 @@ type PrARGrid struct {
 	CreditLID        int64
 	CreditLedgerName string
 	Description      string
-	DtStart          rlib.JSONTime
-	DtStop           rlib.JSONTime
+	DtStart          rlib.JSONDate
+	DtStop           rlib.JSONDate
 }
 
 // SaveARInput is the input data format for a Save command

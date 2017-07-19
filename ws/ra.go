@@ -20,13 +20,13 @@ type RentalAgr struct {
 	RATID                  int64             // reference to Occupancy Master Agreement
 	BID                    rlib.XJSONBud     // Business (so that we can process by Business)
 	NLID                   int64             // Note ID
-	AgreementStart         rlib.JSONTime     // start date for rental agreement contract
-	AgreementStop          rlib.JSONTime     // stop date for rental agreement contract
-	PossessionStart        rlib.JSONTime     // start date for Occupancy
-	PossessionStop         rlib.JSONTime     // stop date for Occupancy
-	RentStart              rlib.JSONTime     // start date for Rent
-	RentStop               rlib.JSONTime     // stop date for Rent
-	RentCycleEpoch         rlib.JSONTime     // Date on which rent cycle recurs. Start date for the recurring rent assessment
+	AgreementStart         rlib.JSONDate     // start date for rental agreement contract
+	AgreementStop          rlib.JSONDate     // stop date for rental agreement contract
+	PossessionStart        rlib.JSONDate     // start date for Occupancy
+	PossessionStop         rlib.JSONDate     // stop date for Occupancy
+	RentStart              rlib.JSONDate     // start date for Rent
+	RentStop               rlib.JSONDate     // stop date for Rent
+	RentCycleEpoch         rlib.JSONDate     // Date on which rent cycle recurs. Start date for the recurring rent assessment
 	UnspecifiedAdults      int64             // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
 	UnspecifiedChildren    int64             // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
 	Renewal                rlib.XJSONRenewal // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
@@ -35,19 +35,19 @@ type RentalAgr struct {
 	ExpenseAdjustmentType  int64             // Base Year, No Base Year, Pass Through
 	ExpensesStop           float64           // cap on the amount of oexpenses that can be passed through to the tenant
 	ExpenseStopCalculation string            // note on how to determine the expense stop
-	BaseYearEnd            rlib.JSONTime     // last day of the base year
-	ExpenseAdjustment      rlib.JSONTime     // the next date on which an expense adjustment is due
+	BaseYearEnd            rlib.JSONDate     // last day of the base year
+	ExpenseAdjustment      rlib.JSONDate     // the next date on which an expense adjustment is due
 	EstimatedCharges       float64           // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
 	RateChange             float64           // predetermined amount of rent increase, expressed as a percentage
-	NextRateChange         rlib.JSONTime     // he next date on which a RateChange will occur
+	NextRateChange         rlib.JSONDate     // he next date on which a RateChange will occur
 	PermittedUses          string            // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
 	ExclusiveUses          string            // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
 	ExtensionOption        string            // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
-	ExtensionOptionNotice  rlib.JSONTime     // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
+	ExtensionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
 	ExpansionOption        string            // the right to expand to certanin spaces that are typically contiguous to their primary space
-	ExpansionOptionNotice  rlib.JSONTime     // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
+	ExpansionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
-	LastModTime            rlib.JSONTime     // when was this record last written
+	LastModTime            rlib.JSONDate     // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
 	Payors                 rlib.NullString   // payors list attached with this RA within same time
 }
@@ -58,13 +58,13 @@ type RentalAgrForm struct {
 	RAID                   int64         // internal unique id
 	RATID                  int64         // reference to Occupancy Master Agreement
 	NLID                   int64         // Note ID
-	AgreementStart         rlib.JSONTime // start date for rental agreement contract
-	AgreementStop          rlib.JSONTime // stop date for rental agreement contract
-	PossessionStart        rlib.JSONTime // start date for Occupancy
-	PossessionStop         rlib.JSONTime // stop date for Occupancy
-	RentStart              rlib.JSONTime // start date for Rent
-	RentStop               rlib.JSONTime // stop date for Rent
-	RentCycleEpoch         rlib.JSONTime // Date on which rent cycle recurs. Start date for the recurring rent assessment
+	AgreementStart         rlib.JSONDate // start date for rental agreement contract
+	AgreementStop          rlib.JSONDate // stop date for rental agreement contract
+	PossessionStart        rlib.JSONDate // start date for Occupancy
+	PossessionStop         rlib.JSONDate // stop date for Occupancy
+	RentStart              rlib.JSONDate // start date for Rent
+	RentStop               rlib.JSONDate // stop date for Rent
+	RentCycleEpoch         rlib.JSONDate // Date on which rent cycle recurs. Start date for the recurring rent assessment
 	UnspecifiedAdults      int64         // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
 	UnspecifiedChildren    int64         // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
 	SpecialProvisions      string        // free-form text
@@ -72,19 +72,19 @@ type RentalAgrForm struct {
 	ExpenseAdjustmentType  int64         // Base Year, No Base Year, Pass Through
 	ExpensesStop           float64       // cap on the amount of oexpenses that can be passed through to the tenant
 	ExpenseStopCalculation string        // note on how to determine the expense stop
-	BaseYearEnd            rlib.JSONTime // last day of the base year
-	ExpenseAdjustment      rlib.JSONTime // the next date on which an expense adjustment is due
+	BaseYearEnd            rlib.JSONDate // last day of the base year
+	ExpenseAdjustment      rlib.JSONDate // the next date on which an expense adjustment is due
 	EstimatedCharges       float64       // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
 	RateChange             float64       // predetermined amount of rent increase, expressed as a percentage
-	NextRateChange         rlib.JSONTime // he next date on which a RateChange will occur
+	NextRateChange         rlib.JSONDate // he next date on which a RateChange will occur
 	PermittedUses          string        // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
 	ExclusiveUses          string        // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
 	ExtensionOption        string        // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
-	ExtensionOptionNotice  rlib.JSONTime // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
+	ExtensionOptionNotice  rlib.JSONDate // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
 	ExpansionOption        string        // the right to expand to certanin spaces that are typically contiguous to their primary space
-	ExpansionOptionNotice  rlib.JSONTime // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
+	ExpansionOptionNotice  rlib.JSONDate // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string        // Tenant may have the right to purchase their premises if LL chooses to sell
-	LastModTime            rlib.JSONTime // when was this record last written
+	LastModTime            rlib.JSONDate // when was this record last written
 	LastModBy              int64         // employee UID (from phonebook) that modified it
 }
 

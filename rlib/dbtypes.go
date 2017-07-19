@@ -281,8 +281,8 @@ type RentalAgreementGrid struct {
 	Recid          int
 	RAID           int64
 	TCIDPayor      int64
-	AgreementStart JSONTime
-	AgreementStop  JSONTime
+	AgreementStart JSONDate
+	AgreementStop  JSONDate
 }
 
 // RatePlan is a structure of static attributes of a rate plan, which describes charges for rentable types, varying by customer

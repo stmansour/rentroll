@@ -23,13 +23,13 @@ type ReceiptSendForm struct {
 	PMTID          int64
 	Payor          string // name of the payor
 	TCID           int64  // TCID of payor
-	Dt             rlib.JSONTime
+	Dt             rlib.JSONDate
 	DocNo          string // check number, money order number, etc.; documents the payment
 	Amount         float64
 	ARID           int64
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
-	LastModTime    rlib.JSONTime
+	LastModTime    rlib.JSONDate
 	LastModBy      int64
 	//AcctRule       string
 	FLAGS uint64
@@ -50,14 +50,14 @@ type ReceiptSaveForm struct {
 	ARID           int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
 	PMTID          int64
-	Dt             rlib.JSONTime
+	Dt             rlib.JSONDate
 	DocNo          string // check number, money order number, etc.; documents the payment
 	Amount         float64
 	Payor          string // name of the payor
 	TCID           int64  // TCID of payor
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
-	LastModTime    rlib.JSONTime
+	LastModTime    rlib.JSONDate
 	LastModBy      int64
 	FLAGS          uint64
 	// AcctRule       string
@@ -70,7 +70,7 @@ type PrReceiptGrid struct {
 	BID      int64
 	TCID     int64 // TCID of payor
 	PMTID    int64
-	Dt       rlib.JSONTime
+	Dt       rlib.JSONDate
 	DocNo    string // check number, money order number, etc.; documents the payment
 	Amount   float64
 	Payor    rlib.NullString // name of the payor

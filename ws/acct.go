@@ -77,7 +77,7 @@ type AcctDetailsForm struct {
 	AllowPost      int64
 	ManageToBudget int64
 	Description    string
-	LastModTime    rlib.JSONTime
+	LastModTime    rlib.JSONDate
 	LastModBy      int64
 }
 
@@ -91,7 +91,7 @@ type AcctSaveForm struct {
 	Name           string
 	AcctType       string
 	Description    string
-	LastModTime    rlib.JSONTime
+	LastModTime    rlib.JSONDate
 	LastModBy      int64
 	BUD            rlib.XJSONBud
 	PLID           int64

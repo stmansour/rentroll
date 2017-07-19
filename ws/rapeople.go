@@ -17,8 +17,8 @@ type RAPeopleFormSave struct {
 	RAID    int64
 	TCID    int64         // the payor's transactant id
 	RID     int64         // same struct type used for adding Users.  RID will be populated here, not RAID
-	DtStart rlib.JSONTime // start date/time for this Payor
-	DtStop  rlib.JSONTime // stop date/time
+	DtStart rlib.JSONDate // start date/time for this Payor
+	DtStop  rlib.JSONDate // stop date/time
 	FLAGS   uint64        // 1<<0 is the bit that indicates this payor is a 'guarantor'
 }
 
@@ -63,8 +63,8 @@ type RAPeople struct {
 	LastName     string        // person name
 	RID          int64         // Rentable ID
 	RentableName string        // rentable name
-	DtStart      rlib.JSONTime // start date/time for this Rentable
-	DtStop       rlib.JSONTime // stop date/time
+	DtStart      rlib.JSONDate // start date/time for this Rentable
+	DtStop       rlib.JSONDate // stop date/time
 	IsCompany    int
 	CompanyName  string
 }
