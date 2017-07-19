@@ -49,8 +49,8 @@ type PrRentableOther struct {
 	RentableStatus       string
 	RARID                rlib.NullInt64
 	RAID                 rlib.NullInt64
-	RentalAgreementStart rlib.NullTime
-	RentalAgreementStop  rlib.NullTime
+	RentalAgreementStart rlib.NullDate
+	RentalAgreementStop  rlib.NullDate
 	// AssignmentTime       rlib.XJSONAssignmentTime
 	LastModTime rlib.JSONDateTime
 	LastModBy   int64
@@ -84,8 +84,8 @@ type RentableDetails struct {
 	RentableName   string         // Rentable Name
 	RARID          rlib.NullInt64 // RentalAgreementRentable ID
 	RAID           rlib.NullInt64 // Rental Agreement ID for this period
-	RARDtStart     rlib.NullTime  // RentalAgreementStart Date
-	RARDtStop      rlib.NullTime  // RentalAgreementStop Date
+	RARDtStart     rlib.NullDate  // RentalAgreementStart Date
+	RARDtStop      rlib.NullDate  // RentalAgreementStop Date
 	RTID           int64          // Rentable type id
 	RTRID          int64          // Rentable Type Reference ID
 	RTRefDtStart   rlib.JSONDate  // Rentable Type Reference Stop Date
