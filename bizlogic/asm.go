@@ -448,11 +448,11 @@ func ValidateAssessment(a *rlib.Assessment) []BizError {
 		rsl := rlib.GetRentableStatusByRange(a.RID, &a.Start, &a.Stop)
 		l = len(rsl)
 		if l == 0 {
-			fmt.Printf("ValidateAssessment: l=0\n")
+			// fmt.Printf("ValidateAssessment: l=0\n")
 			e = append(e, BizErrors[RentableStatusUnknown])
 		} else {
-			fmt.Printf("ValidateAssessment: a.Start-Stop = %s - %s\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
-			fmt.Printf("ValidateAssessment: rtl = %s - %s\n", rtl[0].DtStart.Format(rlib.RRDATEINPFMT), rtl[l-1].DtStop.Format(rlib.RRDATEINPFMT))
+			// fmt.Printf("ValidateAssessment: a.Start-Stop = %s - %s\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
+			// fmt.Printf("ValidateAssessment: rtl = %s - %s\n", rtl[0].DtStart.Format(rlib.RRDATEINPFMT), rtl[l-1].DtStop.Format(rlib.RRDATEINPFMT))
 			if a.Stop.Before(rtl[0].DtStart) || a.Start.After(rtl[l-1].DtStop) {
 				e = append(e, BizErrors[RentableStatusUnknown])
 			}

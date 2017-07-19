@@ -3126,7 +3126,7 @@ function buildPageElements() {
                             return;
                         }
                         if ( (record.FLAGS & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
-                            return '<i class="fa fa-exclamation-circle" title="reversed" aria-hidden="true" style="color: red;"></i>';
+                            return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
                         }
                         return '';
                     },
@@ -3530,7 +3530,7 @@ function buildPageElements() {
                 if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-circle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save, saveadd button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
@@ -3775,7 +3775,7 @@ function buildPageElements() {
                             return;
                         }
                         if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
-                            return '<i class="fa fa-exclamation-circle" title="reversed" aria-hidden="true" style="color: red;"></i>';
+                            return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
                         }
                         return '';
                     },
@@ -4116,7 +4116,7 @@ function buildPageElements() {
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-circle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
@@ -4336,7 +4336,7 @@ function buildPageElements() {
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-circle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save button in form
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");

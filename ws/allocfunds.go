@@ -115,7 +115,7 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		g        SearchAllocFundsResponse
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
+	// fmt.Printf("Entered %s\n", funcname)
 
 	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(d.BID)
 	defer rows.Close()
@@ -123,7 +123,7 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("A\n")
+	// fmt.Printf("A\n")
 	i := d.wsSearchReq.Offset
 	count := 0
 
@@ -133,41 +133,41 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 	// get the transactants list
 	for rows.Next() {
-		fmt.Printf("B\n")
+		// fmt.Printf("B\n")
 		// get receipts record
 		var rcpt rlib.Receipt
 		rlib.ReadReceipts(rows, &rcpt)
-		fmt.Printf("B.1\n")
+		// fmt.Printf("B.1\n")
 
 		// get Transactant records
 		var t rlib.Transactant
 		err = rlib.GetTransactant(rcpt.TCID, &t)
 		if err != nil {
-			fmt.Printf("B.2  rcpt.RCPTID = %d,  rcpt.TCID = %d\n", rcpt.RCPTID, rcpt.TCID)
+			// fmt.Printf("B.2  rcpt.RCPTID = %d,  rcpt.TCID = %d\n", rcpt.RCPTID, rcpt.TCID)
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		fmt.Printf("C\n")
+		// fmt.Printf("C\n")
 
 		u[rcpt.TCID] = t
 		if !rlib.Int64InSlice(rcpt.TCID, payorTCIDList) {
 			payorTCIDList = append(payorTCIDList, rcpt.TCID)
 		}
 	}
-	fmt.Printf("D\n")
+	// fmt.Printf("D\n")
 	err = rows.Err()
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("E\n")
+	// fmt.Printf("E\n")
 
 	// sort the order of payors TCID
 	sort.Sort(payorTCIDList)
 
 	// now := time.Now()
 	for _, tcid := range payorTCIDList {
-		fmt.Printf("F\n")
+		// fmt.Printf("F\n")
 		t := u[tcid]
 		var q UnallocatedReceiptsPayors
 
@@ -192,12 +192,12 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
-			fmt.Printf("G\n")
+			// fmt.Printf("G\n")
 			break // if we've added the max number requested, then exit
 		}
 		i++ // update the index no matter what
 	}
-	fmt.Printf("H\n")
+	// fmt.Printf("H\n")
 
 	g.Status = "success"
 	g.Total = int64(len(g.Records))
