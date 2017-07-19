@@ -1,2 +1,4 @@
 0,"Rentable Type cannot be found for the Rentable during the Assessment's timeframe"
 1,"Rentable Status cannot be found for the Rentable during the Assessment's timeframe"
+2,"One or field was not present or has an error. Please review and resubmit"
+2,"This item cannot be edited, it is a reversal"

@@ -30,6 +30,15 @@ import (
 //    err = any error that was encountered.
 //-------------------------------------------------------------------------------
 func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
+	if rnew.FLAGS&0x4 != 0 {
+		return fmt.Errorf("This item cannot be edited, it has been reversed") // it's already reversed
+	}
+
+	errlist := ValidateReceipt(rnew)
+	if errlist != nil {
+		return BizErrorListToError(errlist)
+	}
+
 	//-------------------------------
 	// Load existing receipt...
 	//-------------------------------
@@ -268,6 +277,10 @@ func ReverseAllocation(r *rlib.Receipt, revRCPTID int64, dt *time.Time) error {
 //-------------------------------------------------------------------------------
 func InsertReceipt(a *rlib.Receipt) error {
 	funcname := "bizlogic.InsertReceipt"
+	errlist := ValidateReceipt(a)
+	if errlist != nil {
+		return BizErrorListToError(errlist)
+	}
 	_, err := rlib.InsertReceipt(a)
 	if err != nil {
 		return err
@@ -313,5 +326,33 @@ func InsertReceipt(a *rlib.Receipt) error {
 	rlib.GetJournalAllocations(&jnl)
 	rlib.InitLedgerCache()
 	rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2)
+	return nil
+}
+
+// ValidateReceipt checks to see whether the assessment violates any
+// business logic or any fields are missing or bad.
+//
+// INPUTS
+//    r = the receipt to validate
+//
+// RETURNS
+//    a slice of BizErrors
+//-------------------------------------------------------------------------------------
+func ValidateReceipt(r *rlib.Receipt) []BizError {
+	var e []BizError
+	fields := []string{}
+	if r.TCID == 0 {
+		fields = append(fields, "Payor")
+	}
+	if len(fields) > 0 {
+		msg := BizErrors[InvalidField].Message
+		for i := 0; i < len(fields); i++ {
+			msg += fmt.Sprintf("\n%s", fields[i])
+		}
+		e = append(e, BizError{Errno: InvalidField, Message: msg})
+	}
+	if len(e) > 0 {
+		return e
+	}
 	return nil
 }

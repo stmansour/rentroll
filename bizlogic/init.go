@@ -20,6 +20,8 @@ var BizErrors []BizError
 const (
 	RentableTypeUnknown   = 0
 	RentableStatusUnknown = 1
+	InvalidField          = 2
+	EditReversal          = 3
 )
 
 // InitBizLogic loads the error messages needed for validation errors

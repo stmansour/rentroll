@@ -1,63 +1,76 @@
 <div id="asmEpochForm">
-    <div class="w2ui-page page-0">	<!-- Assessment -->
-    	<div><p id="AssessmentEpochOrInstance"></p></div>
+	<div class="w2ui-page page-0">	<!-- Assessment -->
+		<div><p id="AssessmentEpochOrInstance"></p></div>
 
-	    <div class="w2ui-field">
-	        <input name="recid" type="hidden" />
-	    </div>
-	    <div class="w2ui-field">
-	        <input name="ASMID" type="hidden" />
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Invoice No:</label><div><input name="InvoiceNo" type="int" /></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Business Unit:</label><div><input name="BID" type="list" disabled/></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Account Rule:</label><div><input name="ARID" type="list" style="width:100%"/></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>RAID:</label>
-	        <div>
-	        	<input name="RAID" type="w2int" disabled />
-	        	<button class="w2ui-btn" onclick="popupRentalAgrPicker()" >Find...</button>
-	        </div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Rentable:</label><div><input name="Rentable" type="text" disabled style="width:100%"/></div>
-	    </div>
-	    <div class="w2ui-field"><input name="RID" type="hidden" /></div>
-	    <div class="w2ui-field">
-	        <label>Amount:</label><div><input name="Amount" type="w2float" /></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>RentCycle:</label><div><input name="RentCycle" type="list" /></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>ProrationCycle:</label><div><input name="ProrationCycle" type="list" /></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Start:</label>
-	        <div><input name="Start" type="us-date1" size="11"> &nbsp;&nbsp;&nbsp;
-	    	<label> create past instances:&nbsp;</label><input type="checkbox"  checked name="ExpandPastInst"/></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Stop:</label>
-	        <div><input name="Stop" type="us-date2" size="11"></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Comment:</label><div><input name="Comment" type="text" style="width: 100%"/></div>
-	    </div>
-	    <div class="w2ui-field"><input name="ATypeLID" type="hidden" /></div>
-	    <div class="w2ui-field"><input type="hidden" name="PASMID"/></div>
-	    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
-	    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
+		<div class="w2ui-field"><input name="recid" type="hidden" /></div>
+		<div class="w2ui-field"><input name="ASMID" type="hidden" /></div>
+		<div class="w2ui-field"><input name="ATypeLID" type="hidden" /></div>
+		<div class="w2ui-field"><input type="hidden" name="PASMID"/></div>
+		<div class="w2ui-field"><input type="hidden" name="FLAGS"/></div>
+		<div class="w2ui-field">
+			<label>Invoice No:</label>
+			<div><input name="InvoiceNo" type="int" /></div>
+		</div>
+		<div class="w2ui-field">
+			<label>Business Unit:</label>
+			<div><input name="BID" type="list" disabled/></div>
+		</div>
+		<div class="w2ui-field">
+			<label>Account Rule:</label>
+			<div><input name="ARID" type="list" style="width:100%"/></div>
+		</div>
+		<div class="w2ui-field">
+			<label>RAID:</label>
+			<div>
+				<input name="RAID" type="w2int" disabled />
+				<button class="w2ui-btn" onclick="popupRentalAgrPicker()" >Find...</button>
+			</div>
+		</div>
+		<div class="w2ui-field">
+			<label>Rentable:</label>
+			<div><input name="Rentable" type="text" disabled style="width:100%"/></div>
+		</div>
+		<div class="w2ui-field"><input name="RID" type="hidden" /></div>
+		<div class="w2ui-field">
+			<label>Amount:</label>
+			<div><input name="Amount" type="w2float" /></div>
+		</div>
+		<div class="w2ui-field">
+			<label>RentCycle:</label>
+			<div><input name="RentCycle" type="list" /></div>
+		</div>
+		<div class="w2ui-field">
+			<label>ProrationCycle:</label>
+			<div><input name="ProrationCycle" type="list" /></div>
+		</div>
+		<div class="w2ui-field">
+			<label>Start:</label>
+			<div>
+				<input name="Start" type="us-date1" size="11"> &nbsp;&nbsp;&nbsp;
+				<label> create past instances:&nbsp;</label>
+				<input type="checkbox"  checked name="ExpandPastInst"/>
+			</div>
+		</div>
+		<div class="w2ui-field">
+			<label>Stop:</label>
+			<div><input name="Stop" type="us-date2" size="11"></div>
+		</div>
+		<div class="w2ui-field">
+			<label>Comment:</label>
+			<div><input name="Comment" type="text" style="width: 100%"/></div>
+		</div>
+		<div class="w2ui-field"><input type="hidden" name="Mode"/></div>
+		<div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
+		<div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
+
+		<div id="FLAGReport" style="">
+			<p style="margin-bottom: 5px;">Assessment FLAG report</p>
+		</div>
 	</div>  <!-- end of page 0, Rentable -->
 
 	<div class="w2ui-buttons">
-	    <button class="w2ui-btn" name="save">Save</button>
-	    <button class="w2ui-btn" name="reverse">Reverse</button>
+		<button class="w2ui-btn" name="save">Save</button>
+		<button class="w2ui-btn" name="reverse">Reverse</button>
 	</div>
 </div>
 

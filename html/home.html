@@ -42,6 +42,8 @@ sidebarL1     - w2ui sidebar
 /*globals $:false */
 "use strict";
 
+var FormFLAGReportCSS = "background-color: #d0e9c6; padding: 8px 12px; border-radius: 4px; margin: 10px 0px;text-align: left; bottom: 0; position: absolute; width: 94%;";
+
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
@@ -1091,7 +1093,10 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.onComplete = function() {
-                if (event.input_id == "grid_unpaidASMsGrid_edit_0_8") {  // if the date changes, don't mess up anything else...
+                //----------------------------------------------------------------
+                // if they just changed the date, take the change and return...
+                //----------------------------------------------------------------
+                if (event.column == 8) { // if the date changes, don't mess up anything else...
                     for (var i = 0; i < w2ui.unpaidASMsGrid.records.length; i++) {
                         if ( event.recid == w2ui.unpaidASMsGrid.records[i].recid ) {
                             w2ui.unpaidASMsGrid.records[i].Dt = event.value_new;
@@ -3250,6 +3255,7 @@ function buildPageElements() {
                                 Amount: 0,
                                 Comment: '',
                                 OtherPayorName: '',
+                                FLAGS: 0,
                             };
                             w2ui.receiptForm.fields[0].options.items = pmt_options;
                             w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
@@ -3380,6 +3386,7 @@ function buildPageElements() {
             { field: 'Amount',         type: 'money', required: true },
             { field: 'Comment',        type: 'text',  required: false },
             { field: 'OtherPayorName', type: 'text',  required: false },
+            { field: 'FLAGS',          type: 'w2int', required: false },
         ],
         toolbar: {
             items: [
@@ -3483,7 +3490,42 @@ function buildPageElements() {
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
+                // FLAG reports
+                var flag = r.FLAGS,
+                    flagHTML = "",
+                    reverseHide = false;
+
+                // unpaid, partial paid or fully paid
+                if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
+                }
+                else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
+                }
+                else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
+                }
+
+                // check if it is reversed or not
+                if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    reverseHide = true;
+                }
+
+                // finally append
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+
                 formRefreshCallBack(f, "RCPTID", header);
+
+                // this one is a special case, where also have to take care of reverse button
+                if (reverseHide) { // if reversed then
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                }
+                else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                }
             };
         },
         onValidate: function (event) {
@@ -3529,16 +3571,20 @@ function buildPageElements() {
         },
         actions: {
             saveadd: function() {
-                var x = getCurrentBusiness();
-                var BID=x.value;
-                var BUD = getBUDfromBID(BID);
+                var f = this,
+                    grid = w2ui.receiptsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
 
                 // first save the record
-                w2ui.receiptForm.url = '/v1/receipt/' + BID + '/0';
-                var grid = w2ui.receiptsGrid;
-                var sel = grid.getSelection();
-                grid.unselect(sel);
-                var errors = w2ui.rentableTypeForm.validate(true);
+                f.url = '/v1/receipt/' + BID + '/0';
+                var errors = f.validate(true);
                 if (errors.length > 1) {
                     return;
                 }
@@ -3555,12 +3601,12 @@ function buildPageElements() {
                 //     w2ui.toplayout.hide('right',true);
                 //     tgrid.reload();
                 // });
-                var saveRecord = getFormSubmitData(this.record);
-                var params = {cmd: 'save', formname: this.name, record: saveRecord };
+                var saveRecord = getFormSubmitData(f.record);
+                var params = {cmd: 'save', formname: f.name, record: saveRecord };
                 var dat = JSON.stringify(params);
 
                 // save Depository request
-                $.post(this.url, dat)
+                $.post(f.url, dat)
                 .done(function(data) {
                     if (data.status != "success") {
                         return;
@@ -3572,22 +3618,19 @@ function buildPageElements() {
 
                 // get length of records from receipt grid and add new records to it
                 // only if receipts date falls in date range selection of grid
-                var recDate = dateFromString(this.record.Dt);
+                var recDate = dateFromString(f.record.Dt);
                 var xd1 = document.getElementsByName('receiptsD1')[0].value;
                 var xd2 = document.getElementsByName('receiptsD2')[0].value;
                 var d1 = dateFromString(xd1);
                 var d2 = dateFromString(xd2);
                 if (d1.getTime() <= recDate.getTime() && recDate.getTime() < d2.getTime()) {
                     // var recLen = w2ui.receiptsGrid.records.length;
-                    var newRec = this.record;
-                    w2ui.receiptsGrid.add(newRec);
-                    w2ui.receiptsGrid.render(); // redraw grid
+                    var newRec = f.record;
+                    grid.add(newRec);
+                    grid.render(); // redraw grid
                 }
 
-                // clear the form
-                this.clear();
-
-                // add new empty record
+                // add new empty record and just refresh the form, don't need to do CLEAR form
                 var y = new Date();
                 var pmt_options = buildPaymentTypeSelectList(BUD);
                 var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
@@ -3596,7 +3639,8 @@ function buildPageElements() {
                     RCPTID: 0,
                     PRCPTID: 0,
                     ARID: 0,
-                    BID: BUD,
+                    BID: BID,
+                    BUD: BUD,
                     PMTID: 0,
                     PmtTypeName: ptInit,
                     Dt: w2uiDateControlString(y),
@@ -3607,10 +3651,11 @@ function buildPageElements() {
                     Comment: '',
                     OtherPayorName: '',
                 };
-                this.fields[0].options.items = pmt_options;
-                this.fields[1].options.items = app.Receipts[BUD];
-                this.record = record;
-                this.refresh();
+                f.fields[0].options.items = pmt_options;
+                f.fields[1].options.items = app.Receipts[BUD];
+                f.record = record;
+                f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                f.refresh();
             },
             save: function () {
                 var x = getCurrentBusiness();
@@ -3815,6 +3860,8 @@ function buildPageElements() {
                                 LastModTime: w2uiDateControlString(y),
                                 LastModBy: 0,
                                 ExpandPastInst: true,
+                                FLAGS: 0,
+                                Mode: 0,
                             };
                             // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
@@ -3925,25 +3972,27 @@ function buildPageElements() {
         url: '/v1/asm',
         formURL: '/html/formasmepoch.html',
         fields: [
-            { field: 'ARID',          type: 'list',   required: true, options: { items: app.Assessments }},
-            { field: 'recid',         type: 'int',    required: false },
-            { field: 'ASMID',         type: 'int',    required: false },
-            { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
-            { field: 'PASMID',        type: 'w2int',  required: false },
-            { field: 'Rentable',      type: 'text',   required: false },
-            { field: 'InvoiceNo',     type: 'int',    required: false },
-            { field: 'RID',           type: 'int',    required: false },
-            { field: 'ATypeLID',      type: 'int',    required: false },
-            { field: 'RAID',          type: 'int',    required: true },
-            { field: 'Amount',        type: 'money',  required: true },
-            { field: 'Start',         type: 'date',   required: true },
-            { field: 'Stop',          type: 'date',   required: true },
-            { field: 'RentCycle',     type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'ProrationCycle',type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'Comment',       type: 'text',   required: false },
-            { field: 'LastModTime',   type: 'hidden', required: false },
-            { field: 'LastModBy',     type: 'hidden', required: false },
-            { field: 'ExpandPastInst',type: 'hidden', required: false },
+            { field: 'ARID',          type: 'list',     required: true, options: { items: app.Assessments }},
+            { field: 'recid',         type: 'int',      required: false },
+            { field: 'ASMID',         type: 'int',      required: false },
+            { field: 'BID',           type: 'list',     required: true, options:  {items: app.businesses}, },
+            { field: 'PASMID',        type: 'w2int',    required: false },
+            { field: 'Rentable',      type: 'text',     required: false },
+            { field: 'InvoiceNo',     type: 'int',      required: false },
+            { field: 'RID',           type: 'int',      required: false },
+            { field: 'ATypeLID',      type: 'int',      required: false },
+            { field: 'RAID',          type: 'int',      required: true },
+            { field: 'Amount',        type: 'money',    required: true },
+            { field: 'Start',         type: 'date',     required: true },
+            { field: 'Stop',          type: 'date',     required: true },
+            { field: 'RentCycle',     type: 'list',     required: true, options:  {items: app.cycleFreq}, },
+            { field: 'ProrationCycle',type: 'list',     required: true, options:  {items: app.cycleFreq}, },
+            { field: 'Comment',       type: 'text',     required: false },
+            { field: 'LastModTime',   type: 'hidden',   required: false },
+            { field: 'LastModBy',     type: 'hidden',   required: false },
+            { field: 'ExpandPastInst',type: 'checkbox', required: false },
+            { field: 'FLAGS',         type: 'w2int',    required: false },
+            { field: 'Mode',          type: 'w2int',    required: false },
         ],
         toolbar: {
             items: [
@@ -3996,40 +4045,51 @@ function buildPageElements() {
             },
             reverse: function() {
                 popupAsmRevMode(2, w2ui.asmEpochForm);
-
-                // w2confirm(reverse_confirm_options)
-                // .yes(function() {
-                //     var tgrid = w2ui.asmsGrid;
-                //     var sel = tgrid.getSelection();
-                //     tgrid.unselect(sel);
-
-                //     var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
-                //     var dat = JSON.stringify(params);
-
-                //     // reverse Depository request
-                //     $.post(form.url, dat)
-                //     .done(function(data) {
-                //         if (data.status != "success") {
-                //             return;
-                //         }
-                //         w2ui.toplayout.hide('right',true);
-                //         w2ui.toplayout.render();
-                //         tgrid.reload();
-                //     })
-                //     .fail(function(/*data*/){
-                //         console.log("Delete Assessment epoch failed.");
-                //     });
-                // })
-                // .no(function() {
-                //     return;
-                // });
             },
         },
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
+                    r = f.record,
                     header = "Edit Assessment ({0})";
+
+                // FLAG reports
+                var flag = r.FLAGS,
+                    flagHTML = "",
+                    reverseHide = false;
+
+                // unpaid, partial paid or fully paid
+                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                }
+
+                // check if it is reversed or not
+                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    reverseHide = true;
+                }
+
+                // finally append
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+
+                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+
                 formRefreshCallBack(f, "ASMID", header);
+
+                // this one is a special case, where also have to take care of reverse button
+                if (reverseHide) { // if reversed then
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                }
+                else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                }
             };
         },
         onChange: function(event) {
@@ -4099,6 +4159,8 @@ function buildPageElements() {
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
+            { field: 'FLAGS',         type: 'w2int',  required: false },
+            { field: 'Mode',          type: 'w2int',  required: false },
         ],
         toolbar: {
             items: [
@@ -4118,6 +4180,9 @@ function buildPageElements() {
                     break;
                 }
             },
+        },
+        onError: function(event) {
+            console.log('onError handler called. event - '+event);
         },
         actions: {
             save: function () {
@@ -4180,9 +4245,45 @@ function buildPageElements() {
                     // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
                     info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
                 }
-                $("#asmInstForm").find("#AssessmentEpochOrInstance").html(info);
+                $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
+
+                // FLAG reports
+                var flag = r.FLAGS,
+                    flagHTML = "",
+                    reverseHide = false;
+
+                // unpaid, partial paid or fully paid
+                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                }
+                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                }
+
+                // check if it is reversed or not
+                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    reverseHide = true;
+                }
+
+                // finally append
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+
+                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                $("#"+f.name).find("#FLAGReport").html(flagHTML);
 
                 formRefreshCallBack(f, "ASMID", header);
+
+                // this one is a special case, where also have to take care of reverse button
+                if (reverseHide) { // if reversed then
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                }
+                else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                }
             };
         },
         onChange: function(event) {
@@ -4422,6 +4523,8 @@ function buildPageElements() {
                 options: {
                     url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
                     // max:     1,
+                    items: [],
+                    openOnFocus: true,
                     maxDropHeight: 350,
                     renderItem: rentalAgrFinderRender,
                     renderDrop: rentalAgrFinderDropRender,

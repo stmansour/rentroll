@@ -32,6 +32,7 @@ type ReceiptSendForm struct {
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
 	//AcctRule       string
+	FLAGS uint64
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.
@@ -58,6 +59,7 @@ type ReceiptSaveForm struct {
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
+	FLAGS          uint64
 	// AcctRule       string
 }
 
@@ -344,7 +346,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = bizlogic.UpdateReceipt(&a, &now)
 	}
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d\n: %s", funcname, d.RCPTID, err.Error())
+		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d)\n: %s", funcname, d.RCPTID, err.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}

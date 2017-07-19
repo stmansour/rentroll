@@ -32,7 +32,9 @@ type AssessmentSendForm struct {
 	Comment        string
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
-	ExpandPastInst bool // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	FLAGS          uint64
+	Mode           int // initializes edit mode: 0 = this instance only, 1 = this and future, 2 = all
 }
 
 // AssessmentSaveForm is a structure specifically for the return value from w2ui.
@@ -56,7 +58,9 @@ type AssessmentSaveForm struct {
 	ReverseMode    int // if this a Reversal (delete), then 0 = this instance only, 1 = this and future instances, 2 = all instances
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
-	ExpandPastInst bool // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	FLAGS          uint64
+	Mode           int // 0 = this instance only, 1 = this and future, 2 = all
 }
 
 // AssessmentSaveOther is a struct to handle the UI list box selections
@@ -335,6 +339,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveAssessment"
 		err      error
+		errlist  []bizlogic.BizError
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -401,12 +406,17 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
-		err = rlib.UpdateAssessment(&a)
+		now := time.Now() // mark Assessment reversed at this time
+		errlist = bizlogic.UpdateAssessment(&a, foo.Record.Mode, &now, foo.Record.ExpandPastInst)
+		if len(errlist) > 0 {
+			err = bizlogic.BizErrorListToError(errlist)
+			SvcGridErrorReturn(w, err, funcname)
+		}
 	} else {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}
 	if err != nil {
-		e := fmt.Errorf("Error saving assessment (ASMID=%d: %s", d.ASMID, err.Error())
+		e := fmt.Errorf("Error saving assessment (ASMID=%d): %s", d.ASMID, err.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
@@ -428,6 +438,7 @@ var asmFormSelectFields = []string{
 	"Assessments.Comment",
 	"Assessments.LastModTime",
 	"Assessments.LastModBy",
+	"Assessments.FLAGS",
 }
 
 // GetAssessment returns the requested assessment
@@ -489,12 +500,12 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		var rentCycle, prorationCycle int64
 
-		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy)
+		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.FLAGS)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		gg.ExpandPastInst = false // assume we don't expand unless told otherwise
+		gg.ExpandPastInst = 1 // assume we don't expand unless told otherwise
 
 		for freqStr, freqNo := range rlib.CycleFreqMap {
 			if rentCycle == freqNo {
