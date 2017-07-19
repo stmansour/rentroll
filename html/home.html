@@ -4801,7 +4801,7 @@ function buildPageElements() {
             { field: 'PMTID', type: 'int', required: false, html: { caption: 'PMTID', page: 0, column: 0 }, hidden: true },
             { field: 'Name', type: 'text', required: true, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
             { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0 }, sortable: true },
-            { field: 'LastModTime', type: 'date', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
         ],
         toolbar: {
@@ -4824,34 +4824,17 @@ function buildPageElements() {
             }
         },
         actions: {
-            save: function() {
-                var tgrid = w2ui.pmtsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+            save: function(/*target, data*/) {
+                var f = this,
+                    tgrid = w2ui.pmtsGrid;
 
-                // this.save({}, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     tgrid.reload();
-                // });
-                var params = {cmd: 'save', formname: this.name, record: this.record };
-                var dat = JSON.stringify(params);
-
-                // save Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
-                })
-                .fail(function(/*data*/){
-                    console.log("Save Payment Type failed.");
+                    tgrid.render();
                 });
             },
             delete: function() {
@@ -4929,6 +4912,10 @@ function buildPageElements() {
                 $(w2ui.toplayout.get("right").content.box).height(h);
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
         },
     });
 
