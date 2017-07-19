@@ -19,6 +19,6 @@ js/jquery*
 test/testdb/rex.sql
 html/fa/
 bizerr.csv
-.node_modules
+node_modules
 js/._w2ui*
 js/._jquery*

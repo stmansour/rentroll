@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // DepositoryGrid contains the data from Depository that is targeted to the UI Grid that displays
@@ -23,7 +22,7 @@ type DepositoryGrid struct {
 	AccountNo   string
 	LdgrName    string
 	GLNumber    string
-	LastModTime time.Time
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 
@@ -37,15 +36,15 @@ type DepositorySearchResponse struct {
 // DepositorySaveForm contains the data from Depository FORM that is targeted to the UI Form that displays
 // a list of Depository structs
 type DepositorySaveForm struct {
-	Recid       int64 `json:"recid"`
-	DEPID       int64
-	BID         int64
-	Name        string
-	AccountNo   string
-	LdgrName    string
-	GLNumber    string
-	LastModTime time.Time
-	LastModBy   int64
+	Recid     int64 `json:"recid"`
+	LID       int64
+	DEPID     int64
+	BID       int64
+	BUD       rlib.XJSONBud
+	Name      string
+	AccountNo string
+	LdgrName  string
+	GLNumber  string
 }
 
 // DepositoryGridSave is the input data format for a Save command
@@ -54,26 +53,6 @@ type DepositoryGridSave struct {
 	Recid    int64              `json:"recid"`
 	FormName string             `json:"name"`
 	Record   DepositorySaveForm `json:"record"`
-}
-
-// DepositorySaveOther is a struct to handle the UI list box selections
-type DepositorySaveOther struct {
-	BUD rlib.W2uiHTMLSelect
-	LID rlib.W2uiHTMLSelect
-}
-
-// SaveDepositoryOther is the input data format for the "other" data on the Save command
-type SaveDepositoryOther struct {
-	Status string              `json:"status"`
-	Recid  int64               `json:"recid"`
-	Name   string              `json:"name"`
-	Record DepositorySaveOther `json:"record"`
-}
-
-// DepSaveOther is a struct to handle the UI list box selections
-type DepSaveOther struct {
-	BUD rlib.W2uiHTMLSelect
-	LID rlib.W2uiHTMLSelect
 }
 
 // DepositoryGetResponse is the response to a GetDepository request
@@ -318,7 +297,6 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveDepository"
 		foo      DepositoryGridSave
-		bar      SaveDepositoryOther
 		err      error
 	)
 
@@ -334,26 +312,14 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err := json.Unmarshal(data, &bar); err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
 	var a rlib.Depository
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
 	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BUD.ID]
+	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BUD.ID)
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	a.LID, ok = rlib.StringToInt64(bar.Record.LID.ID) // CreditLID has drop list
-	if !ok {
-		e := fmt.Errorf("%s: invalid LID value: %s", funcname, bar.Record.LID.ID)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}

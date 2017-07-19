@@ -23,14 +23,14 @@ type AssessmentSendForm struct {
 	Rentable       string
 	RAID           int64
 	Amount         float64
-	Start          rlib.JSONTime
-	Stop           rlib.JSONTime
+	Start          rlib.JSONDate
+	Stop           rlib.JSONDate
 	RentCycle      rlib.XJSONCycleFreq
 	ProrationCycle rlib.XJSONCycleFreq
 	InvoiceNo      int64
 	ARID           int64
 	Comment        string
-	LastModTime    rlib.JSONTime
+	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64
@@ -51,12 +51,12 @@ type AssessmentSaveForm struct {
 	RID            int64
 	RAID           int64
 	Amount         float64
-	Start          rlib.JSONTime
-	Stop           rlib.JSONTime
+	Start          rlib.JSONDate
+	Stop           rlib.JSONDate
 	InvoiceNo      int64
 	Comment        string
 	ReverseMode    int // if this a Reversal (delete), then 0 = this instance only, 1 = this and future instances, 2 = all instances
-	LastModTime    rlib.JSONTime
+	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64
@@ -83,11 +83,12 @@ type AssessmentGrid struct {
 	RAID      int64           // associated Rental Agreement
 	RentCycle int64           // Rent Cycle
 	Amount    float64         // how much
-	Start     rlib.JSONTime   // start time
-	Stop      rlib.JSONTime   // stop time, may be the same as start time or later
+	Start     rlib.JSONDate   // start time
+	Stop      rlib.JSONDate   // stop time, may be the same as start time or later
 	InvoiceNo int64           // A uniqueID for the invoice number
 	ARID      int64           // which account rule
 	AcctRule  rlib.NullString // expression showing how to account for the amount
+	FLAGS     uint64
 }
 
 // SearchAssessmentsResponse is a response string to the search request for assessments
@@ -128,7 +129,7 @@ type DeleteAsmForm struct {
 
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
 func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) (AssessmentGrid, error) {
-	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule)
+	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule, &q.FLAGS)
 	return q, err
 }
 
@@ -147,6 +148,7 @@ var asmFieldsMap = map[string][]string{
 	"InvoiceNo":    {"Assessments.InvoiceNo"},
 	"ARID":         {"Assessments.ARID"},
 	"AcctRule":     {"AR.Name"},
+	"FLAGS":        {"Assessments.FLAGS"},
 }
 
 // which fields needs to be fetched for SQL query for assessment grid
@@ -164,6 +166,7 @@ var asmQuerySelectFields = []string{
 	"Assessments.InvoiceNo",
 	"Assessments.ARID",
 	"AR.Name",
+	"Assessments.FLAGS",
 }
 
 // SvcSearchHandlerAssessments generates a report of all Assessments defined business d.BID

@@ -127,6 +127,7 @@ const (
 	RRDATEINPFMT     = "2006-01-02"
 	RRDATEFMTSQL     = RRDATEINPFMT
 	RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
+	RRDATETIMEFMT    = "2006-01-02T15:04:00Z"
 	RRDATEREPORTFMT  = "Jan 2, 2006"
 )
 
@@ -281,8 +282,8 @@ type RentalAgreementGrid struct {
 	Recid          int
 	RAID           int64
 	TCIDPayor      int64
-	AgreementStart JSONTime
-	AgreementStop  JSONTime
+	AgreementStart JSONDate
+	AgreementStop  JSONDate
 }
 
 // RatePlan is a structure of static attributes of a rate plan, which describes charges for rentable types, varying by customer

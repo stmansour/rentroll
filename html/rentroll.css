@@ -36,3 +36,30 @@ p {
 .hidden {
     display: none !important;
 }
+
+.FLAGReportContainer {
+    background-color: #d0e9c6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 10px 0px;
+    text-align: left;
+    bottom: 0;
+    position: absolute;
+    width: 94%;
+}
+
+.FLAGReportContainer p {
+    font-size: 10px;
+}
+
+.FLAGReportContainer .reverseIconContainer {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    height: 100%;
+}
+
+.FLAGReportContainer .reverseIcon {
+    color: red;
+    margin-top: 45%;
+}

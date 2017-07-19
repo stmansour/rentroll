@@ -27,7 +27,7 @@ type RentableForm struct {
 	Recid        int64 `json:"recid"` // this is to support the w2ui form
 	RID          int64
 	RentableName string
-	LastModTime  rlib.JSONTime
+	LastModTime  rlib.JSONDateTime
 	LastModBy    int64
 }
 
@@ -49,10 +49,10 @@ type PrRentableOther struct {
 	RentableStatus       string
 	RARID                rlib.NullInt64
 	RAID                 rlib.NullInt64
-	RentalAgreementStart rlib.NullTime
-	RentalAgreementStop  rlib.NullTime
+	RentalAgreementStart rlib.NullDate
+	RentalAgreementStop  rlib.NullDate
 	// AssignmentTime       rlib.XJSONAssignmentTime
-	LastModTime rlib.JSONTime
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 
@@ -84,18 +84,18 @@ type RentableDetails struct {
 	RentableName   string         // Rentable Name
 	RARID          rlib.NullInt64 // RentalAgreementRentable ID
 	RAID           rlib.NullInt64 // Rental Agreement ID for this period
-	RARDtStart     rlib.NullTime  // RentalAgreementStart Date
-	RARDtStop      rlib.NullTime  // RentalAgreementStop Date
+	RARDtStart     rlib.NullDate  // RentalAgreementStart Date
+	RARDtStop      rlib.NullDate  // RentalAgreementStop Date
 	RTID           int64          // Rentable type id
 	RTRID          int64          // Rentable Type Reference ID
-	RTRefDtStart   rlib.JSONTime  // Rentable Type Reference Stop Date
-	RTRefDtStop    rlib.JSONTime  // Rentable Type Reference Start Date
+	RTRefDtStart   rlib.JSONDate  // Rentable Type Reference Stop Date
+	RTRefDtStop    rlib.JSONDate  // Rentable Type Reference Start Date
 	RentableType   string         // Rentable Type Name
 	RSID           int64          // Rentable Status ID
 	RentableStatus string         // rentable status
-	RSDtStart      rlib.JSONTime  // rentable status start date
-	RSDtStop       rlib.JSONTime  // rentable status stop date
-	CurrentDate    rlib.JSONTime
+	RSDtStart      rlib.JSONDate  // rentable status start date
+	RSDtStop       rlib.JSONDate  // rentable status stop date
+	CurrentDate    rlib.JSONDate
 	AssignmentTime int64 // assignment time
 }
 
@@ -814,7 +814,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	for rows.Next() {
 		var gg RentableDetails
-		gg.CurrentDate = rlib.JSONTime(t)
+		gg.CurrentDate = rlib.JSONDate(t)
 
 		for bud, bid := range rlib.RRdb.BUDlist {
 			if bid == d.BID {
