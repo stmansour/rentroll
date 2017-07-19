@@ -358,6 +358,29 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	if len(a.Name) == 0 {
+		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	adup := rlib.GetDepositoryByName(a.BID, a.Name)
+	if a.Name == adup.Name {
+		e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	adup = rlib.GetDepositoryByLID(a.BID, a.LID)
+	if a.LID == adup.LID {
+		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname,
+			rlib.RRdb.BizTypes[a.BID].GLAccounts[a.LID].GLNumber, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.LID].Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	rlib.GetDepositoryByName(a.BID, a.Name)
+
 	if a.DEPID == 0 && d.ID == 0 {
 		// This is a new AR
 		fmt.Printf(">>>> NEW DEPOSITORY IS BEING ADDED\n")

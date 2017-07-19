@@ -398,6 +398,22 @@ func GetDepositoryByAccount(bid int64, acct string) Depository {
 	return a
 }
 
+// GetDepositoryByName reads a Depository structure based on the supplied Name id
+func GetDepositoryByName(bid int64, name string) Depository {
+	var a Depository
+	row := RRdb.Prepstmt.GetDepositoryByName.QueryRow(bid, name)
+	ReadDepository(row, &a)
+	return a
+}
+
+// GetDepositoryByLID reads a Depository structure based on the supplied LID id
+func GetDepositoryByLID(bid int64, id int64) Depository {
+	var a Depository
+	row := RRdb.Prepstmt.GetDepositoryByLID.QueryRow(bid, id)
+	ReadDepository(row, &a)
+	return a
+}
+
 // GetAllDepositories returns an array of all Depositories for the supplied business
 func GetAllDepositories(bid int64) []Depository {
 	var t []Depository

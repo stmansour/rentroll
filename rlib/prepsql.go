@@ -285,6 +285,10 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetDepositoryByAccount, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Depository WHERE BID=? AND AccountNo=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetDepositoryByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Depository WHERE BID=? AND Name=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetDepositoryByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Depository WHERE BID=? AND LID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllDepositories, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Depository WHERE BID=?")
 	Errcheck(err)
 

@@ -332,10 +332,22 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
+	if len(a.Name) == 0 {
+		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	var adup rlib.PaymentType
+	rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
+	if a.Name == adup.Name {
+		e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
 
 	if a.PMTID == 0 && d.ID == 0 {
 		// This is a new AR
-		fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
 		err = rlib.InsertPaymentType(&a)
 	} else {
 		// update existing record
@@ -344,41 +356,13 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving payment type (PMTID=%d\n: %s", funcname, a.PMTID, err.Error())
+		e := fmt.Errorf("%s: Error saving Payment Type : %s", funcname, a.Name)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	SvcWriteSuccessResponse(w)
 }
-
-// // paymentTypeUpdate unmarshals the supplied string. If Recid > 0 it updates the
-// // PaymentType record using Recid as the PMTID.  If Recid == 0, then it inserts a
-// // new PaymentType record.
-// func paymentTypeUpdate(s string, d *ServiceData) error {
-// 	b := []byte(s)
-// 	var rec PaymentTypeGrid
-// 	if err := json.Unmarshal(b, &rec); err != nil { // first parse to determine the record ID we need to load
-// 		return err
-// 	}
-// 	var pt rlib.PaymentType
-// 	if rec.Recid > 0 { // is this an update?
-// 		rlib.GetPaymentType(rec.Recid, &pt)            // now load that record...
-// 		if err := json.Unmarshal(b, &pt); err != nil { // merge in the changes...
-// 			return err
-// 		}
-// 		return rlib.UpdatePaymentType(&pt) // and save the result
-// 	}
-// 	// no, it is a new table entry that has not been saved...
-// 	var a rlib.PaymentType
-// 	if err := json.Unmarshal(b, &a); err != nil { // merge in the changes...
-// 		return err
-// 	}
-// 	a.BID = d.BID
-// 	fmt.Printf("a = %#v\n", a)
-// 	fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
-// 	return rlib.InsertPaymentType(&a)
-// }
 
 // GetPaymentType returns the requested assessment
 // wsdoc {

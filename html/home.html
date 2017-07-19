@@ -1411,7 +1411,7 @@ function buildPageElements() {
                         tgrid.reload();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Payment failed.");
+                        console.log("Delete Account failed.");
                     });
                 })
                 .no(function() {
@@ -4721,6 +4721,9 @@ function buildPageElements() {
                         break;
                 }
             }
+        },
+        onError: function(event) {
+            console.log(event);
         },
         actions: {
             save: function() {
