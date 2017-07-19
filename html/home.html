@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/html/fa/css/font-awesome.min.css">
     <link rel="stylesheet" href="/html/rentroll.css">
     <!-- <script src="/js/rutil.js"></script> -->
-    <script src="/js/bundle.js"></script>
+    <script src="/js/bundle.min.js"></script>
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
 <body>
@@ -4231,10 +4231,10 @@ function buildPageElements() {
 
                 // var form = w2ui.asmInstForm;
                 var form = app.AsmtModeCallerForm;
-                var params = {  
-                    cmd:         'delete', 
-                    formname:    form.name, 
-                    ASMID:       form.record.ASMID, 
+                var params = {
+                    cmd:         'delete',
+                    formname:    form.name,
+                    ASMID:       form.record.ASMID,
                     ReverseMode: w2ui.reverseMode.record.ReverseMode.id,
                 };
                 var dat = JSON.stringify(params);

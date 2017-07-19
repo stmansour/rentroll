@@ -47,5 +47,5 @@ QUnit.test('number_format', function(assert){
     assert.ok(number_format(67000, 5, ',', '.') == "67.000,00000", "67000, 5, ',', '.'");
     assert.ok(number_format(0.9, 0) == "1", "0.9, 0");
     assert.ok(number_format('1.20', 4) == "1.2000", "'1.20', 4");
-    assert.ok(number_format('1.2000', 3) == "1.200");
+    assert.ok(number_format('1.2000', 3) == "1.200", "'1.2000', 3");
 });

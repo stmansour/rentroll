@@ -46,18 +46,7 @@ module.exports = function(grunt) {
     },
 
     qunit: {
-		options: {
-			"--web-security": "no",
-			// coverage: {
-			// 	src: [ '<%= distInput %>' ],
-			// 	instrumentedFiles: "temp/",
-			// 	htmlReport: "report/coverage",
-			// 	lcovReport: "report/lcov",
-			// 	linesThresholdPct: 10
-			// }
-		},
-		files: ["js/tests/*.html"]
-        // all: ["js/tests/*.html"]
+        all: ["js/tests/*.html"]
     },
 
     // clean the bundle file
@@ -91,13 +80,12 @@ module.exports = function(grunt) {
   // LOAD GRUNT PLUGINS ========================================================
   // ===========================================================================
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks("grunt-coveralls");
-  // grunt.loadNpmTasks('grunt-contrib-qunit');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks("grunt-qunit-istanbul");
+  grunt.loadNpmTasks('grunt-coveralls');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-qunit');
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-qunit-junit');
 
 
@@ -109,9 +97,3 @@ module.exports = function(grunt) {
   grunt.registerTask('dev', ['watch']);
 
 };
-
-// https://github.com/npm/npm/issues/10013
-// https://github.com/gruntjs/grunt-contrib-uglify
-// https://github.com/gruntjs/grunt-contrib-concat
-
-//istanbul issue: https://github.com/gruntjs/grunt-contrib-qunit/issues/139
