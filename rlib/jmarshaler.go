@@ -49,6 +49,46 @@ func (t *JSONDate) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// JSONDateTime is a wrapper around time.Time. We need it
+// in order to be able to control the formatting used
+// on the DATETIME values sent to the w2ui controls.  Without
+// this wrapper, the default time format used by the
+// JSON encoder / decoder does not work with the w2ui
+// controls
+type JSONDateTime time.Time
+
+// MarshalJSON overrides the default time.Time handler and sends
+// date strings of the form YYYY-MM-DD. Any date prior to Jan 1, 1900
+// is snapped to Jan 1, 1900.
+//--------------------------------------------------------------------
+func (t *JSONDateTime) MarshalJSON() ([]byte, error) {
+	ts := time.Time(*t)
+	if ts.Before(earliestDate) {
+		ts = earliestDate
+	}
+	val := fmt.Sprintf("\"%s\"", ts.Format(RRDATETIMEFMT))
+	return []byte(val), nil
+}
+
+// UnmarshalJSON overrides the default time.Time handler and reads in
+// date strings of the form YYYY-MM-DD.  Any date prior to Jan 1, 1900
+// is snapped to Jan 1, 1900.
+//--------------------------------------------------------------------
+func (t *JSONDateTime) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	s = Stripchars(s, "\"")
+	// x, err := time.Parse("2006-01-02", s)
+	x, err := StringToDate(s)
+	if err != nil {
+		return err
+	}
+	if x.Before(earliestDate) {
+		x = earliestDate
+	}
+	*t = JSONDateTime(x)
+	return nil
+}
+
 // UnmarshalJSON a string to a W2uiHTMLSelect struct.  The data can come in
 // two different forms.
 //
