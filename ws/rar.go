@@ -21,8 +21,8 @@ type RAR struct {
 	RID          int64         // the Rentable
 	RentableName string        // name of RID
 	ContractRent float64       // the rent
-	RARDtStart   rlib.JSONTime // start date/time for this Rentable
-	RARDtStop    rlib.JSONTime // stop date/time
+	RARDtStart   rlib.JSONDate // start date/time for this Rentable
+	RARDtStop    rlib.JSONDate // stop date/time
 }
 
 // RARList is the struct containing the JSON return values for this web service
@@ -40,8 +40,8 @@ type RARentableFormSave struct {
 	BUI          string        // in this case we could get an BID or a BUD
 	RentableName string        // name of RID
 	ContractRent float64       // the rent
-	RARDtStart   rlib.JSONTime // start date/time for this Payor
-	RARDtStop    rlib.JSONTime // stop date/time
+	RARDtStart   rlib.JSONDate // start date/time for this Payor
+	RARDtStop    rlib.JSONDate // stop date/time
 }
 
 // SaveRARentableInput is the input data format for a Save command

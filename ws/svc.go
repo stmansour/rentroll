@@ -49,7 +49,7 @@ type ColSort struct {
 }
 
 // WebGridSearchRequestJSON is a struct suitable for describing a webservice operation.
-// It is the wire format data. It will be merged into another object where JSONTime values
+// It is the wire format data. It will be merged into another object where JSONDate values
 // are converted to time.Time
 type WebGridSearchRequestJSON struct {
 	Cmd           string        `json:"cmd"`           // get, save, delete
@@ -59,8 +59,8 @@ type WebGridSearchRequestJSON struct {
 	SearchLogic   string        `json:"searchLogic"`   // OR | AND
 	Search        []GenSearch   `json:"search"`        // what fields and what values
 	Sort          []ColSort     `json:"sort"`          // sort criteria
-	SearchDtStart rlib.JSONTime `json:"searchDtStart"` // for time-sensitive searches
-	SearchDtStop  rlib.JSONTime `json:"searchDtStop"`  // for time-sensitive searches
+	SearchDtStart rlib.JSONDate `json:"searchDtStart"` // for time-sensitive searches
+	SearchDtStop  rlib.JSONDate `json:"searchDtStop"`  // for time-sensitive searches
 }
 
 // WebGridSearchRequest is a struct suitable for describing a webservice operation.

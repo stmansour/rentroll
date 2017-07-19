@@ -10,6 +10,7 @@
 // > "javascript is awesome !?"
 // ---------------------------------------------------------------------------------
 String.prototype.format = function() {
+    "use strict";
     var args = arguments;
     return this.replace(/{(\d+)}/g, function(match, number) {
         return typeof args[number] != 'undefined'? args[number] : match;
@@ -172,7 +173,7 @@ function setToForm(sform, url, width, doRequest) {
             $(f.box).find("div.w2ui-form-box").height(h);*/
         }
         w2ui.toplayout.show('right', true);
-    }
+    };
 
     if (doRequest) {
         f.request(function(event) {
@@ -526,7 +527,7 @@ function rentalAgrFinderRender(item) {
 
     // we need to get the rentables associated with item.RAID
     var url = '/v1/rar/' + app.RentalAgrFinder.BID + '/' + item.RAID;
-    $.get(url,function(data,status) {
+    $.get(url,function(data/*,status*/) {
         app.RentalAgrFinder.RAR = JSON.parse(data);
         app.RentalAgrFinder.RARentablesNames = [];
         for (var i = 0; i < app.RentalAgrFinder.RAR.records.length; i++) {
@@ -1239,7 +1240,7 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
         header = form_header;
 
     if (id === undefined) {
-        console.log("given id_name does not exist in form's record")
+        console.log("given id_name does not exist in form's record");
         return false;
     }
 

@@ -28,14 +28,14 @@ type SearchAllocFundsResponse struct {
 // UnpaidAsm unpaid assessments of a payor
 type UnpaidAsm struct {
 	Recid      int              `json:"recid"`
-	DtStart    rlib.JSONTime    `json:"Date"`
+	DtStart    rlib.JSONDate    `json:"Date"`
 	ASMID      int64            `json:"ASMID"`
 	ARID       int64            `json:"ARID"`
 	Name       string           `json:"Assessment"`
 	Amount     float64          `json:"Amount"`
 	AmountPaid float64          `json:"AmountPaid"`
 	AmountOwed float64          `json:"AmountOwed"`
-	Dt         rlib.JSONTime    `json:"Dt"`
+	Dt         rlib.JSONDate    `json:"Dt"`
 	Allocate   rlib.NullFloat64 `json:"Allocate"`
 }
 
@@ -44,7 +44,7 @@ type PayorUnpaidAsmsResponse struct {
 	Status  string      `json:"status"`
 	Total   int64       `json:"total"`
 	Records []UnpaidAsm `json:"records"`
-	// Time    rlib.JSONTime `json:"time"`
+	// Time    rlib.JSONDate `json:"time"`
 }
 
 // PayorFund is used to get total unallocated fund for a payor
@@ -60,7 +60,7 @@ type PayorFundResponse struct {
 
 // AllocFundSaveRequest used to allocate fund to unpaid assessments
 type AllocFundSaveRequest struct {
-	// Time    rlib.JSONTime `json:"time"`
+	// Time    rlib.JSONDate `json:"time"`
 	TCID    int64
 	BID     int64
 	Records []UnpaidAsm `json:"records"`
@@ -306,13 +306,13 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 	TCID := d.ID
 	dt := time.Now()
-	// res.Time = rlib.JSONTime(dt) // let's keep it here as of now
+	// res.Time = rlib.JSONDate(dt) // let's keep it here as of now
 	m := bizlogic.GetAllUnpaidAssessmentsForPayor(d.BID, TCID, &dt)
 
 	for i, asm := range m {
 		var rec UnpaidAsm
 		rec.Recid = i
-		rec.DtStart = rlib.JSONTime(asm.Start)
+		rec.DtStart = rlib.JSONDate(asm.Start)
 		rec.Amount = asm.Amount
 		rec.AmountOwed = bizlogic.AssessmentUnpaidPortion(&m[i])
 		rec.AmountPaid = rec.Amount - rec.AmountOwed
@@ -325,7 +325,7 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 		rec.Name = ar.Name
 		rec.ASMID = asm.ASMID
 		rec.ARID = asm.ARID
-		rec.Dt = rlib.JSONTime(time.Now())
+		rec.Dt = rlib.JSONDate(time.Now())
 		res.Records = append(res.Records, rec)
 		res.Total++
 	}

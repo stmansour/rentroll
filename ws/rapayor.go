@@ -19,8 +19,8 @@ type RAPayor struct {
 	LastName     string        // person name
 	RID          int64         // Rentable ID
 	RentableName string        // rentable name
-	DtStart      rlib.JSONTime // start date/time for this Rentable
-	DtStop       rlib.JSONTime // stop date/time
+	DtStart      rlib.JSONDate // start date/time for this Rentable
+	DtStop       rlib.JSONDate // stop date/time
 	IsCompany    int
 	CompanyName  string
 }
@@ -35,8 +35,8 @@ type RAPayorFormSave struct {
 	LastName     string        // person name
 	RID          int64         // Rentable ID
 	RentableName string        // rentable name
-	DtStart      rlib.JSONTime // start date/time for this Rentable
-	DtStop       rlib.JSONTime // stop date/time
+	DtStart      rlib.JSONDate // start date/time for this Rentable
+	DtStop       rlib.JSONDate // stop date/time
 }
 
 // RAPayorResponse is the struct containing the JSON return values for this web service
@@ -66,8 +66,8 @@ type DeleteRAPayor struct {
 	Selected []int64 `json:"selected"` // this will contain the RAPIDs of the payors to delete
 	Limit    int     `json:"limit"`
 	Offset   int     `json:"offset"`
-	DtStart  rlib.JSONTime
-	DtStop   rlib.JSONTime
+	DtStart  rlib.JSONDate
+	DtStop   rlib.JSONDate
 }
 
 // RARPostCmd is the input data format for a Save command
