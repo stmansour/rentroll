@@ -5082,7 +5082,7 @@ function buildPageElements() {
             { field: 'LID', type: 'list', required: true, options: { items: [], selected: {}, maxDropHeight: 200 }, html: { page: 0, column: 0 } },
             { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
             { field: 'AccountNo', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
         ],
         toolbar: {
@@ -5106,35 +5106,16 @@ function buildPageElements() {
         },
         actions: {
             save: function (/*target, data*/) {
-                var tgrid = w2ui.depGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                var f = this,
+                    tgrid = w2ui.depGrid;
 
-                // this.save({}, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     tgrid.reload();
-                // });
-                // TODO: need to figure out why save is not working here?
-
-                var params = {cmd: 'save', formname: this.name, record: this.record };
-                var dat = JSON.stringify(params);
-
-                // save Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
-                })
-                .fail(function(/*data*/){
-                    console.log("Save Depository failed.");
+                    tgrid.render();
                 });
             },
             delete: function(/*target, data*/) {
@@ -5198,6 +5179,10 @@ function buildPageElements() {
                 $(w2ui.toplayout.get("right").content.box).height(h);
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
         },
     });
 
