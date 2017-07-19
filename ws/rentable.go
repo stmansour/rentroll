@@ -27,7 +27,7 @@ type RentableForm struct {
 	Recid        int64 `json:"recid"` // this is to support the w2ui form
 	RID          int64
 	RentableName string
-	LastModTime  rlib.JSONDate
+	LastModTime  rlib.JSONDateTime
 	LastModBy    int64
 }
 
@@ -52,7 +52,7 @@ type PrRentableOther struct {
 	RentalAgreementStart rlib.NullTime
 	RentalAgreementStop  rlib.NullTime
 	// AssignmentTime       rlib.XJSONAssignmentTime
-	LastModTime rlib.JSONDate
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 

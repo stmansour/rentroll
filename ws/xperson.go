@@ -68,7 +68,7 @@ type RPerson struct {
 	TaxpayorID                string
 	AccountRep                int64
 	EligibleFuturePayor       rlib.XJSONYesNo
-	LastModTime               rlib.JSONDate
+	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
 }
 
@@ -125,7 +125,7 @@ type RPersonForm struct {
 	CreditLimit               float64
 	TaxpayorID                string
 	AccountRep                int64
-	LastModTime               rlib.JSONDate
+	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
 }
 

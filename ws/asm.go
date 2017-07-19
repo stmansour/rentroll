@@ -30,7 +30,7 @@ type AssessmentSendForm struct {
 	InvoiceNo      int64
 	ARID           int64
 	Comment        string
-	LastModTime    rlib.JSONDate
+	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64
@@ -56,7 +56,7 @@ type AssessmentSaveForm struct {
 	InvoiceNo      int64
 	Comment        string
 	ReverseMode    int // if this a Reversal (delete), then 0 = this instance only, 1 = this and future instances, 2 = all instances
-	LastModTime    rlib.JSONDate
+	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64

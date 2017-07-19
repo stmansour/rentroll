@@ -28,7 +28,7 @@ type ARSendForm struct {
 	raRequired       int
 	PriorToRAStart   bool // is it ok to charge prior to RA start
 	PriorToRAStop    bool // is it ok to charge after RA stop
-	LastModTime      rlib.JSONDate
+	LastModTime      rlib.JSONDateTime
 	LastModBy        int64
 }
 
@@ -48,7 +48,7 @@ type ARSaveForm struct {
 	DtStop         rlib.JSONDate
 	PriorToRAStart bool // is it ok to charge prior to RA start
 	PriorToRAStop  bool // is it ok to charge after RA stop
-	LastModTime    rlib.JSONDate
+	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 }
 

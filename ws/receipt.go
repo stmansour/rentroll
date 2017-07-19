@@ -29,7 +29,7 @@ type ReceiptSendForm struct {
 	ARID           int64
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
-	LastModTime    rlib.JSONDate
+	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	//AcctRule       string
 	FLAGS uint64
@@ -57,7 +57,7 @@ type ReceiptSaveForm struct {
 	TCID           int64  // TCID of payor
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
-	LastModTime    rlib.JSONDate
+	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	FLAGS          uint64
 	// AcctRule       string
