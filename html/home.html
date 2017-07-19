@@ -3255,6 +3255,7 @@ function buildPageElements() {
                                 Amount: 0,
                                 Comment: '',
                                 OtherPayorName: '',
+                                FLAGS: 0,
                             };
                             w2ui.receiptForm.fields[0].options.items = pmt_options;
                             w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
@@ -3385,7 +3386,7 @@ function buildPageElements() {
             { field: 'Amount',         type: 'money', required: true },
             { field: 'Comment',        type: 'text',  required: false },
             { field: 'OtherPayorName', type: 'text',  required: false },
-            { field: 'FLAGS',     type: 'w2int', required: false },
+            { field: 'FLAGS',          type: 'w2int', required: false },
         ],
         toolbar: {
             items: [
@@ -4180,6 +4181,9 @@ function buildPageElements() {
                 }
             },
         },
+        onError: function(event) {
+            console.log('onError handler called. event - '+event);
+        },
         actions: {
             save: function () {
                 //var obj = this;
@@ -4224,9 +4228,6 @@ function buildPageElements() {
                     console.log('Error getting /v1/asm/' + x.value + '/' + r.PASMID);
                  });
             };
-        },
-        onError: function(event) {
-            console.log('onError handler called. event - '+event);
         },
         onRefresh: function(event) {
             event.onComplete = function() {
