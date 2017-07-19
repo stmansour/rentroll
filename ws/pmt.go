@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // PaymentTypeGrid contains the data from PaymentType that is targeted to the UI Grid that displays
@@ -20,7 +19,7 @@ type PaymentTypeGrid struct {
 	BUD         rlib.XJSONBud
 	Name        string
 	Description string
-	LastModTime time.Time
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 
@@ -38,7 +37,7 @@ type PaymentTypeSaveForm struct {
 	BID         int64
 	Name        string
 	Description string
-	LastModTime time.Time
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 

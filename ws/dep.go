@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // DepositoryGrid contains the data from Depository that is targeted to the UI Grid that displays
@@ -23,7 +22,7 @@ type DepositoryGrid struct {
 	AccountNo   string
 	LdgrName    string
 	GLNumber    string
-	LastModTime time.Time
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 
@@ -44,7 +43,7 @@ type DepositorySaveForm struct {
 	AccountNo   string
 	LdgrName    string
 	GLNumber    string
-	LastModTime time.Time
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 

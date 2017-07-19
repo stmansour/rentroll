@@ -32,24 +32,24 @@ type AccountListResponse struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	Recid          int       `json:"recid"` // this is for the grid widget
-	LID            int64     // unique id for this GLAccount
-	PLID           int64     // unique id of Parent, 0 if no parent
-	BID            int64     // Business unit associated with this GLAccount
-	RAID           int64     // associated rental agreement, this field is only used when Type = 1
-	TCID           int64     // associated payor, this field is only used when Type = 1
-	GLNumber       string    // acct system name
-	Status         int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	Type           int64     // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
-	Name           string    // descriptive name for the GLAccount
-	AcctType       string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-	RAAssociated   int64     // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
-	AllowPost      int64     // 0 = no posting, 1 = posting is allowed
-	RARequired     int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-	ManageToBudget int64     // 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
-	Description    string    // description for this account
-	LastModTime    time.Time // auto updated
-	LastModBy      int64     // user making the mod
+	Recid          int               `json:"recid"` // this is for the grid widget
+	LID            int64             // unique id for this GLAccount
+	PLID           int64             // unique id of Parent, 0 if no parent
+	BID            int64             // Business unit associated with this GLAccount
+	RAID           int64             // associated rental agreement, this field is only used when Type = 1
+	TCID           int64             // associated payor, this field is only used when Type = 1
+	GLNumber       string            // acct system name
+	Status         int64             // Whether a GL Account is currently unknown=0, inactive=1, active=2
+	Type           int64             // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Name           string            // descriptive name for the GLAccount
+	AcctType       string            // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
+	RAAssociated   int64             // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
+	AllowPost      int64             // 0 = no posting, 1 = posting is allowed
+	RARequired     int64             // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+	ManageToBudget int64             // 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
+	Description    string            // description for this account
+	LastModTime    rlib.JSONDateTime // auto updated
+	LastModBy      int64             // user making the mod
 	// W2UIChild      w2uiChild `json:"w2ui"`
 }
 
