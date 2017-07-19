@@ -9,7 +9,6 @@ js:
 	@echo "*** Webpack done ***"
 
 clean:
-	@rm -f bundle*
 	@echo "*** Clean js ***"
 
 test:
