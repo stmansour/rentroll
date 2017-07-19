@@ -1,9 +1,12 @@
 package bizlogic
 
 import (
+	"log"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+
+	"github.com/kardianos/osext"
 )
 
 // BizError is the basic structure containing an error number and a message
@@ -26,7 +29,12 @@ const (
 
 // InitBizLogic loads the error messages needed for validation errors
 func InitBizLogic() {
-	t := rlib.LoadCSV("bizerr.csv")
+	folderPath, err := osext.ExecutableFolder()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fname := folderPath + "/bizerr.csv"
+	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
 		n := strings.TrimSpace(t[i][0])
 		if len(n) < 0 {

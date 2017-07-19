@@ -339,8 +339,8 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	adup = rlib.GetDepositoryByLID(a.BID, a.LID)
 	if a.LID == adup.LID {
-		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname,
-			rlib.RRdb.BizTypes[a.BID].GLAccounts[a.LID].GLNumber, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.LID].Name)
+		l := rlib.GetLedger(a.LID)
+		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
@@ -365,38 +365,6 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	SvcWriteSuccessResponse(w)
 }
-
-// // depositoryUpdate unmarshals the supplied string. If Recid > 0 it updates the
-// // Depository record using Recid as the DEPID.  If Recid == 0, then it inserts a
-// // new Depository record.
-// func depositoryUpdate(s string, d *ServiceData) error {
-// 	var err error
-// 	b := []byte(s)
-// 	var rec DepositoryGrid
-// 	if err = json.Unmarshal(b, &rec); err != nil { // first parse to determine the record ID we need to load
-// 		return err
-// 	}
-// 	if rec.Recid > 0 { // is this an update?
-// 		pt, err := rlib.GetDepository(rec.Recid) // now load that record...
-// 		if err != nil {
-// 			return err
-// 		}
-// 		if err = json.Unmarshal(b, &pt); err != nil { // merge in the changes...
-// 			return err
-// 		}
-// 		return rlib.UpdateDepository(&pt) // and save the result
-// 	}
-// 	// no, it is a new table entry that has not been saved...
-// 	var a rlib.Depository
-// 	if err := json.Unmarshal(b, &a); err != nil { // merge in the changes...
-// 		return err
-// 	}
-// 	a.BID = d.BID
-// 	fmt.Printf("a = %#v\n", a)
-// 	fmt.Printf(">>>> NEW DEPOSITORY IS BEING ADDED\n")
-// 	_, err = rlib.InsertDepository(&a)
-// 	return err
-// }
 
 // GetDepository returns the requested assessment
 // wsdoc {
