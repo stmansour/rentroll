@@ -59,6 +59,7 @@ type AssessmentSaveForm struct {
 	LastModTime    rlib.JSONTime
 	LastModBy      int64
 	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
+	FLAGS          uint64
 	Mode           int // 0 = this instance only, 1 = this and future, 2 = all
 }
 
@@ -415,7 +416,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")
 	}
 	if err != nil {
-		e := fmt.Errorf("Error saving assessment (ASMID=%d: %s", d.ASMID, err.Error())
+		e := fmt.Errorf("Error saving assessment (ASMID=%d): %s", d.ASMID, err.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}

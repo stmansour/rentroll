@@ -30,6 +30,10 @@ import (
 //    err = any error that was encountered.
 //-------------------------------------------------------------------------------
 func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
+	if rnew.FLAGS&0x4 != 0 {
+		return fmt.Errorf("This item cannot be edited, it has been reversed") // it's already reversed
+	}
+
 	errlist := ValidateReceipt(rnew)
 	if errlist != nil {
 		return BizErrorListToError(errlist)

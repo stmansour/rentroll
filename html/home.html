@@ -4225,6 +4225,9 @@ function buildPageElements() {
                  });
             };
         },
+        onError: function(event) {
+            console.log('onError handler called. event - '+event);
+        },
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,

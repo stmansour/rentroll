@@ -21,8 +21,13 @@ func UpdateAssessment(anew *rlib.Assessment, mode int, dt *time.Time, exp int) [
 	var err error
 	var errlist []BizError
 
-	// fmt.Printf("Entered bizlogic.UpdateAssessment:  anew.ASMID = %d, mode = %d, dt = %s, exp = %t\n", anew.ASMID, mode, dt.Format(rlib.RRDATEREPORTFMT), exp)
+	fmt.Printf("Entered bizlogic.UpdateAssessment:  anew.ASMID = %d, mode = %d, dt = %s, exp = %d\n", anew.ASMID, mode, dt.Format(rlib.RRDATEREPORTFMT), exp)
+	fmt.Printf("anew.FLAGS = %X\n", anew.FLAGS)
 
+	if anew.FLAGS&0x4 != 0 {
+		errlist = append(errlist, BizErrors[EditReversal])
+		return errlist
+	}
 	//-------------------------------
 	// Load existing assessment...
 	//-------------------------------
