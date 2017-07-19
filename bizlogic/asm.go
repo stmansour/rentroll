@@ -17,9 +17,27 @@ import (
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func UpdateAssessment(a *rlib.Assessment) []BizError {
+func UpdateAssessment(anew *rlib.Assessment, mode int, dt *time.Time, exp int) []BizError {
+	var err error
+	var errlist []BizError
 
-	// Assessments need to be backed out if any of the following change:
+	// fmt.Printf("Entered bizlogic.UpdateAssessment:  anew.ASMID = %d, mode = %d, dt = %s, exp = %t\n", anew.ASMID, mode, dt.Format(rlib.RRDATEREPORTFMT), exp)
+
+	//-------------------------------
+	// Load existing assessment...
+	//-------------------------------
+	aold, err := rlib.GetAssessment(anew.ASMID)
+	if err != nil {
+		return bizErrSys(&err)
+
+	}
+	if aold.ASMID == 0 {
+		err = fmt.Errorf("Assessment %d not found", anew.ASMID)
+		return bizErrSys(&err)
+	}
+
+	//---------------------------------------------------------------------------------
+	// we need to reverse the old assessment if any of the following fields have changed:
 	//   ARID
 	//   RAID
 	//   RID
@@ -28,7 +46,30 @@ func UpdateAssessment(a *rlib.Assessment) []BizError {
 	//   Proration Cycle
 	//   Start Date
 	//   Stop Date if it moves backwards in time
+	//---------------------------------------------------------------------------------
+	reverse := aold.ARID != anew.ARID ||
+		aold.RAID != anew.RAID ||
+		aold.RID != anew.RID ||
+		aold.Amount != anew.Amount ||
+		aold.RentCycle != anew.RentCycle ||
+		aold.ProrationCycle != anew.ProrationCycle ||
+		(!aold.Start.Equal(anew.Start)) ||
+		(!aold.Stop.Equal(anew.Stop))
+	if reverse {
+		errlist = ReverseAssessment(&aold, mode, dt) // reverse the assessment itself
+		if errlist != nil {
+			return errlist
+		}
+		errlist = InsertAssessment(anew, exp) // Finally, insert the new assessment...
+		if err != nil {
+			return errlist
+		}
+	}
 
+	err = rlib.UpdateAssessment(anew) // reversal not needed, just update the assessment
+	if err != nil {
+		return bizErrSys(&err)
+	}
 	return nil
 }
 
@@ -48,6 +89,9 @@ func ReverseAssessment(aold *rlib.Assessment, mode int, dt *time.Time) []BizErro
 	funcname := "bizlogic.ReverseAssessment"
 	var errlist []BizError
 	fmt.Printf("Entered ReverseAssessment\n")
+	if aold.PASMID == 0 {
+		mode = 2 // force behavior on the epoch
+	}
 	switch mode {
 	case 0:
 		errlist = ReverseAssessmentInstance(aold, dt)
@@ -150,7 +194,7 @@ func ReverseAssessmentInstance(aold *rlib.Assessment, dt *time.Time) []BizError 
 	anew.FLAGS |= 0x4 // set bit 2 to mark that this assessment is void
 	anew.Comment = fmt.Sprintf("Reversal of %s", aold.IDtoString())
 
-	errlist := InsertAssessment(&anew, true)
+	errlist := InsertAssessment(&anew, 1)
 	if len(errlist) > 0 {
 		return errlist
 	}
@@ -338,7 +382,7 @@ func DeallocateAppliedFunds(a *rlib.Assessment, asmtRevID int64, dt *time.Time) 
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func InsertAssessment(a *rlib.Assessment, exp bool) []BizError {
+func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
 	var errlist []BizError
 	errlist = ValidateAssessment(a) // Make sure there are no bizlogic errors before saving
 	if len(errlist) > 0 {
@@ -358,7 +402,7 @@ func InsertAssessment(a *rlib.Assessment, exp bool) []BizError {
 	rlib.InitLedgerCache()
 	if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
 		rlib.ProcessJournalEntry(a, &xbiz, &d1, &d2, true)
-	} else if exp && a.PASMID == 0 { // only expand if we're asked and if we're not an instance
+	} else if exp != 0 && a.PASMID == 0 { // only expand if we're asked and if we're not an instance
 		now := rlib.DateAtTimeZero(time.Now())
 		dt := rlib.DateAtTimeZero(a.Start)
 		if !dt.After(now) {

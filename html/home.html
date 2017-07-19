@@ -1093,7 +1093,10 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.onComplete = function() {
-                if (event.input_id == "grid_unpaidASMsGrid_edit_0_8") {  // if the date changes, don't mess up anything else...
+                //----------------------------------------------------------------
+                // if they just changed the date, take the change and return...
+                //----------------------------------------------------------------
+                if (event.column == 8) { // if the date changes, don't mess up anything else...
                     for (var i = 0; i < w2ui.unpaidASMsGrid.records.length; i++) {
                         if ( event.recid == w2ui.unpaidASMsGrid.records[i].recid ) {
                             w2ui.unpaidASMsGrid.records[i].Dt = event.value_new;
@@ -3856,6 +3859,8 @@ function buildPageElements() {
                                 LastModTime: w2uiDateControlString(y),
                                 LastModBy: 0,
                                 ExpandPastInst: true,
+                                FLAGS: 0,
+                                Mode: 0,
                             };
                             // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
@@ -3966,26 +3971,27 @@ function buildPageElements() {
         url: '/v1/asm',
         formURL: '/html/formasmepoch.html',
         fields: [
-            { field: 'ARID',          type: 'list',   required: true, options: { items: app.Assessments }},
-            { field: 'recid',         type: 'int',    required: false },
-            { field: 'ASMID',         type: 'int',    required: false },
-            { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: true },
-            { field: 'PASMID',        type: 'w2int',  required: false },
-            { field: 'Rentable',      type: 'text',   required: false },
-            { field: 'InvoiceNo',     type: 'int',    required: false },
-            { field: 'RID',           type: 'int',    required: false },
-            { field: 'ATypeLID',      type: 'int',    required: false },
-            { field: 'RAID',          type: 'int',    required: true },
-            { field: 'Amount',        type: 'money',  required: true },
-            { field: 'Start',         type: 'date',   required: true },
-            { field: 'Stop',          type: 'date',   required: true },
-            { field: 'RentCycle',     type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'ProrationCycle',type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'Comment',       type: 'text',   required: false },
-            { field: 'LastModTime',   type: 'hidden', required: false },
-            { field: 'LastModBy',     type: 'hidden', required: false },
-            { field: 'ExpandPastInst',type: 'hidden', required: false },
-            { field: 'FLAGS',     type: 'w2int', required: false },
+            { field: 'ARID',          type: 'list',     required: true, options: { items: app.Assessments }},
+            { field: 'recid',         type: 'int',      required: false },
+            { field: 'ASMID',         type: 'int',      required: false },
+            { field: 'BID',           type: 'list',     required: true, options:  {items: app.businesses}, },
+            { field: 'PASMID',        type: 'w2int',    required: false },
+            { field: 'Rentable',      type: 'text',     required: false },
+            { field: 'InvoiceNo',     type: 'int',      required: false },
+            { field: 'RID',           type: 'int',      required: false },
+            { field: 'ATypeLID',      type: 'int',      required: false },
+            { field: 'RAID',          type: 'int',      required: true },
+            { field: 'Amount',        type: 'money',    required: true },
+            { field: 'Start',         type: 'date',     required: true },
+            { field: 'Stop',          type: 'date',     required: true },
+            { field: 'RentCycle',     type: 'list',     required: true, options:  {items: app.cycleFreq}, },
+            { field: 'ProrationCycle',type: 'list',     required: true, options:  {items: app.cycleFreq}, },
+            { field: 'Comment',       type: 'text',     required: false },
+            { field: 'LastModTime',   type: 'hidden',   required: false },
+            { field: 'LastModBy',     type: 'hidden',   required: false },
+            { field: 'ExpandPastInst',type: 'checkbox', required: false },
+            { field: 'FLAGS',         type: 'w2int',    required: false },
+            { field: 'Mode',          type: 'w2int',    required: false },
         ],
         toolbar: {
             items: [
@@ -4038,33 +4044,6 @@ function buildPageElements() {
             },
             reverse: function() {
                 popupAsmRevMode(2, w2ui.asmEpochForm);
-
-                // w2confirm(reverse_confirm_options)
-                // .yes(function() {
-                //     var tgrid = w2ui.asmsGrid;
-                //     var sel = tgrid.getSelection();
-                //     tgrid.unselect(sel);
-
-                //     var params = {cmd: 'delete', formname: form.name, ASMID: form.record.ASMID };
-                //     var dat = JSON.stringify(params);
-
-                //     // reverse Depository request
-                //     $.post(form.url, dat)
-                //     .done(function(data) {
-                //         if (data.status != "success") {
-                //             return;
-                //         }
-                //         w2ui.toplayout.hide('right',true);
-                //         w2ui.toplayout.render();
-                //         tgrid.reload();
-                //     })
-                //     .fail(function(/*data*/){
-                //         console.log("Delete Assessment epoch failed.");
-                //     });
-                // })
-                // .no(function() {
-                //     return;
-                // });
             },
         },
         onRefresh: function(event) {
@@ -4179,7 +4158,8 @@ function buildPageElements() {
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
-            { field: 'FLAGS',     type: 'w2int', required: false },
+            { field: 'FLAGS',         type: 'w2int',  required: false },
+            { field: 'Mode',          type: 'w2int',  required: false },
         ],
         toolbar: {
             items: [
