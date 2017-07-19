@@ -42,8 +42,6 @@ sidebarL1     - w2ui sidebar
 /*globals $:false */
 "use strict";
 
-var FormFLAGReportCSS = "background-color: #d0e9c6; padding: 8px 12px; border-radius: 4px; margin: 10px 0px;text-align: left; bottom: 0; position: absolute; width: 94%;";
-
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
@@ -3126,6 +3124,17 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
+            {field: 'reversed', size: '10px', style: 'text-align: center', sortable: true,
+                    render: function (record /*, index, col_index*/) {
+                        if (typeof record === "undefined") {
+                            return;
+                        }
+                        if ( (record.FLAGS & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                            return '<i class="fa fa-exclamation-circle" aria-hidden="true" style="color: red;"></i>';
+                        }
+                        return '';
+                    },
+            },
             {field: 'RCPTID', caption: 'Receipt ID',  size: '80px', style: 'text-align: right', sortable: true},                // 1
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
             {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false}, // 3
@@ -3489,10 +3498,25 @@ function buildPageElements() {
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
+                formRefreshCallBack(f, "RCPTID", header);
+
+                // ==================================
+                // SPECIAL CASE
+                // ==================================
+                if (r.RCPTID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                }
+                // this one is a special case, where also have to take care of reverse button
                 // FLAG reports
                 var flag = r.FLAGS,
-                    flagHTML = "",
-                    reverseHide = false;
+                    flagHTML = "";
 
                 // unpaid, partial paid or fully paid
                 if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
@@ -3508,23 +3532,24 @@ function buildPageElements() {
                 // check if it is reversed or not
                 if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
-                    reverseHide = true;
+                    // reversed indication icon
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-circle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    // if reversed then do not show reverse, save, saveadd button
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    // if reversed then we need to show close button
+                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                } else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
-
-                formRefreshCallBack(f, "RCPTID", header);
-
-                // this one is a special case, where also have to take care of reverse button
-                if (reverseHide) { // if reversed then
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                }
-                else {
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                }
             };
         },
         onValidate: function (event) {
@@ -3747,6 +3772,17 @@ function buildPageElements() {
                         }
                         if (record.RentCycle !== 0 && record.PASMID === 0) {
                             return '<i class="fa fa-refresh" aria-hidden="true"></i>';
+                        }
+                        return '';
+                    },
+            },
+            {field: 'reversed', size: '10px', style: 'text-align: center', sortable: true,
+                    render: function (record /*, index, col_index*/) {
+                        if (typeof record === "undefined") {
+                            return;
+                        }
+                        if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                            return '<i class="fa fa-exclamation-circle" aria-hidden="true" style="color: red;"></i>';
                         }
                         return '';
                     },
@@ -4052,10 +4088,25 @@ function buildPageElements() {
                     r = f.record,
                     header = "Edit Assessment ({0})";
 
+                formRefreshCallBack(f, "ASMID", header);
+
+                // ===========================
+                // SPECIAL CASE
+                // ===========================
+
+                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                }
+
                 // FLAG reports
                 var flag = r.FLAGS,
-                    flagHTML = "",
-                    reverseHide = false;
+                    flagHTML = "";
 
                 // unpaid, partial paid or fully paid
                 if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
@@ -4071,24 +4122,22 @@ function buildPageElements() {
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
-                    reverseHide = true;
+                    // reversed indication icon
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-circle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    // if reversed then do not show reverse, save button
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    // if reversed then we need to show close button at the bottom of form
+                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                } else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-
-                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
-
-                formRefreshCallBack(f, "ASMID", header);
-
-                // this one is a special case, where also have to take care of reverse button
-                if (reverseHide) { // if reversed then
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                }
-                else {
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                }
             };
         },
         onChange: function(event) {
@@ -4246,10 +4295,24 @@ function buildPageElements() {
                 }
                 $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
 
+                formRefreshCallBack(f, "ASMID", header);
+
+                // ==============================
+                // SPECIAL CASE
+                // ==============================
+                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                }
+
                 // FLAG reports
                 var flag = r.FLAGS,
-                    flagHTML = "",
-                    reverseHide = false;
+                    flagHTML = "";
 
                 // unpaid, partial paid or fully paid
                 if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
@@ -4265,24 +4328,22 @@ function buildPageElements() {
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
-                    reverseHide = true;
+                    // reversed indication icon
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-circle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    // if reversed then do not show reverse, save button in form
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    // if reversed then we need to show close button at the bottom
+                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                } else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-
-                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
-
-                formRefreshCallBack(f, "ASMID", header);
-
-                // this one is a special case, where also have to take care of reverse button
-                if (reverseHide) { // if reversed then
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                }
-                else {
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                }
             };
         },
         onChange: function(event) {
@@ -4327,7 +4388,7 @@ function buildPageElements() {
                 console.log('SAVE asmsReverseMode: Mode = ' + w2ui.reverseMode.record.ReverseMode.id);
                 w2popup.close();
                 w2ui.toplayout.hide('right',true);
-                w2ui.asmsGrid.reload();
+                w2ui.asmsGrid.refresh();
 
                 // var form = w2ui.asmInstForm;
                 var form = app.AsmtModeCallerForm;

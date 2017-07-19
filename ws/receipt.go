@@ -75,6 +75,7 @@ type PrReceiptGrid struct {
 	Payor    rlib.NullString // name of the payor
 	ARID     int64           // which account rule
 	AcctRule rlib.NullString // expression showing how to account for the amount
+	FLAGS    uint64
 }
 
 // SaveReceiptInput is the input data format for a Save command
@@ -105,7 +106,7 @@ type DeleteRcptForm struct {
 
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
 func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
-	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule)
+	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS)
 	return q, err
 }
 
@@ -121,6 +122,7 @@ var receiptsFieldsMap = map[string][]string{
 	"Payor":    {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
 	"ARID":     {"Receipt.ARID"},
 	"AcctRule": {"AR.Name"},
+	"FLAGS":    {"Receipt.FLAGS"},
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -135,6 +137,7 @@ var receiptsQuerySelectFields = []string{
 	"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payor",
 	"Receipt.ARID",
 	"AR.Name",
+	"Receipt.FLAGS",
 }
 
 // SvcSearchHandlerReceipts generates a report of all Receipts defined business d.BID

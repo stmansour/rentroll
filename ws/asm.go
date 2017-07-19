@@ -88,6 +88,7 @@ type AssessmentGrid struct {
 	InvoiceNo int64           // A uniqueID for the invoice number
 	ARID      int64           // which account rule
 	AcctRule  rlib.NullString // expression showing how to account for the amount
+	FLAGS     uint64
 }
 
 // SearchAssessmentsResponse is a response string to the search request for assessments
@@ -128,7 +129,7 @@ type DeleteAsmForm struct {
 
 // assessmentGridRowScan scans a result from sql row and dump it in a AssessmentGrid struct
 func assessmentGridRowScan(rows *sql.Rows, q AssessmentGrid) (AssessmentGrid, error) {
-	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule)
+	err := rows.Scan(&q.ASMID, &q.BID, &q.PASMID, &q.RID, &q.Rentable, &q.RAID, &q.RentCycle, &q.Amount, &q.Start, &q.Stop, &q.InvoiceNo, &q.ARID, &q.AcctRule, &q.FLAGS)
 	return q, err
 }
 
@@ -147,6 +148,7 @@ var asmFieldsMap = map[string][]string{
 	"InvoiceNo":    {"Assessments.InvoiceNo"},
 	"ARID":         {"Assessments.ARID"},
 	"AcctRule":     {"AR.Name"},
+	"FLAGS":        {"Assessments.FLAGS"},
 }
 
 // which fields needs to be fetched for SQL query for assessment grid
@@ -164,6 +166,7 @@ var asmQuerySelectFields = []string{
 	"Assessments.InvoiceNo",
 	"Assessments.ARID",
 	"AR.Name",
+	"Assessments.FLAGS",
 }
 
 // SvcSearchHandlerAssessments generates a report of all Assessments defined business d.BID
