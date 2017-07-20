@@ -5255,7 +5255,8 @@ function buildPageElements() {
                         var artype_selected,
                             artype_items = [];
 
-                        Object.keys(app.ARTypes).forEach(function(artype_id){
+                        Object.keys(app.ARTypes).forEach(function(id){
+                            var artype_id = parseInt(id);
                             if (rec.ARType == artype_id) {
                                 artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
                             }
@@ -5307,9 +5308,10 @@ function buildPageElements() {
                             return;
                         }
                         else {
-                            var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
-                            var artype_items = [artype_pre_selected];
-                            Object.keys(app.ARTypes).forEach(function(artype_id){
+                            // var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
+                            var artype_items = [];
+                            Object.keys(app.ARTypes).forEach(function(id){
+                                var artype_id = parseInt(id);
                                 artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
                             });
 
@@ -5318,7 +5320,7 @@ function buildPageElements() {
                             post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
 
                             w2ui.arsForm.get('ARType').options.items = artype_items;
-                            w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
+                            // w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
                             w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
                             w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                             w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
@@ -5333,7 +5335,7 @@ function buildPageElements() {
                                 recid: 0,
                                 BID: BUD,
                                 ARID: 0,
-                                ARType: artype_pre_selected,
+                                ARType: 0,
                                 DebitLID: post_accounts_pre_selected,
                                 CreditLID: post_accounts_pre_selected,
                                 Name: '',
@@ -5371,7 +5373,8 @@ function buildPageElements() {
         fields: [
             { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'ARID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BID', type: 'list', required: true, options: { items: app.businesses }, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', required: true, options: { items: app.businesses }, html: { page: 0, column: 0 } },
             { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
             { field: 'ARType', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
             { field: 'DebitLID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
@@ -5381,6 +5384,8 @@ function buildPageElements() {
             { field: 'DtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'PriorToRAStart', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
             { field: 'PriorToRAStop', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
+            { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -5462,12 +5467,10 @@ function buildPageElements() {
             },
         },
         onSubmit: function(target, data){
-            console.log("arsForm POST data");
+            getFormSubmitData(data.postData.record);
             // object to value before submit to server
             data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
             data.postData.record.PriorToRAStop = int_to_bool(data.postData.record.PriorToRAStop);
-            delete data.postData.record.CreditLedgerName;
-            delete data.postData.record.DebitLedgerName;
             console.log(data.postData.record);
         },
         onRefresh: function(event) {

@@ -15,7 +15,8 @@ import (
 type ARSendForm struct {
 	Recid            int64 `json:"recid"` // this is to support the w2ui form
 	ARID             int64
-	BID              rlib.XJSONBud
+	BUD              rlib.XJSONBud
+	BID              int64
 	Name             string
 	ARType           int64
 	DebitLID         int64
@@ -42,22 +43,17 @@ type ARSendForm struct {
 type ARSaveForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	ARID           int64
+	BID            int64
+	BUD            rlib.XJSONBud
+	CreditLID      int64
+	DebitLID       int64
+	ARType         int64
 	Name           string
 	Description    string
 	DtStart        rlib.JSONDate
 	DtStop         rlib.JSONDate
 	PriorToRAStart bool // is it ok to charge prior to RA start
 	PriorToRAStop  bool // is it ok to charge after RA stop
-	LastModTime    rlib.JSONDateTime
-	LastModBy      int64
-}
-
-// ARSaveOther is a struct to handle the UI list box selections
-type ARSaveOther struct {
-	BID       rlib.W2uiHTMLSelect
-	CreditLID rlib.W2uiHTMLSelect
-	DebitLID  rlib.W2uiHTMLSelect
-	ARType    rlib.W2uiHTMLSelect
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -65,6 +61,7 @@ type PrARGrid struct {
 	Recid            int64 `json:"recid"` // this is to support the w2ui form
 	ARID             int64
 	BID              int64
+	BUD              rlib.XJSONBud
 	Name             string
 	ARType           int64
 	DebitLID         int64
@@ -82,14 +79,6 @@ type SaveARInput struct {
 	Recid    int64      `json:"recid"`
 	FormName string     `json:"name"`
 	Record   ARSaveForm `json:"record"`
-}
-
-// SaveAROther is the input data format for the "other" data on the Save command
-type SaveAROther struct {
-	Status string      `json:"status"`
-	Recid  int64       `json:"recid"`
-	Name   string      `json:"name"`
-	Record ARSaveOther `json:"record"`
 }
 
 // SearchARsResponse is a response string to the search request for receipts
@@ -112,14 +101,13 @@ type DeleteARForm struct {
 
 // arGridRowScan scans a result from sql row and dump it in a PrARGrid struct
 func arGridRowScan(rows *sql.Rows, q PrARGrid) (PrARGrid, error) {
-	err := rows.Scan(&q.ARID, &q.BID, &q.Name, &q.ARType, &q.DebitLID, &q.DebitLedgerName, &q.CreditLID, &q.CreditLedgerName, &q.Description, &q.DtStart, &q.DtStop)
+	err := rows.Scan(&q.ARID, &q.Name, &q.ARType, &q.DebitLID, &q.DebitLedgerName, &q.CreditLID, &q.CreditLedgerName, &q.Description, &q.DtStart, &q.DtStop)
 	return q, err
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
 var arFieldsMap = selectQueryFieldMap{
 	"ARID":             {"AR.ARID"},
-	"BID":              {"AR.BID"},
 	"Name":             {"AR.Name"},
 	"ARType":           {"AR.ARType"},
 	"DebitLID":         {"AR.DebitLID"},
@@ -134,7 +122,6 @@ var arFieldsMap = selectQueryFieldMap{
 // which fields needs to be fetched for SQL query for receipts grid
 var arQuerySelectFields = selectQueryFields{
 	"AR.ARID",
-	"AR.BID",
 	"AR.Name",
 	"AR.ARType",
 	"AR.DebitLID",
@@ -255,6 +242,8 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var q PrARGrid
 		q.Recid = i
+		q.BID = d.BID
+		q.BUD = getBUDFromBIDList(d.BID)
 
 		q, err = arGridRowScan(rows, q)
 		if err != nil {
@@ -338,7 +327,6 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveARForm"
 		foo      SaveARInput
-		bar      SaveAROther
 		a        rlib.AR
 		err      error
 	)
@@ -354,44 +342,17 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err := json.Unmarshal(data, &bar); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
-
 	// migrate foo.Record data to a struct's fields
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAR - first migrate: a = %#v\n", a)
 
 	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
+	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-
-	a.CreditLID, ok = rlib.StringToInt64(bar.Record.CreditLID.ID) // CreditLID has drop list
-	if !ok {
-		e := fmt.Errorf("%s: invalid CreditLID value: %s", funcname, bar.Record.CreditLID.ID)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
-	a.DebitLID, ok = rlib.StringToInt64(bar.Record.DebitLID.ID) // DebitLID has drop list
-	if !ok {
-		e := fmt.Errorf("%s: invalid DebitLID value: %s", funcname, bar.Record.DebitLID.ID)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
-	a.ARType, ok = rlib.StringToInt64(bar.Record.ARType.ID) // ArType has drop list
-	if !ok {
-		e := fmt.Errorf("%s: Invalid ARType value: %s", funcname, bar.Record.ARType.ID)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	fmt.Printf("saveAR - second migrate: a = %#v\n", a)
 
 	// get PriorToRAStart and PriorToRAStop values and accordingly get RARequired field value
 	formBoolMap := [2]bool{foo.Record.PriorToRAStart, foo.Record.PriorToRAStop}
@@ -434,6 +395,8 @@ var getARQuerySelectFields = selectQueryFields{
 	"AR.DtStart",
 	"AR.DtStop",
 	"AR.RARequired",
+	"AR.LastModTime",
+	"AR.LastModBy",
 }
 
 // for what RARequired value, prior and after value are
@@ -491,9 +454,10 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var gg ARSendForm
 
-		gg.BID = getBUDFromBIDList(d.BID)
+		gg.BID = d.BID
+		gg.BUD = getBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired)
+		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired, &gg.LastModTime, &gg.LastModBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
