@@ -3588,6 +3588,14 @@ function buildPageElements() {
             };
         },
         actions: {
+            close: function() {
+                var no_callBack = function() { return false; },
+                    yes_callBack = function() {
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.receiptsGrid.render();
+                    };
+                form_dirty_alert(yes_callBack, no_callBack);
+            },
             saveadd: function() {
                 var f = this,
                     grid = w2ui.receiptsGrid,
@@ -4056,6 +4064,14 @@ function buildPageElements() {
             }
         },
         actions: {
+            close: function() {
+                var no_callBack = function() { return false; },
+                    yes_callBack = function() {
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.asmsGrid.render();
+                    };
+                form_dirty_alert(yes_callBack, no_callBack);
+            },
             save: function () {
                 var x = getCurrentBusiness();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
@@ -4240,6 +4256,14 @@ function buildPageElements() {
             console.log('onError handler called. event - '+event);
         },
         actions: {
+            close: function() {
+                var no_callBack = function() { return false; },
+                    yes_callBack = function() {
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.asmsGrid.render();
+                    };
+                form_dirty_alert(yes_callBack, no_callBack);
+            },
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.asmsGrid;
