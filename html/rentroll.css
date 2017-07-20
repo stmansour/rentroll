@@ -67,3 +67,7 @@ p {
 .asmEpochRow {
     font-weight: bold;
 }
+
+.asmInstRow i.fa {
+    color: #888;
+}
