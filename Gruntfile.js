@@ -25,12 +25,9 @@ module.exports = function(grunt) {
             dest: '<%= distConcatOutput %>'
         },
     },
-    
+
     // configure jshint to validate js files -----------------------------------
     jshint: {
-      options: {
-        reporter: require('jshint-stylish')
-      },
       all: ['Grunfile.js', '<%= distInput %>']
     },
 
