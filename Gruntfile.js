@@ -33,15 +33,16 @@ module.exports = function(grunt) {
 
     qunit: {
         options: {
-			"--web-security": "no",
-			coverage: {
-				src: [ "<%= distInput %>" ],
-				instrumentedFiles: "temp/",
-				htmlReport: "js/coverage/html",
-				lcovReport: "js/coverage/lcov",
+            timeout: 30000,
+            "--web-security": "no",
+            coverage: {
+                src: [ "<%= distInput %>" ],
+                instrumentedFiles: "temp/",
+                htmlReport: "js/coverage/html",
+                lcovReport: "js/coverage/lcov",
                 coberturaReport: "js/coverage/cobertura",
-				linesThresholdPct: 0
-			}
+                linesThresholdPct: 0
+            }
         },
         all: ["js/tests/*.html"]
     },
