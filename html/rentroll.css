@@ -63,3 +63,7 @@ p {
     color: #ffa500;
     margin-top: 45%;
 }
+
+.asmEpochRow {
+    font-weight: bold;
+}
